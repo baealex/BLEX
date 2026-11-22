@@ -10,6 +10,7 @@ import { readReaderPostView, registerReaderActions } from '../src/features/engag
 import { installNotificationTables } from './fixtures/notifications.js';
 import { ReaderActions } from '../src/features/engagement/ui/index.js';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { migratedTableSql } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-reader-ui-'));
 const databasePath = join(directory, 'synthetic-reader-ui.sqlite3');
@@ -39,27 +40,13 @@ function createSchema() {
       id INTEGER PRIMARY KEY, created_date DATETIME NOT NULL, post_id INTEGER NOT NULL,
       user_id INTEGER NOT NULL, UNIQUE(post_id, user_id)
     );
-    CREATE TABLE board_comment (
-      id INTEGER PRIMARY KEY, text_md TEXT NOT NULL, text_html TEXT NOT NULL, edited BOOLEAN NOT NULL DEFAULT 0,
-      heart BOOLEAN NOT NULL DEFAULT 0, created_date DATETIME NOT NULL, author_id INTEGER,
-      post_id INTEGER NOT NULL, parent_id INTEGER
-    );
-    CREATE TABLE board_comment_likes (
-      id INTEGER PRIMARY KEY, comment_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
-      UNIQUE(comment_id, user_id)
-    );
-    CREATE TABLE board_userlinkmeta (
+    ${migratedTableSql('Comment', 'CommentLike')}
+        CREATE TABLE board_userlinkmeta (
       id INTEGER PRIMARY KEY, name TEXT NOT NULL, value TEXT NOT NULL,
       created_date DATETIME NOT NULL, updated_date DATETIME NOT NULL, user_id INTEGER NOT NULL, "order" INTEGER NOT NULL
     );
-    CREATE TABLE board_authorsubscription (
-      id INTEGER PRIMARY KEY, created_date DATETIME NOT NULL, author_id INTEGER NOT NULL,
-      subscriber_id INTEGER NOT NULL, UNIQUE(subscriber_id, author_id)
-    );
-    CREATE TABLE board_authorsubscriptionlog (
-      id INTEGER PRIMARY KEY, action TEXT NOT NULL, created_date DATETIME NOT NULL,
-      author_id INTEGER NOT NULL, subscriber_id INTEGER NOT NULL
-    );
+    ${migratedTableSql('AuthorSubscription')}
+    ${migratedTableSql('AuthorSubscriptionLog')}
 
     INSERT INTO auth_user VALUES (1, 'writer', 'Writer', 1), (2, 'reader', 'Reader', 1), (3, 'inactive', 'Inactive', 0);
     INSERT INTO board_profile VALUES
@@ -69,15 +56,17 @@ function createSchema() {
     INSERT INTO board_post VALUES (1, 'Public post', 'public-post', 1, '2026-01-01 00:00:00', NULL);
     INSERT INTO board_postconfig VALUES (1, 1, 0, 0);
     INSERT INTO board_post_likes VALUES (1, '2026-01-01 00:00:00', 1, 2);
-    INSERT INTO board_comment VALUES
-      (10, 'Parent', '<p>Parent <strong>comment</strong></p><script>unsafe()</script>', 0, 0, '2026-01-02 00:00:00', 1, 1, NULL),
-      (11, 'Reply', '<p>Reader reply</p>', 1, 0, '2026-01-03 00:00:00', 2, 1, 10),
-      (12, 'Deleted', '<p>Ignore deleted body</p>', 0, 0, '2026-01-04 00:00:00', NULL, 1, NULL);
-    INSERT INTO board_comment_likes VALUES (1, 10, 2);
+    INSERT INTO "Comment" ("id", "markdown", "html", "isEdited", "isHearted", "createdAt", "authorId", "postId", "parentId") VALUES
+    (10, 'Parent', '<p>Parent <strong>comment</strong></p><script>unsafe()</script>', 0, 0, 1767312000000, 1, 1, NULL),
+    (11, 'Reply', '<p>Reader reply</p>', 1, 0, 1767398400000, 2, 1, 10),
+    (12, 'Deleted', '<p>Ignore deleted body</p>', 0, 0, 1767484800000, NULL, 1, NULL);
+    INSERT INTO "CommentLike" ("commentId", "userId") VALUES
+    (10, 2);
     INSERT INTO board_userlinkmeta VALUES
       (1, 'github', 'https://github.com/writer', '2026-01-01 00:00:00', '2026-01-01 00:00:00', 1, 1),
       (2, 'unsafe', 'javascript:alert(1)', '2026-01-01 00:00:00', '2026-01-01 00:00:00', 1, 2);
-    INSERT INTO board_authorsubscription VALUES (1, '2026-01-01 00:00:00', 1, 2);
+    INSERT INTO "AuthorSubscription" ("id", "createdAt", "authorId", "subscriberId") VALUES
+    (1, 1767225600000, 1, 2);
   `);
   installNotificationTables(fixture);
   fixture.close();
@@ -86,11 +75,11 @@ function createSchema() {
 function seed() {
   const fixture = new DatabaseSync(databasePath);
   fixture.exec(`
-    DELETE FROM board_authorsubscriptionlog;
-    DELETE FROM board_authorsubscription;
+    DELETE FROM "AuthorSubscriptionLog";
+    DELETE FROM "AuthorSubscription";
     DELETE FROM board_userlinkmeta;
-    DELETE FROM board_comment_likes;
-    DELETE FROM board_comment;
+    DELETE FROM "CommentLike";
+    DELETE FROM "Comment";
     DELETE FROM board_post_likes;
     DELETE FROM board_postconfig;
     DELETE FROM board_post;
@@ -104,15 +93,17 @@ function seed() {
     INSERT INTO board_post VALUES (1, 'Public post', 'public-post', 1, '2026-01-01 00:00:00', NULL);
     INSERT INTO board_postconfig VALUES (1, 1, 0, 0);
     INSERT INTO board_post_likes VALUES (1, '2026-01-01 00:00:00', 1, 2);
-    INSERT INTO board_comment VALUES
-      (10, 'Parent', '<p>Parent <strong>comment</strong></p><script>unsafe()</script>', 0, 0, '2026-01-02 00:00:00', 1, 1, NULL),
-      (11, 'Reply', '<p>Reader reply</p>', 1, 0, '2026-01-03 00:00:00', 2, 1, 10),
-      (12, 'Deleted', '<p>Ignore deleted body</p>', 0, 0, '2026-01-04 00:00:00', NULL, 1, NULL);
-    INSERT INTO board_comment_likes VALUES (1, 10, 2);
+    INSERT INTO "Comment" ("id", "markdown", "html", "isEdited", "isHearted", "createdAt", "authorId", "postId", "parentId") VALUES
+    (10, 'Parent', '<p>Parent <strong>comment</strong></p><script>unsafe()</script>', 0, 0, 1767312000000, 1, 1, NULL),
+    (11, 'Reply', '<p>Reader reply</p>', 1, 0, 1767398400000, 2, 1, 10),
+    (12, 'Deleted', '<p>Ignore deleted body</p>', 0, 0, 1767484800000, NULL, 1, NULL);
+    INSERT INTO "CommentLike" ("commentId", "userId") VALUES
+    (10, 2);
     INSERT INTO board_userlinkmeta VALUES
       (1, 'github', 'https://github.com/writer', '2026-01-01 00:00:00', '2026-01-01 00:00:00', 1, 1),
       (2, 'unsafe', 'javascript:alert(1)', '2026-01-01 00:00:00', '2026-01-01 00:00:00', 1, 2);
-    INSERT INTO board_authorsubscription VALUES (1, '2026-01-01 00:00:00', 1, 2);
+    INSERT INTO "AuthorSubscription" ("id", "createdAt", "authorId", "subscriberId") VALUES
+    (1, 1767225600000, 1, 2);
   `);
   fixture.close();
 }
@@ -206,7 +197,7 @@ test('renders accessible SSR author, like, comment and subscription controls', a
   assert.match(signedInHtml, /aria-pressed="true">구독 중<\/button>/);
   assert.match(signedInHtml, />댓글 작성<\/button>/);
   assert.match(signedInHtml, /aria-label="댓글 옵션 열기"/);
-  assert.doesNotMatch(signedInHtml, /name="parent_id" value="11"/);
+  assert.doesNotMatch(signedInHtml, /name="parentId" value="11"/);
 });
 
 test('handles SSR form actions with local redirects for likes, comments and subscriptions', async () => {
@@ -228,7 +219,7 @@ test('handles SSR form actions with local redirects for likes, comments and subs
 
   const comment = await app.inject({
     method: 'POST', url: '/v1/comments?url=public-post', headers: signedInHeaders,
-    payload: form([['csrfmiddlewaretoken', csrfToken], ['comment_md', 'New comment'], ['return_to', '/@writer/public-post#post-comments']]),
+    payload: form([['csrfmiddlewaretoken', csrfToken], ['commentMd', 'New comment'], ['return_to', '/@writer/public-post#post-comments']]),
   });
   assert.equal(comment.statusCode, 303);
   assert.match(comment.headers.location ?? '', /^\/@writer\/public-post#comment-\d+$/);
@@ -239,7 +230,7 @@ test('handles SSR form actions with local redirects for likes, comments and subs
   });
   assert.equal(unsubscribe.statusCode, 303);
   assert.equal(unsubscribe.headers.location, '/@writer/public-post');
-  const [subscription] = await db.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM board_authorsubscription WHERE subscriber_id = 2 AND author_id = 1`;
+  const [subscription] = await db.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM "AuthorSubscription" WHERE subscriberId = 2 AND authorId = 1`;
   assert.equal(Number(subscription?.count), 0);
 });
 

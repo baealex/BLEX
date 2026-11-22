@@ -10,8 +10,7 @@ import {
 import type { CommentPayload } from '../src/features/engagement/index.js';
 import {
   createMigratedDatabase, insertRow, seedEditor, seedPost, signIn,
-  testCipherKey, testSecretKey, testSiteUrl,
-} from './fixtures/migrated-database.js';
+  testCipherKey, testSecretKey, testSiteUrl, prismaDate } from './fixtures/migrated-database.js';
 
 const recent = new Date(Date.now() - 3_600_000).toISOString().slice(0, -1).replace('T', ' ');
 const comment = (id: number, author: string, extra: Partial<CommentPayload> = {}): CommentPayload => ({
@@ -26,8 +25,8 @@ async function commentsApp() {
   seedEditor(db, 2, 'reader');
   insertRow(db, 'SiteSetting', { id: 1, seoEnabled: 1, aeoEnabled: 1 });
   seedPost(db, 1, 1, 'open-post', { title: 'Open post', published_date: recent });
-  insertRow(db, 'board_comment', { id: 10, post_id: 1, author_id: 1, text_md: 'root', text_html: '<p>root</p>', created_date: recent });
-  insertRow(db, 'board_comment', { id: 11, post_id: 1, author_id: 2, parent_id: 10, text_md: 'reply', text_html: '<p>reply</p>', created_date: recent });
+  insertRow(db, 'Comment', { id: 10, postId: 1, authorId: 1, markdown: 'root', html: '<p>root</p>', createdAt: prismaDate(recent) });
+  insertRow(db, 'Comment', { id: 11, postId: 1, authorId: 2, parentId: 10, markdown: 'reply', html: '<p>reply</p>', createdAt: prismaDate(recent) });
   const app = await buildApp(fixture.path, testSiteUrl, { secretKey: testSecretKey, cipherKey: testCipherKey }, fixture.mediaRoot);
   await app.ready();
   return { ...fixture, app, async close() { await app.close(); await fixture.cleanup(); } };
@@ -75,12 +74,12 @@ test('accepts a long Korean comment and rejects replies under a reply', async ()
   try {
     const headers = { ...signIn(fixture.db, 2), 'content-type': 'application/x-www-form-urlencoded' };
     const text = '가'.repeat(5_000);
-    const long = await fixture.app.inject({ method: 'POST', url: '/v1/comments?url=open-post', headers, payload: new URLSearchParams({ comment_md: text }).toString() });
+    const long = await fixture.app.inject({ method: 'POST', url: '/v1/comments?url=open-post', headers, payload: new URLSearchParams({ commentMd: text }).toString() });
     assert.equal(long.statusCode, 200, long.body);
     assert.equal(long.json().status, 'DONE');
-    const rootReply = await fixture.app.inject({ method: 'POST', url: '/v1/comments?url=open-post', headers, payload: 'comment_md=hi&parent_id=10' });
+    const rootReply = await fixture.app.inject({ method: 'POST', url: '/v1/comments?url=open-post', headers, payload: 'commentMd=hi&parentId=10' });
     assert.equal(rootReply.json().body.parentId, 10);
-    const nested = await fixture.app.inject({ method: 'POST', url: '/v1/comments?url=open-post', headers, payload: 'comment_md=hi&parent_id=11' });
+    const nested = await fixture.app.inject({ method: 'POST', url: '/v1/comments?url=open-post', headers, payload: 'commentMd=hi&parentId=11' });
     assert.equal(nested.json().status, 'ERROR');
   } finally {
     await fixture.close();

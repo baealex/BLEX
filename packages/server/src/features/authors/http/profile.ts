@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import type { FastifyInstance } from 'fastify';
 import { type PrismaClient } from '@prisma/client';
 import { SiteIcon } from '../../../appearance/icons.js';
+import { storedDateText } from '../../../compat/django-format.js';
 import { sanitizePostHtml } from '../../posts/post-html.js';
 import { AuthorActivitySection, readAuthorActivity } from '../public-activity.js';
 import { AboutSection, authorTabs, featuredPostsSection, profileHeader } from '../pages/profile.js';
@@ -11,6 +12,20 @@ import { PAGE_SIZE, PageMeta, PublicPageOptions, SeriesDetailRow, SeriesRow, Sql
 import { NoticeSection, PageLayout, advertiseMarkdown, authorFeed, csrfCookie, getLayoutContext, readNotices, readPublicSiteBrand, readViewer, renderHtml } from '../../discovery/pages/layout.js';
 import { EmptyState, Pagination, PostGrid, postPath } from '../../discovery/pages/post-list.js';
 import { DropdownFilter, QueryFilter, ReactFragment } from '../../discovery/pages/search.js';
+
+const storedSeriesDateColumns = `CAST(series.createdAt AS INTEGER) AS createdAt, series.createdAtMicroseconds AS createdMicroseconds,
+             CAST(series.updatedAt AS INTEGER) AS updatedAt, series.updatedAtMicroseconds AS updatedMicroseconds`;
+
+interface SeriesDateColumns {
+  createdAt: number | bigint;
+  createdMicroseconds: number | bigint;
+  updatedAt: number | bigint;
+  updatedMicroseconds: number | bigint;
+}
+
+function withSeriesDates<Row extends SeriesDateColumns>({ createdAt, createdMicroseconds, updatedAt, updatedMicroseconds, ...row }: Row) {
+  return { ...row, createdDate: storedDateText(createdAt, createdMicroseconds), updatedDate: storedDateText(updatedAt, updatedMicroseconds) };
+}
 
 export function registerProfileRoutes(app: FastifyInstance, db: PrismaClient, siteUrl: URL, options: PublicPageOptions = {}) {
   app.get<{ Params: { username: string } }>('/@:username', async (request, reply) => {
@@ -238,12 +253,12 @@ export function registerProfileRoutes(app: FastifyInstance, db: PrismaClient, si
     const searchText = (query.get('q') ?? '').trim();
     const requestedSort = query.get('sort') ?? 'custom';
     const sort = ['custom', 'newest', 'oldest', 'posts'].includes(requestedSort) ? requestedSort : 'custom';
-    const searchClause = searchText ? 'AND (series.name LIKE ? OR series.text_md LIKE ?)' : '';
+    const searchClause = searchText ? 'AND (series.name LIKE ? OR series.descriptionMarkdown LIKE ?)' : '';
     const seriesCountRows = await db.$queryRawUnsafe<Array<{ count: number }>>(`
       SELECT COUNT(*) AS count FROM (
         SELECT series.id
-          FROM board_series AS series
-         WHERE COALESCE(series.hide, 0) = 0 AND series.owner_id = ? ${searchClause}
+          FROM "Series" AS series
+         WHERE COALESCE(series.isHidden, 0) = 0 AND series.ownerId = ? ${searchClause}
            AND EXISTS (SELECT 1 FROM board_post AS post
              LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
             WHERE post.series_id = series.id AND ${PUBLIC_POST_WHERE})
@@ -252,32 +267,31 @@ export function registerProfileRoutes(app: FastifyInstance, db: PrismaClient, si
     const count = Number(seriesCountRows[0]?.count ?? 0);
     const checkedPage = validPublicPage(reply, page, count, 12);
     if (checkedPage === null) return reply;
-    const orderBy = sort === 'newest' ? 'series.created_date DESC, series.id DESC'
-      : sort === 'oldest' ? 'series.created_date ASC, series.id ASC'
+    const orderBy = sort === 'newest' ? 'series.createdAt DESC, series.createdAtMicroseconds DESC, series.id DESC'
+      : sort === 'oldest' ? 'series.createdAt ASC, series.createdAtMicroseconds ASC, series.id ASC'
         : sort === 'posts' ? 'postCount DESC, series."order" ASC'
           : 'series."order" ASC, series.id ASC';
-    const seriesRows = await db.$queryRawUnsafe<SeriesRow[]>(`
+    const seriesRows = (await db.$queryRawUnsafe<Array<Omit<SeriesRow, 'createdDate' | 'updatedDate'> & SeriesDateColumns>>(`
       SELECT series.id AS id,
-             series.url AS url,
+             series.slug AS url,
              series.name AS name,
-             series.text_md AS textMarkdown,
-             series.text_html AS textHtml,
-             CAST(series.created_date AS TEXT) AS createdDate,
-             CAST(series.updated_date AS TEXT) AS updatedDate,
+             series.descriptionMarkdown AS textMarkdown,
+             series.descriptionHtml AS textHtml,
+             ${storedSeriesDateColumns},
              COUNT(DISTINCT post.id) AS postCount,
              (SELECT thumb.image FROM board_post AS thumb
                LEFT JOIN board_postconfig AS thumb_config ON thumb_config.post_id = thumb.id
               WHERE thumb.series_id = series.id AND ${rawPublicPostWhere('thumb', 'thumb_config')}
               ORDER BY thumb.id ASC LIMIT 1) AS thumbnail
-        FROM board_series AS series
+        FROM "Series" AS series
         JOIN board_post AS post ON post.series_id = series.id
         LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-       WHERE COALESCE(series.hide, 0) = 0 AND series.owner_id = ?
+       WHERE COALESCE(series.isHidden, 0) = 0 AND series.ownerId = ?
          AND ${PUBLIC_POST_WHERE} ${searchClause}
        GROUP BY series.id
        ORDER BY ${orderBy}
        LIMIT ? OFFSET ?
-    `, author.id, databaseNow(), ...(searchText ? [`%${searchText}%`, `%${searchText}%`] : []), 12, (checkedPage - 1) * 12);
+    `, author.id, databaseNow(), ...(searchText ? [`%${searchText}%`, `%${searchText}%`] : []), 12, (checkedPage - 1) * 12)).map((row) => withSeriesDates(row));
     const { brand, siteName, viewer } = await getLayoutContext(request, reply, db, options);
     const [socialLinks, subscription] = await Promise.all([readAuthorSocialLinks(db, author.id), subscriptionState(db, author, viewer)]);
     const pages = totalPages(count, 12);
@@ -352,15 +366,15 @@ export function registerProfileRoutes(app: FastifyInstance, db: PrismaClient, si
     if (page === null) return sendNotFound(reply);
     const sortOrder = query.get('sort') === 'asc' ? 'asc' : 'desc';
     const now = databaseNow();
-    const seriesRows = await db.$queryRaw<SeriesDetailRow[]>`
+    const seriesRows = await db.$queryRaw<Array<Omit<SeriesDetailRow, 'createdDate' | 'updatedDate'> & SeriesDateColumns>>`
       SELECT series.id AS id,
-             series.url AS url,
+             series.slug AS url,
              series.name AS name,
-             series.text_md AS textMarkdown,
-             series.text_html AS textHtml,
-             CAST(series.created_date AS TEXT) AS createdDate,
-             CAST(series.updated_date AS TEXT) AS updatedDate,
-             series.owner_id AS authorId,
+             series.descriptionMarkdown AS textMarkdown,
+             series.descriptionHtml AS textHtml,
+             CAST(series.createdAt AS INTEGER) AS createdAt, series.createdAtMicroseconds AS createdMicroseconds,
+             CAST(series.updatedAt AS INTEGER) AS updatedAt, series.updatedAtMicroseconds AS updatedMicroseconds,
+             series.ownerId AS authorId,
              author.username AS authorUsername,
              profile.avatar AS authorAvatar,
              (SELECT COUNT(*) FROM board_post AS post
@@ -374,12 +388,12 @@ export function registerProfileRoutes(app: FastifyInstance, db: PrismaClient, si
                 AND thumb.deleted_date IS NULL AND thumb.published_date IS NOT NULL
                 AND thumb.published_date <= ${now} AND COALESCE(thumb_config.hide, 0) = 0
               ORDER BY thumb.id ASC LIMIT 1) AS thumbnail
-        FROM board_series AS series
-        JOIN auth_user AS author ON author.id = series.owner_id
+        FROM "Series" AS series
+        JOIN auth_user AS author ON author.id = series.ownerId
         LEFT JOIN board_profile AS profile ON profile.user_id = author.id
-       WHERE series.owner_id = ${author.id}
-         AND series.url = ${request.params.seriesUrl}
-         AND COALESCE(series.hide, 0) = 0
+       WHERE series.ownerId = ${author.id}
+         AND series.slug = ${request.params.seriesUrl}
+         AND COALESCE(series.isHidden, 0) = 0
          AND EXISTS (SELECT 1 FROM board_post AS post
            LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
           WHERE post.series_id = series.id
@@ -387,8 +401,8 @@ export function registerProfileRoutes(app: FastifyInstance, db: PrismaClient, si
             AND post.published_date <= ${now} AND COALESCE(post_config.hide, 0) = 0)
        LIMIT 1
     `;
-    const series = seriesRows[0];
-    if (!series) return sendNotFound(reply);
+    if (!seriesRows[0]) return sendNotFound(reply);
+    const series = withSeriesDates(seriesRows[0]);
     const seriesPath = `${authorPath(author.username, '/series')}/${encodeURIComponent(series.url)}`;
     if (author.username !== requestedUsername) return sendRedirect(reply, seriesPath);
     const count = Number(series.postCount);

@@ -1,7 +1,7 @@
 import { Prisma, type PrismaClient } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
 import { sanitizePostHtml } from '../../posts/post-html.js';
-import { deleteSeriesRows } from './deletions.js';
+import { storedDateText } from '../../../compat/django-format.js';
 import { type SeriesListItem, type SeriesPostOption, arrayValues, localDate, stringValue } from '../shared.js';
 
 interface StoredSeries extends SeriesListItem {
@@ -10,6 +10,14 @@ interface StoredSeries extends SeriesListItem {
 }
 
 const MAX_SERIES_DESCRIPTION = 500;
+const MAX_DATABASE_INTEGER = 2_147_483_647;
+
+const activePosts = { posts: { where: { deletedDate: null } } } satisfies Prisma.SeriesCountOutputTypeSelect;
+
+/** Series dates have always been written at whole seconds, and public pages show them as stored. */
+function currentSecond(): Date {
+  return new Date(Math.floor(Date.now() / 1000) * 1000);
+}
 
 export const SERIES_PUBLIC_FILTER = `post.deleted_date IS NULL
   AND post.published_date IS NOT NULL
@@ -42,46 +50,52 @@ export function parsePostIds(value: unknown): number[] | null {
   return parsed;
 }
 
+/** Post dates are still stored as Django text, which Prisma cannot compare. */
+async function countPublicPosts(db: PrismaClient, seriesIds: number[]): Promise<Map<number, number>> {
+  const counts = new Map<number, number>();
+  for (let offset = 0; offset < seriesIds.length; offset += 500) {
+    const batch = seriesIds.slice(offset, offset + 500);
+    const rows = await db.$queryRawUnsafe<Array<{ seriesId: number; total: number | bigint }>>(`
+      SELECT post.series_id AS seriesId, COUNT(*) AS total
+        FROM board_post AS post
+        LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
+       WHERE post.series_id IN (${batch.map(() => '?').join(', ')}) AND ${SERIES_PUBLIC_FILTER}
+       GROUP BY post.series_id
+    `, ...batch);
+    for (const row of rows) counts.set(Number(row.seriesId), Number(row.total));
+  }
+  return counts;
+}
+
 export async function readSeriesRows(db: PrismaClient, ownerId: number, countKind: 'public' | 'active') {
-  const countFilter = countKind === 'public'
-    ? `post.id IS NOT NULL AND ${SERIES_PUBLIC_FILTER}`
-    : 'post.id IS NOT NULL AND post.deleted_date IS NULL';
-  return db.$queryRawUnsafe<Array<{
-    id: number; url: string; name: string; order: number | bigint; totalPosts: number | bigint;
-    description: string; createdDate: string | null;
-  }>>(`
-    SELECT series.id AS id, series.url AS url, series.name AS name,
-           series."order" AS "order", series.text_md AS description,
-           CAST(series.created_date AS TEXT) AS createdDate,
-           COUNT(CASE WHEN ${countFilter} THEN post.id END) AS totalPosts
-      FROM board_series AS series
-      LEFT JOIN board_post AS post ON post.series_id = series.id
-      LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-     WHERE series.owner_id = ?
-     GROUP BY series.id
-     ORDER BY series."order" ASC, series.id DESC
-  `, ownerId);
+  const rows = await db.series.findMany({
+    where: { ownerId },
+    orderBy: [{ order: 'asc' }, { id: 'desc' }],
+    select: {
+      id: true, slug: true, name: true, order: true, descriptionMarkdown: true, createdAt: true, createdAtMicroseconds: true,
+      _count: { select: activePosts },
+    },
+  });
+  const publicCounts = countKind === 'public' ? await countPublicPosts(db, rows.map(({ id }) => id)) : null;
+  return rows.map((row) => ({
+    id: row.id, url: row.slug, name: row.name, order: row.order, description: row.descriptionMarkdown,
+    createdDate: storedDateText(row.createdAt, row.createdAtMicroseconds),
+    totalPosts: publicCounts ? publicCounts.get(row.id) ?? 0 : row._count.posts,
+  }));
 }
 
 export async function readSeriesById(db: PrismaClient, ownerId: number, id: number): Promise<StoredSeries | null> {
-  const rows = await db.$queryRaw<Array<{
-    id: number; url: string; name: string; order: number | bigint; description: string;
-    createdDate: string | null; totalPosts: number | bigint;
-  }>>`
-    SELECT series.id AS id, series.url AS url, series.name AS name, series."order" AS "order",
-           series.text_md AS description, CAST(series.created_date AS TEXT) AS createdDate,
-           COUNT(CASE WHEN post.deleted_date IS NULL THEN post.id END) AS totalPosts
-      FROM board_series AS series
-      LEFT JOIN board_post AS post ON post.series_id = series.id
-     WHERE series.id = ${id} AND series.owner_id = ${ownerId}
-     GROUP BY series.id
-     LIMIT 1
-  `;
-  const row = rows[0];
+  const row = await db.series.findFirst({
+    where: { id, ownerId },
+    select: {
+      id: true, slug: true, name: true, order: true, descriptionMarkdown: true, createdAt: true, createdAtMicroseconds: true,
+      _count: { select: activePosts },
+    },
+  });
   if (!row) return null;
   return {
-    id: Number(row.id), url: row.url, name: row.name, order: Number(row.order),
-    totalPosts: Number(row.totalPosts), description: row.description ?? '', createdDate: row.createdDate,
+    id: row.id, url: row.slug, name: row.name, order: row.order, totalPosts: row._count.posts,
+    description: row.descriptionMarkdown, createdDate: storedDateText(row.createdAt, row.createdAtMicroseconds),
   };
 }
 
@@ -112,9 +126,7 @@ export async function readAvailableSeriesPosts(db: PrismaClient, ownerId: number
 async function createUniqueSeriesUrl(db: Prisma.TransactionClient, base: string): Promise<string> {
   let candidate = base || 'series';
   for (let attempts = 0; attempts < 5; attempts += 1) {
-    const [collision] = await db.$queryRaw<Array<{ id: number }>>`
-      SELECT id FROM board_series WHERE url = ${candidate} LIMIT 1
-    `;
+    const collision = await db.series.findUnique({ where: { slug: candidate }, select: { id: true } });
     if (!collision) return candidate;
     const suffix = randomBytes(4).toString('hex');
     candidate = `${base.slice(0, 41)}-${suffix}`;
@@ -143,68 +155,72 @@ export async function saveSeries(
     if (!requestedUrl || !validSlug(requestedUrl)) throw { code: 'VA', message: 'Enter a valid series URL.' };
   }
 
-  return db.$transaction(async (tx: Prisma.TransactionClient) => {
-    let id = seriesId;
-    let url: string;
-    let finalName = name;
-    let finalDescription = (description ?? '').trim();
-    if (id === undefined) {
-      url = await createUniqueSeriesUrl(tx, requestedUrl!);
-      const safeDescription = sanitizePostHtml(finalDescription);
-      const inserted = await tx.$queryRaw<Array<{ id: number }>>`
-        INSERT INTO board_series
-          ("order", text_md, text_html, hide, url, layout, created_date, updated_date, owner_id, name)
-        VALUES (0, ${finalDescription}, ${safeDescription}, 0, ${url}, 'list', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ${ownerId}, ${finalName})
-        RETURNING id
-      `;
-      id = Number(inserted[0]?.id);
-      if (!id) throw new Error('series-create-failed');
-    } else {
-      const existingRows = await tx.$queryRaw<Array<{ id: number; url: string; name: string; description: string }>>`
-        SELECT id, url, name, text_md AS description FROM board_series WHERE id = ${id} AND owner_id = ${ownerId} LIMIT 1
-      `;
-      const existing = existingRows[0];
-      if (!existing) throw { code: 'NF', message: 'Series not found.' };
-      url = requestedUrl ?? existing.url;
-      if (requestedUrl !== undefined) {
-        const [conflict] = await tx.$queryRaw<Array<{ id: number }>>`
-          SELECT id FROM board_series WHERE url = ${url} AND id <> ${id} LIMIT 1
-        `;
-        if (conflict) throw { code: 'AE', message: 'This URL already exists.' };
+  try {
+    return await db.$transaction(async (tx: Prisma.TransactionClient) => {
+      let id = seriesId;
+      let url: string;
+      let finalName = name;
+      let finalDescription = (description ?? '').trim();
+      if (id === undefined) {
+        url = await createUniqueSeriesUrl(tx, requestedUrl!);
+        const now = currentSecond();
+        const created = await tx.series.create({
+          data: {
+            ownerId, slug: url, name: finalName, descriptionMarkdown: finalDescription,
+            descriptionHtml: sanitizePostHtml(finalDescription), layout: 'list', createdAt: now, updatedAt: now,
+          },
+          select: { id: true },
+        });
+        id = created.id;
+      } else {
+        const existing = await tx.series.findFirst({
+          where: { id, ownerId },
+          select: { slug: true, name: true, descriptionMarkdown: true },
+        });
+        if (!existing) throw { code: 'NF', message: 'Series not found.' };
+        url = requestedUrl ?? existing.slug;
+        if (requestedUrl !== undefined) {
+          const conflict = await tx.series.findFirst({ where: { slug: url, id: { not: id } }, select: { id: true } });
+          if (conflict) throw { code: 'AE', message: 'This URL already exists.' };
+        }
+        finalName = input.name === undefined ? existing.name : name;
+        finalDescription = description === undefined ? existing.descriptionMarkdown : description.trim();
+        await tx.series.updateMany({
+          where: { id, ownerId },
+          data: {
+            name: finalName, slug: url, descriptionMarkdown: finalDescription, descriptionHtml: sanitizePostHtml(finalDescription),
+            updatedAt: currentSecond(), updatedAtMicroseconds: 0,
+          },
+        });
       }
-      finalName = input.name === undefined ? existing.name : name;
-      finalDescription = description === undefined ? existing.description : description.trim();
-      const safeDescription = sanitizePostHtml(finalDescription);
-      await tx.$executeRaw`
-        UPDATE board_series SET name = ${finalName}, url = ${url}, text_md = ${finalDescription},
-          text_html = ${safeDescription}, updated_date = CURRENT_TIMESTAMP
-        WHERE id = ${id} AND owner_id = ${ownerId}
-      `;
-    }
 
-    if (input.postIds !== undefined) {
-      await tx.$executeRaw`UPDATE board_post SET series_id = NULL WHERE series_id = ${id}`;
-      for (const postId of input.postIds) {
-        await tx.$executeRaw`
-          UPDATE board_post SET series_id = ${id}
-           WHERE id = ${postId} AND author_id = ${ownerId}
-        `;
+      if (input.postIds !== undefined) {
+        await tx.post.updateMany({ where: { series_id: id }, data: { series_id: null } });
+        for (let offset = 0; offset < input.postIds.length; offset += 500) {
+          await tx.post.updateMany({
+            where: { id: { in: input.postIds.slice(offset, offset + 500) }, authorId: ownerId },
+            data: { series_id: id },
+          });
+        }
       }
-    }
 
-    const [saved] = await tx.$queryRaw<Array<{ id: number; url: string; name: string; description: string; postCount: number | bigint }>>`
-      SELECT series.id AS id, series.url AS url, series.name AS name, series.text_md AS description,
-             COUNT(CASE WHEN post.deleted_date IS NULL THEN post.id END) AS postCount
-        FROM board_series AS series LEFT JOIN board_post AS post ON post.series_id = series.id
-       WHERE series.id = ${id} AND series.owner_id = ${ownerId}
-       GROUP BY series.id LIMIT 1
-    `;
-    return { id: Number(saved.id), url: saved.url, name: saved.name, description: saved.description ?? '', postCount: Number(saved.postCount) };
-  });
+      const saved = await tx.series.findFirstOrThrow({
+        where: { id, ownerId },
+        select: { id: true, slug: true, name: true, descriptionMarkdown: true, _count: { select: activePosts } },
+      });
+      return { id: saved.id, url: saved.slug, name: saved.name, description: saved.descriptionMarkdown, postCount: saved._count.posts };
+    });
+  } catch (failure) {
+    if (failure instanceof Prisma.PrismaClientKnownRequestError && failure.code === 'P2002') {
+      throw { code: 'AE', message: 'This URL already exists.' };
+    }
+    throw failure;
+  }
 }
 
 export async function deleteSeries(db: PrismaClient, ownerId: number, seriesId: number): Promise<boolean> {
-  const count = await db.$transaction((tx) => deleteSeriesRows(tx, { id: seriesId, owner_id: ownerId }));
+  // The schema detaches the series' posts without changing their updated date.
+  const { count } = await db.series.deleteMany({ where: { id: seriesId, ownerId } });
   return count === 1;
 }
 
@@ -212,8 +228,9 @@ export async function updateSeriesOrder(db: PrismaClient, ownerId: number, entri
   if (!entries.length) throw { code: 'IP', message: 'Order information is required.' };
   await db.$transaction(async (tx: Prisma.TransactionClient) => {
     for (const [id, order] of entries) {
-      if (!Number.isSafeInteger(id) || !Number.isSafeInteger(order)) continue;
-      await tx.$executeRaw`UPDATE board_series SET "order" = ${order}, updated_date = CURRENT_TIMESTAMP WHERE id = ${id} AND owner_id = ${ownerId}`;
+      // Prisma cannot read an order wider than its 32-bit column back.
+      if (!Number.isSafeInteger(id) || !Number.isSafeInteger(order) || Math.abs(order) > MAX_DATABASE_INTEGER) continue;
+      await tx.series.updateMany({ where: { id, ownerId }, data: { order, updatedAt: currentSecond(), updatedAtMicroseconds: 0 } });
     }
   });
 }

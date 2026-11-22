@@ -57,9 +57,9 @@ export const getComments = async (postUrl: string) => {
 
 export const createComment = async (postUrl: string, commentText: string, parentId?: number) => {
     const formData = new URLSearchParams();
-    formData.append('comment_md', commentText);
+    formData.append('commentMd', commentText);
     if (parentId) {
-        formData.append('parent_id', parentId.toString());
+        formData.append('parentId', parentId.toString());
     }
 
     return http.post<CreateCommentResponse>(`v1/comments?url=${postUrl}`, formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
@@ -72,7 +72,7 @@ export const getComment = async (commentId: number) => {
 export const updateComment = async (commentId: number, commentText: string) => {
     const formData = new URLSearchParams();
     formData.append('comment', 'true');
-    formData.append('comment_md', commentText);
+    formData.append('commentMd', commentText);
 
     return http.put<UpdateCommentResponse>(`v1/comments/${commentId}`, formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
 };

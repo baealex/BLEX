@@ -88,11 +88,9 @@ export async function developerPostInput(db: PrismaClient, authorId: number, inp
   } else if (values.seriesId != null && values.seriesId !== '') {
     const id = typeof values.seriesId === 'string' && /^\d+$/.test(values.seriesId) ? Number(values.seriesId) : values.seriesId;
     if (!Number.isSafeInteger(id)) invalid('seriesId', 'Input should be a valid integer');
-    const [series] = await db.$queryRaw<Array<{ url: string }>>`
-      SELECT url FROM board_series WHERE id = ${id as number} AND owner_id = ${authorId}
-    `;
+    const series = await db.series.findFirst({ where: { id: id as number, ownerId: authorId }, select: { slug: true } });
     if (!series) throw new DeveloperMutationInputError('post.series_not_found', 'No series matches series_id.', 404);
-    body.series_url = series.url;
+    body.series_url = series.slug;
   }
 
   return { body, asDraft: status === 'draft', expectedUpdatedAt: typeof values.expectedUpdatedAt === 'string' ? values.expectedUpdatedAt : undefined };

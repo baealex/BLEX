@@ -1,5 +1,5 @@
 import { type PrismaClient } from '@prisma/client';
-import { AuthorRow, AuthorSocialLink, DatabaseInteger, PublicPageViewer, SubscriptionState, databaseNow, safeExternalUrl } from '../../discovery/shared.js';
+import { AuthorRow, AuthorSocialLink, PublicPageViewer, SubscriptionState, databaseNow, safeExternalUrl } from '../../discovery/shared.js';
 
 export async function subscriptionState(
   db: PrismaClient,
@@ -8,13 +8,11 @@ export async function subscriptionState(
 ): Promise<SubscriptionState> {
   const canSubscribe = isEditor(author) && viewer?.id !== author.id;
   if (!canSubscribe || !viewer) return { canSubscribe, isSubscribed: false };
-  const rows = await db.$queryRaw<Array<{ present: DatabaseInteger }>>`
-    SELECT EXISTS (
-      SELECT 1 FROM board_authorsubscription
-       WHERE author_id = ${author.id} AND subscriber_id = ${viewer.id}
-    ) AS present
-  `;
-  return { canSubscribe: true, isSubscribed: Number(rows[0]?.present ?? 0) !== 0 };
+  const subscription = await db.authorSubscription.findUnique({
+    where: { subscriberId_authorId: { subscriberId: viewer.id, authorId: author.id } },
+    select: { id: true },
+  });
+  return { canSubscribe: true, isSubscribed: subscription !== null };
 }
 
 export async function readAuthor(db: PrismaClient, username: string): Promise<AuthorRow | null> {
@@ -36,8 +34,8 @@ export async function readAuthor(db: PrismaClient, username: string): Promise<Au
             WHERE post.author_id = author.id
               AND post.deleted_date IS NULL AND post.published_date IS NOT NULL
               AND post.published_date <= ${now} AND COALESCE(post_config.hide, 0) = 0) AS publicPostCount,
-           (SELECT COUNT(*) FROM board_series AS series
-            WHERE series.owner_id = author.id AND COALESCE(series.hide, 0) = 0
+           (SELECT COUNT(*) FROM "Series" AS series
+            WHERE series.ownerId = author.id AND COALESCE(series.isHidden, 0) = 0
               AND EXISTS (SELECT 1 FROM board_post AS post
                 LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
                WHERE post.series_id = series.id
@@ -67,8 +65,8 @@ export async function readAuthor(db: PrismaClient, username: string): Promise<Au
             WHERE post.author_id = author.id
               AND post.deleted_date IS NULL AND post.published_date IS NOT NULL
               AND post.published_date <= ${now} AND COALESCE(post_config.hide, 0) = 0) AS publicPostCount,
-           (SELECT COUNT(*) FROM board_series AS series
-            WHERE series.owner_id = author.id AND COALESCE(series.hide, 0) = 0
+           (SELECT COUNT(*) FROM "Series" AS series
+            WHERE series.ownerId = author.id AND COALESCE(series.isHidden, 0) = 0
               AND EXISTS (SELECT 1 FROM board_post AS post
                 LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
                WHERE post.series_id = series.id

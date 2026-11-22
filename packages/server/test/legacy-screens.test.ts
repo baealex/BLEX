@@ -9,8 +9,7 @@ import { djangoIso, djangoJsonLocal, djangoJsonUtc, localDate, localDateTimeText
 import { camelizeKey, camelizeKeys } from '../src/compat/legacy-api-contract.js';
 import {
   createMigratedDatabase, insertRow, seedEditor, seedPost, signIn,
-  testCipherKey, testSecretKey, testSiteUrl,
-} from './fixtures/migrated-database.js';
+  testCipherKey, testSecretKey, testSiteUrl, prismaDate } from './fixtures/migrated-database.js';
 
 const recent = new Date(Date.now() - 3_600_000).toISOString().slice(0, -1).replace('T', ' ');
 
@@ -23,7 +22,7 @@ async function screensApp({ assets = true } = {}) {
   insertRow(db, 'auth_user', { id: 3, username: 'staff', password: 'pbkdf2_sha256$fixture$staff', is_active: 1, is_staff: 1, is_superuser: 1 });
   insertRow(db, 'board_profile', { id: 3, user_id: 3, role: 'EDITOR' });
   insertRow(db, 'SiteSetting', { id: 1, seoEnabled: 1, aeoEnabled: 1 });
-  insertRow(db, 'board_series', { id: 7, owner_id: 1, name: 'Guide', url: 'guide', layout: 'list', hide: 0, created_date: recent });
+  insertRow(db, 'Series', { id: 7, ownerId: 1, name: 'Guide', slug: 'guide', layout: 'list', isHidden: 0, createdAt: prismaDate(recent) });
   seedPost(db, 1, 1, 'kept', { title: 'Kept', series_id: 7, published_date: recent });
   insertRow(db, 'board_tag', { id: 1, value: 'kept-tag' });
   insertRow(db, 'board_tag', { id: 2, value: 'trashed-tag' });
@@ -453,7 +452,7 @@ test('retires the old editor, image upload, and series form URLs', async () => {
     }
     assert.equal((fixture.db.prepare('SELECT COUNT(*) AS n FROM board_post').get() as { n: number }).n, before);
     assert.equal((fixture.db.prepare(`SELECT title FROM board_post WHERE id = 1`).get() as { title: string }).title, 'Kept');
-    assert.equal((fixture.db.prepare(`SELECT name FROM board_series WHERE id = 7`).get() as { name: string }).name, 'Guide');
+    assert.equal((fixture.db.prepare(`SELECT name FROM "Series" WHERE id = 7`).get() as { name: string }).name, 'Guide');
   } finally {
     await fixture.close();
   }

@@ -448,17 +448,21 @@ model ScheduledPublication {
 }
 
 model Series {
-  id                  Int      @id @default(autoincrement())
-  ownerId             Int
-  slug                String   @unique
-  name                String
-  descriptionMarkdown String   @default("")
-  descriptionHtml     String   @default("")
-  isHidden            Boolean  @default(false)
-  layout              String   @default("")
-  order               Int      @default(0)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @default(now())
+  id                    Int      @id @default(autoincrement())
+  ownerId               Int
+  slug                  String   @unique
+  name                  String
+  descriptionMarkdown   String   @default("")
+  descriptionHtml       String   @default("")
+  isHidden              Boolean  @default(false)
+  layout                String   @default("")
+  order                 Int      @default(0)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @default(now())
+  /// Microseconds past createdAt's millisecond. 3.x dates had them and the Developer API still returns them.
+  createdAtMicroseconds Int      @default(0)
+  /// Microseconds past updatedAt's millisecond. Reset to 0 whenever updatedAt is written.
+  updatedAtMicroseconds Int      @default(0)
 
   owner User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   posts Post[]

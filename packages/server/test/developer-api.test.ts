@@ -8,7 +8,7 @@ import Fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import test from 'node:test';
 import { registerDeveloperApi } from '../src/features/developer-api/index.js';
-import { createMigratedTables, insertRow } from './fixtures/migrated-database.js';
+import { createMigratedTables, insertRow, migratedTableSql } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-developer-api-'));
 const databasePath = join(directory, 'developer-api.sqlite3');
@@ -19,11 +19,7 @@ database.exec(`
     email TEXT NOT NULL DEFAULT '', is_active BOOLEAN NOT NULL DEFAULT 1
   );
   CREATE TABLE board_profile (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, role TEXT NOT NULL);
-  CREATE TABLE board_series (
-    id INTEGER PRIMARY KEY, owner_id INTEGER NOT NULL, name TEXT NOT NULL, url TEXT NOT NULL,
-    text_md TEXT NOT NULL DEFAULT '', hide BOOLEAN NOT NULL DEFAULT 0, "order" INTEGER NOT NULL DEFAULT 0,
-    created_date DATETIME NOT NULL, updated_date DATETIME NOT NULL
-  );
+  ${migratedTableSql('Series')}
   CREATE TABLE board_post (
     id INTEGER PRIMARY KEY, author_id INTEGER NOT NULL, series_id INTEGER, url TEXT NOT NULL,
     title TEXT NOT NULL, subtitle TEXT NOT NULL DEFAULT '', meta_description TEXT NOT NULL DEFAULT '',
@@ -70,9 +66,9 @@ const inactiveToken = insertToken(6, 'inactive00001', 4, ['posts:read']);
 const otherToken = insertToken(7, 'other00000001', 2, ['posts:read']);
 
 database.exec(`
-  INSERT INTO board_series VALUES
-    (10, 1, 'Writer Series', 'writer-series', 'A series description', 1, 2, '2020-01-02 03:04:05', '2020-02-03 04:05:06'),
-    (20, 2, 'Other Series', 'other-series', '', 0, 1, '2020-01-02 03:04:05', '2020-02-03 04:05:06');
+  INSERT INTO "Series" ("id", "ownerId", "name", "slug", "descriptionMarkdown", "isHidden", "order", "createdAt", "updatedAt", "createdAtMicroseconds", "updatedAtMicroseconds") VALUES
+    (10, 1, 'Writer Series', 'writer-series', 'A series description', 1, 2, 1577934245000, 1580702706000, 0, 0),
+    (20, 2, 'Other Series', 'other-series', '', 0, 1, 1577934245000, 1580702706000, 0, 0);
   INSERT INTO board_post VALUES
     (1, 1, 10, 'draft-needle', 'Draft Needle', 'A draft', 'description', NULL, NULL, '2020-01-01 00:00:00', '2025-01-01 00:00:09.123456', 3),
     (2, 2, 20, 'other-draft', 'Other Draft', '', '', NULL, NULL, '2020-01-01 00:00:00', '2025-01-01 00:00:08', 1),

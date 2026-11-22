@@ -10,7 +10,7 @@ import { PrismaClient } from '@prisma/client';
 import { after, beforeEach, test } from 'node:test';
 import { decryptDjangoSecret, encryptDjangoSecret } from '../src/features/auth/django-secret.js';
 import { registerAdminSettings } from '../src/features/site-admin/index.js';
-import { createMigratedTables } from './fixtures/migrated-database.js';
+import { createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-admin-settings-'));
 const databasePath = join(directory, 'admin-settings.sqlite3');
@@ -75,8 +75,8 @@ function createSchema() {
     CREATE TABLE board_edithistory (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, content TEXT NOT NULL DEFAULT '');
     CREATE TABLE board_editrequest (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, content TEXT NOT NULL DEFAULT '');
     CREATE TABLE board_postconfig (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL UNIQUE, hide BOOLEAN NOT NULL DEFAULT 0);
-    CREATE TABLE board_comment (id INTEGER PRIMARY KEY, text_md TEXT NOT NULL DEFAULT '', text_html TEXT NOT NULL DEFAULT '');
-    CREATE TABLE board_series (id INTEGER PRIMARY KEY, text_md TEXT NOT NULL DEFAULT '', text_html TEXT NOT NULL DEFAULT '');
+    ${migratedTableSql('Comment', 'CommentLike')}
+    ${migratedTableSql('Series')}
     CREATE TABLE board_tag (id INTEGER PRIMARY KEY, value TEXT NOT NULL UNIQUE);
     CREATE TABLE board_post_tags (post_id INTEGER NOT NULL, tag_id INTEGER NOT NULL, UNIQUE(post_id, tag_id));
     CREATE TABLE blex_session (token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL, expires_at BIGINT NOT NULL);
@@ -100,8 +100,8 @@ function seedDatabase() {
     DELETE FROM board_edithistory;
     DELETE FROM board_editrequest;
     DELETE FROM board_postconfig;
-    DELETE FROM board_comment;
-    DELETE FROM board_series;
+    DELETE FROM "Comment";
+    DELETE FROM "Series";
     DELETE FROM FormTemplate;
     DELETE FROM UploadedImage;
     DELETE FROM board_tag;

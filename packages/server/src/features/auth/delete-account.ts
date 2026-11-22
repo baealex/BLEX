@@ -1,7 +1,5 @@
 import type { PrismaClient } from '@prisma/client';
-import { deleteSeriesRows } from '../series/services/deletions.js';
 import { deletePosts } from '../posts/services/deletions.js';
-import { anonymizeComments } from '../engagement/services/deletions.js';
 import { removeAttachment } from '../work-logs/services/attachments.js';
 import { deleteWorkLogs } from '../work-logs/services/deletions.js';
 import { deleteAccountRows, isLastAdministrator } from './services/deletions.js';
@@ -18,8 +16,6 @@ export async function deleteAccount(db: PrismaClient, account: VerificationAccou
     });
     const attachments = await deleteWorkLogs(tx, { ownerId: account.id });
     await deletePosts(tx, { authorId: account.id });
-    await deleteSeriesRows(tx, { owner_id: account.id });
-    await anonymizeComments(tx, account.id);
     await deleteAccountRows(tx, account.id);
     return { attachments, url: setting?.accountDeletionRedirectUrl ?? '' } as const;
   }, { timeout: 15_000, isolationLevel: 'Serializable' });

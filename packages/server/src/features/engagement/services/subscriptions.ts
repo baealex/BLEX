@@ -1,16 +1,5 @@
 import { type PrismaClient } from '@prisma/client';
-import { ActiveUserRow, AuthorRow, DEFAULT_AVATAR, DbDate, DbInteger, absoluteMediaUrl, isTrue, localDateOnly } from '../shared.js';
-
-interface SubscriptionRow {
-  id: number;
-  username: string;
-  firstName: string;
-  bio: string | null;
-  avatar: string | null;
-  isActive: DbInteger;
-  profileRole: string | null;
-  createdDate: DbDate;
-}
+import { ActiveUserRow, AuthorRow, DEFAULT_AVATAR, absoluteMediaUrl, isTrue, localDateOnly } from '../shared.js';
 
 export function canSubscribe(author: AuthorRow): boolean {
   return isTrue(author.isActive) && author.profileRole === 'EDITOR';
@@ -23,40 +12,31 @@ export async function subscriptionState(
 ): Promise<{ canSubscribe: boolean; isSubscribed: boolean }> {
   const allowed = canSubscribe(author) && viewer?.id !== author.id;
   if (!allowed || !viewer) return { canSubscribe: allowed, isSubscribed: false };
-  const rows = await db.$queryRaw<Array<{ present: DbInteger }>>`
-    SELECT EXISTS (
-      SELECT 1 FROM board_authorsubscription
-      WHERE subscriber_id = ${viewer.id} AND author_id = ${author.id}
-    ) AS present
-  `;
-  return { canSubscribe: true, isSubscribed: isTrue(rows[0]?.present ?? 0) };
+  const subscription = await db.authorSubscription.findUnique({
+    where: { subscriberId_authorId: { subscriberId: viewer.id, authorId: author.id } },
+    select: { id: true },
+  });
+  return { canSubscribe: true, isSubscribed: subscription !== null };
 }
 
 export async function mySubscriptions(db: PrismaClient, viewerId: number) {
-  const rows = await db.$queryRaw<SubscriptionRow[]>`
-    SELECT subscription.id AS id,
-           author.username AS username,
-           author.first_name AS firstName,
-           profile.bio AS bio,
-           profile.avatar AS avatar,
-           CAST(author.is_active AS INTEGER) AS isActive,
-           profile.role AS profileRole,
-           CAST(subscription.created_date AS TEXT) AS createdDate
-    FROM board_authorsubscription AS subscription
-    JOIN auth_user AS author ON author.id = subscription.author_id
-    LEFT JOIN board_profile AS profile ON profile.user_id = author.id
-    WHERE subscription.subscriber_id = ${viewerId}
-    ORDER BY subscription.created_date DESC, subscription.id DESC
-  `;
+  const rows = await db.authorSubscription.findMany({
+    where: { subscriberId: viewerId },
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    select: {
+      createdAt: true,
+      author: { select: { username: true, first_name: true, is_active: true, board_profile: { select: { bio: true, avatar: true, role: true } } } },
+    },
+  });
   const telegram = await db.telegramConnection.findUnique({ where: { userId: viewerId }, select: { telegramId: true } });
   return {
-    subscriptions: rows.map((row) => ({
-      username: row.username,
-      name: row.firstName,
-      avatar: absoluteMediaUrl(row.avatar) ?? DEFAULT_AVATAR,
-      bio: row.bio ?? '',
-      isPublishing: isTrue(row.isActive) && row.profileRole === 'EDITOR',
-      subscribedDate: localDateOnly(row.createdDate),
+    subscriptions: rows.map(({ author, createdAt }) => ({
+      username: author.username,
+      name: author.first_name,
+      avatar: absoluteMediaUrl(author.board_profile?.avatar ?? null) ?? DEFAULT_AVATAR,
+      bio: author.board_profile?.bio ?? '',
+      isPublishing: author.is_active && author.board_profile?.role === 'EDITOR',
+      subscribedDate: localDateOnly(createdAt),
     })),
     isTelegramConnected: Boolean(telegram?.telegramId.trim()),
   };

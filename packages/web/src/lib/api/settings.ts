@@ -198,7 +198,7 @@ export interface SeriesMutationData {
     name?: string;
     url?: string;
     description?: string;
-    post_ids?: number[];
+    postIds?: number[];
 }
 
 export interface AvailableSeriesPost {
@@ -232,7 +232,7 @@ export const deleteSeriesById = async (seriesId: number) => {
 };
 
 export const getAvailablePosts = async (seriesId?: number) => {
-    const query = seriesId !== undefined ? `?series_id=${seriesId}` : '';
+    const query = seriesId !== undefined ? `?seriesId=${seriesId}` : '';
     return http.get<Response<AvailableSeriesPost[]>>(`v1/series/valid-posts${query}`);
 };
 

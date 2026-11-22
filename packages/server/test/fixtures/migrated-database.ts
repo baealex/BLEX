@@ -3,6 +3,7 @@ import { mkdir, mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DatabaseSync, type SQLInputValue } from 'node:sqlite';
+import { legacyDate } from '../../src/compat/legacy-import.js';
 import { createToken, credentialTag, tokenHash } from '../../src/features/auth/session.js';
 
 const migrationsRoot = new URL('../../../prisma/migrations/', import.meta.url);
@@ -63,13 +64,23 @@ export function signIn(db: DatabaseSync, userId: number) {
   return { cookie: `blexsessionid=${session}; csrftoken=${csrf}`, 'x-csrftoken': csrf, origin: testSiteUrl.origin };
 }
 
+/** The epoch milliseconds Prisma stores for a date a fixture writes as 3.x text. */
+export function prismaDate(value: string): number {
+  return Number(legacyDate(value));
+}
+
+/** The real DDL and indexes for tables, for fixtures that still hand-write other domains in one script. */
+export function migratedTableSql(...tables: string[]): string {
+  const migration = readFileSync(new URL('0001_init/migration.sql', migrationsRoot), 'utf8');
+  return migration.split(/;\s*\n/).filter((statement) => {
+    const table = /CREATE TABLE "(\w+)"/.exec(statement)?.[1] ?? /CREATE (?:UNIQUE )?INDEX "\w+" ON "(\w+)"/.exec(statement)?.[1];
+    return table !== undefined && tables.includes(table);
+  }).map((statement) => `${statement};\n`).join('');
+}
+
 /** Adds real migrated tables and indexes to a fixture that still hand-writes other domains. */
 export function createMigratedTables(db: DatabaseSync, ...tables: string[]) {
-  const migration = readFileSync(new URL('0001_init/migration.sql', migrationsRoot), 'utf8');
-  for (const statement of migration.split(/;\s*\n/)) {
-    const table = /CREATE TABLE "(\w+)"/.exec(statement)?.[1] ?? /CREATE (?:UNIQUE )?INDEX "\w+" ON "(\w+)"/.exec(statement)?.[1];
-    if (table && tables.includes(table)) db.exec(statement);
-  }
+  db.exec(migratedTableSql(...tables));
 }
 
 /** Applies the shipped migrations, so tests see Django's real foreign keys and NOT NULL columns. */

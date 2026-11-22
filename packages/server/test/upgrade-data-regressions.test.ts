@@ -38,14 +38,14 @@ test('permanently deletes a Django-era trashed post with the rows Django cascade
     const { db } = fixture;
     seedPost(db, 10, 1, 'trashed', { deleted_date: djangoDeletedDate });
     seedPost(db, 11, 1, 'kept');
-    insertRow(db, 'board_comment', { id: 1, post_id: 10, author_id: 2, text_md: 'parent', text_html: 'parent' });
-    insertRow(db, 'board_comment', { id: 2, post_id: 10, author_id: 2, parent_id: 1, text_md: 'child', text_html: 'child' });
-    insertRow(db, 'board_comment', { id: 3, post_id: 11, author_id: 2, text_md: 'other', text_html: 'other' });
-    insertRow(db, 'board_comment', { id: 4, post_id: 11, author_id: 2, parent_id: 2 });
-    insertRow(db, 'board_comment', { id: 5, post_id: 11, author_id: 2, parent_id: 4 });
-    insertRow(db, 'board_comment_likes', { comment_id: 2, user_id: 1 });
-    insertRow(db, 'board_comment_likes', { comment_id: 3, user_id: 1 });
-    insertRow(db, 'board_comment_likes', { comment_id: 5, user_id: 1 });
+    insertRow(db, 'Comment', { id: 1, postId: 10, authorId: 2, markdown: 'parent', html: 'parent' });
+    insertRow(db, 'Comment', { id: 2, postId: 10, authorId: 2, parentId: 1, markdown: 'child', html: 'child' });
+    insertRow(db, 'Comment', { id: 3, postId: 11, authorId: 2, markdown: 'other', html: 'other' });
+    insertRow(db, 'Comment', { id: 4, postId: 11, authorId: 2, parentId: 2 });
+    insertRow(db, 'Comment', { id: 5, postId: 11, authorId: 2, parentId: 4 });
+    insertRow(db, 'CommentLike', { commentId: 2, userId: 1 });
+    insertRow(db, 'CommentLike', { commentId: 3, userId: 1 });
+    insertRow(db, 'CommentLike', { commentId: 5, userId: 1 });
     insertRow(db, 'board_tag', { id: 1, value: 'kept-tag' });
     insertRow(db, 'board_post_tags', { post_id: 10, tag_id: 1 });
     insertRow(db, 'board_post_likes', { post_id: 10, user_id: 2 });
@@ -64,22 +64,22 @@ test('permanently deletes a Django-era trashed post with the rows Django cascade
       headers: fixture.headers,
     });
     assert.equal((await purge('2026-02-01T03:04:06.000Z')).json().status, 'ERROR');
-    assert.equal(fixture.count('board_comment', 'id IN (1, 2, 4, 5)'), 4);
+    assert.equal(fixture.count('Comment', 'id IN (1, 2, 4, 5)'), 4);
 
     const response = await purge(await trashToken(fixture));
     assert.equal(response.statusCode, 200, response.body);
     assert.equal(response.json().status, 'DONE', response.body);
 
     assert.equal(fixture.count('board_post', 'id = 10'), 0);
-    for (const table of ['board_comment', 'board_post_tags', 'board_post_likes', 'board_pinnedpost', 'board_postconfigmeta',
+    for (const table of ['Comment', 'board_post_tags', 'board_post_likes', 'board_pinnedpost', 'board_postconfigmeta',
       'board_postsharelink', 'board_edithistory', 'board_editrequest', 'board_postcontent', 'board_postconfig']) {
-      assert.equal(fixture.count(table, 'post_id = 10'), 0, table);
+      assert.equal(fixture.count(table, table === 'Comment' ? 'postId = 10' : 'post_id = 10'), 0, table);
     }
-    assert.equal(fixture.count('board_comment', 'id IN (4, 5)'), 0);
-    assert.equal(fixture.count('board_comment_likes', 'comment_id IN (2, 5)'), 0);
+    assert.equal(fixture.count('Comment', 'id IN (4, 5)'), 0);
+    assert.equal(fixture.count('CommentLike', 'commentId IN (2, 5)'), 0);
     assert.equal(fixture.count('board_post_share_link_daily_counts', 'link_id = 1'), 0);
-    assert.equal(fixture.count('board_comment', 'id = 3'), 1);
-    assert.equal(fixture.count('board_comment_likes', 'comment_id = 3'), 1);
+    assert.equal(fixture.count('Comment', 'id = 3'), 1);
+    assert.equal(fixture.count('CommentLike', 'commentId = 3'), 1);
     assert.equal(fixture.count('board_tag', 'id = 1'), 1);
     assert.equal(fixture.count('board_post', 'id = 11'), 1);
     assert.equal(fixture.count('board_edithistory', 'id = 3 AND restored_from_id IS NULL'), 1);
@@ -205,17 +205,46 @@ test('stores new work log share tokens in the Django column format', async () =>
   }
 });
 
-test('deletes a Django series that still has configuration rows', async () => {
+test('removes reply cycles and threads deeper than a SQLite cascade across posts', async () => {
   const fixture = await migratedApp();
   try {
-    insertRow(fixture.db, 'board_series', { id: 5, owner_id: 1, name: 'Series', url: 'series-five', layout: 'list' });
-    insertRow(fixture.db, 'board_seriesconfigmeta', { post_id: 5, name: 'note', value: 'x' });
+    const { db } = fixture;
+    seedPost(db, 10, 1, 'trashed', { deleted_date: djangoDeletedDate });
+    seedPost(db, 11, 1, 'kept');
+    db.exec('BEGIN; PRAGMA defer_foreign_keys = ON');
+    insertRow(db, 'Comment', { id: 1, postId: 10, authorId: 2 });
+    for (let id = 2; id <= 1_500; id += 1) insertRow(db, 'Comment', { id, postId: id % 2 ? 10 : 11, authorId: 2, parentId: id - 1 });
+    insertRow(db, 'Comment', { id: 2_000, postId: 10, authorId: 2, parentId: 2_001 });
+    insertRow(db, 'Comment', { id: 2_001, postId: 11, authorId: 2, parentId: 2_000 });
+    insertRow(db, 'Comment', { id: 2_002, postId: 10, authorId: 2, parentId: 2_002 });
+    insertRow(db, 'Comment', { id: 2_003, postId: 11, authorId: 2 });
+    insertRow(db, 'CommentLike', { commentId: 1_500, userId: 1 });
+    insertRow(db, 'CommentLike', { commentId: 2_003, userId: 1 });
+    db.exec('COMMIT');
+
+    const token = await trashToken(fixture);
+    const response = await fixture.app.inject({
+      method: 'DELETE',
+      url: `/v1/setting/trash-posts/trashed?expectedDeletedDate=${encodeURIComponent(token)}`,
+      headers: fixture.headers,
+    });
+    assert.equal(response.json().status, 'DONE', response.body);
+    assert.deepEqual(db.prepare('SELECT id FROM Comment').all().map((row) => row.id), [2_003]);
+    assert.deepEqual(db.prepare('SELECT commentId FROM CommentLike').all().map((row) => row.commentId), [2_003]);
+  } finally {
+    await fixture.close();
+  }
+});
+
+test('deletes a series and detaches its posts', async () => {
+  const fixture = await migratedApp();
+  try {
+    insertRow(fixture.db, 'Series', { id: 5, ownerId: 1, name: 'Series', slug: 'series-five', layout: 'list' });
     seedPost(fixture.db, 10, 1, 'in-series', { series_id: 5 });
     const response = await fixture.app.inject({ method: 'DELETE', url: '/v1/series/5', headers: fixture.headers });
     assert.equal(response.statusCode, 200, response.body);
     assert.equal(response.json().status, 'DONE', response.body);
-    assert.equal(fixture.count('board_series', 'id = 5'), 0);
-    assert.equal(fixture.count('board_seriesconfigmeta', 'post_id = 5'), 0);
+    assert.equal(fixture.count('Series', 'id = 5'), 0);
     assert.equal(fixture.count('board_post', 'id = 10 AND series_id IS NULL'), 1);
   } finally {
     await fixture.close();

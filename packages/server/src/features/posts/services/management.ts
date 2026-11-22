@@ -50,7 +50,7 @@ export async function getManagedPosts(
     SELECT 1 FROM board_post_tags AS filter_link JOIN board_tag AS filter_tag ON filter_tag.id = filter_link.tag_id
      WHERE filter_link.post_id = post.id AND filter_tag.value = ${tag}
   )`);
-  if (series) filters.push(Prisma.sql`series.url = ${series}`);
+  if (series) filters.push(Prisma.sql`series.slug = ${series}`);
   if (search) filters.push(Prisma.sql`post.title LIKE ${`%${search}%`}`);
   if (visibility === 'public') filters.push(Prisma.sql`COALESCE(config.hide, 0) = 0`);
   else if (visibility === 'hidden') filters.push(Prisma.sql`COALESCE(config.hide, 0) <> 0`);
@@ -72,7 +72,7 @@ export async function getManagedPosts(
   const totals = await db.$queryRaw<Array<{ total: number | bigint }>>`
     SELECT COUNT(*) AS total FROM board_post AS post
       LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-      LEFT JOIN board_series AS series ON series.id = post.series_id
+      LEFT JOIN "Series" AS series ON series.id = post.series_id
      WHERE ${where}
   `;
   const totalCount = numberValue(totals[0]?.total);
@@ -84,17 +84,17 @@ export async function getManagedPosts(
            CAST(post.updated_date AS TEXT) AS updatedDate,
            CAST(config.hide AS INTEGER) AS hide,
            (SELECT COUNT(*) FROM board_post_likes AS likes WHERE likes.post_id = post.id) AS countLikes,
-           (SELECT COUNT(*) FROM board_comment AS comments WHERE comments.post_id = post.id) AS countComments,
+           (SELECT COUNT(*) FROM "Comment" AS comments WHERE comments.postId = post.id) AS countComments,
            post.read_time AS readTime,
            COALESCE((SELECT group_concat(tag_rows.value, ',') FROM (
              SELECT tag.value AS value FROM board_post_tags AS link
                JOIN board_tag AS tag ON tag.id = link.tag_id
               WHERE link.post_id = post.id ORDER BY link.tag_id
            ) AS tag_rows), '') AS tag,
-           COALESCE(series.url, '') AS series
+           COALESCE(series.slug, '') AS series
       FROM board_post AS post
       LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-      LEFT JOIN board_series AS series ON series.id = post.series_id
+      LEFT JOIN "Series" AS series ON series.id = post.series_id
      WHERE ${where}
      ORDER BY ${orderBy}
      LIMIT 10 OFFSET ${(page - 1) * 10}

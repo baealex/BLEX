@@ -200,7 +200,7 @@ export async function listPosts(
   const rows = await db.$queryRaw<PostRow[]>`
     SELECT post.id, post.title, post.subtitle, post.url,
            author.username, post.series_id AS seriesId,
-           series.name AS seriesName, series.url AS seriesUrl,
+           series.name AS seriesName, series.slug AS seriesUrl,
            config.hide AS isHidden, config.advertise AS isAdvertise,
            config.cover_layout AS coverLayout,
            config.cover_image_position AS coverImagePosition,
@@ -212,7 +212,7 @@ export async function listPosts(
       FROM board_post AS post
       JOIN auth_user AS author ON author.id = post.author_id
       LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-      LEFT JOIN board_series AS series ON series.id = post.series_id
+      LEFT JOIN "Series" AS series ON series.id = post.series_id
       LEFT JOIN board_postcontent AS content ON content.post_id = post.id
      WHERE ${where}
      ORDER BY post.updated_date DESC
@@ -226,7 +226,7 @@ export async function listPosts(
         FROM board_post AS post
         JOIN auth_user AS author ON author.id = post.author_id
         LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-        LEFT JOIN board_series AS series ON series.id = post.series_id
+        LEFT JOIN "Series" AS series ON series.id = post.series_id
         LEFT JOIN board_postcontent AS content ON content.post_id = post.id
        WHERE ${where}
     `;
@@ -247,7 +247,7 @@ export async function readOwnedPost(db: PrismaClient, userId: number, postId: nu
   const [post] = await db.$queryRaw<PostDetailRow[]>`
     SELECT post.id, post.title, post.subtitle, post.url,
            author.username, post.series_id AS seriesId,
-           series.name AS seriesName, series.url AS seriesUrl,
+           series.name AS seriesName, series.slug AS seriesUrl,
            config.hide AS isHidden, config.advertise AS isAdvertise,
            config.cover_layout AS coverLayout,
            config.cover_image_position AS coverImagePosition,
@@ -260,7 +260,7 @@ export async function readOwnedPost(db: PrismaClient, userId: number, postId: nu
       FROM board_post AS post
       JOIN auth_user AS author ON author.id = post.author_id
       LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-      LEFT JOIN board_series AS series ON series.id = post.series_id
+      LEFT JOIN "Series" AS series ON series.id = post.series_id
       LEFT JOIN board_postcontent AS content ON content.post_id = post.id
      WHERE post.id = ${postId}
        AND post.author_id = ${userId}

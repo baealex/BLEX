@@ -7,8 +7,7 @@ import { seriesNavigation } from '../src/features/posts/public-post.js';
 import { htmlToMarkdown } from '../src/features/discovery/feeds/markdown.js';
 import {
   createMigratedDatabase, insertRow, seedEditor, seedPost, signIn,
-  testCipherKey, testSecretKey, testSiteUrl,
-} from './fixtures/migrated-database.js';
+  testCipherKey, testSecretKey, testSiteUrl, prismaDate } from './fixtures/migrated-database.js';
 
 const daysAgo = (days: number) => new Date(Date.now() - days * 86_400_000).toISOString().slice(0, -1).replace('T', ' ');
 const future = new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, -1).replace('T', ' ');
@@ -18,7 +17,7 @@ async function publicApp(site: { seo: number; aeo: number } = { seo: 1, aeo: 1 }
   const { db } = fixture;
   seedEditor(db, 1, 'writer');
   insertRow(db, 'SiteSetting', { id: 1, seoEnabled: site.seo, aeoEnabled: site.aeo });
-  insertRow(db, 'board_series', { id: 1, owner_id: 1, name: 'Guide', url: 'guide', layout: 'list', hide: 0, created_date: daysAgo(2) });
+  insertRow(db, 'Series', { id: 1, ownerId: 1, name: 'Guide', slug: 'guide', layout: 'list', isHidden: 0, createdAt: prismaDate(daysAgo(2)) });
   seedPost(db, 1, 1, 'part-one', { series_id: 1, title: 'Part one', published_date: daysAgo(3) });
   seedPost(db, 2, 1, 'part-two', { series_id: 1, title: 'Part two', published_date: daysAgo(2) });
   seedPost(db, 3, 1, 'part-three', { series_id: 1, title: 'Part three', published_date: daysAgo(1) });
@@ -216,7 +215,7 @@ test('asks anonymous readers to log in through the shared modal controls', async
   try {
     seedEditor(fixture.db, 2, 'other');
     seedPost(fixture.db, 7, 2, 'other-post', { title: 'Other post', published_date: daysAgo(1) });
-    insertRow(fixture.db, 'board_comment', { id: 1, post_id: 7, author_id: 1, text_md: 'c', text_html: 'c', created_date: daysAgo(1) });
+    insertRow(fixture.db, 'Comment', { id: 1, postId: 7, authorId: 1, markdown: 'c', html: 'c', createdAt: prismaDate(daysAgo(1)) });
     const post = (await fixture.app.inject('/@other/other-post')).body;
     for (const action of ['subscribe', 'like', 'comment', 'reply']) assert.match(post, new RegExp(`data-blex-login-prompt="${action}"`), action);
     assert.ok(post.includes('data-blex-login-next="/@other/other-post"'));
@@ -264,8 +263,8 @@ test('shows public yearly and recent activity on the author page', async () => {
   const fixture = await publicApp();
   try {
     seedEditor(fixture.db, 2, 'reader');
-    insertRow(fixture.db, 'board_comment', { id: 1, post_id: 1, author_id: 1, text_md: 'c', text_html: 'c', created_date: daysAgo(1) });
-    insertRow(fixture.db, 'board_comment', { id: 2, post_id: 4, author_id: 1, text_md: 'c', text_html: 'c', created_date: daysAgo(1) });
+    insertRow(fixture.db, 'Comment', { id: 1, postId: 1, authorId: 1, markdown: 'c', html: 'c', createdAt: prismaDate(daysAgo(1)) });
+    insertRow(fixture.db, 'Comment', { id: 2, postId: 4, authorId: 1, markdown: 'c', html: 'c', createdAt: prismaDate(daysAgo(1)) });
     insertRow(fixture.db, 'board_post_likes', { post_id: 3, user_id: 1, created_date: daysAgo(1) });
     const { body, statusCode } = await fixture.app.inject('/@writer');
     assert.equal(statusCode, 200);

@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import type { DatabaseSync } from 'node:sqlite';
 import sharp from 'sharp';
 import { buildApp } from '../../src/app.js';
-import { createMigratedDatabase, insertRow, seedPost, testCipherKey, testSecretKey, testSiteUrl } from './migrated-database.js';
+import { createMigratedDatabase, insertRow, seedPost, testCipherKey, testSecretKey, testSiteUrl, prismaDate } from './migrated-database.js';
 
 export interface ContractToken {
   id: number;
@@ -96,9 +96,9 @@ function seed(db: DatabaseSync, store: ContractTokenStore) {
     });
   }
 
-  insertRow(db, 'board_series', { id: 10, owner_id: 1, name: 'Writer Series', url: 'writer-series', text_md: 'A series_description', hide: 1, order: 2, created_date: '2020-01-02 03:04:05', updated_date: '2020-02-03 04:05:06' });
-  insertRow(db, 'board_series', { id: 11, owner_id: 1, name: 'Second Series', url: 'second-series', text_md: '', hide: 0, order: 3, created_date: '2020-01-02 03:04:05.123456', updated_date: '2020-02-03 04:05:06' });
-  insertRow(db, 'board_series', { id: 20, owner_id: 2, name: 'Other Series', url: 'other-series', text_md: '', hide: 0, order: 1, created_date: '2020-01-02 03:04:05', updated_date: '2020-02-03 04:05:06' });
+  insertRow(db, 'Series', { id: 10, ownerId: 1, name: 'Writer Series', slug: 'writer-series', descriptionMarkdown: 'A series_description', isHidden: 1, order: 2, createdAt: prismaDate('2020-01-02 03:04:05'), updatedAt: prismaDate('2020-02-03 04:05:06') });
+  insertRow(db, 'Series', { id: 11, ownerId: 1, name: 'Second Series', slug: 'second-series', descriptionMarkdown: '', isHidden: 0, order: 3, createdAt: prismaDate('2020-01-02 03:04:05.123456'), createdAtMicroseconds: 456, updatedAt: prismaDate('2020-02-03 04:05:06') });
+  insertRow(db, 'Series', { id: 20, ownerId: 2, name: 'Other Series', slug: 'other-series', descriptionMarkdown: '', isHidden: 0, order: 1, createdAt: prismaDate('2020-01-02 03:04:05'), updatedAt: prismaDate('2020-02-03 04:05:06') });
 
   const created = '2020-01-01 00:00:00';
   const posts: Array<[number, number, number | null, string, string | null, string | null, string]> = [

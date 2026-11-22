@@ -96,9 +96,9 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
           }
           if (mode !== 'view' || (!postPublic(post) && viewer?.id !== post.authorId)) return notFound(reply);
           const tags = await postTags(db, post.id);
-          const counts = await db.$queryRaw<Array<{ likes: number | bigint; comments: number | bigint; liked: DbBoolean }>>`
+          const countComments = await db.comment.count({ where: { postId: post.id } });
+          const counts = await db.$queryRaw<Array<{ likes: number | bigint; liked: DbBoolean }>>`
             SELECT (SELECT COUNT(*) FROM board_post_likes WHERE post_id = ${post.id}) AS likes,
-                   (SELECT COUNT(*) FROM board_comment WHERE post_id = ${post.id}) AS comments,
                    CASE WHEN EXISTS (
                      SELECT 1 FROM board_post_likes
                      WHERE post_id = ${post.id} AND user_id = ${viewer?.id ?? -1}
@@ -117,7 +117,7 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
             author: post.authorUsername,
             renderedContent: sanitizePostHtml(post.contentHtml),
             countLikes: numberValue(counts[0]?.likes),
-            countComments: numberValue(counts[0]?.comments),
+            countComments,
             isAd: isTrue(post.advertise),
             coverLayout: post.coverLayout,
             coverImagePosition: post.coverImagePosition,

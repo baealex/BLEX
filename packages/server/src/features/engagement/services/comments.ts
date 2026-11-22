@@ -1,23 +1,23 @@
-import { type PrismaClient } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
 import { timeSince } from '../../../compat/django-format.js';
 import { sanitizeCommentHtml } from '../../posts/post-html.js';
-import { DEFAULT_AVATAR, DbDate, DbInteger, absoluteMediaUrl, isTrue, numberValue } from '../shared.js';
+import { DEFAULT_AVATAR, DbInteger, absoluteMediaUrl, isTrue } from '../shared.js';
 
 export interface CommentRow {
   id: number;
-  textMd: string;
-  textHtml: string;
-  edited: DbInteger;
-  createdDate: DbDate;
+  markdown: string;
+  html: string;
+  isEdited: boolean;
+  createdAt: Date;
   authorId: number | null;
   username: string | null;
   avatar: string | null;
   parentId: number | null;
-  likeCount: number | bigint;
-  isLiked: DbInteger;
+  likeCount: number;
+  isLiked: boolean;
   postId: number;
-  postPublic: DbInteger;
-  postBlockComment: DbInteger;
+  postPublic: boolean;
+  postBlockComment: boolean;
 }
 
 interface PostCommentRow extends CommentRow { postUsername: string; postTitle: string; postSlug: string }
@@ -66,46 +66,72 @@ export function commentHtml(text: string): string {
     .join('\n\n');
 }
 
+function commentSelect(viewerId: number | null) {
+  return {
+    id: true,
+    markdown: true,
+    html: true,
+    isEdited: true,
+    createdAt: true,
+    authorId: true,
+    parentId: true,
+    postId: true,
+    author: { select: { username: true, board_profile: { select: { avatar: true } } } },
+    likes: { where: { userId: viewerId ?? -1 }, select: { userId: true } },
+    _count: { select: { likes: true } },
+  } satisfies Prisma.CommentSelect;
+}
+
+type SelectedComment = Prisma.CommentGetPayload<{ select: ReturnType<typeof commentSelect> }>;
+
+function commentRow(comment: SelectedComment, postPublic: boolean, postBlockComment: boolean): CommentRow {
+  return {
+    id: comment.id,
+    markdown: comment.markdown,
+    html: comment.html,
+    isEdited: comment.isEdited,
+    createdAt: comment.createdAt,
+    authorId: comment.authorId,
+    username: comment.author?.username ?? null,
+    avatar: comment.author?.board_profile?.avatar ?? null,
+    parentId: comment.parentId,
+    likeCount: comment._count.likes,
+    isLiked: comment.likes.length > 0,
+    postId: comment.postId,
+    postPublic,
+    postBlockComment,
+  };
+}
+
 export async function commentForViewer(
   db: PrismaClient,
   id: number,
   viewerId: number | null,
 ): Promise<PostCommentRow | null> {
-  const viewer = viewerId ?? -1;
-  const rows = await db.$queryRaw<PostCommentRow[]>`
-    SELECT comment.id AS id,
-           comment.text_md AS textMd,
-           comment.text_html AS textHtml,
-           CAST(comment.edited AS INTEGER) AS edited,
-           CAST(comment.created_date AS TEXT) AS createdDate,
-           comment.author_id AS authorId,
-           author.username AS username,
-           profile.avatar AS avatar,
-           comment.parent_id AS parentId,
-           (SELECT COUNT(*) FROM board_comment_likes AS comment_like
-             WHERE comment_like.comment_id = comment.id) AS likeCount,
-           CASE WHEN EXISTS (
-             SELECT 1 FROM board_comment_likes AS viewer_like
-             WHERE viewer_like.comment_id = comment.id AND viewer_like.user_id = ${viewer}
-           ) THEN 1 ELSE 0 END AS isLiked,
-           post.id AS postId,
-           CASE WHEN post.deleted_date IS NULL
+  const comment = await db.comment.findUnique({ where: { id }, select: commentSelect(viewerId) });
+  if (!comment) return null;
+  // Post dates are still stored as Django text, which Prisma cannot compare.
+  const [post] = await db.$queryRaw<Array<{ postPublic: DbInteger; postBlockComment: DbInteger; postTitle: string; postSlug: string; postUsername: string }>>`
+    SELECT CASE WHEN post.deleted_date IS NULL
                      AND post.published_date IS NOT NULL
                      AND CAST(post.published_date AS TEXT) <= ${new Date().toISOString().replace('T', ' ').replace('Z', '')}
                      AND CAST(post_config.hide AS INTEGER) = 0
                 THEN 1 ELSE 0 END AS postPublic,
            post.title AS postTitle, post.url AS postSlug, post_author.username AS postUsername,
            CAST(post_config.block_comment AS INTEGER) AS postBlockComment
-    FROM board_comment AS comment
-    JOIN board_post AS post ON post.id = comment.post_id
+    FROM board_post AS post
     JOIN auth_user AS post_author ON post_author.id = post.author_id
     JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-    LEFT JOIN auth_user AS author ON author.id = comment.author_id
-    LEFT JOIN board_profile AS profile ON profile.user_id = author.id
-    WHERE comment.id = ${id}
+    WHERE post.id = ${comment.postId}
     LIMIT 1
   `;
-  return rows[0] ?? null;
+  if (!post) return null;
+  return {
+    ...commentRow(comment, isTrue(post.postPublic), isTrue(post.postBlockComment)),
+    postTitle: post.postTitle,
+    postSlug: post.postSlug,
+    postUsername: post.postUsername,
+  };
 }
 
 export async function publicComments(
@@ -127,38 +153,14 @@ export async function publicComments(
   const post = posts[0];
   if (!post) return { canComment: false, comments: [] };
 
-  const viewer = viewerId ?? -1;
-  const rows = await db.$queryRaw<CommentRow[]>`
-    SELECT comment.id AS id,
-           comment.text_md AS textMd,
-           comment.text_html AS textHtml,
-           CAST(comment.edited AS INTEGER) AS edited,
-           CAST(comment.created_date AS TEXT) AS createdDate,
-           comment.author_id AS authorId,
-           author.username AS username,
-           profile.avatar AS avatar,
-           comment.parent_id AS parentId,
-           (SELECT COUNT(*) FROM board_comment_likes AS comment_like
-             WHERE comment_like.comment_id = comment.id) AS likeCount,
-           CASE WHEN EXISTS (
-             SELECT 1 FROM board_comment_likes AS viewer_like
-             WHERE viewer_like.comment_id = comment.id AND viewer_like.user_id = ${viewer}
-           ) THEN 1 ELSE 0 END AS isLiked,
-           comment.post_id AS postId,
-           1 AS postPublic,
-           CAST(post_config.block_comment AS INTEGER) AS postBlockComment
-    FROM board_comment AS comment
-    JOIN board_post AS post ON post.id = comment.post_id
-    JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-    LEFT JOIN auth_user AS author ON author.id = comment.author_id
-    LEFT JOIN board_profile AS profile ON profile.user_id = author.id
-    WHERE comment.post_id = ${post.id}
-      AND (comment.parent_id IS NULL OR comment.parent_id IN (
-        SELECT parent.id FROM board_comment AS parent
-        WHERE parent.post_id = ${post.id} AND parent.parent_id IS NULL
-      ))
-    ORDER BY comment.created_date ASC, comment.id ASC
-  `;
+  const blocked = isTrue(post.blockComment);
+  const comments = await db.comment.findMany({
+    // A legacy reply can point at a parent on another post or at another reply. Neither has a place in this tree.
+    where: { postId: post.id, OR: [{ parentId: null }, { parent: { postId: post.id, parentId: null } }] },
+    orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+    select: commentSelect(viewerId),
+  });
+  const rows = comments.map((comment) => commentRow(comment, true, blocked));
   const canAcceptReplies = !isTrue(post.blockComment);
   const topLevel: CommentPayload[] = [];
   const parents = new Map<number, CommentPayload>();
@@ -191,18 +193,18 @@ export function serializeComment(
   const canReply = viewerId !== null && !deleted && canAcceptReplies;
   const content = deleted
     ? DEFAULT_LANGUAGE_DELETED_COMMENT
-    : sanitizeCommentHtml(comment.textHtml ?? '');
+    : sanitizeCommentHtml(comment.html);
   return {
     id: comment.id,
     author: deleted ? 'Ghost' : comment.username ?? 'Ghost',
     authorImage: deleted ? null : absoluteMediaUrl(comment.avatar) ?? DEFAULT_AVATAR,
     isMine: mine,
-    isEdited: isTrue(comment.edited),
+    isEdited: comment.isEdited,
     isDeleted: deleted,
     renderedContent: content,
-    createdDate: timeSince(comment.createdDate),
-    countLikes: numberValue(comment.likeCount),
-    isLiked: isTrue(comment.isLiked),
+    createdDate: timeSince(comment.createdAt),
+    countLikes: comment.likeCount,
+    isLiked: comment.isLiked,
     permissions: { canEdit, canDelete, canLike, canReply },
     ...(comment.parentId === null ? {} : { parentId: comment.parentId }),
   };

@@ -23,6 +23,14 @@ function localParts(date: Date) {
   return { year: field('year'), month: field('month'), day: field('day'), hour: field('hour'), minute: field('minute'), second: field('second') };
 }
 
+/** Rebuilds the naive UTC text 3.x stored, so a date read from a Prisma column keeps every existing output format. */
+export function storedDateText(value: Date | number | bigint, microseconds: number | bigint = 0): string {
+  const date = value instanceof Date ? value : new Date(Number(value));
+  const fraction = `${String(date.getUTCMilliseconds()).padStart(3, '0')}${String(microseconds).padStart(3, '0')}`;
+  const seconds = date.toISOString().slice(0, 19).replace('T', ' ');
+  return fraction === '000000' ? seconds : `${seconds}.${fraction}`;
+}
+
 /** Python `datetime.isoformat()` for a UTC value. */
 export function djangoIso(value: StoredDate): string | null {
   const instant = parseInstant(value);

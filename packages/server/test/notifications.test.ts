@@ -37,8 +37,8 @@ test('delivers scheduled publication once, retains queued retries, and respects 
     VALUES (1, 'Scheduled post', 'scheduled', '', 1, '2000-01-01', '2000-01-01', 1, '', '', '2099-01-01 00:00:00', '');
     INSERT INTO board_postconfig (post_id, hide, advertise, block_comment, cover_image_position, cover_image_ratio, cover_layout)
     VALUES (1, 0, 0, 0, 'right', 'auto', 'default');
-    INSERT INTO board_authorsubscription (created_date, author_id, subscriber_id)
-    VALUES ('2000-01-01', 1, 2), ('2000-01-01', 1, 3);
+    INSERT INTO AuthorSubscription (createdAt, authorId, subscriberId)
+    VALUES (946684800000, 1, 2), (946684800000, 1, 3);
   `);
   raw.prepare(`INSERT INTO IntegrationSetting (id, telegramEnabled, telegramBotUsername, telegramBotToken, updatedAt)
     VALUES (1, 1, 'synthetic-only', ?, 946684800000)`).run(encryptDjangoSecret('123:dummy-private-listener', cipher));
@@ -50,7 +50,7 @@ test('delivers scheduled publication once, retains queued retries, and respects 
     await db.$transaction((tx) => syncPostPublication(tx, 1));
     await processScheduledPublications(db);
     assert.equal(await db.notification.count(), 0);
-    await db.$executeRaw`DELETE FROM board_authorsubscription WHERE subscriber_id = 3`;
+    await db.authorSubscription.deleteMany({ where: { subscriberId: 3 } });
     await db.$transaction(async (tx) => {
       await tx.$executeRaw`UPDATE board_post SET published_date = '2000-01-02 00:00:00' WHERE id = 1`;
       await tx.$executeRaw`UPDATE blex_scheduled_publication SET publish_at = '2000-01-02 00:00:00' WHERE post_id = 1`;

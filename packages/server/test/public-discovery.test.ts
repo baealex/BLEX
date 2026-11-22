@@ -7,7 +7,7 @@ import Fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import test from 'node:test';
 import { registerPublicDiscovery } from '../src/features/discovery/feeds/index.js';
-import { createMigratedTables } from './fixtures/migrated-database.js';
+import { createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-discovery-'));
 const databasePath = join(directory, 'synthetic legacy.sqlite3');
@@ -25,17 +25,16 @@ fixture.exec(`
   CREATE TABLE board_postcontent (id INTEGER PRIMARY KEY, post_id INTEGER, content_html TEXT);
   CREATE TABLE board_post_tags (id INTEGER PRIMARY KEY, post_id INTEGER, tag_id INTEGER);
   CREATE TABLE board_tag (id INTEGER PRIMARY KEY, value TEXT);
-  CREATE TABLE board_series (
-    id INTEGER PRIMARY KEY, owner_id INTEGER, name TEXT, url TEXT,
-    text_md TEXT, text_html TEXT, hide BOOLEAN, updated_date DATETIME
-  );
+  ${migratedTableSql('Series')}
 
   INSERT INTO auth_user VALUES (1, 'writer', 'Alex');
   INSERT INTO board_usernamechangelog VALUES (1, 1, 'old-writer', '1999-01-01 00:00:00');
   INSERT INTO board_profile VALUES (1, 1, 'Writer bio', '', 'EDITOR');
   INSERT INTO SiteSetting (id, seoEnabled, aeoEnabled, robotsTxtExtraRules, siteName, updatedAt) VALUES (1, 1, 1, 'User-agent: ExampleBot\nDisallow: /private/  \n', 'Custom Blog', 946684800000);
-  INSERT INTO board_series VALUES (1, 1, 'Public Series', 'public-series', 'Series summary.', '', 0, '2000-01-02 00:00:00');
-  INSERT INTO board_series VALUES (2, 1, 'Hidden Series', 'hidden-series', '', '', 1, '2000-01-02 00:00:00');
+  INSERT INTO "Series" ("id", "ownerId", "name", "slug", "descriptionMarkdown", "descriptionHtml", "isHidden", "updatedAt", "updatedAtMicroseconds") VALUES
+    (1, 1, 'Public Series', 'public-series', 'Series summary.', '', 0, 946771200000, 0);
+  INSERT INTO "Series" ("id", "ownerId", "name", "slug", "descriptionMarkdown", "descriptionHtml", "isHidden", "updatedAt", "updatedAtMicroseconds") VALUES
+    (2, 1, 'Hidden Series', 'hidden-series', '', '', 1, 946771200000, 0);
   INSERT INTO StaticPage (id, slug, title, content, isPublished, updatedAt) VALUES (1, 'about-ai', 'About AI', '<h2>About BLEX</h2><p>Static <strong>page</strong>.</p>', 1, ${Date.UTC(2000, 0, 3)});
   INSERT INTO StaticPage (id, slug, title, content, isPublished, updatedAt) VALUES (2, 'private', 'Private page', '<p>Do not expose</p>', 0, ${Date.UTC(2000, 0, 4)});
 

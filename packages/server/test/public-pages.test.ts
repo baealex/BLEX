@@ -7,7 +7,7 @@ import { PrismaClient } from '@prisma/client';
 import Fastify from 'fastify';
 import test from 'node:test';
 import { registerPublicPages } from '../src/features/discovery/pages/index.js';
-import { createMigratedTables } from './fixtures/migrated-database.js';
+import { createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-public-pages-'));
 const databasePath = join(directory, 'Django public pages.sqlite3');
@@ -64,30 +64,12 @@ database.exec(`
   CREATE TABLE board_postconfig (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, hide BOOLEAN NOT NULL DEFAULT 0);
   CREATE TABLE board_postcontent (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, content_html TEXT NOT NULL DEFAULT '');
   CREATE TABLE board_post_likes (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, user_id INTEGER NOT NULL, created_date DATETIME NOT NULL);
-  CREATE TABLE board_comment (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, content TEXT NOT NULL DEFAULT '', author_id INTEGER, created_date DATETIME);
-  CREATE TABLE board_series (
-    id INTEGER PRIMARY KEY,
-    "order" INTEGER NOT NULL DEFAULT 0,
-    text_md TEXT NOT NULL DEFAULT '',
-    text_html TEXT NOT NULL DEFAULT '',
-    hide BOOLEAN NOT NULL DEFAULT 0,
-    url TEXT NOT NULL,
-    layout TEXT NOT NULL DEFAULT '',
-    created_date DATETIME NOT NULL,
-    updated_date DATETIME NOT NULL,
-    owner_id INTEGER NOT NULL,
-    name TEXT NOT NULL
-  );
+  ${migratedTableSql('Comment', 'CommentLike')}
+  ${migratedTableSql('Series')}
   CREATE TABLE board_tag (id INTEGER PRIMARY KEY, value TEXT NOT NULL);
   CREATE TABLE board_post_tags (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, tag_id INTEGER NOT NULL);
   CREATE TABLE board_pinnedpost (id INTEGER PRIMARY KEY, "order" INTEGER NOT NULL, created_date DATETIME NOT NULL, post_id INTEGER NOT NULL, user_id INTEGER NOT NULL);
-  CREATE TABLE board_authorsubscription (
-    id INTEGER PRIMARY KEY,
-    created_date DATETIME NOT NULL,
-    author_id INTEGER NOT NULL,
-    subscriber_id INTEGER NOT NULL,
-    UNIQUE(subscriber_id, author_id)
-  );
+  ${migratedTableSql('AuthorSubscription')}
 
   INSERT INTO auth_user VALUES (1, 'writer', 'Writer', 1), (2, 'reader', 'Reader', 1);
   INSERT INTO board_usernamechangelog VALUES (1, 1, 'old-writer', '2019-01-01 00:00:00');
@@ -98,13 +80,10 @@ database.exec(`
   INSERT INTO board_userlinkmeta VALUES
     (1, 'GitHub', 'https://github.com/example-writer', '2020-01-01 00:00:00', '2020-01-01 00:00:00', 1, 1),
     (2, 'unsafe', 'javascript:alert(1)', '2020-01-01 00:00:00', '2020-01-01 00:00:00', 1, 2);
-  INSERT INTO board_series VALUES
-    (1, 1, 'First series description', '<p>First series description</p>', 0, 'public-series', '',
-     '2020-01-01 00:00:00', '2020-01-02 00:00:00', 1, 'Public series'),
-    (2, 2, 'Second series description', '<p>Second series description</p>', 0, 'other-series', '',
-     '2020-01-03 00:00:00', '2020-01-04 00:00:00', 1, 'Other series'),
-    (3, 3, 'Hidden series', '<p>Hidden series</p>', 1, 'hidden-series', '',
-     '2020-01-01 00:00:00', '2020-01-01 00:00:00', 1, 'Hidden series');
+  INSERT INTO "Series" ("id", "order", "descriptionMarkdown", "descriptionHtml", "isHidden", "slug", "layout", "createdAt", "updatedAt", "ownerId", "name", "createdAtMicroseconds", "updatedAtMicroseconds") VALUES
+    (1, 1, 'First series description', '<p>First series description</p>', 0, 'public-series', '', 1577836800000, 1577923200000, 1, 'Public series', 0, 0),
+    (2, 2, 'Second series description', '<p>Second series description</p>', 0, 'other-series', '', 1578009600000, 1578096000000, 1, 'Other series', 0, 0),
+    (3, 3, 'Hidden series', '<p>Hidden series</p>', 1, 'hidden-series', '', 1577836800000, 1577836800000, 1, 'Hidden series', 0, 0);
   INSERT INTO board_post VALUES
     (1, 'Public new article', 'A useful subtitle', 'public-new', 'images/public-new.jpg', 4,
      '2020-02-01 00:00:00.123456', '2020-02-01 00:00:00.123456', 1, 1, 'Public description', '2020-02-01 00:00:00.123456', NULL),
@@ -145,7 +124,8 @@ database.exec(`
     (5, 'user', 1, 'Second author notice', 1, 2, 1578182400000, 1578182400000, '/@writer/posts'),
     (6, 'user', 1, 'Unsafe author notice', 1, 3, 1578268800000, 1578268800000, 'javascript:alert(1)'),
     (7, 'user', 2, 'Reader-only notice', 1, 1, 1578355200000, 1578355200000, '/@reader');
-  INSERT INTO board_authorsubscription VALUES (1, '2020-02-01 00:00:00', 1, 2);
+  INSERT INTO "AuthorSubscription" ("id", "createdAt", "authorId", "subscriberId") VALUES
+    (1, 1580515200000, 1, 2);
   INSERT INTO SiteSetting (id, siteName, logoSvg, logoSvgDark, iconManifest, seoEnabled, updatedAt)
     VALUES (1, 'BLEX Docs', 'brand/logo/default/synthetic.svg', 'brand/logo/dark/synthetic-dark.svg', '{}', 1, 946684800000);
 `);

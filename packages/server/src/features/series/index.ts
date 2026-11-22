@@ -58,7 +58,7 @@ export function registerAuthorCollections(app: FastifyInstance, db: PrismaClient
       if (!user) return error;
       if (!options.validateCsrf(request)) return reply.code(403).send(apiError('RJ'));
       const body = bodyRecord(request.body);
-      const postIds = Object.hasOwn(body, 'post_ids') ? parsePostIds(body.post_ids) : undefined;
+      const postIds = Object.hasOwn(body, 'postIds') ? parsePostIds(body.postIds) : undefined;
       if (postIds === null) return apiError('IP', 'Invalid request data.');
       try {
         const series = await saveSeries(db, user.id, {
@@ -73,7 +73,7 @@ export function registerAuthorCollections(app: FastifyInstance, db: PrismaClient
     routes.get('/v1/series/valid-posts', async (request, reply) => {
       const { user, error } = await apiEditor(request);
       if (!user) return error;
-      const rawId = queryValue(request, 'series_id');
+      const rawId = queryValue(request, 'seriesId');
       let seriesId: number | undefined;
       if (rawId !== undefined) {
         seriesId = positiveInt(rawId) ?? undefined;
@@ -114,7 +114,7 @@ export function registerAuthorCollections(app: FastifyInstance, db: PrismaClient
       const id = positiveInt(request.params.id);
       if (!id || !(await readSeriesById(db, user.id, id))) return apiError('NF', 'Series not found.');
       const body = bodyRecord(request.body);
-      const postIds = Object.hasOwn(body, 'post_ids') ? parsePostIds(body.post_ids) : undefined;
+      const postIds = Object.hasOwn(body, 'postIds') ? parsePostIds(body.postIds) : undefined;
       if (postIds === null) return apiError('IP', 'Invalid request data.');
       try {
         const series = await saveSeries(db, user.id, {
@@ -147,10 +147,8 @@ export function registerAuthorCollections(app: FastifyInstance, db: PrismaClient
       if (!user) return error;
       if (user.id !== owner.id) return apiError('AT', 'Permission denied.');
       if (!options.validateCsrf(request)) return reply.code(403).send(apiError('RJ'));
-      const [series] = await db.$queryRaw<Array<{ id: number }>>`
-        SELECT id FROM board_series WHERE owner_id = ${owner.id} AND url = ${request.params.url} LIMIT 1
-      `;
-      if (!series || !(await deleteSeries(db, user.id, Number(series.id)))) return reply.code(404).send('Not found');
+      const series = await db.series.findFirst({ where: { ownerId: owner.id, slug: request.params.url }, select: { id: true } });
+      if (!series || !(await deleteSeries(db, user.id, series.id))) return reply.code(404).send('Not found');
       return apiDone({});
     });
 

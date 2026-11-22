@@ -93,17 +93,18 @@ export async function createNotification(tx: Prisma.TransactionClient, input: No
 
 export async function notifyPostSubscribers(tx: Prisma.TransactionClient, postId: number) {
   const now = new Date().toISOString().slice(0, -1).replace('T', ' ');
-  const subscribers = await tx.$queryRaw<Array<{ subscriber: number; authorId: number; username: string; title: string; slug: string }>>`
-    SELECT relation.subscriber_id AS subscriber, author.id AS authorId, author.username, post.title, post.url AS slug
+  const [announcement] = await tx.$queryRaw<Array<{ authorId: number; username: string; title: string; slug: string }>>`
+    SELECT author.id AS authorId, author.username, post.title, post.url AS slug
       FROM board_post AS post
       JOIN board_postconfig AS config ON config.post_id = post.id
       JOIN auth_user AS author ON author.id = post.author_id AND author.is_active = 1
       JOIN board_profile AS profile ON profile.user_id = author.id AND profile.role = 'EDITOR'
-      JOIN board_authorsubscription AS relation ON relation.author_id = author.id
      WHERE post.id = ${postId} AND post.published_date <= ${now} AND post.deleted_date IS NULL AND config.hide = 0
   `;
+  if (!announcement) return 0;
+  const { authorId, username, title, slug } = announcement;
+  const subscribers = await tx.authorSubscription.findMany({ where: { authorId }, select: { subscriberId: true } });
   if (!subscribers.length) return 0;
-  const { authorId, username, slug } = subscribers[0];
   const aliases = await tx.$queryRaw<Array<{ username: string }>>`
     SELECT username FROM board_usernamechangelog WHERE user_id = ${authorId}
   `;
@@ -111,12 +112,12 @@ export async function notifyPostSubscribers(tx: Prisma.TransactionClient, postId
   const priorUrls = [url, ...aliases.map((entry) => publicPostPath(entry.username, slug))];
   const telegramEnabled = await telegramDeliveryEnabled(tx);
   const announced = await tx.notification.findMany({
-    where: { userId: { in: subscribers.map(({ subscriber }) => subscriber) }, messageKey: 'post.published', url: { in: priorUrls } },
+    where: { userId: { in: subscribers.map(({ subscriberId }) => subscriberId) }, messageKey: 'post.published', url: { in: priorUrls } },
     select: { userId: true },
   });
   const alreadyNotified = new Set(announced.map(({ userId }) => userId));
   let delivered = 0;
-  for (const { subscriber, title } of subscribers) {
+  for (const { subscriberId: subscriber } of subscribers) {
     if (alreadyNotified.has(subscriber)) continue;
     if (await createNotification(tx, {
       recipientId: subscriber, actor: username, title, url, key: 'post.published', hiddenKey: `post-published:${postId}`,

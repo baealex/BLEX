@@ -18,8 +18,8 @@ export async function loadPost(
                CAST(post.deleted_date AS TEXT) AS deletedDate,
                post.author_id AS authorId, author.username AS authorUsername,
                profile.avatar AS authorAvatar, post.read_time AS readTime,
-               post.series_id AS seriesId, series.name AS seriesName, series.url AS seriesUrl,
-               CAST(series.hide AS INTEGER) AS seriesHidden,
+               post.series_id AS seriesId, series.name AS seriesName, series.slug AS seriesUrl,
+               CAST(series.isHidden AS INTEGER) AS seriesHidden,
                COALESCE(content.content_html, '') AS contentHtml,
                CAST(config.hide AS INTEGER) AS hide,
                CAST(config.advertise AS INTEGER) AS advertise,
@@ -32,7 +32,7 @@ export async function loadPost(
         LEFT JOIN board_profile AS profile ON profile.user_id = author.id
         LEFT JOIN board_postconfig AS config ON config.post_id = post.id
         LEFT JOIN board_postcontent AS content ON content.post_id = post.id
-        LEFT JOIN board_series AS series ON series.id = post.series_id
+        LEFT JOIN "Series" AS series ON series.id = post.series_id
         WHERE post.url = ${where.slug} AND post.author_id = ${where.userId}
           AND post.deleted_date IS NULL
         LIMIT 1
@@ -46,8 +46,8 @@ export async function loadPost(
                CAST(post.deleted_date AS TEXT) AS deletedDate,
                post.author_id AS authorId, author.username AS authorUsername,
                profile.avatar AS authorAvatar, post.read_time AS readTime,
-               post.series_id AS seriesId, series.name AS seriesName, series.url AS seriesUrl,
-               CAST(series.hide AS INTEGER) AS seriesHidden,
+               post.series_id AS seriesId, series.name AS seriesName, series.slug AS seriesUrl,
+               CAST(series.isHidden AS INTEGER) AS seriesHidden,
                COALESCE(content.content_html, '') AS contentHtml,
                CAST(config.hide AS INTEGER) AS hide,
                CAST(config.advertise AS INTEGER) AS advertise,
@@ -60,7 +60,7 @@ export async function loadPost(
         LEFT JOIN board_profile AS profile ON profile.user_id = author.id
         LEFT JOIN board_postconfig AS config ON config.post_id = post.id
         LEFT JOIN board_postcontent AS content ON content.post_id = post.id
-        LEFT JOIN board_series AS series ON series.id = post.series_id
+        LEFT JOIN "Series" AS series ON series.id = post.series_id
         WHERE post.url = ${where.slug} AND author.username = ${where.username ?? ''}
           AND post.deleted_date IS NULL
         LIMIT 1
@@ -91,10 +91,8 @@ export async function draftReservation(db: PrismaClient, postId: number): Promis
 
 async function publicSeriesId(db: Prisma.TransactionClient, userId: number, url: string): Promise<number | null> {
   if (!url) return null;
-  const rows = await db.$queryRaw<Array<{ id: number }>>`
-    SELECT id FROM board_series WHERE owner_id = ${userId} AND url = ${url} LIMIT 1
-  `;
-  return rows[0]?.id ?? null;
+  const series = await db.series.findFirst({ where: { ownerId: userId, slug: url }, select: { id: true } });
+  return series?.id ?? null;
 }
 
 async function uniqueSlug(tx: Prisma.TransactionClient, title: string, customUrl: string, excludeId?: number): Promise<string> {
@@ -539,10 +537,8 @@ export async function updatePostSettings(
   if (field(query.series)) {
     const seriesId = await publicSeriesId(db, author.id, field(body.series));
     await db.$executeRaw`UPDATE board_post SET series_id = ${seriesId}, updated_date = ${now} WHERE id = ${post.id}`;
-    const rows = seriesId === null ? [] : await db.$queryRaw<Array<{ url: string }>>`
-      SELECT url FROM board_series WHERE id = ${seriesId} LIMIT 1
-    `;
-    return { series: rows[0]?.url ?? null };
+    const series = seriesId === null ? null : await db.series.findUnique({ where: { id: seriesId }, select: { slug: true } });
+    return { series: series?.slug ?? null };
   }
   if (field(query.reserved_date)) {
     const value = field(body.reserved_date);

@@ -6,17 +6,6 @@ export interface QueryValue {
   [key: string]: string | string[] | undefined;
 }
 
-export interface SeriesRow {
-  id: number;
-  name: string;
-  url: string;
-  description: string;
-  isHidden: number | bigint | boolean;
-  postCount: number | bigint;
-  createdAt: string | Date;
-  updatedAt: string | Date;
-}
-
 export interface TagRow {
   name: string;
   postCount: number | bigint;

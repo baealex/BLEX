@@ -20,14 +20,14 @@ const POST_SELECT = `SELECT post.id AS id,
        author.username AS authorUsername,
        profile.avatar AS authorAvatar,
        (SELECT COUNT(*) FROM board_post_likes AS likes WHERE likes.post_id = post.id) AS likeCount,
-       (SELECT COUNT(*) FROM board_comment AS comments WHERE comments.post_id = post.id) AS commentCount,
-       series.url AS seriesUrl,
+       (SELECT COUNT(*) FROM "Comment" AS comments WHERE comments.postId = post.id) AS commentCount,
+       series.slug AS seriesUrl,
        series.name AS seriesName
   FROM board_post AS post
   JOIN auth_user AS author ON author.id = post.author_id
   LEFT JOIN board_profile AS profile ON profile.user_id = author.id
   LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-  LEFT JOIN board_series AS series ON series.id = post.series_id AND COALESCE(series.hide, 0) = 0`;
+  LEFT JOIN "Series" AS series ON series.id = post.series_id AND COALESCE(series.isHidden, 0) = 0`;
 
 export async function readCardLikes(db: PrismaClient, request: FastifyRequest, viewer: PublicPageViewer | null, posts: PostRow[]): Promise<CardLikes> {
   const liked = viewer && posts.length ? await db.$queryRaw<Array<{ postId: number }>>`
@@ -44,14 +44,14 @@ export async function readFeaturedPosts(db: PrismaClient, author: AuthorRow): Pr
            CAST(post.published_date AS TEXT) AS publishedDate, owner.username AS authorUsername,
            owner_profile.avatar AS authorAvatar,
            (SELECT COUNT(*) FROM board_post_likes AS likes WHERE likes.post_id = post.id) AS likeCount,
-           (SELECT COUNT(*) FROM board_comment AS comments WHERE comments.post_id = post.id) AS commentCount,
-           series.url AS seriesUrl, series.name AS seriesName
+           (SELECT COUNT(*) FROM "Comment" AS comments WHERE comments.postId = post.id) AS commentCount,
+           series.slug AS seriesUrl, series.name AS seriesName
       FROM board_pinnedpost AS pinned
       JOIN board_post AS post ON post.id = pinned.post_id
       JOIN auth_user AS owner ON owner.id = pinned.user_id
       LEFT JOIN board_profile AS owner_profile ON owner_profile.user_id = owner.id
       LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-      LEFT JOIN board_series AS series ON series.id = post.series_id AND COALESCE(series.hide, 0) = 0
+      LEFT JOIN "Series" AS series ON series.id = post.series_id AND COALESCE(series.isHidden, 0) = 0
      WHERE pinned.user_id = ${author.id}
        AND post.deleted_date IS NULL AND post.published_date IS NOT NULL
        AND post.published_date <= ${databaseNow()} AND COALESCE(post_config.hide, 0) = 0
@@ -129,7 +129,7 @@ export function searchCte(keywords: string[], username: string): SearchCte {
     SELECT post.id, post.url AS slug, post.title, post.subtitle, post.image,
            post.read_time AS readTime, post.meta_description AS description,
            CAST(post.published_date AS TEXT) AS publishedDate, author.username AS authorUsername,
-           profile.avatar AS authorAvatar, series.url AS seriesUrl, series.name AS seriesName,
+           profile.avatar AS authorAvatar, series.slug AS seriesUrl, series.name AS seriesName,
            CASE WHEN ${titlePattern} THEN 100 ELSE 0 END AS titleScore,
            CASE WHEN ${descriptionPattern} THEN 40 ELSE 0 END AS descriptionScore,
            CASE WHEN EXISTS (SELECT 1 FROM board_post_tags AS post_tag
@@ -141,7 +141,7 @@ export function searchCte(keywords: string[], username: string): SearchCte {
       JOIN auth_user AS author ON author.id = post.author_id
       LEFT JOIN board_profile AS profile ON profile.user_id = author.id
       LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-      LEFT JOIN board_series AS series ON series.id = post.series_id
+      LEFT JOIN "Series" AS series ON series.id = post.series_id
      WHERE ${PUBLIC_POST_WHERE} ${usernameWhere}
   ), scored AS (
     SELECT *, titleScore + descriptionScore + tagScore + contentScore AS relevance

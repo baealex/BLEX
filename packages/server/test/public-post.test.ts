@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
 import { buildApp } from '../src/app.js';
-import { createMigratedTables } from './fixtures/migrated-database.js';
+import { createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-test-'));
 const databasePath = join(directory, 'Django posts.sqlite3');
@@ -24,7 +24,7 @@ database.exec(`
   CREATE TABLE board_postconfig (id INTEGER PRIMARY KEY, post_id INTEGER UNIQUE, hide BOOLEAN,
     cover_layout TEXT NOT NULL DEFAULT 'default', cover_image_ratio TEXT NOT NULL DEFAULT 'auto', cover_image_position TEXT NOT NULL DEFAULT 'right');
   CREATE TABLE board_postcontent (id INTEGER PRIMARY KEY, post_id INTEGER UNIQUE, content_html TEXT);
-  CREATE TABLE board_series (id INTEGER PRIMARY KEY, name TEXT, url TEXT, hide BOOLEAN, owner_id INTEGER);
+  ${migratedTableSql('Series')}
   CREATE TABLE board_post_tags (post_id INTEGER, tag_id INTEGER);
   CREATE TABLE board_tag (id INTEGER PRIMARY KEY, value TEXT);
   INSERT INTO auth_user VALUES (7, 'writer', 'test-only-password'), (8, 'other-writer', 'test-only-password');

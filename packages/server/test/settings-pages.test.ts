@@ -9,7 +9,7 @@ import { PrismaClient } from '@prisma/client';
 import { after, beforeEach, test } from 'node:test';
 import { registerNotifications } from '../src/features/notifications/index.js';
 import { mySubscriptions } from '../src/features/engagement/services/subscriptions.js';
-import { createMigratedTables } from './fixtures/migrated-database.js';
+import { createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-settings-pages-'));
 const databasePath = join(directory, 'synthetic-settings.sqlite3');
@@ -32,9 +32,7 @@ function createSchema() {
       id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, value TEXT NOT NULL,
       created_date DATETIME NOT NULL, updated_date DATETIME NOT NULL, user_id INTEGER NOT NULL
     );
-    CREATE TABLE board_authorsubscription (
-      id INTEGER PRIMARY KEY, created_date DATETIME NOT NULL, author_id INTEGER NOT NULL, subscriber_id INTEGER NOT NULL
-    );
+    ${migratedTableSql('AuthorSubscription')}
   `);
   fixture.close();
 }
@@ -44,7 +42,7 @@ function seed() {
   fixture.exec(`
     DELETE FROM board_userconfigmeta;
     DELETE FROM Notification;
-    DELETE FROM board_authorsubscription;
+    DELETE FROM "AuthorSubscription";
     DELETE FROM TelegramConnection;
     DELETE FROM IntegrationSetting;
     DELETE FROM board_config;
@@ -56,7 +54,8 @@ function seed() {
     INSERT INTO Notification (id, userId, key, url, content, messageKey, messageParams, isRead, createdAt, updatedAt) VALUES
       (1, 1, 'first', '/@author/post-one', 'Author posted a new article.', 'UNKNOWN', '{}', 0, ${Date.now()}, ${Date.now()}),
       (2, 1, 'second', 'javascript:alert(1)', 'A mention without a safe link.', 'UNKNOWN', '{}', 1, ${Date.now()}, ${Date.now()});
-    INSERT INTO board_authorsubscription VALUES (1, '2026-11-20 10:00:00', 2, 1);
+    INSERT INTO "AuthorSubscription" ("id", "createdAt", "authorId", "subscriberId") VALUES
+    (1, 1795168800000, 2, 1);
     INSERT INTO IntegrationSetting (id, telegramEnabled, telegramBotUsername, telegramBotToken, updatedAt) VALUES (1, 1, 'synthetic_bot', 'synthetic-token', 946684800000);
   `);
   fixture.close();

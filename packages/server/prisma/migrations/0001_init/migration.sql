@@ -108,7 +108,7 @@ CREATE TABLE "board_post" (
     "published_date" DATETIME,
     "image_hash" TEXT NOT NULL,
     "deleted_date" DATETIME,
-    CONSTRAINT "board_post_series_id_fkey" FOREIGN KEY ("series_id") REFERENCES "board_series" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
+    CONSTRAINT "board_post_series_id_fkey" FOREIGN KEY ("series_id") REFERENCES "Series" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "board_post_author_id_fkey" FOREIGN KEY ("author_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
@@ -190,49 +190,50 @@ CREATE TABLE "board_authorinvite" (
 );
 
 -- CreateTable
-CREATE TABLE "board_authorsubscription" (
+CREATE TABLE "AuthorSubscription" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "created_date" DATETIME NOT NULL,
-    "author_id" INTEGER NOT NULL,
-    "subscriber_id" INTEGER NOT NULL,
-    CONSTRAINT "board_authorsubscription_subscriber_id_fkey" FOREIGN KEY ("subscriber_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT "board_authorsubscription_author_id_fkey" FOREIGN KEY ("author_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+    "subscriberId" INTEGER NOT NULL,
+    "authorId" INTEGER NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "AuthorSubscription_subscriberId_fkey" FOREIGN KEY ("subscriberId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "AuthorSubscription_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
-CREATE TABLE "board_authorsubscriptionlog" (
+CREATE TABLE "AuthorSubscriptionLog" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "subscriberId" INTEGER NOT NULL,
+    "authorId" INTEGER NOT NULL,
     "action" TEXT NOT NULL,
-    "created_date" DATETIME NOT NULL,
-    "author_id" INTEGER NOT NULL,
-    "subscriber_id" INTEGER NOT NULL,
-    CONSTRAINT "board_authorsubscriptionlog_subscriber_id_fkey" FOREIGN KEY ("subscriber_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT "board_authorsubscriptionlog_author_id_fkey" FOREIGN KEY ("author_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "AuthorSubscriptionLog_subscriberId_fkey" FOREIGN KEY ("subscriberId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "AuthorSubscriptionLog_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
-CREATE TABLE "board_comment" (
+CREATE TABLE "Comment" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "text_md" TEXT NOT NULL,
-    "text_html" TEXT NOT NULL,
-    "edited" BOOLEAN NOT NULL,
-    "heart" BOOLEAN NOT NULL,
-    "created_date" DATETIME NOT NULL,
-    "author_id" INTEGER,
-    "post_id" INTEGER NOT NULL,
-    "parent_id" INTEGER,
-    CONSTRAINT "board_comment_parent_id_fkey" FOREIGN KEY ("parent_id") REFERENCES "board_comment" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT "board_comment_post_id_fkey" FOREIGN KEY ("post_id") REFERENCES "board_post" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT "board_comment_author_id_fkey" FOREIGN KEY ("author_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+    "postId" INTEGER NOT NULL,
+    "authorId" INTEGER,
+    "parentId" INTEGER,
+    "markdown" TEXT NOT NULL DEFAULT '',
+    "html" TEXT NOT NULL DEFAULT '',
+    "isEdited" BOOLEAN NOT NULL DEFAULT false,
+    "isHearted" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Comment_postId_fkey" FOREIGN KEY ("postId") REFERENCES "board_post" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "Comment_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "auth_user" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "Comment_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "Comment" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
-CREATE TABLE "board_comment_likes" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "comment_id" INTEGER NOT NULL,
-    "user_id" INTEGER NOT NULL,
-    CONSTRAINT "board_comment_likes_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT "board_comment_likes_comment_id_fkey" FOREIGN KEY ("comment_id") REFERENCES "board_comment" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+CREATE TABLE "CommentLike" (
+    "commentId" INTEGER NOT NULL,
+    "userId" INTEGER NOT NULL,
+
+    PRIMARY KEY ("commentId", "userId"),
+    CONSTRAINT "CommentLike_commentId_fkey" FOREIGN KEY ("commentId") REFERENCES "Comment" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "CommentLike_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -419,30 +420,21 @@ CREATE TABLE "board_profile" (
 );
 
 -- CreateTable
-CREATE TABLE "board_series" (
+CREATE TABLE "Series" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "order" INTEGER NOT NULL,
-    "text_md" TEXT NOT NULL,
-    "text_html" TEXT NOT NULL,
-    "hide" BOOLEAN NOT NULL,
-    "url" TEXT NOT NULL,
-    "layout" TEXT NOT NULL,
-    "created_date" DATETIME NOT NULL,
-    "updated_date" DATETIME NOT NULL,
-    "owner_id" INTEGER NOT NULL,
+    "ownerId" INTEGER NOT NULL,
+    "slug" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    CONSTRAINT "board_series_owner_id_fkey" FOREIGN KEY ("owner_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- CreateTable
-CREATE TABLE "board_seriesconfigmeta" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "name" TEXT NOT NULL,
-    "value" TEXT NOT NULL,
-    "created_date" DATETIME NOT NULL,
-    "updated_date" DATETIME NOT NULL,
-    "post_id" INTEGER NOT NULL,
-    CONSTRAINT "board_seriesconfigmeta_post_id_fkey" FOREIGN KEY ("post_id") REFERENCES "board_series" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+    "descriptionMarkdown" TEXT NOT NULL DEFAULT '',
+    "descriptionHtml" TEXT NOT NULL DEFAULT '',
+    "isHidden" BOOLEAN NOT NULL DEFAULT false,
+    "layout" TEXT NOT NULL DEFAULT '',
+    "order" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAtMicroseconds" INTEGER NOT NULL DEFAULT 0,
+    "updatedAtMicroseconds" INTEGER NOT NULL DEFAULT 0,
+    CONSTRAINT "Series_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -829,49 +821,28 @@ CREATE INDEX "board_authorinvite_created_by_id_0cd57a38" ON "board_authorinvite"
 CREATE INDEX "board_authorinvite_claimed_by_id_7a8026eb" ON "board_authorinvite"("claimed_by_id");
 
 -- CreateIndex
-CREATE INDEX "board_authorsub_author_idx" ON "board_authorsubscription"("author_id", "created_date");
+CREATE INDEX "AuthorSubscription_authorId_createdAt_idx" ON "AuthorSubscription"("authorId", "createdAt");
 
 -- CreateIndex
-CREATE INDEX "board_authorsubscription_subscriber_id_27e581a7" ON "board_authorsubscription"("subscriber_id");
+CREATE UNIQUE INDEX "AuthorSubscription_subscriberId_authorId_key" ON "AuthorSubscription"("subscriberId", "authorId");
 
 -- CreateIndex
-CREATE INDEX "board_authorsubscription_author_id_8b00b85d" ON "board_authorsubscription"("author_id");
+CREATE INDEX "AuthorSubscriptionLog_authorId_createdAt_idx" ON "AuthorSubscriptionLog"("authorId", "createdAt");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "board_authorsubscription_subscriber_id_author_id_key" ON "board_authorsubscription"("subscriber_id", "author_id");
+CREATE INDEX "AuthorSubscriptionLog_subscriberId_idx" ON "AuthorSubscriptionLog"("subscriberId");
 
 -- CreateIndex
-CREATE INDEX "board_authorsublog_author_idx" ON "board_authorsubscriptionlog"("author_id", "created_date");
+CREATE INDEX "Comment_authorId_createdAt_idx" ON "Comment"("authorId", "createdAt");
 
 -- CreateIndex
-CREATE INDEX "board_authorsubscriptionlog_subscriber_id_55114cf2" ON "board_authorsubscriptionlog"("subscriber_id");
+CREATE INDEX "Comment_postId_parentId_createdAt_idx" ON "Comment"("postId", "parentId", "createdAt");
 
 -- CreateIndex
-CREATE INDEX "board_authorsubscriptionlog_author_id_9430554d" ON "board_authorsubscriptionlog"("author_id");
+CREATE INDEX "Comment_parentId_idx" ON "Comment"("parentId");
 
 -- CreateIndex
-CREATE INDEX "board_comme_author__e4042f_idx" ON "board_comment"("author_id", "created_date");
-
--- CreateIndex
-CREATE INDEX "board_comme_post_id_260f64_idx" ON "board_comment"("post_id", "parent_id", "created_date");
-
--- CreateIndex
-CREATE INDEX "board_comment_parent_id_511c6974" ON "board_comment"("parent_id");
-
--- CreateIndex
-CREATE INDEX "board_comment_post_id_0a1699af" ON "board_comment"("post_id");
-
--- CreateIndex
-CREATE INDEX "board_comment_author_id_08705ab7" ON "board_comment"("author_id");
-
--- CreateIndex
-CREATE INDEX "board_comment_likes_user_id_4c484ae1" ON "board_comment_likes"("user_id");
-
--- CreateIndex
-CREATE INDEX "board_comment_likes_comment_id_3ab8c714" ON "board_comment_likes"("comment_id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "board_comment_likes_comment_id_user_id_c6d811be_uniq" ON "board_comment_likes"("comment_id", "user_id");
+CREATE INDEX "CommentLike_userId_idx" ON "CommentLike"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "board_config_user_id_key" ON "board_config"("user_id");
@@ -973,13 +944,10 @@ CREATE INDEX "board_postsharelink_post_id_4819c9d6" ON "board_postsharelink"("po
 CREATE UNIQUE INDEX "board_profile_user_id_key" ON "board_profile"("user_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "board_series_url_key" ON "board_series"("url");
+CREATE UNIQUE INDEX "Series_slug_key" ON "Series"("slug");
 
 -- CreateIndex
-CREATE INDEX "board_series_owner_id_68a37f76" ON "board_series"("owner_id");
-
--- CreateIndex
-CREATE INDEX "board_seriesconfigmeta_post_id_06b5e8ce" ON "board_seriesconfigmeta"("post_id");
+CREATE INDEX "Series_ownerId_idx" ON "Series"("ownerId");
 
 -- CreateIndex
 CREATE INDEX "board_socialauth_user_id_92dc0ec9" ON "board_socialauth"("user_id");

@@ -18,6 +18,17 @@ export { ReaderAuthorHeader, ReaderPostLikeState, ReaderPostView, readReaderPost
 
 export { timeSince };
 
+/** Another request already wrote this row. SQLite keeps the transaction open after the conflict. */
+async function createUnlessPresent(create: () => Promise<unknown>): Promise<boolean> {
+  try {
+    await create();
+    return true;
+  } catch (failure) {
+    if (failure instanceof Prisma.PrismaClientKnownRequestError && failure.code === 'P2002') return false;
+    throw failure;
+  }
+}
+
 export function registerReaderActions(
   app: FastifyInstance,
   db: PrismaClient,
@@ -97,7 +108,7 @@ export function registerReaderActions(
       if (!user) return error('AT', 'Log in to continue.');
       if (isTrue(post.blockComment)) return error('RJ', 'Comments are disabled for this post.');
 
-      const parentIdText = bodyField(body, 'parent_id');
+      const parentIdText = bodyField(body, 'parentId');
       let parent: CommentRow | null = null;
       if (parentIdText) {
         if (!/^\d+$/.test(parentIdText) || Number(parentIdText) < 1) return missing(reply);
@@ -108,25 +119,22 @@ export function registerReaderActions(
         if (parent.parentId !== null) return error('RJ', 'You cannot reply to a reply.');
       }
 
-      const markdown = bodyField(body, 'comment_md');
+      const markdown = bodyField(body, 'commentMd');
       const html = commentHtml(markdown);
-      const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
       const commentId = await db.$transaction(async (tx) => {
-        const [inserted] = await tx.$queryRaw<Array<{ id: number }>>`
-          INSERT INTO board_comment
-            (text_md, text_html, edited, heart, created_date, author_id, post_id, parent_id)
-          VALUES (${markdown}, ${html}, 0, 0, ${now}, ${user.id}, ${post.id}, ${parent?.id ?? null})
-          RETURNING id
-        `;
+        const inserted = await tx.comment.create({
+          data: { markdown, html, authorId: user.id, postId: post.id, parentId: parent?.id ?? null },
+          select: { id: true },
+        });
         const recipientId = parent?.authorId ?? post.authorId;
         const data = { actor: user.username, url: publicPostPath(post.authorUsername, post.slug), title: post.title, commentId: inserted.id };
         await createNotification(tx, { ...data, recipientId, key: parent ? 'comment.replied' : 'post.commented', preference: 'NOTIFY_POSTS_COMMENT' });
         const mentions = [...new Set([...markdown.matchAll(/(?<![\p{L}\p{N}_@.+\-`*~])@([a-z0-9]{4,15})(?![\p{L}\p{N}_+\-`*~]|\.[a-zA-Z0-9])/gu)].map((match) => match[1]))];
         if (mentions.length) {
-          const targets = await tx.$queryRaw<Array<{ id: number }>>`
-            SELECT id FROM auth_user AS target WHERE username IN (${Prisma.join(mentions)})
-              AND EXISTS(SELECT 1 FROM board_comment WHERE post_id = ${post.id} AND author_id = target.id)
-          `;
+          const targets = await tx.user.findMany({
+            where: { username: { in: mentions }, comments: { some: { postId: post.id } } },
+            select: { id: true },
+          });
           for (const target of targets) await createNotification(tx, {
             ...data, recipientId: target.id, key: 'comment.mentioned', preference: 'NOTIFY_MENTION',
           });
@@ -152,7 +160,7 @@ export function registerReaderActions(
         const viewer = await activeUser(request, db, options);
         const comment = await commentForViewer(db, id, viewer?.id ?? null);
         if (!comment) return missing(reply);
-        if (!isTrue(comment.postPublic)) return missing(reply);
+        if (!comment.postPublic) return missing(reply);
 
         if (request.method === 'GET') {
           if (comment.authorId === null) return missing(reply);
@@ -160,7 +168,7 @@ export function registerReaderActions(
             return error('AT', 'You do not have permission to edit this comment.');
           }
           reply.header('Cache-Control', 'private, no-store');
-          return done({ textMd: comment.textMd });
+          return done({ textMd: comment.markdown });
         }
 
         if (request.method === 'PUT' || request.method === 'POST') {
@@ -172,26 +180,17 @@ export function registerReaderActions(
             const recipientId = comment.authorId;
 
             const result = await db.$transaction(async (tx) => {
-              const removed = await tx.$executeRaw`
-                DELETE FROM board_comment_likes
-                WHERE comment_id = ${comment.id} AND user_id = ${viewer.id}
-              `;
-              const isLiked = removed === 0;
+              const like = { commentId: comment.id, userId: viewer.id };
+              const removed = await tx.commentLike.deleteMany({ where: like });
+              const isLiked = removed.count === 0;
               if (isLiked) {
-                const added = await tx.$executeRaw`
-                  INSERT INTO board_comment_likes (comment_id, user_id)
-                  VALUES (${comment.id}, ${viewer.id})
-                  ON CONFLICT(comment_id, user_id) DO NOTHING
-                `;
+                const added = await createUnlessPresent(() => tx.commentLike.create({ data: like }));
                 if (added) await createNotification(tx, {
                   recipientId, actor: viewer.username, url: publicPostPath(comment.postUsername, comment.postSlug), title: comment.postTitle,
                   commentId: comment.id, key: 'comment.liked', preference: 'NOTIFY_COMMENT_LIKE',
                 });
               }
-              const counts = await tx.$queryRaw<Array<{ count: number | bigint }>>`
-                SELECT COUNT(*) AS count FROM board_comment_likes WHERE comment_id = ${comment.id}
-              `;
-              return { isLiked, countLikes: numberValue(counts[0]?.count ?? 0) };
+              return { isLiked, countLikes: await tx.commentLike.count({ where: { commentId: comment.id } }) };
             });
             const returnTo = localReturnTo(body?.return_to);
             if (request.method === 'POST' && returnTo) return reply.redirect(returnTo, 303);
@@ -203,12 +202,11 @@ export function registerReaderActions(
             if (!viewer || comment.authorId !== viewer.id) {
               return error('AT', 'You do not have permission to edit this comment.');
             }
-            const markdown = bodyField(body, 'comment_md');
-            await db.$executeRaw`
-              UPDATE board_comment
-              SET text_md = ${markdown}, text_html = ${commentHtml(markdown)}, edited = 1
-              WHERE id = ${comment.id} AND author_id = ${viewer.id}
-            `;
+            const markdown = bodyField(body, 'commentMd');
+            await db.comment.updateMany({
+              where: { id: comment.id, authorId: viewer.id },
+              data: { markdown, html: commentHtml(markdown), isEdited: true },
+            });
             const returnTo = formEdit ? commentReturnTo(body?.return_to, comment.id) : null;
             if (returnTo) return reply.redirect(returnTo, 303);
             return done();
@@ -222,7 +220,7 @@ export function registerReaderActions(
             const returnTo = localReturnTo(body?.return_to);
             if (returnTo) return reply.redirect(returnTo, 303);
             const deleted = await commentForViewer(db, comment.id, viewer.id);
-            return done(deleted ? serializeComment(deleted, viewer.id, !isTrue(deleted.postBlockComment)) : {});
+            return done(deleted ? serializeComment(deleted, viewer.id, !deleted.postBlockComment) : {});
           }
 
           return missing(reply);
@@ -234,7 +232,7 @@ export function registerReaderActions(
           }
           await anonymizeComments(db, viewer.id, comment.id);
           const deleted = await commentForViewer(db, comment.id, viewer.id);
-          return done(deleted ? serializeComment(deleted, viewer.id, !isTrue(deleted.postBlockComment)) : {});
+          return done(deleted ? serializeComment(deleted, viewer.id, !deleted.postBlockComment) : {});
         }
 
         return missing(reply);
@@ -264,16 +262,9 @@ export function registerReaderActions(
           if (viewer.id === author.id) return error('RJ', 'You cannot subscribe to yourself.');
           if (!canSubscribe(author)) return error('RJ', 'This user does not publish posts.');
           await db.$transaction(async (tx) => {
-            const inserted = await tx.$executeRaw`
-              INSERT INTO board_authorsubscription (created_date, author_id, subscriber_id)
-              VALUES (${new Date().toISOString().replace('T', ' ').replace('Z', '')}, ${author.id}, ${viewer.id})
-              ON CONFLICT(subscriber_id, author_id) DO NOTHING
-            `;
-            if (inserted > 0) {
-              await tx.$executeRaw`
-                INSERT INTO board_authorsubscriptionlog (action, created_date, author_id, subscriber_id)
-                VALUES ('subscribe', ${new Date().toISOString().replace('T', ' ').replace('Z', '')}, ${author.id}, ${viewer.id})
-              `;
+            const relation = { authorId: author.id, subscriberId: viewer.id };
+            if (await createUnlessPresent(() => tx.authorSubscription.create({ data: relation }))) {
+              await tx.authorSubscriptionLog.create({ data: { ...relation, action: 'subscribe' } });
             }
           });
           const setting = await db.integrationSetting.findUnique({
@@ -296,16 +287,9 @@ export function registerReaderActions(
 
         const canSubscribeAfterDelete = canSubscribe(author) && viewer.id !== author.id;
         await db.$transaction(async (tx) => {
-          const deleted = await tx.$executeRaw`
-            DELETE FROM board_authorsubscription
-            WHERE subscriber_id = ${viewer.id} AND author_id = ${author.id}
-          `;
-          if (deleted > 0) {
-            await tx.$executeRaw`
-              INSERT INTO board_authorsubscriptionlog (action, created_date, author_id, subscriber_id)
-              VALUES ('unsubscribe', ${new Date().toISOString().replace('T', ' ').replace('Z', '')}, ${author.id}, ${viewer.id})
-            `;
-          }
+          const relation = { authorId: author.id, subscriberId: viewer.id };
+          const deleted = await tx.authorSubscription.deleteMany({ where: relation });
+          if (deleted.count > 0) await tx.authorSubscriptionLog.create({ data: { ...relation, action: 'unsubscribe' } });
         });
         if (returnTo) return reply.redirect(returnTo, 303);
         return done({ canSubscribe: canSubscribeAfterDelete, isSubscribed: false });

@@ -7,6 +7,7 @@ import Fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import { after, beforeEach, test } from 'node:test';
 import { registerAuthorCollections } from '../src/features/series/index.js';
+import { migratedTableSql } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-author-collections-'));
 const databasePath = join(directory, 'synthetic-author-collections.sqlite3');
@@ -21,19 +22,10 @@ function createSchema() {
     CREATE TABLE board_profile (
       id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL UNIQUE, role TEXT NOT NULL
     );
-    CREATE TABLE board_series (
-      id INTEGER PRIMARY KEY, "order" INTEGER NOT NULL DEFAULT 0, text_md TEXT NOT NULL DEFAULT '',
-      text_html TEXT NOT NULL DEFAULT '', hide BOOLEAN NOT NULL DEFAULT 0, url TEXT NOT NULL UNIQUE,
-      layout TEXT NOT NULL DEFAULT 'list', created_date DATETIME NOT NULL, updated_date DATETIME NOT NULL,
-      owner_id INTEGER NOT NULL, name TEXT NOT NULL
-    );
-    CREATE TABLE board_seriesconfigmeta (
-      id INTEGER PRIMARY KEY, name TEXT NOT NULL, value TEXT NOT NULL, created_date DATETIME NOT NULL,
-      updated_date DATETIME NOT NULL, post_id INTEGER NOT NULL
-    );
-    CREATE TABLE board_post (
+    ${migratedTableSql('Series')}
+        CREATE TABLE board_post (
       id INTEGER PRIMARY KEY, url TEXT NOT NULL UNIQUE, title TEXT NOT NULL, image TEXT NOT NULL DEFAULT '',
-      published_date DATETIME, deleted_date DATETIME, author_id INTEGER NOT NULL, series_id INTEGER,
+      published_date DATETIME, deleted_date DATETIME, author_id INTEGER NOT NULL, series_id INTEGER REFERENCES "Series" (id) ON DELETE SET NULL,
       updated_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
     CREATE TABLE board_postconfig (
@@ -53,17 +45,17 @@ function seed() {
     DELETE FROM board_pinnedpost;
     DELETE FROM board_postconfig;
     DELETE FROM board_post;
-    DELETE FROM board_series;
+    DELETE FROM "Series";
     DELETE FROM board_profile;
     DELETE FROM auth_user;
     INSERT INTO auth_user VALUES
       (1, 'writer', 1), (2, 'other-writer', 1), (3, 'reader', 1), (4, 'inactive-writer', 0);
     INSERT INTO board_profile VALUES
       (1, 1, 'EDITOR'), (2, 2, 'EDITOR'), (3, 3, 'READER'), (4, 4, 'EDITOR');
-    INSERT INTO board_series VALUES
-      (10, 0, '**series description**', '<p><strong>series description</strong></p>', 0, 'writer-series', 'list', '2024-01-01 09:00:00', '2024-01-01 09:00:00', 1, 'Writer Series'),
-      (11, 1, '', '', 1, 'hidden-series', 'list', '2024-01-02 09:00:00', '2024-01-02 09:00:00', 1, 'Hidden Series'),
-      (20, 0, '', '', 0, 'other-series', 'list', '2024-01-03 09:00:00', '2024-01-03 09:00:00', 2, 'Other Series');
+    INSERT INTO "Series" ("id", "order", "descriptionMarkdown", "descriptionHtml", "isHidden", "slug", "layout", "createdAt", "updatedAt", "ownerId", "name", "createdAtMicroseconds", "updatedAtMicroseconds") VALUES
+    (10, 0, '**series description**', '<p><strong>series description</strong></p>', 0, 'writer-series', 'list', 1704099600000, 1704099600000, 1, 'Writer Series', 0, 0),
+    (11, 1, '', '', 1, 'hidden-series', 'list', 1704186000000, 1704186000000, 1, 'Hidden Series', 0, 0),
+    (20, 0, '', '', 0, 'other-series', 'list', 1704272400000, 1704272400000, 2, 'Other Series', 0, 0);
     INSERT INTO board_post VALUES
       (1, 'public-unassigned', 'Public unassigned', '', '2024-06-01 12:00:00', NULL, 1, NULL, '2024-06-01 12:00:00'),
       (2, 'public-assigned', 'Public assigned', '', '2024-06-02 12:00:00', NULL, 1, 10, '2024-06-02 12:00:00'),
@@ -145,19 +137,19 @@ test('series APIs preserve ownership, counts, markdown, post selection, and orde
 
   const available = await app.inject({ url: '/v1/series/valid-posts', headers: signedIn(1) });
   assert.deepEqual((available.json().body as Array<{ id: number }>).map((post) => post.id), [12, 1]);
-  const selectedAvailable = await app.inject({ url: '/v1/series/valid-posts?series_id=10', headers: signedIn(1) });
+  const selectedAvailable = await app.inject({ url: '/v1/series/valid-posts?seriesId=10', headers: signedIn(1) });
   assert.deepEqual((selectedAvailable.json().body as Array<{ id: number }>).map((post) => post.id), [12, 9, 7, 2, 1, 8]);
-  assert.equal((await app.inject({ url: '/v1/series/valid-posts?series_id=abc', headers: signedIn(1) })).json().errorCode, 'error:IP');
+  assert.equal((await app.inject({ url: '/v1/series/valid-posts?seriesId=abc', headers: signedIn(1) })).json().errorCode, 'error:IP');
 
   const created = await app.inject({
     method: 'POST', url: '/v1/series', headers: jsonHeaders(1),
-    payload: { name: 'New Series', url: 'writer-series', description: '**welcome**', post_ids: [1, 2, 10, 999] },
+    payload: { name: 'New Series', url: 'writer-series', description: '**welcome**', postIds: [1, 2, 10, 999] },
   });
   assert.equal(created.json().status, 'DONE', created.body);
   assert.equal(created.json().body.postCount, 2);
   assert.match(created.json().body.url, /^writer-series-[0-9a-f]{8}$/);
   const newId = Number(created.json().body.id);
-  const [stored] = await db.$queryRaw<Array<{ text_html: string }>>`SELECT text_html FROM board_series WHERE id = ${newId}`;
+  const [stored] = await db.$queryRaw<Array<{ text_html: string }>>`SELECT descriptionHtml AS text_html FROM "Series" WHERE id = ${newId}`;
   assert.equal(stored.text_html, '**welcome**');
   const [movedPost] = await db.$queryRaw<Array<{ series_id: number | null }>>`SELECT series_id FROM board_post WHERE id = 2`;
   assert.equal(movedPost.series_id, newId);
@@ -165,7 +157,7 @@ test('series APIs preserve ownership, counts, markdown, post selection, and orde
   assert.equal(foreignPost.series_id, null);
 
   const updated = await app.inject({
-    method: 'PUT', url: `/v1/series/${newId}`, headers: jsonHeaders(1), payload: { name: 'Renamed', post_ids: [] },
+    method: 'PUT', url: `/v1/series/${newId}`, headers: jsonHeaders(1), payload: { name: 'Renamed', postIds: [] },
   });
   assert.equal(updated.json().body.name, 'Renamed');
   assert.equal(updated.json().body.postCount, 0);
@@ -178,14 +170,17 @@ test('series APIs preserve ownership, counts, markdown, post selection, and orde
     method: 'PUT', url: '/v1/series/order', headers: jsonHeaders(1), payload: { order: [[10, 9], [20, 3]] },
   });
   assert.equal(ordered.json().status, 'DONE');
-  const [seriesOrder] = await db.$queryRaw<Array<{ order: number }>>`SELECT "order" AS "order" FROM board_series WHERE id = 10`;
-  const [otherOrder] = await db.$queryRaw<Array<{ order: number }>>`SELECT "order" AS "order" FROM board_series WHERE id = 20`;
+  const tooWide = await app.inject({ method: 'PUT', url: '/v1/series/order', headers: jsonHeaders(1), payload: { order: [[10, 3_000_000_000]] } });
+  assert.equal(tooWide.json().status, 'DONE');
+  assert.equal((await app.inject({ url: '/v1/setting/series', headers: signedIn(1) })).statusCode, 200);
+  const [seriesOrder] = await db.$queryRaw<Array<{ order: number }>>`SELECT "order" AS "order" FROM "Series" WHERE id = 10`;
+  const [otherOrder] = await db.$queryRaw<Array<{ order: number }>>`SELECT "order" AS "order" FROM "Series" WHERE id = 20`;
   assert.equal(seriesOrder.order, 9);
   assert.equal(otherOrder.order, 0);
 
   const deleted = await app.inject({ method: 'DELETE', url: `/v1/series/${newId}`, headers: signedIn(1) });
   assert.equal(deleted.json().status, 'DONE');
-  assert.equal((await db.$queryRaw<Array<{ id: number }>>`SELECT id FROM board_series WHERE id = ${newId}`).length, 0);
+  assert.equal((await db.$queryRaw<Array<{ id: number }>>`SELECT id FROM "Series" WHERE id = ${newId}`).length, 0);
 
   const badCsrf = await app.inject({ method: 'POST', url: '/v1/series', headers: jsonHeaders(1, false), payload: { name: 'No CSRF' } });
   assert.equal(badCsrf.statusCode, 403);

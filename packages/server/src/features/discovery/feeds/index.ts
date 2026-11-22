@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { htmlToMarkdown } from './markdown.js';
+import { storedDateText } from '../../../compat/django-format.js';
 import { sanitizePostHtml } from '../../posts/post-html.js';
 
 const sitemapSections = ['site', 'user', 'posts', 'series', 'staticpages'] as const;
@@ -324,14 +325,14 @@ async function readPostTags(db: PrismaClient, postId: number): Promise<string[]>
 
 async function readPublicSeries(db: PrismaClient, username: string, slug: string): Promise<SeriesRow | null> {
   const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
-  const [series] = await db.$queryRaw<SeriesRow[]>`
-    SELECT series.id, owner.username, series.name, series.url AS slug,
-           series.text_md AS textMd, series.text_html AS textHtml,
-           CAST(series.updated_date AS TEXT) AS updatedDate
-      FROM board_series AS series
-      JOIN auth_user AS owner ON owner.id = series.owner_id
-     WHERE series.url = ${slug}
-       AND series.hide = 0
+  const [series] = await db.$queryRaw<Array<Omit<SeriesRow, 'updatedDate'> & { updatedAt: number | bigint; updatedMicroseconds: number | bigint }>>`
+    SELECT series.id, owner.username, series.name, series.slug AS slug,
+           series.descriptionMarkdown AS textMd, series.descriptionHtml AS textHtml,
+           CAST(series.updatedAt AS INTEGER) AS updatedAt, series.updatedAtMicroseconds AS updatedMicroseconds
+      FROM "Series" AS series
+      JOIN auth_user AS owner ON owner.id = series.ownerId
+     WHERE series.slug = ${slug}
+       AND series.isHidden = 0
        AND (
          owner.username = ${username}
          OR EXISTS (
@@ -349,7 +350,9 @@ async function readPublicSeries(db: PrismaClient, username: string, slug: string
        )
      LIMIT 1
   `;
-  return series ?? null;
+  if (!series) return null;
+  const { updatedAt, updatedMicroseconds, ...row } = series;
+  return { ...row, updatedDate: storedDateText(updatedAt, updatedMicroseconds) };
 }
 
 async function readPublicSeriesPosts(db: PrismaClient, seriesId: number): Promise<Array<Pick<PublicPostRow, 'username' | 'title' | 'slug' | 'publishedDate'>>> {
@@ -452,10 +455,10 @@ async function readSitemapMetadata(db: PrismaClient, section: (typeof sitemapSec
     return metadata ?? { itemCount: 0, latestLastmod: null };
   }
   if (section === 'series') {
-    const [metadata] = await db.$queryRaw<SitemapMetadata[]>`
-      SELECT COUNT(series.id) AS itemCount, CAST(MAX(series.updated_date) AS TEXT) AS latestLastmod
-        FROM board_series AS series
-       WHERE series.hide = 0
+    const [metadata] = await db.$queryRaw<Array<{ itemCount: number | bigint; latestLastmod: number | bigint | null }>>`
+      SELECT COUNT(series.id) AS itemCount, CAST(MAX(series.updatedAt) AS INTEGER) AS latestLastmod
+        FROM "Series" AS series
+       WHERE series.isHidden = 0
          AND EXISTS (
            SELECT 1 FROM board_post AS post
            LEFT JOIN board_postconfig AS config ON config.post_id = post.id
@@ -465,7 +468,10 @@ async function readSitemapMetadata(db: PrismaClient, section: (typeof sitemapSec
               AND post.published_date <= ${now}
          )
     `;
-    return metadata ?? { itemCount: 0, latestLastmod: null };
+    return {
+      itemCount: metadata?.itemCount ?? 0,
+      latestLastmod: metadata?.latestLastmod === null || metadata?.latestLastmod === undefined ? null : new Date(Number(metadata.latestLastmod)),
+    };
   }
   const { _count, _max } = await db.staticPage.aggregate({
     where: { isPublished: true },
@@ -524,11 +530,11 @@ async function readSitemapPage(
     }));
   }
   if (section === 'series') {
-    const series = await db.$queryRaw<Array<{ username: string; slug: string; updatedDate: DbDate }>>`
-      SELECT owner.username, series.url AS slug, CAST(series.updated_date AS TEXT) AS updatedDate
-        FROM board_series AS series
-        JOIN auth_user AS owner ON owner.id = series.owner_id
-       WHERE series.hide = 0
+    const series = await db.$queryRaw<Array<{ username: string; slug: string; updatedAt: number | bigint }>>`
+      SELECT owner.username, series.slug AS slug, CAST(series.updatedAt AS INTEGER) AS updatedAt
+        FROM "Series" AS series
+        JOIN auth_user AS owner ON owner.id = series.ownerId
+       WHERE series.isHidden = 0
          AND EXISTS (
            SELECT 1 FROM board_post AS post
            LEFT JOIN board_postconfig AS config ON config.post_id = post.id
@@ -537,12 +543,12 @@ async function readSitemapPage(
               AND post.deleted_date IS NULL
               AND post.published_date <= ${now}
          )
-       ORDER BY series.updated_date DESC
+       ORDER BY series.updatedAt DESC, series.updatedAtMicroseconds DESC
        LIMIT ${sitemapLimit} OFFSET ${offset}
     `;
     return series.map((item) => ({
       location: absoluteUrl(siteUrl, `/@${encodeURIComponent(item.username)}/series/${encodeURIComponent(item.slug)}`),
-      lastmod: item.updatedDate, changefreq: 'weekly', priority: '0.7',
+      lastmod: new Date(Number(item.updatedAt)), changefreq: 'weekly', priority: '0.7',
     }));
   }
   const pages = await db.staticPage.findMany({

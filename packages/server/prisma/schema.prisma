@@ -12,6 +12,11 @@ enum ContentScope {
   global
 }
 
+enum SubscriptionAction {
+  subscribe
+  unsubscribe
+}
+
 enum BannerType {
   horizontal
   sidebar
@@ -53,55 +58,55 @@ model OAuthChallenge {
 
 /// Existing Django account table and relationships.
 model User {
-  id                                                                               Int                           @id @default(autoincrement())
-  password                                                                         String
-  last_login                                                                       DateTime?
-  is_superuser                                                                     Boolean
-  username                                                                         String                        @unique
-  last_name                                                                        String
-  email                                                                            String
-  is_staff                                                                         Boolean
-  is_active                                                                        Boolean
-  date_joined                                                                      DateTime
-  first_name                                                                       String
-  auth_user_groups                                                                 auth_user_groups[]
-  auth_user_user_permissions                                                       auth_user_user_permissions[]
-  board_authorinvite_board_authorinvite_created_by_idToauth_user                   board_authorinvite[]          @relation("board_authorinvite_created_by_idToauth_user")
-  board_authorinvite_board_authorinvite_claimed_by_idToauth_user                   board_authorinvite[]          @relation("board_authorinvite_claimed_by_idToauth_user")
-  board_authorsubscription_board_authorsubscription_subscriber_idToauth_user       board_authorsubscription[]    @relation("board_authorsubscription_subscriber_idToauth_user")
-  board_authorsubscription_board_authorsubscription_author_idToauth_user           board_authorsubscription[]    @relation("board_authorsubscription_author_idToauth_user")
-  board_authorsubscriptionlog_board_authorsubscriptionlog_subscriber_idToauth_user board_authorsubscriptionlog[] @relation("board_authorsubscriptionlog_subscriber_idToauth_user")
-  board_authorsubscriptionlog_board_authorsubscriptionlog_author_idToauth_user     board_authorsubscriptionlog[] @relation("board_authorsubscriptionlog_author_idToauth_user")
-  board_comment                                                                    board_comment[]
-  board_comment_likes                                                              board_comment_likes[]
-  board_config                                                                     board_config?
-  developerRequests                                                                DeveloperRequestLog[]
-  developerTokens                                                                  DeveloperToken[]
-  board_edithistory                                                                board_edithistory[]
-  board_editrequest                                                                board_editrequest[]
-  board_emailchange                                                                board_emailchange?
-  formTemplates                                                                    FormTemplate[]
-  uploadedImages                                                                   UploadedImage[]
-  notifications                                                                    Notification[]
-  board_pinnedpost                                                                 board_pinnedpost[]
-  posts                                                                            Post[]
-  board_post_likes                                                                 board_post_likes[]
-  board_profile                                                                    board_profile?
-  board_series                                                                     board_series[]
-  banners                                                                          SiteBanner[]
-  notices                                                                          SiteNotice[]
-  board_socialauth                                                                 board_socialauth[]
-  staticPages                                                                      StaticPage[]
-  telegram                                                                         TelegramConnection?
-  webhookChannels                                                                  WebhookChannel[]
-  board_twofactorauth                                                              board_twofactorauth?
-  board_userconfigmeta                                                             board_userconfigmeta[]
-  board_userlinkmeta                                                               board_userlinkmeta[]
-  usernameChanges                                                                  UsernameChange[]
-  cleanupConfirmations                                                             CleanupConfirmation[]
-  workLogs                                                                         WorkLog[]
-  adminLogs                                                                        AdminLog[]
-  sessions                                                                         Session[]
+  id                                                             Int                          @id @default(autoincrement())
+  password                                                       String
+  last_login                                                     DateTime?
+  is_superuser                                                   Boolean
+  username                                                       String                       @unique
+  last_name                                                      String
+  email                                                          String
+  is_staff                                                       Boolean
+  is_active                                                      Boolean
+  date_joined                                                    DateTime
+  first_name                                                     String
+  auth_user_groups                                               auth_user_groups[]
+  auth_user_user_permissions                                     auth_user_user_permissions[]
+  board_authorinvite_board_authorinvite_created_by_idToauth_user board_authorinvite[]         @relation("board_authorinvite_created_by_idToauth_user")
+  board_authorinvite_board_authorinvite_claimed_by_idToauth_user board_authorinvite[]         @relation("board_authorinvite_claimed_by_idToauth_user")
+  board_config                                                   board_config?
+  developerRequests                                              DeveloperRequestLog[]
+  developerTokens                                                DeveloperToken[]
+  board_edithistory                                              board_edithistory[]
+  board_editrequest                                              board_editrequest[]
+  board_emailchange                                              board_emailchange?
+  formTemplates                                                  FormTemplate[]
+  uploadedImages                                                 UploadedImage[]
+  notifications                                                  Notification[]
+  board_pinnedpost                                               board_pinnedpost[]
+  posts                                                          Post[]
+  subscriptions                                                  AuthorSubscription[]         @relation("Subscriber")
+  subscribers                                                    AuthorSubscription[]         @relation("SubscribedAuthor")
+  subscriptionLogs                                               AuthorSubscriptionLog[]      @relation("LogSubscriber")
+  subscriberLogs                                                 AuthorSubscriptionLog[]      @relation("LogAuthor")
+  series                                                         Series[]
+  comments                                                       Comment[]
+  commentLikes                                                   CommentLike[]
+  board_post_likes                                               board_post_likes[]
+  board_profile                                                  board_profile?
+  banners                                                        SiteBanner[]
+  notices                                                        SiteNotice[]
+  board_socialauth                                               board_socialauth[]
+  staticPages                                                    StaticPage[]
+  telegram                                                       TelegramConnection?
+  webhookChannels                                                WebhookChannel[]
+  board_twofactorauth                                            board_twofactorauth?
+  board_userconfigmeta                                           board_userconfigmeta[]
+  board_userlinkmeta                                             board_userlinkmeta[]
+  usernameChanges                                                UsernameChange[]
+  cleanupConfirmations                                           CleanupConfirmation[]
+  workLogs                                                       WorkLog[]
+  adminLogs                                                      AdminLog[]
+  sessions                                                       Session[]
 
   @@map("auth_user")
 }
@@ -191,11 +196,10 @@ model Post {
   publishedDate        DateTime?              @map("published_date")
   image_hash           String
   deletedDate          DateTime?              @map("deleted_date")
-  board_comment        board_comment[]
   board_edithistory    board_edithistory[]
   board_editrequest    board_editrequest[]
   board_pinnedpost     board_pinnedpost[]
-  board_series         board_series?          @relation(fields: [series_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  series               Series?                @relation(fields: [series_id], references: [id], onDelete: SetNull)
   author               User                   @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   board_post_likes     board_post_likes[]
   board_post_tags      board_post_tags[]
@@ -205,6 +209,7 @@ model Post {
   board_postsharelink  board_postsharelink[]
   scheduledPublication ScheduledPublication?
   webhookDeliveries    WebhookDelivery[]
+  comments             Comment[]
 
   @@index([deletedDate], map: "board_post_deleted_date_e66a3ffc")
   @@index([authorId, publishedDate], map: "board_post_author__54dd01_idx")
@@ -315,67 +320,64 @@ model board_authorinvite {
   @@index([claimed_by_id], map: "board_authorinvite_claimed_by_id_7a8026eb")
 }
 
-model board_authorsubscription {
-  id                                                          Int      @id @default(autoincrement())
-  created_date                                                DateTime
-  author_id                                                   Int
-  subscriber_id                                               Int
-  auth_user_board_authorsubscription_subscriber_idToauth_user User     @relation("board_authorsubscription_subscriber_idToauth_user", fields: [subscriber_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  auth_user_board_authorsubscription_author_idToauth_user     User     @relation("board_authorsubscription_author_idToauth_user", fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model AuthorSubscription {
+  id           Int      @id @default(autoincrement())
+  subscriberId Int
+  authorId     Int
+  createdAt    DateTime @default(now())
 
-  @@unique([subscriber_id, author_id])
-  @@index([author_id, created_date], map: "board_authorsub_author_idx")
-  @@index([subscriber_id], map: "board_authorsubscription_subscriber_id_27e581a7")
-  @@index([author_id], map: "board_authorsubscription_author_id_8b00b85d")
+  subscriber User @relation("Subscriber", fields: [subscriberId], references: [id], onDelete: Cascade)
+  author     User @relation("SubscribedAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@unique([subscriberId, authorId])
+  @@index([authorId, createdAt])
 }
 
-model board_authorsubscriptionlog {
-  id                                                             Int      @id @default(autoincrement())
-  action                                                         String
-  created_date                                                   DateTime
-  author_id                                                      Int
-  subscriber_id                                                  Int
-  auth_user_board_authorsubscriptionlog_subscriber_idToauth_user User     @relation("board_authorsubscriptionlog_subscriber_idToauth_user", fields: [subscriber_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  auth_user_board_authorsubscriptionlog_author_idToauth_user     User     @relation("board_authorsubscriptionlog_author_idToauth_user", fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model AuthorSubscriptionLog {
+  id           Int                @id @default(autoincrement())
+  subscriberId Int
+  authorId     Int
+  action       SubscriptionAction
+  createdAt    DateTime           @default(now())
 
-  @@index([author_id, created_date], map: "board_authorsublog_author_idx")
-  @@index([subscriber_id], map: "board_authorsubscriptionlog_subscriber_id_55114cf2")
-  @@index([author_id], map: "board_authorsubscriptionlog_author_id_9430554d")
+  subscriber User @relation("LogSubscriber", fields: [subscriberId], references: [id], onDelete: Cascade)
+  author     User @relation("LogAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([authorId, createdAt])
+  @@index([subscriberId])
 }
 
-model board_comment {
-  id                  Int                   @id @default(autoincrement())
-  text_md             String
-  text_html           String
-  edited              Boolean
-  heart               Boolean
-  created_date        DateTime
-  author_id           Int?
-  post_id             Int
-  parent_id           Int?
-  board_comment       board_comment?        @relation("board_commentToboard_comment", fields: [parent_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  other_board_comment board_comment[]       @relation("board_commentToboard_comment")
-  board_post          Post                  @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  auth_user           User?                 @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_comment_likes board_comment_likes[]
+model Comment {
+  id        Int      @id @default(autoincrement())
+  postId    Int
+  authorId  Int?
+  parentId  Int?
+  markdown  String   @default("")
+  html      String   @default("")
+  isEdited  Boolean  @default(false)
+  isHearted Boolean  @default(false)
+  createdAt DateTime @default(now())
 
-  @@index([author_id, created_date], map: "board_comme_author__e4042f_idx")
-  @@index([post_id, parent_id, created_date], map: "board_comme_post_id_260f64_idx")
-  @@index([parent_id], map: "board_comment_parent_id_511c6974")
-  @@index([post_id], map: "board_comment_post_id_0a1699af")
-  @@index([author_id], map: "board_comment_author_id_08705ab7")
+  post    Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author  User?         @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  parent  Comment?      @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies Comment[]     @relation("CommentReplies")
+  likes   CommentLike[]
+
+  @@index([authorId, createdAt])
+  @@index([postId, parentId, createdAt])
+  @@index([parentId])
 }
 
-model board_comment_likes {
-  id            Int           @id @default(autoincrement())
-  comment_id    Int
-  user_id       Int
-  auth_user     User          @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_comment board_comment @relation(fields: [comment_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model CommentLike {
+  commentId Int
+  userId    Int
 
-  @@unique([comment_id, user_id], map: "board_comment_likes_comment_id_user_id_c6d811be_uniq")
-  @@index([user_id], map: "board_comment_likes_user_id_4c484ae1")
-  @@index([comment_id], map: "board_comment_likes_comment_id_3ab8c714")
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([commentId, userId])
+  @@index([userId])
 }
 
 model board_config {
@@ -591,35 +593,27 @@ model board_profile {
   auth_user           User   @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model board_series {
-  id                     Int                      @id @default(autoincrement())
-  order                  Int
-  text_md                String
-  text_html              String
-  hide                   Boolean
-  url                    String                   @unique
-  layout                 String
-  created_date           DateTime
-  updated_date           DateTime
-  owner_id               Int
-  name                   String
-  board_post             Post[]
-  auth_user              User                     @relation(fields: [owner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_seriesconfigmeta board_seriesconfigmeta[]
+model Series {
+  id                    Int      @id @default(autoincrement())
+  ownerId               Int
+  slug                  String   @unique
+  name                  String
+  descriptionMarkdown   String   @default("")
+  descriptionHtml       String   @default("")
+  isHidden              Boolean  @default(false)
+  layout                String   @default("")
+  order                 Int      @default(0)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @default(now())
+  /// Microseconds past createdAt's millisecond. 3.x dates had them and the Developer API still returns them.
+  createdAtMicroseconds Int      @default(0)
+  /// Microseconds past updatedAt's millisecond. Reset to 0 whenever updatedAt is written.
+  updatedAtMicroseconds Int      @default(0)
 
-  @@index([owner_id], map: "board_series_owner_id_68a37f76")
-}
+  owner User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  posts Post[]
 
-model board_seriesconfigmeta {
-  id           Int          @id @default(autoincrement())
-  name         String
-  value        String
-  created_date DateTime
-  updated_date DateTime
-  post_id      Int
-  board_series board_series @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([post_id], map: "board_seriesconfigmeta_post_id_06b5e8ce")
+  @@index([ownerId])
 }
 
 model board_socialauth {

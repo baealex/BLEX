@@ -159,16 +159,13 @@ export async function readDraftPreview(db: PrismaClient, authorId: number, slug:
 }
 
 export async function readPostPresentation(db: PrismaClient, post: Pick<PublicPost, 'id' | 'authorId'>): Promise<PostPresentation> {
-  const [brand, site, [metadata], tags, banners] = await Promise.all([
+  const [brand, site, placement, tags, banners] = await Promise.all([
     readPublicSiteBrand(db),
     db.siteSetting.findUnique({ where: { id: 1 }, select: { aeoEnabled: true } }),
-    db.$queryRaw<Array<{ seriesId: number | null; seriesName: string | null; seriesUrl: string | null; seriesAuthor: string | null }>>`
-      SELECT series.id AS seriesId, series.name AS seriesName, series.url AS seriesUrl, author.username AS seriesAuthor
-        FROM board_post AS post
-        LEFT JOIN board_series AS series ON series.id = post.series_id AND series.hide = 0
-        LEFT JOIN auth_user AS author ON author.id = series.owner_id
-       WHERE post.id = ${post.id}
-    `,
+    db.post.findUnique({
+      where: { id: post.id },
+      select: { series: { select: { id: true, name: true, slug: true, isHidden: true, owner: { select: { username: true } } } } },
+    }),
     db.$queryRaw<Array<{ value: string }>>`
       SELECT tag.value FROM board_post_tags AS attached JOIN board_tag AS tag ON tag.id = attached.tag_id
        WHERE attached.post_id = ${post.id} ORDER BY tag.id
@@ -179,12 +176,13 @@ export async function readPostPresentation(db: PrismaClient, post: Pick<PublicPo
       select: { id: true, position: true, contentHtml: true },
     }),
   ]);
+  const series = placement?.series && !placement.series.isHidden ? placement.series : null;
   const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
-  const seriesPosts = metadata?.seriesId === null || metadata?.seriesId === undefined ? [] : await db.$queryRaw<Array<{ id: number; url: string; title: string }>>`
+  const seriesPosts = !series ? [] : await db.$queryRaw<Array<{ id: number; url: string; title: string }>>`
     SELECT post.id, post.url, post.title
       FROM board_post AS post
       JOIN board_postconfig AS config ON config.post_id = post.id
-     WHERE post.series_id = ${metadata.seriesId} AND post.deleted_date IS NULL
+     WHERE post.series_id = ${series.id} AND post.deleted_date IS NULL
        AND post.published_date <= ${now} AND config.hide = 0
      ORDER BY post.published_date, post.id
   `;
@@ -192,9 +190,9 @@ export async function readPostPresentation(db: PrismaClient, post: Pick<PublicPo
     ...brand,
     aeoEnabled: site?.aeoEnabled ?? false,
     seriesNavigation: seriesNavigation(seriesPosts.map((row) => ({ ...row, id: Number(row.id) })), Number(post.id)),
-    seriesName: metadata?.seriesName ?? null,
-    seriesUrl: metadata?.seriesUrl ?? null,
-    seriesAuthor: metadata?.seriesAuthor ?? null,
+    seriesName: series?.name ?? null,
+    seriesUrl: series?.slug ?? null,
+    seriesAuthor: series?.owner.username ?? null,
     tags: tags.map(({ value }) => value),
     banners: banners.map((banner) => ({ ...banner, contentHtml: sanitizePostHtml(banner.contentHtml) })).filter((banner) => banner.contentHtml),
   };

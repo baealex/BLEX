@@ -44,10 +44,10 @@ export async function prepareEditorFields(db: PrismaClient, options: AuthoringOp
   const { body, image } = form;
   if (Object.hasOwn(body, 'content_html') && !Object.hasOwn(body, 'text_md')) {
     const seriesId = field(body.series);
-    const [series] = /^\d+$/.test(seriesId)
-      ? await db.$queryRaw<Array<{ url: string }>>`SELECT url FROM board_series WHERE id = ${Number(seriesId)} AND owner_id = ${account.id} LIMIT 1`
-      : [];
-    body.series = series?.url ?? '';
+    const series = /^\d+$/.test(seriesId)
+      ? await db.series.findFirst({ where: { id: Number(seriesId), ownerId: account.id }, select: { slug: true } })
+      : null;
+    body.series = series?.slug ?? '';
   }
   if (image) {
     try {

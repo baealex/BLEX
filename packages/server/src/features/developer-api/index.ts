@@ -1,11 +1,12 @@
 import { type PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { isIP } from 'node:net';
+import { storedDateText } from '../../compat/django-format.js';
 import { ContentUploadError, contentUploadLimit, registerContentMultipart, saveContentUpload } from '../media/content-media.js';
 import { DeveloperMutationInputError, developerPostInput } from './mutation-input.js';
 import { PaginationQuery, SearchQuery, listPosts, postDetail, postNotFound, postVersionIssue, readOwnedPost, summarizePost } from './services/posts.js';
 import { AuthenticatedToken, authenticate, requireScope } from './services/token-auth.js';
-import { API_PREFIX, DeveloperApiOptions, Editor, QueryValue, SeriesRow, TagRow, asBoolean, errorReply, formatError, parsePostId, parseValidationError, readScalar, toIsoDateTime } from './shared.js';
+import { API_PREFIX, DeveloperApiOptions, Editor, QueryValue, TagRow, errorReply, formatError, parsePostId, parseValidationError, readScalar, toIsoDateTime } from './shared.js';
 import { registerWireFormat } from './wire-format.js';
 
 export { toIsoDateTime } from './shared.js';
@@ -270,28 +271,24 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
     const scopeError = requireScope(token);
     if (scopeError) return errorReply(reply, scopeError);
 
-    const series = await db.$queryRaw<SeriesRow[]>`
-      SELECT series.id, series.name, series.url, series.text_md AS description,
-             series.hide AS isHidden,
-             COUNT(DISTINCT post.id) AS postCount,
-             CAST(series.created_date AS TEXT) AS createdAt,
-             CAST(series.updated_date AS TEXT) AS updatedAt
-        FROM board_series AS series
-        LEFT JOIN board_post AS post
-          ON post.series_id = series.id AND post.deleted_date IS NULL
-       WHERE series.owner_id = ${token.user.id}
-       GROUP BY series.id
-       ORDER BY series."order", series.name, series.id
-    `;
+    const series = await db.series.findMany({
+      where: { ownerId: token.user.id },
+      orderBy: [{ order: 'asc' }, { name: 'asc' }, { id: 'asc' }],
+      select: {
+        id: true, name: true, slug: true, descriptionMarkdown: true, isHidden: true,
+        createdAt: true, createdAtMicroseconds: true, updatedAt: true, updatedAtMicroseconds: true,
+        _count: { select: { posts: { where: { deletedDate: null } } } },
+      },
+    });
     return reply.send({ data: { series: series.map((item) => ({
       id: item.id,
       name: item.name,
-      url: item.url,
-      description: item.description,
-      isHidden: asBoolean(item.isHidden),
-      postCount: Number(item.postCount),
-      createdAt: toIsoDateTime(item.createdAt),
-      updatedAt: toIsoDateTime(item.updatedAt),
+      url: item.slug,
+      description: item.descriptionMarkdown,
+      isHidden: item.isHidden,
+      postCount: item._count.posts,
+      createdAt: toIsoDateTime(storedDateText(item.createdAt, item.createdAtMicroseconds)),
+      updatedAt: toIsoDateTime(storedDateText(item.updatedAt, item.updatedAtMicroseconds)),
     })) } });
   });
 }

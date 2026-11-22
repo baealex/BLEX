@@ -18,8 +18,10 @@ const dateLabel = new Intl.DateTimeFormat('ko-KR', { timeZone, dateStyle: 'long'
 const relative = new Intl.RelativeTimeFormat('ko', { numeric: 'always' });
 
 function timestamp(date: Date) { return date.toISOString().slice(0, -1).replace('T', ' '); }
-function storedDate(value: string) { return new Date(toIsoDateTime(value) ?? ''); }
-function since(value: string) {
+function storedDate(value: string | number | bigint | Date) {
+  return typeof value === 'string' ? new Date(toIsoDateTime(value) ?? '') : new Date(value instanceof Date ? value : Number(value));
+}
+function since(value: string | number | bigint | Date) {
   const date = storedDate(value);
   const age = Math.max(0, (Date.now() - date.getTime()) / 60_000);
   if (!Number.isFinite(age)) return '';
@@ -38,23 +40,33 @@ async function heatmap(db: PrismaClient, userId: number, own: boolean) {
   const lower = timestamp(new Date(start.getTime() - 2 * 86_400_000));
   const upper = timestamp(new Date(end.getTime() + 2 * 86_400_000));
   const now = timestamp(end);
-  const rows = await db.$queryRaw<Array<{ date: string }>>`
+  const commentLower = BigInt(start.getTime() - 2 * 86_400_000);
+  const commentUpper = BigInt(end.getTime() + 2 * 86_400_000);
+  const rows = await db.$queryRaw<Array<{ isLike: number | bigint; date: string }>>`
     WITH eligible AS (
       SELECT post.id, post.author_id, post.published_date FROM board_post AS post
         LEFT JOIN board_postconfig AS config ON config.post_id = post.id
        WHERE post.deleted_date IS NULL AND (${own ? 1 : 0} = 1 OR (post.published_date <= ${now} AND config.hide = 0))
     ), entries AS (
-      SELECT published_date AS date FROM eligible WHERE author_id = ${userId}
-      UNION ALL SELECT comment.created_date AS date FROM board_comment AS comment JOIN eligible AS post ON post.id = comment.post_id
-        WHERE comment.author_id = ${userId}
-      UNION ALL SELECT likes.created_date AS date FROM board_post_likes AS likes JOIN eligible AS post ON post.id = likes.post_id
+      SELECT 0 AS isLike, published_date AS date FROM eligible WHERE author_id = ${userId}
+      UNION ALL SELECT 1 AS isLike, likes.created_date AS date FROM board_post_likes AS likes JOIN eligible AS post ON post.id = likes.post_id
         WHERE likes.user_id = ${userId}
-    ) SELECT CAST(date AS TEXT) AS date FROM entries WHERE date BETWEEN ${lower} AND ${upper}
+    ) SELECT isLike, CAST(date AS TEXT) AS date FROM entries WHERE date BETWEEN ${lower} AND ${upper}
+  `;
+  // Comment dates are epoch milliseconds while post and like dates are still Django text.
+  const comments = await db.$queryRaw<Array<{ date: number | bigint }>>`
+    SELECT CAST(comment.createdAt AS INTEGER) AS date
+      FROM "Comment" AS comment JOIN board_post AS post ON post.id = comment.postId
+      LEFT JOIN board_postconfig AS config ON config.post_id = post.id
+     WHERE comment.authorId = ${userId} AND comment.createdAt BETWEEN ${commentLower} AND ${commentUpper}
+       AND post.deleted_date IS NULL AND (${own ? 1 : 0} = 1 OR (post.published_date <= ${now} AND config.hide = 0))
   `;
   const minDay = dateFormat.format(start);
   const maxDay = dateFormat.format(end);
   const days: Record<string, number> = {};
-  for (const { date } of rows) {
+  // Day keys keep their first-seen order in the JSON: posts, then comments, then likes.
+  const entries = [...rows.filter((row) => !Number(row.isLike)), ...comments, ...rows.filter((row) => Number(row.isLike))];
+  for (const { date } of entries) {
     const parsed = storedDate(date);
     if (!Number.isFinite(parsed.getTime())) continue;
     const day = dateFormat.format(parsed);
@@ -82,8 +94,10 @@ const activityLabels: Record<RecentActivity['type'], { label: string; icon: Site
 
 async function recentActivities(db: PrismaClient, userId: number): Promise<RecentActivity[]> {
   const now = timestamp(new Date());
-  const cutoff = timestamp(new Date(Date.now() - RECENT_ACTIVITY_DAYS * 86_400_000));
-  type PostActivity = { title: string; slug: string; username: string; date: string };
+  const cutoffDate = new Date(Date.now() - RECENT_ACTIVITY_DAYS * 86_400_000);
+  const cutoff = timestamp(cutoffDate);
+  const cutoffMilliseconds = BigInt(cutoffDate.getTime());
+  type PostActivity = { title: string; slug: string; username: string; date: string | number | bigint };
   const [posts, series, comments, likes] = await Promise.all([
     db.$queryRaw<PostActivity[]>`
       SELECT post.title, post.url AS slug, account.username, CAST(post.published_date AS TEXT) AS date
@@ -94,23 +108,23 @@ async function recentActivities(db: PrismaClient, userId: number): Promise<Recen
        ORDER BY post.published_date DESC LIMIT 6
     `,
     db.$queryRaw<PostActivity[]>`
-      SELECT series.name AS title, series.url AS slug, account.username, CAST(series.created_date AS TEXT) AS date
-        FROM board_series AS series JOIN auth_user AS account ON account.id = series.owner_id
-       WHERE series.owner_id = ${userId} AND series.hide = 0
-         AND series.created_date >= ${cutoff} AND series.created_date <= ${now}
+      SELECT series.name AS title, series.slug AS slug, account.username, CAST(series.createdAt AS INTEGER) AS date
+        FROM "Series" AS series JOIN auth_user AS account ON account.id = series.ownerId
+       WHERE series.ownerId = ${userId} AND series.isHidden = 0
+         AND series.createdAt >= ${cutoffMilliseconds} AND series.createdAt <= ${BigInt(Date.now())}
          AND EXISTS (
            SELECT 1 FROM board_post AS post JOIN board_postconfig AS config ON config.post_id = post.id
             WHERE post.series_id = series.id AND post.deleted_date IS NULL AND config.hide = 0 AND post.published_date <= ${now}
          )
-       ORDER BY series.created_date DESC LIMIT 5
+       ORDER BY series.createdAt DESC, series.createdAtMicroseconds DESC LIMIT 5
     `,
     db.$queryRaw<PostActivity[]>`
-      SELECT post.title, post.url AS slug, account.username, CAST(comment.created_date AS TEXT) AS date
-        FROM board_comment AS comment JOIN board_post AS post ON post.id = comment.post_id
+      SELECT post.title, post.url AS slug, account.username, CAST(comment.createdAt AS INTEGER) AS date
+        FROM "Comment" AS comment JOIN board_post AS post ON post.id = comment.postId
         JOIN board_postconfig AS config ON config.post_id = post.id JOIN auth_user AS account ON account.id = post.author_id
-       WHERE comment.author_id = ${userId} AND comment.created_date >= ${cutoff}
+       WHERE comment.authorId = ${userId} AND comment.createdAt >= ${cutoffMilliseconds}
          AND post.deleted_date IS NULL AND config.hide = 0 AND post.published_date <= ${now}
-       ORDER BY comment.created_date DESC LIMIT 5
+       ORDER BY comment.createdAt DESC LIMIT 5
     `,
     db.$queryRaw<PostActivity[]>`
       SELECT post.title, post.url AS slug, account.username, CAST(likes.created_date AS TEXT) AS date
@@ -198,7 +212,7 @@ export async function relatedPosts(db: PrismaClient, sourceId: number, sourceAut
           (SELECT COUNT(*) FROM board_post_tags WHERE post_id = post.id) - shared.overlap) AS similarity,
         post.author_id = ${sourceAuthor} AS sameAuthor,
         MIN((SELECT COUNT(*) FROM board_post_likes WHERE post_id = post.id) * 2 +
-            (SELECT COUNT(*) FROM board_comment WHERE post_id = post.id), 10) +
+            (SELECT COUNT(*) FROM "Comment" AS comments WHERE comments.postId = post.id), 10) +
          CASE WHEN julianday(${now}) - julianday(post.published_date) < 7 THEN 5
               WHEN julianday(${now}) - julianday(post.published_date) < 30 THEN 3
               WHEN julianday(${now}) - julianday(post.published_date) < 90 THEN 1 ELSE 0 END AS quality
@@ -233,21 +247,18 @@ export function registerPublicActivity(app: FastifyInstance, db: PrismaClient, o
     if (!user) return failure('NL');
     const page = Number(new URL(request.url, options.siteUrl).searchParams.get('page') || '1');
     if (!Number.isSafeInteger(page) || page < 1) return reply.code(404).send('Not found');
-    const [count] = await db.$queryRaw<Array<{ count: bigint }>>`
-      SELECT COUNT(*) AS count FROM board_comment AS comment JOIN board_post AS post ON post.id = comment.post_id
-       WHERE comment.author_id = ${user.id} AND post.deleted_date IS NULL
-    `;
-    const lastPage = Math.max(1, Math.ceil(Number(count.count) / 10));
+    const mine = { authorId: user.id, post: { deletedDate: null } };
+    const lastPage = Math.max(1, Math.ceil(await db.comment.count({ where: mine }) / 10));
     if (page > lastPage) return reply.code(404).send('Not found');
-    const rows = await db.$queryRaw<Array<{ author: string; title: string; url: string; content: string; date: string }>>`
-      SELECT account.username AS author, post.title, post.url, comment.text_html AS content, CAST(comment.created_date AS TEXT) AS date
-        FROM board_comment AS comment JOIN board_post AS post ON post.id = comment.post_id
-        JOIN auth_user AS account ON account.id = post.author_id
-       WHERE comment.author_id = ${user.id} AND post.deleted_date IS NULL ORDER BY comment.created_date DESC, comment.id DESC
-       LIMIT 10 OFFSET ${(page - 1) * 10}
-    `;
-    return done({ comments: rows.map((row) => ({ posts: { author: row.author, title: row.title, url: row.url },
-      content: sanitizePostHtml(row.content), createdDate: since(row.date) })), lastPage });
+    const rows = await db.comment.findMany({
+      where: mine,
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      skip: (page - 1) * 10,
+      take: 10,
+      select: { html: true, createdAt: true, post: { select: { title: true, slug: true, author: { select: { username: true } } } } },
+    });
+    return done({ comments: rows.map((row) => ({ posts: { author: row.post.author.username, title: row.post.title, url: row.post.slug },
+      content: sanitizePostHtml(row.html), createdDate: since(row.createdAt) })), lastPage });
   });
 
   type PostRoute = { Params: { username: string; slug: string } };

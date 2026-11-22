@@ -157,14 +157,14 @@ export async function readUtilityStats(db: PrismaClient): Promise<Record<string,
       COALESCE(SUM(CASE WHEN post.deleted_date IS NULL AND post.published_date > ${now} THEN 1 ELSE 0 END), 0) AS scheduledPosts,
       COALESCE(SUM(CASE WHEN config.hide = 1 THEN 1 ELSE 0 END), 0) AS hiddenPosts,
       COALESCE(SUM(CASE WHEN post.deleted_date IS NULL AND post.published_date IS NULL THEN 1 ELSE 0 END), 0) AS draftPosts,
-      (SELECT COUNT(*) FROM board_comment) AS totalComments,
       (SELECT COUNT(*) FROM auth_user) AS totalUsers,
       (SELECT COUNT(*) FROM board_profile) AS activeProfiles,
-      (SELECT COUNT(*) FROM board_series) AS totalSeries,
       (SELECT COUNT(*) FROM blex_session) AS totalSessions,
       (SELECT COUNT(*) FROM blex_session WHERE expires_at < ${epoch}) AS expiredSessions
     FROM board_post AS post LEFT JOIN board_postconfig AS config ON config.post_id = post.id
   `);
+  const totalComments = await db.comment.count();
+  const totalSeries = await db.series.count();
   const imageCacheCount = await db.uploadedImage.count();
   const logCount = await db.adminLog.count();
   const developerRequestLogCount = await db.developerRequestLog.count();
@@ -176,8 +176,17 @@ export async function readUtilityStats(db: PrismaClient): Promise<Record<string,
   } catch {
     // Some SQLite adapters disallow PRAGMA through prepared statements.
   }
+  const { totalUsers, activeProfiles, totalSessions, expiredSessions, ...postStats } = Object.fromEntries(
+    Object.entries(stats ?? {}).map(([key, value]) => [key, Number(value)]),
+  );
   return {
-    ...Object.fromEntries(Object.entries(stats ?? {}).map(([key, value]) => [key, Number(value)])),
+    ...postStats,
+    totalComments,
+    totalUsers,
+    activeProfiles,
+    totalSeries,
+    totalSessions,
+    expiredSessions,
     imageCacheCount,
     logCount,
     developerRequestLogCount,

@@ -116,7 +116,7 @@ test('imports a 3.14 installation once and leaves the original unchanged', async
     const imported = new DatabaseSync(space.databasePath);
     assert.equal(count(imported, 'auth_user'), 1);
     assert.equal(count(imported, 'board_post'), 2);
-    assert.equal(count(imported, 'board_comment'), 1);
+    assert.equal(count(imported, 'Comment'), 1);
     for (const table of ['django_migrations', 'django_session', 'django_site', 'board_oauthauthorization']) {
       assert.equal(imported.prepare('SELECT 1 FROM sqlite_schema WHERE name = ?').get(table), undefined, table);
     }
@@ -232,6 +232,75 @@ test('imports 3.14 notifications, webhook owners, and Telegram connection states
     } finally {
       await client.$disconnect();
     }
+  } finally {
+    await space.cleanup();
+  }
+});
+
+test('imports 3.14 comments, series, and subscriptions with their counters and reply cycles', async () => {
+  const space = await workspace();
+  const source = join(space.legacyRoot, 'db.sqlite3');
+  try {
+    const legacy = await createLegacyDatabase(source);
+    for (const id of [7, 8]) insertRow(legacy, 'auth_user', { id, username: `user-${id}`, is_active: 1 });
+    insertRow(legacy, 'board_series', { id: 3, owner_id: 7, name: 'Guide', url: 'guide', text_md: 'md', text_html: '<p>md</p>', hide: 1, layout: 'list', order: 4, created_date: '2024-01-02 03:04:05.123456', updated_date: '2024-01-03 00:00:00' });
+    insertRow(legacy, 'board_seriesconfigmeta', { id: 1, post_id: 3, name: 'unused', value: 'x', created_date: '2024-01-01 00:00:00', updated_date: '2024-01-01 00:00:00' });
+    insertRow(legacy, 'board_post', { id: 5, author_id: 7, series_id: 3, url: 'first', title: 'First', published_date: '2024-01-01 00:00:00' });
+    insertRow(legacy, 'board_post', { id: 6, author_id: 7, url: 'second', title: 'Second', published_date: '2024-01-01 00:00:00' });
+    legacy.exec('BEGIN; PRAGMA defer_foreign_keys = ON');
+    insertRow(legacy, 'board_comment', { id: 10, post_id: 5, author_id: 8, parent_id: 11, text_md: 'a', text_html: '<p>a</p>', edited: 1, heart: 1, created_date: '2024-02-01 01:02:03.456789' });
+    insertRow(legacy, 'board_comment', { id: 11, post_id: 6, parent_id: 10, text_md: 'b', text_html: '<p>b</p>', created_date: '2024-02-02 00:00:00' });
+    insertRow(legacy, 'board_comment', { id: 12, post_id: 6, author_id: 7, parent_id: 12, text_md: 'self', text_html: 'self', created_date: '2024-02-03 00:00:00' });
+    legacy.exec('COMMIT');
+    insertRow(legacy, 'board_comment_likes', { id: 30, comment_id: 10, user_id: 7 });
+    insertRow(legacy, 'board_authorsubscription', { id: 40, subscriber_id: 8, author_id: 7, created_date: '2024-03-01 00:00:00' });
+    insertRow(legacy, 'board_authorsubscriptionlog', { id: 50, subscriber_id: 8, author_id: 7, action: 'subscribe', created_date: '2024-03-01 00:00:00' });
+    insertRow(legacy, 'board_authorsubscriptionlog', { id: 51, subscriber_id: 8, author_id: 7, action: 'unsubscribe', created_date: '2024-03-02 00:00:00' });
+    for (const [name, seq] of [['board_series', 60], ['board_comment', 70], ['board_authorsubscription', 80], ['board_authorsubscriptionlog', 90]] as const) {
+      legacy.prepare('UPDATE sqlite_sequence SET seq = ? WHERE name = ?').run(seq, name);
+    }
+    legacy.close();
+
+    await prepareDatabase(space.options);
+
+    const imported = new DatabaseSync(space.databasePath, { readOnly: true });
+    assert.deepEqual({ ...imported.prepare('SELECT ownerId, slug, name, descriptionMarkdown, descriptionHtml, isHidden, layout, "order", createdAt, createdAtMicroseconds, updatedAt, updatedAtMicroseconds FROM Series WHERE id = 3').get() }, {
+      ownerId: 7, slug: 'guide', name: 'Guide', descriptionMarkdown: 'md', descriptionHtml: '<p>md</p>', isHidden: 1, layout: 'list', order: 4,
+      createdAt: Date.UTC(2024, 0, 2, 3, 4, 5, 123), createdAtMicroseconds: 456, updatedAt: Date.UTC(2024, 0, 3), updatedAtMicroseconds: 0,
+    });
+    assert.equal(imported.prepare('SELECT 1 FROM sqlite_schema WHERE name = ?').get('board_seriesconfigmeta'), undefined);
+    assert.deepEqual(imported.prepare('SELECT id, postId, authorId, parentId, markdown, html, isEdited, isHearted, createdAt FROM Comment ORDER BY id').all().map((row) => ({ ...row })), [
+      { id: 10, postId: 5, authorId: 8, parentId: 11, markdown: 'a', html: '<p>a</p>', isEdited: 1, isHearted: 1, createdAt: Date.UTC(2024, 1, 1, 1, 2, 3, 456) },
+      { id: 11, postId: 6, authorId: null, parentId: 10, markdown: 'b', html: '<p>b</p>', isEdited: 0, isHearted: 0, createdAt: Date.UTC(2024, 1, 2) },
+      { id: 12, postId: 6, authorId: 7, parentId: 12, markdown: 'self', html: 'self', isEdited: 0, isHearted: 0, createdAt: Date.UTC(2024, 1, 3) },
+    ]);
+    assert.deepEqual({ ...imported.prepare('SELECT * FROM CommentLike').get() }, { commentId: 10, userId: 7 });
+    assert.deepEqual({ ...imported.prepare('SELECT id, subscriberId, authorId, createdAt FROM AuthorSubscription').get() }, { id: 40, subscriberId: 8, authorId: 7, createdAt: Date.UTC(2024, 2, 1) });
+    assert.deepEqual(imported.prepare('SELECT id, action, createdAt FROM AuthorSubscriptionLog ORDER BY id').all().map((row) => ({ ...row })), [
+      { id: 50, action: 'subscribe', createdAt: Date.UTC(2024, 2, 1) },
+      { id: 51, action: 'unsubscribe', createdAt: Date.UTC(2024, 2, 2) },
+    ]);
+    for (const [table, seq] of [['Series', 60], ['Comment', 70], ['AuthorSubscription', 80], ['AuthorSubscriptionLog', 90]] as const) {
+      assert.equal(Number((imported.prepare('SELECT seq FROM sqlite_sequence WHERE name = ?').get(table) as { seq: number }).seq), seq, table);
+    }
+    assert.equal(imported.prepare('SELECT 1 FROM sqlite_sequence WHERE name = ?').get('CommentLike'), undefined);
+    assert.deepEqual(imported.prepare('PRAGMA foreign_key_check').all(), []);
+    imported.close();
+  } finally {
+    await space.cleanup();
+  }
+});
+
+test('names the row when a 3.14 subscription log has an unknown action', async () => {
+  const space = await workspace();
+  const source = join(space.legacyRoot, 'db.sqlite3');
+  try {
+    const legacy = await createLegacyDatabase(source);
+    for (const id of [7, 8]) insertRow(legacy, 'auth_user', { id, username: `user-${id}`, is_active: 1 });
+    insertRow(legacy, 'board_authorsubscriptionlog', { id: 51, subscriber_id: 8, author_id: 7, action: 'paused', created_date: '2024-03-02 00:00:00' });
+    legacy.close();
+    await assert.rejects(prepareDatabase(space.options), /board_authorsubscriptionlog\.action in row 51 is "paused"/);
+    assert.equal(existsSync(space.databasePath), false);
   } finally {
     await space.cleanup();
   }

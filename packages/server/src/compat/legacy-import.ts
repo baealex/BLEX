@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { DatabaseSync, type SQLInputValue } from 'node:sqlite';
 import { verifyLegacyDatabase } from './legacy-database.js';
 
-const discardedTables = new Set(['django_migrations', 'django_session', 'django_site', 'board_oauthauthorization']);
+const discardedTables = new Set(['django_migrations', 'django_session', 'django_site', 'board_oauthauthorization', 'board_seriesconfigmeta']);
 
 const quote = (name: string) => `"${name.replaceAll('"', '""')}"`;
 
@@ -56,6 +56,16 @@ const int32 = (to: string): ColumnMapping => ({
 });
 
 const contentScope = choice('scope', ['user', 'global']);
+
+/** Prisma dates stop at milliseconds, so the rest of a 3.x timestamp's six fractional digits is kept beside it. */
+const subMillisecond = (column: string, to: string): ColumnMapping => ({
+  to,
+  sql: quote(column),
+  convert(value) {
+    const fraction = /\.(\d+)/.exec(String(value))?.[1] ?? '';
+    return BigInt(fraction.padEnd(6, '0').slice(3, 6));
+  },
+});
 
 /** Readers treat anything but a JSON object as an empty manifest, and the JSONB column would coerce bare numbers. */
 const jsonObject = (to: string, fallback: string | null = null): ColumnMapping => ({
@@ -208,6 +218,34 @@ const tableMappings: Record<string, TableMapping> = {
       id: 'id', user_id: 'userId', name: 'name', token_prefix: 'tokenPrefix', token_hash: 'tokenHash', scopes: scopeList('scopes'),
       expires_at: date('expiresAt'), revoked_at: date('revokedAt'), last_used_at: date('lastUsedAt'), last_used_ip: 'lastUsedIp',
       created_date: date('createdAt'), updated_date: date('updatedAt'),
+    },
+  },
+  board_series: {
+    to: 'Series',
+    columns: {
+      id: 'id', owner_id: 'ownerId', url: 'slug', name: 'name', text_md: 'descriptionMarkdown', text_html: 'descriptionHtml',
+      hide: 'isHidden', layout: 'layout', order: int32('order'), created_date: date('createdAt'), updated_date: date('updatedAt'),
+      created_microseconds: subMillisecond('created_date', 'createdAtMicroseconds'),
+      updated_microseconds: subMillisecond('updated_date', 'updatedAtMicroseconds'),
+    },
+  },
+  board_comment: {
+    to: 'Comment',
+    columns: {
+      id: 'id', post_id: 'postId', author_id: 'authorId', parent_id: 'parentId', text_md: 'markdown', text_html: 'html',
+      edited: 'isEdited', heart: 'isHearted', created_date: date('createdAt'),
+    },
+  },
+  board_comment_likes: { to: 'CommentLike', columns: { comment_id: 'commentId', user_id: 'userId' } },
+  board_authorsubscription: {
+    to: 'AuthorSubscription',
+    columns: { id: 'id', subscriber_id: 'subscriberId', author_id: 'authorId', created_date: date('createdAt') },
+  },
+  board_authorsubscriptionlog: {
+    to: 'AuthorSubscriptionLog',
+    columns: {
+      id: 'id', subscriber_id: 'subscriberId', author_id: 'authorId', action: choice('action', ['subscribe', 'unsubscribe']),
+      created_date: date('createdAt'),
     },
   },
   board_developerrequestlog: {

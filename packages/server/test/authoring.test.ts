@@ -12,7 +12,7 @@ import {
   updateAuthorPost,
 } from '../src/features/posts/authoring/index.js';
 import { markdownToHtml } from '../src/features/posts/authoring/markdown.js';
-import { createMigratedTables } from './fixtures/migrated-database.js';
+import { createMigratedTables, migratedTableSql, prismaDate } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-authoring-'));
 const databasePath = join(directory, 'Django authoring.sqlite3');
@@ -38,19 +38,7 @@ database.exec(`
     bio TEXT NOT NULL DEFAULT '',
     homepage TEXT NOT NULL DEFAULT ''
   );
-  CREATE TABLE board_series (
-    id INTEGER PRIMARY KEY,
-    "order" INTEGER NOT NULL DEFAULT 0,
-    text_md TEXT NOT NULL DEFAULT '',
-    text_html TEXT NOT NULL DEFAULT '',
-    hide BOOLEAN NOT NULL DEFAULT 0,
-    url TEXT NOT NULL UNIQUE,
-    layout TEXT NOT NULL DEFAULT '',
-    created_date DATETIME NOT NULL,
-    updated_date DATETIME NOT NULL,
-    owner_id INTEGER NOT NULL,
-    name TEXT NOT NULL
-  );
+  ${migratedTableSql('Series')}
   CREATE TABLE board_post (
     id INTEGER PRIMARY KEY,
     title TEXT NOT NULL,
@@ -103,24 +91,8 @@ database.exec(`
     post_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL
   );
-  CREATE TABLE board_comment (
-    id INTEGER PRIMARY KEY,
-    text_md TEXT NOT NULL,
-    text_html TEXT NOT NULL,
-    edited BOOLEAN NOT NULL DEFAULT 0,
-    heart BOOLEAN NOT NULL DEFAULT 0,
-    created_date DATETIME NOT NULL,
-    author_id INTEGER,
-    post_id INTEGER NOT NULL,
-    parent_id INTEGER
-  );
-  CREATE TABLE board_authorsubscription (
-    id INTEGER PRIMARY KEY,
-    subscriber_id INTEGER NOT NULL,
-    author_id INTEGER NOT NULL,
-    created_date DATETIME NOT NULL,
-    UNIQUE(subscriber_id, author_id)
-  );
+  ${migratedTableSql('Comment', 'CommentLike')}
+  ${migratedTableSql('AuthorSubscription')}
   CREATE TABLE board_userconfigmeta (
     id INTEGER PRIMARY KEY,
     user_id INTEGER NOT NULL,
@@ -160,9 +132,9 @@ database.exec(`
     (3, 'reader', 'Reader', 1), (4, 'inactive', 'Inactive', 0);
   INSERT INTO board_profile (id, user_id, avatar, role) VALUES (1, 1, 'writer.png', 'EDITOR'), (2, 2, '', 'EDITOR'),
     (3, 3, '', 'READER'), (4, 4, '', 'EDITOR');
-  INSERT INTO board_series VALUES
-    (1, 1, '', '', 0, 'learning', '', '${now}', '${now}', 1, 'Learning'),
-    (2, 1, '', '', 0, 'other-series', '', '${now}', '${now}', 2, 'Other series');
+  INSERT INTO "Series" ("id", "order", "descriptionMarkdown", "descriptionHtml", "isHidden", "slug", "layout", "createdAt", "updatedAt", "ownerId", "name", "createdAtMicroseconds", "updatedAtMicroseconds") VALUES
+    (1, 1, '', '', 0, 'learning', '', ${prismaDate(now)}, ${prismaDate(now)}, 1, 'Learning', 0, 0),
+    (2, 1, '', '', 0, 'other-series', '', ${prismaDate(now)}, ${prismaDate(now)}, 2, 'Other series', 0, 0);
   INSERT INTO FormTemplate (id, title, content, isPublic, createdAt, updatedAt, userId) VALUES
     (1, 'Short form', '# Template body', 0, ${Date.now()}, ${Date.now()}, 1),
     (2, 'Another writer form', 'Private form body', 0, ${Date.now()}, ${Date.now()}, 2);
@@ -192,8 +164,10 @@ database.exec(`
   INSERT INTO board_tag VALUES (1, 'legacy-tag');
   INSERT INTO board_post_tags VALUES (1, 1, 1);
   INSERT INTO board_post_likes VALUES (1, '${now}', 1, 3);
-  INSERT INTO board_comment VALUES (1, 'hello', '<p>hello</p>', 0, 0, '${now}', 3, 1, NULL);
-  INSERT INTO board_authorsubscription VALUES (1, 3, 1, '${now}');
+  INSERT INTO "Comment" ("id", "markdown", "html", "isEdited", "isHearted", "createdAt", "authorId", "postId", "parentId") VALUES
+    (1, 'hello', '<p>hello</p>', 0, 0, ${prismaDate(now)}, 3, 1, NULL);
+  INSERT INTO "AuthorSubscription" ("id", "subscriberId", "authorId", "createdAt") VALUES
+    (1, 3, 1, ${prismaDate(now)});
   INSERT INTO blex_scheduled_publication VALUES (3, '2099-01-01 00:00:00.000000');
 `);
 database.close();
