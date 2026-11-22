@@ -34,9 +34,9 @@ function formatDate(iso: string): string {
   return publicationDate.format(new Date(iso));
 }
 
-function PostCover({ post, presentation, cover, image, authorPath, published, updated, seriesLink }: {
+function PostCover({ post, presentation, cover, image, authorPath, published, updated, seriesLink, timelapsePath }: {
   post: PublicPost; presentation: PostPresentation; cover: string; image?: string; authorPath: string;
-  published?: string; updated?: string; seriesLink?: string;
+  published?: string; updated?: string; seriesLink?: string; timelapsePath?: string;
 }) {
   const inverted = cover === 'overlay';
   const large = inverted || cover === 'split';
@@ -51,13 +51,14 @@ function PostCover({ post, presentation, cover, image, authorPath, published, up
     <h1 itemProp="headline" className={`${large ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl lg:text-4xl'} ${inverted ? 'text-white' : 'text-content'} ${post.subtitle ? (large ? 'mb-4' : 'mb-3') : (inverted ? 'mb-6' : 'mb-8')} font-bold leading-tight break-words`}>{post.title}</h1>
     {post.subtitle && <p className={`text-lg font-medium leading-relaxed sm:text-xl ${inverted ? 'mb-6 text-white/85' : 'mb-8 text-content-secondary'}`}>{post.subtitle}</p>}
     <div className={`flex items-center gap-4 text-sm ${large ? '' : 'border-b border-line-light pb-8'}`} itemProp="author" itemScope itemType="https://schema.org/Person">
-      <a href={authorPath} className="group shrink-0" aria-label={`${post.username} 프로필`}><img src={avatar} alt=""
+      <a href={authorPath} className="group shrink-0"><img src={avatar} alt={post.username}
         className={`size-10 rounded-full object-cover ring-2 transition-all ${inverted ? 'ring-white/60 group-hover:ring-white' : 'ring-line-light group-hover:ring-line-strong'}`} /></a>
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
         <a href={authorPath} className={`font-semibold transition-colors ${inverted ? 'text-white hover:text-white/80' : 'text-content hover:text-content-secondary'}`} itemProp="name">{post.username}</a>
-        {published && <><span className={separator}>·</span><time className={metadataColor} dateTime={published}>{formatDate(published)} 발행</time></>}
+        {published && <><span className={separator}>·</span><time className={metadataColor} dateTime={published}>{formatDate(published)} {post.visibility === 'draft' ? '미리보기' : '발행'}</time></>}
         {updated && published && formatDate(updated) !== formatDate(published) && <><span className={separator}>·</span><time className={metadataColor} dateTime={updated}>{formatDate(updated)} 수정</time></>}
         <span className={separator}>·</span><span className={metadataColor} aria-label="읽는 시간">{post.readTime}분 소요</span>
+        {timelapsePath && <><span className={separator}>·</span><a href={timelapsePath} className={`${metadataColor} underline-offset-2 hover:underline`}>쓰인 과정 보기</a></>}
       </div>
     </div>
   </>;
@@ -266,7 +267,7 @@ function PostDock({ reader, post, postPath, canonical, markdown, headings, csrfT
   </>;
 }
 
-export function renderPublicPostPage(post: PublicPost, presentation: PostPresentation, siteUrl: URL, reader: ReaderPostView | null = null, csrfToken = '', canManage = false, viewer: HeaderViewer | null = null, related: RelatedPost[] = [], previewAuthor?: { bio: string; homepage: string }): string {
+export function renderPublicPostPage(post: PublicPost, presentation: PostPresentation, siteUrl: URL, reader: ReaderPostView | null = null, csrfToken = '', canManage = false, viewer: HeaderViewer | null = null, related: RelatedPost[] = [], previewAuthor?: { bio: string; homepage: string }, hasTimelapse = false): string {
   const postPath = publicPostPath(post.username, post.slug);
   const canonical = new URL(postPath, siteUrl).href;
   const authorPath = `/@${encodeURIComponent(post.username)}`;
@@ -297,7 +298,7 @@ export function renderPublicPostPage(post: PublicPost, presentation: PostPresent
     ? `/@${encodeURIComponent(presentation.seriesAuthor)}/series/${encodeURIComponent(presentation.seriesUrl)}` : undefined;
   const banners = (position: string) => presentation.banners.filter((banner) => banner.position === position)
     .map((banner) => <div key={banner.id} className="article-banner" dangerouslySetInnerHTML={{ __html: banner.contentHtml }} />);
-  const coverSection = <PostCover {...{ post, presentation, cover, image, authorPath, published, updated, seriesLink }} />;
+  const coverSection = <PostCover {...{ post, presentation, cover, image, authorPath, published, updated, seriesLink }} timelapsePath={hasTimelapse ? `${postPath}/timelapse` : undefined} />;
 
   return renderApplicationDocument(<html lang="ko">
       <head>

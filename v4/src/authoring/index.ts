@@ -2583,7 +2583,7 @@ export function registerAuthoring(
         .header('Cache-Control', 'private, no-store')
         .header('X-Robots-Tag', 'noindex, nofollow')
         .header('Content-Security-Policy', postContentSecurityPolicy)
-        .send(renderPublicPostPage(post, presentation, options.siteUrl, null, csrf, true, {
+        .send(renderPublicPostPage(post, presentation, options.siteUrl, null, csrf, false, {
           username: post.username, hasEditorRole: true, isStaff: Boolean(Number(post.isStaff)), unreadCount: Number(post.unreadCount),
         }, [], { bio: post.authorBio, homepage: post.authorHomepage }));
     });

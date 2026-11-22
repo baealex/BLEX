@@ -180,9 +180,11 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
 
     const presentation = await readPostPresentation(db, post);
     const publicArticle = auth && post.visibility === 'public';
-    const [reader, related] = await Promise.all([
+    const canManage = viewer?.username === post.username && Boolean(viewer.hasEditorRole);
+    const [reader, related, history] = await Promise.all([
       publicArticle ? readReaderPostView(db, post.slug, viewer?.id ?? null) : null,
       publicArticle && presentation.tags.length ? relatedPosts(db, post.id, post.authorId) : [],
+      canManage ? db.$queryRaw<unknown[]>`SELECT 1 FROM board_edithistory WHERE post_id = ${post.id} LIMIT 1` : [],
     ]);
     let csrf = requestCookies(request)[csrfCookie] ?? '';
     if (viewer) {
@@ -202,7 +204,7 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
     return reply.type('text/html; charset=utf-8')
       .header('Vary', 'Cookie')
       .header('Content-Security-Policy', postContentSecurityPolicy)
-      .send(renderPublicPostPage(post, presentation, siteUrl, reader, csrf, viewer?.username === post.username && viewer.hasEditorRole, viewer, related));
+      .send(renderPublicPostPage(post, presentation, siteUrl, reader, csrf, canManage, viewer, related, undefined, history.length > 0));
   });
 
   return app;
