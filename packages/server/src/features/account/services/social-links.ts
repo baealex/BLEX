@@ -2,6 +2,10 @@ import type { Prisma, PrismaClient } from '@prisma/client';
 import { safeExternalUrl } from './profile.js';
 import { Body, UpdateResult, positiveId, stringValue } from '../shared.js';
 
+const MAX_LINK_ORDER = 2_147_483_647;
+/** A larger client id would push the shared AUTOINCREMENT counter past Prisma's Int range for every account. */
+const MAX_REUSED_LINK_ID = 1_073_741_823;
+
 type SocialLink = { id: number; name: string; value: string; order: number };
 
 interface SocialMutation {
@@ -23,7 +27,7 @@ function validateSocialFields(name: string, value: string, orderValue: string): 
   if (!value.startsWith('https://') || !safeExternalUrl(value)) return null;
   if (!/^-?\d+$/.test(orderValue)) return null;
   const order = Number(orderValue);
-  return Number.isInteger(order) && order >= 0 && order <= 2_147_483_647 ? order : null;
+  return Number.isSafeInteger(order) && order >= 0 ? Math.min(order, MAX_LINK_ORDER) : null;
 }
 
 function parseSocialMutation(body: Body, mode: 'legacy' | 'form'): SocialMutation | UpdateResult {
@@ -88,7 +92,10 @@ export async function applySocialMutation(
         if (count === 0) {
           const collision = await transaction.socialLink.findUnique({ where: { id: link.id }, select: { id: true } });
           if (collision) throw new Error('social-link-conflict');
-          await transaction.socialLink.create({ data: { id: link.id, userId, ...fields }, select: { id: true } });
+          await transaction.socialLink.create({
+            data: { ...(link.id <= MAX_REUSED_LINK_ID ? { id: link.id } : {}), userId, ...fields },
+            select: { id: true },
+          });
         }
       }
       for (const link of mutation.creates) {

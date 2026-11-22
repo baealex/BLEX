@@ -38,8 +38,7 @@ export function stringValue(value: unknown): string {
 
 export function positiveId(value: unknown): number | null {
   const parsed = typeof value === 'number' ? value : /^\d+$/.test(stringValue(value)) ? Number(value) : NaN;
-  // Prisma fails every later read of an Int column holding a wider number.
-  return Number.isInteger(parsed) && parsed > 0 && parsed <= 2_147_483_647 ? parsed : null;
+  return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : null;
 }
 
 export function loginRedirect(request: FastifyRequest, reply: FastifyReply) {

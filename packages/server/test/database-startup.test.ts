@@ -698,16 +698,39 @@ test('imports 3.14 accounts with credentials, permissions, and preferences intac
   }
 });
 
-test('stops the import on a 3.14 profile role BLEX 4 cannot read', async () => {
+test('imports retired 3.x roles as readers and oversized social links without breaking later saves', async () => {
   const space = await workspace();
   const source = join(space.legacyRoot, 'db.sqlite3');
   try {
     const legacy = await createLegacyDatabase(source);
     insertRow(legacy, 'auth_user', { id: 7, username: 'writer', date_joined: '2023-01-01 00:00:00' });
-    insertRow(legacy, 'board_profile', { id: 1, user_id: 7, role: 'OWNER' });
+    insertRow(legacy, 'board_profile', { id: 1, user_id: 7, role: 'ADMIN' });
+    const link = (id: number, order: number) => insertRow(legacy, 'board_userlinkmeta', {
+      id, user_id: 7, name: 'github', value: `https://github.com/${id}`, order, created_date: '2024-01-01 00:00:00', updated_date: '2024-01-01 00:00:00',
+    });
+    link(5, 3_000_000_000);
+    link(3_000_000_000, 1);
     legacy.close();
-    await assert.rejects(prepareDatabase(space.options), /board_profile\.role in row 7 is "OWNER"/);
-    assert.equal(existsSync(space.databasePath), false);
+
+    await prepareDatabase(space.options);
+
+    const imported = new DatabaseSync(space.databasePath, { readOnly: true });
+    assert.equal((imported.prepare('SELECT role FROM Profile WHERE userId = 7').get() as { role: string }).role, 'READER');
+    assert.deepEqual(imported.prepare('SELECT id, url, "order" FROM SocialLink ORDER BY id').all().map((row) => ({ ...row })), [
+      { id: 5, url: 'https://github.com/5', order: 2_147_483_647 },
+      { id: 6, url: 'https://github.com/3000000000', order: 1 },
+    ]);
+    assert.equal(Number((imported.prepare(`SELECT seq FROM sqlite_sequence WHERE name = 'SocialLink'`).get() as { seq: number }).seq), 6);
+    imported.close();
+
+    const db = new PrismaClient({ datasourceUrl: `file:${space.databasePath}?connection_limit=1` });
+    try {
+      const created = await db.socialLink.create({ data: { userId: 7, platform: 'github', url: 'https://github.com/new' }, select: { id: true } });
+      assert.equal(created.id, 7);
+      assert.equal((await db.socialLink.findMany({ select: { id: true } })).length, 3);
+    } finally {
+      await db.$disconnect();
+    }
   } finally {
     await space.cleanup();
   }

@@ -62,6 +62,25 @@ const int32 = (to: string): ColumnMapping => ({
   },
 });
 
+/** 3.x never bounded a link's order, and clamping keeps the list sorted. */
+const clampedInt32 = (to: string): ColumnMapping => ({
+  to,
+  convert(value, source, id) {
+    if (typeof value !== 'bigint') throw rejectedValue(source, id, value, 'an integer');
+    return value > 2147483647n ? 2147483647n : value < -2147483648n ? -2147483648n : value;
+  },
+});
+
+/** 3.x let a client choose a link id. Nothing references it, so an oversized one gets the next free id. */
+const maxImportedLinkId = 1073741823n;
+const linkId: ColumnMapping = {
+  to: 'id',
+  convert: (value) => (typeof value === 'bigint' && value > maxImportedLinkId ? null : value),
+};
+
+/** Only EDITOR ever granted anything. Early 3.x also stored ADMIN, which every role check treated as a reader. */
+const profileRole: ColumnMapping = { to: 'role', convert: (value) => (value === 'EDITOR' ? 'EDITOR' : 'READER') };
+
 const contentScope = choice('scope', ['user', 'global']);
 const choiceColumn = (to: string, allowed: readonly string[]) => choice(to, allowed) as Exclude<ColumnMapping, string>;
 
@@ -149,7 +168,7 @@ const tableMappings: Record<string, TableMapping> = {
   board_profile: {
     to: 'Profile',
     columns: {
-      user_id: 'userId', role: choice('role', ['READER', 'EDITOR']), bio: 'bio', avatar: 'avatar', cover: 'cover', homepage: 'homepage',
+      user_id: 'userId', role: profileRole, bio: 'bio', avatar: 'avatar', cover: 'cover', homepage: 'homepage',
       about_md: 'aboutMarkdown', about_html: 'aboutHtml',
     },
   },
@@ -170,7 +189,7 @@ const tableMappings: Record<string, TableMapping> = {
   board_userlinkmeta: {
     to: 'SocialLink',
     columns: {
-      id: 'id', user_id: 'userId', name: 'platform', value: 'url', order: int32('order'),
+      id: linkId, user_id: 'userId', name: 'platform', value: 'url', order: clampedInt32('order'),
       created_date: date('createdAt'), updated_date: date('updatedAt'),
     },
   },
@@ -458,7 +477,11 @@ function copyRows(sourcePath: string, targetPath: string) {
       const destination = tableMappings[name]?.to ?? name;
       // A table keyed by another column (TelegramConnection by userId) has no counter worth carrying over.
       const keepsId = !tableMappings[name] || 'id' in tableMappings[name].columns;
-      if (keepsId && targetTables.has(destination) && !discardedTables.has(name) && !destination.startsWith('_')) sequence.run(destination, seq);
+      if (!keepsId || !targetTables.has(destination) || discardedTables.has(name) || destination.startsWith('_')) continue;
+      if (name === 'board_userlinkmeta' && seq > maxImportedLinkId) {
+        const { id } = target.prepare('SELECT COALESCE(MAX(id), 0) AS id FROM "SocialLink"').get() as { id: number };
+        sequence.run(destination, id);
+      } else sequence.run(destination, seq);
     }
 
     // 3.x published scheduled posts by date alone. BLEX 4 queues them explicitly.

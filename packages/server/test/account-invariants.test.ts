@@ -270,6 +270,29 @@ test('account deletion cascades owned rows, anonymizes comments, and removes wor
   insertRow(fixture.db, 'Comment', { id: 1, postId: 1, authorId: 2, markdown: 'kept' });
 }));
 
+test('an oversized social link id or order cannot break links for other accounts', () => withApp(async (app, db) => {
+  const writer = await signIn(app, 'writer');
+  const other = await signIn(app, 'other');
+  const save = (headers: Headers, payload: Record<string, string>) => app.inject({
+    method: 'PUT', url: '/v1/setting/social', headers, payload: { update: '', create: '', delete: '', ...payload },
+  });
+  for (const id of ['2147483647', '3000000000']) {
+    assert.equal((await save(writer, { update: `${id},github,https://github.com/writer${id},1` })).json().status, 'DONE');
+  }
+  assert.equal((await save(writer, { create: 'threads,https://threads.example/writer,3000000000' })).json().status, 'DONE');
+  assert.equal((await save(writer, { delete: '3000000000' })).json().status, 'DONE');
+  const created = await save(other, { create: 'github,https://github.com/other,1' });
+  assert.equal(created.json().status, 'DONE', created.body);
+  assert.equal((await app.inject({ url: '/v1/setting/profile', headers: other })).json().body.social.length, 1);
+  const stored = await db.socialLink.findMany({ select: { id: true, order: true } });
+  assert.equal(stored.length, 4);
+  assert.ok(stored.every(({ id }) => id <= 1_073_741_824));
+  assert.equal(Math.max(...stored.map(({ order }) => order)), 2_147_483_647);
+}, (fixture) => {
+  seedUser(fixture, 1, 'writer');
+  seedUser(fixture, 2, 'other');
+}));
+
 test('usernames stay case-sensitive and old names keep redirecting after a rename', () => withApp(async (app, db) => {
   const anonymous = browser(await app.inject('/v1/login'));
   const wrongCase = await app.inject({ method: 'POST', url: '/v1/login', headers: anonymous, payload: { username: 'WRITER', password } });
