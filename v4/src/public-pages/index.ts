@@ -1708,7 +1708,7 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
     const requestedUsername = request.params.username;
     const author = await readAuthor(db, requestedUsername);
     if (!author) return sendNotFound(reply);
-    if (author.username !== requestedUsername) return sendRedirect(reply, authorPath(author.username));
+    if (author.username !== requestedUsername) return sendRedirect(reply, `${authorPath(author.username)}${new URL(request.url, siteUrl).search}`);
     const query = new URL(request.url, siteUrl).searchParams;
     const [brand, viewer] = await Promise.all([
       readPublicSiteBrand(db),
@@ -1821,7 +1821,7 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
     const requestedUsername = request.params.username;
     const author = await readAuthor(db, requestedUsername);
     if (!author) return sendNotFound(reply);
-    if (author.username !== requestedUsername) return sendRedirect(reply, authorPath(author.username, '/posts'));
+    if (author.username !== requestedUsername) return sendRedirect(reply, `${authorPath(author.username, '/posts')}${new URL(request.url, siteUrl).search}`);
     if (!isEditor(author)) return sendRedirect(reply, authorPath(author.username, '/about'));
 
     const url = new URL(request.url, siteUrl);
@@ -1919,7 +1919,7 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
     const requestedUsername = request.params.username;
     const author = await readAuthor(db, requestedUsername);
     if (!author) return sendNotFound(reply);
-    if (author.username !== requestedUsername) return sendRedirect(reply, authorPath(author.username, '/series'));
+    if (author.username !== requestedUsername) return sendRedirect(reply, `${authorPath(author.username, '/series')}${new URL(request.url, siteUrl).search}`);
     if (!isEditor(author)) return sendRedirect(reply, authorPath(author.username, '/about'));
 
     const url = new URL(request.url, siteUrl);

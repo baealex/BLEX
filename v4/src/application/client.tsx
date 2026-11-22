@@ -474,7 +474,7 @@ function isSafeFormReturnTo(value: FormDataEntryValue | null): value is string {
   if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//') || value.includes('\\')) return false;
   try {
     const url = new URL(value, window.location.href);
-    return url.origin === window.location.origin && !url.pathname.startsWith('/v1/') &&
+    return url.origin === window.location.origin && !decodeURIComponent(url.pathname).startsWith('//') && !url.pathname.startsWith('/v1/') &&
       url.pathname !== '/graphql' && !url.pathname.startsWith('/api/') && isInternalApplicationUrl(url);
   } catch { return false; }
 }

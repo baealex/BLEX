@@ -487,6 +487,11 @@ function handleGlobalClick(event: MouseEvent) {
   if (!(event.target instanceof Element)) return;
   const target = event.target;
 
+  if (target.closest('[data-history-back]')) {
+    if (history.length > 1) history.back();
+    else location.href = '/';
+  }
+
   const menuToggle = target.closest<HTMLButtonElement>('[data-site-menu-open]');
   if (menuToggle) {
     const menu = document.querySelector<HTMLDialogElement>('#blex-mobile-menu');

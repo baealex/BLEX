@@ -95,8 +95,8 @@ function createSchema() {
     CREATE TABLE board_worklogentry (id INTEGER PRIMARY KEY, text TEXT NOT NULL DEFAULT '');
     CREATE TABLE board_profile (
       id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL UNIQUE, role TEXT NOT NULL DEFAULT 'READER',
-      about_md TEXT NOT NULL DEFAULT '', about_html TEXT NOT NULL DEFAULT '', avatar TEXT NOT NULL DEFAULT '', cover TEXT NOT NULL DEFAULT ''
-    );
+      about_md TEXT NOT NULL DEFAULT '', about_html TEXT NOT NULL DEFAULT '', avatar TEXT NOT NULL DEFAULT '', cover TEXT NOT NULL DEFAULT '', bio TEXT NOT NULL DEFAULT '', homepage TEXT NOT NULL DEFAULT '', analytics_share_url TEXT NOT NULL DEFAULT ''
+  );
     CREATE TABLE board_config (
       id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL UNIQUE, language TEXT, time_zone TEXT NOT NULL DEFAULT ''
     );

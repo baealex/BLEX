@@ -893,10 +893,12 @@ async function syncDraftReservation(tx: Prisma.TransactionClient, postId: number
   }
 }
 
+const MAX_DRAFTS_PER_USER = 100;
+
 export class PostValidationError extends Error {
   readonly code: string;
 
-  constructor(readonly errorCode: 'VA' | 'RJ' | 'CF', message: string) {
+  constructor(readonly errorCode: 'VA' | 'RJ' | 'CF' | 'OF', message: string) {
     super(message);
     this.name = 'PostValidationError';
     this.code = errorCode;
@@ -1023,6 +1025,14 @@ async function createPost(
   const coverImage = await resolveCoverImage(db, author.id, input.coverImage, '', input.removeCoverImage);
 
   return db.$transaction(async (tx) => {
+    if (asDraft) {
+      const [drafts] = await tx.$queryRaw<Array<{ total: number | bigint }>>`
+        SELECT COUNT(*) AS total FROM board_post WHERE author_id = ${author.id} AND published_date IS NULL
+      `;
+      if (Number(drafts?.total ?? 0) >= MAX_DRAFTS_PER_USER) {
+        throw new PostValidationError('OF', `임시 저장 글은 최대 ${MAX_DRAFTS_PER_USER}개까지 가능합니다.`);
+      }
+    }
     const slug = await uniqueSlug(tx, title, input.url);
     const seriesId = await publicSeriesId(tx, author.id, input.series);
     const inserted = await tx.$queryRaw<Array<{ id: number }>>`

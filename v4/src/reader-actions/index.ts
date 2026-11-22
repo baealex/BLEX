@@ -553,6 +553,8 @@ function localReturnTo(value: unknown): string | null {
   try {
     const target = new URL(value, 'https://blex.local');
     if (target.origin !== 'https://blex.local') return null;
+    const decoded = decodeURIComponent(target.pathname);
+    if (decoded.startsWith('//') || decoded.includes('\\')) return null;
     return `${target.pathname}${target.search}${target.hash}`;
   } catch {
     return null;

@@ -175,6 +175,68 @@ test('serves the 3.x developer docs without outside requests', async () => {
   }
 });
 
+test('keeps return paths local after dot segments are resolved', async () => {
+  const fixture = await screensApp();
+  try {
+    const headers = { ...signIn(fixture.db, 2), 'content-type': 'application/x-www-form-urlencoded' };
+    for (const returnTo of ['/.//evil.example', '/..//evil.example', '/a/..//evil.example']) {
+      const response = await fixture.app.inject({ method: 'POST', url: '/like/kept', headers,
+        payload: new URLSearchParams({ csrfmiddlewaretoken: headers['x-csrftoken'], return_to: returnTo }).toString() });
+      assert.doesNotMatch(String(response.headers.location ?? ''), /^\/\//);
+    }
+  } finally {
+    await fixture.close();
+  }
+});
+
+test('serves the 3.x page for missing documents and plain answers elsewhere', async () => {
+  const fixture = await screensApp();
+  try {
+    const page = await fixture.app.inject({ url: '/@writer/missing-post', headers: { accept: 'text/html' } });
+    assert.equal(page.statusCode, 404);
+    assert.match(String(page.headers['content-type']), /text\/html/);
+    assert.match(page.body, /페이지를 찾을 수 없습니다/);
+    const api = await fixture.app.inject({ url: '/v1/missing', headers: { accept: 'text/html' } });
+    assert.doesNotMatch(String(api.headers['content-type']), /text\/html/);
+  } finally {
+    await fixture.close();
+  }
+});
+
+test('keeps the query when an old username redirects to the author page', async () => {
+  const fixture = await screensApp();
+  try {
+    insertRow(fixture.db, 'board_usernamechangelog', { id: 1, user_id: 1, username: 'oldwriter', created_date: recent });
+    const moved = await fixture.app.inject('/@oldwriter/posts?page=1&q=kept');
+    assert.equal(moved.statusCode, 302);
+    assert.equal(moved.headers.location, '/@writer/posts?page=1&q=kept');
+  } finally {
+    await fixture.close();
+  }
+});
+
+test('limits drafts and creates a complete profile on a role change', async () => {
+  const fixture = await screensApp();
+  try {
+    for (let id = 100; id < 199; id += 1) seedPost(fixture.db, id, 1, `draft-${id}`, { published_date: null });
+    const editor = signIn(fixture.db, 1);
+    const blocked = await fixture.app.inject({ method: 'POST', url: '/v1/drafts', headers: { ...editor, 'content-type': 'application/json' },
+      payload: { title: 'One too many', text_md: 'Body', content_type: 'markdown' } });
+    assert.equal(blocked.json().errorCode, 'error:OF');
+    assert.match(blocked.json().errorMessage, /100개/);
+
+    insertRow(fixture.db, 'auth_user', { id: 9, username: 'noprofile', password: 'pbkdf2_sha256$fixture$none', is_active: 1 });
+    const staff = signIn(fixture.db, 3);
+    const changed = await fixture.app.inject({ method: 'PATCH', url: '/v1/admin/users/9/role',
+      headers: { ...staff, 'content-type': 'application/json' }, payload: { role: 'EDITOR' } });
+    assert.equal(changed.json().status, 'DONE', changed.body);
+    const profile = fixture.db.prepare('SELECT role FROM board_profile WHERE user_id = 9').get() as { role: string };
+    assert.equal(profile.role, 'EDITOR');
+  } finally {
+    await fixture.close();
+  }
+});
+
 test('saves long multipart editor submissions with a cover image', async () => {
   const fixture = await screensApp();
   try {

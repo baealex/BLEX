@@ -49,7 +49,10 @@ export async function developerPostInput(db: PrismaClient, authorId: number, inp
   }
   const slug = values.slug ?? values.url;
   if (slug != null) body.url = slug;
-  if (values.published_at != null && operation !== 'update') body.reserved_date = values.published_at;
+  // Like 3.x, a draft created through the API ignores any publication time.
+  if (values.published_at != null && operation !== 'update' && !(operation === 'create' && status === 'draft')) {
+    body.reserved_date = values.published_at;
+  }
 
   const format = bodyFields.find((field) => Object.hasOwn(values, field));
   if (format) {

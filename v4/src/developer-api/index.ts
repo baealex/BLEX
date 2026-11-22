@@ -633,7 +633,12 @@ export function registerDeveloperApi(app: FastifyInstance, db: PrismaClient, opt
     for (const operation of ['update', 'publish'] as const) {
       const route = `${API_PREFIX}/posts/:post_id${operation === 'publish' ? '/publish' : ''}`;
       app.route<{ Params: { post_id: string } }>({ method: operation === 'publish' ? 'POST' : 'PATCH', url: route,
-        bodyLimit: 1024 * 1024, async handler(request, reply) {
+        bodyLimit: 1024 * 1024,
+        // The publish body is optional, so an empty JSON request must still reach the handler.
+        onRequest: async (request) => {
+          if (operation === 'publish' && request.headers['content-length'] === '0') delete request.headers['content-type'];
+        },
+        async handler(request, reply) {
           const token = await writeToken(request, reply);
           if (!token) return reply;
           const id = parsePostId(request.params.post_id);

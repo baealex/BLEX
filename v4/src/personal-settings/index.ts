@@ -679,7 +679,7 @@ async function applySocialMutation(
         `;
         if (Number(result) === 0) {
           const [collision] = await transaction.$queryRaw<Array<{ exists: number | bigint }>>`
-            SELECT EXISTS (SELECT 1 FROM board_userlinkmeta WHERE id = ${link.id}) AS exists
+            SELECT EXISTS (SELECT 1 FROM board_userlinkmeta WHERE id = ${link.id}) AS "exists"
           `;
           if (collision?.exists) throw new Error('social-link-conflict');
           await transaction.$executeRaw`

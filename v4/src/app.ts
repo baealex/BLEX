@@ -25,6 +25,7 @@ import { registerNotifications } from './notifications/index.js';
 import { registerPersonalSettings } from './personal-settings/index.js';
 import { youtubeFrameSources } from './post-html.js';
 import { registerPostShare } from './post-share.js';
+import { renderNotFoundPage, wantsNotFoundPage } from './public-pages/not-found.js';
 import { publicPostPath, readPostPresentation, readPublicPost } from './posts.js';
 import { registerPublicActivity, relatedPosts } from './public-activity.js';
 import { registerPublicDiscovery, searchIndexingEnabled } from './public-discovery/index.js';
@@ -53,10 +54,23 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
   }
 
   // Prisma's SQLite connector expects a literal path and uses '?' to delimit connection options.
-  const db = new PrismaClient({ datasourceUrl: `file:${file}?connection_limit=1` });
+  const db = new PrismaClient({
+    datasourceUrl: `file:${file}?connection_limit=1`,
+    // Publishing writes one notification per subscriber inside its transaction.
+    transactionOptions: { maxWait: 15_000, timeout: 30_000 },
+  });
   const app = Fastify({ bodyLimit: 8 * 1024, requestTimeout: 300_000, routerOptions: { ignoreDuplicateSlashes: true, maxParamLength: 150 }, trustProxy: auth?.trustedProxies ?? false });
-  app.addHook('onSend', async (_request, reply, payload) => {
+  app.addHook('onSend', async (request, reply, payload) => {
     const contentType = String(reply.getHeader('Content-Type') ?? '');
+    if (reply.statusCode === 404 && !contentType.startsWith('text/html') && wantsNotFoundPage(request)) {
+      try {
+        const page = await renderNotFoundPage(db, await currentUser(request), requestCookies(request)[csrfCookie] ?? '');
+        reply.type('text/html; charset=utf-8').header('Content-Security-Policy', applicationContentSecurityPolicy).removeHeader('Content-Length');
+        return page;
+      } catch (error) {
+        request.log.warn(error);
+      }
+    }
     if (contentType.startsWith('text/html') && isApplicationDocument(payload)) {
       reply.header('Content-Security-Policy', applicationContentSecurityPolicy);
     }

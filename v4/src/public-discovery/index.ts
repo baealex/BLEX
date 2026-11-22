@@ -584,7 +584,7 @@ function buildRss(siteUrl: URL, posts: FeedPostRow[], channel: {
     const link = absoluteUrl(siteUrl, `/@${encodeURIComponent(post.username)}/${encodeURIComponent(post.slug)}`);
     return `<item><title>${xmlEscape(post.title)}</title><link>${xmlEscape(link)}</link><description>${xmlEscape(description)}</description><guid isPermaLink="true">${xmlEscape(link)}</guid><pubDate>${xmlEscape(toDate(post.publishedDate).toUTCString())}</pubDate></item>`;
   }).join('');
-  return `<?xml version="1.0" encoding="utf-8"?>\n<rss version="2.0"><channel><title>${xmlEscape(channel.title)}</title><link>${xmlEscape(channel.link)}</link><description>${xmlEscape(channel.description)}</description><language>en-us</language>${image}${items}</channel></rss>`;
+  return `<?xml version="1.0" encoding="utf-8"?>\n<rss version="2.0"><channel><title>${xmlEscape(channel.title)}</title><link>${xmlEscape(channel.link)}</link><description>${xmlEscape(channel.description)}</description><language>ko</language>${image}${items}</channel></rss>`;
 }
 
 function siteName(setting: SiteSetting): string {

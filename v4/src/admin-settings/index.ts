@@ -1980,7 +1980,10 @@ async function updateManagedUserRole(
         `;
       }
     } else {
-      await transaction.$executeRaw`INSERT INTO board_profile (user_id, role) VALUES (${targetId}, ${roleValue})`;
+      await transaction.$executeRaw`
+        INSERT INTO board_profile (bio, cover, avatar, homepage, about_md, about_html, user_id, analytics_share_url, role)
+        VALUES ('', '', '', '', '', '', ${targetId}, '', ${roleValue})
+      `;
     }
     await transaction.$executeRaw`
       INSERT INTO board_config (user_id, language, time_zone) VALUES (${targetId}, NULL, '')
