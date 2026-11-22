@@ -42,7 +42,7 @@ const buildDraftPayload = (
         formData.append('tags', data.tags);
         if (data.subtitle) formData.append('subtitle', data.subtitle);
         if (data.description) formData.append('description', data.description);
-        if (data.seriesUrl) formData.append('seriesUrl', data.seriesUrl);
+        if (data.seriesUrl !== undefined) formData.append('seriesUrl', data.seriesUrl);
         if (data.customUrl) formData.append('customUrl', data.customUrl);
         if (data.coverLayout) formData.append('coverLayout', data.coverLayout);
         if (data.coverImagePosition) formData.append('coverImagePosition', data.coverImagePosition);

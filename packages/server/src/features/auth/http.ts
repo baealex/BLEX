@@ -1,6 +1,7 @@
 import formBody from '@fastify/formbody';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
+import type { DeveloperRateLimit } from '../developer-api/services/rate-limit.js';
 import { authCookieOptions, csrfCookie, refreshCsrf, sessionCookie, setSessionCookies } from '../../platform/cookies.js';
 import { csrfPattern, formInput, validCsrf } from '../../platform/csrf.js';
 import { registerLoginPage } from './login-page.js';
@@ -11,7 +12,7 @@ import { createSession, deleteSession, loginBody, readSession } from './session.
 import { registerAccountSecurity } from './security.js';
 import { registerSetup } from './setup.js';
 import { registerSignup } from './signup.js';
-import { verifySecondFactor } from './two-factor.js';
+import { isRecoveryCode, verifySecondFactor } from './two-factor.js';
 import { done as success, failure } from '../../platform/response.js';
 
 export interface AuthConfig {
@@ -23,6 +24,12 @@ export interface AuthConfig {
   deliverNotifications?: boolean;
   trustedProxies?: string[];
   webAssetsRoot?: string;
+  developerRateLimit?: Partial<DeveloperRateLimit>;
+}
+
+/** Tells the login screen to send the owner on to replace the key they just used. */
+function signedInBody(user: Parameters<typeof loginBody>[0], spentRecoveryKey: string | undefined) {
+  return spentRecoveryKey === undefined ? loginBody(user) : { ...loginBody(user), recoveryKeyUsed: true };
 }
 
 export function registerAuthentication(app: FastifyInstance, db: PrismaClient, siteUrl: URL, config: AuthConfig) {
@@ -74,12 +81,14 @@ export function registerAuthentication(app: FastifyInstance, db: PrismaClient, s
         if (!await consumePendingOAuth(db, challengeToken)) return failure('RJ', 'The authentication token has expired. Please log in again.');
 
         await release();
-        const token = await createSession(db, pending, config.secretKey, request.cookies[sessionCookie]);
+        const spentRecoveryKey = isRecoveryCode(code) ? pending.recoveryKey : undefined;
+        const token = await createSession(db, { ...pending, spentRecoveryKey }, config.secretKey, request.cookies[sessionCookie]);
+        if (!token && spentRecoveryKey !== undefined) return failure('RJ', 'The two-factor authentication code is incorrect.');
         const user = await readSession(db, token ?? undefined, config.secretKey);
         if (!token || !user) return failure('AT');
         reply.clearCookie(oauthChallengeCookie, cookieOptions);
         setSessionCookies(reply, siteUrl, token);
-        return success(loginBody(user));
+        return success(signedInBody(user, spentRecoveryKey));
       }
       if (typeof username !== 'string' || typeof password !== 'string' || typeof code !== 'string') return failure('AT');
 
@@ -88,11 +97,15 @@ export function registerAuthentication(app: FastifyInstance, db: PrismaClient, s
       const result = await authenticatePassword(db, username, password, code, config.cipherKey);
       if (result.status === 'invalid-credentials') return failure('AT');
       if (result.status === 'invalid-second-factor') return failure('RJ', 'The two-factor authentication code is incorrect.');
+      if (result.status === 'recovery-key-spent') {
+        return failure('RJ', 'This recovery key has already been used. Two-factor authentication is now off, so sign in with your password only.');
+      }
 
       await release();
       if (result.status === 'second-factor-required') return success({ username: result.username, security: true, isOauth: false });
 
       const token = await createSession(db, result, config.secretKey, request.cookies[sessionCookie]);
+      if (!token && result.spentRecoveryKey !== undefined) return failure('RJ', 'The two-factor authentication code is incorrect.');
       const user = await readSession(db, token ?? undefined, config.secretKey);
       if (!token || !user) return failure('AT');
 
@@ -101,7 +114,7 @@ export function registerAuthentication(app: FastifyInstance, db: PrismaClient, s
         reply.clearCookie(oauthChallengeCookie, cookieOptions);
       }
       setSessionCookies(reply, siteUrl, token);
-      return success(loginBody(user));
+      return success(signedInBody(user, result.spentRecoveryKey));
     });
 
     routes.post('/v1/logout', async (request, reply) => {

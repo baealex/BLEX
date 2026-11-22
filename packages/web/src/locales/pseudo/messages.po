@@ -654,8 +654,8 @@ msgstr ""
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:600
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:618
 #: src/components/remotes/PostEditor/components/PublishChecklist.tsx:139
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:385
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:400
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:382
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:402
 #: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:486
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:135
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:291
@@ -668,7 +668,7 @@ msgid "common.cancel"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:71
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:72
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:522
 msgid "common.change"
 msgstr ""
@@ -721,8 +721,8 @@ msgstr ""
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:639
 #: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:336
 #: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:550
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:285
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:77
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:286
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:85
 #: src/components/remotes/SettingsApp/pages/BannerSetting/components/BannerList.tsx:111
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:86
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:356
@@ -754,8 +754,8 @@ msgid "common.deleting"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:197
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:38
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:198
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:39
 msgid "common.disable"
 msgstr ""
 
@@ -782,7 +782,7 @@ msgid "common.edit"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:42
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:43
 msgid "common.enable"
 msgstr ""
 
@@ -816,7 +816,7 @@ msgid "common.loading"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:29
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:30
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/RegionalPreferencesSection.tsx:38
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:111
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:144
@@ -983,7 +983,7 @@ msgid "editor.actions.save_draft"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:638
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:637
 msgid "editor.actions.schedule"
 msgstr ""
 
@@ -1003,8 +1003,8 @@ msgid "editor.autosave.enabled"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/hooks/useAutoSave.ts:168
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:431
+#: src/components/remotes/PostEditor/hooks/useAutoSave.ts:174
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:433
 msgid "editor.autosave.error"
 msgstr ""
 
@@ -1019,7 +1019,7 @@ msgid "editor.autosave.pending"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:426
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:428
 msgid "editor.autosave.saved"
 msgstr ""
 
@@ -1049,13 +1049,12 @@ msgstr ""
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:481
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:562
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:579
-#: src/components/remotes/PostEditor/hooks/useAutoSave.ts:164
+#: src/components/remotes/PostEditor/hooks/useAutoSave.ts:170
 msgid "editor.common.untitled"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:579
-#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:172
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:572
 msgid "editor.confirm.move_to_trash"
 msgstr ""
 
@@ -1236,17 +1235,17 @@ msgid "editor.drafts.total"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:331
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:333
 msgid "editor.error.load_draft"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:234
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:236
 msgid "editor.error.load_post"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:335
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:337
 msgid "editor.error.load_series"
 msgstr ""
 
@@ -1266,13 +1265,13 @@ msgid "editor.error.missing_new_parameters"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:605
-#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:192
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:589
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:604
 msgid "editor.error.move_to_trash"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:161
+#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:95
 msgid "editor.error.save"
 msgstr ""
 
@@ -1282,9 +1281,8 @@ msgid "editor.error.unsupported_mode"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:545
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:561
-#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:157
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:538
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:554
 msgid "editor.error.update"
 msgstr ""
 
@@ -1370,13 +1368,13 @@ msgid "editor.guide.close"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:471
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:473
 msgid "editor.guide.error.load"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:585
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:589
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:584
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:588
 msgid "editor.guide.open"
 msgstr ""
 
@@ -1401,73 +1399,73 @@ msgid "editor.guide.settings_title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:594
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:593
 msgid "editor.guide.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:260
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:261
 msgid "editor.heading.edit_draft"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:781
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:795
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:780
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:794
 msgid "editor.heading.edit_post"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:261
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:262
 msgid "editor.heading.new_post"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:786
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:785
 msgid "editor.loading_post"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:438
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:448
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:155
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:165
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:435
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:445
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:159
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:169
 msgid "editor.media.error.upload"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:442
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:444
 msgid "editor.media.wait_before_preview"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:530
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:556
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:538
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:555
 msgid "editor.media.wait_before_publish"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:629
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:628
 msgid "editor.media.wait_before_revisions"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:417
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:419
 msgid "editor.media.wait_before_save"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:526
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:552
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:534
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:551
 msgid "editor.media.wait_before_schedule"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:668
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:667
 msgid "editor.media.wait_before_schedule_change"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:496
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:493
 msgid "editor.media.wait_before_update"
 msgstr ""
 
@@ -1488,7 +1486,7 @@ msgid "editor.preview.desktop"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:453
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:455
 msgid "editor.preview.error.save_draft"
 msgstr ""
 
@@ -1640,7 +1638,7 @@ msgid "editor.publish.recommended_later"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:565
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:564
 msgid "editor.publish.recommended_missing"
 msgstr ""
 
@@ -1695,23 +1693,23 @@ msgid "editor.recovery.aria_label"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:377
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:374
 msgid "editor.recovery.confirm_delete_description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:373
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:370
 msgid "editor.recovery.confirm_delete_title"
 msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:69
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:381
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:378
 msgid "editor.recovery.delete_backup"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:398
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:395
 msgid "editor.recovery.deleted"
 msgstr ""
 
@@ -1731,14 +1729,14 @@ msgid "editor.recovery.recover"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:486
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:615
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:652
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:483
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:614
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:651
 msgid "editor.recovery.resolve_first"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:363
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:360
 msgid "editor.recovery.success"
 msgstr ""
 
@@ -1897,7 +1895,7 @@ msgid "editor.revisions.restore_this"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:622
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:621
 msgid "editor.revisions.save_changes_first"
 msgstr ""
 
@@ -1935,13 +1933,13 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:297
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:682
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:690
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:681
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:689
 msgid "editor.schedule.cancel"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:686
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:685
 msgid "editor.schedule.cancel_description"
 msgstr ""
 
@@ -1961,14 +1959,14 @@ msgid "editor.schedule.empty_description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:702
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:716
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:701
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:715
 msgid "editor.schedule.error.cancel"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:755
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:769
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:754
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:768
 msgid "editor.schedule.error.publish_now"
 msgstr ""
 
@@ -1999,23 +1997,23 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:307
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:730
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:743
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:729
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:742
 msgid "editor.schedule.publish_now"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:735
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:734
 msgid "editor.schedule.publish_now_private_description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:739
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:738
 msgid "editor.schedule.publish_now_public_description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:660
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:659
 msgid "editor.schedule.save_changes_first"
 msgstr ""
 
@@ -2122,75 +2120,75 @@ msgid "editor.settings.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/TagManager.tsx:108
+#: src/components/remotes/PostEditor/components/TagManager.tsx:106
 msgid "editor.tags.add"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/TagManager.tsx:90
+#: src/components/remotes/PostEditor/components/TagManager.tsx:88
 msgid "editor.tags.name_placeholder"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/TagManager.tsx:77
+#: src/components/remotes/PostEditor/components/TagManager.tsx:75
 msgid "editor.tags.new_name"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/TagManager.tsx:60
+#: src/components/remotes/PostEditor/components/TagManager.tsx:58
 msgid "editor.tags.remove"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:583
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:576
 msgid "editor.trash.confirm"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:575
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:568
 msgid "editor.trash.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:396
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:398
 msgid "editor.unsaved.switch_draft"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:392
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:394
 msgid "editor.unsaved.switch_draft_description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:388
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:390
 msgid "editor.unsaved.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:58
+#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:45
 msgid "editor.validation.content_required"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:473
-#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:84
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:470
+#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:70
 msgid "editor.validation.schedule_future"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:465
-#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:76
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:462
+#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:62
 msgid "editor.validation.schedule_invalid"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:456
-#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:50
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:453
+#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:37
 msgid "editor.validation.title_required"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:67
+#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:53
 msgid "editor.validation.url_required"
 msgstr ""
 
@@ -2575,38 +2573,38 @@ msgid "search.validation.query_required"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:339
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:340
 msgid "settings.account.basic_info.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:56
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:64
 msgid "settings.account.danger_zone"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:281
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:282
 msgid "settings.account.delete.confirm"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:65
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:73
 msgid "settings.account.delete.description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:310
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:311
 msgid "settings.account.delete.failed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:298
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:299
 msgid "settings.account.delete.success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:277
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:62
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:278
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:70
 msgid "settings.account.delete.title"
 msgstr ""
 
@@ -2626,7 +2624,7 @@ msgid "settings.account.info.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:42
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:43
 msgid "settings.account.load_failed"
 msgstr ""
 
@@ -2651,12 +2649,12 @@ msgid "settings.account.name.update"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:126
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:127
 msgid "settings.account.name.update_failed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:119
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:120
 msgid "settings.account.name.update_success"
 msgstr ""
 
@@ -2705,12 +2703,12 @@ msgid "settings.account.password.revoke_tokens"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:164
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:165
 msgid "settings.account.password.update_failed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:157
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:158
 msgid "settings.account.password.update_success"
 msgstr ""
 
@@ -2745,12 +2743,12 @@ msgid "settings.account.password.validation.uppercase"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:17
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:18
 msgid "settings.account.security.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:323
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:324
 msgid "settings.account.title"
 msgstr ""
 
@@ -2760,37 +2758,37 @@ msgid "settings.account.two_factor.code_label"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:193
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:194
 msgid "settings.account.two_factor.disable_confirm"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:232
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:233
 msgid "settings.account.two_factor.disable_failed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:226
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:227
 msgid "settings.account.two_factor.disable_success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:189
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:190
 msgid "settings.account.two_factor.disable_title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:216
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:217
 msgid "settings.account.two_factor.enable_failed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:250
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:251
 msgid "settings.account.two_factor.enable_success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:260
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:261
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:40
 msgid "settings.account.two_factor.invalid_code"
 msgstr ""
@@ -2811,6 +2809,11 @@ msgid "settings.account.two_factor.recovery_key_description"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:51
+msgid "settings.account.two_factor.recovery_key_used"
+msgstr ""
+
+#. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:100
 msgid "settings.account.two_factor.recovery_key_warning"
 msgstr ""
@@ -2826,7 +2829,7 @@ msgid "settings.account.two_factor.setup_title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:26
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:27
 msgid "settings.account.two_factor.title"
 msgstr ""
 
@@ -2846,17 +2849,17 @@ msgid "settings.account.two_factor.verifying"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:67
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:68
 msgid "settings.account.username.confirm_message"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:63
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:64
 msgid "settings.account.username.confirm_title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:51
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:52
 msgid "settings.account.username.different_required"
 msgstr ""
 
@@ -2886,12 +2889,12 @@ msgid "settings.account.username.update"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:91
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:92
 msgid "settings.account.username.update_failed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:84
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:85
 msgid "settings.account.username.update_success"
 msgstr ""
 

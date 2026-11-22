@@ -88,7 +88,7 @@ const TwoFactorModal = ({
                     </p>
                     <p className="text-xs text-content-secondary mb-2">
                         <Trans id="settings.account.two_factor.recovery_key_description">
-                            You can use this key to sign in if you lose your device. Store it somewhere safe.
+                            You can use this key once to sign in if you lose your device. Using it turns off two-factor authentication until you enable it again. Store it somewhere safe.
                         </Trans>
                     </p>
                     <div className="bg-surface-subtle p-3 rounded-md border border-line">

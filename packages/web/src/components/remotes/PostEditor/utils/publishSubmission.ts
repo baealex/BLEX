@@ -10,7 +10,8 @@ export interface PublishFields {
     advertise: boolean;
     allowComments: boolean;
     tags: string[];
-    seriesId: string;
+    /** Left out when the author did not change it; an empty value clears the series. */
+    seriesId?: string;
     coverLayout: string;
     coverImagePosition: string;
     coverImageRatio: string;
@@ -48,7 +49,11 @@ export const buildPublishPayload = (
     payload.set('advertise', String(fields.advertise));
     payload.set('blockComment', String(!fields.allowComments));
     payload.set('tag', fields.tags.join(','));
-    payload.set('series', fields.seriesId);
+    if (fields.seriesId === undefined) {
+        payload.delete('series');
+    } else {
+        payload.set('series', fields.seriesId);
+    }
     payload.set('coverLayout', fields.coverLayout);
     payload.set('coverImagePosition', fields.coverImagePosition);
     payload.set('coverImageRatio', fields.coverImageRatio);

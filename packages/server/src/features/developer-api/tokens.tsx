@@ -71,11 +71,10 @@ async function revokeToken(db: PrismaClient, account: TokenUser, tokenId: unknow
   const id = typeof tokenId === 'string' && /^\d+$/.test(tokenId) ? Number(tokenId) : tokenId;
   if (typeof id !== 'number' || !Number.isSafeInteger(id) || id < 1) return null;
   const now = new Date();
-  const [token] = await db.developerToken.updateManyAndReturn({
-    where: { id, userId: account.id },
-    data: { revokedAt: now, updatedAt: now },
-    select: tokenFields,
-  });
+  const owned = { id, userId: account.id };
+  // Only the first revocation matches, so every later or concurrent one reads back its timestamp.
+  await db.developerToken.updateMany({ where: { ...owned, revokedAt: null }, data: { revokedAt: now, updatedAt: now } });
+  const token = await db.developerToken.findFirst({ where: owned, select: tokenFields });
   return token ? serialize(token) : null;
 }
 

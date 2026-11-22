@@ -1,14 +1,15 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import { AlertTriangle, ShieldCheck, Trash2 } from '@blex/ui/icons';
-import { Button, Card } from '~/components/shared';
+import { Alert, Button, Card } from '~/components/shared';
 
 interface SecuritySectionProps {
     has2fa: boolean;
+    recoveryKeyUsed: boolean;
     onToggle2FA: (enable: boolean) => Promise<void>;
     onDeleteAccount: () => Promise<void>;
 }
 
-const SecuritySection = ({ has2fa, onToggle2FA, onDeleteAccount }: SecuritySectionProps) => {
+const SecuritySection = ({ has2fa, recoveryKeyUsed, onToggle2FA, onDeleteAccount }: SecuritySectionProps) => {
     const { t } = useLingui();
 
     return (
@@ -45,6 +46,13 @@ const SecuritySection = ({ has2fa, onToggle2FA, onDeleteAccount }: SecuritySecti
                             })}
                     </Button>
                 </div>
+                {!has2fa && recoveryKeyUsed && (
+                    <Alert variant="warning" className="mt-4">
+                        <Trans id="settings.account.two_factor.recovery_key_used">
+                            You used your recovery key, so it no longer works and two-factor authentication is now off. Enable it again to protect your account and get a new recovery key.
+                        </Trans>
+                    </Alert>
+                )}
             </Card>
 
             <section

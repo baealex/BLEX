@@ -27,6 +27,7 @@
  "Choose at least one entry to share.": "공유할 기록을 하나 이상 선택해 주세요.",
  "Choose entries from this work log.": "이 작업 일지의 기록을 선택해 주세요.",
  "Comments are disabled for this post.": "댓글이 차단된 글입니다.",
+ "This recovery key has already been used. Two-factor authentication is now off, so sign in with your password only.": "이미 사용한 복구 키입니다. 2단계 인증이 해제되었으니 비밀번호만으로 로그인해 주세요.",
  "content_type must be either html or markdown.": "content_type은 html 또는 markdown이어야 합니다.",
  "Could not read the ICO file.": "ICO 파일을 읽을 수 없습니다.",
  "Could not read the PNG file.": "PNG 파일을 읽을 수 없습니다.",

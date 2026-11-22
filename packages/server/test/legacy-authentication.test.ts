@@ -248,7 +248,8 @@ test('requires recent verification for password and 2FA changes and rotates the 
     assert.equal(challenge.json().body.security, true);
     const loginWithRecovery = await app.inject({ method: 'POST', url: '/v1/login', headers: initial,
       payload: { username: 'newaccount', password: newPassword, code: setup.json().body.recoveryKey } });
-    assert.equal(loginWithRecovery.json().body.hasConnected2fa, true);
+    assert.equal(loginWithRecovery.json().body.recoveryKeyUsed, true);
+    assert.equal(loginWithRecovery.json().body.hasConnected2fa, false);
   } finally {
     await app.close();
     await rm(directory, { recursive: true });
@@ -300,7 +301,7 @@ test('keeps the legacy login envelope and issues a new session only after CSRF, 
     assert.equal(challenge.headers['set-cookie'], undefined);
 
     const login = await app.inject({
-      method: 'POST', url: '/v1/login', payload: { ...credentials, code: recoveryCode }, headers: csrfHeaders,
+      method: 'POST', url: '/v1/login', payload: { ...credentials, code: new TOTP({ secret: Secret.fromBase32('JBSWY3DPEHPK3PXP') }).generate() }, headers: csrfHeaders,
     });
     assert.equal(login.statusCode, 200, login.body);
     assert.equal(login.json().body.username, 'account');
@@ -474,10 +475,11 @@ test('binds OAuth callbacks to the initiating browser and reuses an existing soc
     const csrfResponse = await app.inject('/v1/login');
     const [csrf] = cookiesFrom(csrfResponse.headers['set-cookie']);
     const headers = { origin: siteUrl.origin, cookie: `${challenge}; ${csrf}`, 'x-csrftoken': csrf.slice('csrftoken='.length) };
-    const result = await app.inject({ method: 'POST', url: '/v1/login', headers, payload: { oauth2fa: true, code: recoveryCode } });
+    const authenticatorCode = new TOTP({ secret: Secret.fromBase32('JBSWY3DPEHPK3PXP') }).generate();
+    const result = await app.inject({ method: 'POST', url: '/v1/login', headers, payload: { oauth2fa: true, code: authenticatorCode } });
     assert.equal(result.json().body.username, 'social-reader');
     assert.ok(cookiesFrom(result.headers['set-cookie']).some((item) => item.startsWith('blexsessionid=')));
-    const replay = await app.inject({ method: 'POST', url: '/v1/login', headers, payload: { oauth2fa: true, code: recoveryCode } });
+    const replay = await app.inject({ method: 'POST', url: '/v1/login', headers, payload: { oauth2fa: true, code: authenticatorCode } });
     assert.equal(replay.json().errorCode, 'error:RJ');
 
     const next = '/settings/security';
@@ -502,7 +504,7 @@ test('binds OAuth callbacks to the initiating browser and reuses an existing soc
     const oauthVerified = await followAuthorization(sessionHeaders, ownReauth);
     assert.equal(oauthVerified.headers.location, verifyUrl);
     const pendingProof = headersFor(oauthVerified, siteUrl);
-    const proofCompleted = await app.inject({ method: 'POST', url: verifyUrl, headers: pendingProof, payload: { code: recoveryCode } });
+    const proofCompleted = await app.inject({ method: 'POST', url: verifyUrl, headers: pendingProof, payload: { code: authenticatorCode } });
     assert.equal(proofCompleted.headers.location, next);
 
     nextIdentity = { id: 'brand-new-social-uid', email: 'new-social@example.invalid' };
@@ -557,7 +559,7 @@ test('requires 2FA for an active existing account and preserves the account ID u
       status: 'invalid-second-factor',
     });
     assert.deepEqual(await authenticatePassword(db, 'existing', password, recoveryCode, cipherKey), {
-      status: 'authenticated', userId: 42, username: 'existing', passwordHash: olderPasswordHash,
+      status: 'authenticated', userId: 42, username: 'existing', passwordHash: olderPasswordHash, spentRecoveryKey: recoveryKey,
     });
     assert.deepEqual(await authenticatePassword(db, 'inactive', password, '', cipherKey), {
       status: 'invalid-credentials',

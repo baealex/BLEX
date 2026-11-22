@@ -490,7 +490,7 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                 <p className="text-xs text-content-secondary">
                     {isGlobal
                         ? <Trans id="settings.banners.editor.html.global_help">
-                            Global banners may include scripts.
+                            Scripts are removed when this banner appears on public pages. To add scripts, use Global code in site settings.
                         </Trans>
                         : <Trans id="settings.banners.editor.html.user_help">
                             Scripts are restricted in user banners.

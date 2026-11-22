@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Hash, Plus, X } from '@blex/ui/icons';
 import { Button } from '~/components/shared';
+import { normalizeTagInput } from '../utils/tagInput';
 
 interface TagManagerProps {
     tags: string[];
@@ -15,10 +16,7 @@ const TagManager = ({ tags, onTagsChange }: TagManagerProps) => {
     const inputRef = useRef<HTMLInputElement>(null);
 
     const handleAddTag = () => {
-        const processedTag = newTag.trim()
-            .toLowerCase()
-            .replace(/[^a-z0-9가-힣\s]/g, '')
-            .replace(/\s+/g, '-');
+        const processedTag = normalizeTagInput(newTag);
 
         if (processedTag && !tags.includes(processedTag)) {
             onTagsChange([...tags, processedTag]);

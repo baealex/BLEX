@@ -18,6 +18,11 @@ export interface PostEditRecoverySnapshot {
     imageDeleted: boolean;
 }
 
+/** Only an empty saved series means "none". One that no longer exists leaves the post's series alone. */
+export const resolveRecoveredSeries = <T extends { url: string }>(seriesUrl: string, seriesList: T[], current: T, none: T) => (
+    seriesList.find(series => series.url === seriesUrl) ?? (seriesUrl ? current : none)
+);
+
 export interface PostEditRecovery {
     savedAt: string;
     snapshot: PostEditRecoverySnapshot;

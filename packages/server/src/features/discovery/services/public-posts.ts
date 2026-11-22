@@ -93,7 +93,7 @@ export interface SearchMatch {
 
 /** Ranks every match using ids and dates only, so a broad search never loads post bodies into memory. */
 export async function rankPublicSearch(db: PrismaClient, keywords: string[], username: string): Promise<SearchMatch[]> {
-  const base: Prisma.PostWhereInput = { ...publicPostWhere(), ...(username ? { author: { username } } : {}) };
+  const base: Prisma.PostWhereInput = { AND: [publicPostWhere(), username ? { author: { username } } : {}] };
   const title = await postIdsMatching(db, base, 'title', keywords);
   const description = await postIdsMatching(db, base, 'description', keywords);
   const tags = await postIdsMatching(db, base, 'tags', keywords);

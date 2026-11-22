@@ -11,7 +11,8 @@ import type { AuthConfig } from './http.js';
 import { reserveLoginAttempt } from './login-attempts.js';
 import { publicOAuthProviders, safeReturnPath } from './oauth.js';
 import { credentialTag, createToken, tokenHash } from './session.js';
-import { verifySecondFactor } from './two-factor.js';
+import { recoveredAccountPath } from './recovery-path.js';
+import { isRecoveryCode, verifySecondFactor } from './two-factor.js';
 import { acquireVerification, hasVerification, readVerificationAccount, recordVerification } from './verification.js';
 import { renderApplicationDocument } from '../../application/document.js';
 import { SiteFooter, SiteHeader, SiteTheme } from '../../appearance/shell.js';
@@ -137,13 +138,15 @@ export function registerAccountSecurity(app: FastifyInstance, db: PrismaClient, 
       if (!attempt) error = '너무 많은 실패로 인해 잠시 후 다시 시도해주세요.';
       else {
         const isAccount = pendingFactor || (hasPassword && typeof input.password === 'string' && await verifyPassword(input.password, account.passwordHash));
-        const isFactor = account.factorId === null || (typeof input.code === 'string' && account.totpSecret !== null && account.recoveryKey !== null &&
-          verifySecondFactor({ totpSecret: account.totpSecret, recoveryKey: account.recoveryKey }, input.code, config.cipherKey));
+        const code = typeof input.code === 'string' ? input.code : '';
+        const isFactor = account.factorId === null || (account.totpSecret !== null && account.recoveryKey !== null &&
+          verifySecondFactor({ totpSecret: account.totpSecret, recoveryKey: account.recoveryKey }, code, config.cipherKey));
         if (!isAccount || !isFactor) error = '비밀번호 또는 인증 코드가 올바르지 않습니다.';
         else {
-          const token = await recordVerification(db, account);
+          const spentRecoveryKey = account.factorId !== null && isRecoveryCode(code) ? account.recoveryKey ?? undefined : undefined;
+          const token = await recordVerification(db, account, false, spentRecoveryKey);
           await attempt();
-          if (token) return setSessionCookies(reply, siteUrl, token).redirect(next, 302);
+          if (token) return setSessionCookies(reply, siteUrl, token).redirect(spentRecoveryKey === undefined ? next : recoveredAccountPath, 302);
           return reply.redirect(reauthenticationPath(next), 302);
         }
       }

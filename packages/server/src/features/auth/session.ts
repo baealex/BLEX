@@ -1,5 +1,6 @@
 import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import type { PrismaClient } from '@prisma/client';
+import { RecoveryKeySpent, spendRecoveryKey } from './two-factor.js';
 
 export const SESSION_DURATION_SECONDS = 14 * 24 * 60 * 60;
 const tokenPattern = /^[a-zA-Z0-9_-]{43}$/;
@@ -18,7 +19,7 @@ export function credentialTag(passwordHash: string, secretKey: string): string {
 
 export async function createSession(
   db: PrismaClient,
-  account: { userId: number; passwordHash: string },
+  account: { userId: number; passwordHash: string; spentRecoveryKey?: string },
   secretKey: string,
   previousToken: string | undefined,
 ): Promise<string | null> {
@@ -29,22 +30,28 @@ export async function createSession(
   const expiresAt = new Date(now.getTime() + SESSION_DURATION_SECONDS * 1_000);
   const tag = credentialTag(account.passwordHash, secretKey);
 
-  return db.$transaction(async (transaction) => {
-    // A concurrent password change or deactivation must invalidate the proof.
-    const { count } = await transaction.user.updateMany({
-      where: { id: account.userId, isActive: true, passwordHash: account.passwordHash },
-      data: { lastLoginAt: now },
-    });
-    if (count !== 1) return null;
+  try {
+    return await db.$transaction(async (transaction) => {
+      // A concurrent password change or deactivation must invalidate the proof.
+      const { count } = await transaction.user.updateMany({
+        where: { id: account.userId, isActive: true, passwordHash: account.passwordHash },
+        data: { lastLoginAt: now },
+      });
+      if (count !== 1) return null;
 
-    await transaction.session.deleteMany({ where: { expiresAt: { lte: now } } });
-    if (previous) await transaction.session.deleteMany({ where: { tokenHash: previous } });
-    await transaction.session.create({
-      data: { tokenHash: storedToken, userId: account.userId, credentialTag: tag, expiresAt },
-      select: { tokenHash: true },
+      await transaction.session.deleteMany({ where: { expiresAt: { lte: now } } });
+      if (previous) await transaction.session.deleteMany({ where: { tokenHash: previous } });
+      if (account.spentRecoveryKey !== undefined) await spendRecoveryKey(transaction, account.userId, account.spentRecoveryKey);
+      await transaction.session.create({
+        data: { tokenHash: storedToken, userId: account.userId, credentialTag: tag, expiresAt },
+        select: { tokenHash: true },
+      });
+      return token;
     });
-    return token;
-  });
+  } catch (error) {
+    if (error instanceof RecoveryKeySpent) return null;
+    throw error;
+  }
 }
 
 export async function readSession(db: PrismaClient, token: string | undefined, secretKey: string) {

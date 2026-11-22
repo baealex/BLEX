@@ -5,6 +5,7 @@ import {
     buildPublishPayload,
     submitPublish
 } from '../src/components/remotes/PostEditor/utils/publishSubmission.ts';
+import { resolveRecoveredSeries } from '../src/components/remotes/PostEditor/utils/postEditRecovery.ts';
 
 const fields = {
     title: 'Title',
@@ -41,7 +42,44 @@ const run = async (send, overrides = {}) => {
     return events;
 };
 
+describe('restoring an edit recovery', () => {
+    const current = {
+        id: '1',
+        url: 'current'
+    };
+    const other = {
+        id: '2',
+        url: 'other'
+    };
+    const none = {
+        id: '',
+        url: ''
+    };
+
+    test('clears the series only when the saved edit had cleared it', () => {
+        assert.equal(resolveRecoveredSeries('other', [current, other], current, none), other);
+        assert.equal(resolveRecoveredSeries('', [current, other], current, none), none);
+        assert.equal(resolveRecoveredSeries('deleted-series', [current, other], current, none), current);
+    });
+});
+
 describe('publish submission', () => {
+    test('leaves out an untouched series and sends an empty one to clear it', () => {
+        const stale = new FormData();
+        stale.set('series', '9');
+        assert.equal(buildPublishPayload(stale, {
+            ...fields,
+            seriesId: undefined
+        }).has('series'), false);
+        const cleared = buildPublishPayload(new FormData(), {
+            ...fields,
+            seriesId: '',
+            tags: []
+        });
+        assert.equal(cleared.get('series'), '');
+        assert.equal(cleared.get('tag'), '');
+    });
+
     test('sends every editor field and the draft being published', () => {
         const source = new FormData();
         source.set('image', new Blob(['cover']), 'cover.png');

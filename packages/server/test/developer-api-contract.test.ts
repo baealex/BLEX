@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { PrismaClient } from '@prisma/client';
 import { buildApp } from '../src/app.js';
+import { createDeveloperRateLimiter } from '../src/features/developer-api/services/rate-limit.js';
 import { camelToSnake, keysFromWire, keysToWire, snakeToCamel } from '../src/features/developer-api/wire-format.js';
 import { type ContractExchange, type ContractRecording, type ContractTokenStore, recordDeveloperApiContract } from './fixtures/developer-api-contract.js';
-import { createMigratedDatabase, insertRow, seedEditor, signIn, testCipherKey, testSecretKey, testSiteUrl } from './fixtures/migrated-database.js';
+import { createMigratedDatabase, insertRow, seedEditor, seedPost, signIn, testCipherKey, testSecretKey, testSiteUrl } from './fixtures/migrated-database.js';
 
 interface Schema {
   $ref?: string;
@@ -194,6 +196,106 @@ test('real responses use exactly the documented key names', () => {
   }
 });
 
+test('a dry run under either name never deletes, and an unreadable flag is refused', async () => {
+  const fixture = await createMigratedDatabase();
+  const app = await buildApp(fixture.path, testSiteUrl, { secretKey: testSecretKey, cipherKey: testCipherKey }, fixture.mediaRoot);
+  const prisma = new PrismaClient({ datasourceUrl: `file:${fixture.path}` });
+  try {
+    seedEditor(fixture.db, 1, 'writer');
+    seedPost(fixture.db, 1, 1, 'kept-post');
+    const raw = 'blex_pat_dryruntoken1_contract-secret';
+    insertRow(fixture.db, 'DeveloperToken', {
+      id: 1, userId: 1, name: 'Writer', tokenPrefix: 'dryruntoken1', tokenHash: createHash('sha256').update(raw, 'utf8').digest('hex'),
+      scopes: '["posts:read","posts:write"]',
+    });
+    const remove = (query: string) => app.inject({ method: 'DELETE', url: `/api/developer/v1/posts/1?${query}`, headers: { authorization: `Bearer ${raw}` } });
+
+    for (const query of ['dry_run=true', 'dryRun=true', 'dryRun=YES', 'dryRun=1', 'dry_run=false&dryRun=true', 'dryRun=false&dry_run=true', 'dry_run=true&dry_run=false', 'dryRun=true&dryRun=false']) {
+      const response = await remove(query);
+      assert.equal(response.statusCode, 200, query);
+      assert.equal(response.json().data.can_delete, true, query);
+    }
+    for (const [query, field] of [['dry_run=maybe', 'dry_run'], ['dryRun=maybe', 'dryRun'], ['dry_run=', 'dry_run'], ['dryRun=', 'dryRun'], ['dry_run=false&dryRun=maybe', 'dryRun'], ['dry_run=maybe&dry_run=false', 'dry_run']]) {
+      const response = await remove(query);
+      assert.equal(response.statusCode, 422, query);
+      assert.equal(response.json().error.code, 'request.invalid_payload', query);
+      assert.deepEqual(response.json().error.fields.errors[0].loc, ['query', field], query);
+    }
+    assert.equal((await prisma.post.findUniqueOrThrow({ where: { id: 1 } })).deletedAt, null);
+
+    assert.equal((await remove('dryRun=false')).json().data.deleted, true);
+    assert.ok((await prisma.post.findUniqueOrThrow({ where: { id: 1 } })).deletedAt);
+  } finally {
+    await prisma.$disconnect();
+    await app.close();
+    await fixture.cleanup();
+  }
+});
+
+test('limits each token per minute, reads and writes apart, with a documented 429', async () => {
+  const fixture = await createMigratedDatabase();
+  let clock = 0;
+  const app = await buildApp(fixture.path, testSiteUrl, {
+    secretKey: testSecretKey, cipherKey: testCipherKey, developerRateLimit: { read: 3, write: 2, now: () => clock },
+  }, fixture.mediaRoot);
+  const prisma = new PrismaClient({ datasourceUrl: `file:${fixture.path}` });
+  try {
+    seedEditor(fixture.db, 1, 'writer');
+    seedPost(fixture.db, 1, 1, 'kept-post');
+    const token = (id: number) => {
+      const raw = `blex_pat_ratelimit000${id}_contract-secret`;
+      insertRow(fixture.db, 'DeveloperToken', {
+        id, userId: 1, name: `Token ${id}`, tokenPrefix: `ratelimit000${id}`, tokenHash: createHash('sha256').update(raw, 'utf8').digest('hex'),
+        scopes: '["posts:read","posts:write"]',
+      });
+      return { authorization: `Bearer ${raw}` };
+    };
+    const [first, second] = [token(1), token(2)];
+    const read = (headers: { authorization: string }) => app.inject({ url: '/api/developer/v1/me', headers });
+    const write = (headers: { authorization: string }) => app.inject({ method: 'DELETE', url: '/api/developer/v1/posts/1?dry_run=true', headers });
+
+    for (let count = 0; count < 3; count += 1) assert.equal((await read(first)).statusCode, 200);
+    clock = 15_500;
+    const limited = await read(first);
+    assert.equal(limited.statusCode, 429);
+    assert.equal(limited.headers['retry-after'], '45');
+    assert.deepEqual(limited.json(), { error: { code: 'request.rate_limited', message: 'Too many requests. Try again later.', fields: { retry_after: 45 } } });
+    const documented = spec.paths['/api/developer/v1/me'].get.responses['429'].content?.['application/json'].schema;
+    assert.deepEqual(schemaProblems(limited.json(), documented as Schema, 'limited'), []);
+
+    // Reads and writes count apart, and one token's traffic never spends another's allowance.
+    for (let count = 0; count < 2; count += 1) assert.equal((await write(first)).statusCode, 200);
+    assert.equal((await write(first)).statusCode, 429);
+    assert.equal((await read(second)).statusCode, 200);
+    const logged = await prisma.developerRequestLog.count({ where: { statusCode: 429 } });
+    assert.equal(logged, 0);
+
+    // Each window opened with its own first request: reads at 0s, writes at 15.5s.
+    clock = 60_000;
+    assert.equal((await read(first)).statusCode, 200);
+    assert.equal((await write(first)).statusCode, 429);
+    clock = 75_500;
+    assert.equal((await write(first)).statusCode, 200);
+  } finally {
+    await prisma.$disconnect();
+    await app.close();
+    await fixture.cleanup();
+  }
+});
+
+test('the rate limiter keeps a bounded number of windows', () => {
+  let clock = 0;
+  const take = createDeveloperRateLimiter({ read: 1, windowMs: 1_000, maxTrackedWindows: 2, now: () => clock });
+  assert.equal(take(1, 'read'), null);
+  assert.equal(take(1, 'read'), 1);
+  assert.equal(take(2, 'read'), null);
+  // A third token evicts the oldest window instead of growing past the bound.
+  assert.equal(take(3, 'read'), null);
+  assert.equal(take(1, 'read'), null);
+  clock = 1_000;
+  assert.equal(take(3, 'read'), null);
+});
+
 test('never returns a token secret or hash from token management', async () => {
   const fixture = await createMigratedDatabase();
   const app = await buildApp(fixture.path, testSiteUrl, { secretKey: testSecretKey, cipherKey: testCipherKey }, fixture.mediaRoot);
@@ -219,6 +321,43 @@ test('never returns a token secret or hash from token management', async () => {
     assert.ok(stored.revokedAt);
     assert.equal(stored.updatedAt.getTime(), stored.revokedAt.getTime());
     assert.equal((await app.inject({ method: 'DELETE', url: '/v1/developer-tokens/99', headers: session })).statusCode, 404);
+  } finally {
+    await prisma.$disconnect();
+    await app.close();
+    await fixture.cleanup();
+  }
+});
+
+test('revoking a token keeps the first timestamp, even under concurrency', async () => {
+  const fixture = await createMigratedDatabase();
+  const app = await buildApp(fixture.path, testSiteUrl, { secretKey: testSecretKey, cipherKey: testCipherKey }, fixture.mediaRoot);
+  const prisma = new PrismaClient({ datasourceUrl: `file:${fixture.path}` });
+  try {
+    seedEditor(fixture.db, 1, 'writer');
+    seedEditor(fixture.db, 2, 'other');
+    const session = signIn(fixture.db, 1);
+    const firstRevocation = Date.UTC(2025, 0, 2, 3, 4, 5);
+    insertRow(fixture.db, 'DeveloperToken', { id: 1, userId: 1, name: 'Revoked', tokenPrefix: 'revokedonce1', tokenHash: 'hash-1', scopes: '[]', revokedAt: firstRevocation, updatedAt: firstRevocation });
+    insertRow(fixture.db, 'DeveloperToken', { id: 2, userId: 1, name: 'Active', tokenPrefix: 'activetoken1', tokenHash: 'hash-2', scopes: '[]' });
+    insertRow(fixture.db, 'DeveloperToken', { id: 3, userId: 2, name: 'Other', tokenPrefix: 'othertoken01', tokenHash: 'hash-3', scopes: '[]' });
+    const revoke = (id: number) => app.inject({ method: 'DELETE', url: `/v1/developer-tokens/${id}`, headers: session });
+
+    const repeated = await revoke(1);
+    assert.equal(repeated.json().status, 'DONE');
+    assert.equal(repeated.json().body.revokedAt, '2025-01-02T03:04:05+00:00');
+    const unchanged = await prisma.developerToken.findUniqueOrThrow({ where: { id: 1 } });
+    assert.equal(unchanged.revokedAt?.getTime(), firstRevocation);
+    assert.equal(unchanged.updatedAt.getTime(), firstRevocation);
+
+    const concurrent = await Promise.all(Array.from({ length: 5 }, () => revoke(2)));
+    const stored = await prisma.developerToken.findUniqueOrThrow({ where: { id: 2 } });
+    assert.ok(stored.revokedAt);
+    for (const response of concurrent) {
+      assert.equal(response.json().status, 'DONE');
+      assert.equal(Date.parse(response.json().body.revokedAt), stored.revokedAt.getTime());
+    }
+    assert.equal((await revoke(3)).statusCode, 404);
+    assert.equal((await prisma.developerToken.findUniqueOrThrow({ where: { id: 3 } })).revokedAt, null);
   } finally {
     await prisma.$disconnect();
     await app.close();

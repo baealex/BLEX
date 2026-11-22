@@ -29,6 +29,7 @@ import {
     clearPostEditRecovery,
     postEditRecoverySnapshotsMatch,
     readPostEditRecovery,
+    resolveRecoveredSeries,
     writePostEditRecovery,
     type PostEditRecovery,
     type PostEditRecoverySnapshot
@@ -344,16 +345,11 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         }));
         setTags([...recovery.tags]);
 
-        const recoveredSeries = seriesList.find(series => series.url === recovery.seriesUrl);
-        const initialSeries = initialSeriesRef.current;
-        setSelectedSeries(
-            recoveredSeries
-            || (initialSeries.url === recovery.seriesUrl ? initialSeries : {
-                id: '',
-                name: '',
-                url: ''
-            })
-        );
+        setSelectedSeries(resolveRecoveredSeries(recovery.seriesUrl, seriesList, initialSeriesRef.current, {
+            id: '',
+            name: '',
+            url: ''
+        }));
 
         const imageInput = formRef.current?.querySelector<HTMLInputElement>('input[name="image"]');
         if (imageInput) imageInput.value = '';
@@ -521,11 +517,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             payload.set('coverImagePosition', formData.coverImagePosition);
             payload.set('coverImageRatio', formData.coverImageRatio);
 
-            if (selectedSeries.id) {
-                payload.set('series', selectedSeries.id);
-            } else {
-                payload.delete('series');
-            }
+            payload.set('series', selectedSeries.id);
 
             if (isScheduledPost && hasReservedDateChanged()) {
                 payload.set('reservedDate', toReservedDateValue(formData.reservedDate));

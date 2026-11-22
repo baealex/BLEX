@@ -149,7 +149,10 @@ export async function recordDeveloperApiContract(store: ContractTokenStore): Pro
   const fixture = await createMigratedDatabase();
   try {
     seed(fixture.db, store);
-    const app = await buildApp(fixture.path, testSiteUrl, { secretKey: testSecretKey, cipherKey: testCipherKey }, fixture.mediaRoot);
+    // The scenario replays far more than a minute's allowance through one token.
+    const app = await buildApp(fixture.path, testSiteUrl, {
+      secretKey: testSecretKey, cipherKey: testCipherKey, developerRateLimit: { read: Infinity, write: Infinity },
+    }, fixture.mediaRoot);
     await app.ready();
     const exchanges: ContractExchange[] = [];
     const writer = rawToken('writer000001');
@@ -314,8 +317,8 @@ export async function recordDeveloperApiContract(store: ContractTokenStore): Pro
     await send('delete with dry run false', 'DELETE', '/posts/7?dry_run=false', { token: writer });
     await send('delete', 'DELETE', '/posts/8', { token: writer });
     await send('delete twice', 'DELETE', '/posts/8', { token: writer });
-    await send('camelCase dry run is not a dry run', 'DELETE', '/posts/9?dryRun=true', { token: writer });
-    await send('camelCase dry run removed the post', 'GET', '/posts/9', { token: writer });
+    await send('camelCase dry run is a dry run', 'DELETE', '/posts/9?dryRun=true', { token: writer });
+    await send('post survives camelCase dry run', 'GET', '/posts/9', { token: writer });
     await send('delete other owner', 'DELETE', '/posts/2', { token: writer });
     await send('delete bad id', 'DELETE', '/posts/abc', { token: writer });
     await send('delete without write scope', 'DELETE', '/posts/3', { token: reader });

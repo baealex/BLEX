@@ -1,12 +1,13 @@
 import type { PrismaClient } from '@prisma/client';
 import { verifyPassword } from './password-hash.js';
-import { verifySecondFactor } from './two-factor.js';
+import { isRecoveryCode, verifySecondFactor } from './two-factor.js';
 
 type PasswordLoginResult =
   | { status: 'invalid-credentials' }
   | { status: 'second-factor-required'; username: string }
   | { status: 'invalid-second-factor' }
-  | { status: 'authenticated'; userId: number; username: string; passwordHash: string };
+  | { status: 'recovery-key-spent' }
+  | { status: 'authenticated'; userId: number; username: string; passwordHash: string; spentRecoveryKey?: string };
 
 export async function authenticatePassword(
   db: PrismaClient,
@@ -22,9 +23,10 @@ export async function authenticatePassword(
   const verified = await verifyPassword(password, account?.passwordHash ?? '');
   if (!account || !verified) return { status: 'invalid-credentials' };
 
-  if (account.twoFactor) {
-    if (!code) return { status: 'second-factor-required', username: account.username };
-    if (!verifySecondFactor(account.twoFactor, code, cipherKey)) return { status: 'invalid-second-factor' };
-  }
-  return { status: 'authenticated', userId: account.id, username: account.username, passwordHash: account.passwordHash };
+  const authenticated = { status: 'authenticated', userId: account.id, username: account.username, passwordHash: account.passwordHash } as const;
+  // The factor is gone once its key is spent, so a resubmitted key must not read as a fresh success.
+  if (!account.twoFactor) return code && isRecoveryCode(code) ? { status: 'recovery-key-spent' } : authenticated;
+  if (!code) return { status: 'second-factor-required', username: account.username };
+  if (!verifySecondFactor(account.twoFactor, code, cipherKey)) return { status: 'invalid-second-factor' };
+  return isRecoveryCode(code) ? { ...authenticated, spentRecoveryKey: account.twoFactor.recoveryKey } : authenticated;
 }

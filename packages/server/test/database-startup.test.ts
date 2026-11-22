@@ -685,9 +685,9 @@ test('imports 3.14 accounts with credentials, permissions, and preferences intac
       const headers = { origin: siteUrl.origin, cookie: `csrftoken=${csrf}`, 'x-csrftoken': csrf };
       const login = (payload: Record<string, string>) => app.inject({ method: 'POST', url: '/v1/login', headers, payload });
       assert.equal((await login({ username: 'writer', password })).json().body.security, true);
-      assert.equal((await login({ username: 'writer', password, code: 'test-only-recovery-code' })).json().body.username, 'writer');
       const code = new TOTP({ secret: Secret.fromBase32('JBSWY3DPEHPK3PXP') }).generate();
       assert.equal((await login({ username: 'writer', password, code })).json().body.username, 'writer');
+      assert.equal((await login({ username: 'writer', password, code: 'test-only-recovery-code' })).json().body.recoveryKeyUsed, true);
       assert.equal((await login({ username: 'noprofile', password })).json().errorCode, 'error:AT');
       assert.deepEqual((await app.inject('/v1/social-providers')).json().body, [{ key: 'google', name: 'Google', clientId: 'client' }]);
     } finally {

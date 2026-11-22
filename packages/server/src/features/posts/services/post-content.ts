@@ -82,9 +82,13 @@ export function slugify(value: string): string {
     .replace(/[\s-]+/g, '-');
 }
 
+/** Commas, underscores, and spaces separate tags. A hyphen belongs to the tag it sits inside. */
 export function normalizedTags(value: string): string[] {
-  const prepared = slugify(value.replace(/[,_]/g, '-'));
-  return [...new Set(prepared.split('-').filter(Boolean))];
+  const tags = value.split(/[,_]/)
+    .flatMap((part) => part.normalize('NFKC').toLocaleLowerCase('ko-KR').replace(/[^\p{L}\p{N}_\s-]/gu, '').trim().split(/\s+/))
+    .map((tag) => tag.replace(/-+/g, '-').replace(/^-|-$/g, ''))
+    .filter(Boolean);
+  return [...new Set(tags)];
 }
 
 export function validatePostInput(input: AuthoringPostInput, allowEmptyBody: boolean): string | null {

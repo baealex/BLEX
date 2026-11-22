@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import test from 'node:test';
 import sharp from 'sharp';
 import { buildApp } from '../src/app.js';
+import { normalizedTags } from '../src/features/posts/services/post-content.js';
 import { isoWithOffset, isoLocalMillis, isoUtcMillis, localDate, localDateTimeText } from '../src/platform/date-format.js';
 import {
   createMigratedDatabase, insertRow, seedEditor, seedPost, signIn,
@@ -477,6 +478,85 @@ test('edits a post from the editor form and keeps what it leaves out', async () 
     const notOwner = multipart(editorForm(other['x-csrftoken'], { url: 'kept' }));
     const denied = await fixture.app.inject({ method: 'POST', url: '/v1/users/@writer/posts/kept', headers: { ...other, 'content-type': notOwner.contentType }, payload: notOwner.payload });
     assert.equal(denied.statusCode, 404);
+  } finally {
+    await fixture.close();
+  }
+});
+
+test('clears series and tags only when the editor sends them empty', async () => {
+  const fixture = await screensApp();
+  try {
+    const headers = signIn(fixture.db, 1);
+    const csrf = headers['x-csrftoken'];
+    const send = (method: string, url: string, form: ReturnType<typeof multipart>) =>
+      fixture.app.inject({ method: method as 'POST' | 'PUT', url, headers: { ...headers, 'content-type': form.contentType }, payload: form.payload });
+    const place = (slug: string) => {
+      const { id } = fixture.db.prepare('SELECT id FROM "Post" WHERE slug = ?').get(slug) as { id: number };
+      fixture.db.prepare('UPDATE "Post" SET seriesId = 7 WHERE id = ?').run(id);
+      fixture.db.prepare('DELETE FROM "_PostToTag" WHERE A = ?').run(id);
+      fixture.db.prepare('INSERT INTO "_PostToTag" (A, B) VALUES (?, 3)').run(id);
+    };
+    const placement = (slug: string) => { const row = postRow(fixture.db, slug)!; return [row.series, row.tags]; };
+    insertRow(fixture.db, 'Tag', { id: 3, name: 'keptword' });
+    const edit = (values: Record<string, string>) => multipart(editorForm(csrf, { title: 'Kept', url: 'kept', contentHtml: '<p>Edited</p>', ...values }));
+
+    // Editing a published post.
+    place('kept');
+    const { series: _series, tag: _tag, ...untouched } = editorForm(csrf, { title: 'Kept', url: 'kept', contentHtml: '<p>Edited</p>' });
+    assert.equal((await send('POST', '/v1/users/@writer/posts/kept', multipart(untouched))).json().status, 'DONE');
+    assert.deepEqual(placement('kept'), [7, 'keptword']);
+    assert.equal((await send('POST', '/v1/users/@writer/posts/kept', edit({ series: '7', tag: 'keptword' }))).json().status, 'DONE');
+    assert.deepEqual(placement('kept'), [7, 'keptword']);
+    assert.equal((await send('POST', '/v1/users/@writer/posts/kept', edit({ series: '999', tag: 'keptword' }))).json().status, 'DONE');
+    assert.deepEqual(placement('kept'), [7, 'keptword'], 'an unknown series id is not a request to clear');
+    assert.equal((await send('POST', '/v1/users/@writer/posts/kept', edit({ series: '', tag: '' }))).json().status, 'DONE');
+    assert.deepEqual(placement('kept'), [null, null]);
+
+    // Autosaving a draft, as JSON and as a form with a cover change.
+    place('draft');
+    const autosave = (payload: Record<string, unknown>) => fixture.app.inject({
+      method: 'PUT', url: '/v1/drafts/draft', headers: { ...headers, 'content-type': 'application/json' }, payload,
+    });
+    assert.equal((await autosave({ title: 'Draft', content: '<p>Saved</p>' })).json().status, 'DONE');
+    assert.deepEqual(placement('draft'), [7, 'keptword']);
+    assert.equal((await autosave({ title: 'Draft', content: '<p>Saved</p>', tags: '', seriesUrl: '' })).json().status, 'DONE');
+    assert.deepEqual(placement('draft'), [null, null]);
+    place('draft');
+    const draftForm = multipart({ csrfmiddlewaretoken: csrf, title: 'Draft', content: '<p>Saved</p>', tags: '', seriesUrl: '' });
+    assert.equal((await send('PUT', '/v1/drafts/draft', draftForm)).json().status, 'DONE');
+    assert.deepEqual(placement('draft'), [null, null]);
+
+    // Publishing that draft keeps a series the form left out, then a new draft clears when asked.
+    place('draft');
+    const { series: _omitted, ...publishFields } = editorForm(csrf, { draftUrl: 'draft', url: 'draft', title: 'Draft', tag: 'keptword' });
+    assert.equal((await send('POST', '/v1/posts', multipart(publishFields))).json().status, 'DONE');
+    assert.deepEqual(placement('draft'), [7, 'keptword']);
+    seedPost(fixture.db, 30, 1, 'second-draft', { publishedAt: null });
+    place('second-draft');
+    const cleared = multipart(editorForm(csrf, { draftUrl: 'second-draft', url: 'second-draft', title: 'Second', series: '', tag: '' }));
+    assert.equal((await send('POST', '/v1/posts', cleared)).json().status, 'DONE');
+    assert.deepEqual(placement('second-draft'), [null, null]);
+  } finally {
+    await fixture.close();
+  }
+});
+
+test('keeps hyphens inside tags through the editor while the other separators still split', async () => {
+  assert.deepEqual(normalizedTags('legacy-tag'), ['legacy-tag']);
+  assert.deepEqual(normalizedTags('Legacy-Tag, legacy-tag,new_tag  spaced'), ['legacy-tag', 'new', 'tag', 'spaced']);
+  assert.deepEqual(normalizedTags('--edge--, a--b, -, 한글-태그, Ａ－Ｂ'), ['edge', 'a-b', '한글-태그']);
+  assert.deepEqual(normalizedTags(''), []);
+
+  const fixture = await screensApp();
+  try {
+    const headers = signIn(fixture.db, 1);
+    const form = multipart(editorForm(headers['x-csrftoken'], { title: 'Kept', url: 'kept', contentHtml: '<p>Edited</p>', tag: 'kept-tag,second-tag' }));
+    const saved = await fixture.app.inject({ method: 'POST', url: '/v1/users/@writer/posts/kept', headers: { ...headers, 'content-type': form.contentType }, payload: form.payload });
+    assert.equal(saved.json().status, 'DONE', saved.body);
+    assert.deepEqual(String(postRow(fixture.db, 'kept')?.tags).split(',').sort(), ['kept-tag', 'second-tag']);
+    assert.equal((fixture.db.prepare(`SELECT COUNT(*) AS n FROM "Tag" WHERE name IN ('kept', 'tag', 'second')`).get() as { n: number }).n, 0);
+    assert.equal((await fixture.app.inject('/tag/kept-tag')).statusCode, 200);
+    assert.equal((await fixture.app.inject('/tag/second-tag')).statusCode, 200);
   } finally {
     await fixture.close();
   }
