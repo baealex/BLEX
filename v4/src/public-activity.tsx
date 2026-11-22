@@ -139,24 +139,17 @@ export async function readAuthorActivity(db: PrismaClient, userId: number) {
   return { days, recent };
 }
 
-const heatLevels = ['bg-surface-subtle', 'bg-action/25', 'bg-action/50', 'bg-action/75', 'bg-action'];
-
 function ActivityHeatmap({ days }: { days: Record<string, number> }) {
-  const end = new Date(`${dateFormat.format(new Date())}T00:00:00Z`);
-  const start = new Date(end.getTime() - 364 * 86_400_000);
-  start.setUTCDate(start.getUTCDate() - start.getUTCDay());
-  const cells: Array<{ day: string; count: number }> = [];
-  for (let time = start.getTime(); time <= end.getTime(); time += 86_400_000) {
-    const day = new Date(time).toISOString().slice(0, 10);
-    cells.push({ day, count: days[day] ?? 0 });
-  }
-  const total = cells.reduce((sum, cell) => sum + cell.count, 0);
-  // The reversed scroll direction keeps the latest weeks visible on narrow screens.
-  return <div className="mx-auto w-fit max-w-full overflow-x-auto pb-2 [direction:rtl]">
-    <div role="img" aria-label={`최근 1년 활동 ${total}건`} className="inline-grid grid-flow-col grid-rows-7 gap-[3px] [direction:ltr]">
-      {cells.map(({ day, count }) => <span key={day} title={`${day}: ${count}`}
-        className={`size-2.5 rounded-sm ${heatLevels[Math.min(count, heatLevels.length - 1)]}`} />)}
+  const total = Object.values(days).reduce((sum, count) => sum + count, 0);
+  return <div className="overflow-x-auto">
+    <div className="mb-4 flex items-end justify-between gap-3">
+      <div>
+        <p className="text-xs font-medium text-content-secondary">지난 1년 활동</p>
+        <p className="text-lg font-semibold tabular-nums text-content">{total}회</p>
+      </div>
+      <p className="text-xs text-content-hint">단위: 활동</p>
     </div>
+    <div className="author-heatmap-chart mx-auto min-h-[150px] w-fit" data-heatmap-days={JSON.stringify(days)} />
   </div>;
 }
 

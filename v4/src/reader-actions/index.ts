@@ -263,6 +263,24 @@ async function publicPost(db: PrismaClient, slug: string): Promise<PostRow | nul
   return rows[0] ?? null;
 }
 
+/** 3.x still shows the owner the reader panel on a hidden or scheduled post. */
+async function ownedPost(db: PrismaClient, slug: string, ownerId: number): Promise<PostRow | null> {
+  const rows = await db.$queryRaw<PostRow[]>`
+    SELECT post.id AS id,
+           post.author_id AS authorId,
+           author.username AS authorUsername,
+           post.title AS title,
+           post.url AS slug,
+           CAST(post_config.block_comment AS INTEGER) AS blockComment
+    FROM board_post AS post
+    JOIN auth_user AS author ON author.id = post.author_id
+    JOIN board_postconfig AS post_config ON post_config.post_id = post.id
+    WHERE post.url = ${slug} AND post.author_id = ${ownerId} AND post.deleted_date IS NULL
+    LIMIT 1
+  `;
+  return rows[0] ?? null;
+}
+
 async function commentForViewer(
   db: PrismaClient,
   id: number,
@@ -455,8 +473,9 @@ export async function readReaderPostView(
   db: PrismaClient,
   slug: string,
   viewerId: number | null,
+  ownerView = false,
 ): Promise<ReaderPostView | null> {
-  const post = await publicPost(db, slug);
+  const post = ownerView && viewerId !== null ? await ownedPost(db, slug, viewerId) : await publicPost(db, slug);
   if (!post) return null;
 
   const [author] = await db.$queryRaw<Array<{

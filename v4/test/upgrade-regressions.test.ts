@@ -168,6 +168,8 @@ test('stops a Compose upgrade that would miss the 3.x data or port', () => {
   assert.deepEqual(upgradeProblems({ ...clean, portMapping: '9000:9000', containerPort: '9000' }), []);
   assert.deepEqual(upgradeProblems({ ...clean, legacyDatabase: true, currentDatabase: true }), []);
 
+  assert.match(upgradeProblems({ ...clean, unwritableMediaFolders: 3 })[0], /chown -R 1000:1000/);
+
   const [port] = upgradeProblems({ ...clean, portMapping: '127.0.0.1:20002:80' });
   assert.match(port, /127\.0\.0\.1:20002:8040/);
   const [data] = upgradeProblems({ ...clean, legacyDatabase: true });

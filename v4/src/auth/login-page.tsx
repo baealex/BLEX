@@ -48,7 +48,7 @@ export async function registerLoginPage(app: FastifyInstance, db: PrismaClient, 
           {loginAssets.css.map((file) => <link key={file} rel="stylesheet" href={file} />)}
         </head>
         <body className="bg-surface-page text-content antialiased">
-          <SiteHeader brand={brand} hideAuthLinks />
+          <SiteHeader brand={brand} />
           <div id="blex-login" data-model={JSON.stringify(model)}><LoginForm model={model} /></div>
           <SiteFooter brand={brand} />
           <script type="module" src={loginAssets.script} data-blex-page-module="login" />

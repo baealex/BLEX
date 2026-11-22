@@ -143,7 +143,7 @@ function ArticleInfo({ reader, post, postPath, authorPath, published, updated, c
         <button type="submit" className="shrink-0 rounded-full border border-line px-3 py-1.5 text-xs font-semibold hover:bg-surface-subtle" aria-label={`${author.username}님의 새 글 구독`} aria-pressed={author.isSubscribed}>{author.isSubscribed ? '구독 중' : '구독'}</button>
       </form>
     : <a {...loginPromptProps(postPath, 'subscribe')} aria-label={`${author.username}님의 새 글 구독`} className="shrink-0 rounded-full border border-line px-3 py-1.5 text-xs font-semibold hover:bg-surface-subtle">구독</a>);
-  const entries: Array<[string, ReactNode]> = [['작가', <div className="flex items-start justify-between gap-4">
+  const entries: Array<[string, ReactNode]> = [['작성자', <div className="flex items-start justify-between gap-4">
     <div><a href={authorPath} className="font-semibold hover:text-content-secondary">{post.username}</a>
       {bio && <p className="mt-1 leading-relaxed text-content-secondary">{bio}</p>}</div>{subscription}
   </div>]];
@@ -237,7 +237,7 @@ function PostDock({ reader, post, postPath, canonical, markdown, headings, csrfT
           <div className="post-action-divider" />
         </>}
         {headings.length > 0 && <button type="button" className={`${dockButton} xl:hidden`} data-open-dialog="post-toc" aria-label="목차 보기"><SiteIcon name="list" className="size-4" /></button>}
-        {post.visibility === 'public' && <>
+        {post.visibility !== 'draft' && <>
           <details className="blex-user-menu relative" data-account-menu>
             <summary className={`${dockButton} cursor-pointer`} aria-label="포스트 공유 또는 링크 복사"><SiteIcon name="share" className="size-4" /></summary>
             <div className="absolute bottom-full left-1/2 z-40 mb-3 w-72 -translate-x-1/2 rounded-xl border border-line bg-surface-elevated p-2 text-left shadow-floating">

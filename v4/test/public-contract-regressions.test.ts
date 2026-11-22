@@ -32,6 +32,27 @@ async function publicApp(site: { seo: number; aeo: number } = { seo: 1, aeo: 1 }
   return { ...fixture, app, async close() { await app.close(); await fixture.cleanup(); } };
 }
 
+test('sends the 3.x security headers and moves plain HTTP to the HTTPS site', async () => {
+  const fixture = await createMigratedDatabase();
+  const site = new URL('https://blex.test');
+  const app = await buildApp(fixture.path, site, { secretKey: testSecretKey, cipherKey: testCipherKey }, fixture.mediaRoot);
+  try {
+    await app.ready();
+    const { headers } = await app.inject({ url: '/robots.txt' });
+    assert.equal(headers['x-frame-options'], 'DENY');
+    assert.equal(headers['x-content-type-options'], 'nosniff');
+    assert.equal(headers['referrer-policy'], 'same-origin');
+    assert.equal(headers['cross-origin-opener-policy'], 'same-origin');
+    assert.equal(headers['strict-transport-security'], 'max-age=31536000');
+    const plain = await app.inject({ url: '/tags?page=2', headers: { 'x-forwarded-proto': 'http' } });
+    assert.equal(plain.statusCode, 301);
+    assert.equal(plain.headers.location, 'https://blex.test/tags?page=2');
+  } finally {
+    await app.close();
+    await fixture.cleanup();
+  }
+});
+
 test('shows the public series path on a post', async () => {
   const fixture = await publicApp();
   try {
@@ -250,7 +271,8 @@ test('shows public yearly and recent activity on the author page', async () => {
     assert.equal(statusCode, 200);
     assert.match(body, /연간 활동/);
     assert.match(body, /활동 내역/);
-    assert.match(body, /role="img"/);
+    assert.match(body, /지난 1년 활동/);
+    assert.match(body, /data-heatmap-days=/);
     for (const label of ['새 포스트를 작성했어요', '시리즈를 만들었어요', '댓글을 남겼어요', '좋아요를 눌렀어요']) assert.ok(body.includes(label), label);
     for (const excluded of ['Hidden part', 'Later part', 'Trashed part']) assert.ok(!body.includes(excluded), excluded);
   } finally {

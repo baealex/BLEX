@@ -136,7 +136,7 @@ function signupMarkup(csrf: string, next: string, invite: string, siteKey: strin
         <SiteTheme />
         {siteKey && <script src="https://js.hcaptcha.com/1/api.js" async defer data-blex-trusted-script="hcaptcha" />}
       </head>
-      <body className="bg-surface-page text-content antialiased"><SiteHeader brand={brand} hideAuthLinks />
+      <body className="bg-surface-page text-content antialiased"><SiteHeader brand={brand} />
         <main className="flex min-h-[calc(100vh-10.5rem)] justify-center px-4 py-16 md:px-6">
           <div className="w-full max-w-[420px]">
             <AuthPanel title="회원가입" description={`${brand.siteName}에서 새 계정을 만드세요`} id="signup-title">

@@ -124,7 +124,7 @@ export function LoginForm({ model }: LoginFormProps) {
   }
 
   const title = isOAuthChallenge ? '2단계 인증' : showCode ? '인증 코드 확인' : '로그인';
-  const description = showCode ? `@${isOAuthChallenge ? oauthUsername : username} 계정의 인증 코드 또는 복구 코드를 입력해 주세요.` : '다시 오신 것을 환영합니다';
+  const description = showCode ? `@${isOAuthChallenge ? oauthUsername : username} 계정의 인증 코드 또는 복구 코드를 입력해 주세요.` : '돌아오신 것을 환영해요';
 
   return (
     <main className="blex-login" lang="ko">
@@ -206,7 +206,7 @@ export function LoginForm({ model }: LoginFormProps) {
                 name="username"
                 type="text"
                 value={username}
-                placeholder="아이디를 입력하세요"
+                placeholder="사용자 이름을 입력해 주세요"
                 onChange={handleUsernameChange}
                 autoComplete="username"
                 autoCapitalize="none"
@@ -222,7 +222,7 @@ export function LoginForm({ model }: LoginFormProps) {
                 name="password"
                 type="password"
                 value={password}
-                placeholder="비밀번호를 입력하세요"
+                placeholder="비밀번호를 입력해 주세요"
                 onChange={handlePasswordChange}
                 autoComplete="current-password"
                 required

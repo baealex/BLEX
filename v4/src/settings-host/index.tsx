@@ -92,7 +92,6 @@ interface IslandPage {
   globals?: Record<string, unknown>;
   captcha?: boolean;
   searchPage?: boolean;
-  hideAuthLinks?: boolean;
   footer?: boolean;
 }
 
@@ -140,6 +139,7 @@ export function registerSettingsHost(app: FastifyInstance, db: PrismaClient, opt
         <title>{page.title(brand.siteName)}</title>
         {page.canonical && <link rel="canonical" href={page.canonical} />}
         <link rel="icon" href={brand.faviconUrl} />
+        {page.searchPage && <link rel="alternate" type="application/rss+xml" title={`${brand.siteName} RSS`} href={new URL('/rss', options.siteUrl).href} />}
         <SiteTheme />
         {styleEntries.map((entry) => <link key={entry} rel="stylesheet" href={manifestAsset(assets, entry)} />)}
         <script type="application/json" id="blex-island-config" dangerouslySetInnerHTML={{ __html: scriptJson(configuration) }} />
@@ -148,7 +148,7 @@ export function registerSettingsHost(app: FastifyInstance, db: PrismaClient, opt
       </head>
       <body className="antialiased bg-surface-page text-content selection:bg-action selection:text-content-inverted">
         <input type="hidden" name="csrfmiddlewaretoken" value={csrf} />
-        <SiteHeader brand={brand} searchPage={page.searchPage} hideAuthLinks={page.hideAuthLinks}
+        <SiteHeader brand={brand} searchPage={page.searchPage} editorPage={page.component === 'PostEditor'}
           viewer={viewer ? { username: viewer.user.username, hasEditorRole: viewer.state.role === 'EDITOR', isStaff: viewer.isStaff, csrfToken: csrf, unreadCount: Number(viewer.state.unread) } : null} />
         <main className="min-h-[calc(100vh-10.5rem)]"><div className={page.contentClass} dangerouslySetInnerHTML={{ __html: island }} /></main>
         {page.footer && <SiteFooter brand={brand} />}
@@ -180,7 +180,7 @@ export function registerSettingsHost(app: FastifyInstance, db: PrismaClient, opt
     const siteKey = await readCaptchaSiteKey(db, options.cipherKey);
     return sendDocument(request, reply, null, {
       component: 'Signup', props: {}, title: (site) => `회원가입 - ${site}`, robots: 'noindex',
-      contentClass: 'flex items-center justify-center my-16 px-4 md:px-6', hideAuthLinks: true, footer: true, captcha: Boolean(siteKey),
+      contentClass: 'flex items-center justify-center my-16 px-4 md:px-6', footer: true, captcha: Boolean(siteKey),
       globals: { HCAPTCHA_SITE_KEY: siteKey, NEXT_URL: next === '/' ? '' : next, INVITE_CODE: (query.get('invite') ?? '').trim() },
     });
   };

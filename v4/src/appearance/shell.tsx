@@ -58,22 +58,30 @@ function QuickSearch() {
   </div>;
 }
 
-function AccountLinks({ viewer }: { viewer: HeaderViewer }) {
+const mobileItem = 'flex items-center gap-3 rounded-lg px-3 py-3 text-sm transition-colors duration-150 hover:bg-surface-subtle active:bg-surface-subtle';
+
+function AccountLinks({ viewer, mobile, newPost }: { viewer: HeaderViewer; mobile?: boolean; newPost?: boolean }) {
   const links: Array<[string, string, SiteIconName]> = [
     ['/work-logs/', '작업 일지', 'book'],
     [viewer.username ? `/@${encodeURIComponent(viewer.username)}` : '/settings/profile', '프로필', 'user'],
     ['/settings/notify', '설정', 'settings'],
   ];
-  if (viewer.isStaff) links.push(['/admin-settings/', '관리자 설정', 'settings']);
+  const spacing = mobile ? 'rounded-lg px-3' : 'px-4';
+  const iconWidth = mobile ? 'w-5' : 'w-4';
   return <>
-    <div className="py-1">{links.map(([href, label, icon]) => <a key={href} href={href}
-      className="flex items-center gap-3 px-4 py-3 text-sm text-content-secondary transition-colors duration-150 hover:bg-surface-subtle">
-      <SiteIcon name={icon} className="size-4 text-content-hint" /><span>{label}</span>
-    </a>)}</div>
+    <div className={mobile ? 'border-t border-line-light py-1' : 'py-1'}>
+      {newPost && <a href="/write" className={`${mobileItem} font-medium text-content`}>
+        <SiteIcon name="pencil" className="w-5 text-xs text-content-secondary" /><span>새 포스트</span>
+      </a>}
+      {links.map(([href, label, icon]) => <a key={href} href={href}
+        className={`flex items-center gap-3 ${spacing} py-3 text-sm text-content-secondary transition-colors duration-150 hover:bg-surface-subtle`}>
+        <SiteIcon name={icon} className={`${iconWidth} text-xs text-content-hint`} /><span>{label}</span>
+      </a>)}
+    </div>
     <form method="post" action="/logout" className="border-t border-line-light py-1" data-site-logout>
       <input type="hidden" name="csrfmiddlewaretoken" value={viewer.csrfToken ?? ''} />
-      <button type="submit" className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-danger transition-colors duration-150 hover:bg-danger-surface">
-        <SiteIcon name="logout" className="size-4" /> 로그아웃
+      <button type="submit" className={`flex w-full items-center gap-3 ${spacing} py-3 text-left text-sm text-danger transition-colors duration-150 hover:bg-danger-surface`}>
+        <SiteIcon name="logout" className={`${iconWidth} text-xs`} /><span>로그아웃</span>
       </button>
     </form>
   </>;
@@ -101,10 +109,10 @@ export function SiteHeader({ brand, viewer, searchPage, editorPage, hideAuthLink
               <summary className="relative flex cursor-pointer items-center gap-1.5 rounded-full py-1.5 pr-2 pl-1.5 transition-all duration-150 hover:bg-surface-subtle active:scale-95" aria-label="사용자 메뉴">
                 <span className="flex size-8 items-center justify-center rounded-full bg-action text-xs font-semibold text-content-inverted">{viewer.username?.slice(0, 1).toUpperCase() || 'B'}</span>
                 {Boolean(viewer.unreadCount) && <span className="absolute top-0 left-6 size-3.5 rounded-full bg-danger ring-2 ring-surface" />}
-                <SiteIcon name="chevron-down" className="size-3 text-content-hint" />
+                <SiteIcon name="chevron-down" className="size-[9px] text-content-hint" />
               </summary>
               <div className="absolute right-0 z-50 mt-2 w-52 rounded-xl bg-surface-elevated py-1 shadow-lg ring-1 ring-line/50">
-                <div className="border-b border-line-light px-4 py-3.5"><p className="text-xs text-content-secondary">로그인 계정</p><p className="mt-0.5 truncate text-sm font-semibold">{viewer.username}</p></div>
+                <div className="border-b border-line-light px-4 py-3.5"><p className="text-xs text-content-secondary">로그인한 계정</p><p className="mt-0.5 truncate text-sm font-semibold">{viewer.username}</p></div>
                 <AccountLinks viewer={viewer} />
               </div>
             </details>
@@ -122,20 +130,24 @@ export function SiteHeader({ brand, viewer, searchPage, editorPage, hideAuthLink
       </div>
     </div>
     <dialog id="blex-mobile-menu" className="blex-menu fixed inset-y-0 right-0 left-auto m-0 w-72 max-w-[90vw] bg-surface-elevated p-0 text-content shadow-xl">
-      <div className="flex h-14 items-center justify-between border-b border-line-light px-4"><SiteLogo brand={brand} small />
-        <form method="dialog"><button type="submit" className={iconButton} aria-label="메뉴 닫기"><SiteIcon name="x" className="size-4" /></button></form>
+      <div className="flex h-full flex-col">
+        <div className="flex h-14 shrink-0 items-center justify-between border-b border-line-light px-4">
+          <span className="text-sm font-semibold text-content">메뉴</span>
+          <form method="dialog"><button type="submit" className={iconButton} aria-label="닫기"><SiteIcon name="x" className="text-base" /></button></form>
+        </div>
+        <nav className="flex-1 overflow-y-auto px-3 py-2" aria-label="사이트 메뉴">
+          {viewer ? <>
+            <div className="mb-1 flex items-center gap-3 px-3 py-3">
+              <div className="flex size-9 items-center justify-center rounded-full bg-action text-sm font-semibold text-content-inverted">{viewer.username?.slice(0, 1).toUpperCase()}</div>
+              <div className="min-w-0"><p className="truncate text-sm font-semibold text-content">{viewer.username}</p></div>
+            </div>
+            <AccountLinks viewer={viewer} mobile newPost={viewer.hasEditorRole && !editorPage} />
+          </> : !hideAuthLinks && <div className="space-y-1 py-1">
+            <a href="/login" className={`${mobileItem} text-content-secondary`}><SiteIcon name="login-2" className="w-5 text-xs text-content-hint" /><span>로그인</span></a>
+            <a href="/sign" className={`${mobileItem} font-medium text-content`}><SiteIcon name="user-plus" className="w-5 text-xs text-content-secondary" /><span>회원가입</span></a>
+          </div>}
+        </nav>
       </div>
-      <nav className="py-2" aria-label="사이트 메뉴">
-        <a href="/" className="block px-4 py-3 text-sm hover:bg-surface-subtle">최신 포스트</a>
-        <a href="/tags" className="block px-4 py-3 text-sm hover:bg-surface-subtle">태그</a>
-        {viewer ? <>
-          {viewer.hasEditorRole && !editorPage && <a href="/write" className="block px-4 py-3 text-sm hover:bg-surface-subtle">새 포스트</a>}
-          <AccountLinks viewer={viewer} />
-        </> : !hideAuthLinks && <>
-          <a href="/login" className="block px-4 py-3 text-sm hover:bg-surface-subtle">로그인</a>
-          <a href="/sign" className="block px-4 py-3 text-sm hover:bg-surface-subtle">회원가입</a>
-        </>}
-      </nav>
     </dialog>
   </header>;
 }

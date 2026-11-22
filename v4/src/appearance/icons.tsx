@@ -34,6 +34,7 @@ import IconHeart from '@tabler/icons-react/icons/IconHeart';
 import IconLink from '@tabler/icons-react/icons/IconLink';
 import IconList from '@tabler/icons-react/icons/IconList';
 import IconLock from '@tabler/icons-react/icons/IconLock';
+import IconLogin2 from '@tabler/icons-react/icons/IconLogin2';
 import IconLogout from '@tabler/icons-react/icons/IconLogout';
 import IconMenu2 from '@tabler/icons-react/icons/IconMenu2';
 import IconMessage from '@tabler/icons-react/icons/IconMessage';
@@ -54,6 +55,7 @@ import IconSun from '@tabler/icons-react/icons/IconSun';
 import IconTags from '@tabler/icons-react/icons/IconTags';
 import IconUpload from '@tabler/icons-react/icons/IconUpload';
 import IconUser from '@tabler/icons-react/icons/IconUser';
+import IconUserPlus from '@tabler/icons-react/icons/IconUserPlus';
 import IconWriting from '@tabler/icons-react/icons/IconWriting';
 import IconX from '@tabler/icons-react/icons/IconX';
 
@@ -94,6 +96,7 @@ const glyphs = {
   'link': IconLink,
   'list': IconList,
   'lock': IconLock,
+  'login-2': IconLogin2,
   'logout': IconLogout,
   'menu-2': IconMenu2,
   'message': IconMessage,
@@ -114,6 +117,7 @@ const glyphs = {
   'tags': IconTags,
   'upload': IconUpload,
   'user': IconUser,
+  'user-plus': IconUserPlus,
   'writing': IconWriting,
   'x': IconX,
 };

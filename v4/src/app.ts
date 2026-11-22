@@ -42,6 +42,13 @@ import { registerUploadGuard } from './upload-guard.js';
 import { registerWebhooks } from './webhooks/index.js';
 import { registerWorkLogs } from './work-logs/index.js';
 
+const securityHeaders = [
+  ['X-Frame-Options', 'DENY'],
+  ['X-Content-Type-Options', 'nosniff'],
+  ['Referrer-Policy', 'same-origin'],
+  ['Cross-Origin-Opener-Policy', 'same-origin'],
+] as const;
+
 const indexableContentType = /^(?:text\/(?:html|markdown|plain)|application\/(?:rss\+)?xml)/;
 
 export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, mediaRoot?: string) {
@@ -60,7 +67,14 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
     transactionOptions: { maxWait: 15_000, timeout: 30_000 },
   });
   const app = Fastify({ bodyLimit: 8 * 1024, requestTimeout: 300_000, routerOptions: { ignoreDuplicateSlashes: true, maxParamLength: 150 }, trustProxy: auth?.trustedProxies ?? false });
+  const httpsSite = siteUrl.protocol === 'https:';
+  app.addHook('onRequest', async (request, reply) => {
+    const forwarded = String(request.headers['x-forwarded-proto'] ?? '').split(',')[0]?.trim().toLowerCase();
+    if (httpsSite && forwarded === 'http') return reply.redirect(`${siteUrl.origin}${request.url}`, 301);
+  });
   app.addHook('onSend', async (request, reply, payload) => {
+    for (const [name, value] of securityHeaders) if (!reply.hasHeader(name)) reply.header(name, value);
+    if (httpsSite) reply.header('Strict-Transport-Security', 'max-age=31536000');
     const contentType = String(reply.getHeader('Content-Type') ?? '');
     if ((reply.statusCode === 404 || reply.statusCode === 403) && !contentType.startsWith('text/html') && wantsNotFoundPage(request)) {
       try {
@@ -197,7 +211,9 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
     const publicArticle = auth && post.visibility === 'public';
     const canManage = viewer?.username === post.username && Boolean(viewer.hasEditorRole);
     const [reader, related, history] = await Promise.all([
-      publicArticle ? readReaderPostView(db, post.slug, viewer?.id ?? null) : null,
+      publicArticle || (auth && canManage && post.visibility !== 'draft')
+        ? readReaderPostView(db, post.slug, viewer?.id ?? null, post.visibility !== 'public')
+        : null,
       publicArticle && presentation.tags.length ? relatedPosts(db, post.id, post.authorId) : [],
       canManage ? db.$queryRaw<unknown[]>`SELECT 1 FROM board_edithistory WHERE post_id = ${post.id} LIMIT 1` : [],
     ]);

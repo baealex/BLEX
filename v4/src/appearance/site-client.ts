@@ -480,6 +480,11 @@ function bindRouteElements() {
 
   const siteSearch = document.querySelector<HTMLElement>('[data-site-search]');
   if (siteSearch) bindQuickSearch(siteSearch, signal);
+  if (document.querySelector('[data-heatmap-days]')) {
+    void import('./author-heatmap.js').then(({ mountAuthorHeatmaps }) => {
+      if (!signal.aborted) mountAuthorHeatmaps(signal);
+    });
+  }
 }
 
 function handleGlobalClick(event: MouseEvent) {

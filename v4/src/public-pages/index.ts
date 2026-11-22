@@ -1,4 +1,5 @@
 import { renderApplicationDocument, scriptJson } from '../application/document.js';
+import { timeSince } from '../django-format.js';
 import { createHash } from 'node:crypto';
 import { createElement, Fragment, type ReactNode } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -406,7 +407,7 @@ function PostCardLike({ post, likes }: { post: PostRow; likes?: CardLikes }): Re
   );
 }
 
-function PostCard({ post, showAuthor, priority = false, likes }: { post: PostRow; showAuthor: boolean; priority?: boolean; likes?: CardLikes }): ReactNode {
+function PostCard({ post, showAuthor, priority = false, likes, relativeDate = false }: { post: PostRow; showAuthor: boolean; priority?: boolean; relativeDate?: boolean; likes?: CardLikes }): ReactNode {
   const titleHref = postPath(post);
   const authorHref = `/@${encodeURIComponent(post.authorUsername)}`;
   const hasImage = Boolean(post.image && post.image !== 'None' && post.image !== 'null');
@@ -428,7 +429,7 @@ function PostCard({ post, showAuthor, priority = false, likes }: { post: PostRow
       h('div', { className: 'mb-3 flex items-center gap-3 text-xs text-content-secondary' },
         h('div', { className: 'flex items-center gap-1.5' },
           h(SiteIcon, { name: 'calendar', className: 'text-content-hint' }),
-          post.publishedDate ? h('time', { dateTime: dateValue(post.publishedDate) ?? undefined }, dateLabel(post.publishedDate)) : null,
+          post.publishedDate ? h('time', { dateTime: dateValue(post.publishedDate) ?? undefined }, relativeDate ? timeSince(post.publishedDate) : dateLabel(post.publishedDate)) : null,
         ),
         h('div', { className: 'flex items-center gap-1.5' },
           h(SiteIcon, { name: 'clock', className: 'text-content-hint' }),
@@ -494,10 +495,11 @@ function PostGrid({
   priorityFirst = true,
   className = '',
   likes,
-}: { posts: PostRow[]; showAuthor?: boolean; priorityFirst?: boolean; className?: string; likes?: CardLikes }): ReactNode {
+  relativeDate = false,
+}: { posts: PostRow[]; showAuthor?: boolean; priorityFirst?: boolean; className?: string; likes?: CardLikes; relativeDate?: boolean }): ReactNode {
   if (!posts.length) return EmptyState({ title: '아직 공개된 포스트가 없습니다.', message: '공개된 포스트가 발행되면 이곳에 표시됩니다.' });
   return h('div', { className: `masonry-grid ${className}`.trim() },
-    ...posts.map((post, index) => PostCard({ post, showAuthor, priority: priorityFirst && index === 0, likes })),
+    ...posts.map((post, index) => PostCard({ post, showAuthor, priority: priorityFirst && index === 0, likes, relativeDate })),
   );
 }
 
@@ -1421,7 +1423,7 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
           NoticeSection({ notices: globalNotices, scope: 'global' }),
           posts.length
             ? h(ReactFragment, null,
-              PostGrid({ posts, className: 'mb-16 gap-6', likes }),
+              PostGrid({ posts, className: 'mb-16 gap-6', likes, relativeDate: true }),
               h('div', { className: 'mt-16 mb-12' }, Pagination({ path, search: query, preserve: [], page: checkedPage, pages })),
             )
             : EmptyState({
@@ -1469,7 +1471,7 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
           h('p', { className: 'mt-3 max-w-2xl leading-relaxed text-content-secondary' }, '추천으로 관심 표시한 포스트를 최신 관심순으로 모아볼 수 있어요.'),
         ),
         posts.length ? h(ReactFragment, null,
-          PostGrid({ posts, className: 'mb-16 gap-6', likes: {
+          PostGrid({ posts, className: 'mb-16 gap-6', relativeDate: true, likes: {
             csrfToken: csrfCookie(request), returnTo: path, likedIds: new Set(posts.map((post) => post.id)),
           } }),
           h('div', { className: 'mt-16 mb-12' }, Pagination({ path, search: query, preserve: [], page: checkedPage, pages })),
@@ -1903,7 +1905,7 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
           ),
           h('div', { className: 'grid grid-cols-1 gap-8 md:grid-cols-3' },
             h('div', { className: 'md:col-span-3' },
-              posts.length ? PostGrid({ posts, showAuthor: false, likes }) : EmptyState({
+              posts.length ? PostGrid({ posts, showAuthor: false, likes, relativeDate: true }) : EmptyState({
                 title: searchText || tagFilter ? '조건에 맞는 포스트가 없습니다' : '아직 공개된 포스트가 없습니다.',
                 message: searchText || tagFilter ? '검색어나 태그를 다시 확인해주세요.' : '새 포스트가 발행되면 이곳에 표시됩니다.',
                 icon: 'file-text',

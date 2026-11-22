@@ -19,7 +19,7 @@ export function registerSiteAssets(app: FastifyInstance) {
     });
     routes.get('/assets/blex/theme.js', async (_request, reply) => {
       const { script } = await getAppearance();
-      return reply.header('Cache-Control', 'no-cache').sendFile(script.replace('/assets/ui/', ''), uiRoot, { cacheControl: false });
+      return reply.header('Cache-Control', 'no-store').redirect(script, 302);
     });
     routes.get('/assets/blex/app.js', async (_request, reply) => {
       const { script } = await readUiAsset('src/application/client.tsx');
