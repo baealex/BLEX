@@ -68,6 +68,23 @@ export function localDateTimeText(value: StoredDate): string {
   return `${year}-${month}-${day} ${hour}:${minute}`;
 }
 
+/** Django's Korean DATE_FORMAT, "Y년 n월 j일". */
+export function koreanDate(value: StoredDate): string {
+  const instant = parseInstant(value);
+  if (!instant) return '';
+  const { year, month, day } = localParts(instant.date);
+  return `${year}년 ${Number(month)}월 ${Number(day)}일`;
+}
+
+/** Django's Korean DATETIME_FORMAT, "Y년 n월 j일 g:i A". */
+export function koreanDateTime(value: StoredDate): string {
+  const instant = parseInstant(value);
+  if (!instant) return '';
+  const { hour, minute } = localParts(instant.date);
+  const hours = Number(hour);
+  return `${koreanDate(value)} ${hours % 12 || 12}:${minute} ${hours < 12 ? '오전' : '오후'}`;
+}
+
 /** Follows the 3.x relative date: a calendar date after a year, otherwise the largest elapsed unit. */
 export function timeSince(value: StoredDate, now = new Date()): string {
   const date = parseInstant(value)?.date;

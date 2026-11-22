@@ -301,6 +301,27 @@ function bindRouteElements() {
     }, { signal });
   }
 
+  for (const input of document.querySelectorAll<HTMLInputElement>('[data-work-log-attachment]')) {
+    const filename = input.parentElement?.querySelector<HTMLElement>('[data-work-log-filename]');
+    input.addEventListener('change', () => {
+      if (filename) filename.textContent = input.files?.[0]?.name ?? '';
+    }, { signal });
+  }
+
+  for (const box of document.querySelectorAll<HTMLElement>('[data-work-log-share-link]')) {
+    const link = box.querySelector<HTMLInputElement>('input');
+    const button = box.querySelector<HTMLButtonElement>('[data-work-log-copy]');
+    const status = box.querySelector<HTMLElement>('[data-work-log-copied]');
+    link?.addEventListener('focus', () => link.select(), { signal });
+    button?.addEventListener('click', () => {
+      link?.select();
+      void navigator.clipboard?.writeText(link?.value ?? '').then(() => {
+        button.textContent = '링크를 복사했어요';
+        if (status) status.textContent = '링크를 복사했어요';
+      }).catch(() => undefined);
+    }, { signal });
+  }
+
   const mobileMenu = document.querySelector<HTMLDialogElement>('#blex-mobile-menu');
   mobileMenu?.addEventListener('close', () => {
     document.querySelector<HTMLButtonElement>('[data-site-menu-open]')?.setAttribute('aria-expanded', 'false');

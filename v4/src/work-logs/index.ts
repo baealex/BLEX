@@ -7,6 +7,7 @@ import { createReadStream } from 'node:fs';
 import { mkdir, realpath, stat, unlink, writeFile } from 'node:fs/promises';
 import { isAbsolute, relative, resolve, sep } from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { readPublicSiteBrand } from '../public-pages/index.js';
 import { renderWorkLogDelete, renderWorkLogDetail, renderWorkLogIndex, renderWorkLogShared, type WorkLogEntryView, type WorkLogShareView, type WorkLogView } from './pages.js';
 
 const MAX_ATTACHMENT_SIZE = 12 * 1024 * 1024;
@@ -52,6 +53,20 @@ interface EntryInput {
 interface MediaFile {
   path: string;
   size: number;
+}
+
+async function pageChrome(db: PrismaClient, request: FastifyRequest, user: { id: number; username: string } | null) {
+  const brand = await readPublicSiteBrand(db);
+  if (!user) return { brand };
+  const [row] = await db.$queryRaw<Array<{ role: string | null; staff: number | bigint | boolean | null; unread: number | bigint }>>`
+    SELECT (SELECT role FROM board_profile WHERE user_id = ${user.id} LIMIT 1) AS role,
+           (SELECT is_staff FROM auth_user WHERE id = ${user.id}) AS staff,
+           (SELECT COUNT(*) FROM board_notify WHERE user_id = ${user.id} AND has_read = 0) AS unread
+  `;
+  return { brand, viewer: {
+    username: user.username, hasEditorRole: row?.role === 'EDITOR', isStaff: Boolean(Number(row?.staff ?? 0)),
+    unreadCount: Number(row?.unread ?? 0), csrfToken: csrfCookieValue(request),
+  } };
 }
 
 function html(reply: FastifyReply, content: string) {
@@ -281,7 +296,7 @@ async function pageEntryForShareMedia(
 
 async function validateAttachment(data: Buffer): Promise<{ mediaType: string; extension: string }> {
   if (data.length === 0 || data.length > MAX_ATTACHMENT_SIZE) {
-    throw new Error('Choose an attachment up to 12 MB.');
+    throw new Error('12MB 이하의 파일을 첨부해 주세요.');
   }
   if (data.length >= 12 && data.toString('ascii', 4, 8) === 'ftyp') {
     return { mediaType: 'video/mp4', extension: '.mp4' };
@@ -294,7 +309,7 @@ async function validateAttachment(data: Buffer): Promise<{ mediaType: string; ex
   try {
     metadata = await sharp(data, { failOn: 'error', limitInputPixels: MAX_IMAGE_PIXELS }).metadata();
   } catch {
-    throw new Error('Choose a PNG, JPEG, WebP, MP4, or WebM file.');
+    throw new Error('PNG, JPEG, WebP, MP4, WebM 파일을 선택해 주세요.');
   }
   const formats: Record<string, { mediaType: string; extension: string }> = {
     png: { mediaType: 'image/png', extension: '.png' },
@@ -303,15 +318,15 @@ async function validateAttachment(data: Buffer): Promise<{ mediaType: string; ex
   };
   const validated = metadata.format ? formats[metadata.format] : undefined;
   if (!validated || !metadata.width || !metadata.height) {
-    throw new Error('Choose a PNG, JPEG, WebP, MP4, or WebM file.');
+    throw new Error('PNG, JPEG, WebP, MP4, WebM 파일을 선택해 주세요.');
   }
   if (metadata.width * metadata.height > MAX_IMAGE_PIXELS) {
-    throw new Error('Choose an image up to 20 megapixels.');
+    throw new Error('2,000만 화소 이하의 이미지를 선택해 주세요.');
   }
   try {
     await sharp(data, { failOn: 'error', limitInputPixels: MAX_IMAGE_PIXELS }).stats();
   } catch {
-    throw new Error('Choose a PNG, JPEG, WebP, MP4, or WebM file.');
+    throw new Error('PNG, JPEG, WebP, MP4, WebM 파일을 선택해 주세요.');
   }
   return validated;
 }
@@ -368,15 +383,15 @@ function selectedEntryIds(fields: Record<string, unknown>, allowEmpty = false): 
     ...arrayValue(fields.selected_entries).flatMap((value) => value.split(',')),
     ...arrayValue(fields.entries),
   ];
-  if (values.length > 997) return { ids: [], error: 'Choose up to 997 entries for one link.' };
+  if (values.length > 997) return { ids: [], error: '링크 하나에 기록을 최대 997개까지 담을 수 있어요.' };
   if (values.some((value) => !/^\d{1,18}$/.test(value))) {
-    return { ids: [], error: 'Choose entries from this work log.' };
+    return { ids: [], error: '이 작업 일지의 기록을 선택해 주세요.' };
   }
   const ids = [...new Set(values.map(Number))];
   if (ids.some((id) => !Number.isSafeInteger(id) || id <= 0)) {
-    return { ids: [], error: 'Choose entries from this work log.' };
+    return { ids: [], error: '이 작업 일지의 기록을 선택해 주세요.' };
   }
-  if (ids.length === 0 && !allowEmpty) return { ids, error: 'Choose at least one entry to share.' };
+  if (ids.length === 0 && !allowEmpty) return { ids, error: '공유할 기록을 하나 이상 선택해 주세요.' };
   return { ids };
 }
 
@@ -510,7 +525,7 @@ async function renderDetailPage(
   options: WorkLogOptions,
   user: WorkLogUser,
   log: WorkLogRow,
-  state: { timelinePage?: string; selectionPage?: string; linksPage?: string; selectedIds?: number[]; error?: string } = {},
+  state: { timelinePage?: string; selectionPage?: string; linksPage?: string; selectedIds?: number[]; error?: string; shareError?: string; entryTitle?: string; entryText?: string; headline?: string } = {},
 ) {
   const [totalEntries, totalShares, canWrite] = await Promise.all([
     countEntries(db, log.id),
@@ -534,7 +549,7 @@ async function renderDetailPage(
     log: { ...log, createdAt: toIsoDateTime(log.createdAt) },
     canWrite,
     csrfToken: csrfCookieValue(request),
-    viewer: { username: user.username, hasEditorRole: canWrite, csrfToken: csrfCookieValue(request) },
+    ...await pageChrome(db, request, user),
     timeline: timeline.map((entry) => ({ ...entry, createdAt: toIsoDateTime(entry.createdAt) })),
     selector: selector.map((entry) => ({ ...entry, createdAt: toIsoDateTime(entry.createdAt) })),
     selectedIds: state.selectedIds ?? [],
@@ -547,6 +562,10 @@ async function renderDetailPage(
     linksPage,
     mediaUrl: (entry) => `/work-logs/${log.id}/media/${entry.id}/`,
     error: state.error,
+    shareError: state.shareError,
+    entryTitle: state.entryTitle,
+    entryText: state.entryText,
+    headline: state.headline,
   }));
 }
 
@@ -654,7 +673,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
         logs: logs.map((log) => ({ ...log, createdAt: toIsoDateTime(log.createdAt), entryCount: entryCounts.get(log.id) ?? 0 })),
         canWrite,
         csrfToken: csrfCookieValue(request),
-        viewer: { username: user.username, hasEditorRole: canWrite, csrfToken: csrfCookieValue(request) },
+        ...await pageChrome(db, request, user),
         links: pageLinks(path, page, pages),
       });
       return html(reply, content);
@@ -676,8 +695,9 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
           logs,
           canWrite: true,
           csrfToken: csrfCookieValue(request),
-          viewer: { username: user.username, hasEditorRole: true, csrfToken: csrfCookieValue(request) },
-          error: 'Enter a work log title up to 100 characters.',
+          ...await pageChrome(db, request, user),
+          error: '작업 일지 제목을 100자 이내로 입력해 주세요.',
+          title,
           links: {},
         }));
       }
@@ -709,20 +729,20 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       const title = scalar(input.fields.title).trim();
       const text = scalar(input.fields.text).trim();
       if (title.length > 100 || text.length > 5000 || (!title && !text && !input.attachment)) {
-        return renderDetailPage(request, reply, db, options, user, log, { error: 'Write a note or add an attachment.' });
+        return renderDetailPage(request, reply, db, options, user, log, { error: '메모를 작성하거나 파일을 첨부해 주세요.', entryTitle: title, entryText: text });
       }
 
       let mediaType = '';
       let attachment = '';
       if (input.attachment) {
-        if (!options.mediaRoot) return renderDetailPage(request, reply, db, options, user, log, { error: 'Attachments are unavailable.' });
+        if (!options.mediaRoot) return renderDetailPage(request, reply, db, options, user, log, { error: '첨부 파일을 사용할 수 없습니다.', entryTitle: title, entryText: text });
         try {
           const kind = await validateAttachment(input.attachment);
           mediaType = kind.mediaType;
           attachment = await saveAttachment(input.attachment, kind.extension, options.mediaRoot);
         } catch (error) {
-          const message = error instanceof Error ? error.message : 'Choose a valid attachment.';
-          return renderDetailPage(request, reply, db, options, user, log, { error: message });
+          const message = error instanceof Error ? error.message : 'PNG, JPEG, WebP, MP4, WebM 파일을 선택해 주세요.';
+          return renderDetailPage(request, reply, db, options, user, log, { error: message, entryTitle: title, entryText: text });
         }
       }
 
@@ -750,10 +770,10 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       const browsing = 'selection_page' in fields || action === 'edit';
       const selection = selectedEntryIds(fields, browsing);
       const headline = scalar(fields.headline).trim();
-      if (!selection.error && headline.length > 120) selection.error = 'The headline must be 120 characters or fewer.';
-      if (!browsing && !headline) selection.error = 'Enter a headline for the share link.';
+      if (!selection.error && headline.length > 120) selection.error = '공유 제목은 120자 이내로 입력해 주세요.';
+      if (!browsing && !headline) selection.error = '무엇이 달라졌는지 입력해 주세요.';
       const selected = selection.error ? [] : await selectedEntries(db, logId, selection.ids);
-      if (!selection.error && selected.length !== selection.ids.length) selection.error = 'Choose entries from this work log.';
+      if (!selection.error && selected.length !== selection.ids.length) selection.error = '이 작업 일지의 기록을 선택해 주세요.';
 
       if (browsing || selection.error) {
         return renderDetailPage(request, reply, db, options, user, log, {
@@ -761,7 +781,8 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
           selectionPage: scalar(fields.selection_page) || scalar(fields.current_selection_page),
           linksPage: scalar(fields.links_page),
           selectedIds: selected.map((entry) => entry.id),
-          error: selection.error,
+          shareError: selection.error,
+          headline,
         });
       }
 
@@ -770,6 +791,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
         const start = (page - 1) * PAGE_SIZE;
         const entries = selected.slice(start, start + PAGE_SIZE);
         return html(reply, renderWorkLogShared({
+          ...await pageChrome(db, request, user),
           log: { ...log, createdAt: toIsoDateTime(log.createdAt) },
           ownerUsername: user.username,
           headline,
@@ -789,7 +811,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
         }));
       }
 
-      if (action !== 'publish') return renderDetailPage(request, reply, db, options, user, log, { error: 'Choose Preview or Create share link.' });
+      if (action !== 'publish') return renderDetailPage(request, reply, db, options, user, log, { shareError: '공유 화면을 미리 본 뒤 링크를 만들어 주세요.', headline });
       const token = await createShare(db, logId, headline, selected);
       return reply.redirect(`${sharePath(token)}?new=1`, 302);
     });
@@ -822,7 +844,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       if (logId === null) return notFound(reply);
       const log = await readOwnedLog(db, logId, user.id);
       if (!log) return notFound(reply);
-      return html(reply, renderWorkLogDelete({ log: { ...log, createdAt: toIsoDateTime(log.createdAt) }, csrfToken: csrfCookieValue(request) }));
+      return html(reply, renderWorkLogDelete({ ...await pageChrome(db, request, user), log: { ...log, createdAt: toIsoDateTime(log.createdAt) }, csrfToken: csrfCookieValue(request) }));
     });
 
     routes.post<{ Params: { pk: string } }>('/work-logs/:pk/delete/', { bodyLimit: 8 * 1024 }, async (request, reply) => {
@@ -854,6 +876,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       `;
       if (!entry) return notFound(reply);
       return html(reply, renderWorkLogDelete({
+        ...await pageChrome(db, request, user),
         log: { ...log, createdAt: toIsoDateTime(log.createdAt) },
         entry: { ...entry, createdAt: toIsoDateTime(entry.createdAt) },
         csrfToken: csrfCookieValue(request),
@@ -929,6 +952,8 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       const imageUrl = image ? new URL(`/work-logs/share/${share.token}/media/${image.id}/`, options.siteUrl).href : null;
       const user = await options.currentUser(request);
       return html(reply, renderWorkLogShared({
+        ...await pageChrome(db, request, user),
+        sharedAt: toIsoDateTime(share.createdAt),
         log: { id: share.logId, title: share.logTitle, createdAt: toIsoDateTime(share.logCreatedAt) },
         ownerUsername: share.ownerUsername,
         headline: share.headline,

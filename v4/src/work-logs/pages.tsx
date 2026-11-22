@@ -1,5 +1,6 @@
 import { renderApplicationDocument } from '../application/document.js';
-import { SiteFooter, SiteHeader, SiteTheme, type HeaderViewer } from '../appearance/shell.js';
+import { SiteFooter, SiteHeader, SiteTheme, type HeaderViewer, type SiteHeaderProps } from '../appearance/shell.js';
+import { koreanDate, koreanDateTime } from '../django-format.js';
 
 export interface WorkLogView {
   id: number;
@@ -30,11 +31,14 @@ interface PagerView {
   anchor?: string;
 }
 
-interface PageOptions {
-  title: string;
-  robots?: boolean;
+interface PageChrome {
+  brand?: SiteHeaderProps['brand'];
   viewer?: HeaderViewer;
-  className?: string;
+}
+
+interface PageOptions extends PageChrome {
+  title: string;
+  className: string;
   shareMeta?: {
     title: string;
     description: string;
@@ -43,13 +47,17 @@ interface PageOptions {
   };
 }
 
+const pagerLink = 'inline-flex min-h-11 items-center rounded-lg border border-line px-3 hover:bg-surface-subtle';
+const pagerButton = 'min-h-11 rounded-lg border border-line px-3 hover:bg-surface-subtle';
+const primaryButton = 'min-h-11 rounded-lg bg-action px-4 text-sm font-semibold text-content-inverted transition hover:bg-action-hover active:scale-95';
+
 function shell(options: PageOptions, content: React.ReactNode): string {
   return renderApplicationDocument(<html lang="ko">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="referrer" content="strict-origin" />
-        <meta name="robots" content={options.robots === false ? 'index,follow' : 'noindex,nofollow,noarchive'} />
+        <meta name="robots" content="noindex,nofollow,noarchive" />
         <meta name="color-scheme" content="light dark" />
         <title>{options.title}</title>
         <SiteTheme />
@@ -61,25 +69,10 @@ function shell(options: PageOptions, content: React.ReactNode): string {
           <meta name="twitter:card" content={options.shareMeta.imageUrl ? 'summary_large_image' : 'summary'} />
           {options.shareMeta.imageUrl && <meta property="og:image" content={options.shareMeta.imageUrl} />}
         </>}
-        <style>{`
-          .work-log-page h1 { font-size: clamp(2.25rem, 4vw, 3rem); font-weight: 700; line-height: 1.15; letter-spacing: -.025em; }
-          .work-log-page h2 { font-size: 1.25rem; font-weight: 600; }
-          .work-log-page h3 { font-weight: 600; }
-          .work-log-page form:not([data-site-logout]) > p:not([class]) { margin-block: .6rem; }
-          .work-log-page label > input:not([type=checkbox]), .work-log-page textarea { display: block; width: 100%; border: 1px solid var(--color-line); border-radius: .5rem; padding: .65rem .75rem; }
-          .work-log-page button, .work-log-page .button { display: inline-flex; min-height: 2.75rem; align-items: center; padding-inline: .85rem; border: 1px solid var(--color-line); border-radius: .5rem; font-size: .875rem; font-weight: 600; cursor: pointer; }
-          .work-log-page button:hover, .work-log-page .button:hover { background: var(--color-surface-subtle); }
-          .work-log-page button.work-log-primary { background: var(--color-action); color: var(--color-content-inverted); }
-          .work-log-page button.work-log-primary:hover { background: var(--color-action-hover); }
-          .work-log-page nav { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
-          .work-log-page img, .work-log-page video { max-height: 34rem; object-fit: contain; }
-          .work-log-page .muted { color: var(--color-content-secondary); }
-          .work-log-page .error { color: var(--color-danger); }
-        `}</style>
       </head>
-      <body className="bg-surface-page text-content antialiased"><SiteHeader viewer={options.viewer} />
-        <main className={`work-log-page mx-auto min-h-[calc(100vh-10.5rem)] px-5 py-12 sm:px-8 sm:py-16 ${options.className ?? 'max-w-5xl'}`}>{content}</main>
-        <SiteFooter />
+      <body className="bg-surface-page text-content antialiased"><SiteHeader brand={options.brand} viewer={options.viewer} />
+        <main className="min-h-[calc(100vh-10.5rem)]"><div className={options.className}>{content}</div></main>
+        <SiteFooter brand={options.brand} />
       </body>
     </html>);
 }
@@ -88,66 +81,74 @@ function csrfInput(value: string) {
   return <input type="hidden" name="csrfmiddlewaretoken" value={value} />;
 }
 
-function pager(pagerView: PagerView, label: string) {
+function truncateChars(text: string, limit: number): string {
+  const characters = Array.from(text);
+  return characters.length > limit ? `${characters.slice(0, limit - 1).join('')}…` : text;
+}
+
+function pager(pagerView: PagerView) {
   if (!pagerView.previous && !pagerView.next) return null;
-  return <nav aria-label={label}>
-    {pagerView.previous && <a className="button" href={`${pagerView.previous}${pagerView.anchor ? `#${pagerView.anchor}` : ''}`}>Previous</a>}
-    {pagerView.next && <a className="button" href={`${pagerView.next}${pagerView.anchor ? `#${pagerView.anchor}` : ''}`}>Next</a>}
+  const suffix = pagerView.anchor ? `#${pagerView.anchor}` : '';
+  return <nav aria-label="페이지 이동" className="mt-4 flex flex-wrap gap-2 text-sm">
+    {pagerView.previous && <a className={pagerLink} href={`${pagerView.previous}${suffix}`}>이전 페이지</a>}
+    {pagerView.next && <a className={pagerLink} href={`${pagerView.next}${suffix}`}>다음 페이지</a>}
   </nav>;
 }
 
-export function renderWorkLogIndex(props: {
+export function renderWorkLogIndex(props: PageChrome & {
   logs: WorkLogView[];
   canWrite: boolean;
   csrfToken: string;
-  viewer?: HeaderViewer;
   error?: string;
+  title?: string;
   links: PagerView;
 }): string {
-  return shell({ title: '작업 일지 · BLEX', className: 'max-w-3xl', viewer: props.viewer }, <>
-    <h1>작업 일지</h1>
+  return shell({
+    title: `작업 일지 · ${props.brand?.siteName ?? 'BLEX'}`,
+    className: 'mx-auto max-w-3xl px-5 py-12 sm:px-8 sm:py-20',
+    brand: props.brand,
+    viewer: props.viewer,
+  }, <>
+    <h1 className="text-4xl font-bold tracking-tight">작업 일지</h1>
     {props.canWrite && <form method="post" action="/work-logs/" className="mt-8 rounded-2xl border border-line bg-surface p-5 sm:p-6">
       {csrfInput(props.csrfToken)}
       <label htmlFor="work-log-title" className="text-sm font-semibold">새 작업 일지</label>
-      <div className="mt-2 flex flex-col gap-2 sm:flex-row"><input id="work-log-title" name="title" required maxLength={100}
-        placeholder="어떤 작업을 하고 있나요?" className="min-h-12 min-w-0 flex-1 rounded-lg border border-line bg-surface px-3 placeholder:text-content-hint" />
-        <button className="work-log-primary min-h-12">작업 일지 만들기</button></div>
-      {props.error && <p className="error mt-2 text-sm" role="alert">{props.error}</p>}
+      <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+        <input id="work-log-title" name="title" required maxLength={100} defaultValue={props.title}
+          placeholder="어떤 작업을 기록할까요?" className="min-h-12 min-w-0 flex-1 rounded-lg border border-line bg-surface px-3 text-content placeholder:text-content-hint" />
+        <button className="min-h-12 rounded-lg bg-action px-5 text-sm font-semibold text-content-inverted transition hover:bg-action-hover active:scale-95">일지 만들기</button>
+      </div>
+      {props.error && <div className="mt-2 text-sm text-danger" role="alert">{props.error}</div>}
     </form>}
-    {props.logs.length > 0 ? <ul className="mt-8 divide-y divide-line border-y border-line">
-      {props.logs.map((log) => <li key={log.id}>
-        <a href={`/work-logs/${log.id}/`} className="group flex min-h-16 items-center justify-between gap-3 py-4 transition hover:text-content-secondary">
-          <span><span className="block break-words font-semibold">{log.title}</span><span className="mt-1 block text-sm text-content-secondary">기록 {log.entryCount ?? 0}개</span></span>
-          <span aria-hidden="true" className="text-xs text-content-hint transition group-hover:translate-x-1">→</span>
-        </a>
-      </li>)}
-    </ul> : <p className="mt-6 text-sm text-content-secondary">아직 작업 일지가 없습니다.</p>}
-    {pager(props.links, '작업 일지 페이지')}
+    {props.logs.length > 0 ? <>
+      <ul className="mt-8 divide-y divide-line border-y border-line">
+        {props.logs.map((log) => <li key={log.id}>
+          <a href={`/work-logs/${log.id}/`} className="group flex min-h-16 items-center justify-between gap-3 py-4 transition hover:text-content-secondary">
+            <div className="min-w-0">
+              <p className="break-words font-semibold">{log.title}</p>
+              <p className="mt-1 text-sm text-content-secondary">{`기록 ${log.entryCount ?? 0}개`}</p>
+            </div>
+            <i className="fas fa-arrow-right text-xs text-content-hint transition group-hover:translate-x-1" aria-hidden="true" />
+          </a>
+        </li>)}
+      </ul>
+      {pager(props.links)}
+    </> : <p className="mt-6 text-sm text-content-secondary">아직 작업 일지가 없어요.</p>}
   </>);
 }
 
-function mediaElement(entry: WorkLogEntryView, url: string, lazy = false) {
-  const label = entry.title || 'Work log attachment';
+function mediaElement(entry: WorkLogEntryView, logTitle: string, url: string, lazy = false) {
+  const label = entry.title || logTitle;
+  const className = 'block max-h-[34rem] w-full bg-surface-subtle object-contain';
   return entry.mediaType.startsWith('video/')
-    ? <video src={url} controls playsInline preload="metadata" aria-label={label} />
-    : <img src={url} alt={label} loading={lazy ? 'lazy' : undefined} />;
+    ? <video src={url} controls playsInline preload="metadata" aria-label={label} className={className} />
+    : <img src={url} alt={label} loading={lazy ? 'lazy' : undefined} className={className} />;
 }
 
-function entryContent(entry: WorkLogEntryView, mediaUrl: (entry: WorkLogEntryView) => string | null) {
-  const url = entry.attachment ? mediaUrl(entry) : null;
-  return <>
-    <time className="muted" dateTime={entry.createdAt}>{entry.createdAt}</time>
-    {entry.title && <h3>{entry.title}</h3>}
-    {entry.text && <p style={{ whiteSpace: 'pre-wrap' }}>{entry.text}</p>}
-    {url && <figure>{mediaElement(entry, url, true)}</figure>}
-  </>;
-}
-
-export function renderWorkLogDetail(props: {
+export function renderWorkLogDetail(props: PageChrome & {
   log: WorkLogView;
   canWrite: boolean;
   csrfToken: string;
-  viewer?: HeaderViewer;
   timeline: WorkLogEntryView[];
   selector: WorkLogEntryView[];
   selectedIds: number[];
@@ -160,6 +161,10 @@ export function renderWorkLogDetail(props: {
   linksPage: number;
   mediaUrl: (entry: WorkLogEntryView) => string;
   error?: string;
+  shareError?: string;
+  entryTitle?: string;
+  entryText?: string;
+  headline?: string;
 }): string {
   const selectorIds = new Set(props.selector.map((entry) => entry.id));
   const savedSelection = props.selectedIds.filter((id) => !selectorIds.has(id)).sort((a, b) => a - b).join(',');
@@ -169,78 +174,113 @@ export function renderWorkLogDetail(props: {
   const nextSelectionPage = props.selectionLinks.next
     ? new URL(props.selectionLinks.next, 'https://work-log.invalid').searchParams.get('selection_page')
     : null;
-  return shell({ title: `${props.log.title} · 작업 일지`, className: 'max-w-6xl', viewer: props.viewer }, <>
-    <a href="/work-logs/" className="inline-flex min-h-11 items-center text-sm font-medium text-content-secondary hover:text-content">← 작업 일지</a>
+  return shell({
+    title: `${props.log.title} · 작업 일지`,
+    className: 'mx-auto max-w-6xl px-5 py-10 sm:px-8 sm:py-16',
+    brand: props.brand,
+    viewer: props.viewer,
+  }, <>
+    <a href="/work-logs/" className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-content-secondary hover:text-content">
+      <i className="fas fa-arrow-left text-xs" aria-hidden="true" /> 작업 일지
+    </a>
     <header className="mt-2 flex flex-wrap items-end justify-between gap-3 border-b border-line pb-6">
-      <h1>{props.log.title}</h1>
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm"><p className="muted">비공개 작업 일지</p>
-        <a className="inline-flex min-h-11 items-center text-danger hover:underline" href={`/work-logs/${props.log.id}/delete/`}>작업 일지 삭제</a></div>
+      <h1 className="max-w-full break-words text-4xl font-bold tracking-tight sm:text-5xl">{props.log.title}</h1>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+        <p className="inline-flex items-center gap-2 text-content-secondary">
+          <i className="fas fa-lock text-xs" aria-hidden="true" /> 나만 보는 작업 일지
+        </p>
+        <a className="inline-flex min-h-11 items-center text-danger hover:underline" href={`/work-logs/${props.log.id}/delete/`}>작업 일지 삭제</a>
+      </div>
     </header>
     <div className="mt-8 grid items-start gap-9 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
-      <section aria-labelledby="entries-heading">
+      <section aria-labelledby={props.canWrite ? 'entry-heading' : 'entry-timeline'}>
         {props.canWrite && <>
-          <h2 id="entry-heading">Add an entry</h2>
+          <h2 id="entry-heading" className="text-xl font-semibold">기록 남기기</h2>
           <form method="post" encType="multipart/form-data" action={`/work-logs/${props.log.id}/entry/`} className="mt-4 space-y-3 rounded-2xl border border-line bg-surface p-4 sm:p-5">
             {csrfInput(props.csrfToken)}
-            <p><label>Title <input name="title" maxLength={100} /></label></p>
-            <p><label>Note <textarea name="text" maxLength={5000} rows={4} /></label></p>
-            <p className="muted">Image or video (up to 12 MB)</p>
-            <input name="attachment" type="file" accept="image/png,image/jpeg,image/webp,video/mp4,video/webm" />
-            <p><button>Save entry</button></p>
-            {props.error && <p className="error" role="alert">{props.error}</p>}
+            <label className="sr-only" htmlFor="entry-title">기록 제목</label>
+            <input id="entry-title" name="title" maxLength={100} placeholder="제목 (선택)" defaultValue={props.entryTitle}
+              className="min-h-12 w-full rounded-lg border border-line bg-surface px-3 placeholder:text-content-hint" />
+            <label className="sr-only" htmlFor="entry-text">기록 내용</label>
+            <textarea id="entry-text" name="text" maxLength={5000} rows={3} placeholder="오늘 시도한 일이나 새로 알게 된 내용을 남겨 보세요." defaultValue={props.entryText}
+              className="w-full rounded-lg border border-line bg-surface p-3 placeholder:text-content-hint" />
+            <p id="entry-attachment-help" className="text-sm text-content-secondary">이미지 또는 영상 (최대 12MB)</p>
+            <div className="flex flex-wrap items-center gap-3">
+              <input id="entry-attachment" name="attachment" type="file" className="peer sr-only" data-work-log-attachment=""
+                aria-describedby="entry-attachment-help" accept="image/png,image/jpeg,image/webp,video/mp4,video/webm" />
+              <label htmlFor="entry-attachment" className="inline-flex min-h-11 cursor-pointer items-center rounded-lg bg-surface-subtle px-3 text-sm font-medium transition hover:bg-surface-elevated peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2">파일 선택</label>
+              <span role="status" data-work-log-filename="" className="min-w-0 break-all text-sm text-content-secondary" />
+            </div>
+            {props.error && <div className="text-sm text-danger" role="alert">{props.error}</div>}
+            <button className={primaryButton}>기록 저장</button>
           </form>
         </>}
-        <h2 id="entries-heading" className="mt-9">Entries</h2>
-        {props.timeline.length > 0 ? props.timeline.map((entry) => <article className="border-b border-line py-5" key={entry.id}>
-          {entryContent(entry, props.mediaUrl)}
-          <a href={`/work-logs/${props.log.id}/entry/${entry.id}/delete/`}>Delete entry</a>
-        </article>) : <p className="muted">Your entries will appear here.</p>}
-        {pager({ ...props.timelineLinks, anchor: 'entries-heading' }, 'Timeline pages')}
+        <h2 id="entry-timeline" className={`${props.canWrite ? 'mt-9 ' : ''}text-xl font-semibold`}>남긴 기록</h2>
+        <ol className="mt-3 divide-y divide-line">
+          {props.timeline.length > 0 ? props.timeline.map((entry) => <li className="py-5" key={entry.id}>
+            <div className="flex flex-wrap items-center justify-between gap-x-3 text-sm">
+              <time className="text-xs text-content-secondary" dateTime={entry.createdAt}>{koreanDate(entry.createdAt)}</time>
+              <a href={`/work-logs/${props.log.id}/entry/${entry.id}/delete/`} className="inline-flex min-h-11 items-center text-danger hover:underline">기록 삭제</a>
+            </div>
+            {entry.title && <h3 className="mt-1 break-words font-semibold">{entry.title}</h3>}
+            {entry.text && <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-relaxed text-content-secondary">{entry.text}</p>}
+            {entry.attachment && <div className="mt-3 max-w-sm overflow-hidden rounded-lg border border-line">
+              {mediaElement(entry, props.log.title, props.mediaUrl(entry), true)}
+            </div>}
+          </li>) : <li className="py-4 text-sm text-content-secondary">기록을 남기면 여기에 표시돼요.</li>}
+        </ol>
+        {pager({ ...props.timelineLinks, anchor: 'entry-timeline' })}
       </section>
-      <section>
+      {(props.canWrite || props.shares.length > 0) && <section aria-labelledby={props.canWrite ? 'share-heading' : 'share-links'}>
         {props.canWrite && <>
-          <h2 id="share-heading">Share a snapshot</h2>
-          {props.selector.length > 0 ? <form method="post" action={`/work-logs/${props.log.id}/share/`} className="mt-4 rounded-2xl border border-line bg-surface p-4 sm:p-5">
-            {csrfInput(props.csrfToken)}
-            <input type="hidden" name="selected_entries" value={savedSelection} />
-            <input type="hidden" name="timeline_page" value={String(props.timelinePage)} />
-            <input type="hidden" name="current_selection_page" value={String(props.selectionPage)} />
-            <input type="hidden" name="links_page" value={String(props.linksPage)} />
-            <p><label>What changed? <input name="headline" required maxLength={120} /></label></p>
-            <fieldset>
-              <legend>Entries to share</legend>
-              {props.selector.map((entry) => <label key={entry.id} style={{ display: 'block' }}>
-                <input type="checkbox" name="entries" value={String(entry.id)} defaultChecked={props.selectedIds.includes(entry.id)} />
-                {entry.title || entry.text.slice(0, 52) || 'Attachment'}
-              </label>)}
-            </fieldset>
-            {props.error && <p className="error" role="alert">{props.error}</p>}
-            <p className="muted">Anyone with the link can see the entries you select.</p>
-            <button name="action" value="preview">Preview share</button>{' '}
-            <button name="action" value="publish">Create share link</button>
-            {(previousSelectionPage || nextSelectionPage) && <nav aria-label="Entries to share">
-              {previousSelectionPage && <button formNoValidate name="selection_page" value={previousSelectionPage}>Newer entries</button>}
-              {nextSelectionPage && <button formNoValidate name="selection_page" value={nextSelectionPage}>Older entries</button>}
-            </nav>}
-          </form> : <p className="muted">Add an entry to create a share link.</p>}
+          <h2 id="share-heading" className="text-xl font-semibold">기록 골라 공유하기</h2>
+          <div className="mt-4 rounded-2xl border border-line bg-surface p-4 sm:p-5">
+            {props.selector.length > 0 ? <form method="post" action={`/work-logs/${props.log.id}/share/#share-heading`}>
+              {csrfInput(props.csrfToken)}
+              <input type="hidden" name="selected_entries" value={savedSelection} />
+              <input type="hidden" name="timeline_page" value={String(props.timelinePage)} />
+              <input type="hidden" name="current_selection_page" value={String(props.selectionPage)} />
+              <input type="hidden" name="links_page" value={String(props.linksPage)} />
+              <label htmlFor="share-headline" className="block text-sm font-medium">무엇이 달라졌나요?</label>
+              <input id="share-headline" name="headline" required maxLength={120} defaultValue={props.headline}
+                className="mt-2 min-h-12 w-full rounded-lg border border-line bg-surface px-3" />
+              <fieldset className="mt-5">
+                <legend className="text-sm font-medium">공유할 기록</legend>
+                <div className="mt-2 max-h-72 divide-y divide-line overflow-y-auto border-y border-line">
+                  {props.selector.map((entry) => <label key={entry.id} className="flex min-h-11 cursor-pointer items-center gap-3 py-2 text-sm">
+                    <input type="checkbox" name="entries" value={String(entry.id)} defaultChecked={props.selectedIds.includes(entry.id)} className="size-4 shrink-0 accent-current" />
+                    <span className="min-w-0 break-words">{entry.title || (entry.text ? truncateChars(entry.text, 52) : '첨부 파일')}</span>
+                  </label>)}
+                </div>
+              </fieldset>
+              {props.shareError && <div className="mt-3 text-sm text-danger" role="alert">{props.shareError}</div>}
+              <p className="mt-4 text-sm leading-relaxed text-content-secondary">링크가 있는 사람은 누구나 선택한 기록을 볼 수 있어요.</p>
+              <button name="action" value="preview" className="mt-4 min-h-11 w-full rounded-lg border border-line px-4 text-sm font-semibold transition hover:bg-surface-subtle active:scale-95">공유 화면 미리보기</button>
+              {(previousSelectionPage || nextSelectionPage) && <div className="mt-2 flex flex-wrap items-center gap-2 text-sm" aria-label="공유할 기록">
+                {previousSelectionPage && <button formNoValidate name="selection_page" value={previousSelectionPage} className={pagerButton}>최근 기록</button>}
+                {nextSelectionPage && <button formNoValidate name="selection_page" value={nextSelectionPage} className={pagerButton}>이전 기록</button>}
+                {props.selectedIds.length > 0 && <span className="text-content-secondary">{`기록 ${props.selectedIds.length}개 선택`}</span>}
+              </div>}
+            </form> : <p className="text-sm text-content-secondary">기록을 남긴 뒤 공유 링크를 만들 수 있어요.</p>}
+          </div>
         </>}
         {props.shares.length > 0 && <>
-          <h2 id="share-links">Share links</h2>
-          <ul>{props.shares.map((share) => <li key={share.id}>
-            <a href={`/work-logs/share/${share.token}/`}>{share.headline}</a>
+          <h2 id="share-links" className={`${props.canWrite ? 'mt-9 ' : ''}text-xl font-semibold`}>공유 링크</h2>
+          <ul className="mt-3 divide-y divide-line border-y border-line">{props.shares.map((share) => <li key={share.id} className="flex items-center justify-between gap-2">
+            <a href={`/work-logs/share/${share.token}/`} className="min-w-0 break-words py-3 text-sm hover:underline">{share.headline}</a>
             <form method="post" action={`/work-logs/${props.log.id}/share/${share.token}/revoke/`}>
               {csrfInput(props.csrfToken)}
-              <button>Stop sharing</button>
+              <button className="min-h-11 whitespace-nowrap px-2 text-sm text-danger hover:underline">공유 중지</button>
             </form>
           </li>)}</ul>
-          {pager({ ...props.shareLinks, anchor: 'share-links' }, 'Share link pages')}
+          {pager({ ...props.shareLinks, anchor: 'share-links' })}
         </>}
-      </section>
+      </section>}
     </div>
   </>);
 }
 
-export function renderWorkLogDelete(props: {
+export function renderWorkLogDelete(props: PageChrome & {
   log: WorkLogView;
   entry?: WorkLogEntryView;
   csrfToken: string;
@@ -248,25 +288,29 @@ export function renderWorkLogDelete(props: {
   const action = props.entry
     ? `/work-logs/${props.log.id}/entry/${props.entry.id}/delete/`
     : `/work-logs/${props.log.id}/delete/`;
-  const heading = props.entry ? 'Delete entry' : 'Delete work log';
-  return shell({ title: `${heading} · ${props.log.title}` }, <>
-    <h1>{heading}</h1>
-    <p>{props.log.title}</p>
-    {props.entry && <>
-      <time className="muted" dateTime={props.entry.createdAt}>{props.entry.createdAt}</time>
-      {(props.entry.title || props.entry.text) && <p>{(props.entry.title || props.entry.text).slice(0, 120)}</p>}
-      <p>This removes the entry and its attachment from every share link. Links with no entries left will close.</p>
-    </>}
-    {!props.entry && <p>This deletes all entries and attachments in this work log and closes its share links.</p>}
-    <a className="button" href={`/work-logs/${props.log.id}/`}>Cancel</a>
-    <form method="post" action={action}>
+  const heading = props.entry ? '기록 삭제' : '작업 일지 삭제';
+  return shell({
+    title: `${heading} · ${props.log.title}`,
+    className: 'mx-auto max-w-xl px-5 py-12 sm:px-8 sm:py-20',
+    brand: props.brand,
+    viewer: props.viewer,
+  }, <>
+    <h1 className="text-3xl font-bold tracking-tight">{heading}</h1>
+    <p className="mt-3 break-words text-lg font-medium">{props.log.title}</p>
+    {props.entry ? <>
+      <time className="mt-2 block text-sm text-content-secondary" dateTime={props.entry.createdAt}>{koreanDateTime(props.entry.createdAt)}</time>
+      {(props.entry.title || props.entry.text) && <p className="mt-2 break-words text-sm text-content-secondary">{truncateChars(props.entry.title || props.entry.text, 120)}</p>}
+      <p className="mt-5 leading-relaxed text-content-secondary">모든 공유 링크에서 이 기록과 첨부가 사라져요. 이 기록만 담긴 링크는 닫혀요.</p>
+    </> : <p className="mt-5 leading-relaxed text-content-secondary">이 일지의 모든 기록과 첨부를 삭제하고 공유 링크를 닫아요.</p>}
+    <form method="post" action={action} className="mt-7 flex flex-wrap gap-2">
       {csrfInput(props.csrfToken)}
-      <button>Confirm {heading.toLowerCase()}</button>
+      <a className="inline-flex min-h-11 items-center rounded-lg border border-line px-4 text-sm font-semibold hover:bg-surface-subtle" href={`/work-logs/${props.log.id}/`}>취소</a>
+      <button className="min-h-11 rounded-lg border border-danger-line bg-danger-surface px-4 text-sm font-semibold text-danger transition hover:opacity-80 active:scale-95">{heading}</button>
     </form>
   </>);
 }
 
-export function renderWorkLogShared(props: {
+export function renderWorkLogShared(props: PageChrome & {
   log: WorkLogView;
   ownerUsername: string;
   headline: string;
@@ -274,6 +318,7 @@ export function renderWorkLogShared(props: {
   cover: WorkLogEntryView | null;
   imageUrl: string | null;
   shareUrl: string;
+  sharedAt?: string;
   timelineLinks: PagerView;
   newLink: boolean;
   preview?: boolean;
@@ -284,9 +329,14 @@ export function renderWorkLogShared(props: {
   linksPage?: number;
   mediaUrl: (entry: WorkLogEntryView) => string;
 }): string {
-  const title = `${props.headline} · ${props.log.title}`;
+  const previewPage = (link?: string) => (link ? new URL(link, 'https://work-log.invalid').searchParams.get('page') : null);
+  const previousPage = props.preview ? previewPage(props.timelineLinks.previous) : null;
+  const nextPage = props.preview ? previewPage(props.timelineLinks.next) : null;
   return shell({
-    title,
+    title: `${props.headline} · ${props.log.title}`,
+    className: 'mx-auto max-w-5xl px-5 pb-20 sm:px-8',
+    brand: props.brand,
+    viewer: props.viewer,
     shareMeta: props.preview ? undefined : {
       title: props.headline,
       description: `${props.log.title} · ${props.ownerUsername}`,
@@ -294,57 +344,66 @@ export function renderWorkLogShared(props: {
       imageUrl: props.imageUrl ?? undefined,
     },
   }, <>
-    {props.preview && <div>
-      <p><strong>Share preview</strong></p>
-      <form method="post" action={`/work-logs/${props.log.id}/share/`}>
+    {props.preview && <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-surface px-4 py-3">
+      <p className="text-sm font-semibold">공유 화면 미리보기</p>
+      <form id="work-log-preview-form" method="post" action={`/work-logs/${props.log.id}/share/`} className="flex flex-wrap gap-2">
         {csrfInput(props.csrfToken)}
         <input type="hidden" name="headline" value={props.headline} />
         <input type="hidden" name="selected_entries" value={(props.selectedIds ?? []).join(',')} />
         <input type="hidden" name="timeline_page" value={String(props.timelinePage ?? 1)} />
         <input type="hidden" name="current_selection_page" value={String(props.selectionPage ?? 1)} />
         <input type="hidden" name="links_page" value={String(props.linksPage ?? 1)} />
-        <button name="action" value="edit">Edit selection</button>{' '}
-        <button name="action" value="publish">Create share link</button>
+        <button name="action" value="edit" className="min-h-11 rounded-lg px-3 text-sm font-semibold text-content-secondary transition hover:bg-surface-subtle active:scale-95">공유 내용 수정</button>
+        <button name="action" value="publish" className={primaryButton}>공유 링크 만들기</button>
       </form>
     </div>}
-    {props.newLink && <section aria-labelledby="share-ready">
-      <h2 id="share-ready">Share link is ready</h2>
-      <input readOnly value={props.shareUrl} aria-label="Share link" />
-    </section>}
+    {!props.preview && props.newLink && <div className="mt-6 rounded-xl border border-line bg-surface p-4" data-work-log-share-link="">
+      <p className="mb-2 text-sm font-semibold" id="share-url-label">공유 링크가 준비됐어요</p>
+      <div className="flex flex-wrap gap-2">
+        <input aria-labelledby="share-url-label" readOnly value={props.shareUrl}
+          className="min-h-11 min-w-0 flex-[1_1_16rem] rounded-lg border border-line bg-surface px-3 text-sm text-content-secondary" />
+        <button type="button" data-work-log-copy="" className={primaryButton}>링크 복사</button>
+      </div>
+      <span className="sr-only" role="status" data-work-log-copied="" />
+    </div>}
     <article>
-      <header>
-        <p className="muted">{props.log.title}</p>
-        <h1>{props.headline}</h1>
-        <a href={`/@${encodeURIComponent(props.ownerUsername)}`}>@{props.ownerUsername}</a>
+      <header className="mx-auto max-w-3xl pt-12 pb-8 sm:pt-16 sm:pb-10">
+        <p className="mb-4 break-words text-sm font-semibold text-content-secondary">{props.log.title}</p>
+        <h1 className="text-balance break-words text-[clamp(2.1rem,5.4vw,4.6rem)] leading-[1.12] font-bold tracking-[-0.05em]">{props.headline}</h1>
+        <div className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-content-secondary sm:mt-6">
+          <a href={`/@${encodeURIComponent(props.ownerUsername)}`} className="inline-flex min-h-11 items-center gap-2 font-semibold text-content hover:underline">
+            <span className="grid size-7 place-items-center rounded-full bg-surface-subtle text-xs" aria-hidden="true">{props.ownerUsername.slice(0, 1).toUpperCase()}</span>
+            {`@${props.ownerUsername}`}
+          </a>
+          {props.sharedAt && <>
+            <span aria-hidden="true">·</span>
+            <time dateTime={props.sharedAt}>{koreanDate(props.sharedAt)}</time>
+          </>}
+        </div>
       </header>
-      {props.cover && <figure>{mediaElement(props.cover, props.mediaUrl(props.cover))}
-        {props.cover.title && <figcaption>{props.cover.title}</figcaption>}
+      {props.cover && <figure className="overflow-hidden rounded-2xl border border-line bg-surface">
+        {mediaElement(props.cover, props.log.title, props.mediaUrl(props.cover))}
+        {props.cover.title && <figcaption className="border-t border-line px-4 py-3 text-sm text-content-secondary sm:px-5">{props.cover.title}</figcaption>}
       </figure>}
-      <section aria-labelledby="timeline-heading">
-        <h2 id="timeline-heading">How it came together</h2>
-        {props.entries.map((entry) => <article key={entry.id}>
-          {entryContent(entry, props.mediaUrl)}
-        </article>)}
-        {props.preview ? (() => {
-          const previousPage = props.timelineLinks.previous
-            ? new URL(props.timelineLinks.previous, 'https://work-log.invalid').searchParams.get('page')
-            : null;
-          const nextPage = props.timelineLinks.next
-            ? new URL(props.timelineLinks.next, 'https://work-log.invalid').searchParams.get('page')
-            : null;
-          if (!previousPage && !nextPage) return null;
-          return <form method="post" action={`/work-logs/${props.log.id}/share/`}>
-            {csrfInput(props.csrfToken)}
-            <input type="hidden" name="action" value="preview" />
-            <input type="hidden" name="headline" value={props.headline} />
-            <input type="hidden" name="selected_entries" value={(props.selectedIds ?? []).join(',')} />
-            <input type="hidden" name="timeline_page" value={String(props.timelinePage ?? 1)} />
-            <input type="hidden" name="current_selection_page" value={String(props.selectionPage ?? 1)} />
-            <input type="hidden" name="links_page" value={String(props.linksPage ?? 1)} />
-            {previousPage && <button name="preview_page" value={previousPage}>Newer entries</button>}{' '}
-            {nextPage && <button name="preview_page" value={nextPage}>Older entries</button>}
-          </form>;
-        })() : pager({ ...props.timelineLinks, anchor: 'timeline-heading' }, 'Timeline pages')}
+      <section aria-labelledby="timeline-heading" className="mx-auto mt-10 max-w-3xl border-t border-line pt-7 sm:mt-14 sm:pt-9">
+        <h2 id="timeline-heading" className="text-2xl font-bold tracking-tight">이렇게 만들었어요</h2>
+        <ol className="ms-1.5 mt-7 border-s border-line">
+          {props.entries.map((entry) => <li key={entry.id} className="relative ps-6 pb-8 last:pb-0 sm:ps-8">
+            <span className="absolute start-0 top-1.5 size-2.5 -translate-x-1/2 rounded-full bg-action ring-4 ring-surface-page" aria-hidden="true" />
+            <time className="block text-xs font-medium text-content-secondary" dateTime={entry.createdAt}>{koreanDate(entry.createdAt)}</time>
+            {entry.title && <h3 className="mt-1.5 break-words text-lg font-semibold">{entry.title}</h3>}
+            {entry.text && <p className="mt-2 whitespace-pre-wrap break-words leading-relaxed text-content-secondary">{entry.text}</p>}
+            {entry.attachment && entry.id !== props.cover?.id && <div className="mt-4 overflow-hidden rounded-xl border border-line">
+              {mediaElement(entry, props.log.title, props.mediaUrl(entry), true)}
+            </div>}
+          </li>)}
+        </ol>
+        {props.preview
+          ? (previousPage || nextPage) && <nav aria-label="페이지 이동" className="mt-4 flex flex-wrap gap-2 text-sm">
+            {previousPage && <button form="work-log-preview-form" name="preview_page" value={previousPage} className={pagerButton}>이전 페이지</button>}
+            {nextPage && <button form="work-log-preview-form" name="preview_page" value={nextPage} className={pagerButton}>다음 페이지</button>}
+          </nav>
+          : pager({ ...props.timelineLinks, anchor: 'timeline-heading' })}
       </section>
     </article>
   </>);

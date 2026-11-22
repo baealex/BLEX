@@ -22,8 +22,17 @@ function createDatabaseSchema() {
   const database = new DatabaseSync(databasePath);
   database.exec(`
     CREATE TABLE auth_user (
-      id INTEGER PRIMARY KEY, username TEXT NOT NULL, is_active BOOLEAN NOT NULL DEFAULT 1
+      id INTEGER PRIMARY KEY, username TEXT NOT NULL, is_active BOOLEAN NOT NULL DEFAULT 1, is_staff BOOLEAN NOT NULL DEFAULT 0
     );
+    CREATE TABLE board_sitesetting (
+      id INTEGER PRIMARY KEY, site_name TEXT NOT NULL DEFAULT 'BLEX', logo_svg TEXT NOT NULL DEFAULT '',
+      logo_svg_dark TEXT NOT NULL DEFAULT '', icon_manifest TEXT NOT NULL DEFAULT '{}', seo_enabled BOOLEAN NOT NULL DEFAULT 1
+    );
+    CREATE TABLE board_staticpage (
+      id INTEGER PRIMARY KEY, title TEXT NOT NULL, slug TEXT NOT NULL, is_published BOOLEAN NOT NULL DEFAULT 0,
+      show_in_footer BOOLEAN NOT NULL DEFAULT 0, "order" INTEGER NOT NULL DEFAULT 0
+    );
+    CREATE TABLE board_notify (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, has_read BOOLEAN NOT NULL DEFAULT 0);
     CREATE TABLE board_profile (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, role TEXT NOT NULL);
     CREATE TABLE board_worklog (
       id INTEGER PRIMARY KEY, title TEXT NOT NULL, created_at DATETIME NOT NULL, owner_id INTEGER NOT NULL
@@ -53,7 +62,7 @@ function seedDatabase() {
     DELETE FROM board_worklog;
     DELETE FROM board_profile;
     DELETE FROM auth_user;
-    INSERT INTO auth_user VALUES
+    INSERT INTO auth_user (id, username, is_active) VALUES
       (1, 'writer', 1), (2, 'other', 1), (3, 'reader', 1), (4, 'inactive', 0);
     INSERT INTO board_profile VALUES
       (1, 1, 'EDITOR'), (2, 2, 'EDITOR'), (3, 3, 'READER'), (4, 4, 'EDITOR');
@@ -171,7 +180,7 @@ test('serves private owner pages with noindex headers and hides other owners’ 
   assert.equal(ownerDetail.statusCode, 200, ownerDetail.body);
   assert.match(ownerDetail.body, /Private planning/);
   assert.match(ownerDetail.body, /Selected clip/);
-  assert.match(ownerDetail.body, /Share a snapshot/);
+  assert.match(ownerDetail.body, /기록 골라 공유하기/);
 
   const readerDetail = await app.inject({ method: 'GET', url: '/work-logs/1/', headers: headers(3) });
   assert.equal(readerDetail.statusCode, 404);
@@ -224,7 +233,7 @@ test('creates immutable entry snapshots, rejects cross-log selections, and revok
     ]),
   });
   assert.equal(crossLog.statusCode, 200, crossLog.body);
-  assert.match(crossLog.body, /Choose entries from this work log/);
+  assert.match(crossLog.body, /이 작업 일지의 기록을 선택해 주세요/);
   assert.equal(Number((await prisma.$queryRaw<Array<{ total: number | bigint }>>`SELECT COUNT(*) AS total FROM board_worklogshare`)[0]?.total), 1);
 
   const published = await app.inject({
@@ -351,7 +360,7 @@ test('validates images before storing uploads and rolls back files when database
     payload: invalidFile.payload,
   });
   assert.equal(rejected.statusCode, 200, rejected.body);
-  assert.match(rejected.body, /Choose a PNG, JPEG, WebP, MP4, or WebM file/);
+  assert.match(rejected.body, /PNG, JPEG, WebP, MP4, WebM 파일을 선택해 주세요/);
   assert.equal(Number((await prisma.$queryRaw<Array<{ total: number | bigint }>>`SELECT COUNT(*) AS total FROM board_worklogentry WHERE log_id = 1`)[0]?.total), 3);
 
   const image = await sharp({ create: { width: 2, height: 2, channels: 3, background: '#117755' } }).png().toBuffer();
@@ -399,7 +408,7 @@ test('validates images before storing uploads and rolls back files when database
 test('deleting an entry removes its media and closes emptied snapshots; deleting a log removes remaining files', async () => {
   const confirm = await app.inject({ method: 'GET', url: '/work-logs/1/entry/2/delete/', headers: headers(1) });
   assert.equal(confirm.statusCode, 200);
-  assert.match(confirm.body, /removes the entry and its attachment from every share link/);
+  assert.match(confirm.body, /모든 공유 링크에서 이 기록과 첨부가 사라져요/);
 
   const deletedEntry = await app.inject({
     method: 'POST', url: '/work-logs/1/entry/2/delete/', headers: formHeaders(1),
