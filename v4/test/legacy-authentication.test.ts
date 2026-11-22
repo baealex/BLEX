@@ -170,7 +170,7 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     assert.equal(ownerRead.statusCode, 200, ownerRead.body);
     assert.equal(ownerRead.headers['cache-control'], 'private, no-store');
     assert.equal(ownerRead.headers['x-robots-tag'], 'noindex, nofollow, noarchive');
-    assert.match(ownerRead.body, /비공개 글입니다/);
+    assert.match(ownerRead.body, /비공개 포스트입니다/);
     assert.equal((await app.inject({ url: postPath, headers: headersFor(reader, siteUrl) })).statusCode, 404);
     assert.deepEqual((await app.inject({ method: 'POST', url: '/graphql', headers: verified,
       payload: { query: PUBLIC_POST_QUERY_ID, persisted: true, variables: { username: 'neweditor', slug: 'developer-draft' } },

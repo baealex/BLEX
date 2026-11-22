@@ -156,8 +156,8 @@ const dockButton = 'inline-flex h-11 min-w-11 items-center justify-center gap-1 
 function RelatedPosts({ posts, username }: { posts: RelatedPost[]; username: string }) {
   if (!posts.length) return <div className="py-12 text-center">
     <div className="mb-4 inline-flex size-16 items-center justify-center rounded-full bg-surface-subtle"><SiteIcon name="search" className="size-6 text-content-hint" /></div>
-    <h3 className="mb-2 text-lg font-semibold">{username}님의 다른 글</h3>
-    <p className="mb-6 text-sm text-content-secondary">프로필에서 더 많은 글을 읽어보세요.</p>
+    <h3 className="mb-2 text-lg font-semibold">{username}의 다른 포스트 둘러보기</h3>
+    <p className="mb-6 text-sm text-content-secondary">프로필에서 더 많은 포스트를 확인할 수 있습니다.</p>
     <a href={`/@${encodeURIComponent(username)}`} className="inline-flex items-center gap-2 rounded-full bg-action px-5 py-2.5 text-sm font-medium text-content-inverted hover:bg-action-hover">프로필 보기 <span aria-hidden="true">→</span></a>
   </div>;
   return <section aria-labelledby="related-post-heading">
@@ -205,7 +205,7 @@ function PostDock({ reader, post, postPath, canonical, markdown, headings, csrfT
         {headings.length > 0 && <button type="button" className={`${dockButton} xl:hidden`} data-open-dialog="post-toc" aria-label="목차 보기"><SiteIcon name="list" /></button>}
         {post.visibility === 'public' && <>
           <details className="blex-user-menu relative" data-account-menu>
-            <summary className={`${dockButton} cursor-pointer`} aria-label="공유 또는 링크 복사"><SiteIcon name="share" /></summary>
+            <summary className={`${dockButton} cursor-pointer`} aria-label="포스트 공유 또는 링크 복사"><SiteIcon name="share" /></summary>
             <div className="absolute -left-12 bottom-full mb-3 w-44 rounded-xl border border-line-light bg-surface-elevated p-1 text-sm shadow-floating">
               <button type="button" data-copy-link={canonical} className="block w-full rounded-lg px-3 py-2 text-left hover:bg-surface-subtle">링크 복사</button>
               {markdown && <button type="button" data-copy-link={markdown} className="block w-full rounded-lg px-3 py-2 text-left hover:bg-surface-subtle">Markdown 링크 복사</button>}
@@ -217,7 +217,7 @@ function PostDock({ reader, post, postPath, canonical, markdown, headings, csrfT
           </details>
           {reader && <a href="#post-comments" className={dockButton} aria-label="댓글 보기"><SiteIcon name="comment" /></a>}
         </>}
-        {canManage && <a href={`${postPath}/edit`} className={dockButton} aria-label="글 수정"><SiteIcon name="pen" /></a>}
+        {canManage && <a href={`${postPath}/edit`} className={dockButton} aria-label="수정하기"><SiteIcon name="pen" /></a>}
       </div>
     </div>
     {headings.length > 0 && <dialog id="post-toc" className="blex-toc-sheet fixed inset-x-0 top-auto bottom-0 m-0 max-h-[70vh] w-full max-w-none overflow-y-auto rounded-t-3xl bg-surface-elevated p-0 text-content shadow-xl">
@@ -301,7 +301,7 @@ export function renderPublicPostPage(post: PublicPost, presentation: PostPresent
               <aside className="post-detail-sidebar"><div className="sticky top-28 space-y-4">{banners('left')}</div></aside>
               <div className="post-detail-main mt-6">
                 <article itemScope itemType="https://schema.org/BlogPosting">
-                  {post.visibility !== 'public' && <p className="mb-8 rounded-lg border border-line bg-surface-subtle px-4 py-4" role="status">{post.visibility === 'hidden' ? '비공개 글입니다.' : '예약 발행 중인 글입니다.'}</p>}
+                  {post.visibility !== 'public' && <p className="mb-8 rounded-lg border border-line bg-surface-subtle px-4 py-4" role="status">{post.visibility === 'hidden' ? '비공개 포스트입니다.' : '예약 발행 포스트입니다.'}</p>}
                   {!fullCover && coverSection}
                   {presentation.banners.some((banner) => banner.position === 'top') && <div className="mb-16 space-y-4">{banners('top')}</div>}
                   <div className="blog-post-content mb-16 max-w-none break-words" itemProp="articleBody" dangerouslySetInnerHTML={{ __html: outline.html }} />

@@ -360,7 +360,7 @@ test('renders scoped author notices, safe links, and subscription state', async 
 
   const owner = await app.inject({ url: '/@writer', headers: { 'x-test-user': 'writer' } });
   assert.equal(owner.statusCode, 200, owner.body);
-  assert.match(owner.body, /고정 글 관리/);
+  assert.match(owner.body, /고정 포스트 설정/);
   assert.doesNotMatch(owner.body, /\/subscription"|data-blex-login-prompt="subscribe"/);
   assert.match(owner.headers['cache-control'] ?? '', /private, no-store/);
 });
@@ -377,7 +377,7 @@ test('serves the exact owner featured-posts partial with public posts only', asy
   assert.doesNotMatch(fragment.body, /Public older article/);
 
   const owner = await app.inject({ url: '/@writer/partials/featured-posts', headers: { 'x-test-user': 'writer' } });
-  assert.match(owner.body, /고정 글 관리/);
+  assert.match(owner.body, /고정 포스트 설정/);
 
   const readerAuthor = await app.inject('/@reader/partials/featured-posts');
   assert.equal(readerAuthor.statusCode, 204);
@@ -417,7 +417,7 @@ test('lists only public series and renders public series detail in the selected 
   assert.match(detail.body, /Public new article/);
   assert.match(detail.body, /CollectionPage/);
   assert.match(detail.body, /rel="canonical" href="https:\/\/blog\.example\/@writer\/series\/public-series"/);
-  assert.match(detail.body, /오래된 순/);
+  assert.match(detail.body, /오래된순/);
   assert.match(detail.body, /최신순/);
   const ascendingSecondPage = await app.inject('/@writer/series/public-series?sort=asc&page=2');
   assert.equal(ascendingSecondPage.statusCode, 200, ascendingSecondPage.body);

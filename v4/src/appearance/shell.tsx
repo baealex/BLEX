@@ -118,7 +118,7 @@ export function SiteHeader({ brand, viewer, searchPage, editorPage, hideAuthLink
           <ThemeButton bordered />
           {viewer ? <>
             {viewer.hasEditorRole && !editorPage && <a href="/write" className={`${authLink} gap-1.5 bg-action text-content-inverted hover:bg-action-hover`}>
-              <SiteIcon name="pen" className="size-3" /> 새 글
+              <SiteIcon name="pen" className="size-3" /> 새 포스트
             </a>}
             <details className="blex-user-menu relative" data-account-menu>
               <summary className="relative flex cursor-pointer items-center gap-1.5 rounded-full py-1.5 pr-2 pl-1.5 transition-all duration-150 hover:bg-surface-subtle active:scale-95" aria-label="사용자 메뉴">
@@ -149,10 +149,10 @@ export function SiteHeader({ brand, viewer, searchPage, editorPage, hideAuthLink
         <form method="dialog"><button type="submit" className={iconButton} aria-label="메뉴 닫기"><SiteIcon name="close" /></button></form>
       </div>
       <nav className="py-2" aria-label="사이트 메뉴">
-        <a href="/" className="block px-4 py-3 text-sm hover:bg-surface-subtle">최신 글</a>
+        <a href="/" className="block px-4 py-3 text-sm hover:bg-surface-subtle">최신 포스트</a>
         <a href="/tags" className="block px-4 py-3 text-sm hover:bg-surface-subtle">태그</a>
         {viewer ? <>
-          {viewer.hasEditorRole && !editorPage && <a href="/write" className="block px-4 py-3 text-sm hover:bg-surface-subtle">새 글</a>}
+          {viewer.hasEditorRole && !editorPage && <a href="/write" className="block px-4 py-3 text-sm hover:bg-surface-subtle">새 포스트</a>}
           <AccountLinks viewer={viewer} />
         </> : !hideAuthLinks && <>
           <a href="/login" className="block px-4 py-3 text-sm hover:bg-surface-subtle">로그인</a>
