@@ -36,7 +36,7 @@ test('permanently deletes a Django-era trashed post with the rows Django cascade
   const fixture = await migratedApp();
   try {
     const { db } = fixture;
-    seedPost(db, 10, 1, 'trashed', { deleted_date: djangoDeletedDate });
+    seedPost(db, 10, 1, 'trashed', { deletedAt: djangoDeletedDate });
     seedPost(db, 11, 1, 'kept');
     insertRow(db, 'Comment', { id: 1, postId: 10, authorId: 2, markdown: 'parent', html: 'parent' });
     insertRow(db, 'Comment', { id: 2, postId: 10, authorId: 2, parentId: 1, markdown: 'child', html: 'child' });
@@ -46,17 +46,15 @@ test('permanently deletes a Django-era trashed post with the rows Django cascade
     insertRow(db, 'CommentLike', { commentId: 2, userId: 1 });
     insertRow(db, 'CommentLike', { commentId: 3, userId: 1 });
     insertRow(db, 'CommentLike', { commentId: 5, userId: 1 });
-    insertRow(db, 'board_tag', { id: 1, value: 'kept-tag' });
-    insertRow(db, 'board_post_tags', { post_id: 10, tag_id: 1 });
-    insertRow(db, 'board_post_likes', { post_id: 10, user_id: 2 });
-    insertRow(db, 'board_pinnedpost', { post_id: 10, user_id: 1 });
-    insertRow(db, 'board_postconfigmeta', { post_id: 10, name: 'note', value: 'x' });
-    insertRow(db, 'board_postsharelink', { id: 1, post_id: 10, token: 'a'.repeat(22) });
-    insertRow(db, 'board_post_share_link_daily_counts', { link_id: 1, day: '2026-01-01', clicks: 1 });
-    insertRow(db, 'board_edithistory', { id: 1, post_id: 10, change_type: 'edit' });
-    insertRow(db, 'board_edithistory', { id: 2, post_id: 10, change_type: 'restore', restored_from_id: 1 });
-    insertRow(db, 'board_edithistory', { id: 3, post_id: 11, change_type: 'restore', restored_from_id: 2 });
-    insertRow(db, 'board_editrequest', { post_id: 10, user_id: 2 });
+    insertRow(db, 'Tag', { id: 1, name: 'kept-tag' });
+    insertRow(db, '_PostToTag', { A: 10, B: 1 });
+    insertRow(db, 'PostLike', { postId: 10, userId: 2 });
+    insertRow(db, 'PinnedPost', { postId: 10, userId: 1 });
+    insertRow(db, 'PostShareLink', { id: 1, postId: 10, token: 'a'.repeat(22) });
+    insertRow(db, 'PostShareDailyCount', { linkId: 1, day: '2026-01-01', clicks: 1 });
+    insertRow(db, 'PostRevision', { id: 1, postId: 10, type: 'edit' });
+    insertRow(db, 'PostRevision', { id: 2, postId: 10, type: 'restore', restoredFromId: 1 });
+    insertRow(db, 'PostRevision', { id: 3, postId: 11, type: 'restore', restoredFromId: 2 });
 
     const purge = (expected: string) => fixture.app.inject({
       method: 'DELETE',
@@ -70,19 +68,19 @@ test('permanently deletes a Django-era trashed post with the rows Django cascade
     assert.equal(response.statusCode, 200, response.body);
     assert.equal(response.json().status, 'DONE', response.body);
 
-    assert.equal(fixture.count('board_post', 'id = 10'), 0);
-    for (const table of ['Comment', 'board_post_tags', 'board_post_likes', 'board_pinnedpost', 'board_postconfigmeta',
-      'board_postsharelink', 'board_edithistory', 'board_editrequest', 'board_postcontent', 'board_postconfig']) {
-      assert.equal(fixture.count(table, table === 'Comment' ? 'postId = 10' : 'post_id = 10'), 0, table);
+    assert.equal(fixture.count('Post', 'id = 10'), 0);
+    for (const table of ['Comment', 'PostLike', 'PinnedPost', 'PostShareLink', 'PostRevision', 'PostContent']) {
+      assert.equal(fixture.count(table, 'postId = 10'), 0, table);
     }
     assert.equal(fixture.count('Comment', 'id IN (4, 5)'), 0);
     assert.equal(fixture.count('CommentLike', 'commentId IN (2, 5)'), 0);
-    assert.equal(fixture.count('board_post_share_link_daily_counts', 'link_id = 1'), 0);
+    assert.equal(fixture.count('PostShareDailyCount', 'linkId = 1'), 0);
+    assert.equal(fixture.count('_PostToTag', 'A = 10'), 0);
     assert.equal(fixture.count('Comment', 'id = 3'), 1);
     assert.equal(fixture.count('CommentLike', 'commentId = 3'), 1);
-    assert.equal(fixture.count('board_tag', 'id = 1'), 1);
-    assert.equal(fixture.count('board_post', 'id = 11'), 1);
-    assert.equal(fixture.count('board_edithistory', 'id = 3 AND restored_from_id IS NULL'), 1);
+    assert.equal(fixture.count('Tag', 'id = 1'), 1);
+    assert.equal(fixture.count('Post', 'id = 11'), 1);
+    assert.equal(fixture.count('PostRevision', 'id = 3 AND restoredFromId IS NULL'), 1);
     assert.deepEqual(db.prepare('PRAGMA foreign_key_check').all(), []);
   } finally {
     await fixture.close();
@@ -92,17 +90,17 @@ test('permanently deletes a Django-era trashed post with the rows Django cascade
 test('restores a Django-era trashed post and still refuses a stale trash version', async () => {
   const fixture = await migratedApp();
   try {
-    seedPost(fixture.db, 10, 1, 'trashed', { deleted_date: djangoDeletedDate });
+    seedPost(fixture.db, 10, 1, 'trashed', { deletedAt: djangoDeletedDate });
     const restore = (expected: string) => fixture.app.inject({
       method: 'POST', url: '/v1/setting/trash-posts/trashed/restore', headers: fixture.headers,
       payload: { expected_deleted_date: expected },
     });
     assert.equal((await restore('2026-02-01T03:04:06.000Z')).json().status, 'ERROR');
-    assert.equal(fixture.count('board_post', 'id = 10 AND deleted_date IS NOT NULL'), 1);
+    assert.equal(fixture.count('Post', 'id = 10 AND deletedAt IS NOT NULL'), 1);
 
     const restored = await restore(await trashToken(fixture));
     assert.equal(restored.json().status, 'DONE', restored.body);
-    assert.equal(fixture.count('board_post', 'id = 10 AND deleted_date IS NULL'), 1);
+    assert.equal(fixture.count('Post', 'id = 10 AND deletedAt IS NULL'), 1);
   } finally {
     await fixture.close();
   }
@@ -111,9 +109,9 @@ test('restores a Django-era trashed post and still refuses a stale trash version
 test('restores a revision of a post Django last updated with microseconds', async () => {
   const fixture = await migratedApp();
   try {
-    seedPost(fixture.db, 10, 1, 'history', { updated_date: djangoDeletedDate });
-    insertRow(fixture.db, 'board_edithistory', {
-      id: 1, post_id: 10, change_type: 'edit', title: 'Earlier', content: '<p>Earlier</p>', tags: '[]',
+    seedPost(fixture.db, 10, 1, 'history', { updatedAt: djangoDeletedDate });
+    insertRow(fixture.db, 'PostRevision', {
+      id: 1, postId: 10, type: 'edit', title: 'Earlier', content: '<p>Earlier</p>', tags: '[]',
     });
     const list = await fixture.app.inject({ url: '/v1/users/@writer/posts/history/revisions', headers: fixture.headers });
     const restored = await fixture.app.inject({
@@ -121,7 +119,7 @@ test('restores a revision of a post Django last updated with microseconds', asyn
       payload: { expected_updated_date: list.json().body.currentUpdatedDate },
     });
     assert.equal(restored.json().status, 'DONE', restored.body);
-    assert.equal(fixture.count('board_post', `id = 10 AND title = 'Earlier'`), 1);
+    assert.equal(fixture.count('Post', `id = 10 AND title = 'Earlier'`), 1);
   } finally {
     await fixture.close();
   }
@@ -131,14 +129,14 @@ test('deletes a revision that a later restore points to', async () => {
   const fixture = await migratedApp();
   try {
     seedPost(fixture.db, 10, 1, 'history');
-    insertRow(fixture.db, 'board_edithistory', { id: 1, post_id: 10, change_type: 'edit' });
-    insertRow(fixture.db, 'board_edithistory', { id: 2, post_id: 10, change_type: 'restore', restored_from_id: 1 });
+    insertRow(fixture.db, 'PostRevision', { id: 1, postId: 10, type: 'edit' });
+    insertRow(fixture.db, 'PostRevision', { id: 2, postId: 10, type: 'restore', restoredFromId: 1 });
     const response = await fixture.app.inject({
       method: 'DELETE', url: '/v1/users/@writer/posts/history/revisions/1', headers: fixture.headers,
     });
     assert.equal(response.statusCode, 200, response.body);
-    assert.equal(fixture.count('board_edithistory', 'id = 1'), 0);
-    assert.equal(fixture.count('board_edithistory', 'id = 2 AND restored_from_id IS NULL'), 1);
+    assert.equal(fixture.count('PostRevision', 'id = 1'), 0);
+    assert.equal(fixture.count('PostRevision', 'id = 2 AND restoredFromId IS NULL'), 1);
   } finally {
     await fixture.close();
   }
@@ -209,7 +207,7 @@ test('removes reply cycles and threads deeper than a SQLite cascade across posts
   const fixture = await migratedApp();
   try {
     const { db } = fixture;
-    seedPost(db, 10, 1, 'trashed', { deleted_date: djangoDeletedDate });
+    seedPost(db, 10, 1, 'trashed', { deletedAt: djangoDeletedDate });
     seedPost(db, 11, 1, 'kept');
     db.exec('BEGIN; PRAGMA defer_foreign_keys = ON');
     insertRow(db, 'Comment', { id: 1, postId: 10, authorId: 2 });
@@ -240,12 +238,12 @@ test('deletes a series and detaches its posts', async () => {
   const fixture = await migratedApp();
   try {
     insertRow(fixture.db, 'Series', { id: 5, ownerId: 1, name: 'Series', slug: 'series-five', layout: 'list' });
-    seedPost(fixture.db, 10, 1, 'in-series', { series_id: 5 });
+    seedPost(fixture.db, 10, 1, 'in-series', { seriesId: 5 });
     const response = await fixture.app.inject({ method: 'DELETE', url: '/v1/series/5', headers: fixture.headers });
     assert.equal(response.statusCode, 200, response.body);
     assert.equal(response.json().status, 'DONE', response.body);
     assert.equal(fixture.count('Series', 'id = 5'), 0);
-    assert.equal(fixture.count('board_post', 'id = 10 AND series_id IS NULL'), 1);
+    assert.equal(fixture.count('Post', 'id = 10 AND seriesId IS NULL'), 1);
   } finally {
     await fixture.close();
   }
@@ -256,18 +254,18 @@ test('applies Django empty title and content rules to API updates', async () => 
   const db = new PrismaClient({ datasourceUrl: `file:${fixture.path}` });
   try {
     seedPost(fixture.db, 10, 1, 'published');
-    seedPost(fixture.db, 11, 1, 'draft', { published_date: null });
+    seedPost(fixture.db, 11, 1, 'draft', { publishedAt: null });
     await assert.rejects(updateAuthorPost(db, editor, 10, { title: '' }), PostValidationError);
     await assert.rejects(updateAuthorPost(db, editor, 10, { content: '' }), PostValidationError);
-    assert.equal(fixture.count('board_post', `id = 10 AND title = 'published'`), 1);
-    assert.equal(fixture.count('board_postcontent', `post_id = 10 AND content_html = '<p>Body</p>'`), 1);
+    assert.equal(fixture.count('Post', `id = 10 AND title = 'published'`), 1);
+    assert.equal(fixture.count('PostContent', `postId = 10 AND html = '<p>Body</p>'`), 1);
 
     await updateAuthorPost(db, editor, 10, { subtitle: 'Only subtitle' });
-    assert.equal(fixture.count('board_post', `id = 10 AND title = 'published' AND subtitle = 'Only subtitle'`), 1);
+    assert.equal(fixture.count('Post', `id = 10 AND title = 'published' AND subtitle = 'Only subtitle'`), 1);
 
     await updateAuthorPost(db, editor, 11, { title: '', content: '' });
-    assert.equal(fixture.count('board_post', `id = 11 AND title = 'Untitled'`), 1);
-    assert.equal(fixture.count('board_postcontent', `post_id = 11 AND content_html = ''`), 1);
+    assert.equal(fixture.count('Post', `id = 11 AND title = 'Untitled'`), 1);
+    assert.equal(fixture.count('PostContent', `postId = 11 AND html = ''`), 1);
   } finally {
     await db.$disconnect();
     await fixture.close();
@@ -278,7 +276,7 @@ test('keeps the advertising flag when the web editor saves a post', async () => 
   const fixture = await migratedApp();
   try {
     seedPost(fixture.db, 10, 1, 'promoted');
-    fixture.db.exec('UPDATE board_postconfig SET advertise = 1 WHERE post_id = 10');
+    fixture.db.exec('UPDATE "Post" SET isAdvertised = 1 WHERE id = 10');
     const boundary = 'blexboundary';
     const fields = { title: 'Promoted', content_html: '<p>Changed body</p>', url: 'promoted', tag: '' };
     const saved = await fixture.app.inject({
@@ -287,8 +285,8 @@ test('keeps the advertising flag when the web editor saves a post', async () => 
       payload: `${Object.entries(fields).map(([name, value]) => `--${boundary}\r\nContent-Disposition: form-data; name="${name}"\r\n\r\n${value}\r\n`).join('')}--${boundary}--\r\n`,
     });
     assert.equal(saved.json().status, 'DONE', saved.body);
-    assert.equal(fixture.count('board_post', `id = 10 AND title = 'Promoted'`), 1);
-    assert.equal(fixture.count('board_postconfig', 'post_id = 10 AND advertise = 1'), 1);
+    assert.equal(fixture.count('Post', `id = 10 AND title = 'Promoted'`), 1);
+    assert.equal(fixture.count('Post', 'id = 10 AND isAdvertised = 1'), 1);
   } finally {
     await fixture.close();
   }

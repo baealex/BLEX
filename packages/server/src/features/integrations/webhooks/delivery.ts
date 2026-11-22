@@ -1,4 +1,5 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
+import { settledPublicPostWhere } from '../../posts/data/visibility.js';
 import { publicPostPath } from '../../posts/public-post.js';
 import { parseWebhookUrl, sendWebhook, type SendWebhook } from './transport.js';
 
@@ -45,21 +46,18 @@ export async function deliverPostWebhook(db: PrismaClient, siteUrl: URL, signal:
   const job = await claimDelivery(db);
   if (!job) return false;
   const sentAt = new Date();
-  const timestamp = sentAt.toISOString().slice(0, -1).replace('T', ' ');
   const channel = await db.webhookChannel.findFirst({
     where: { id: job.channelId, isActive: true },
     select: { url: true, scope: true, ownerId: true },
   });
-  const [post] = channel ? await db.$queryRaw<Array<{
-    authorId: number; title: string; slug: string; username: string; name: string; role: string | null;
-  }>>`
-    SELECT post.author_id AS authorId, post.title, post.url AS slug, author.username, author.first_name AS name, profile.role
-      FROM board_post AS post
-      JOIN board_postconfig AS config ON config.post_id = post.id AND config.hide = 0
-      JOIN auth_user AS author ON author.id = post.author_id
-      LEFT JOIN board_profile AS profile ON profile.user_id = post.author_id
-     WHERE post.id = ${job.postId} AND post.deleted_date IS NULL AND post.published_date <= ${timestamp}
-  ` : [];
+  const stored = channel ? await db.post.findFirst({
+    where: { id: job.postId, ...settledPublicPostWhere(sentAt) },
+    select: { authorId: true, title: true, slug: true, author: { select: { username: true, first_name: true, board_profile: { select: { role: true } } } } },
+  }) : null;
+  const post = stored && {
+    authorId: stored.authorId, title: stored.title, slug: stored.slug, username: stored.author.username,
+    name: stored.author.first_name, role: stored.author.board_profile?.role ?? null,
+  };
   const row = channel && post && (channel.scope === 'global' || (channel.ownerId === post.authorId && post.role === 'EDITOR'))
     ? { ...post, channelUrl: channel.url }
     : null;

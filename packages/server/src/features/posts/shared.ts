@@ -35,10 +35,10 @@ export interface StoredPost {
   url: string;
   image: string;
   description: string;
-  createdDate: DbDate;
-  updatedDate: DbDate;
-  publishedDate: DbDate;
-  deletedDate: DbDate;
+  createdDate: Date;
+  updatedDate: Date;
+  publishedDate: Date | null;
+  deletedDate: Date | null;
   authorId: number;
   authorUsername: string;
   authorAvatar: string | null;
@@ -46,37 +46,15 @@ export interface StoredPost {
   seriesId: number | null;
   seriesName: string | null;
   seriesUrl: string | null;
-  seriesHidden: DbBoolean;
+  seriesHidden: boolean;
   contentHtml: string;
-  hide: DbBoolean;
-  advertise: DbBoolean;
-  blockComment: DbBoolean;
+  hide: boolean;
+  advertise: boolean;
+  blockComment: boolean;
+  hasSettings: boolean;
   coverLayout: string;
   coverImagePosition: string;
   coverImageRatio: string;
-}
-
-export interface StoredDraftSummary {
-  url: string;
-  title: string;
-  image: string;
-  createdDate: DbDate;
-  updatedDate: DbDate;
-}
-
-export interface ManagedPostRow {
-  id: number;
-  url: string;
-  title: string;
-  image: string;
-  publishedDate: DbDate;
-  updatedDate: DbDate;
-  hide: DbBoolean;
-  countLikes: number | bigint;
-  countComments: number | bigint;
-  readTime: number;
-  tag: string;
-  series: string;
 }
 
 export interface TrashedPostRow {
@@ -84,10 +62,10 @@ export interface TrashedPostRow {
   url: string;
   title: string;
   image: string;
-  publishedDate: DbDate;
-  updatedDate: DbDate;
-  deletedDate: DbDate;
-  hide: DbBoolean;
+  publishedDate: Date | null;
+  updatedDate: Date;
+  deletedDate: Date;
+  hide: boolean;
 }
 
 export interface AuthoringPostInput {
@@ -134,10 +112,6 @@ export function numberValue(value: number | bigint | boolean | null | undefined)
   return Number(value ?? 0);
 }
 
-export function isTrue(value: DbBoolean): boolean {
-  return numberValue(value) !== 0;
-}
-
 export function field(value: unknown): string {
   if (Array.isArray(value)) return field(value.at(-1));
   if (value === undefined || value === null) return '';
@@ -172,10 +146,6 @@ export function queryObject(request: FastifyRequest): Record<string, unknown> {
   return request.query && typeof request.query === 'object'
     ? request.query as Record<string, unknown>
     : {};
-}
-
-export function nowString(): string {
-  return new Date().toISOString().replace('T', ' ').replace('Z', '');
 }
 
 export function dateAsIso(value: DbDate): string | null {

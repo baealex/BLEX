@@ -3,7 +3,7 @@ import { type PrismaClient } from '@prisma/client';
 import { djangoJsonUtc } from '../../../compat/django-format.js';
 import { SiteIcon } from '../../../appearance/icons.js';
 import { sanitizePostHtml } from '../../posts/post-html.js';
-import { readCardLikes, readPublicPostCount, readPublicPosts } from '../services/public-posts.js';
+import { readCardLikes, readLikedPosts, readPublicPostCount, readPublicPosts } from '../services/public-posts.js';
 import { PAGE_SIZE, PageMeta, PublicPageOptions, canonicalPageUrl, description, h, hasUnexpected, makeAbsolute, makePaginationMeta, pageFrom, safeStructuredPageData, sendNotFound, staticPageStyles, totalPages, validPublicPage } from '../shared.js';
 import { NoticeSection, PageLayout, advertiseMarkdown, csrfCookie, getLayoutContext, readNotices, readPublicSiteBrand, readViewer, renderHtml } from '../pages/layout.js';
 import { EmptyState, Pagination, PostGrid } from '../pages/post-list.js';
@@ -77,16 +77,12 @@ export function registerHomeRoutes(app: FastifyInstance, db: PrismaClient, siteU
     const query = new URL(request.url, siteUrl).searchParams;
     const page = pageFrom(query);
     if (page === null) return sendNotFound(reply);
-    const conditions = ['EXISTS(SELECT 1 FROM board_post_likes AS likes WHERE likes.post_id = post.id AND likes.user_id = ?)'];
-    const parameters = [viewer.id];
-    const count = await readPublicPostCount(db, conditions, parameters);
+    const count = await readPublicPostCount(db, { likes: { some: { userId: viewer.id } } });
     const checkedPage = validPublicPage(reply, page, count, PAGE_SIZE);
     if (checkedPage === null) return reply;
     const brand = await readPublicSiteBrand(db);
     const siteName = brand.siteName;
-    const posts = await readPublicPosts(db, { conditions, parameters, orderParameters: parameters, limit: PAGE_SIZE,
-      orderBy: '(SELECT MAX(created_date) FROM board_post_likes WHERE post_id = post.id AND user_id = ?) DESC, post.published_date DESC',
-      offset: (checkedPage - 1) * PAGE_SIZE });
+    const posts = await readLikedPosts(db, viewer.id, PAGE_SIZE, (checkedPage - 1) * PAGE_SIZE);
     const pages = totalPages(count, PAGE_SIZE);
     reply.header('Cache-Control', 'private, no-store');
     return renderHtml(reply, PageLayout({

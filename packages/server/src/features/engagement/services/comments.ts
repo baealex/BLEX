@@ -1,7 +1,8 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
 import { timeSince } from '../../../compat/django-format.js';
+import { settledPublicPostWhere } from '../../posts/data/visibility.js';
 import { sanitizeCommentHtml } from '../../posts/post-html.js';
-import { DEFAULT_AVATAR, DbInteger, absoluteMediaUrl, isTrue } from '../shared.js';
+import { DEFAULT_AVATAR, absoluteMediaUrl } from '../shared.js';
 
 export interface CommentRow {
   id: number;
@@ -110,27 +111,20 @@ export async function commentForViewer(
 ): Promise<PostCommentRow | null> {
   const comment = await db.comment.findUnique({ where: { id }, select: commentSelect(viewerId) });
   if (!comment) return null;
-  // Post dates are still stored as Django text, which Prisma cannot compare.
-  const [post] = await db.$queryRaw<Array<{ postPublic: DbInteger; postBlockComment: DbInteger; postTitle: string; postSlug: string; postUsername: string }>>`
-    SELECT CASE WHEN post.deleted_date IS NULL
-                     AND post.published_date IS NOT NULL
-                     AND CAST(post.published_date AS TEXT) <= ${new Date().toISOString().replace('T', ' ').replace('Z', '')}
-                     AND CAST(post_config.hide AS INTEGER) = 0
-                THEN 1 ELSE 0 END AS postPublic,
-           post.title AS postTitle, post.url AS postSlug, post_author.username AS postUsername,
-           CAST(post_config.block_comment AS INTEGER) AS postBlockComment
-    FROM board_post AS post
-    JOIN auth_user AS post_author ON post_author.id = post.author_id
-    JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-    WHERE post.id = ${comment.postId}
-    LIMIT 1
-  `;
+  const post = await db.post.findFirst({
+    where: { id: comment.postId, hasSettings: true },
+    select: {
+      title: true, slug: true, commentsBlocked: true, deletedAt: true, publishedAt: true, isHidden: true,
+      author: { select: { username: true } },
+    },
+  });
   if (!post) return null;
+  const postPublic = post.deletedAt === null && post.publishedAt !== null && post.publishedAt <= new Date() && !post.isHidden;
   return {
-    ...commentRow(comment, isTrue(post.postPublic), isTrue(post.postBlockComment)),
-    postTitle: post.postTitle,
-    postSlug: post.postSlug,
-    postUsername: post.postUsername,
+    ...commentRow(comment, postPublic, post.commentsBlocked),
+    postTitle: post.title,
+    postSlug: post.slug,
+    postUsername: post.author.username,
   };
 }
 
@@ -139,21 +133,13 @@ export async function publicComments(
   slug: string,
   viewerId: number | null,
 ): Promise<{ canComment: boolean; comments: CommentPayload[] }> {
-  const posts = await db.$queryRaw<Array<{ id: number; blockComment: DbInteger }>>`
-    SELECT post.id AS id, CAST(post_config.block_comment AS INTEGER) AS blockComment
-    FROM board_post AS post
-    JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-    WHERE post.url = ${slug}
-      AND post.deleted_date IS NULL
-      AND post.published_date IS NOT NULL
-      AND CAST(post.published_date AS TEXT) <= ${new Date().toISOString().replace('T', ' ').replace('Z', '')}
-      AND CAST(post_config.hide AS INTEGER) = 0
-    LIMIT 1
-  `;
-  const post = posts[0];
+  const post = await db.post.findFirst({
+    where: { slug, ...settledPublicPostWhere() },
+    select: { id: true, commentsBlocked: true },
+  });
   if (!post) return { canComment: false, comments: [] };
 
-  const blocked = isTrue(post.blockComment);
+  const blocked = post.commentsBlocked;
   const comments = await db.comment.findMany({
     // A legacy reply can point at a parent on another post or at another reply. Neither has a place in this tree.
     where: { postId: post.id, OR: [{ parentId: null }, { parent: { postId: post.id, parentId: null } }] },
@@ -161,7 +147,7 @@ export async function publicComments(
     select: commentSelect(viewerId),
   });
   const rows = comments.map((comment) => commentRow(comment, true, blocked));
-  const canAcceptReplies = !isTrue(post.blockComment);
+  const canAcceptReplies = !blocked;
   const topLevel: CommentPayload[] = [];
   const parents = new Map<number, CommentPayload>();
 

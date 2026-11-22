@@ -10,7 +10,7 @@ import { editorBodyLimit, editorKeepsOriginalTags, isMultipartRequest, prepareEd
 import { apiPostBase, preservePostOmissions } from '../services/author-api.js';
 import { mediaUrl, parseAuthoringPostInput } from '../services/post-content.js';
 import { PostValidationError, createPost, draftReservation, loadPost, postPublic, postTags, trashPost, updatePost, updatePostSettings } from '../services/post-store.js';
-import { AuthoringOptions, DbBoolean, StoredDraftSummary, cookieValue, currentAccount, dateAsIso, editorAccount, field, forbidden, isTrue, localDateTime, notFound, nowString, numberValue, queryObject } from '../shared.js';
+import { AuthoringOptions, cookieValue, currentAccount, editorAccount, field, forbidden, localDateTime, notFound, queryObject } from '../shared.js';
 
 export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, options: AuthoringOptions) {
     // Large draft bodies are only parsed for a signed-in session.
@@ -97,33 +97,30 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
           if (mode !== 'view' || (!postPublic(post) && viewer?.id !== post.authorId)) return notFound(reply);
           const tags = await postTags(db, post.id);
           const countComments = await db.comment.count({ where: { postId: post.id } });
-          const counts = await db.$queryRaw<Array<{ likes: number | bigint; liked: DbBoolean }>>`
-            SELECT (SELECT COUNT(*) FROM board_post_likes WHERE post_id = ${post.id}) AS likes,
-                   CASE WHEN EXISTS (
-                     SELECT 1 FROM board_post_likes
-                     WHERE post_id = ${post.id} AND user_id = ${viewer?.id ?? -1}
-                   ) THEN 1 ELSE 0 END AS liked
-          `;
+          const [countLikes, liked] = await Promise.all([
+            db.postLike.count({ where: { postId: post.id } }),
+            viewer ? db.postLike.findUnique({ where: { postId_userId: { postId: post.id, userId: viewer.id } }, select: { postId: true } }) : null,
+          ]);
           return done({
             url: post.url,
             title: post.title,
             image: post.image,
             description: post.description,
             readTime: post.readTime,
-            series: post.seriesUrl && !isTrue(post.seriesHidden) ? { url: post.seriesUrl, name: post.seriesName } : null,
+            series: post.seriesUrl && !post.seriesHidden ? { url: post.seriesUrl, name: post.seriesName } : null,
             createdDate: localDateTime(post.publishedDate),
             updatedDate: localDateTime(post.updatedDate),
             authorImage: post.authorAvatar ?? '',
             author: post.authorUsername,
             renderedContent: sanitizePostHtml(post.contentHtml),
-            countLikes: numberValue(counts[0]?.likes),
+            countLikes,
             countComments,
-            isAd: isTrue(post.advertise),
+            isAd: post.advertise,
             coverLayout: post.coverLayout,
             coverImagePosition: post.coverImagePosition,
             coverImageRatio: post.coverImageRatio,
             tags,
-            isLiked: isTrue(counts[0]?.liked ?? 0),
+            isLiked: liked !== null,
           });
         }
 
@@ -164,12 +161,12 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
             if (!Object.hasOwn(body, 'cover_layout')) input.coverLayout = post.coverLayout;
             if (!Object.hasOwn(body, 'cover_image_position')) input.coverImagePosition = post.coverImagePosition;
             if (!Object.hasOwn(body, 'cover_image_ratio')) input.coverImageRatio = post.coverImageRatio;
-            if (!Object.hasOwn(body, 'block_comment')) input.blockComment = isTrue(post.blockComment);
+            if (!Object.hasOwn(body, 'block_comment')) input.blockComment = post.blockComment;
           }
           if (form.isMultipart) {
             // The editor form leaves these out to mean "unchanged", while JSON clients replace them.
             if (!field(body.series)) input.series = post.seriesUrl ?? '';
-            if (!Object.hasOwn(body, 'is_advertise') && !Object.hasOwn(body, 'advertise')) input.advertise = isTrue(post.advertise);
+            if (!Object.hasOwn(body, 'is_advertise') && !Object.hasOwn(body, 'advertise')) input.advertise = post.advertise;
           }
           await updatePost(db, user, post, input, {
             allowEmptyBody: post.publishedDate === null,
@@ -194,20 +191,17 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
         const user = await editorAccount(request, reply, db, options, true);
         if (!user) return reply;
         if (request.method === 'GET') {
-          const drafts = await db.$queryRaw<StoredDraftSummary[]>`
-            SELECT url, title, image,
-                   CAST(created_date AS TEXT) AS createdDate,
-                   CAST(updated_date AS TEXT) AS updatedDate
-            FROM board_post
-            WHERE author_id = ${user.id} AND deleted_date IS NULL AND published_date IS NULL
-            ORDER BY updated_date DESC, id DESC
-          `;
+          const drafts = await db.post.findMany({
+            where: { authorId: user.id, deletedAt: null, publishedAt: null },
+            orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+            select: { slug: true, title: true, image: true, createdAt: true, updatedAt: true },
+          });
           return done({ drafts: drafts.map((draft) => ({
-            url: draft.url,
+            url: draft.slug,
             title: draft.title,
             image: draft.image || null,
-            createdDate: draft.createdDate ? timeSince(draft.createdDate) : null,
-            updatedDate: localDate(draft.updatedDate),
+            createdDate: timeSince(draft.createdAt),
+            updatedDate: localDate(draft.updatedAt),
           })) });
         }
         const form = await readEditorForm(request);
@@ -250,9 +244,9 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
             coverLayout: post.coverLayout,
             coverImagePosition: post.coverImagePosition,
             coverImageRatio: post.coverImageRatio,
-            isHide: isTrue(post.hide),
-            isAdvertise: isTrue(post.advertise),
-            blockComment: isTrue(post.blockComment),
+            isHide: post.hide,
+            isAdvertise: post.advertise,
+            blockComment: post.blockComment,
             reservedDate: await draftReservation(db, post.id),
             series: post.seriesUrl ? { url: post.seriesUrl, name: post.seriesName } : null,
             createdDate: timeSince(post.createdDate),
@@ -291,23 +285,19 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
         if (!options.validateCsrf(request)) return forbidden(reply);
         const post = await loadPost(db, { username: request.params.username, slug: request.params.url });
         if (!post || post.authorId !== user.id) return notFound(reply);
-        const published = dateAsIso(post.publishedDate);
-        if (!published || new Date(published).valueOf() <= Date.now()) {
+        if (!post.publishedDate || post.publishedDate.valueOf() <= Date.now()) {
           return failed('RJ', 'This action is only available for scheduled posts.');
         }
         if (request.params.action !== 'cancel' && request.params.action !== 'publish-now') return notFound(reply);
-        const publishDate = request.params.action === 'cancel' ? null : nowString();
-        const updated = nowString();
+        const publishDate = request.params.action === 'cancel' ? null : new Date();
+        const updated = new Date();
         await db.$transaction(async (tx) => {
-          await tx.$executeRaw`
-            UPDATE board_post SET published_date = ${publishDate}, updated_date = ${updated}
-            WHERE id = ${post.id} AND author_id = ${user.id}
-          `;
+          await tx.post.updateMany({ where: { id: post.id, authorId: user.id }, data: { publishedAt: publishDate, updatedAt: updated } });
           await syncPostPublication(tx, post.id, { announce: true });
         });
         return done(request.params.action === 'cancel'
           ? { url: post.url, status: 'draft' }
-          : { url: post.url, status: 'published', publishedDate: publishDate?.replace(' ', 'T') + 'Z' });
+          : { url: post.url, status: 'published', publishedDate: publishDate?.toISOString() });
       },
     });
 }

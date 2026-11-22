@@ -20,20 +20,11 @@ database.exec(`
   );
   CREATE TABLE board_profile (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, role TEXT NOT NULL);
   ${migratedTableSql('Series')}
-  CREATE TABLE board_post (
-    id INTEGER PRIMARY KEY, author_id INTEGER NOT NULL, series_id INTEGER, url TEXT NOT NULL,
-    title TEXT NOT NULL, subtitle TEXT NOT NULL DEFAULT '', meta_description TEXT NOT NULL DEFAULT '',
-    published_date DATETIME, deleted_date DATETIME, created_date DATETIME NOT NULL,
-    updated_date DATETIME NOT NULL, read_time INTEGER NOT NULL DEFAULT 1
-  );
-  CREATE TABLE board_postconfig (
-    id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, hide BOOLEAN NOT NULL DEFAULT 0,
-    advertise BOOLEAN NOT NULL DEFAULT 0, cover_layout TEXT NOT NULL DEFAULT 'default',
-    cover_image_position TEXT NOT NULL DEFAULT 'right', cover_image_ratio TEXT NOT NULL DEFAULT 'auto'
-  );
-  CREATE TABLE board_postcontent (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, content_html TEXT NOT NULL DEFAULT '');
-  CREATE TABLE board_tag (id INTEGER PRIMARY KEY, value TEXT NOT NULL);
-  CREATE TABLE board_post_tags (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, tag_id INTEGER NOT NULL);
+${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', 'PostLike', 'PinnedPost', 'PostShareLink', 'PostShareDailyCount', 'ScheduledPublication')}
+
+
+
+
 
   INSERT INTO auth_user VALUES
     (1, 'writer', 'Writer', 'writer@example.test', 1),
@@ -69,28 +60,43 @@ database.exec(`
   INSERT INTO "Series" ("id", "ownerId", "name", "slug", "descriptionMarkdown", "isHidden", "order", "createdAt", "updatedAt") VALUES
     (10, 1, 'Writer Series', 'writer-series', 'A series description', 1, 2, 1577934245000, 1580702706000),
     (20, 2, 'Other Series', 'other-series', '', 0, 1, 1577934245000, 1580702706000);
-  INSERT INTO board_post VALUES
-    (1, 1, 10, 'draft-needle', 'Draft Needle', 'A draft', 'description', NULL, NULL, '2020-01-01 00:00:00', '2025-01-01 00:00:09.123456', 3),
-    (2, 2, 20, 'other-draft', 'Other Draft', '', '', NULL, NULL, '2020-01-01 00:00:00', '2025-01-01 00:00:08', 1),
-    (3, 1, 10, 'public', 'Public article', '', 'public description', '2020-01-01 00:00:00', NULL, '2020-01-01 00:00:00', '2025-01-01 00:00:07', 5),
-    (4, 1, NULL, 'hidden', 'Hidden article', '', '', '2020-01-01 00:00:00', NULL, '2020-01-01 00:00:00', '2025-01-01 00:00:06', 2),
-    (5, 1, NULL, 'scheduled', 'Scheduled article', '', '', '2099-01-01 00:00:00', NULL, '2020-01-01 00:00:00', '2025-01-01 00:00:05', 1),
-    (6, 1, 10, 'trashed', 'Trashed article', '', '', '2020-01-01 00:00:00', '2025-01-01 00:00:00', '2020-01-01 00:00:00', '2025-01-01 00:00:04', 1),
-    (7, 1, 10, 'trashed-draft', 'Trashed draft', '', '', NULL, '2025-01-01 00:00:00', '2020-01-01 00:00:00', '2025-01-01 00:00:03', 1),
-    (8, 1, NULL, 'no-config', 'No config article', '', '', '2020-01-01 00:00:00', NULL, '2020-01-01 00:00:00', '2025-01-01 00:00:02', 1),
-    (9, 1, NULL, 'hidden-trashed', 'Hidden trashed article', '', '', '2020-01-01 00:00:00', '2025-01-01 00:00:00', '2020-01-01 00:00:00', '2025-01-01 00:00:01', 1),
-    (10, 1, NULL, 'another-draft', 'Another draft', '', '', NULL, NULL, '2020-01-01 00:00:00', '2025-01-02 00:00:00', 1);
-  INSERT INTO board_postconfig VALUES
-    (1, 1, 0, 1, 'split', 'left', '16:9'), (2, 2, 0, 0, 'default', 'right', 'auto'),
-    (3, 3, 0, 0, 'default', 'right', 'auto'), (4, 4, 1, 0, 'overlay', 'right', '4:3'),
-    (5, 5, 0, 0, 'default', 'right', 'auto'), (6, 6, 0, 0, 'default', 'right', 'auto'),
-    (7, 7, 0, 0, 'default', 'right', 'auto'), (9, 9, 1, 0, 'default', 'right', 'auto');
-  INSERT INTO board_postcontent VALUES
-    (1, 1, '<p>needle in the content</p>'), (2, 2, '<p>other content</p>'),
-    (3, 3, '<p>public content</p>'), (4, 4, '<p>hidden content</p>');
-  INSERT INTO board_tag VALUES (1, 'api'), (2, 'shared'), (3, 'other-only'), (4, 'trashed-only');
-  INSERT INTO board_post_tags VALUES
-    (1, 1, 1), (2, 1, 2), (3, 2, 3), (4, 3, 1), (5, 3, 2), (6, 6, 4), (7, 7, 4);
+  INSERT INTO "Post" ("id", "authorId", "seriesId", "slug", "title", "subtitle", "description", "publishedAt", "deletedAt", "createdAt", "updatedAt", "readTime", "hasSettings") VALUES
+    (1, 1, 10, 'draft-needle', 'Draft Needle', 'A draft', 'description', NULL, NULL, 1577836800000, 1735689609123, 3, 0),
+    (2, 2, 20, 'other-draft', 'Other Draft', '', '', NULL, NULL, 1577836800000, 1735689608000, 1, 0),
+    (3, 1, 10, 'public', 'Public article', '', 'public description', 1577836800000, NULL, 1577836800000, 1735689607000, 5, 0),
+    (4, 1, NULL, 'hidden', 'Hidden article', '', '', 1577836800000, NULL, 1577836800000, 1735689606000, 2, 0),
+    (5, 1, NULL, 'scheduled', 'Scheduled article', '', '', 4070908800000, NULL, 1577836800000, 1735689605000, 1, 0),
+    (6, 1, 10, 'trashed', 'Trashed article', '', '', 1577836800000, 1735689600000, 1577836800000, 1735689604000, 1, 0),
+    (7, 1, 10, 'trashed-draft', 'Trashed draft', '', '', NULL, 1735689600000, 1577836800000, 1735689603000, 1, 0),
+    (8, 1, NULL, 'no-config', 'No config article', '', '', 1577836800000, NULL, 1577836800000, 1735689602000, 1, 0),
+    (9, 1, NULL, 'hidden-trashed', 'Hidden trashed article', '', '', 1577836800000, 1735689600000, 1577836800000, 1735689601000, 1, 0),
+    (10, 1, NULL, 'another-draft', 'Another draft', '', '', NULL, NULL, 1577836800000, 1735776000000, 1, 0);
+  UPDATE "Post" SET hasSettings = 1, isHidden = 0, isAdvertised = 1, coverLayout = 'split', coverImagePosition = 'left', coverImageRatio = '16:9' WHERE id = 1;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0, isAdvertised = 0, coverLayout = 'default', coverImagePosition = 'right', coverImageRatio = 'auto' WHERE id = 2;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0, isAdvertised = 0, coverLayout = 'default', coverImagePosition = 'right', coverImageRatio = 'auto' WHERE id = 3;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 1, isAdvertised = 0, coverLayout = 'overlay', coverImagePosition = 'right', coverImageRatio = '4:3' WHERE id = 4;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0, isAdvertised = 0, coverLayout = 'default', coverImagePosition = 'right', coverImageRatio = 'auto' WHERE id = 5;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0, isAdvertised = 0, coverLayout = 'default', coverImagePosition = 'right', coverImageRatio = 'auto' WHERE id = 6;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0, isAdvertised = 0, coverLayout = 'default', coverImagePosition = 'right', coverImageRatio = 'auto' WHERE id = 7;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 1, isAdvertised = 0, coverLayout = 'default', coverImagePosition = 'right', coverImageRatio = 'auto' WHERE id = 9;
+  INSERT INTO "PostContent" ("postId", "html") VALUES
+    (1, '<p>needle in the content</p>'),
+    (2, '<p>other content</p>'),
+    (3, '<p>public content</p>'),
+    (4, '<p>hidden content</p>');
+  INSERT INTO "Tag" ("id", "name") VALUES
+    (1, 'api'),
+    (2, 'shared'),
+    (3, 'other-only'),
+    (4, 'trashed-only');
+  INSERT INTO "_PostToTag" ("A", "B") VALUES
+    (1, 1),
+    (1, 2),
+    (2, 3),
+    (3, 1),
+    (3, 2),
+    (6, 4),
+    (7, 4);
 `);
 database.close();
 
@@ -224,7 +230,7 @@ test('returns post details to the owner, including draft content, and hides cros
     cover_image_position: 'left',
     cover_image_ratio: '16:9',
     created_at: '2020-01-01T00:00:00+00:00',
-    updated_at: '2025-01-01T00:00:09.123456+00:00',
+    updated_at: '2025-01-01T00:00:09.123000+00:00',
     published_at: null,
     description: 'description',
     content: '<p>needle in the content</p>',

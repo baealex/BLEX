@@ -117,18 +117,18 @@ function seed(db: DatabaseSync, store: ContractTokenStore) {
   ];
   for (const [id, authorId, seriesId, url, published, deleted, updated] of posts) {
     seedPost(db, id, authorId, url, {
-      title: `Title ${url}`, subtitle: 'sub_title', meta_description: 'meta_description text', series_id: seriesId,
-      published_date: published, deleted_date: deleted, created_date: created, updated_date: updated, read_time: id,
+      title: `Title ${url}`, subtitle: 'sub_title', description: 'meta_description text', seriesId: seriesId,
+      publishedAt: published, deletedAt: deleted, createdAt: created, updatedAt: updated, readTime: id,
     });
   }
   db.exec(`
-    UPDATE board_postcontent SET content_html = '<p>needle some_key {"inner_key": 1}</p>' WHERE post_id = 1;
-    UPDATE board_postconfig SET advertise = 1, cover_layout = 'split', cover_image_position = 'left', cover_image_ratio = '16:9' WHERE post_id = 1;
-    UPDATE board_postconfig SET hide = 1, cover_layout = 'overlay', cover_image_ratio = '4:3' WHERE post_id = 4;
+    UPDATE "PostContent" SET html = '<p>needle some_key {"inner_key": 1}</p>' WHERE postId = 1;
+    UPDATE "Post" SET isAdvertised = 1, coverLayout = 'split', coverImagePosition = 'left', coverImageRatio = '16:9' WHERE id = 1;
+    UPDATE "Post" SET isHidden = 1, coverLayout = 'overlay', coverImageRatio = '4:3' WHERE id = 4;
   `);
-  ['api', 'snake_tag', 'other-only', 'trashed-only'].forEach((value, index) => insertRow(db, 'board_tag', { id: index + 1, value }));
+  ['api', 'snake_tag', 'other-only', 'trashed-only'].forEach((value, index) => insertRow(db, 'Tag', { id: index + 1, name: value }));
   ([[1, 1], [1, 2], [2, 3], [3, 1], [3, 2], [6, 4]] as const).forEach(([postId, tagId], index) => {
-    insertRow(db, 'board_post_tags', { id: index + 1, post_id: postId, tag_id: tagId });
+    insertRow(db, '_PostToTag', { A: postId, B: tagId });
   });
 }
 

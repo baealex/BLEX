@@ -1,9 +1,8 @@
-import { type PrismaClient } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
 import { sanitizePostHtml } from '../post-html.js';
-import { deletePostRevisions } from './deletions.js';
 import { readingTime } from './post-content.js';
-import { EditorialSnapshot, PostValidationError, assertExpectedUpdatedAt, captureEditorialSnapshot, insertRevision, sameEditorialSnapshot } from './post-store.js';
-import { DbDate, StoredPost, UserRow, dateAsIso, nowString, numberValue } from '../shared.js';
+import { EditorialSnapshot, PostValidationError, assertExpectedUpdatedAt, captureEditorialSnapshot, insertRevision, sameEditorialSnapshot, setPostTags } from './post-store.js';
+import { StoredPost, UserRow, dateAsIso } from '../shared.js';
 
 export interface StoredRevision {
   id: number;
@@ -12,21 +11,47 @@ export interface StoredRevision {
   content: string;
   contentExcerpt: string | null;
   description: string;
-  tags: string;
+  tags: Prisma.JsonValue;
   changeType: string;
   actor: string | null;
   restoredFromId: number | null;
-  sourceUpdatedDate: DbDate;
-  createdDate: DbDate;
+  sourceUpdatedDate: Date | null;
+  createdDate: Date;
 }
 
-function revisionTags(raw: string): string[] {
-  try {
-    const value: unknown = JSON.parse(raw);
-    return Array.isArray(value) ? value.filter((tag): tag is string => typeof tag === 'string') : [];
-  } catch {
-    return [];
-  }
+const revisionSelect = {
+  id: true, title: true, subtitle: true, content: true, contentExcerpt: true, description: true, tags: true,
+  type: true, restoredFromId: true, sourceUpdatedAt: true, createdAt: true,
+  actor: { select: { username: true } },
+} satisfies Prisma.PostRevisionSelect;
+
+function storedRevision(row: Prisma.PostRevisionGetPayload<{ select: typeof revisionSelect }>): StoredRevision {
+  return {
+    id: row.id, title: row.title, subtitle: row.subtitle, content: row.content, contentExcerpt: row.contentExcerpt,
+    description: row.description, tags: row.tags, changeType: row.type, actor: row.actor?.username ?? null,
+    restoredFromId: row.restoredFromId, sourceUpdatedDate: row.sourceUpdatedAt, createdDate: row.createdAt,
+  };
+}
+
+/** Draft autosaves stay out of the history screens and are only used by the timelapse. */
+const visibleRevision = (postId: number) => ({ postId, type: { not: 'draft' } }) satisfies Prisma.PostRevisionWhereInput;
+
+export async function listRevisions(db: PrismaClient, postId: number, page: number, limit: number) {
+  const totalCount = await db.postRevision.count({ where: visibleRevision(postId) });
+  const lastPage = Math.max(1, Math.ceil(totalCount / limit));
+  if (page > lastPage) return { totalCount, lastPage, revisions: null };
+  const rows = await db.postRevision.findMany({
+    where: visibleRevision(postId),
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    skip: (page - 1) * limit,
+    take: limit,
+    select: revisionSelect,
+  });
+  return { totalCount, lastPage, revisions: rows.map(storedRevision) };
+}
+
+function revisionTags(value: Prisma.JsonValue): string[] {
+  return Array.isArray(value) ? value.filter((tag): tag is string => typeof tag === 'string') : [];
 }
 
 export function revisionSummary(revision: StoredRevision): Record<string, unknown> {
@@ -50,27 +75,12 @@ export async function loadRevision(
   postId: number,
   revisionId: number,
 ): Promise<StoredRevision | null> {
-  const rows = await db.$queryRaw<StoredRevision[]>`
-    SELECT history.id AS id, history.title AS title, history.subtitle AS subtitle,
-           history.content AS content, history.content_excerpt AS contentExcerpt,
-           history.description AS description, history.tags AS tags,
-           history.change_type AS changeType, actor.username AS actor,
-           history.restored_from_id AS restoredFromId,
-           CAST(history.source_updated_date AS TEXT) AS sourceUpdatedDate,
-           CAST(history.created_date AS TEXT) AS createdDate
-      FROM board_edithistory AS history
-      LEFT JOIN auth_user AS actor ON actor.id = history.actor_id
-     WHERE history.post_id = ${postId} AND history.id = ${revisionId}
-       AND history.change_type <> 'draft'
-     LIMIT 1
-  `;
-  return rows[0] ?? null;
+  const row = await db.postRevision.findFirst({ where: { ...visibleRevision(postId), id: revisionId }, select: revisionSelect });
+  return row ? storedRevision(row) : null;
 }
 
 export async function deleteRevision(db: PrismaClient, postId: number, revisionId: number): Promise<boolean> {
-  const count = await db.$transaction((tx) => deletePostRevisions(tx, {
-    post_id: postId, id: revisionId, change_type: { not: 'draft' },
-  }));
+  const { count } = await db.postRevision.deleteMany({ where: { ...visibleRevision(postId), id: revisionId } });
   return count === 1;
 }
 
@@ -92,39 +102,28 @@ export async function restoreRevision(
     updatedDate: null,
     publishedDate: null,
   };
-  const now = nowString();
+  const now = new Date();
   const restoredDate = await db.$transaction(async (tx) => {
     const current = await captureEditorialSnapshot(tx, post.id);
     if (sameEditorialSnapshot(current, target)) return current.updatedDate;
     await insertRevision(tx, post.id, current, author.id, 'restore', current.updatedDate, revision.id);
-    const changed = await tx.$executeRaw`
-      UPDATE board_post
-         SET title = ${target.title}, subtitle = ${target.subtitle}, meta_description = ${target.description},
-             read_time = ${readingTime(target.content)}, updated_date = ${now}
-       WHERE id = ${post.id} AND author_id = ${author.id} AND deleted_date IS NULL
-         AND updated_date = ${post.updatedDate}
-    `;
-    if (numberValue(changed) === 0) throw new PostValidationError('CF', 'Another request changed this post. Refresh and try again.');
-    const contentRows = await tx.$queryRaw<Array<{ id: number }>>`
-      SELECT id FROM board_postcontent WHERE post_id = ${post.id} LIMIT 1
-    `;
-    if (contentRows[0]) {
-      await tx.$executeRaw`UPDATE board_postcontent SET content_html = ${target.content} WHERE post_id = ${post.id}`;
-    } else {
-      await tx.$executeRaw`INSERT INTO board_postcontent (post_id, content_html) VALUES (${post.id}, ${target.content})`;
-    }
-    await tx.$executeRaw`DELETE FROM board_post_tags WHERE post_id = ${post.id}`;
-    for (const value of target.tags) {
-      await tx.$executeRaw`INSERT INTO board_tag (value) VALUES (${value}) ON CONFLICT(value) DO NOTHING`;
-      const tags = await tx.$queryRaw<Array<{ id: number }>>`SELECT id FROM board_tag WHERE value = ${value} LIMIT 1`;
-      if (tags[0]) await tx.$executeRaw`
-        INSERT INTO board_post_tags (post_id, tag_id) VALUES (${post.id}, ${tags[0].id})
-        ON CONFLICT(post_id, tag_id) DO NOTHING
-      `;
-    }
+    const { count } = await tx.post.updateMany({
+      where: { id: post.id, authorId: author.id, deletedAt: null, updatedAt: post.updatedDate },
+      data: {
+        title: target.title, subtitle: target.subtitle, description: target.description,
+        readTime: readingTime(target.content), updatedAt: now,
+      },
+    });
+    if (count === 0) throw new PostValidationError('CF', 'Another request changed this post. Refresh and try again.');
+    await tx.postContent.upsert({
+      where: { postId: post.id },
+      create: { postId: post.id, html: target.content },
+      update: { html: target.content },
+    });
+    await setPostTags(tx, post.id, target.tags);
     return now;
   });
-  return { updatedDate: dateAsIso(restoredDate) ?? now.replace(' ', 'T') + 'Z', restored: restoredDate === now };
+  return { updatedDate: dateAsIso(restoredDate) ?? now.toISOString(), restored: restoredDate === now };
 }
 
 interface TimelapseFrame {
@@ -141,19 +140,15 @@ export interface TimelapseResult {
 }
 
 export async function buildTimelapse(db: PrismaClient, post: StoredPost): Promise<TimelapseResult> {
-  const histories = await db.$queryRaw<Array<{
-    title: string; content: string; changeType: string; sourceUpdatedDate: DbDate; createdDate: DbDate;
-  }>>`
-    SELECT title, content, change_type AS changeType,
-           CAST(source_updated_date AS TEXT) AS sourceUpdatedDate,
-           CAST(created_date AS TEXT) AS createdDate
-      FROM board_edithistory WHERE post_id = ${post.id}
-     ORDER BY created_date DESC, id DESC
-  `;
+  const histories = await db.postRevision.findMany({
+    where: { postId: post.id },
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    select: { title: true, content: true, type: true, sourceUpdatedAt: true, createdAt: true },
+  });
   const newestFirst: Array<Omit<TimelapseFrame, 'savedAt'> & { savedDate: string }> = [{
     title: post.title,
     contentHtml: post.contentHtml,
-    savedDate: dateAsIso(post.updatedDate) ?? nowString().replace(' ', 'T') + 'Z',
+    savedDate: dateAsIso(post.updatedDate) ?? new Date().toISOString(),
     stage: post.publishedDate ? 'published' : 'draft',
   }];
   for (const history of histories) {
@@ -161,8 +156,8 @@ export async function buildTimelapse(db: PrismaClient, post: StoredPost): Promis
     newestFirst.push({
       title: history.title === '_NO_CHANGED_' ? later.title : history.title,
       contentHtml: history.content === '_NO_CHANGED_' ? later.contentHtml : history.content,
-      savedDate: dateAsIso(history.sourceUpdatedDate ?? history.createdDate) ?? '',
-      stage: history.changeType === 'draft' ? 'draft' : 'published',
+      savedDate: dateAsIso(history.sourceUpdatedAt ?? history.createdAt) ?? '',
+      stage: history.type === 'draft' ? 'draft' : 'published',
     });
   }
   const chronological = newestFirst.reverse();

@@ -17,14 +17,11 @@ fixture.exec(`
   CREATE TABLE auth_user (id INTEGER PRIMARY KEY, username TEXT, first_name TEXT);
   CREATE TABLE board_usernamechangelog (id INTEGER PRIMARY KEY, user_id INTEGER, username TEXT, created_date DATETIME);
   CREATE TABLE board_profile (id INTEGER PRIMARY KEY, user_id INTEGER, bio TEXT, avatar TEXT, role TEXT);
-  CREATE TABLE board_post (
-    id INTEGER PRIMARY KEY, author_id INTEGER, url TEXT, title TEXT, subtitle TEXT,
-    published_date DATETIME, updated_date DATETIME, deleted_date DATETIME, series_id INTEGER
-  );
-  CREATE TABLE board_postconfig (id INTEGER PRIMARY KEY, post_id INTEGER, hide BOOLEAN);
-  CREATE TABLE board_postcontent (id INTEGER PRIMARY KEY, post_id INTEGER, content_html TEXT);
-  CREATE TABLE board_post_tags (id INTEGER PRIMARY KEY, post_id INTEGER, tag_id INTEGER);
-  CREATE TABLE board_tag (id INTEGER PRIMARY KEY, value TEXT);
+${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', 'PostLike', 'PinnedPost', 'PostShareLink', 'PostShareDailyCount', 'ScheduledPublication')}
+
+
+
+
   ${migratedTableSql('Series')}
 
   INSERT INTO auth_user VALUES (1, 'writer', 'Alex');
@@ -38,21 +35,29 @@ fixture.exec(`
   INSERT INTO StaticPage (id, slug, title, content, isPublished, updatedAt) VALUES (1, 'about-ai', 'About AI', '<h2>About BLEX</h2><p>Static <strong>page</strong>.</p>', 1, ${Date.UTC(2000, 0, 3)});
   INSERT INTO StaticPage (id, slug, title, content, isPublished, updatedAt) VALUES (2, 'private', 'Private page', '<p>Do not expose</p>', 0, ${Date.UTC(2000, 0, 4)});
 
-  INSERT INTO board_post VALUES
-    (1, 1, 'public', 'Public Post', 'An optional subtitle', '2000-01-01 12:00:00', '2000-01-05 12:30:00', NULL, 1),
-    (2, 1, 'hidden', 'Hidden Post', '', '2000-01-01 12:00:00', '2000-01-05 12:30:00', NULL, 1),
-    (3, 1, 'draft', 'Draft Post', '', NULL, '2000-01-05 12:30:00', NULL, NULL),
-    (4, 1, 'scheduled', 'Scheduled Post', '', '9999-01-01 00:00:00', '2000-01-05 12:30:00', NULL, NULL),
-    (5, 1, 'trashed', 'Trashed Post', '', '2000-01-01 12:00:00', '2000-01-05 12:30:00', '2000-01-06 00:00:00', NULL),
-    (6, 1, 'series-hidden-post', 'Series hidden post', '', '2000-01-01 12:00:00', '2000-01-05 12:30:00', NULL, 1),
-    (7, 1, 'hidden-series-post', 'Hidden series post', '', '2000-01-01 12:00:00', '2000-01-05 12:30:00', NULL, 2);
-  INSERT INTO board_postconfig VALUES (1, 1, 0), (2, 2, 1), (3, 3, 0), (4, 4, 0), (5, 5, 0), (6, 6, 1), (7, 7, 0);
-  INSERT INTO board_postcontent VALUES
-    (1, 1, '<h2>Outcome</h2><p>Agents <strong>parse</strong> links <a href="/source">source</a>.</p><script>unsafe()</script>'),
-    (2, 2, '<p>Hidden body</p>'),
-    (6, 6, '<p>Hidden series member</p>');
-  INSERT INTO board_tag VALUES (1, 'agents');
-  INSERT INTO board_post_tags VALUES (1, 1, 1);
+  INSERT INTO "Post" ("id", "authorId", "slug", "title", "subtitle", "publishedAt", "updatedAt", "deletedAt", "seriesId", "createdAt", "hasSettings") VALUES
+    (1, 1, 'public', 'Public Post', 'An optional subtitle', 946728000000, 947075400000, NULL, 1, 946684800000, 0),
+    (2, 1, 'hidden', 'Hidden Post', '', 946728000000, 947075400000, NULL, 1, 946684800000, 0),
+    (3, 1, 'draft', 'Draft Post', '', NULL, 947075400000, NULL, NULL, 946684800000, 0),
+    (4, 1, 'scheduled', 'Scheduled Post', '', 253370764800000, 947075400000, NULL, NULL, 946684800000, 0),
+    (5, 1, 'trashed', 'Trashed Post', '', 946728000000, 947075400000, 947116800000, NULL, 946684800000, 0),
+    (6, 1, 'series-hidden-post', 'Series hidden post', '', 946728000000, 947075400000, NULL, 1, 946684800000, 0),
+    (7, 1, 'hidden-series-post', 'Hidden series post', '', 946728000000, 947075400000, NULL, 2, 946684800000, 0);
+  UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 1;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 1 WHERE id = 2;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 3;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 4;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 5;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 1 WHERE id = 6;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 7;
+  INSERT INTO "PostContent" ("postId", "html") VALUES
+    (1, '<h2>Outcome</h2><p>Agents <strong>parse</strong> links <a href="/source">source</a>.</p><script>unsafe()</script>'),
+    (2, '<p>Hidden body</p>'),
+    (6, '<p>Hidden series member</p>');
+  INSERT INTO "Tag" ("id", "name") VALUES
+    (1, 'agents');
+  INSERT INTO "_PostToTag" ("A", "B") VALUES
+    (1, 1);
 `);
 fixture.close();
 

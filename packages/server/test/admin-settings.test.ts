@@ -67,18 +67,15 @@ function createSchema() {
     CREATE TABLE board_config (
       id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL UNIQUE, language TEXT, time_zone TEXT NOT NULL DEFAULT ''
     );
-    CREATE TABLE board_post (
-      id INTEGER PRIMARY KEY, author_id INTEGER NOT NULL, deleted_date DATETIME,
-      published_date DATETIME, updated_date DATETIME NOT NULL DEFAULT '2025-01-01 00:00:00', image TEXT NOT NULL DEFAULT ''
-    );
-    CREATE TABLE board_postcontent (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL UNIQUE, content_html TEXT NOT NULL DEFAULT '');
-    CREATE TABLE board_edithistory (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, content TEXT NOT NULL DEFAULT '');
-    CREATE TABLE board_editrequest (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, content TEXT NOT NULL DEFAULT '');
-    CREATE TABLE board_postconfig (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL UNIQUE, hide BOOLEAN NOT NULL DEFAULT 0);
+${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', 'PostLike', 'PinnedPost', 'PostShareLink', 'PostShareDailyCount', 'ScheduledPublication')}
+
+
+
+
     ${migratedTableSql('Comment', 'CommentLike')}
     ${migratedTableSql('Series')}
-    CREATE TABLE board_tag (id INTEGER PRIMARY KEY, value TEXT NOT NULL UNIQUE);
-    CREATE TABLE board_post_tags (post_id INTEGER NOT NULL, tag_id INTEGER NOT NULL, UNIQUE(post_id, tag_id));
+
+
     CREATE TABLE blex_session (token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL, expires_at BIGINT NOT NULL);
   `);
   database.close();
@@ -95,17 +92,17 @@ function seedDatabase() {
     DELETE FROM WorkLogEntry;
     DELETE FROM board_profile;
     DELETE FROM board_config;
-    DELETE FROM board_post;
-    DELETE FROM board_postcontent;
-    DELETE FROM board_edithistory;
-    DELETE FROM board_editrequest;
-    DELETE FROM board_postconfig;
+    DELETE FROM "Post";
+    DELETE FROM "PostContent";
+    DELETE FROM "PostRevision";
+    
+    
     DELETE FROM "Comment";
     DELETE FROM "Series";
     DELETE FROM FormTemplate;
     DELETE FROM UploadedImage;
-    DELETE FROM board_tag;
-    DELETE FROM board_post_tags;
+    DELETE FROM "Tag";
+    DELETE FROM "_PostToTag";
     DELETE FROM DeveloperRequestLog;
     DELETE FROM blex_session;
     DELETE FROM CleanupConfirmation;
@@ -128,8 +125,11 @@ function seedDatabase() {
       (5, 'profileless', 'No Profile', 'profileless@example.test', 1, 0, 0, '2025-01-04 00:00:00', NULL);
     INSERT INTO board_profile (id, user_id, role) VALUES
       (1, 1, 'EDITOR'), (2, 2, 'EDITOR'), (3, 3, 'READER'), (4, 4, 'EDITOR');
-    INSERT INTO board_post (id, author_id, deleted_date, published_date) VALUES
-      (1, 1, NULL, NULL), (2, 1, NULL, NULL), (3, 1, '2025-01-04 00:00:00', NULL), (4, 3, NULL, '2099-01-01 00:00:00');
+    INSERT INTO "Post" ("id", "authorId", "deletedAt", "publishedAt", "slug", "title", "createdAt", "updatedAt", "hasSettings") VALUES
+    (1, 1, NULL, NULL, 'post-1', '', 946684800000, 946684800000, 0),
+    (2, 1, NULL, NULL, 'post-2', '', 946684800000, 946684800000, 0),
+    (3, 1, 1735948800000, NULL, 'post-3', '', 946684800000, 946684800000, 0),
+    (4, 3, NULL, 4070908800000, 'post-4', '', 946684800000, 946684800000, 0);
     INSERT INTO django_content_type VALUES (1, 'board', 'sitesetting');
     INSERT INTO auth_permission VALUES (1, 1, 'change_sitesetting', 'Can change site settings');
     INSERT INTO auth_user_user_permissions VALUES (1, 1, 1);
@@ -910,8 +910,11 @@ test('limits utility access to superusers and requires session-bound one-time cl
 
   const database = new DatabaseSync(databasePath);
   database.exec(`
-    INSERT INTO board_tag (id, value) VALUES (1, 'kept'), (2, 'unused-before-preview');
-    INSERT INTO board_post_tags (post_id, tag_id) VALUES (1, 1);
+    INSERT INTO "Tag" ("id", "name") VALUES
+    (1, 'kept'),
+    (2, 'unused-before-preview');
+    INSERT INTO "_PostToTag" ("A", "B") VALUES
+    (1, 1);
   `);
   database.prepare(`
     INSERT INTO auth_user (id, username, first_name, email, is_active, is_staff, is_superuser, date_joined, last_login)
@@ -928,7 +931,7 @@ test('limits utility access to superusers and requires session-bound one-time cl
   assert.equal(previewBody.cleanedCount, 1);
   const confirmation = String(previewBody.confirmationToken);
   assert.ok(confirmation.length > 32);
-  assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM board_tag WHERE value = 'unused-before-preview'`)[0]?.count), 1);
+  assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM "Tag" WHERE name = 'unused-before-preview'`)[0]?.count), 1);
 
   const wrongSession = await app.inject({
     method: 'POST', url: '/v1/utilities/clean-tags', headers: {
@@ -937,7 +940,7 @@ test('limits utility access to superusers and requires session-bound one-time cl
     payload: JSON.stringify({ dryRun: false, confirmationToken: confirmation }),
   });
   assert.equal(body(wrongSession).errorCode, 'error:RJ');
-  assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM board_tag WHERE value = 'unused-before-preview'`)[0]?.count), 1);
+  assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM "Tag" WHERE name = 'unused-before-preview'`)[0]?.count), 1);
 
   const otherUser = await app.inject({
     method: 'POST', url: '/v1/utilities/clean-tags', headers: jsonHeaders(6),
@@ -956,7 +959,7 @@ test('limits utility access to superusers and requires session-bound one-time cl
   });
   assert.equal(body(execute).status, 'DONE', execute.body);
   assert.equal((body(execute).body as Record<string, unknown>).dryRun, false);
-  assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM board_tag WHERE value = 'unused-before-preview'`)[0]?.count), 0);
+  assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM "Tag" WHERE name = 'unused-before-preview'`)[0]?.count), 0);
   const reuse = await app.inject({
     method: 'POST', url: '/v1/utilities/clean-tags', headers: jsonHeaders(2),
     payload: JSON.stringify({ dryRun: false, confirmationToken: confirmation }),
@@ -1098,12 +1101,12 @@ test('image cleanup retains every referenced asset and only clears cache rows fo
 
   const database = new DatabaseSync(databasePath);
   database.exec(`
-    UPDATE board_post SET image = '/resources/media/images/title/deleted-post-title.png' WHERE id = 3;
+    UPDATE "Post" SET image = '/resources/media/images/title/deleted-post-title.png' WHERE id = 3;
     UPDATE board_profile SET avatar = '/resources/media/images/avatar/profile-avatar.png' WHERE user_id = 1;
-    INSERT INTO board_postcontent (id, post_id, content_html)
-      VALUES (1, 1, '<img src="/resources/media/images/content/current-content.png">');
-    INSERT INTO board_edithistory (id, post_id, content)
-      VALUES (1, 3, '![](/resources/media/images/content/archived-history.png)');
+    INSERT INTO "PostContent" ("postId", "html") VALUES
+    (1, '<img src="/resources/media/images/content/current-content.png">');
+    INSERT INTO "PostRevision" (id, postId, type, tags, content)
+      VALUES (1, 3, 'edit', '[]', '![](/resources/media/images/content/archived-history.png)');
     INSERT INTO SiteNotice (id, scope, userId, title, isActive, "order", createdAt, updatedAt, url)
       VALUES (1, 'global', NULL, 'Inactive notice', 0, 0, 1735689600000, 1735689600000, '/resources/media/images/content/notice-content.png');
     INSERT INTO SiteBanner (id, scope, type, position, userId, title, isActive, "order", createdAt, updatedAt, contentHtml)
@@ -1235,7 +1238,7 @@ test('lists users with filters and safely updates only reader/editor roles', asy
   });
   assert.equal(body(demote).status, 'DONE', demote.body);
   const [scheduledPost] = await prisma.$queryRaw<Array<{ publishedDate: string | null }>>`
-    SELECT CAST(published_date AS TEXT) AS publishedDate FROM board_post WHERE id = 4
+    SELECT CAST(publishedAt AS TEXT) AS publishedDate FROM "Post" WHERE id = 4
   `;
   assert.equal(scheduledPost?.publishedDate, null);
   const profilelessPromotion = await app.inject({

@@ -1,12 +1,13 @@
 import { type PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
+import { storedDateText } from '../../../compat/django-format.js';
 import { sanitizePostHtml } from '../post-html.js';
 import { done, failure as failed } from '../../../platform/response.js';
 import { renderRevisionHistoryPage, renderTimelapsePage, sendPrivateHistoryPage } from '../pages/history-pages.js';
 import { plainText } from '../services/post-content.js';
 import { PostValidationError, assertExpectedUpdatedAt, loadPost } from '../services/post-store.js';
-import { StoredRevision, buildTimelapse, deleteRevision, loadRevision, restoreRevision, revisionSummary } from '../services/revisions.js';
-import { AuthoringOptions, bodyObject, cookieValue, dateAsIso, editorAccount, field, forbidden, notFound, numberValue, queryObject } from '../shared.js';
+import { buildTimelapse, deleteRevision, listRevisions, loadRevision, restoreRevision, revisionSummary } from '../services/revisions.js';
+import { AuthoringOptions, bodyObject, cookieValue, dateAsIso, editorAccount, field, forbidden, notFound, queryObject } from '../shared.js';
 
 export function registerRevisionsRoutes(routes: FastifyInstance, db: PrismaClient, options: AuthoringOptions) {
     routes.get<{ Params: { username: string; slug: string } }>('/@:username/:slug/revisions', async (request, reply) => {
@@ -19,27 +20,9 @@ export function registerRevisionsRoutes(routes: FastifyInstance, db: PrismaClien
       if (!/^\d+$/.test(pageRaw) || !Number.isSafeInteger(Number(pageRaw)) || Number(pageRaw) < 1) return notFound(reply);
       const page = Number(pageRaw);
       const limit = 20;
-      const countRows = await db.$queryRaw<Array<{ total: number | bigint }>>`
-        SELECT COUNT(*) AS total FROM board_edithistory
-         WHERE post_id = ${post.id} AND change_type <> 'draft'
-      `;
-      const totalCount = numberValue(countRows[0]?.total);
-      const lastPage = Math.max(1, Math.ceil(totalCount / limit));
-      if (page > lastPage) return notFound(reply);
-      const revisions = await db.$queryRaw<StoredRevision[]>`
-        SELECT history.id AS id, history.title AS title, history.subtitle AS subtitle,
-               history.content AS content, history.content_excerpt AS contentExcerpt,
-               history.description AS description, history.tags AS tags,
-               history.change_type AS changeType, actor.username AS actor,
-               history.restored_from_id AS restoredFromId,
-               CAST(history.source_updated_date AS TEXT) AS sourceUpdatedDate,
-               CAST(history.created_date AS TEXT) AS createdDate
-          FROM board_edithistory AS history LEFT JOIN auth_user AS actor ON actor.id = history.actor_id
-         WHERE history.post_id = ${post.id} AND history.change_type <> 'draft'
-         ORDER BY history.created_date DESC, history.id DESC
-         LIMIT ${limit} OFFSET ${(page - 1) * limit}
-      `;
-      const updatedDate = post.updatedDate instanceof Date ? post.updatedDate.toISOString() : String(post.updatedDate ?? '');
+      const { totalCount, lastPage, revisions } = await listRevisions(db, post.id, page, limit);
+      if (!revisions) return notFound(reply);
+      const updatedDate = storedDateText(post.updatedDate);
       const notice = field(query.restored) === '1'
         ? '이 기록으로 복원했습니다.'
         : field(query.restored) === 'already'
@@ -138,24 +121,8 @@ export function registerRevisionsRoutes(routes: FastifyInstance, db: PrismaClien
       if (!Number.isSafeInteger(page) || page < 1 || !Number.isSafeInteger(limit) || limit < 1 || limit > 50) {
         return failed('VA', 'Check the revision history pagination values.');
       }
-      const countRows = await db.$queryRaw<Array<{ total: number | bigint }>>`
-        SELECT COUNT(*) AS total FROM board_edithistory WHERE post_id = ${post.id} AND change_type <> 'draft'
-      `;
-      const totalCount = numberValue(countRows[0]?.total);
-      const lastPage = Math.max(1, Math.ceil(totalCount / limit));
-      if (page > lastPage) return failed('VA', 'Check the revision history pagination values.');
-      const revisions = await db.$queryRaw<StoredRevision[]>`
-        SELECT history.id AS id, history.title AS title, history.subtitle AS subtitle,
-               history.content_excerpt AS contentExcerpt, history.description AS description,
-               history.tags AS tags, history.change_type AS changeType,
-               actor.username AS actor, history.restored_from_id AS restoredFromId,
-               CAST(history.source_updated_date AS TEXT) AS sourceUpdatedDate,
-               CAST(history.created_date AS TEXT) AS createdDate
-          FROM board_edithistory AS history LEFT JOIN auth_user AS actor ON actor.id = history.actor_id
-         WHERE history.post_id = ${post.id} AND history.change_type <> 'draft'
-         ORDER BY history.created_date DESC, history.id DESC
-         LIMIT ${limit} OFFSET ${(page - 1) * limit}
-      `;
+      const { totalCount, lastPage, revisions } = await listRevisions(db, post.id, page, limit);
+      if (!revisions) return failed('VA', 'Check the revision history pagination values.');
       return done({
         revisions: revisions.map(revisionSummary),
         pagination: { page, limit, totalCount, lastPage },

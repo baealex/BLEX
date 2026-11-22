@@ -39,58 +39,13 @@ database.exec(`
     homepage TEXT NOT NULL DEFAULT ''
   );
   ${migratedTableSql('Series')}
-  CREATE TABLE board_post (
-    id INTEGER PRIMARY KEY,
-    title TEXT NOT NULL,
-    subtitle TEXT NOT NULL DEFAULT '',
-    url TEXT NOT NULL UNIQUE,
-    image TEXT NOT NULL DEFAULT '',
-    image_hash TEXT NOT NULL DEFAULT '',
-    read_time INTEGER NOT NULL DEFAULT 0,
-    created_date DATETIME NOT NULL,
-    updated_date DATETIME NOT NULL,
-    author_id INTEGER NOT NULL,
-    series_id INTEGER,
-    meta_description TEXT NOT NULL DEFAULT '',
-    published_date DATETIME,
-    deleted_date DATETIME
-  );
-  CREATE TABLE board_postcontent (
-    id INTEGER PRIMARY KEY,
-    post_id INTEGER NOT NULL UNIQUE,
-    content_html TEXT NOT NULL DEFAULT ''
-  );
-  CREATE TABLE board_postconfig (
-    id INTEGER PRIMARY KEY,
-    post_id INTEGER NOT NULL UNIQUE,
-    hide BOOLEAN NOT NULL DEFAULT 0,
-    advertise BOOLEAN NOT NULL DEFAULT 0,
-    block_comment BOOLEAN NOT NULL DEFAULT 0,
-    cover_layout TEXT NOT NULL DEFAULT 'default',
-    cover_image_position TEXT NOT NULL DEFAULT 'right',
-    cover_image_ratio TEXT NOT NULL DEFAULT 'auto'
-  );
-  CREATE TABLE board_postconfigmeta (
-    id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL,
-    value TEXT NOT NULL,
-    created_date DATETIME NOT NULL,
-    updated_date DATETIME NOT NULL,
-    post_id INTEGER NOT NULL
-  );
-  CREATE TABLE board_tag (id INTEGER PRIMARY KEY, value TEXT NOT NULL UNIQUE);
-  CREATE TABLE board_post_tags (
-    id INTEGER PRIMARY KEY,
-    post_id INTEGER NOT NULL,
-    tag_id INTEGER NOT NULL,
-    UNIQUE(post_id, tag_id)
-  );
-  CREATE TABLE board_post_likes (
-    id INTEGER PRIMARY KEY,
-    created_date DATETIME NOT NULL,
-    post_id INTEGER NOT NULL,
-    user_id INTEGER NOT NULL
-  );
+${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', 'PostLike', 'PinnedPost', 'PostShareLink', 'PostShareDailyCount', 'ScheduledPublication')}
+
+
+
+
+
+
   ${migratedTableSql('Comment', 'CommentLike')}
   ${migratedTableSql('AuthorSubscription')}
   CREATE TABLE board_userconfigmeta (
@@ -101,32 +56,15 @@ database.exec(`
     created_date DATETIME NOT NULL,
     updated_date DATETIME NOT NULL
   );
-  CREATE TABLE blex_scheduled_publication (
-    post_id INTEGER PRIMARY KEY,
-    publish_at TEXT NOT NULL
-  );
+
   CREATE TABLE board_usernamechangelog (
     id INTEGER PRIMARY KEY,
     username TEXT NOT NULL,
     created_date DATETIME NOT NULL,
     user_id INTEGER NOT NULL
   );
-  CREATE TABLE board_pinnedpost (id INTEGER PRIMARY KEY AUTOINCREMENT, "order" INTEGER NOT NULL DEFAULT 0, created_date TEXT, post_id INTEGER NOT NULL, user_id INTEGER NOT NULL);
-  CREATE TABLE board_edithistory (
-    id INTEGER PRIMARY KEY,
-    post_id INTEGER NOT NULL,
-    actor_id INTEGER,
-    restored_from_id INTEGER,
-    title TEXT NOT NULL,
-    subtitle TEXT NOT NULL,
-    content TEXT NOT NULL,
-    content_excerpt TEXT,
-    description TEXT NOT NULL,
-    tags TEXT NOT NULL,
-    source_updated_date DATETIME,
-    change_type TEXT NOT NULL,
-    created_date DATETIME NOT NULL
-  );
+
+
 
   INSERT INTO auth_user (id, username, first_name, is_active) VALUES (1, 'writer', 'Writer', 1), (2, 'other-writer', 'Other Writer', 1),
     (3, 'reader', 'Reader', 1), (4, 'inactive', 'Inactive', 0);
@@ -140,35 +78,37 @@ database.exec(`
     (2, 'Another writer form', 'Private form body', 0, ${Date.now()}, ${Date.now()}, 2);
   INSERT INTO UploadedImage (id, key, path, size, userId) VALUES
     (1, 'cover-hash', 'images/content/2026/11/21/cover-test.jpg', 12, 1);
-  INSERT INTO board_post VALUES
-    (1, 'Existing', 'Existing subtitle', 'existing', '', '', 2, '${now}', '${now}', 1, 1, 'Existing description', '${now}', NULL),
-    (2, 'Draft note', '', 'draft-note', '', '', 1, '${now}', '${now}', 1, 1, '', NULL, NULL),
-    (3, 'Scheduled', '', 'scheduled', '', '', 1, '${now}', '${now}', 1, NULL, '', '2099-01-01 00:00:00.000000', NULL),
-    (4, 'Hidden', '', 'hidden-post', '', '', 1, '${now}', '${now}', 1, NULL, '', '${now}', NULL),
-    (5, 'Elapsed schedule', '', 'trashed-schedule', '', '', 1, '${now}', '${now}', 1, NULL, '', '${oneHourAgo}', '${twoHoursAgo}');
-  INSERT INTO board_postcontent VALUES
-    (1, 1, '<h2>Existing content</h2><p>Do not lose this.</p>'),
-    (2, 2, '<p>Draft starts here.</p>'),
-    (3, 3, '<p>Scheduled content.</p>'),
-    (4, 4, '<p>Hidden content.</p>'),
-    (5, 5, '<p>Elapsed schedule content.</p>');
-  INSERT INTO board_edithistory VALUES
-    (1, 1, 1, NULL, 'Old version', 'Old subtitle', '<p>Old body</p>', 'Old body', 'Old description', '["oldtag"]', '2020-01-02 03:04:05.123456', 'edit', '2020-01-02 03:04:05.123456'),
-    (2, 1, NULL, NULL, '_NO_CHANGED_', '', '_NO_CHANGED_', '', '', '[]', NULL, 'legacy', '2021-01-02 03:04:05.000000');
-  INSERT INTO board_postconfig VALUES
-    (1, 1, 0, 0, 1, 'split', 'left', '4:3'),
-    (2, 2, 0, 0, 0, 'default', 'right', 'auto'),
-    (3, 3, 0, 0, 0, 'default', 'right', 'auto'),
-    (4, 4, 1, 0, 0, 'default', 'right', 'auto'),
-    (5, 5, 1, 0, 0, 'default', 'right', 'auto');
-  INSERT INTO board_tag VALUES (1, 'legacy-tag');
-  INSERT INTO board_post_tags VALUES (1, 1, 1);
-  INSERT INTO board_post_likes VALUES (1, '${now}', 1, 3);
+  INSERT INTO "Post" ("id", "title", "subtitle", "slug", "image", "imageHash", "readTime", "createdAt", "updatedAt", "authorId", "seriesId", "description", "publishedAt", "deletedAt", "hasSettings") VALUES
+    (1, 'Existing', 'Existing subtitle', 'existing', '', '', 2, ${prismaDate(now)}, ${prismaDate(now)}, 1, 1, 'Existing description', ${prismaDate(now)}, NULL, 0),
+    (2, 'Draft note', '', 'draft-note', '', '', 1, ${prismaDate(now)}, ${prismaDate(now)}, 1, 1, '', NULL, NULL, 0),
+    (3, 'Scheduled', '', 'scheduled', '', '', 1, ${prismaDate(now)}, ${prismaDate(now)}, 1, NULL, '', 4070908800000, NULL, 0),
+    (4, 'Hidden', '', 'hidden-post', '', '', 1, ${prismaDate(now)}, ${prismaDate(now)}, 1, NULL, '', ${prismaDate(now)}, NULL, 0),
+    (5, 'Elapsed schedule', '', 'trashed-schedule', '', '', 1, ${prismaDate(now)}, ${prismaDate(now)}, 1, NULL, '', ${prismaDate(oneHourAgo)}, ${prismaDate(twoHoursAgo)}, 0);
+  INSERT INTO "PostContent" ("postId", "html") VALUES
+    (1, '<h2>Existing content</h2><p>Do not lose this.</p>'),
+    (2, '<p>Draft starts here.</p>'),
+    (3, '<p>Scheduled content.</p>'),
+    (4, '<p>Hidden content.</p>'),
+    (5, '<p>Elapsed schedule content.</p>');
+  INSERT INTO "PostRevision" (id, postId, actorId, restoredFromId, title, subtitle, content, contentExcerpt, description, tags, sourceUpdatedAt, type, createdAt) VALUES
+    (1, 1, 1, NULL, 'Old version', 'Old subtitle', '<p>Old body</p>', 'Old body', 'Old description', '["oldtag"]', ${prismaDate('2020-01-02 03:04:05.123456')}, 'edit', ${prismaDate('2020-01-02 03:04:05.123456')}),
+    (2, 1, NULL, NULL, '_NO_CHANGED_', '', '_NO_CHANGED_', '', '', '[]', NULL, 'legacy', ${prismaDate('2021-01-02 03:04:05.000000')});
+  UPDATE "Post" SET hasSettings = 1, isHidden = 0, isAdvertised = 0, commentsBlocked = 1, coverLayout = 'split', coverImagePosition = 'left', coverImageRatio = '4:3' WHERE id = 1;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0, isAdvertised = 0, commentsBlocked = 0, coverLayout = 'default', coverImagePosition = 'right', coverImageRatio = 'auto' WHERE id = 2;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0, isAdvertised = 0, commentsBlocked = 0, coverLayout = 'default', coverImagePosition = 'right', coverImageRatio = 'auto' WHERE id = 3;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 1, isAdvertised = 0, commentsBlocked = 0, coverLayout = 'default', coverImagePosition = 'right', coverImageRatio = 'auto' WHERE id = 4;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 1, isAdvertised = 0, commentsBlocked = 0, coverLayout = 'default', coverImagePosition = 'right', coverImageRatio = 'auto' WHERE id = 5;
+  INSERT INTO "Tag" ("id", "name") VALUES
+    (1, 'legacy-tag');
+  INSERT INTO "_PostToTag" ("A", "B") VALUES
+    (1, 1);
+  INSERT INTO "PostLike" ("createdAt", "postId", "userId") VALUES
+    (${prismaDate(now)}, 1, 3);
   INSERT INTO "Comment" ("id", "markdown", "html", "isEdited", "isHearted", "createdAt", "authorId", "postId", "parentId") VALUES
     (1, 'hello', '<p>hello</p>', 0, 0, ${prismaDate(now)}, 3, 1, NULL);
   INSERT INTO "AuthorSubscription" ("id", "subscriberId", "authorId", "createdAt") VALUES
     (1, 3, 1, ${prismaDate(now)});
-  INSERT INTO blex_scheduled_publication VALUES (3, '2099-01-01 00:00:00.000000');
+  INSERT INTO "ScheduledPublication" VALUES (3, '2099-01-01 00:00:00.000000');
 `);
 database.close();
 
@@ -234,11 +174,11 @@ test('gates editor URLs, rejects a bad cover without saving, and serves draft-on
   });
   assert.equal(metadataEdit.json().status, 'DONE', metadataEdit.body);
   const unchangedBody = await db.$queryRaw<Array<{ html: string }>>`
-    SELECT content_html AS html FROM board_postcontent WHERE post_id = 1
+    SELECT html FROM "PostContent" WHERE postId = 1
   `;
   assert.equal(unchangedBody[0]?.html, '<h2>Existing content</h2><p>Do not lose this.</p>');
   const selectedCover = await db.$queryRaw<Array<{ image: string }>>`
-    SELECT image FROM board_post WHERE id = 1
+    SELECT image FROM "Post" WHERE id = 1
   `;
   assert.equal(selectedCover[0]?.image, 'images/content/2026/11/21/cover-test.jpg');
 
@@ -247,14 +187,14 @@ test('gates editor URLs, rejects a bad cover without saving, and serves draft-on
     payload: editorForm({ ...editFields, title: 'Must not save', cover_image_url: 'https://external.example/cover.jpg' }),
   });
   assert.deepEqual([rejectedCover.statusCode, rejectedCover.json().status], [200, 'ERROR']);
-  const afterRejectedCover = await db.$queryRaw<Array<{ title: string; image: string }>>`SELECT title, image FROM board_post WHERE id = 1`;
+  const afterRejectedCover = await db.$queryRaw<Array<{ title: string; image: string }>>`SELECT title, image FROM "Post" WHERE id = 1`;
   assert.deepEqual(afterRejectedCover[0], { title: 'Existing', image: 'images/content/2026/11/21/cover-test.jpg' });
   const removeCover = await app.inject({
     method: 'POST', url: '/v1/users/@writer/posts/existing', headers: editHeaders,
     payload: editorForm({ ...editFields, remove_cover_image: 'on' }),
   });
   assert.equal(removeCover.json().status, 'DONE', removeCover.body);
-  const removedCover = await db.$queryRaw<Array<{ image: string }>>`SELECT image FROM board_post WHERE id = 1`;
+  const removedCover = await db.$queryRaw<Array<{ image: string }>>`SELECT image FROM "Post" WHERE id = 1`;
   assert.equal(removedCover[0]?.image, '');
 
   const preview = await app.inject({ url: '/write/preview/draft-note', headers: writerHeaders });
@@ -291,29 +231,29 @@ test('creates a published Markdown post atomically with config, content, tags an
   assert.deepEqual(response.json(), { status: 'DONE', body: { url: 'hello-world' } });
 
   const post = await db.$queryRaw<Array<{ id: number; publishedDate: string; seriesId: number; title: string; readTime: number }>>`
-    SELECT id, CAST(published_date AS TEXT) AS publishedDate, series_id AS seriesId, title, read_time AS readTime
-    FROM board_post WHERE url = 'hello-world'
+    SELECT id, publishedAt AS publishedDate, seriesId, title, readTime
+    FROM "Post" WHERE slug = 'hello-world'
   `;
   assert.equal(post[0]?.title, 'Markdown launch');
   assert.ok(post[0]?.publishedDate);
   assert.equal(post[0]?.seriesId, 1);
   assert.equal(post[0]?.readTime, 1);
   const content = await db.$queryRaw<Array<{ html: string }>>`
-    SELECT content_html AS html FROM board_postcontent WHERE post_id = ${post[0]!.id}
+    SELECT html FROM "PostContent" WHERE postId = ${post[0]!.id}
   `;
   assert.match(content[0]!.html, /<h1>Hello<\/h1>/);
   assert.match(content[0]!.html, /<strong>bold<\/strong>/);
   assert.doesNotMatch(content[0]!.html, /<script/i);
   assert.match(content[0]!.html, /&lt;script&gt;bad\(\)&lt;\/script&gt;/);
   const config = await db.$queryRaw<Array<{ hide: number | bigint; coverLayout: string; blockComment: number | bigint }>>`
-    SELECT CAST(hide AS INTEGER) AS hide, cover_layout AS coverLayout, CAST(block_comment AS INTEGER) AS blockComment
-    FROM board_postconfig WHERE post_id = ${post[0]!.id}
+    SELECT CAST(isHidden AS INTEGER) AS hide, coverLayout, CAST(commentsBlocked AS INTEGER) AS blockComment
+    FROM "Post" WHERE id = ${post[0]!.id}
   `;
   assert.equal(Number(config[0]?.hide), 0);
   assert.equal(config[0]?.coverLayout, 'split');
   assert.equal(Number(config[0]?.blockComment), 0);
   const tags = await db.$queryRaw<Array<{ value: string }>>`
-    SELECT tag.value FROM board_tag AS tag JOIN board_post_tags AS link ON link.tag_id = tag.id WHERE link.post_id = ${post[0]!.id} ORDER BY tag.value
+    SELECT tag.name AS value FROM "Tag" AS tag JOIN "_PostToTag" AS link ON link.B = tag.id WHERE link.A = ${post[0]!.id} ORDER BY tag.name
   `;
   assert.deepEqual(tags.map((tag) => tag.value), ['python', 'typescript']);
   assert.equal(await db.notification.count({ where: { url: '/@writer/hello-world' } }), 1);
@@ -330,13 +270,13 @@ test('creates and reschedules future posts from the visible datetime-local field
   });
   assert.equal(create.json().status, 'DONE', create.body);
   const created = await db.$queryRaw<Array<{ id: number; published: string }>>`
-    SELECT id, CAST(published_date AS TEXT) AS published FROM board_post WHERE url = 'scheduled-through-editor'
+    SELECT id, publishedAt AS published FROM "Post" WHERE slug = 'scheduled-through-editor'
   `;
-  assert.equal(created[0]?.published, initialAt.replace('T', ' ').replace('Z', ''));
+  assert.equal(Number(created[0]?.published), Date.parse(initialAt));
   const initialQueue = await db.$queryRaw<Array<{ date: string }>>`
-    SELECT publish_at AS date FROM blex_scheduled_publication WHERE post_id = ${created[0]!.id}
+    SELECT publishAt AS date FROM "ScheduledPublication" WHERE postId = ${created[0]!.id}
   `;
-  assert.equal(initialQueue[0]?.date, created[0]?.published);
+  assert.equal(Number(initialQueue[0]?.date), Number(created[0]?.published));
 
   const laterAt = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString();
   const reschedule = await app.inject({
@@ -346,14 +286,14 @@ test('creates and reschedules future posts from the visible datetime-local field
   });
   assert.equal(reschedule.json().status, 'DONE', reschedule.body);
   const queued = await db.$queryRaw<Array<{ date: string }>>`
-    SELECT publish_at AS date FROM blex_scheduled_publication WHERE post_id = ${created[0]!.id}
+    SELECT publishAt AS date FROM "ScheduledPublication" WHERE postId = ${created[0]!.id}
   `;
-  assert.equal(queued[0]?.date, laterAt.replace('T', ' ').replace('Z', ''));
+  assert.equal(Number(queued[0]?.date), Date.parse(laterAt));
 
   const hide = await app.inject({ method: 'PUT', url: '/v1/users/@writer/posts/scheduled-through-editor?hide=1', headers: writerHeaders });
   assert.equal(hide.json().body.isHide, true);
   assert.equal((await db.$queryRaw<Array<{ total: number }>>`
-    SELECT COUNT(*) AS total FROM blex_scheduled_publication WHERE post_id = ${created[0]!.id}
+    SELECT COUNT(*) AS total FROM "ScheduledPublication" WHERE postId = ${created[0]!.id}
   `)[0]?.total, 0n);
   const unhide = await app.inject({ method: 'PUT', url: '/v1/users/@writer/posts/scheduled-through-editor?hide=1', headers: writerHeaders });
   assert.equal(unhide.json().body.isHide, false);
@@ -397,17 +337,17 @@ test('serves legacy create/edit/view contracts and keeps an existing post config
   });
   assert.deepEqual(edited.json(), { status: 'DONE', body: {} });
   const updatedPost = await db.$queryRaw<Array<{ title: string; seriesId: number | null }>>`
-    SELECT title, series_id AS seriesId FROM board_post WHERE url = ${apiUrl}
+    SELECT title, seriesId AS seriesId FROM "Post" WHERE slug = ${apiUrl}
   `;
   assert.equal(updatedPost[0]?.title, 'API markdown updated');
   assert.equal(updatedPost[0]?.seriesId, 1);
   const updatedContent = await db.$queryRaw<Array<{ html: string }>>`
-    SELECT content_html AS html FROM board_postcontent WHERE post_id = (SELECT id FROM board_post WHERE url = ${apiUrl})
+    SELECT html FROM "PostContent" WHERE postId = (SELECT id FROM "Post" WHERE slug = ${apiUrl})
   `;
   assert.match(updatedContent[0]!.html, /<strong>new<\/strong>/);
   const updatedTags = await db.$queryRaw<Array<{ value: string }>>`
-    SELECT tag.value FROM board_tag AS tag JOIN board_post_tags AS link ON link.tag_id = tag.id
-    WHERE link.post_id = (SELECT id FROM board_post WHERE url = ${apiUrl}) ORDER BY tag.value
+    SELECT tag.name AS value FROM "Tag" AS tag JOIN "_PostToTag" AS link ON link.B = tag.id
+    WHERE link.A = (SELECT id FROM "Post" WHERE slug = ${apiUrl}) ORDER BY tag.name
   `;
   assert.deepEqual(updatedTags.map((tag) => tag.value), ['new', 'tag']);
 
@@ -421,9 +361,9 @@ test('serves legacy create/edit/view contracts and keeps an existing post config
 });
 
 test('serves settings management lists, filters and restores expired scheduled trash', async () => {
-  await db.$executeRaw`INSERT INTO board_tag (value) VALUES ('popular') ON CONFLICT(value) DO NOTHING`;
-  const popular = await db.$queryRaw<Array<{ id: number }>>`SELECT id FROM board_tag WHERE value = 'popular'`;
-  await db.$executeRaw`INSERT INTO board_post_tags (post_id, tag_id) VALUES (3, ${popular[0]!.id}), (4, ${popular[0]!.id})`;
+  await db.$executeRaw`INSERT INTO "Tag" (name) VALUES ('popular') ON CONFLICT(name) DO NOTHING`;
+  const popular = await db.$queryRaw<Array<{ id: number }>>`SELECT id FROM "Tag" WHERE name = 'popular'`;
+  await db.$executeRaw`INSERT INTO "_PostToTag" (A, B) VALUES (3, ${popular[0]!.id}), (4, ${popular[0]!.id})`;
 
   const published = await app.inject({ url: '/v1/setting/posts?order=title', headers: { 'x-user-id': '1' } });
   assert.equal(published.json().status, 'DONE', published.body);
@@ -464,9 +404,7 @@ test('serves settings management lists, filters and restores expired scheduled t
   });
   assert.deepEqual(restore.json().body, { url: 'trashed-schedule', status: 'published', restored: true });
   const restored = await db.$queryRaw<Array<{ deletedDate: string | null; hide: number }>>`
-    SELECT CAST(post.deleted_date AS TEXT) AS deletedDate, CAST(config.hide AS INTEGER) AS hide
-      FROM board_post AS post JOIN board_postconfig AS config ON config.post_id = post.id
-     WHERE post.url = 'trashed-schedule'
+    SELECT deletedAt AS deletedDate, CAST(isHidden AS INTEGER) AS hide FROM "Post" WHERE slug = 'trashed-schedule'
   `;
   assert.equal(restored[0]?.deletedDate, null);
   assert.equal(Number(restored[0]?.hide), 1);
@@ -495,13 +433,13 @@ test('pages revision history, restores with version checks, deletes revisions an
   });
   assert.equal(restored.json().body.restored, true, restored.body);
   const fields = await db.$queryRaw<Array<{ title: string; subtitle: string; description: string; html: string }>>`
-    SELECT post.title, post.subtitle, post.meta_description AS description, content.content_html AS html
-      FROM board_post AS post JOIN board_postcontent AS content ON content.post_id = post.id
+    SELECT post.title, post.subtitle, post.description, content.html
+      FROM "Post" AS post JOIN "PostContent" AS content ON content.postId = post.id
      WHERE post.id = 1
   `;
   assert.deepEqual(fields[0], { title: 'Old version', subtitle: 'Old subtitle', description: 'Old description', html: '<p>Old body</p>' });
   const restoredTags = await db.$queryRaw<Array<{ value: string }>>`
-    SELECT tag.value AS value FROM board_post_tags AS link JOIN board_tag AS tag ON tag.id = link.tag_id WHERE link.post_id = 1
+    SELECT tag.name AS value FROM "_PostToTag" AS link JOIN "Tag" AS tag ON tag.id = link.B WHERE link.A = 1
   `;
   assert.deepEqual(restoredTags.map((tag) => tag.value), ['oldtag']);
 
@@ -554,7 +492,7 @@ test('links editor to owner-only revision and timelapse pages with form restore 
   assert.equal((await app.inject({ url: `${postPath}/timelapse`, headers: { 'x-user-id': '2' } })).statusCode, 404);
 
   const restoreCandidates = await db.$queryRaw<Array<{ id: number }>>`
-    SELECT id FROM board_edithistory WHERE post_id = 1 AND change_type = 'restore' ORDER BY id DESC LIMIT 1
+    SELECT id FROM "PostRevision" WHERE postId = 1 AND type = 'restore' ORDER BY id DESC LIMIT 1
   `;
   const restoreId = restoreCandidates[0]?.id;
   assert.ok(restoreId);
@@ -566,25 +504,23 @@ test('links editor to owner-only revision and timelapse pages with form restore 
   assert.equal(staleDelete.statusCode, 303);
   assert.match(staleDelete.headers.location ?? '', /conflict=1/);
 
-  const current = await db.$queryRaw<Array<{ updated: string }>>`SELECT CAST(updated_date AS TEXT) AS updated FROM board_post WHERE id = 1`;
+  const current = await db.post.findMany({ where: { id: 1 }, select: { updatedAt: true } });
   const restore = await app.inject({
     method: 'POST', url: `${historyPath}/${restoreId}/restore`,
     headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
-    payload: new URLSearchParams({ expected_updated_date: current[0]!.updated }).toString(),
+    payload: new URLSearchParams({ expected_updated_date: current[0]!.updatedAt.toISOString() }).toString(),
   });
   assert.equal(restore.statusCode, 303, restore.body);
   assert.match(restore.headers.location ?? '', /restored=1/);
   const restoredHistory = await app.inject({ url: restore.headers.location, headers: writerHeaders });
   assert.match(restoredHistory.body, /이 기록으로 복원했습니다\./);
 
-  const afterRestore = await db.$queryRaw<Array<{ updated: string; title: string }>>`
-    SELECT CAST(updated_date AS TEXT) AS updated, title FROM board_post WHERE id = 1
-  `;
+  const afterRestore = await db.post.findMany({ where: { id: 1 }, select: { updatedAt: true, title: true } });
   assert.equal(afterRestore[0]?.title, 'Existing');
   const remove = await app.inject({
     method: 'POST', url: `${historyPath}/${restoreId}/delete`,
     headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
-    payload: new URLSearchParams({ confirm_delete: 'yes', expected_updated_date: afterRestore[0]!.updated }).toString(),
+    payload: new URLSearchParams({ confirm_delete: 'yes', expected_updated_date: afterRestore[0]!.updatedAt.toISOString() }).toString(),
   });
   assert.equal(remove.statusCode, 303, remove.body);
   assert.match(remove.headers.location ?? '', /deleted=1/);
@@ -631,7 +567,7 @@ test('saves, previews, edits and publishes drafts while keeping only owner acces
   });
   assert.deepEqual(publish.json(), { status: 'DONE', body: { url: slug } });
   const published = await db.$queryRaw<Array<{ published: string | null; title: string }>>`
-    SELECT CAST(published_date AS TEXT) AS published, title FROM board_post WHERE url = ${slug}
+    SELECT CAST(publishedAt AS TEXT) AS published, title FROM "Post" WHERE slug = ${slug}
   `;
   assert.ok(published[0]?.published);
   assert.equal(published[0]?.title, 'Draft published');
@@ -641,57 +577,55 @@ test('supports schedule cancel and publish-now, and soft-deletes an owned post',
   const cancel = await app.inject({ method: 'POST', url: '/v1/users/@writer/posts/scheduled/schedule/cancel', headers: writerHeaders });
   assert.deepEqual(cancel.json().body, { url: 'scheduled', status: 'draft' });
   const state = await db.$queryRaw<Array<{ published: string | null }>>`
-    SELECT CAST(published_date AS TEXT) AS published FROM board_post WHERE url = 'scheduled'
+    SELECT CAST(publishedAt AS TEXT) AS published FROM "Post" WHERE slug = 'scheduled'
   `;
   assert.equal(state[0]?.published, null);
 
-  await db.$executeRaw`UPDATE board_post SET published_date = '2099-01-01 00:00:00.000000' WHERE url = 'scheduled'`;
+  await db.post.update({ where: { slug: 'scheduled' }, data: { publishedAt: new Date(Date.UTC(2099, 0, 1)) } });
   const publishNow = await app.inject({ method: 'POST', url: '/v1/users/@writer/posts/scheduled/schedule/publish-now', headers: writerHeaders });
   assert.equal(publishNow.json().body.status, 'published');
   const published = await db.$queryRaw<Array<{ published: string | null }>>`
-    SELECT CAST(published_date AS TEXT) AS published FROM board_post WHERE url = 'scheduled'
+    SELECT CAST(publishedAt AS TEXT) AS published FROM "Post" WHERE slug = 'scheduled'
   `;
   assert.ok(published[0]?.published);
 
   const trashed = await app.inject({ method: 'DELETE', url: '/v1/users/@writer/posts/existing', headers: writerHeaders });
   assert.equal(trashed.json().body.trashed, true);
   const deleted = await db.$queryRaw<Array<{ deleted: string | null }>>`
-    SELECT CAST(deleted_date AS TEXT) AS deleted FROM board_post WHERE url = 'existing'
+    SELECT CAST(deletedAt AS TEXT) AS deleted FROM "Post" WHERE slug = 'existing'
   `;
   assert.ok(deleted[0]?.deleted);
   assert.equal((await app.inject({ url: '/v1/users/@writer/posts/existing?mode=view' })).statusCode, 404);
 });
 
 test('exports ID-based PATCH persistence with preserved omissions and stale-write conflicts', async () => {
-  await db.$executeRaw`INSERT INTO board_post_tags (post_id, tag_id) VALUES (2, 1)`;
-  await db.$executeRaw`UPDATE board_post SET updated_date = '2020-01-02 03:04:05.123456' WHERE id = 2`;
-  const before = await db.$queryRaw<Array<{ id: number; updatedAt: string }>>`
-    SELECT id, CAST(updated_date AS TEXT) AS updatedAt FROM board_post WHERE id = 2
-  `;
-  const expected = before[0]!.updatedAt.replace(' ', 'T') + '+00:00';
-  const saved = await updateAuthorPost(db, { id: 1, username: 'writer' }, before[0]!.id, {
+  await db.$executeRaw`INSERT INTO "_PostToTag" (A, B) VALUES (2, 1)`;
+  await db.$executeRaw`UPDATE "Post" SET updatedAt = ${Date.UTC(2020, 0, 2, 3, 4, 5, 123)} WHERE id = 2`;
+  // A client that read the post from 3.x may still hold the six-digit version of this date.
+  const expected = '2020-01-02T03:04:05.123456+00:00';
+  const saved = await updateAuthorPost(db, { id: 1, username: 'writer' }, 2, {
     title: 'Patched by ID',
   }, expected);
   assert.equal(saved.id, 2);
   assert.equal(saved.url, 'draft-note');
 
   const preserved = await db.$queryRaw<Array<{ title: string; html: string; seriesId: number | null }>>`
-    SELECT post.title, content.content_html AS html, post.series_id AS seriesId
-      FROM board_post AS post JOIN board_postcontent AS content ON content.post_id = post.id
+    SELECT post.title, content.html, post.seriesId
+      FROM "Post" AS post JOIN "PostContent" AS content ON content.postId = post.id
      WHERE post.id = 2
   `;
   assert.equal(preserved[0]?.title, 'Patched by ID');
   assert.equal(preserved[0]?.html, '<p>Draft starts here.</p>');
   assert.equal(preserved[0]?.seriesId, 1);
   assert.deepEqual(await db.$queryRaw<Array<{ value: string }>>`
-    SELECT tag.value AS value FROM board_tag AS tag
-      JOIN board_post_tags AS link ON link.tag_id = tag.id WHERE link.post_id = 2
+    SELECT tag.name AS value FROM "Tag" AS tag
+      JOIN "_PostToTag" AS link ON link.B = tag.id WHERE link.A = 2
   `, [{ value: 'legacy-tag' }]);
 
   await assert.rejects(
     updateAuthorPost(db, { id: 1, username: 'writer' }, 2, { title: 'Stale write' }, expected),
     (error: unknown) => error instanceof PostValidationError && error.errorCode === 'CF',
   );
-  const current = await db.$queryRaw<Array<{ title: string }>>`SELECT title FROM board_post WHERE id = 2`;
+  const current = await db.$queryRaw<Array<{ title: string }>>`SELECT title FROM "Post" WHERE id = 2`;
   assert.equal(current[0]?.title, 'Patched by ID');
 });

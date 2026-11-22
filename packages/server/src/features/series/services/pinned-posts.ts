@@ -1,7 +1,9 @@
-import { Prisma, type PrismaClient } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyRequest } from 'fastify';
+import { storedDateText } from '../../../compat/django-format.js';
 import { messageFailure as apiError } from '../../../platform/response.js';
-import { SERIES_PUBLIC_FILTER } from './series.js';
+import { containsLiteral } from '../../posts/data/text-match.js';
+import { publicPostWhere } from '../../posts/data/visibility.js';
 import { type PinnablePagination, type PinnablePostItem, type PinnedPostItem, bodyRecord, localDate, stringValue } from '../shared.js';
 
 interface StoredPinnedPost extends PinnedPostItem {
@@ -40,31 +42,22 @@ export function pinnedError(error: PinnedServiceError) {
   return apiError(error.code, `${labels[error.key] ?? '고정 글을 변경하지 못했습니다.'}${suffix}`, error.key, error.params ?? {});
 }
 
+const pinOrder = [{ order: 'asc' }, { createdAt: 'asc' }, { postId: 'asc' }] satisfies Prisma.PinnedPostOrderByWithRelationInput[];
+
 export async function readPinnedPosts(db: PrismaClient, userId: number): Promise<StoredPinnedPost[]> {
-  const rows = await db.$queryRaw<Array<{
-    id: number; order: number | bigint; url: string; title: string; image: string; publishedDate: string | null;
-  }>>`
-    SELECT pinned.id AS id, pinned."order" AS "order", post.url AS url, post.title AS title,
-           post.image AS image, CAST(post.published_date AS TEXT) AS publishedDate
-      FROM board_pinnedpost AS pinned
-      JOIN board_post AS post ON post.id = pinned.post_id
-      LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-     WHERE pinned.user_id = ${userId} AND ${Prisma.raw(SERIES_PUBLIC_FILTER)}
-     ORDER BY pinned."order" ASC, pinned.id ASC
-  `;
-  return rows.map((row) => ({
-    id: Number(row.id), order: Number(row.order), publishedDate: row.publishedDate,
-    post: { url: row.url, title: row.title, image: row.image || null, createdDate: localDate(row.publishedDate) },
+  const rows = await db.pinnedPost.findMany({
+    where: { userId, post: publicPostWhere() },
+    orderBy: pinOrder,
+    select: { postId: true, order: true, post: { select: { slug: true, title: true, image: true, publishedAt: true } } },
+  });
+  return rows.map(({ postId, order, post }) => ({
+    id: postId, order, publishedDate: post.publishedAt && storedDateText(post.publishedAt),
+    post: { url: post.slug, title: post.title, image: post.image || null, createdDate: localDate(post.publishedAt) },
   }));
 }
 
 export async function reservedPinnedCount(db: PrismaClient, userId: number): Promise<number> {
-  const [row] = await db.$queryRaw<Array<{ count: number | bigint }>>`
-    SELECT COUNT(*) AS count FROM board_pinnedpost AS pinned
-      JOIN board_post AS post ON post.id = pinned.post_id
-     WHERE pinned.user_id = ${userId} AND post.deleted_date IS NOT NULL
-  `;
-  return Number(row?.count ?? 0);
+  return db.pinnedPost.count({ where: { userId, post: { deletedAt: { not: null } } } });
 }
 
 function normalizedPagination(query: string | undefined, limitRaw: string | undefined, pageRaw: string | undefined): {
@@ -96,39 +89,30 @@ export async function readPinnablePosts(
   const pagination = normalizedPagination(query, limitRaw, pageRaw);
   if ('code' in pagination) return pagination;
   const search = pagination.query;
-  const params: Array<string | number> = [userId, userId];
-  let searchFilter = '';
-  if (search) {
-    searchFilter = ' AND instr(lower(post.title), lower(?)) > 0';
-    params.push(search);
-  }
-  const where = `post.author_id = ? AND post.deleted_date IS NULL AND post.published_date IS NOT NULL
-    AND post.published_date <= CURRENT_TIMESTAMP AND COALESCE(post_config.hide, 0) = 0
-    AND NOT EXISTS (SELECT 1 FROM board_pinnedpost AS pin WHERE pin.user_id = ? AND pin.post_id = post.id)${searchFilter}`;
-  const [countRow] = await db.$queryRawUnsafe<Array<{ count: number | bigint }>>(`
-    SELECT COUNT(*) AS count FROM board_post AS post
-      LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-     WHERE ${where}
-  `, ...params);
-  const totalCount = Number(countRow?.count ?? 0);
+  const where: Prisma.PostWhereInput = { authorId: userId, ...publicPostWhere(), pins: { none: { userId } } };
+  const order = [{ publishedAt: 'desc' }, { id: 'desc' }] satisfies Prisma.PostOrderByWithRelationInput[];
+  // Title search is a literal substring match, which LIKE cannot express, over one author's short titles.
+  const matchedIds = search
+    ? (await db.post.findMany({ where, orderBy: order, select: { id: true, title: true } }))
+      .filter(({ title }) => containsLiteral(title, search)).map(({ id }) => id)
+    : null;
+  const totalCount = matchedIds ? matchedIds.length : await db.post.count({ where });
   const responseLimit = pagination.limit ?? totalCount;
   const queryLimit = Math.max(1, responseLimit);
   const lastPage = Math.max(1, Math.ceil(totalCount / queryLimit));
   const page = Math.min(pagination.page, lastPage);
   const offset = (page - 1) * queryLimit;
-  const rows = await db.$queryRawUnsafe<Array<{
-    url: string; title: string; image: string; publishedDate: string | null;
-  }>>(`
-    SELECT post.url AS url, post.title AS title, post.image AS image,
-           CAST(post.published_date AS TEXT) AS publishedDate
-      FROM board_post AS post
-      LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-     WHERE ${where}
-     ORDER BY post.published_date DESC, post.id DESC
-     LIMIT ? OFFSET ?
-  `, ...params, queryLimit, offset);
+  const select = { id: true, slug: true, title: true, image: true, publishedAt: true } satisfies Prisma.PostSelect;
+  let rows: Array<Prisma.PostGetPayload<{ select: typeof select }>>;
+  if (matchedIds) {
+    const pageIds = matchedIds.slice(offset, offset + queryLimit);
+    const found = new Map((await db.post.findMany({ where: { id: { in: pageIds } }, select })).map((row) => [row.id, row]));
+    rows = pageIds.map((id) => found.get(id)!);
+  } else {
+    rows = await db.post.findMany({ where, orderBy: order, skip: offset, take: queryLimit, select });
+  }
   return {
-    posts: rows.map((row) => ({ url: row.url, title: row.title, image: row.image || null, createdDate: localDate(row.publishedDate) })),
+    posts: rows.map((row) => ({ url: row.slug, title: row.title, image: row.image || null, createdDate: localDate(row.publishedAt) })),
     pagination: {
       page, limit: responseLimit, lastPage, totalCount,
       hasNext: page < lastPage, hasPrevious: page > 1,
@@ -138,54 +122,32 @@ export async function readPinnablePosts(
 
 export async function addPinnedPost(db: PrismaClient, userId: number, postUrl: string): Promise<PinnedServiceError | null> {
   return db.$transaction(async (tx: Prisma.TransactionClient): Promise<PinnedServiceError | null> => {
-    const [countRow] = await tx.$queryRaw<Array<{ count: number | bigint }>>`
-      SELECT COUNT(*) AS count FROM board_pinnedpost WHERE user_id = ${userId}
-    `;
-    if (Number(countRow?.count ?? 0) >= MAX_PINNED_POSTS) return { code: 'RJ', key: 'pinned_posts.limit_reached', params: { count: MAX_PINNED_POSTS } };
-    const [post] = await tx.$queryRaw<Array<{ id: number; hidden: number | bigint | boolean; publishedDate: string | null; deletedDate: string | null }>>`
-      SELECT post.id AS id, CAST(COALESCE(post_config.hide, 0) AS INTEGER) AS hidden,
-             CAST(post.published_date AS TEXT) AS publishedDate, CAST(post.deleted_date AS TEXT) AS deletedDate
-        FROM board_post AS post LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-       WHERE post.author_id = ${userId} AND post.url = ${postUrl} LIMIT 1
-    `;
+    if (await tx.pinnedPost.count({ where: { userId } }) >= MAX_PINNED_POSTS) {
+      return { code: 'RJ', key: 'pinned_posts.limit_reached', params: { count: MAX_PINNED_POSTS } };
+    }
+    const post = await tx.post.findFirst({
+      where: { authorId: userId, slug: postUrl },
+      select: { id: true, isHidden: true, publishedAt: true, deletedAt: true },
+    });
     if (!post) return { code: 'RJ', key: 'pinned_posts.post_not_found' };
-    if (Boolean(post.hidden)) return { code: 'RJ', key: 'pinned_posts.hidden_post' };
-    const [publishedState] = await tx.$queryRaw<Array<{ published: number | bigint | boolean }>>`
-      SELECT CASE WHEN ${post.publishedDate} IS NOT NULL AND ${post.deletedDate} IS NULL
-          AND datetime(${post.publishedDate}) <= CURRENT_TIMESTAMP THEN 1 ELSE 0 END AS published
-    `;
-    if (!publishedState?.published) {
+    if (post.isHidden) return { code: 'RJ', key: 'pinned_posts.hidden_post' };
+    if (!post.publishedAt || post.deletedAt || post.publishedAt > new Date()) {
       return { code: 'RJ', key: 'pinned_posts.published_only' };
     }
-    const [existing] = await tx.$queryRaw<Array<{ id: number }>>`
-      SELECT id FROM board_pinnedpost WHERE user_id = ${userId} AND post_id = ${post.id} LIMIT 1
-    `;
-    if (existing) return { code: 'RJ', key: 'pinned_posts.already_pinned' };
-    const [maxRow] = await tx.$queryRaw<Array<{ maxOrder: number | bigint | null }>>`
-      SELECT MAX("order") AS maxOrder FROM board_pinnedpost WHERE user_id = ${userId}
-    `;
-    const order = maxRow?.maxOrder === null || maxRow?.maxOrder === undefined ? 0 : Number(maxRow.maxOrder) + 1;
-    await tx.$executeRaw`
-      INSERT INTO board_pinnedpost ("order", created_date, post_id, user_id)
-      VALUES (${order}, CURRENT_TIMESTAMP, ${post.id}, ${userId})
-    `;
+    const key = { userId_postId: { userId, postId: post.id } };
+    if (await tx.pinnedPost.findUnique({ where: key, select: { postId: true } })) return { code: 'RJ', key: 'pinned_posts.already_pinned' };
+    const { _max } = await tx.pinnedPost.aggregate({ where: { userId }, _max: { order: true } });
+    await tx.pinnedPost.create({ data: { userId, postId: post.id, order: _max.order === null ? 0 : _max.order + 1, createdAt: new Date() } });
     return null;
   });
 }
 
 export async function removePinnedPost(db: PrismaClient, userId: number, postUrl: string): Promise<PinnedServiceError | null> {
   return db.$transaction(async (tx: Prisma.TransactionClient): Promise<PinnedServiceError | null> => {
-    const [pinned] = await tx.$queryRaw<Array<{ id: number; order: number | bigint }>>`
-      SELECT pinned.id AS id, pinned."order" AS "order"
-        FROM board_pinnedpost AS pinned JOIN board_post AS post ON post.id = pinned.post_id
-       WHERE pinned.user_id = ${userId} AND post.url = ${postUrl} LIMIT 1
-    `;
+    const pinned = await tx.pinnedPost.findFirst({ where: { userId, post: { slug: postUrl } }, select: { postId: true, order: true } });
     if (!pinned) return { code: 'RJ', key: 'pinned_posts.pinned_post_not_found' };
-    await tx.$executeRaw`DELETE FROM board_pinnedpost WHERE id = ${pinned.id}`;
-    await tx.$executeRaw`
-      UPDATE board_pinnedpost SET "order" = "order" - 1
-       WHERE user_id = ${userId} AND "order" > ${Number(pinned.order)}
-    `;
+    await tx.pinnedPost.delete({ where: { userId_postId: { userId, postId: pinned.postId } } });
+    await tx.pinnedPost.updateMany({ where: { userId, order: { gt: pinned.order } }, data: { order: { decrement: 1 } } });
     return null;
   });
 }
@@ -193,11 +155,12 @@ export async function removePinnedPost(db: PrismaClient, userId: number, postUrl
 export async function reorderPinnedPosts(db: PrismaClient, userId: number, postUrls: string[]): Promise<PinnedServiceError | null> {
   if (postUrls.length > MAX_PINNED_POSTS) return { code: 'RJ', key: 'pinned_posts.limit_reached', params: { count: MAX_PINNED_POSTS } };
   return db.$transaction(async (tx: Prisma.TransactionClient): Promise<PinnedServiceError | null> => {
-    const rows = await tx.$queryRaw<Array<{ id: number; url: string; order: number | bigint }>>`
-      SELECT pinned.id AS id, post.url AS url, pinned."order" AS "order"
-        FROM board_pinnedpost AS pinned JOIN board_post AS post ON post.id = pinned.post_id
-       WHERE pinned.user_id = ${userId} ORDER BY pinned."order" ASC, pinned.id ASC
-    `;
+    const pins = await tx.pinnedPost.findMany({
+      where: { userId },
+      orderBy: pinOrder,
+      select: { postId: true, order: true, post: { select: { slug: true } } },
+    });
+    const rows = pins.map((pin) => ({ postId: pin.postId, order: pin.order, url: pin.post.slug }));
     const byUrl = new Map(rows.map((row) => [row.url, row]));
     for (const url of postUrls) {
       if (!byUrl.has(url)) return { code: 'RJ', key: 'pinned_posts.reorder_contains_unpinned', params: { url } };
@@ -206,7 +169,7 @@ export async function reorderPinnedPosts(db: PrismaClient, userId: number, postU
     const ordered = [...postUrls.map((url) => byUrl.get(url)!), ...rows.filter((row) => !requested.has(row.url))];
     for (let index = 0; index < ordered.length; index += 1) {
       const row = ordered[index]!;
-      if (Number(row.order) !== index) await tx.$executeRaw`UPDATE board_pinnedpost SET "order" = ${index} WHERE id = ${row.id} AND user_id = ${userId}`;
+      if (row.order !== index) await tx.pinnedPost.update({ where: { userId_postId: { userId, postId: row.postId } }, data: { order: index } });
     }
     return null;
   });

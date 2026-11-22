@@ -7,7 +7,7 @@ import { PrismaClient } from '@prisma/client';
 import Fastify from 'fastify';
 import test from 'node:test';
 import { registerPublicPages } from '../src/features/discovery/pages/index.js';
-import { createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
+import { createMigratedTables, migratedTableSql, prismaDate } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-public-pages-'));
 const databasePath = join(directory, 'Django public pages.sqlite3');
@@ -46,29 +46,15 @@ database.exec(`
     user_id INTEGER NOT NULL,
     "order" INTEGER NOT NULL DEFAULT 0
   );
-  CREATE TABLE board_post (
-    id INTEGER PRIMARY KEY,
-    title TEXT NOT NULL,
-    subtitle TEXT NOT NULL DEFAULT '',
-    url TEXT NOT NULL,
-    image TEXT NOT NULL DEFAULT '',
-    read_time INTEGER NOT NULL DEFAULT 0,
-    created_date DATETIME NOT NULL,
-    updated_date DATETIME NOT NULL,
-    author_id INTEGER NOT NULL,
-    series_id INTEGER,
-    meta_description TEXT NOT NULL DEFAULT '',
-    published_date DATETIME,
-    deleted_date DATETIME
-  );
-  CREATE TABLE board_postconfig (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, hide BOOLEAN NOT NULL DEFAULT 0);
-  CREATE TABLE board_postcontent (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, content_html TEXT NOT NULL DEFAULT '');
-  CREATE TABLE board_post_likes (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, user_id INTEGER NOT NULL, created_date DATETIME NOT NULL);
+${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', 'PostLike', 'PinnedPost', 'PostShareLink', 'PostShareDailyCount', 'ScheduledPublication')}
+
+
+
   ${migratedTableSql('Comment', 'CommentLike')}
   ${migratedTableSql('Series')}
-  CREATE TABLE board_tag (id INTEGER PRIMARY KEY, value TEXT NOT NULL);
-  CREATE TABLE board_post_tags (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, tag_id INTEGER NOT NULL);
-  CREATE TABLE board_pinnedpost (id INTEGER PRIMARY KEY, "order" INTEGER NOT NULL, created_date DATETIME NOT NULL, post_id INTEGER NOT NULL, user_id INTEGER NOT NULL);
+
+
+
   ${migratedTableSql('AuthorSubscription')}
 
   INSERT INTO auth_user VALUES (1, 'writer', 'Writer', 1), (2, 'reader', 'Reader', 1);
@@ -84,38 +70,47 @@ database.exec(`
     (1, 1, 'First series description', '<p>First series description</p>', 0, 'public-series', '', 1577836800000, 1577923200000, 1, 'Public series'),
     (2, 2, 'Second series description', '<p>Second series description</p>', 0, 'other-series', '', 1578009600000, 1578096000000, 1, 'Other series'),
     (3, 3, 'Hidden series', '<p>Hidden series</p>', 1, 'hidden-series', '', 1577836800000, 1577836800000, 1, 'Hidden series');
-  INSERT INTO board_post VALUES
-    (1, 'Public new article', 'A useful subtitle', 'public-new', 'images/public-new.jpg', 4,
-     '2020-02-01 00:00:00.123456', '2020-02-01 00:00:00.123456', 1, 1, 'Public description', '2020-02-01 00:00:00.123456', NULL),
-    (2, 'Public older article', '', 'public-old', '', 2,
-     '2020-01-01 00:00:00', '2020-01-01 00:00:00', 1, 2, '', '2020-01-01 00:00:00', NULL),
-    (3, 'Reader public article', '', 'reader-public', '', 1,
-     '2020-01-02 00:00:00', '2020-01-02 00:00:00', 2, NULL, '', '2020-01-02 00:00:00', NULL),
-    (4, 'Hidden article', '', 'hidden-article', '', 1,
-     '2020-01-04 00:00:00', '2020-01-04 00:00:00', 1, NULL, '', '2020-01-04 00:00:00', NULL),
-    (5, 'Draft article', '', 'draft-article', '', 1,
-     '2020-01-05 00:00:00', '2020-01-05 00:00:00', 1, NULL, '', NULL, NULL),
-    (6, 'Scheduled article', '', 'scheduled-article', '', 1,
-     '9999-01-01 00:00:00', '9999-01-01 00:00:00', 1, NULL, '', '9999-01-01 00:00:00', NULL),
-    (7, 'Deleted article', '', 'deleted-article', '', 1,
-     '2020-01-06 00:00:00', '2020-01-06 00:00:00', 1, NULL, '', '2020-01-06 00:00:00', '2020-02-01 00:00:00');
-  INSERT INTO board_postconfig VALUES (1, 1, 0), (2, 2, 0), (3, 3, 0), (4, 4, 1), (5, 5, 0), (6, 6, 0), (7, 7, 0);
-  INSERT INTO board_post_likes VALUES (1, 1, 2, '2020-02-02 00:00:00');
-  INSERT INTO board_postcontent VALUES
-    (1, 1, '<p>Orion body text</p>'),
-    (2, 2, '<p>Earlier public content</p>'),
-    (3, 3, '<p>Reader content</p>'),
-    (4, 4, '<p>Private Orion content</p>');
-  INSERT INTO board_tag VALUES (1, 'python'), (2, 'private-only'), (3, 'javascript'), (4, 'zebra');
-  INSERT INTO board_post_tags VALUES (1, 1, 1), (2, 3, 1), (3, 4, 2), (4, 2, 3), (5, 1, 4);
+  INSERT INTO "Post" ("id", "title", "subtitle", "slug", "image", "readTime", "createdAt", "updatedAt", "authorId", "seriesId", "description", "publishedAt", "deletedAt", "hasSettings") VALUES
+    (1, 'Public new article', 'A useful subtitle', 'public-new', 'images/public-new.jpg', 4, 1580515200123, 1580515200123, 1, 1, 'Public description', 1580515200123, NULL, 0),
+    (2, 'Public older article', '', 'public-old', '', 2, 1577836800000, 1577836800000, 1, 2, '', 1577836800000, NULL, 0),
+    (3, 'Reader public article', '', 'reader-public', '', 1, 1577923200000, 1577923200000, 2, NULL, '', 1577923200000, NULL, 0),
+    (4, 'Hidden article', '', 'hidden-article', '', 1, 1578096000000, 1578096000000, 1, NULL, '', 1578096000000, NULL, 0),
+    (5, 'Draft article', '', 'draft-article', '', 1, 1578182400000, 1578182400000, 1, NULL, '', NULL, NULL, 0),
+    (6, 'Scheduled article', '', 'scheduled-article', '', 1, 253370764800000, 253370764800000, 1, NULL, '', 253370764800000, NULL, 0),
+    (7, 'Deleted article', '', 'deleted-article', '', 1, 1578268800000, 1578268800000, 1, NULL, '', 1578268800000, 1580515200000, 0);
+  UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 1;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 2;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 3;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 1 WHERE id = 4;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 5;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 6;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 7;
+  INSERT INTO "PostLike" ("postId", "userId", "createdAt") VALUES
+    (1, 2, 1580601600000);
+  INSERT INTO "PostContent" ("postId", "html") VALUES
+    (1, '<p>Orion body text</p>'),
+    (2, '<p>Earlier public content</p>'),
+    (3, '<p>Reader content</p>'),
+    (4, '<p>Private Orion content</p>');
+  INSERT INTO "Tag" ("id", "name") VALUES
+    (1, 'python'),
+    (2, 'private-only'),
+    (3, 'javascript'),
+    (4, 'zebra');
+  INSERT INTO "_PostToTag" ("A", "B") VALUES
+    (1, 1),
+    (3, 1),
+    (4, 2),
+    (2, 3),
+    (1, 4);
   INSERT INTO StaticPage (id, title, content, description, isPublished, showInFooter, "order", createdAt, updatedAt, authorId, slug) VALUES
     (1, 'Getting started', '<h1>Guide</h1><script>window.bad = true</script><p>Read more.</p>',
      'A short guide', 1, 1, 1, 1577836800000, 1577923200000, 1, 'guide'),
     (2, 'Internal page', '<p>Not public</p>', '', 0, 0, 2, 1577836800000, 1577923200000, NULL, 'internal');
-  INSERT INTO board_pinnedpost VALUES
-    (1, 1, '2020-02-02 00:00:00', 1, 1),
-    (2, 2, '2020-02-03 00:00:00', 4, 1),
-    (3, 3, '2020-02-04 00:00:00', 5, 1);
+  INSERT INTO "PinnedPost" ("order", "createdAt", "postId", "userId") VALUES
+    (1, 1580601600000, 1, 1),
+    (2, 1580688000000, 4, 1),
+    (3, 1580774400000, 5, 1);
   INSERT INTO SiteNotice (id, scope, userId, title, isActive, "order", createdAt, updatedAt, url) VALUES
     (1, 'global', NULL, 'Older site notice', 1, 0, 1577836800000, 1577836800000, '/news/older'),
     (2, 'global', NULL, 'Newest site notice', 1, 0, 1577923200000, 1577923200000, 'https://notice.example/new'),
@@ -130,28 +125,23 @@ database.exec(`
     VALUES (1, 'BLEX Docs', 'brand/logo/default/synthetic.svg', 'brand/logo/dark/synthetic-dark.svg', '{}', 1, 946684800000);
 `);
 const bulkPosts = database.prepare(`
-  INSERT INTO board_post (
-    id, title, subtitle, url, image, read_time, created_date, updated_date,
-    author_id, series_id, meta_description, published_date, deleted_date
-  ) VALUES (?, ?, '', ?, '', 1, ?, ?, 1, ?, '', ?, NULL)
+  INSERT INTO "Post" (id, title, slug, readTime, createdAt, updatedAt, authorId, seriesId, publishedAt)
+  VALUES (?, ?, ?, 1, ?, ?, 1, ?, ?)
 `);
-const publicConfigs = database.prepare('INSERT INTO board_postconfig VALUES (?, ?, 0)');
-const publicContents = database.prepare('INSERT INTO board_postcontent VALUES (?, ?, ?)');
+const publicContents = database.prepare('INSERT INTO "PostContent" (postId, html) VALUES (?, ?)');
 for (let index = 1; index <= 25; index += 1) {
   const id = 100 + index;
   const published = `2019-12-${String(index).padStart(2, '0')} 00:00:00.123456`;
   const slug = `archive-post-${String(index).padStart(2, '0')}`;
-  bulkPosts.run(id, `Archive post ${index}`, slug, published, published, null, published);
-  publicConfigs.run(id, id);
-  publicContents.run(id, id, `<p>Archive content ${index}</p>`);
+  bulkPosts.run(id, `Archive post ${index}`, slug, prismaDate(published), prismaDate(published), null, prismaDate(published));
+  publicContents.run(id, `<p>Archive content ${index}</p>`);
 }
 for (let index = 1; index <= 10; index += 1) {
   const id = 200 + index;
   const published = `2019-11-${String(index).padStart(2, '0')} 00:00:00.654321`;
   const slug = `series-post-${String(index).padStart(2, '0')}`;
-  bulkPosts.run(id, `Series post ${index}`, slug, published, published, 1, published);
-  publicConfigs.run(id, id);
-  publicContents.run(id, id, `<p>Series content ${index}</p>`);
+  bulkPosts.run(id, `Series post ${index}`, slug, prismaDate(published), prismaDate(published), 1, prismaDate(published));
+  publicContents.run(id, `<p>Series content ${index}</p>`);
 }
 database.close();
 

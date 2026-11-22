@@ -115,14 +115,14 @@ test('imports a 3.14 installation once and leaves the original unchanged', async
     assert.equal(await readFile(join(space.mediaRoot, 'images', 'cover.png'), 'utf8'), 'image');
     const imported = new DatabaseSync(space.databasePath);
     assert.equal(count(imported, 'auth_user'), 1);
-    assert.equal(count(imported, 'board_post'), 2);
+    assert.equal(count(imported, 'Post'), 2);
     assert.equal(count(imported, 'Comment'), 1);
     for (const table of ['django_migrations', 'django_session', 'django_site', 'board_oauthauthorization']) {
       assert.equal(imported.prepare('SELECT 1 FROM sqlite_schema WHERE name = ?').get(table), undefined, table);
     }
     assert.equal((imported.prepare('SELECT password FROM auth_user WHERE id = 7').get() as { password: string }).password, 'pbkdf2_sha256$fixture$hash');
-    assert.deepEqual({ ...imported.prepare('SELECT post_id, publish_at FROM blex_scheduled_publication').get() }, { post_id: 5, publish_at: '2099-01-01 00:00:00' });
-    assert.equal(Number((imported.prepare(`SELECT seq FROM sqlite_sequence WHERE name = 'board_post'`).get() as { seq: number }).seq), 40);
+    assert.deepEqual({ ...imported.prepare('SELECT postId, publishAt FROM "ScheduledPublication"').get() }, { postId: 5, publishAt: Date.UTC(2099, 0, 1) });
+    assert.equal(Number((imported.prepare(`SELECT seq FROM sqlite_sequence WHERE name = 'Post'`).get() as { seq: number }).seq), 40);
     assert.equal(count(imported, '_prisma_migrations'), 1);
     assert.equal(Number((imported.prepare('SELECT createdAt FROM WorkLog WHERE id = 3').get() as { createdAt: number }).createdAt), Date.UTC(2024, 1, 3, 4, 5, 6, 789));
     assert.equal(Number((imported.prepare('SELECT createdAt FROM WorkLogEntry WHERE id = 4').get() as { createdAt: number }).createdAt), Date.UTC(2024, 1, 2, 19, 5, 7));
@@ -284,6 +284,77 @@ test('imports 3.14 comments, series, and subscriptions with their counters and r
       assert.equal(Number((imported.prepare('SELECT seq FROM sqlite_sequence WHERE name = ?').get(table) as { seq: number }).seq), seq, table);
     }
     assert.equal(imported.prepare('SELECT 1 FROM sqlite_sequence WHERE name = ?').get('CommentLike'), undefined);
+    assert.deepEqual(imported.prepare('PRAGMA foreign_key_check').all(), []);
+    imported.close();
+  } finally {
+    await space.cleanup();
+  }
+});
+
+test('imports the 3.14 post domain with merged settings, keys, and counters', async () => {
+  const space = await workspace();
+  const source = join(space.legacyRoot, 'db.sqlite3');
+  try {
+    const legacy = await createLegacyDatabase(source);
+    for (const id of [7, 8]) insertRow(legacy, 'auth_user', { id, username: `user-${id}`, is_active: 1 });
+    insertRow(legacy, 'board_post', {
+      id: 5, author_id: 7, url: 'configured', title: 'Configured', subtitle: 'Sub', meta_description: 'Desc', image: 'images/a.png',
+      image_hash: 'hash', read_time: 3, created_date: '2024-01-01 00:00:00.123456', updated_date: '2024-01-02 00:00:00.654321', published_date: '2024-01-03 00:00:00',
+    });
+    insertRow(legacy, 'board_post', { id: 6, author_id: 7, url: 'no-settings', title: 'No settings', created_date: '2024-01-01 00:00:00', updated_date: '2024-01-01 00:00:00', published_date: '2024-01-03 00:00:00' });
+    insertRow(legacy, 'board_post', { id: 9, author_id: 7, url: 'draft', title: 'Draft', created_date: '2024-01-01 00:00:00', updated_date: '2024-01-01 00:00:00' });
+    insertRow(legacy, 'board_post', { id: 10, author_id: 7, url: 'bad-date', title: 'Bad date', created_date: '2024-01-01 00:00:00', updated_date: '2024-01-01 00:00:00' });
+    insertRow(legacy, 'board_postconfig', { id: 1, post_id: 5, hide: 1, advertise: 1, block_comment: 1, cover_layout: 'split', cover_image_position: 'left', cover_image_ratio: '4:3' });
+    insertRow(legacy, 'board_postcontent', { id: 40, post_id: 5, content_html: '<p>Body</p>' });
+    insertRow(legacy, 'board_postconfigmeta', { id: 1, post_id: 9, name: 'draft_reserved_date', value: '2099-01-01T09:00:00+09:00', created_date: '2024-01-01', updated_date: '2024-01-01' });
+    insertRow(legacy, 'board_postconfigmeta', { id: 2, post_id: 9, name: 'draft_reserved_date', value: '2099-02-02 00:00:00', created_date: '2024-01-01', updated_date: '2024-01-01' });
+    insertRow(legacy, 'board_postconfigmeta', { id: 3, post_id: 9, name: 'unused', value: 'discarded', created_date: '2024-01-01', updated_date: '2024-01-01' });
+    insertRow(legacy, 'board_postconfigmeta', { id: 4, post_id: 10, name: 'draft_reserved_date', value: 'not a date', created_date: '2024-01-01', updated_date: '2024-01-01' });
+    insertRow(legacy, 'board_tag', { id: 3, value: 'kept' });
+    insertRow(legacy, 'board_post_tags', { id: 8, post_id: 5, tag_id: 3 });
+    insertRow(legacy, 'board_edithistory', { id: 11, post_id: 5, actor_id: 7, change_type: 'edit', title: 'Old', tags: '["a", 1]', source_updated_date: '2023-12-31 00:00:00', created_date: '2024-01-01 00:00:00' });
+    insertRow(legacy, 'board_edithistory', { id: 12, post_id: 5, change_type: 'restore', restored_from_id: 11, tags: '{"not":"a list"}', created_date: '2024-01-02 00:00:00' });
+    insertRow(legacy, 'board_post_likes', { id: 21, post_id: 5, user_id: 8, created_date: '2024-02-01 00:00:00.999999' });
+    insertRow(legacy, 'board_pinnedpost', { id: 22, post_id: 5, user_id: 7, order: 4, created_date: '2024-02-02 00:00:00' });
+    insertRow(legacy, 'board_postsharelink', { id: 23, post_id: 5, token: 'share-token', label: 'Link', is_paused: 1, created_date: '2024-02-03 00:00:00' });
+    insertRow(legacy, 'board_post_share_link_daily_counts', { id: 24, link_id: 23, day: '2024-02-04', clicks: 9 });
+    insertRow(legacy, 'board_editrequest', { id: 25, post_id: 5, user_id: 8, title: 'Discarded', content: 'x', is_merged: 0, created_date: '2024-01-01', updated_date: '2024-01-01' });
+    for (const [name, seq] of [['board_post', 90], ['board_tag', 91], ['board_edithistory', 92], ['board_postsharelink', 93]] as const) {
+      legacy.prepare('UPDATE sqlite_sequence SET seq = ? WHERE name = ?').run(seq, name);
+    }
+    legacy.close();
+
+    await prepareDatabase(space.options);
+
+    const imported = new DatabaseSync(space.databasePath, { readOnly: true });
+    assert.deepEqual({ ...imported.prepare(`SELECT authorId, slug, title, subtitle, description, image, imageHash, readTime, isHidden, isAdvertised, commentsBlocked,
+      hasSettings, coverLayout, coverImagePosition, coverImageRatio, createdAt, updatedAt, publishedAt, draftScheduledAt FROM Post WHERE id = 5`).get() }, {
+      authorId: 7, slug: 'configured', title: 'Configured', subtitle: 'Sub', description: 'Desc', image: 'images/a.png', imageHash: 'hash', readTime: 3,
+      isHidden: 1, isAdvertised: 1, commentsBlocked: 1, hasSettings: 1, coverLayout: 'split', coverImagePosition: 'left', coverImageRatio: '4:3',
+      createdAt: Date.UTC(2024, 0, 1, 0, 0, 0, 123), updatedAt: Date.UTC(2024, 0, 2, 0, 0, 0, 654), publishedAt: Date.UTC(2024, 0, 3), draftScheduledAt: null,
+    });
+    assert.deepEqual({ ...imported.prepare('SELECT isHidden, isAdvertised, commentsBlocked, hasSettings, coverLayout, coverImagePosition, coverImageRatio FROM Post WHERE id = 6').get() }, {
+      isHidden: 0, isAdvertised: 0, commentsBlocked: 0, hasSettings: 0, coverLayout: 'default', coverImagePosition: 'right', coverImageRatio: 'auto',
+    });
+    assert.equal((imported.prepare('SELECT draftScheduledAt AS date FROM Post WHERE id = 9').get() as { date: number }).date, Date.UTC(2099, 1, 2));
+    assert.equal((imported.prepare('SELECT draftScheduledAt AS date FROM Post WHERE id = 10').get() as { date: number | null }).date, null);
+    assert.deepEqual({ ...imported.prepare('SELECT * FROM PostContent').get() }, { postId: 5, html: '<p>Body</p>' });
+    assert.deepEqual({ ...imported.prepare('SELECT * FROM Tag').get() }, { id: 3, name: 'kept' });
+    assert.deepEqual({ ...imported.prepare('SELECT * FROM _PostToTag').get() }, { A: 5, B: 3 });
+    assert.deepEqual(imported.prepare(`SELECT id, actorId, restoredFromId, type, json(tags) AS tags, sourceUpdatedAt FROM PostRevision ORDER BY id`).all().map((row) => ({ ...row })), [
+      { id: 11, actorId: 7, restoredFromId: null, type: 'edit', tags: '["a"]', sourceUpdatedAt: Date.UTC(2023, 11, 31) },
+      { id: 12, actorId: null, restoredFromId: 11, type: 'restore', tags: '[]', sourceUpdatedAt: null },
+    ]);
+    assert.deepEqual({ ...imported.prepare('SELECT * FROM PostLike').get() }, { postId: 5, userId: 8, createdAt: Date.UTC(2024, 1, 1, 0, 0, 0, 999) });
+    assert.deepEqual({ ...imported.prepare('SELECT * FROM PinnedPost').get() }, { userId: 7, postId: 5, order: 4, createdAt: Date.UTC(2024, 1, 2) });
+    assert.deepEqual({ ...imported.prepare('SELECT id, postId, token, label, isPaused FROM PostShareLink').get() }, { id: 23, postId: 5, token: 'share-token', label: 'Link', isPaused: 1 });
+    assert.deepEqual({ ...imported.prepare('SELECT * FROM PostShareDailyCount').get() }, { linkId: 23, day: Date.UTC(2024, 1, 4), clicks: 9 });
+    for (const [table, seq] of [['Post', 90], ['Tag', 91], ['PostRevision', 92], ['PostShareLink', 93]] as const) {
+      assert.equal(Number((imported.prepare('SELECT seq FROM sqlite_sequence WHERE name = ?').get(table) as { seq: number }).seq), seq, table);
+    }
+    for (const table of ['board_post', 'board_postconfig', 'board_postconfigmeta', 'board_editrequest']) {
+      assert.equal(imported.prepare('SELECT 1 FROM sqlite_schema WHERE name = ?').get(table), undefined, table);
+    }
     assert.deepEqual(imported.prepare('PRAGMA foreign_key_check').all(), []);
     imported.close();
   } finally {

@@ -3,7 +3,7 @@ import type { FastifyInstance } from 'fastify';
 import { done, failure as failed } from '../../../platform/response.js';
 import { ManagementQueryError, getManagedPosts, getTrashRows, loadTrashedPost, managementPage, permanentlyDeleteTrashedPost, restoreTrashedPost } from '../services/management.js';
 import { PostValidationError } from '../services/post-store.js';
-import { AuthoringOptions, bodyObject, editorAccount, field, forbidden, notFound, numberValue, queryObject } from '../shared.js';
+import { AuthoringOptions, bodyObject, editorAccount, field, forbidden, notFound, queryObject } from '../shared.js';
 
 export function registerManagementRoutes(routes: FastifyInstance, db: PrismaClient, options: AuthoringOptions) {
     routes.get('/v1/setting/posts', async (request, reply) => {
@@ -21,18 +21,22 @@ export function registerManagementRoutes(routes: FastifyInstance, db: PrismaClie
     routes.get('/v1/setting/tag', async (request, reply) => {
       const account = await editorAccount(request, reply, db, options, true);
       if (!account) return reply;
-      const tags = await db.$queryRaw<Array<{ name: string | null; count: number | bigint }>>`
-        SELECT tag.value AS name, COUNT(tag.value) AS count
-          FROM board_post AS post
-          LEFT JOIN board_post_tags AS link ON link.post_id = post.id
-          LEFT JOIN board_tag AS tag ON tag.id = link.tag_id
-         WHERE post.author_id = ${account.id} AND post.deleted_date IS NULL
-         GROUP BY tag.value
-         ORDER BY count DESC
-      `;
+      const active = { authorId: account.id, deletedAt: null };
+      const [tags, untagged] = await Promise.all([
+        db.tag.findMany({
+          where: { posts: { some: active } },
+          orderBy: { name: 'asc' },
+          select: { name: true, _count: { select: { posts: { where: active } } } },
+        }),
+        db.post.count({ where: { ...active, tags: { none: {} } } }),
+      ]);
+      // A post without tags has always added one row with no name and a count of zero.
+      const rows: Array<{ name: string | null; count: number }> = tags.map((tag) => ({ name: tag.name, count: tag._count.posts }));
+      if (untagged) rows.unshift({ name: null, count: 0 });
       return done({
         username: account.username,
-        tags: tags.map((tag) => ({ name: tag.name, count: numberValue(tag.count) })),
+        // Equal counts have always come back in reverse name order.
+        tags: rows.sort((left, right) => right.count - left.count || Buffer.compare(Buffer.from(right.name ?? ''), Buffer.from(left.name ?? ''))),
       });
     });
 

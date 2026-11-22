@@ -13,10 +13,6 @@ export async function isLastAdministrator(tx: Prisma.TransactionClient, userId: 
 export async function deleteAccountRows(tx: Prisma.TransactionClient, userId: number) {
   const owned = { user_id: userId };
 
-  await tx.board_pinnedpost.deleteMany({ where: owned });
-  await tx.board_post_likes.deleteMany({ where: owned });
-  await tx.board_edithistory.updateMany({ where: { actor_id: userId }, data: { actor_id: null } });
-  await tx.board_editrequest.deleteMany({ where: owned });
   await tx.board_profile.deleteMany({ where: owned });
   await tx.board_authorinvite.updateMany({ where: { created_by_id: userId }, data: { created_by_id: null } });
   await tx.board_authorinvite.updateMany({ where: { claimed_by_id: userId }, data: { claimed_by_id: null } });

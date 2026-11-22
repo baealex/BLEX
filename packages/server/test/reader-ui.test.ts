@@ -28,18 +28,9 @@ function createSchema() {
       avatar TEXT NOT NULL DEFAULT '', cover TEXT NOT NULL DEFAULT '', homepage TEXT NOT NULL DEFAULT '',
       role TEXT NOT NULL DEFAULT 'READER'
     );
-    CREATE TABLE board_post (
-      id INTEGER PRIMARY KEY, title TEXT NOT NULL, url TEXT NOT NULL UNIQUE, author_id INTEGER NOT NULL,
-      published_date DATETIME, deleted_date DATETIME
-    );
-    CREATE TABLE board_postconfig (
-      id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL UNIQUE, hide BOOLEAN NOT NULL DEFAULT 0,
-      block_comment BOOLEAN NOT NULL DEFAULT 0
-    );
-    CREATE TABLE board_post_likes (
-      id INTEGER PRIMARY KEY, created_date DATETIME NOT NULL, post_id INTEGER NOT NULL,
-      user_id INTEGER NOT NULL, UNIQUE(post_id, user_id)
-    );
+${migratedTableSql('Series', 'Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', 'PostLike', 'PinnedPost', 'PostShareLink', 'PostShareDailyCount')}
+
+
     ${migratedTableSql('Comment', 'CommentLike')}
         CREATE TABLE board_userlinkmeta (
       id INTEGER PRIMARY KEY, name TEXT NOT NULL, value TEXT NOT NULL,
@@ -53,9 +44,11 @@ function createSchema() {
       (1, 1, 'Author bio', 'avatars/writer.png', 'covers/writer.png', 'javascript:alert(1)', 'EDITOR'),
       (2, 2, 'Reader bio', '', '', '', 'READER'),
       (3, 3, '', '', '', '', 'EDITOR');
-    INSERT INTO board_post VALUES (1, 'Public post', 'public-post', 1, '2026-01-01 00:00:00', NULL);
-    INSERT INTO board_postconfig VALUES (1, 1, 0, 0);
-    INSERT INTO board_post_likes VALUES (1, '2026-01-01 00:00:00', 1, 2);
+    INSERT INTO "Post" ("id", "title", "slug", "authorId", "publishedAt", "deletedAt", "createdAt", "updatedAt", "hasSettings") VALUES
+    (1, 'Public post', 'public-post', 1, 1767225600000, NULL, 946684800000, 946684800000, 0);
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0, commentsBlocked = 0 WHERE id = 1;
+    INSERT INTO "PostLike" ("createdAt", "postId", "userId") VALUES
+    (1767225600000, 1, 2);
     INSERT INTO "Comment" ("id", "markdown", "html", "isEdited", "isHearted", "createdAt", "authorId", "postId", "parentId") VALUES
     (10, 'Parent', '<p>Parent <strong>comment</strong></p><script>unsafe()</script>', 0, 0, 1767312000000, 1, 1, NULL),
     (11, 'Reply', '<p>Reader reply</p>', 1, 0, 1767398400000, 2, 1, 10),
@@ -80,9 +73,9 @@ function seed() {
     DELETE FROM board_userlinkmeta;
     DELETE FROM "CommentLike";
     DELETE FROM "Comment";
-    DELETE FROM board_post_likes;
-    DELETE FROM board_postconfig;
-    DELETE FROM board_post;
+    DELETE FROM "PostLike";
+    
+    DELETE FROM "Post";
     DELETE FROM board_profile;
     DELETE FROM auth_user;
     INSERT INTO auth_user VALUES (1, 'writer', 'Writer', 1), (2, 'reader', 'Reader', 1), (3, 'inactive', 'Inactive', 0);
@@ -90,9 +83,11 @@ function seed() {
       (1, 1, 'Author bio', 'avatars/writer.png', 'covers/writer.png', 'javascript:alert(1)', 'EDITOR'),
       (2, 2, 'Reader bio', '', '', '', 'READER'),
       (3, 3, '', '', '', '', 'EDITOR');
-    INSERT INTO board_post VALUES (1, 'Public post', 'public-post', 1, '2026-01-01 00:00:00', NULL);
-    INSERT INTO board_postconfig VALUES (1, 1, 0, 0);
-    INSERT INTO board_post_likes VALUES (1, '2026-01-01 00:00:00', 1, 2);
+    INSERT INTO "Post" ("id", "title", "slug", "authorId", "publishedAt", "deletedAt", "createdAt", "updatedAt", "hasSettings") VALUES
+    (1, 'Public post', 'public-post', 1, 1767225600000, NULL, 946684800000, 946684800000, 0);
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0, commentsBlocked = 0 WHERE id = 1;
+    INSERT INTO "PostLike" ("createdAt", "postId", "userId") VALUES
+    (1767225600000, 1, 2);
     INSERT INTO "Comment" ("id", "markdown", "html", "isEdited", "isHearted", "createdAt", "authorId", "postId", "parentId") VALUES
     (10, 'Parent', '<p>Parent <strong>comment</strong></p><script>unsafe()</script>', 0, 0, 1767312000000, 1, 1, NULL),
     (11, 'Reply', '<p>Reader reply</p>', 1, 0, 1767398400000, 2, 1, 10),
@@ -207,7 +202,7 @@ test('handles SSR form actions with local redirects for likes, comments and subs
   });
   assert.equal(like.statusCode, 303);
   assert.equal(like.headers.location, '/@writer/public-post#post-comments');
-  const [postLike] = await db.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM board_post_likes WHERE post_id = 1 AND user_id = 2`;
+  const [postLike] = await db.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM "PostLike" WHERE postId = 1 AND userId = 2`;
   assert.equal(Number(postLike?.count), 0);
 
   const commentLike = await app.inject({

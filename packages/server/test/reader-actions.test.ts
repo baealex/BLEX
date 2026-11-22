@@ -31,27 +31,9 @@ database.exec(`
     avatar TEXT NOT NULL DEFAULT '',
     role TEXT NOT NULL DEFAULT 'READER'
   );
-  CREATE TABLE board_post (
-    id INTEGER PRIMARY KEY,
-    title TEXT NOT NULL,
-    url TEXT NOT NULL UNIQUE,
-    author_id INTEGER NOT NULL,
-    published_date DATETIME,
-    deleted_date DATETIME
-  );
-  CREATE TABLE board_postconfig (
-    id INTEGER PRIMARY KEY,
-    post_id INTEGER NOT NULL UNIQUE,
-    hide BOOLEAN NOT NULL DEFAULT 0,
-    block_comment BOOLEAN NOT NULL DEFAULT 0
-  );
-  CREATE TABLE board_post_likes (
-    id INTEGER PRIMARY KEY,
-    created_date DATETIME NOT NULL,
-    post_id INTEGER NOT NULL,
-    user_id INTEGER NOT NULL,
-    UNIQUE(post_id, user_id)
-  );
+${migratedTableSql('Series', 'Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', 'PostLike', 'PinnedPost', 'PostShareLink', 'PostShareDailyCount')}
+
+
   ${migratedTableSql('Comment', 'CommentLike')}
     ${migratedTableSql('AuthorSubscription')}
   ${migratedTableSql('AuthorSubscriptionLog')}
@@ -68,14 +50,17 @@ database.exec(`
     (3, 3, '', '', 'EDITOR'),
     (4, 4, 'Second bio', 'https://images.example/second.png', 'EDITOR'),
     (5, 5, 'Other reader bio', '', 'READER');
-  INSERT INTO board_post VALUES
-    (1, 'Public post', 'public-post', 1, '2026-01-01 00:00:00.123456', NULL),
-    (2, 'Hidden post', 'hidden-post', 1, '2026-01-01 00:00:00.123456', NULL),
-    (3, 'Draft post', 'draft-post', 1, NULL, NULL),
-    (4, 'Blocked comments', 'blocked-comments', 1, '2026-01-01 00:00:00.123456', NULL),
-    (5, 'Deleted post', 'deleted-post', 1, '2026-01-01 00:00:00.123456', '2026-01-02 00:00:00');
-  INSERT INTO board_postconfig VALUES
-    (1, 1, 0, 0), (2, 2, 1, 0), (3, 3, 0, 0), (4, 4, 0, 1), (5, 5, 0, 0);
+  INSERT INTO "Post" ("id", "title", "slug", "authorId", "publishedAt", "deletedAt", "createdAt", "updatedAt", "hasSettings") VALUES
+    (1, 'Public post', 'public-post', 1, 1767225600123, NULL, 946684800000, 946684800000, 0),
+    (2, 'Hidden post', 'hidden-post', 1, 1767225600123, NULL, 946684800000, 946684800000, 0),
+    (3, 'Draft post', 'draft-post', 1, NULL, NULL, 946684800000, 946684800000, 0),
+    (4, 'Blocked comments', 'blocked-comments', 1, 1767225600123, NULL, 946684800000, 946684800000, 0),
+    (5, 'Deleted post', 'deleted-post', 1, 1767225600123, 1767312000000, 946684800000, 946684800000, 0);
+  UPDATE "Post" SET hasSettings = 1, isHidden = 0, commentsBlocked = 0 WHERE id = 1;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 1, commentsBlocked = 0 WHERE id = 2;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0, commentsBlocked = 0 WHERE id = 3;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0, commentsBlocked = 1 WHERE id = 4;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0, commentsBlocked = 0 WHERE id = 5;
   INSERT INTO "Comment" ("id", "markdown", "html", "isEdited", "isHearted", "createdAt", "authorId", "postId", "parentId") VALUES
     (10, 'Writer parent', '<p>Writer parent</p><script>window.bad = true</script>', 0, 0, 1767225600123, 1, 1, NULL),
     (11, 'Reader reply', '<p>Reader reply</p>', 1, 0, 1767312000654, 2, 1, 10),
@@ -139,7 +124,7 @@ test('returns the legacy raw post-like envelope and serializes concurrent toggle
     { status: 'done', count_likes: 1, has_liked: true },
   ]);
   const rows = await db.$queryRaw<Array<{ count: number | bigint }>>`
-    SELECT COUNT(*) AS count FROM board_post_likes WHERE post_id = 1 AND user_id = 2
+    SELECT COUNT(*) AS count FROM "PostLike" WHERE postId = 1 AND userId = 2
   `;
   assert.equal(Number(rows[0]?.count), 1);
 

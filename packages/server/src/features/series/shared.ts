@@ -89,9 +89,9 @@ export function unauthorizedLogin() {
   return apiError('NL');
 }
 
-export function localDate(value: string | null): string {
+export function localDate(value: string | Date | null): string {
   if (!value) return '';
-  const raw = value.replace(' ', 'T');
+  const raw = value instanceof Date ? value.toISOString() : value.replace(' ', 'T');
   const timestamp = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(raw) ? raw : `${raw}Z`;
   const date = new Date(timestamp);
   if (!Number.isFinite(date.getTime())) return '';

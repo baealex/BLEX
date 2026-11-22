@@ -73,7 +73,7 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
       try {
         await db.$queryRaw`
           SELECT session.verified_until FROM blex_session AS session, blex_oauth_flow, blex_oauth_challenge,
-            blex_factor_setup, "NotificationDelivery", blex_scheduled_publication, "WebhookDelivery" LIMIT 0
+            blex_factor_setup, "NotificationDelivery", "ScheduledPublication", "WebhookDelivery" LIMIT 0
         `;
       } catch (error) {
         throw new Error('Could not open the BLEX 4 schema. Apply the Prisma migrations and follow the BLEX 3.x upgrade guide for an existing database.', { cause: error });

@@ -1,5 +1,6 @@
-import { type PrismaClient } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyReply, FastifyRequest } from 'fastify';
+import { settledPublicPostWhere } from '../posts/data/visibility.js';
 
 export interface ReaderActionUser {
   id: number;
@@ -121,43 +122,24 @@ export async function activeUser(
   return user && isTrue(user.isActive) ? user : null;
 }
 
+const readerPostSelect = {
+  id: true, authorId: true, title: true, slug: true, commentsBlocked: true,
+  author: { select: { username: true } },
+} satisfies Prisma.PostSelect;
+
+function readerPost(row: Prisma.PostGetPayload<{ select: typeof readerPostSelect }>): PostRow {
+  return { id: row.id, authorId: row.authorId, authorUsername: row.author.username, title: row.title, slug: row.slug, blockComment: row.commentsBlocked };
+}
+
 export async function publicPost(db: PrismaClient, slug: string): Promise<PostRow | null> {
-  const rows = await db.$queryRaw<PostRow[]>`
-    SELECT post.id AS id,
-           post.author_id AS authorId,
-           author.username AS authorUsername,
-           post.title AS title,
-           post.url AS slug,
-           CAST(post_config.block_comment AS INTEGER) AS blockComment
-    FROM board_post AS post
-    JOIN auth_user AS author ON author.id = post.author_id
-    JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-    WHERE post.url = ${slug}
-      AND post.deleted_date IS NULL
-      AND post.published_date IS NOT NULL
-      AND CAST(post.published_date AS TEXT) <= ${new Date().toISOString().replace('T', ' ').replace('Z', '')}
-      AND CAST(post_config.hide AS INTEGER) = 0
-    LIMIT 1
-  `;
-  return rows[0] ?? null;
+  const row = await db.post.findFirst({ where: { slug, ...settledPublicPostWhere() }, select: readerPostSelect });
+  return row && readerPost(row);
 }
 
 /** 3.x still shows the owner the reader panel on a hidden or scheduled post. */
 export async function ownedPost(db: PrismaClient, slug: string, ownerId: number): Promise<PostRow | null> {
-  const rows = await db.$queryRaw<PostRow[]>`
-    SELECT post.id AS id,
-           post.author_id AS authorId,
-           author.username AS authorUsername,
-           post.title AS title,
-           post.url AS slug,
-           CAST(post_config.block_comment AS INTEGER) AS blockComment
-    FROM board_post AS post
-    JOIN auth_user AS author ON author.id = post.author_id
-    JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-    WHERE post.url = ${slug} AND post.author_id = ${ownerId} AND post.deleted_date IS NULL
-    LIMIT 1
-  `;
-  return rows[0] ?? null;
+  const row = await db.post.findFirst({ where: { slug, authorId: ownerId, deletedAt: null, hasSettings: true }, select: readerPostSelect });
+  return row && readerPost(row);
 }
 
 export async function activeEditor(db: PrismaClient, username: string): Promise<AuthorRow | null> {

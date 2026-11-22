@@ -13,47 +13,49 @@ const legacySlug = 'a'.repeat(69);
 const database = new DatabaseSync(databasePath);
 createMigratedTables(database, 'StaticPage', 'SiteBanner', 'SiteSetting');
 database.exec(`
-  CREATE TABLE auth_user (id INTEGER PRIMARY KEY, username TEXT, password TEXT);
-  CREATE TABLE board_profile (user_id INTEGER PRIMARY KEY, avatar TEXT);
+  CREATE TABLE auth_user (id INTEGER PRIMARY KEY, username TEXT, password TEXT, first_name TEXT NOT NULL DEFAULT '');
+  CREATE TABLE board_profile (id INTEGER PRIMARY KEY, user_id INTEGER UNIQUE, avatar TEXT);
   CREATE TABLE board_usernamechangelog (id INTEGER PRIMARY KEY, user_id INTEGER, username TEXT);
-  CREATE TABLE board_post (
-    id INTEGER PRIMARY KEY, author_id INTEGER, url TEXT, title TEXT, meta_description TEXT,
-    published_date DATETIME, deleted_date DATETIME, subtitle TEXT NOT NULL DEFAULT '', image TEXT NOT NULL DEFAULT '',
-    updated_date DATETIME NOT NULL DEFAULT '2000-01-01 10:04:02', series_id INTEGER, read_time INTEGER NOT NULL DEFAULT 1
-  );
-  CREATE TABLE board_postconfig (id INTEGER PRIMARY KEY, post_id INTEGER UNIQUE, hide BOOLEAN,
-    cover_layout TEXT NOT NULL DEFAULT 'default', cover_image_ratio TEXT NOT NULL DEFAULT 'auto', cover_image_position TEXT NOT NULL DEFAULT 'right');
-  CREATE TABLE board_postcontent (id INTEGER PRIMARY KEY, post_id INTEGER UNIQUE, content_html TEXT);
+${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', 'PostLike', 'PinnedPost', 'PostShareLink', 'PostShareDailyCount', 'ScheduledPublication')}
+
+
   ${migratedTableSql('Series')}
-  CREATE TABLE board_post_tags (post_id INTEGER, tag_id INTEGER);
-  CREATE TABLE board_tag (id INTEGER PRIMARY KEY, value TEXT);
-  INSERT INTO auth_user VALUES (7, 'writer', 'test-only-password'), (8, 'other-writer', 'test-only-password');
+
+
+  INSERT INTO auth_user (id, username, password) VALUES (7, 'writer', 'test-only-password'), (8, 'other-writer', 'test-only-password');
   INSERT INTO board_usernamechangelog VALUES (1, 7, 'old-writer');
-  INSERT INTO board_post (id, author_id, url, title, meta_description, published_date, deleted_date) VALUES
-    (1, 7, 'public', 'Public article', 'Public description', '2000-01-01 10:04:02.123456', NULL),
-    (2, 7, 'hidden', 'Hidden article', '', '2000-01-01 10:04:02', NULL),
-    (3, 7, 'scheduled', 'Scheduled article', '', '9999-01-01 10:04:02', NULL),
-    (4, 7, 'draft', 'Draft article', '', NULL, NULL),
-    (5, 7, 'trashed', 'Trashed article', '', '2000-01-01 10:04:02', '2000-02-01 10:04:02'),
-    (6, 7, 'no-config', 'No config', '', '2000-01-01 10:04:02', NULL),
-    (7, 7, '${legacySlug}', 'Long legacy URL', '', '2000-01-01 10:04:02', NULL);
-  INSERT INTO board_postconfig (id, post_id, hide) VALUES (1, 1, 0), (2, 2, 1), (3, 3, 0), (4, 4, 0), (5, 5, 0), (7, 7, 0);
+  INSERT INTO "Post" ("id", "authorId", "slug", "title", "description", "publishedAt", "deletedAt", "createdAt", "updatedAt", "hasSettings") VALUES
+    (1, 7, 'public', 'Public article', 'Public description', 946721042123, NULL, 946684800000, 946684800000, 0),
+    (2, 7, 'hidden', 'Hidden article', '', 946721042000, NULL, 946684800000, 946684800000, 0),
+    (3, 7, 'scheduled', 'Scheduled article', '', 253370801042000, NULL, 946684800000, 946684800000, 0),
+    (4, 7, 'draft', 'Draft article', '', NULL, NULL, 946684800000, 946684800000, 0),
+    (5, 7, 'trashed', 'Trashed article', '', 946721042000, 949399442000, 946684800000, 946684800000, 0),
+    (6, 7, 'no-config', 'No config', '', 946721042000, NULL, 946684800000, 946684800000, 0),
+    (7, 7, '${legacySlug}', 'Long legacy URL', '', 946721042000, NULL, 946684800000, 946684800000, 0);
+  UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 1;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 1 WHERE id = 2;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 3;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 4;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 5;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 7;
   INSERT INTO SiteSetting (id, siteName, aeoEnabled, seoEnabled, logoSvg, iconManifest, updatedAt) VALUES (1, 'Synthetic Site', 1, 0, 'brand/logo/default/hash/logo.svg', '{"ico":"brand/icon/default/hash/favicon.ico"}', 946684800000);
   INSERT INTO SiteBanner (id, userId, isActive, type, position, contentHtml, scope, "order", createdAt, updatedAt) VALUES
     (1, NULL, 1, 'horizontal', 'top', '<p>Global banner</p>', 'global', 0, 946684800000, 946684800000),
     (2, 7, 1, 'sidebar', 'right', '<p>Author banner</p>', 'user', 0, 946684800000, 946684800000),
     (3, 8, 1, 'sidebar', 'right', '<p>Other banner</p>', 'user', 1, 946684800000, 946684800000),
     (4, NULL, 0, 'sidebar', 'left', '<p>Inactive banner</p>', 'global', 1, 946684800000, 946684800000);
-  INSERT INTO board_tag VALUES (1, 'example-tag');
+  INSERT INTO "Tag" ("id", "name") VALUES
+    (1, 'example-tag');
   INSERT INTO StaticPage (id, title, slug, isPublished, showInFooter, "order", updatedAt) VALUES
     (1, 'Footer link', 'in-footer', 1, 1, 0, 946684800000), (2, 'Private footer link', 'not-in-footer', 0, 1, 1, 946684800000);
-  INSERT INTO board_post_tags VALUES (1, 1);
-  UPDATE board_post SET subtitle = 'About the article', image = 'images/cover.png' WHERE id = 1;
-  UPDATE board_postconfig SET cover_layout = 'split', cover_image_ratio = '4:3', cover_image_position = 'left' WHERE post_id = 1;
-  INSERT INTO board_postcontent VALUES
-    (1, 1, '<p>Public article body</p><script>discard this</script>'),
-    (2, 2, '<p>Private article body</p>'),
-    (7, 7, '<h2 id="section">Section</h2><img data-src="/resources/media/image.png" alt="An image">'
+  INSERT INTO "_PostToTag" ("A", "B") VALUES
+    (1, 1);
+  UPDATE "Post" SET subtitle = 'About the article', image = 'images/cover.png' WHERE id = 1;
+  UPDATE "Post" SET coverLayout = 'split', coverImageRatio = '4:3', coverImagePosition = 'left' WHERE id = 1;
+  INSERT INTO "PostContent" ("postId", "html") VALUES
+    (1, '<p>Public article body</p><script>discard this</script>'),
+    (2, '<p>Private article body</p>'),
+    (7, '<h2 id="section">Section</h2><img data-src="/resources/media/image.png" alt="An image">'
       || '<h3>같은 제목</h3><h3>같은 제목</h3>'
       || '<video controls><source data-src="/resources/media/video.mp4" type="video/mp4"></video>'
       || '<iframe src="https://www.youtube-nocookie.com/embed/Example_01"></iframe>'

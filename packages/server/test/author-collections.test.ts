@@ -23,18 +23,9 @@ function createSchema() {
       id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL UNIQUE, role TEXT NOT NULL
     );
     ${migratedTableSql('Series')}
-        CREATE TABLE board_post (
-      id INTEGER PRIMARY KEY, url TEXT NOT NULL UNIQUE, title TEXT NOT NULL, image TEXT NOT NULL DEFAULT '',
-      published_date DATETIME, deleted_date DATETIME, author_id INTEGER NOT NULL, series_id INTEGER REFERENCES "Series" (id) ON DELETE SET NULL,
-      updated_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-    );
-    CREATE TABLE board_postconfig (
-      id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL UNIQUE, hide BOOLEAN NOT NULL DEFAULT 0
-    );
-    CREATE TABLE board_pinnedpost (
-      id INTEGER PRIMARY KEY, "order" INTEGER NOT NULL, created_date DATETIME NOT NULL,
-      post_id INTEGER NOT NULL, user_id INTEGER NOT NULL, UNIQUE(user_id, post_id)
-    );
+${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', 'PostLike', 'PinnedPost', 'PostShareLink', 'PostShareDailyCount', 'ScheduledPublication')}
+
+
   `);
   database.close();
 }
@@ -42,9 +33,9 @@ function createSchema() {
 function seed() {
   const database = new DatabaseSync(databasePath);
   database.exec(`
-    DELETE FROM board_pinnedpost;
-    DELETE FROM board_postconfig;
-    DELETE FROM board_post;
+    DELETE FROM "PinnedPost";
+    
+    DELETE FROM "Post";
     DELETE FROM "Series";
     DELETE FROM board_profile;
     DELETE FROM auth_user;
@@ -56,28 +47,37 @@ function seed() {
     (10, 0, '**series description**', '<p><strong>series description</strong></p>', 0, 'writer-series', 'list', 1704099600000, 1704099600000, 1, 'Writer Series'),
     (11, 1, '', '', 1, 'hidden-series', 'list', 1704186000000, 1704186000000, 1, 'Hidden Series'),
     (20, 0, '', '', 0, 'other-series', 'list', 1704272400000, 1704272400000, 2, 'Other Series');
-    INSERT INTO board_post VALUES
-      (1, 'public-unassigned', 'Public unassigned', '', '2024-06-01 12:00:00', NULL, 1, NULL, '2024-06-01 12:00:00'),
-      (2, 'public-assigned', 'Public assigned', '', '2024-06-02 12:00:00', NULL, 1, 10, '2024-06-02 12:00:00'),
-      (3, 'hidden-post', 'Hidden post', '', '2024-06-03 12:00:00', NULL, 1, NULL, '2024-06-03 12:00:00'),
-      (4, 'draft-post', 'Draft post', '', NULL, NULL, 1, NULL, '2024-06-04 12:00:00'),
-      (5, 'scheduled-post', 'Scheduled post', '', '2099-06-05 12:00:00', NULL, 1, NULL, '2024-06-05 12:00:00'),
-      (6, 'trashed-post', 'Trashed post', '', '2024-06-06 12:00:00', '2024-06-07 12:00:00', 1, NULL, '2024-06-06 12:00:00'),
-      (7, 'assigned-hidden', 'Assigned hidden', '', '2024-06-07 12:00:00', NULL, 1, 10, '2024-06-07 12:00:00'),
-      (8, 'assigned-draft', 'Assigned draft', '', NULL, NULL, 1, 10, '2024-06-08 12:00:00'),
-      (9, 'assigned-trash', 'Assigned trash', '', '2024-06-09 12:00:00', '2024-06-10 12:00:00', 1, 10, '2024-06-09 12:00:00'),
-      (10, 'other-public', 'Other public', '', '2024-06-10 12:00:00', NULL, 2, NULL, '2024-06-10 12:00:00'),
-      (11, 'hidden-series-public', 'Hidden series public post', '', '2024-06-11 12:00:00', NULL, 1, 11, '2024-06-11 12:00:00'),
-      (12, 'public-unassigned-newest', 'Public unassigned newest', '', '2024-06-12 12:00:00', NULL, 1, NULL, '2024-06-12 12:00:00');
-    INSERT INTO board_postconfig VALUES
-      (1, 1, 0), (2, 2, 0), (3, 3, 1), (4, 4, 0), (5, 5, 0), (6, 6, 0),
-      (7, 7, 1), (8, 8, 0), (9, 9, 0), (10, 10, 0), (11, 11, 0), (12, 12, 0);
-    INSERT INTO board_pinnedpost VALUES
-      (1, 0, '2024-06-01 12:00:00', 1, 1),
-      (2, 1, '2024-06-02 12:00:00', 3, 1),
-      (3, 2, '2024-06-03 12:00:00', 6, 1),
-      (4, 3, '2024-06-04 12:00:00', 4, 1),
-      (5, 4, '2024-06-05 12:00:00', 5, 1);
+    INSERT INTO "Post" ("id", "slug", "title", "image", "publishedAt", "deletedAt", "authorId", "seriesId", "updatedAt", "createdAt", "hasSettings") VALUES
+    (1, 'public-unassigned', 'Public unassigned', '', 1717243200000, NULL, 1, NULL, 1717243200000, 946684800000, 0),
+    (2, 'public-assigned', 'Public assigned', '', 1717329600000, NULL, 1, 10, 1717329600000, 946684800000, 0),
+    (3, 'hidden-post', 'Hidden post', '', 1717416000000, NULL, 1, NULL, 1717416000000, 946684800000, 0),
+    (4, 'draft-post', 'Draft post', '', NULL, NULL, 1, NULL, 1717502400000, 946684800000, 0),
+    (5, 'scheduled-post', 'Scheduled post', '', 4084344000000, NULL, 1, NULL, 1717588800000, 946684800000, 0),
+    (6, 'trashed-post', 'Trashed post', '', 1717675200000, 1717761600000, 1, NULL, 1717675200000, 946684800000, 0),
+    (7, 'assigned-hidden', 'Assigned hidden', '', 1717761600000, NULL, 1, 10, 1717761600000, 946684800000, 0),
+    (8, 'assigned-draft', 'Assigned draft', '', NULL, NULL, 1, 10, 1717848000000, 946684800000, 0),
+    (9, 'assigned-trash', 'Assigned trash', '', 1717934400000, 1718020800000, 1, 10, 1717934400000, 946684800000, 0),
+    (10, 'other-public', 'Other public', '', 1718020800000, NULL, 2, NULL, 1718020800000, 946684800000, 0),
+    (11, 'hidden-series-public', 'Hidden series public post', '', 1718107200000, NULL, 1, 11, 1718107200000, 946684800000, 0),
+    (12, 'public-unassigned-newest', 'Public unassigned newest', '', 1718193600000, NULL, 1, NULL, 1718193600000, 946684800000, 0);
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 1;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 2;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 1 WHERE id = 3;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 4;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 5;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 6;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 1 WHERE id = 7;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 8;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 9;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 10;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 11;
+    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 12;
+    INSERT INTO "PinnedPost" ("order", "createdAt", "postId", "userId") VALUES
+    (0, 1717243200000, 1, 1),
+    (1, 1717329600000, 3, 1),
+    (2, 1717416000000, 6, 1),
+    (3, 1717502400000, 4, 1),
+    (4, 1717588800000, 5, 1);
   `);
   database.close();
 }
@@ -151,10 +151,10 @@ test('series APIs preserve ownership, counts, markdown, post selection, and orde
   const newId = Number(created.json().body.id);
   const [stored] = await db.$queryRaw<Array<{ text_html: string }>>`SELECT descriptionHtml AS text_html FROM "Series" WHERE id = ${newId}`;
   assert.equal(stored.text_html, '**welcome**');
-  const [movedPost] = await db.$queryRaw<Array<{ series_id: number | null }>>`SELECT series_id FROM board_post WHERE id = 2`;
-  assert.equal(movedPost.series_id, newId);
-  const [foreignPost] = await db.$queryRaw<Array<{ series_id: number | null }>>`SELECT series_id FROM board_post WHERE id = 10`;
-  assert.equal(foreignPost.series_id, null);
+  const [movedPost] = await db.$queryRaw<Array<{ seriesId: number | null }>>`SELECT seriesId FROM "Post" WHERE id = 2`;
+  assert.equal(movedPost.seriesId, newId);
+  const [foreignPost] = await db.$queryRaw<Array<{ seriesId: number | null }>>`SELECT seriesId FROM "Post" WHERE id = 10`;
+  assert.equal(foreignPost.seriesId, null);
 
   const updated = await app.inject({
     method: 'PUT', url: `/v1/series/${newId}`, headers: jsonHeaders(1), payload: { name: 'Renamed', postIds: [] },
@@ -223,8 +223,8 @@ test('pinned APIs expose public rows, reserve trash, paginate, and guard author 
   });
   assert.equal(reordered.json().status, 'DONE');
   const allOrders = await db.$queryRaw<Array<{ url: string; order: number }>>`
-    SELECT post.url AS url, pinned."order" AS "order" FROM board_pinnedpost AS pinned
-      JOIN board_post AS post ON post.id = pinned.post_id WHERE pinned.user_id = 1 ORDER BY pinned."order"
+    SELECT post.slug AS url, pinned."order" AS "order" FROM "PinnedPost" AS pinned
+      JOIN "Post" AS post ON post.id = pinned.postId WHERE pinned.userId = 1 ORDER BY pinned."order"
   `;
   assert.deepEqual(allOrders.map((row) => row.url), [
     'public-unassigned-newest', 'public-unassigned', 'hidden-post', 'trashed-post', 'draft-post', 'scheduled-post',
@@ -243,6 +243,6 @@ test('the pinned API removes rows', async () => {
     method: 'DELETE', url: '/v1/setting/pinned-posts', headers: jsonHeaders(1), payload: { post_url: 'public-unassigned' },
   });
   assert.equal(removed.json().status, 'DONE', removed.body);
-  const [remaining] = await db.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM board_pinnedpost WHERE user_id = 1 AND post_id = 1`;
+  const [remaining] = await db.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM "PinnedPost" WHERE userId = 1 AND postId = 1`;
   assert.equal(Number(remaining.count), 0);
 });

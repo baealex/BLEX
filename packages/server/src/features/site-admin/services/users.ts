@@ -115,7 +115,7 @@ export async function readManagedUsers(db: PrismaClient, request: FastifyRequest
     SELECT user.id, user.username, user.first_name AS name, user.email,
       user.is_active AS isActive, user.is_staff AS isStaff, user.is_superuser AS isSuperuser,
       profile.role AS role,
-      (SELECT COUNT(*) FROM board_post AS post WHERE post.author_id = user.id AND post.deleted_date IS NULL) AS postCount,
+      (SELECT COUNT(*) FROM "Post" AS post WHERE post.authorId = user.id AND post.deletedAt IS NULL) AS postCount,
       CAST(user.date_joined AS TEXT) AS dateJoined, CAST(user.last_login AS TEXT) AS lastLogin
     FROM auth_user AS user LEFT JOIN board_profile AS profile ON profile.user_id = user.id
     ${clause}
@@ -223,11 +223,11 @@ export async function updateManagedUserRole(
     if (profile) {
       await transaction.$executeRaw`UPDATE board_profile SET role = ${roleValue} WHERE id = ${profile.id}`;
       if (profile.role === 'EDITOR' && roleValue === 'READER') {
-        const timestamp = djangoTimestamp();
-        await transaction.$executeRaw`
-          UPDATE board_post SET published_date = NULL, updated_date = ${timestamp}
-          WHERE author_id = ${targetId} AND published_date > ${timestamp}
-        `;
+        const now = new Date();
+        await transaction.post.updateMany({
+          where: { authorId: targetId, publishedAt: { gt: now } },
+          data: { publishedAt: null, updatedAt: now },
+        });
       }
     } else {
       await transaction.$executeRaw`
@@ -239,9 +239,7 @@ export async function updateManagedUserRole(
       INSERT INTO board_config (user_id, language, time_zone) VALUES (${targetId}, NULL, '')
       ON CONFLICT(user_id) DO NOTHING
     `;
-    const [postCount] = await transaction.$queryRaw<Array<{ postCount: number | bigint }>>`
-      SELECT COUNT(*) AS postCount FROM board_post WHERE author_id = ${targetId}
-    `;
+    const postCount = await transaction.post.count({ where: { authorId: targetId } });
     const user: AdminManagedUser = {
       id: Number(target.id),
       username: target.username,
@@ -252,7 +250,7 @@ export async function updateManagedUserRole(
       isStaff: booleanValue(target.isStaff),
       isSuperuser: booleanValue(target.isSuperuser),
       canChangeRole: booleanValue(target.isActive),
-      postCount: Number(postCount?.postCount ?? 0),
+      postCount,
       dateJoined: target.dateJoined ? isoDate(target.dateJoined) : null,
       lastLogin: target.lastLogin ? isoDate(target.lastLogin) : null,
     };

@@ -81,15 +81,10 @@ export async function readReaderPostView(
     profileRole: author.profileRole,
   };
   const subscription = await subscriptionState(db, viewer, authorRow);
-  const [likes] = await db.$queryRaw<Array<{ count: number | bigint; isLiked: DbInteger }>>`
-    SELECT COUNT(*) AS count,
-           CASE WHEN EXISTS (
-             SELECT 1 FROM board_post_likes
-              WHERE post_id = ${post.id} AND user_id = ${viewer?.id ?? -1}
-           ) THEN 1 ELSE 0 END AS isLiked
-      FROM board_post_likes
-     WHERE post_id = ${post.id}
-  `;
+  const [countLikes, viewerLike] = await Promise.all([
+    db.postLike.count({ where: { postId: post.id } }),
+    viewer ? db.postLike.findUnique({ where: { postId_userId: { postId: post.id, userId: viewer.id } }, select: { postId: true } }) : null,
+  ]);
   const socialRows = await db.$queryRaw<Array<{ id: number; name: string; value: string; order: number }>>`
     SELECT id, name, value, "order" AS "order"
       FROM board_userlinkmeta
@@ -102,8 +97,8 @@ export async function readReaderPostView(
     slug,
     viewerAuthenticated: viewer !== null,
     postLike: {
-      countLikes: numberValue(likes?.count ?? 0),
-      isLiked: isTrue(likes?.isLiked ?? 0),
+      countLikes,
+      isLiked: viewerLike !== null,
       canLike: viewer !== null,
     },
     author: {

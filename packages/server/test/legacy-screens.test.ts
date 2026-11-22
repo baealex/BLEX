@@ -23,13 +23,13 @@ async function screensApp({ assets = true } = {}) {
   insertRow(db, 'board_profile', { id: 3, user_id: 3, role: 'EDITOR' });
   insertRow(db, 'SiteSetting', { id: 1, seoEnabled: 1, aeoEnabled: 1 });
   insertRow(db, 'Series', { id: 7, ownerId: 1, name: 'Guide', slug: 'guide', layout: 'list', isHidden: 0, createdAt: prismaDate(recent) });
-  seedPost(db, 1, 1, 'kept', { title: 'Kept', series_id: 7, published_date: recent });
-  insertRow(db, 'board_tag', { id: 1, value: 'kept-tag' });
-  insertRow(db, 'board_tag', { id: 2, value: 'trashed-tag' });
-  insertRow(db, 'board_post_tags', { post_id: 1, tag_id: 1 });
-  seedPost(db, 2, 1, 'trashed', { published_date: recent, deleted_date: recent });
-  insertRow(db, 'board_post_tags', { post_id: 2, tag_id: 2 });
-  seedPost(db, 3, 1, 'draft', { published_date: null });
+  seedPost(db, 1, 1, 'kept', { title: 'Kept', seriesId: 7, publishedAt: recent });
+  insertRow(db, 'Tag', { id: 1, name: 'kept-tag' });
+  insertRow(db, 'Tag', { id: 2, name: 'trashed-tag' });
+  insertRow(db, '_PostToTag', { A: 1, B: 1 });
+  seedPost(db, 2, 1, 'trashed', { publishedAt: recent, deletedAt: recent });
+  insertRow(db, '_PostToTag', { A: 2, B: 2 });
+  seedPost(db, 3, 1, 'draft', { publishedAt: null });
   const webAssetsRoot = await mkdtemp(join(tmpdir(), 'blex-v4-web-'));
   await mkdir(join(webAssetsRoot, '.vite'));
   const manifest = Object.fromEntries(['styles/tailwind.css', 'styles/main.scss', 'styles/post.scss', 'src/scripts/screen-loader.ts']
@@ -281,7 +281,7 @@ test('keeps the query when an old username redirects to the author page', async 
 test('limits drafts and creates a complete profile on a role change', async () => {
   const fixture = await screensApp();
   try {
-    for (let id = 100; id < 199; id += 1) seedPost(fixture.db, id, 1, `draft-${id}`, { published_date: null });
+    for (let id = 100; id < 199; id += 1) seedPost(fixture.db, id, 1, `draft-${id}`, { publishedAt: null });
     const editor = signIn(fixture.db, 1);
     const blocked = await fixture.app.inject({ method: 'POST', url: '/v1/drafts', headers: { ...editor, 'content-type': 'application/json' },
       payload: { title: 'One too many', text_md: 'Body', content_type: 'markdown' } });
@@ -309,11 +309,11 @@ const editorForm = (csrf: string, values: Record<string, string> = {}) => ({
 const coverPng = () => sharp({ create: { width: 32, height: 24, channels: 3, background: '#336699' } }).png().toBuffer();
 
 const postRow = (db: Awaited<ReturnType<typeof screensApp>>['db'], url: string) => db.prepare(`
-  SELECT p.title, p.subtitle, p.image, p.series_id AS series, p.meta_description AS description, p.published_date AS published,
-         c.content_html AS html, g.hide, g.advertise, g.block_comment AS blockComment, g.cover_layout AS layout,
-         g.cover_image_position AS position, g.cover_image_ratio AS ratio,
-         (SELECT GROUP_CONCAT(t.value) FROM board_post_tags l JOIN board_tag t ON t.id = l.tag_id WHERE l.post_id = p.id) AS tags
-  FROM board_post p JOIN board_postcontent c ON c.post_id = p.id JOIN board_postconfig g ON g.post_id = p.id WHERE p.url = ?
+  SELECT p.title, p.subtitle, p.image, p.seriesId AS series, p.description, p.publishedAt AS published,
+         c.html, p.isHidden AS hide, p.isAdvertised AS advertise, p.commentsBlocked AS blockComment, p.coverLayout AS layout,
+         p.coverImagePosition AS position, p.coverImageRatio AS ratio,
+         (SELECT GROUP_CONCAT(t.name) FROM "_PostToTag" l JOIN "Tag" t ON t.id = l.B WHERE l.A = p.id) AS tags
+  FROM "Post" p JOIN "PostContent" c ON c.postId = p.id WHERE p.slug = ?
 `).get(url) as Record<string, string | number | null> | undefined;
 
 test('publishes a new post from the editor form with every field', async () => {
@@ -345,7 +345,7 @@ test('a rejected publish answers with the error and changes nothing', async () =
       const form = multipart(editorForm(headers['x-csrftoken'], fields), file);
       return fixture.app.inject({ method: 'POST', url: '/v1/posts', headers: { ...headers, 'content-type': form.contentType }, payload: form.payload });
     };
-    const posts = () => (fixture.db.prepare('SELECT COUNT(*) AS n FROM board_post').get() as { n: number }).n;
+    const posts = () => (fixture.db.prepare('SELECT COUNT(*) AS n FROM "Post"').get() as { n: number }).n;
     const before = posts();
 
     const pastSchedule = await send({ reserved_date: '2020-01-01T00:00:00.000Z' });
@@ -369,16 +369,16 @@ test('publishes and schedules an owned draft from the editor form', async () => 
   const fixture = await screensApp();
   try {
     const headers = signIn(fixture.db, 1);
-    fixture.db.prepare(`UPDATE board_post SET image = 'images/content/2026/1/1/old.png' WHERE id = 3`).run();
-    insertRow(fixture.db, 'board_postconfigmeta', { name: 'draft_reserved_date', value: '2099-01-01 00:00:00.000', post_id: 3 });
+    fixture.db.prepare(`UPDATE "Post" SET image = 'images/content/2026/1/1/old.png' WHERE id = 3`).run();
+    fixture.db.prepare('UPDATE "Post" SET draftScheduledAt = ? WHERE id = 3').run(Date.UTC(2099, 0, 1));
     const publishAt = new Date(Date.now() + 86_400_000).toISOString();
     const form = multipart(editorForm(headers['x-csrftoken'], { draft_url: 'draft', url: 'draft', series: '', advertise: 'true', image_delete: 'true', reserved_date: publishAt }));
     const published = await fixture.app.inject({ method: 'POST', url: '/v1/posts', headers: { ...headers, 'content-type': form.contentType }, payload: form.payload });
     assert.deepEqual(published.json(), { status: 'DONE', body: { url: 'draft' } });
     const row = postRow(fixture.db, 'draft')!;
-    assert.deepEqual([row.published, row.image, row.series, row.advertise, row.layout, row.tags], [publishAt.replace('T', ' ').replace('Z', ''), '', null, 1, 'split', 'one,two']);
-    assert.equal((fixture.db.prepare(`SELECT COUNT(*) AS n FROM board_postconfigmeta WHERE post_id = 3 AND name = 'draft_reserved_date'`).get() as { n: number }).n, 0);
-    assert.equal((fixture.db.prepare('SELECT COUNT(*) AS n FROM blex_scheduled_publication WHERE post_id = 3').get() as { n: number }).n, 1);
+    assert.deepEqual([row.published, row.image, row.series, row.advertise, row.layout, row.tags], [Date.parse(publishAt), '', null, 1, 'split', 'one,two']);
+    assert.equal((fixture.db.prepare(`SELECT COUNT(*) AS n FROM "Post" WHERE id = 3 AND draftScheduledAt IS NOT NULL`).get() as { n: number }).n, 0);
+    assert.equal((fixture.db.prepare('SELECT COUNT(*) AS n FROM "ScheduledPublication" WHERE postId = 3').get() as { n: number }).n, 1);
   } finally {
     await fixture.close();
   }
@@ -387,9 +387,9 @@ test('publishes and schedules an owned draft from the editor form', async () => 
 test('guards editor publishing by session, role, CSRF, and draft ownership', async () => {
   const fixture = await screensApp();
   try {
-    seedPost(fixture.db, 20, 3, 'someone-elses-draft', { published_date: null });
+    seedPost(fixture.db, 20, 3, 'someone-elses-draft', { publishedAt: null });
     const writer = signIn(fixture.db, 1);
-    const count = () => (fixture.db.prepare('SELECT COUNT(*) AS n FROM board_post').get() as { n: number }).n;
+    const count = () => (fixture.db.prepare('SELECT COUNT(*) AS n FROM "Post"').get() as { n: number }).n;
     const before = count();
     const send = (headers: Record<string, string>, csrf: string, fields: Record<string, string> = {}) => {
       const form = multipart(editorForm(csrf, fields));
@@ -403,7 +403,7 @@ test('guards editor publishing by session, role, CSRF, and draft ownership', asy
     assert.equal((await send(writer, writer['x-csrftoken'], { draft_url: 'someone-elses-draft' })).statusCode, 404);
     assert.equal((await send(writer, writer['x-csrftoken'], { draft_url: 'kept' })).statusCode, 404);
     assert.equal(count(), before);
-    assert.equal((fixture.db.prepare('SELECT published_date AS published FROM board_post WHERE id = 20').get() as { published: string | null }).published, null);
+    assert.equal((fixture.db.prepare('SELECT publishedAt AS published FROM "Post" WHERE id = 20').get() as { published: string | null }).published, null);
   } finally {
     await fixture.close();
   }
@@ -413,7 +413,7 @@ test('edits a post from the editor form and keeps what it leaves out', async () 
   const fixture = await screensApp();
   try {
     const headers = signIn(fixture.db, 1);
-    fixture.db.prepare('UPDATE board_postconfig SET advertise = 1 WHERE post_id = 1').run();
+    fixture.db.prepare('UPDATE "Post" SET isAdvertised = 1 WHERE id = 1').run();
     const { series: _series, tag: _tag, ...fields } = editorForm(headers['x-csrftoken'], { title: 'Kept edited', url: 'kept', content_html: '<p>Edited</p>' });
     const { advertise: _advertise, ...withoutAdvertise } = fields;
     const form = multipart(withoutAdvertise, { name: 'image', filename: 'cover.png', content: await coverPng() });
@@ -443,15 +443,15 @@ test('retires the old editor, image upload, and series form URLs', async () => {
     const headers = signIn(fixture.db, 1);
     const form = { ...headers, 'content-type': 'application/x-www-form-urlencoded' };
     const payload = `csrfmiddlewaretoken=${headers['x-csrftoken']}&title=Gone&text_md=Gone&name=Gone`;
-    const before = (fixture.db.prepare('SELECT COUNT(*) AS n FROM board_post').get() as { n: number }).n;
+    const before = (fixture.db.prepare('SELECT COUNT(*) AS n FROM "Post"').get() as { n: number }).n;
     for (const url of ['/write', '/@writer/kept/edit', '/write/images', '/series/create', '/series/edit/7']) {
       assert.equal((await fixture.app.inject({ method: 'POST', url, headers: form, payload })).statusCode, 404, `POST ${url}`);
     }
     for (const url of ['/write/images', '/series/create', '/series/edit/7', '/assets/blex/editor.js', '/assets/blex/editor.css']) {
       assert.equal((await fixture.app.inject({ url, headers })).statusCode, 404, `GET ${url}`);
     }
-    assert.equal((fixture.db.prepare('SELECT COUNT(*) AS n FROM board_post').get() as { n: number }).n, before);
-    assert.equal((fixture.db.prepare(`SELECT title FROM board_post WHERE id = 1`).get() as { title: string }).title, 'Kept');
+    assert.equal((fixture.db.prepare('SELECT COUNT(*) AS n FROM "Post"').get() as { n: number }).n, before);
+    assert.equal((fixture.db.prepare(`SELECT title FROM "Post" WHERE id = 1`).get() as { title: string }).title, 'Kept');
     assert.equal((fixture.db.prepare(`SELECT name FROM "Series" WHERE id = 7`).get() as { name: string }).name, 'Guide');
   } finally {
     await fixture.close();

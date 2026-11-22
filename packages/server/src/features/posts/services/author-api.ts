@@ -1,7 +1,7 @@
 import { type PrismaClient } from '@prisma/client';
 import { descriptionFromHtml, mediaUrl, parseAuthoringPostInput, resolveContent } from './post-content.js';
 import { AuthoringSaveResult, PostValidationError, assertExpectedUpdatedAt, createPost, draftReservation, loadPost, postTags, trashPost, updatePost } from './post-store.js';
-import { AuthoringPostInput, AuthoringUser, StoredPost, UserRow, dateAsIso, isTrue, numberValue } from '../shared.js';
+import { AuthoringPostInput, AuthoringUser, StoredPost, UserRow, dateAsIso, numberValue } from '../shared.js';
 
 export function apiPostBase(post: StoredPost, contentHtml: string): Record<string, unknown> {
   return {
@@ -12,15 +12,15 @@ export function apiPostBase(post: StoredPost, contentHtml: string): Record<strin
     description: post.description,
     publishedDate: dateAsIso(post.publishedDate),
     updatedDate: dateAsIso(post.updatedDate),
-    isScheduled: Boolean(post.publishedDate && new Date(dateAsIso(post.publishedDate) ?? 0).valueOf() > Date.now()),
+    isScheduled: Boolean(post.publishedDate && post.publishedDate.valueOf() > Date.now()),
     series: post.seriesId !== null && post.seriesUrl
       ? { id: String(post.seriesId), name: post.seriesName ?? '', url: post.seriesUrl }
       : null,
     contentHtml,
     textHtml: contentHtml,
-    isHide: isTrue(post.hide),
-    isAdvertise: isTrue(post.advertise),
-    blockComment: isTrue(post.blockComment),
+    isHide: post.hide,
+    isAdvertise: post.advertise,
+    blockComment: post.blockComment,
     coverLayout: post.coverLayout,
     coverImagePosition: post.coverImagePosition,
     coverImageRatio: post.coverImageRatio,
@@ -40,7 +40,7 @@ export async function preservePostOmissions(
 ): Promise<AuthoringPostInput> {
   const hasText = hasPostContent(body);
   const tags = await postTags(db, post.id);
-  const isScheduled = Boolean(dateAsIso(post.publishedDate) && new Date(dateAsIso(post.publishedDate)!).valueOf() > Date.now());
+  const isScheduled = Boolean(post.publishedDate && post.publishedDate.valueOf() > Date.now());
   const reservedDate = Object.hasOwn(body, 'reserved_date')
     ? input.reservedDate
     : post.publishedDate === null
@@ -57,9 +57,9 @@ export async function preservePostOmissions(
     url: Object.hasOwn(body, 'custom_url') || Object.hasOwn(body, 'url') ? input.url : post.url,
     tags: Object.hasOwn(body, 'tags') || Object.hasOwn(body, 'tag') ? input.tags : tags.join(','),
     series: Object.hasOwn(body, 'series_url') || Object.hasOwn(body, 'series') ? input.series : post.seriesUrl ?? '',
-    hide: Object.hasOwn(body, 'is_hide') || Object.hasOwn(body, 'hide') ? input.hide : isTrue(post.hide),
-    advertise: Object.hasOwn(body, 'is_advertise') || Object.hasOwn(body, 'advertise') ? input.advertise : isTrue(post.advertise),
-    blockComment: Object.hasOwn(body, 'block_comment') ? input.blockComment : isTrue(post.blockComment),
+    hide: Object.hasOwn(body, 'is_hide') || Object.hasOwn(body, 'hide') ? input.hide : post.hide,
+    advertise: Object.hasOwn(body, 'is_advertise') || Object.hasOwn(body, 'advertise') ? input.advertise : post.advertise,
+    blockComment: Object.hasOwn(body, 'block_comment') ? input.blockComment : post.blockComment,
     coverLayout: Object.hasOwn(body, 'cover_layout') ? input.coverLayout : post.coverLayout,
     coverImagePosition: Object.hasOwn(body, 'cover_image_position') ? input.coverImagePosition : post.coverImagePosition,
     coverImageRatio: Object.hasOwn(body, 'cover_image_ratio') ? input.coverImageRatio : post.coverImageRatio,
@@ -91,12 +91,8 @@ async function ownedPostByReference(
   let slug: string;
   if (typeof reference === 'number') {
     if (!Number.isSafeInteger(reference) || reference < 1) throw new PostValidationError('VA', 'Check the post ID.');
-    const rows = await db.$queryRaw<Array<{ url: string }>>`
-      SELECT url FROM board_post
-       WHERE id = ${reference} AND author_id = ${author.id} AND deleted_date IS NULL
-       LIMIT 1
-    `;
-    slug = rows[0]?.url ?? '';
+    const row = await db.post.findFirst({ where: { id: reference, authorId: author.id, deletedAt: null }, select: { slug: true } });
+    slug = row?.slug ?? '';
   } else {
     slug = reference;
   }

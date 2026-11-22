@@ -30,7 +30,7 @@ export function registerPublicPostRoute(app: FastifyInstance, db: PrismaClient, 
         ? readReaderPostView(db, post.slug, viewer?.id ?? null, post.visibility !== 'public')
         : null,
       publicArticle && presentation.tags.length ? relatedPosts(db, post.id, post.authorId) : [],
-      canManage ? db.$queryRaw<unknown[]>`SELECT 1 FROM board_edithistory WHERE post_id = ${post.id} LIMIT 1` : [],
+      canManage ? db.postRevision.findFirst({ where: { postId: post.id }, select: { id: true } }) : null,
     ]);
     let csrf = requestCookies(request)[csrfCookie] ?? '';
     if (viewer) {
@@ -50,6 +50,6 @@ export function registerPublicPostRoute(app: FastifyInstance, db: PrismaClient, 
     return reply.type('text/html; charset=utf-8')
       .header('Vary', 'Cookie')
       .header('Content-Security-Policy', postContentSecurityPolicy)
-      .send(renderPublicPostPage(post, presentation, siteUrl, reader, csrf, canManage, viewer, related, undefined, history.length > 0));
+      .send(renderPublicPostPage(post, presentation, siteUrl, reader, csrf, canManage, viewer, related, undefined, history !== null));
   });
 }

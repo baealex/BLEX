@@ -1,92 +1,45 @@
 import { randomBytes } from 'node:crypto';
-import { Prisma, type PrismaClient } from '@prisma/client';
+import type { CoverImagePosition, CoverLayout, Prisma, PrismaClient } from '@prisma/client';
 import { syncPostPublication } from '../../notifications/model.js';
 import { descriptionFromHtml, normalizedTags, plainText, readingTime, resolveContent, resolveCoverImage, slugify, validatePostInput } from './post-content.js';
-import { AuthoringPostInput, DbDate, POST_URL_MAX, RESERVED_URLS, StoredPost, UserRow, dateAsIso, field, isTrue, nowString, numberValue } from '../shared.js';
+import { AuthoringPostInput, DbDate, POST_URL_MAX, RESERVED_URLS, StoredPost, UserRow, dateAsIso, field } from '../shared.js';
+
+const storedPostSelect = {
+  id: true, title: true, subtitle: true, slug: true, image: true, description: true,
+  createdAt: true, updatedAt: true, publishedAt: true, deletedAt: true, authorId: true, readTime: true, seriesId: true,
+  isHidden: true, isAdvertised: true, commentsBlocked: true, hasSettings: true,
+  coverLayout: true, coverImagePosition: true, coverImageRatio: true,
+  author: { select: { username: true, board_profile: { select: { avatar: true } } } },
+  series: { select: { name: true, slug: true, isHidden: true } },
+  content: { select: { html: true } },
+} satisfies Prisma.PostSelect;
 
 export async function loadPost(
   db: PrismaClient,
   where: { username?: string; userId?: number; slug: string },
 ): Promise<StoredPost | null> {
-  const rows = where.userId !== undefined
-    ? await db.$queryRaw<StoredPost[]>`
-        SELECT post.id AS id, post.title AS title, post.subtitle AS subtitle, post.url AS url,
-               post.image AS image, post.meta_description AS description,
-               CAST(post.created_date AS TEXT) AS createdDate,
-               CAST(post.updated_date AS TEXT) AS updatedDate,
-               CAST(post.published_date AS TEXT) AS publishedDate,
-               CAST(post.deleted_date AS TEXT) AS deletedDate,
-               post.author_id AS authorId, author.username AS authorUsername,
-               profile.avatar AS authorAvatar, post.read_time AS readTime,
-               post.series_id AS seriesId, series.name AS seriesName, series.slug AS seriesUrl,
-               CAST(series.isHidden AS INTEGER) AS seriesHidden,
-               COALESCE(content.content_html, '') AS contentHtml,
-               CAST(config.hide AS INTEGER) AS hide,
-               CAST(config.advertise AS INTEGER) AS advertise,
-               CAST(config.block_comment AS INTEGER) AS blockComment,
-               COALESCE(config.cover_layout, 'default') AS coverLayout,
-               COALESCE(config.cover_image_position, 'right') AS coverImagePosition,
-               COALESCE(config.cover_image_ratio, 'auto') AS coverImageRatio
-        FROM board_post AS post
-        JOIN auth_user AS author ON author.id = post.author_id
-        LEFT JOIN board_profile AS profile ON profile.user_id = author.id
-        LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-        LEFT JOIN board_postcontent AS content ON content.post_id = post.id
-        LEFT JOIN "Series" AS series ON series.id = post.series_id
-        WHERE post.url = ${where.slug} AND post.author_id = ${where.userId}
-          AND post.deleted_date IS NULL
-        LIMIT 1
-      `
-    : await db.$queryRaw<StoredPost[]>`
-        SELECT post.id AS id, post.title AS title, post.subtitle AS subtitle, post.url AS url,
-               post.image AS image, post.meta_description AS description,
-               CAST(post.created_date AS TEXT) AS createdDate,
-               CAST(post.updated_date AS TEXT) AS updatedDate,
-               CAST(post.published_date AS TEXT) AS publishedDate,
-               CAST(post.deleted_date AS TEXT) AS deletedDate,
-               post.author_id AS authorId, author.username AS authorUsername,
-               profile.avatar AS authorAvatar, post.read_time AS readTime,
-               post.series_id AS seriesId, series.name AS seriesName, series.slug AS seriesUrl,
-               CAST(series.isHidden AS INTEGER) AS seriesHidden,
-               COALESCE(content.content_html, '') AS contentHtml,
-               CAST(config.hide AS INTEGER) AS hide,
-               CAST(config.advertise AS INTEGER) AS advertise,
-               CAST(config.block_comment AS INTEGER) AS blockComment,
-               COALESCE(config.cover_layout, 'default') AS coverLayout,
-               COALESCE(config.cover_image_position, 'right') AS coverImagePosition,
-               COALESCE(config.cover_image_ratio, 'auto') AS coverImageRatio
-        FROM board_post AS post
-        JOIN auth_user AS author ON author.id = post.author_id
-        LEFT JOIN board_profile AS profile ON profile.user_id = author.id
-        LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-        LEFT JOIN board_postcontent AS content ON content.post_id = post.id
-        LEFT JOIN "Series" AS series ON series.id = post.series_id
-        WHERE post.url = ${where.slug} AND author.username = ${where.username ?? ''}
-          AND post.deleted_date IS NULL
-        LIMIT 1
-      `;
-  return rows[0] ?? null;
+  const owner = where.userId !== undefined ? { authorId: where.userId } : { author: { username: where.username ?? '' } };
+  const row = await db.post.findFirst({ where: { slug: where.slug, deletedAt: null, ...owner }, select: storedPostSelect });
+  if (!row) return null;
+  return {
+    id: row.id, title: row.title, subtitle: row.subtitle, url: row.slug, image: row.image, description: row.description,
+    createdDate: row.createdAt, updatedDate: row.updatedAt, publishedDate: row.publishedAt, deletedDate: row.deletedAt,
+    authorId: row.authorId, authorUsername: row.author.username, authorAvatar: row.author.board_profile?.avatar ?? null,
+    readTime: row.readTime, seriesId: row.seriesId, seriesName: row.series?.name ?? null, seriesUrl: row.series?.slug ?? null,
+    seriesHidden: row.series?.isHidden ?? false, contentHtml: row.content?.html ?? '',
+    hide: row.isHidden, advertise: row.isAdvertised, blockComment: row.commentsBlocked, hasSettings: row.hasSettings,
+    coverLayout: row.coverLayout, coverImagePosition: row.coverImagePosition, coverImageRatio: row.coverImageRatio,
+  };
 }
 
 export async function postTags(db: PrismaClient, postId: number): Promise<string[]> {
-  const rows = await db.$queryRaw<Array<{ value: string }>>`
-    SELECT tag.value AS value
-    FROM board_tag AS tag
-    JOIN board_post_tags AS link ON link.tag_id = tag.id
-    WHERE link.post_id = ${postId}
-    ORDER BY tag.value
-  `;
-  return rows.map((row) => row.value);
+  const tags = await db.tag.findMany({ where: { posts: { some: { id: postId } } }, orderBy: { name: 'asc' }, select: { name: true } });
+  return tags.map(({ name }) => name);
 }
 
 export async function draftReservation(db: PrismaClient, postId: number): Promise<string> {
-  const rows = await db.$queryRaw<Array<{ value: string }>>`
-    SELECT value FROM board_postconfigmeta
-    WHERE post_id = ${postId} AND name = 'draft_reserved_date'
-    ORDER BY id DESC LIMIT 1
-  `;
-  // BLEX 4 stores this value as UTC without an offset and Django stored an ISO offset.
-  return dateAsIso(rows[0]?.value ?? null) ?? '';
+  const post = await db.post.findUnique({ where: { id: postId }, select: { draftScheduledAt: true } });
+  return dateAsIso(post?.draftScheduledAt ?? null) ?? '';
 }
 
 async function publicSeriesId(db: Prisma.TransactionClient, userId: number, url: string): Promise<number | null> {
@@ -99,9 +52,10 @@ async function uniqueSlug(tx: Prisma.TransactionClient, title: string, customUrl
   const base = slugify(customUrl || title) || `post-${randomBytes(4).toString('hex')}`;
   let candidate = base.slice(0, POST_URL_MAX);
   let attempt = 0;
-  while (RESERVED_URLS.has(candidate) || (await tx.$queryRaw<Array<{ id: number }>>`
-    SELECT id FROM board_post WHERE url = ${candidate} AND id <> ${excludeId ?? -1} LIMIT 1
-  `).length > 0) {
+  while (RESERVED_URLS.has(candidate) || await tx.post.findFirst({
+    where: { slug: candidate, id: { not: excludeId ?? -1 } },
+    select: { id: true },
+  })) {
     attempt += 1;
     const suffix = randomBytes(4).toString('hex');
     candidate = `${base.slice(0, Math.max(1, POST_URL_MAX - suffix.length - 1))}-${suffix}`;
@@ -110,59 +64,29 @@ async function uniqueSlug(tx: Prisma.TransactionClient, title: string, customUrl
   return candidate;
 }
 
-function scheduledDate(input: string): { value: string | null; error: string | null } {
+function scheduledDate(input: string): { value: Date | null; error: string | null } {
   if (!input) return { value: null, error: null };
   const normalized = /(?:Z|[+-]\d\d:\d\d)$/i.test(input) ? input : `${input}+09:00`;
   const value = new Date(normalized);
   if (Number.isNaN(value.valueOf())) return { value: null, error: 'Check the scheduled time.' };
   if (value.valueOf() <= Date.now()) return { value: null, error: 'The scheduled time must be in the future.' };
-  return { value: value.toISOString().replace('T', ' ').replace('Z', ''), error: null };
+  return { value, error: null };
 }
 
-async function syncTags(tx: Prisma.TransactionClient, postId: number, text: string): Promise<void> {
-  await tx.$executeRaw`DELETE FROM board_post_tags WHERE post_id = ${postId}`;
-  for (const value of normalizedTags(text)) {
-    await tx.$executeRaw`
-      INSERT INTO board_tag (value) VALUES (${value})
-      ON CONFLICT(value) DO NOTHING
-    `;
-    const tags = await tx.$queryRaw<Array<{ id: number }>>`
-      SELECT id FROM board_tag WHERE value = ${value} LIMIT 1
-    `;
-    if (!tags[0]) continue;
-    await tx.$executeRaw`
-      INSERT INTO board_post_tags (post_id, tag_id) VALUES (${postId}, ${tags[0].id})
-      ON CONFLICT(post_id, tag_id) DO NOTHING
-    `;
+/** Replaces a post's tags. It never touches `updatedAt`, so callers decide whether the change counts as an edit. */
+export async function setPostTags(tx: Prisma.TransactionClient, postId: number, names: string[]): Promise<void> {
+  const tags: Array<{ id: number }> = [];
+  for (const name of names) {
+    tags.push(await tx.tag.upsert({ where: { name }, create: { name }, update: {}, select: { id: true } }));
   }
+  await tx.post.update({ where: { id: postId }, data: { tags: { set: tags } }, select: { id: true } });
 }
 
-async function syncDraftReservation(tx: Prisma.TransactionClient, postId: number, reservedDate: string): Promise<void> {
-  if (!reservedDate) {
-    await tx.$executeRaw`
-      DELETE FROM board_postconfigmeta WHERE post_id = ${postId} AND name = 'draft_reserved_date'
-    `;
-    return;
-  }
+function draftScheduleValue(reservedDate: string): Date | null {
+  if (!reservedDate) return null;
   const parsed = scheduledDate(reservedDate);
   if (parsed.error || !parsed.value) throw new PostValidationError('VA', parsed.error ?? 'Check the scheduled time.');
-  const now = nowString();
-  const existing = await tx.$queryRaw<Array<{ id: number }>>`
-    SELECT id FROM board_postconfigmeta
-    WHERE post_id = ${postId} AND name = 'draft_reserved_date'
-    ORDER BY id DESC LIMIT 1
-  `;
-  if (existing[0]) {
-    await tx.$executeRaw`
-      UPDATE board_postconfigmeta SET value = ${parsed.value}, updated_date = ${now}
-      WHERE id = ${existing[0].id}
-    `;
-  } else {
-    await tx.$executeRaw`
-      INSERT INTO board_postconfigmeta (name, value, created_date, updated_date, post_id)
-      VALUES ('draft_reserved_date', ${parsed.value}, ${now}, ${now}, ${postId})
-    `;
-  }
+  return parsed.value;
 }
 
 const MAX_DRAFTS_PER_USER = 100;
@@ -208,28 +132,24 @@ export interface EditorialSnapshot {
   content: string;
   description: string;
   tags: string[];
-  updatedDate: DbDate;
-  publishedDate: DbDate;
+  updatedDate: Date | null;
+  publishedDate: Date | null;
 }
 
-type EditorialSnapshotRow = Omit<EditorialSnapshot, 'tags'>;
-
 export async function captureEditorialSnapshot(tx: Prisma.TransactionClient, postId: number): Promise<EditorialSnapshot> {
-  const rows = await tx.$queryRaw<EditorialSnapshotRow[]>`
-    SELECT post.title AS title, post.subtitle AS subtitle, post.meta_description AS description,
-           COALESCE(content.content_html, '') AS content,
-           CAST(post.updated_date AS TEXT) AS updatedDate,
-           CAST(post.published_date AS TEXT) AS publishedDate
-      FROM board_post AS post LEFT JOIN board_postcontent AS content ON content.post_id = post.id
-     WHERE post.id = ${postId} LIMIT 1
-  `;
-  const row = rows[0];
+  const row = await tx.post.findUnique({
+    where: { id: postId },
+    select: {
+      title: true, subtitle: true, description: true, updatedAt: true, publishedAt: true,
+      content: { select: { html: true } },
+      tags: { orderBy: { name: 'asc' }, select: { name: true } },
+    },
+  });
   if (!row) throw new PostValidationError('RJ', 'The post was not found.');
-  const tags = await tx.$queryRaw<Array<{ value: string }>>`
-    SELECT tag.value AS value FROM board_post_tags AS link JOIN board_tag AS tag ON tag.id = link.tag_id
-     WHERE link.post_id = ${postId} ORDER BY tag.value
-  `;
-  return { ...row, tags: tags.map((tag) => tag.value) };
+  return {
+    title: row.title, subtitle: row.subtitle, description: row.description, content: row.content?.html ?? '',
+    updatedDate: row.updatedAt, publishedDate: row.publishedAt, tags: row.tags.map(({ name }) => name),
+  };
 }
 
 export function sameEditorialSnapshot(left: EditorialSnapshot, right: EditorialSnapshot): boolean {
@@ -249,33 +169,28 @@ export async function insertRevision(
   postId: number,
   snapshot: EditorialSnapshot,
   actorId: number,
-  changeType: 'edit' | 'draft' | 'restore',
-  sourceUpdatedDate: DbDate,
+  type: 'edit' | 'draft' | 'restore',
+  sourceUpdatedAt: Date | null,
   restoredFromId: number | null = null,
 ): Promise<number> {
-  const now = nowString();
-  const rows = await tx.$queryRaw<Array<{ id: number }>>`
-    INSERT INTO board_edithistory (
-      post_id, actor_id, restored_from_id, title, subtitle, content, content_excerpt,
-      description, tags, source_updated_date, change_type, created_date
-    ) VALUES (
-      ${postId}, ${actorId}, ${restoredFromId}, ${snapshot.title}, ${snapshot.subtitle},
-      ${snapshot.content}, ${revisionExcerpt(snapshot.content)}, ${snapshot.description},
-      ${JSON.stringify(snapshot.tags)}, ${sourceUpdatedDate}, ${changeType}, ${now}
-    ) RETURNING id
-  `;
-  if (!rows[0]) throw new Error('The revision row was not created.');
-  return rows[0].id;
+  const { id } = await tx.postRevision.create({
+    data: {
+      postId, actorId, restoredFromId, type, sourceUpdatedAt, createdAt: new Date(),
+      title: snapshot.title, subtitle: snapshot.subtitle, description: snapshot.description,
+      content: snapshot.content, contentExcerpt: revisionExcerpt(snapshot.content), tags: snapshot.tags,
+    },
+    select: { id: true },
+  });
+  return id;
 }
 
 async function draftSnapshotDue(tx: Prisma.TransactionClient, postId: number): Promise<boolean> {
-  const rows = await tx.$queryRaw<Array<{ createdDate: DbDate }>>`
-    SELECT CAST(created_date AS TEXT) AS createdDate FROM board_edithistory
-     WHERE post_id = ${postId} AND change_type = 'draft'
-     ORDER BY created_date DESC, id DESC LIMIT 1
-  `;
-  const latest = rows[0]?.createdDate;
-  return !latest || Date.now() - new Date(dateAsIso(latest) ?? 0).valueOf() >= 10 * 60 * 1000;
+  const latest = await tx.postRevision.findFirst({
+    where: { postId, type: 'draft' },
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    select: { createdAt: true },
+  });
+  return !latest || Date.now() - latest.createdAt.valueOf() >= 10 * 60 * 1000;
 }
 
 export async function createPost(
@@ -292,47 +207,34 @@ export async function createPost(
   if (!asDraft && !html) throw new PostValidationError('VA', 'Enter some content.');
   const title = input.title || 'Untitled';
   const description = input.description || (input.text ? descriptionFromHtml(html) : '');
-  const now = nowString();
+  const now = new Date();
   const publishAt = asDraft ? null : reserved.value ?? now;
   const coverImage = await resolveCoverImage(db, author.id, input.coverImage, '', input.removeCoverImage);
 
   return db.$transaction(async (tx) => {
     if (asDraft) {
-      const [drafts] = await tx.$queryRaw<Array<{ total: number | bigint }>>`
-        SELECT COUNT(*) AS total FROM board_post WHERE author_id = ${author.id} AND published_date IS NULL
-      `;
-      if (Number(drafts?.total ?? 0) >= MAX_DRAFTS_PER_USER) {
+      const drafts = await tx.post.count({ where: { authorId: author.id, publishedAt: null } });
+      if (drafts >= MAX_DRAFTS_PER_USER) {
         throw new PostValidationError('OF', `임시 저장 글은 최대 ${MAX_DRAFTS_PER_USER}개까지 가능합니다.`);
       }
     }
     const slug = await uniqueSlug(tx, title, input.url);
     const seriesId = await publicSeriesId(tx, author.id, input.series);
-    const inserted = await tx.$queryRaw<Array<{ id: number }>>`
-      INSERT INTO board_post (
-        title, subtitle, url, image, image_hash, read_time, created_date, updated_date,
-        author_id, series_id, meta_description, published_date, deleted_date
-      ) VALUES (
-        ${title}, ${input.subtitle}, ${slug}, ${coverImage}, '', ${readingTime(html)}, ${now}, ${now},
-        ${author.id}, ${seriesId}, ${description}, ${publishAt}, NULL
-      ) RETURNING id
-    `;
-    const postId = inserted[0]?.id;
-    if (!postId) throw new Error('The post row was not created.');
-    await tx.$executeRaw`
-      INSERT INTO board_postcontent (post_id, content_html) VALUES (${postId}, ${html})
-    `;
-    await tx.$executeRaw`
-      INSERT INTO board_postconfig (
-        post_id, hide, advertise, block_comment, cover_layout, cover_image_position, cover_image_ratio
-      ) VALUES (
-        ${postId}, ${input.hide ? 1 : 0}, ${input.advertise ? 1 : 0}, ${input.blockComment ? 1 : 0},
-        ${input.coverLayout}, ${input.coverImagePosition}, ${input.coverImageRatio}
-      )
-    `;
-    await syncTags(tx, postId, input.tags);
-    if (asDraft && input.reservedDate) await syncDraftReservation(tx, postId, input.reservedDate);
+    const { id: postId } = await tx.post.create({
+      data: {
+        title, subtitle: input.subtitle, slug, image: coverImage, readTime: readingTime(html), createdAt: now, updatedAt: now,
+        authorId: author.id, seriesId, description, publishedAt: publishAt,
+        isHidden: input.hide, isAdvertised: input.advertise, commentsBlocked: input.blockComment,
+        coverLayout: input.coverLayout as CoverLayout, coverImagePosition: input.coverImagePosition as CoverImagePosition,
+        coverImageRatio: input.coverImageRatio,
+        draftScheduledAt: asDraft ? draftScheduleValue(input.reservedDate) : null,
+        content: { create: { html } },
+      },
+      select: { id: true },
+    });
+    await setPostTags(tx, postId, normalizedTags(input.tags));
     if (!asDraft) await syncPostPublication(tx, postId, { announce: true });
-    return { id: postId, url: slug, publishedDate: publishAt };
+    return { id: postId, url: slug, publishedDate: dateAsIso(publishAt) };
   });
 }
 
@@ -345,7 +247,7 @@ export async function updatePost(
     allowEmptyBody: boolean;
     publishDraft?: boolean;
     updateDraft?: boolean;
-    expectedUpdatedDate?: DbDate;
+    expectedUpdatedDate?: Date;
     preserveTags?: boolean;
     preserveExistingHtml?: boolean;
     clearContent?: boolean;
@@ -363,7 +265,7 @@ export async function updatePost(
   if (schedule.error) throw new PostValidationError('VA', schedule.error);
   const title = input.title || (options.allowEmptyBody ? 'Untitled' : post.title);
   const description = input.description;
-  const now = nowString();
+  const now = new Date();
   const coverImage = await resolveCoverImage(db, author.id, input.coverImage, post.image, input.removeCoverImage);
   const requestedUrl = input.url ? slugify(input.url) : post.url;
   if (!isStoredDraft && requestedUrl !== post.url) {
@@ -375,8 +277,7 @@ export async function updatePost(
   if (options.publishDraft && !html && !post.contentHtml) {
     throw new PostValidationError('VA', 'Enter some content.');
   }
-  const existingPublishedAt = dateAsIso(post.publishedDate);
-  const isScheduledPost = Boolean(existingPublishedAt && new Date(existingPublishedAt).valueOf() > Date.now());
+  const isScheduledPost = Boolean(post.publishedDate && post.publishedDate.valueOf() > Date.now());
   if (input.reservedDate && !isStoredDraft && !isScheduledPost) {
     throw new PostValidationError('RJ', 'Only scheduled posts can have their scheduled time changed.');
   }
@@ -394,74 +295,34 @@ export async function updatePost(
     const nextUrl = isStoredDraft && requestedUrl !== post.url
       ? await uniqueSlug(tx, title, requestedUrl, post.id)
       : post.url;
-  const existingPublishDate = post.publishedDate instanceof Date
-    ? post.publishedDate.toISOString().replace('T', ' ').replace('Z', '')
-    : post.publishedDate;
     const nextPublishDate = options.publishDraft
       ? schedule.value ?? now
-      : isScheduledPost && schedule.value ? schedule.value : existingPublishDate;
-    const expectedUpdatedDate = options.expectedUpdatedDate ?? post.updatedDate;
-    const writeGuard = expectedUpdatedDate === undefined
-      ? Prisma.empty
-      : Prisma.sql`AND updated_date = ${expectedUpdatedDate}`;
-    const changed = await tx.$executeRaw`
-      UPDATE board_post
-      SET title = ${title}, subtitle = ${input.subtitle}, url = ${nextUrl}, image = ${coverImage},
-          series_id = ${seriesId},
-          meta_description = ${description},
-          read_time = ${html === null ? readingTime(post.contentHtml) : readingTime(html)},
-          updated_date = ${now},
-          published_date = ${nextPublishDate}
-      WHERE id = ${post.id} AND author_id = ${author.id} AND deleted_date IS NULL ${writeGuard}
-    `;
-    if (numberValue(changed) === 0) {
+      : isScheduledPost && schedule.value ? schedule.value : post.publishedDate;
+    const { count: changed } = await tx.post.updateMany({
+      where: { id: post.id, authorId: author.id, deletedAt: null, updatedAt: options.expectedUpdatedDate ?? post.updatedDate },
+      data: {
+        title, subtitle: input.subtitle, slug: nextUrl, image: coverImage, seriesId, description,
+        readTime: html === null ? readingTime(post.contentHtml) : readingTime(html),
+        updatedAt: now, publishedAt: nextPublishDate,
+        // Saving the form gives an imported post without a settings row its first settings.
+        isHidden: input.hide, isAdvertised: input.advertise, commentsBlocked: input.blockComment, hasSettings: true,
+        coverLayout: input.coverLayout as CoverLayout, coverImagePosition: input.coverImagePosition as CoverImagePosition,
+        coverImageRatio: input.coverImageRatio,
+      },
+    });
+    if (changed === 0) {
       throw new PostValidationError('CF', 'The post changed after it was read. Reload it before saving.');
     }
+    if (options.updateDraft || options.publishDraft) {
+      const draftScheduledAt = options.updateDraft ? draftScheduleValue(input.reservedDate) : null;
+      await tx.post.update({ where: { id: post.id }, data: { draftScheduledAt }, select: { id: true } });
+    }
     if (html !== null) {
-      const contentRows = await tx.$queryRaw<Array<{ id: number }>>`
-        SELECT id FROM board_postcontent WHERE post_id = ${post.id} LIMIT 1
-      `;
-      if (contentRows[0]) {
-        await tx.$executeRaw`
-          UPDATE board_postcontent SET content_html = ${html} WHERE post_id = ${post.id}
-        `;
-      } else {
-        await tx.$executeRaw`
-          INSERT INTO board_postcontent (post_id, content_html) VALUES (${post.id}, ${html})
-        `;
-      }
+      await tx.postContent.upsert({ where: { postId: post.id }, create: { postId: post.id, html }, update: { html } });
     }
-    const configRows = await tx.$queryRaw<Array<{ id: number }>>`
-      SELECT id FROM board_postconfig WHERE post_id = ${post.id} LIMIT 1
-    `;
-    if (configRows[0]) {
-      await tx.$executeRaw`
-        UPDATE board_postconfig
-        SET hide = ${input.hide ? 1 : 0}, advertise = ${input.advertise ? 1 : 0},
-            block_comment = ${input.blockComment ? 1 : 0}, cover_layout = ${input.coverLayout},
-            cover_image_position = ${input.coverImagePosition}, cover_image_ratio = ${input.coverImageRatio}
-        WHERE post_id = ${post.id}
-      `;
-    } else {
-      await tx.$executeRaw`
-        INSERT INTO board_postconfig (
-          post_id, hide, advertise, block_comment, cover_layout, cover_image_position, cover_image_ratio
-        ) VALUES (
-          ${post.id}, ${input.hide ? 1 : 0}, ${input.advertise ? 1 : 0}, ${input.blockComment ? 1 : 0},
-          ${input.coverLayout}, ${input.coverImagePosition}, ${input.coverImageRatio}
-        )
-      `;
-    }
-    if (input.hide && !isTrue(post.hide)) await tx.$executeRaw`DELETE FROM board_pinnedpost WHERE post_id = ${post.id}`;
-    if (!options.preserveTags) await syncTags(tx, post.id, input.tags);
-    if (options.updateDraft && input.reservedDate) await syncDraftReservation(tx, post.id, input.reservedDate);
-    if (options.updateDraft && !input.reservedDate) await syncDraftReservation(tx, post.id, '');
-    if (options.publishDraft) {
-      await tx.$executeRaw`
-        DELETE FROM board_postconfigmeta WHERE post_id = ${post.id} AND name = 'draft_reserved_date'
-      `;
-    }
-    if (options.publishDraft || isTrue(post.hide) !== input.hide || (isScheduledPost && Boolean(input.reservedDate))) {
+    if (input.hide && !post.hide) await tx.pinnedPost.deleteMany({ where: { postId: post.id } });
+    if (!options.preserveTags) await setPostTags(tx, post.id, normalizedTags(input.tags));
+    if (options.publishDraft || post.hide !== input.hide || (isScheduledPost && Boolean(input.reservedDate))) {
       await syncPostPublication(tx, post.id, { announce: Boolean(options.publishDraft) });
     }
     const currentSnapshot = await captureEditorialSnapshot(tx, post.id);
@@ -480,28 +341,24 @@ export async function trashPost(
   db: PrismaClient,
   author: UserRow,
   post: StoredPost,
-  expectedUpdatedDate?: DbDate,
+  expectedUpdatedDate?: Date,
 ): Promise<string> {
-  const deletedDate = nowString();
+  const deletedAt = new Date();
   await db.$transaction(async (tx) => {
-    const writeGuard = expectedUpdatedDate === undefined
-      ? Prisma.empty
-      : Prisma.sql`AND updated_date = ${expectedUpdatedDate}`;
-    const changed = await tx.$executeRaw`
-      UPDATE board_post SET deleted_date = ${deletedDate}
-      WHERE id = ${post.id} AND author_id = ${author.id} AND deleted_date IS NULL ${writeGuard}
-    `;
-    if (expectedUpdatedDate !== undefined && numberValue(changed) === 0) {
+    const { count } = await tx.post.updateMany({
+      where: { id: post.id, authorId: author.id, deletedAt: null, ...(expectedUpdatedDate ? { updatedAt: expectedUpdatedDate } : {}) },
+      data: { deletedAt },
+    });
+    if (expectedUpdatedDate !== undefined && count === 0) {
       throw new PostValidationError('CF', 'The post changed after it was read. Reload it before deleting.');
     }
     await syncPostPublication(tx, post.id);
   });
-  return deletedDate.replace(' ', 'T') + 'Z';
+  return deletedAt.toISOString();
 }
 
 export function postPublic(post: StoredPost): boolean {
-  const published = dateAsIso(post.publishedDate);
-  return post.deletedDate === null && published !== null && new Date(published).valueOf() <= Date.now() && !isTrue(post.hide);
+  return post.deletedDate === null && post.publishedDate !== null && post.publishedDate.valueOf() <= Date.now() && !post.hide;
 }
 
 export async function updatePostSettings(
@@ -511,15 +368,14 @@ export async function updatePostSettings(
   query: Record<string, unknown>,
   body: Record<string, unknown>,
 ): Promise<Record<string, unknown> | null> {
-  const now = nowString();
+  const now = new Date();
   if (field(query.hide)) {
-    const hide = !isTrue(post.hide);
+    const hide = !post.hide;
     await db.$transaction(async (tx) => {
-      await tx.$executeRaw`
-        UPDATE board_postconfig SET hide = ${hide ? 1 : 0} WHERE post_id = ${post.id}
-      `;
-      if (hide) await tx.$executeRaw`DELETE FROM board_pinnedpost WHERE post_id = ${post.id}`;
-      await tx.$executeRaw`UPDATE board_post SET updated_date = ${now} WHERE id = ${post.id}`;
+      // An imported post without a settings row keeps its visibility until a full save creates its settings.
+      await tx.post.updateMany({ where: { id: post.id, hasSettings: true }, data: { isHidden: hide } });
+      if (hide) await tx.pinnedPost.deleteMany({ where: { postId: post.id } });
+      await tx.post.update({ where: { id: post.id }, data: { updatedAt: now }, select: { id: true } });
       await syncPostPublication(tx, post.id);
     });
     return { isHide: hide };
@@ -527,16 +383,16 @@ export async function updatePostSettings(
   if (field(query.tag)) {
     await db.$transaction(async (tx) => {
       const previous = await captureEditorialSnapshot(tx, post.id);
-      await syncTags(tx, post.id, field(body.tag));
+      await setPostTags(tx, post.id, normalizedTags(field(body.tag)));
       if (sameEditorialSnapshot(previous, await captureEditorialSnapshot(tx, post.id))) return;
-      await tx.$executeRaw`UPDATE board_post SET updated_date = ${now} WHERE id = ${post.id}`;
+      await tx.post.update({ where: { id: post.id }, data: { updatedAt: now }, select: { id: true } });
       if (post.publishedDate !== null) await insertRevision(tx, post.id, previous, author.id, 'edit', post.updatedDate);
     });
     return { tag: normalizedTags(field(body.tag)).join(',') };
   }
   if (field(query.series)) {
     const seriesId = await publicSeriesId(db, author.id, field(body.series));
-    await db.$executeRaw`UPDATE board_post SET series_id = ${seriesId}, updated_date = ${now} WHERE id = ${post.id}`;
+    await db.post.update({ where: { id: post.id }, data: { seriesId, updatedAt: now }, select: { id: true } });
     const series = seriesId === null ? null : await db.series.findUnique({ where: { id: seriesId }, select: { slug: true } });
     return { series: series?.slug ?? null };
   }
@@ -544,15 +400,11 @@ export async function updatePostSettings(
     const value = field(body.reserved_date);
     const parsed = scheduledDate(value);
     if (!value || parsed.error || !parsed.value) throw new PostValidationError('VA', parsed.error ?? 'Check the scheduled time.');
-    const storedDate = dateAsIso(post.publishedDate);
-    if (!storedDate || new Date(storedDate).valueOf() <= Date.now()) {
+    if (!post.publishedDate || post.publishedDate.valueOf() <= Date.now()) {
       throw new PostValidationError('RJ', 'Only scheduled posts can have their scheduled time changed.');
     }
     await db.$transaction(async (tx) => {
-      await tx.$executeRaw`
-        UPDATE board_post SET published_date = ${parsed.value}, updated_date = ${now}
-        WHERE id = ${post.id} AND author_id = ${author.id}
-      `;
+      await tx.post.updateMany({ where: { id: post.id, authorId: author.id }, data: { publishedAt: parsed.value, updatedAt: now } });
       await syncPostPublication(tx, post.id);
     });
     return {};

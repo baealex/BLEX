@@ -70,11 +70,10 @@ function collectImageReferences(values: Array<string | null>, category: ImageCle
 }
 
 async function readImageReferences(db: PrismaClient | Prisma.TransactionClient): Promise<Record<ImageCleanupFile['category'], Set<string>>> {
-  const [posts, content, history, editRequests, comments, profiles, series, pages, forms, notices, banners, workLogEntries] = await Promise.all([
-    db.$queryRaw<Array<{ image: string | null }>>`SELECT image FROM board_post`,
-    db.$queryRaw<Array<{ content: string | null }>>`SELECT content_html AS content FROM board_postcontent`,
-    db.$queryRaw<Array<{ content: string | null }>>`SELECT content FROM board_edithistory`,
-    db.$queryRaw<Array<{ content: string | null }>>`SELECT content FROM board_editrequest`,
+  const [posts, content, history, comments, profiles, series, pages, forms, notices, banners, workLogEntries] = await Promise.all([
+    db.post.findMany({ select: { image: true } }),
+    db.postContent.findMany({ select: { html: true } }),
+    db.postRevision.findMany({ select: { content: true } }),
     db.comment.findMany({ select: { markdown: true, html: true } }),
     db.$queryRaw<Array<{ aboutMd: string | null; aboutHtml: string | null }>>`SELECT about_md AS aboutMd, about_html AS aboutHtml FROM board_profile`,
     db.series.findMany({ select: { descriptionMarkdown: true, descriptionHtml: true } }),
@@ -86,9 +85,8 @@ async function readImageReferences(db: PrismaClient | Prisma.TransactionClient):
   ]);
   const values = [
     ...posts.map((row) => row.image),
-    ...content.map((row) => row.content),
+    ...content.map((row) => row.html),
     ...history.map((row) => row.content),
-    ...editRequests.map((row) => row.content),
     ...comments.flatMap((row) => [row.markdown, row.html]),
     ...profiles.flatMap((row) => [row.aboutMd, row.aboutHtml]),
     ...series.flatMap((row) => [row.descriptionMarkdown, row.descriptionHtml]),
@@ -193,7 +191,7 @@ export async function buildImageCleanupPlan(
   const root = await mediaRootRealPath(mediaRoot);
   const imageReferences = await readImageReferences(db);
   const [posts, profiles, cacheRows] = await Promise.all([
-    db.$queryRaw<Array<{ image: string | null }>>`SELECT image FROM board_post`,
+    db.post.findMany({ select: { image: true } }),
     db.$queryRaw<Array<{ avatar: string | null; cover: string | null }>>`SELECT avatar, cover FROM board_profile`,
     target === 'all' || target === 'content'
       ? db.uploadedImage.findMany({

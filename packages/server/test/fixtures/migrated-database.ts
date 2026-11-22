@@ -23,14 +23,17 @@ export function insertRow(db: DatabaseSync, table: string, values: Row) {
   const { sql } = db.prepare(`SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?`).get(table) as { sql: string };
   const row: Row = { ...values };
   for (const column of columns) {
-    if (column.name in row || column.pk || !column.notnull) continue;
     const type = column.type.toLowerCase();
+    // Fixtures may write a migrated date the way 3.x stored it.
+    if (/date/.test(type) && /^[A-Z_]/.test(table) && typeof row[column.name] === 'string') row[column.name] = prismaDate(row[column.name] as string);
+    if (column.name in row || column.pk || !column.notnull) continue;
     if (/date/.test(type) && /[A-Z]/.test(column.name)) {
       row[column.name] = prismaTimestamp;
       continue;
     }
     if (column.dflt_value !== null) continue;
-    if (/int|bool|decimal/.test(type)) row[column.name] = 0;
+    if (type === 'jsonb') row[column.name] = column.name === 'tags' ? '[]' : '{}';
+    else if (/int|bool|decimal/.test(type)) row[column.name] = 0;
     else if (/date/.test(type)) row[column.name] = legacyTimestamp;
     else if (sql.includes(`JSON_VALID("${column.name}")`)) row[column.name] = column.name === 'tags' ? '[]' : '{}';
     else row[column.name] = '';
@@ -45,10 +48,9 @@ export function seedEditor(db: DatabaseSync, id: number, username: string) {
   insertRow(db, 'board_profile', { id, user_id: id, role: 'EDITOR' });
 }
 
-export function seedPost(db: DatabaseSync, id: number, authorId: number, url: string, values: Row = {}) {
-  insertRow(db, 'board_post', { id, author_id: authorId, url, title: url, published_date: legacyTimestamp, updated_date: legacyTimestamp, ...values });
-  insertRow(db, 'board_postcontent', { id, post_id: id, content_html: '<p>Body</p>' });
-  insertRow(db, 'board_postconfig', { id, post_id: id, hide: 0, cover_layout: 'default', cover_image_position: 'right', cover_image_ratio: 'auto' });
+export function seedPost(db: DatabaseSync, id: number, authorId: number, slug: string, values: Row = {}) {
+  insertRow(db, 'Post', { id, authorId, slug, title: slug, publishedAt: legacyTimestamp, updatedAt: legacyTimestamp, ...values });
+  insertRow(db, 'PostContent', { postId: id, html: '<p>Body</p>' });
 }
 
 export function signIn(db: DatabaseSync, userId: number) {

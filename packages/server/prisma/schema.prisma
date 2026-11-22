@@ -17,6 +17,25 @@ enum SubscriptionAction {
   unsubscribe
 }
 
+enum CoverLayout {
+  default
+  split
+  overlay
+  none
+}
+
+enum CoverImagePosition {
+  right
+  left
+}
+
+enum RevisionType {
+  edit
+  restore
+  legacy
+  draft
+}
+
 enum BannerType {
   horizontal
   sidebar
@@ -76,13 +95,12 @@ model User {
   board_config                                                   board_config?
   developerRequests                                              DeveloperRequestLog[]
   developerTokens                                                DeveloperToken[]
-  board_edithistory                                              board_edithistory[]
-  board_editrequest                                              board_editrequest[]
+  postRevisions                                                  PostRevision[]
   board_emailchange                                              board_emailchange?
   formTemplates                                                  FormTemplate[]
   uploadedImages                                                 UploadedImage[]
   notifications                                                  Notification[]
-  board_pinnedpost                                               board_pinnedpost[]
+  pinnedPosts                                                    PinnedPost[]
   posts                                                          Post[]
   subscriptions                                                  AuthorSubscription[]         @relation("Subscriber")
   subscribers                                                    AuthorSubscription[]         @relation("SubscribedAuthor")
@@ -91,7 +109,7 @@ model User {
   series                                                         Series[]
   comments                                                       Comment[]
   commentLikes                                                   CommentLike[]
-  board_post_likes                                               board_post_likes[]
+  postLikes                                                      PostLike[]
   board_profile                                                  board_profile?
   banners                                                        SiteBanner[]
   notices                                                        SiteNotice[]
@@ -148,12 +166,12 @@ model NotificationDelivery {
 }
 
 model ScheduledPublication {
-  postId    Int    @id @map("post_id")
-  publishAt String @map("publish_at")
-  post      Post   @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  postId    Int      @id
+  publishAt DateTime
 
-  @@index([publishAt], map: "blex_scheduled_publication_publish_at_idx")
-  @@map("blex_scheduled_publication")
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([publishAt])
 }
 
 model WebhookDelivery {
@@ -182,68 +200,58 @@ model UsernameChange {
 }
 
 model Post {
-  id                   Int                    @id @default(autoincrement())
-  title                String
-  slug                 String                 @unique @map("url")
-  image                String
-  read_time            Int
-  created_date         DateTime
-  updated_date         DateTime
-  authorId             Int                    @map("author_id")
-  series_id            Int?
-  metaDescription      String                 @map("meta_description")
-  subtitle             String
-  publishedDate        DateTime?              @map("published_date")
-  image_hash           String
-  deletedDate          DateTime?              @map("deleted_date")
-  board_edithistory    board_edithistory[]
-  board_editrequest    board_editrequest[]
-  board_pinnedpost     board_pinnedpost[]
-  series               Series?                @relation(fields: [series_id], references: [id], onDelete: SetNull)
-  author               User                   @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_post_likes     board_post_likes[]
-  board_post_tags      board_post_tags[]
-  config               PostConfig?
-  board_postconfigmeta board_postconfigmeta[]
+  id                 Int                @id @default(autoincrement())
+  authorId           Int
+  seriesId           Int?
+  slug               String             @unique
+  title              String
+  subtitle           String             @default("")
+  description        String             @default("")
+  image              String             @default("")
+  imageHash          String             @default("")
+  readTime           Int                @default(1)
+  isHidden           Boolean            @default(false)
+  isAdvertised       Boolean            @default(false)
+  commentsBlocked    Boolean            @default(false)
+  coverLayout        CoverLayout        @default(default)
+  coverImagePosition CoverImagePosition @default(right)
+  /// One of auto, 16:9, 4:3, 1:1, or 3:4.
+  coverImageRatio    String             @default("auto")
+  /// False only for an imported 3.x post that never had a settings row. Direct reads and most lists show it, while reader actions, activity, related posts, series navigation, share links, and announcements leave it out. The first full save sets it.
+  hasSettings        Boolean            @default(true)
+  createdAt          DateTime           @default(now())
+  /// Set by the editor. Hiding, pinning, or moving a post must not change it.
+  updatedAt          DateTime           @default(now())
+  publishedAt        DateTime?
+  deletedAt          DateTime?
+  draftScheduledAt   DateTime?
+
+  author               User                  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  series               Series?               @relation(fields: [seriesId], references: [id], onDelete: SetNull)
   content              PostContent?
-  board_postsharelink  board_postsharelink[]
+  tags                 Tag[]
+  comments             Comment[]
+  revisions            PostRevision[]
+  likes                PostLike[]
+  pins                 PinnedPost[]
+  shareLinks           PostShareLink[]
   scheduledPublication ScheduledPublication?
   webhookDeliveries    WebhookDelivery[]
-  comments             Comment[]
 
-  @@index([deletedDate], map: "board_post_deleted_date_e66a3ffc")
-  @@index([authorId, publishedDate], map: "board_post_author__54dd01_idx")
-  @@index([publishedDate], map: "board_post_publish_950f79_idx")
-  @@index([slug], map: "board_post_url_7e049a_idx")
-  @@index([created_date], map: "board_post_created_69fd60_idx")
-  @@index([authorId, created_date], map: "board_post_author__effd83_idx")
-  @@index([image_hash], map: "board_post_image_hash_4631962a")
-  @@index([series_id], map: "board_post_series_id_05abc0fb")
-  @@index([authorId], map: "board_post_author_id_1d40598b")
-  @@map("board_post")
+  @@index([authorId, publishedAt])
+  @@index([authorId, createdAt])
+  @@index([publishedAt])
+  @@index([createdAt])
+  @@index([deletedAt])
+  @@index([seriesId])
+  @@index([imageHash])
 }
 
 model PostContent {
-  id     Int    @id @default(autoincrement())
-  html   String @map("content_html")
-  postId Int    @unique @map("post_id")
-  post   Post   @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  postId Int    @id
+  html   String
 
-  @@map("board_postcontent")
-}
-
-model PostConfig {
-  id                   Int     @id @default(autoincrement())
-  hide                 Boolean
-  advertise            Boolean
-  block_comment        Boolean
-  postId               Int     @unique @map("post_id")
-  cover_image_position String
-  cover_image_ratio    String
-  cover_layout         String
-  post                 Post    @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@map("board_postconfig")
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 }
 
 model auth_group {
@@ -426,45 +434,29 @@ model DeveloperToken {
   @@index([userId, revokedAt])
 }
 
-model board_edithistory {
-  id                      Int                 @id @default(autoincrement())
-  content                 String
-  created_date            DateTime
-  post_id                 Int
-  actor_id                Int?
-  change_type             String
-  description             String
-  source_updated_date     DateTime?
-  subtitle                String
-  tags                    String
-  title                   String
-  restored_from_id        Int?
-  content_excerpt         String?
-  board_edithistory       board_edithistory?  @relation("board_edithistoryToboard_edithistory", fields: [restored_from_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  other_board_edithistory board_edithistory[] @relation("board_edithistoryToboard_edithistory")
-  auth_user               User?               @relation(fields: [actor_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_post              Post                @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model PostRevision {
+  id              Int          @id @default(autoincrement())
+  postId          Int
+  actorId         Int?
+  restoredFromId  Int?
+  type            RevisionType
+  title           String       @default("")
+  subtitle        String       @default("")
+  description     String       @default("")
+  content         String       @default("")
+  contentExcerpt  String?
+  tags            Json
+  sourceUpdatedAt DateTime?
+  createdAt       DateTime     @default(now())
 
-  @@index([post_id, created_date], map: "board_edith_post_id_50a332_idx")
-  @@index([restored_from_id], map: "board_edithistory_restored_from_id_fdd2f281")
-  @@index([actor_id], map: "board_edithistory_actor_id_13dc7485")
-  @@index([post_id], map: "board_edithistory_post_id_7ac2da0d")
-}
+  post         Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
+  actor        User?          @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  restoredFrom PostRevision?  @relation("RevisionRestore", fields: [restoredFromId], references: [id], onDelete: SetNull)
+  restores     PostRevision[] @relation("RevisionRestore")
 
-model board_editrequest {
-  id           Int      @id @default(autoincrement())
-  title        String
-  content      String
-  is_merged    Boolean
-  created_date DateTime
-  updated_date DateTime
-  user_id      Int
-  post_id      Int
-  board_post   Post     @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  auth_user    User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([post_id], map: "board_editrequest_post_id_77346467")
-  @@index([user_id], map: "board_editrequest_user_id_0deec073")
+  @@index([postId, createdAt])
+  @@index([restoredFromId])
+  @@index([actorId])
 }
 
 model board_emailchange {
@@ -502,81 +494,53 @@ model Notification {
   @@index([userId])
 }
 
-model board_pinnedpost {
-  id           Int      @id @default(autoincrement())
-  order        Int
-  created_date DateTime
-  post_id      Int
-  user_id      Int
-  auth_user    User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_post   Post     @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model PinnedPost {
+  userId    Int
+  postId    Int
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
 
-  @@unique([user_id, post_id])
-  @@index([user_id], map: "board_pinnedpost_user_id_162d6fde")
-  @@index([post_id], map: "board_pinnedpost_post_id_5c30f851")
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([userId, postId])
+  @@index([postId])
 }
 
-model board_post_likes {
-  id           Int      @id @default(autoincrement())
-  created_date DateTime
-  post_id      Int
-  user_id      Int
-  auth_user    User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_post   Post     @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model PostLike {
+  postId    Int
+  userId    Int
+  createdAt DateTime @default(now())
 
-  @@unique([post_id, user_id])
-  @@index([user_id, created_date], map: "board_post__user_id_44c70b_idx")
-  @@index([post_id, user_id], map: "board_post__post_id_ce5821_idx")
-  @@index([user_id], map: "board_post_likes_user_id_ec7f0988")
-  @@index([post_id], map: "board_post_likes_post_id_d498fb9b")
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([postId, userId])
+  @@index([userId, createdAt])
 }
 
-model board_post_share_link_daily_counts {
-  id                  Int                 @id @default(autoincrement())
-  day                 DateTime
-  clicks              BigInt
-  link_id             Int
-  board_postsharelink board_postsharelink @relation(fields: [link_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model PostShareDailyCount {
+  linkId Int
+  day    DateTime
+  clicks Int      @default(0)
 
-  @@unique([link_id, day])
-  @@index([link_id], map: "board_post_share_link_daily_counts_link_id_2f58d048")
+  link PostShareLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
+
+  @@id([linkId, day])
 }
 
-model board_post_tags {
-  id         Int       @id @default(autoincrement())
-  post_id    Int
-  tag_id     Int
-  board_tag  board_tag @relation(fields: [tag_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_post Post      @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model PostShareLink {
+  id        Int      @id @default(autoincrement())
+  postId    Int
+  token     String   @unique
+  label     String   @default("")
+  isPaused  Boolean  @default(false)
+  createdAt DateTime @default(now())
 
-  @@unique([post_id, tag_id], map: "board_post_tags_post_id_tag_id_b584ff2b_uniq")
-  @@index([tag_id], map: "board_post_tags_tag_id_7972a030")
-  @@index([post_id], map: "board_post_tags_post_id_b46f227b")
-}
+  post        Post                  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  dailyCounts PostShareDailyCount[]
 
-model board_postconfigmeta {
-  id           Int      @id @default(autoincrement())
-  name         String
-  value        String
-  created_date DateTime
-  updated_date DateTime
-  post_id      Int
-  board_post   Post     @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([post_id], map: "board_postconfigmeta_post_id_6e39a197")
-}
-
-model board_postsharelink {
-  id                                 Int                                  @id @default(autoincrement())
-  token                              String                               @unique
-  label                              String
-  is_paused                          Boolean
-  created_date                       DateTime
-  post_id                            Int
-  board_post_share_link_daily_counts board_post_share_link_daily_counts[]
-  board_post                         Post                                 @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([post_id], map: "board_postsharelink_post_id_4819c9d6")
+  @@index([postId])
 }
 
 model board_profile {
@@ -637,10 +601,10 @@ model board_socialauthprovider {
   board_socialauth board_socialauth[]
 }
 
-model board_tag {
-  id              Int               @id @default(autoincrement())
-  value           String            @unique
-  board_post_tags board_post_tags[]
+model Tag {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  posts Post[]
 }
 
 model TelegramConnection {

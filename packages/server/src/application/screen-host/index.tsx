@@ -230,17 +230,17 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
     if (edit) {
       const [username, slug] = [decodeURIComponent(edit[1]), decodeURIComponent(edit[2])];
       if (username !== user.username) return undefined;
-      const [post] = await db.$queryRaw<Array<{ url: string }>>`SELECT url FROM board_post WHERE author_id = ${user.id} AND url = ${slug} LIMIT 1`;
+      const post = await db.post.findFirst({ where: { authorId: user.id, slug }, select: { slug: true } });
       if (!post) return undefined;
-      return sendScreen(request, reply, user, account.staff, 'PostEditor', () => ({ mode: 'edit', username, postUrl: post.url }), '수정하기 - {site}');
+      return sendScreen(request, reply, user, account.staff, 'PostEditor', () => ({ mode: 'edit', username, postUrl: post.slug }), '수정하기 - {site}');
     }
-    const [published] = await db.$queryRaw<Array<{ id: number }>>`SELECT id FROM board_post WHERE author_id = ${user.id} AND published_date IS NOT NULL LIMIT 1`;
+    const published = await db.post.findFirst({ where: { authorId: user.id, publishedAt: { not: null } }, select: { id: true } });
     const showFirstPublishGuide = !published;
     const draftUrl = new URLSearchParams(query).get('draft');
-    const [draft] = draftUrl
-      ? await db.$queryRaw<Array<{ url: string }>>`SELECT url FROM board_post WHERE author_id = ${user.id} AND url = ${draftUrl} AND published_date IS NULL LIMIT 1`
-      : [];
-    if (draft) return sendScreen(request, reply, user, account.staff, 'PostEditor', () => ({ mode: 'draft', username: user.username, draftUrl: draft.url, showFirstPublishGuide }), '임시저장 - {site}');
+    const draft = draftUrl
+      ? await db.post.findFirst({ where: { authorId: user.id, slug: draftUrl, publishedAt: null }, select: { slug: true } })
+      : null;
+    if (draft) return sendScreen(request, reply, user, account.staff, 'PostEditor', () => ({ mode: 'draft', username: user.username, draftUrl: draft.slug, showFirstPublishGuide }), '임시저장 - {site}');
     return sendScreen(request, reply, user, account.staff, 'PostEditor', () => ({ mode: 'new', username: user.username, showFirstPublishGuide }), '새 포스트 - {site}');
   };
 

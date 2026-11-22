@@ -1,4 +1,6 @@
-import type { PrismaClient } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
+import { storedDateText } from '../../compat/django-format.js';
+import { publicPostWhere, settledPublicPostWhere } from './data/visibility.js';
 import { sanitizePostHtml } from './post-html.js';
 import { readPublicSiteBrand, type SiteBrand } from '../discovery/pages/index.js';
 
@@ -25,8 +27,8 @@ export interface PublicPost {
 export interface DraftPreview extends PublicPost {
   authorBio: string;
   authorHomepage: string;
-  isStaff: number | bigint | boolean;
-  unreadCount: number | bigint;
+  isStaff: boolean;
+  unreadCount: number;
 }
 
 interface PostBanner {
@@ -84,6 +86,22 @@ export function publicPostPath(username: string, slug: string): string {
   return `/@${encodeURIComponent(username)}/${encodeURIComponent(slug)}`;
 }
 
+const publicPostSelect = {
+  id: true, authorId: true, slug: true, title: true, subtitle: true, image: true, readTime: true, description: true,
+  coverLayout: true, coverImageRatio: true, coverImagePosition: true, publishedAt: true, updatedAt: true, createdAt: true, isHidden: true,
+  content: { select: { html: true } },
+} satisfies Prisma.PostSelect;
+
+type SelectedPublicPost = Prisma.PostGetPayload<{ select: typeof publicPostSelect }>;
+
+function publicPostFields(post: SelectedPublicPost, username: string, avatar: string | null | undefined) {
+  return {
+    id: post.id, authorId: post.authorId, username, slug: post.slug, title: post.title, subtitle: post.subtitle, image: post.image,
+    readTime: post.readTime, authorAvatar: avatar ?? '', coverLayout: post.coverLayout, coverImageRatio: post.coverImageRatio,
+    coverImagePosition: post.coverImagePosition, description: post.description, contentHtml: sanitizePostHtml(post.content?.html ?? ''),
+  };
+}
+
 export async function readPublicPost(
   db: PrismaClient,
   username: string,
@@ -94,68 +112,58 @@ export async function readPublicPost(
     return null;
   }
 
-  // Django stores UTC timestamps as text with a space and optional fractional seconds.
-  const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
-  const [post] = await db.$queryRaw<PublicPost[]>`
-    SELECT post.id, author.id AS authorId, author.username, post.url AS slug, post.title, post.subtitle, post.image,
-           post.read_time AS readTime, COALESCE(profile.avatar, '') AS authorAvatar,
-           COALESCE(config.cover_layout, 'default') AS coverLayout,
-           COALESCE(config.cover_image_ratio, 'auto') AS coverImageRatio,
-           COALESCE(config.cover_image_position, 'right') AS coverImagePosition,
-           CAST(post.published_date AS TEXT) AS publishedDate, CAST(post.updated_date AS TEXT) AS updatedDate,
-           CASE WHEN COALESCE(config.hide, 0) <> 0 THEN 'hidden'
-                WHEN post.published_date > ${now} THEN 'scheduled' ELSE 'public' END AS visibility,
-           post.meta_description AS description, COALESCE(content.content_html, '') AS contentHtml
-      FROM board_post AS post
-      JOIN auth_user AS author ON author.id = post.author_id
-      LEFT JOIN board_profile AS profile ON profile.user_id = author.id
-      LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-      LEFT JOIN board_postcontent AS content ON content.post_id = post.id
-     WHERE post.url = ${slug}
-       AND post.deleted_date IS NULL
-       AND post.published_date IS NOT NULL
-       AND (
-         (${viewerId ?? null} = author.id AND author.username = ${username})
-         OR (
-           COALESCE(config.hide, 0) = 0 AND post.published_date <= ${now}
-           AND (author.username = ${username} OR (config.hide = 0 AND EXISTS (
-             SELECT 1 FROM board_usernamechangelog AS previous
-              WHERE previous.user_id = author.id AND previous.username = ${username}
-           )))
-         )
-       )
-     LIMIT 1
-  `;
-
-  return post ? { ...post, contentHtml: sanitizePostHtml(post.contentHtml) } : null;
+  const now = new Date();
+  const post = await db.post.findFirst({
+    where: {
+      slug,
+      deletedAt: null,
+      publishedAt: { not: null },
+      OR: [
+        ...(viewerId === undefined ? [] : [{ authorId: viewerId, author: { username } }]),
+        {
+          ...publicPostWhere(now),
+          OR: [
+            { author: { username } },
+            // A former username has never reached a post without a settings row.
+            { hasSettings: true, author: { usernameChanges: { some: { username } } } },
+          ],
+        },
+      ],
+    },
+    select: { ...publicPostSelect, author: { select: { username: true, board_profile: { select: { avatar: true } } } } },
+  });
+  if (!post) return null;
+  return {
+    ...publicPostFields(post, post.author.username, post.author.board_profile?.avatar),
+    publishedDate: storedDateText(post.publishedAt!),
+    updatedDate: storedDateText(post.updatedAt),
+    visibility: post.isHidden ? 'hidden' : post.publishedAt! > now ? 'scheduled' : 'public',
+  };
 }
 
 /** An author's own unpublished post, dated the way the 3.x preview screen dates it. */
 export async function readDraftPreview(db: PrismaClient, authorId: number, slug: string): Promise<DraftPreview | null> {
-  const [post] = await db.$queryRaw<Array<Omit<DraftPreview, 'unreadCount'>>>`
-    SELECT post.id, author.id AS authorId, author.username, post.url AS slug, post.title, post.subtitle, post.image,
-           post.read_time AS readTime, COALESCE(profile.avatar, '') AS authorAvatar,
-           COALESCE(config.cover_layout, 'default') AS coverLayout,
-           COALESCE(config.cover_image_ratio, 'auto') AS coverImageRatio,
-           COALESCE(config.cover_image_position, 'right') AS coverImagePosition,
-           CAST(COALESCE(post.updated_date, post.created_date) AS TEXT) AS publishedDate,
-           CAST(COALESCE(post.updated_date, post.created_date) AS TEXT) AS updatedDate,
-           'draft' AS visibility, post.meta_description AS description,
-           COALESCE(content.content_html, '') AS contentHtml,
-           COALESCE(profile.bio, '') AS authorBio, COALESCE(profile.homepage, '') AS authorHomepage,
-           author.is_staff AS isStaff
-      FROM board_post AS post
-      JOIN auth_user AS author ON author.id = post.author_id
-      LEFT JOIN board_profile AS profile ON profile.user_id = author.id
-      LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-      LEFT JOIN board_postcontent AS content ON content.post_id = post.id
-     WHERE post.url = ${slug} AND post.author_id = ${authorId}
-       AND post.published_date IS NULL AND post.deleted_date IS NULL
-     LIMIT 1
-  `;
+  const post = await db.post.findFirst({
+    where: { slug, authorId, publishedAt: null, deletedAt: null },
+    select: {
+      ...publicPostSelect,
+      author: { select: { username: true, is_staff: true, board_profile: { select: { avatar: true, bio: true, homepage: true } } } },
+    },
+  });
   if (!post) return null;
   const unreadCount = await db.notification.count({ where: { userId: authorId, isRead: false } });
-  return { ...post, unreadCount, contentHtml: sanitizePostHtml(post.contentHtml) };
+  const profile = post.author.board_profile;
+  const previewDate = storedDateText(post.updatedAt);
+  return {
+    ...publicPostFields(post, post.author.username, profile?.avatar),
+    publishedDate: previewDate,
+    updatedDate: previewDate,
+    visibility: 'draft',
+    authorBio: profile?.bio ?? '',
+    authorHomepage: profile?.homepage ?? '',
+    isStaff: post.author.is_staff,
+    unreadCount,
+  };
 }
 
 export async function readPostPresentation(db: PrismaClient, post: Pick<PublicPost, 'id' | 'authorId'>): Promise<PostPresentation> {
@@ -166,10 +174,7 @@ export async function readPostPresentation(db: PrismaClient, post: Pick<PublicPo
       where: { id: post.id },
       select: { series: { select: { id: true, name: true, slug: true, isHidden: true, owner: { select: { username: true } } } } },
     }),
-    db.$queryRaw<Array<{ value: string }>>`
-      SELECT tag.value FROM board_post_tags AS attached JOIN board_tag AS tag ON tag.id = attached.tag_id
-       WHERE attached.post_id = ${post.id} ORDER BY tag.id
-    `,
+    db.tag.findMany({ where: { posts: { some: { id: post.id } } }, orderBy: { id: 'asc' }, select: { name: true } }),
     db.siteBanner.findMany({
       where: { isActive: true, OR: [{ scope: 'global' }, { scope: 'user', userId: post.authorId }] },
       orderBy: [{ order: 'asc' }, { createdAt: 'desc' }, { id: 'desc' }],
@@ -177,23 +182,19 @@ export async function readPostPresentation(db: PrismaClient, post: Pick<PublicPo
     }),
   ]);
   const series = placement?.series && !placement.series.isHidden ? placement.series : null;
-  const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
-  const seriesPosts = !series ? [] : await db.$queryRaw<Array<{ id: number; url: string; title: string }>>`
-    SELECT post.id, post.url, post.title
-      FROM board_post AS post
-      JOIN board_postconfig AS config ON config.post_id = post.id
-     WHERE post.series_id = ${series.id} AND post.deleted_date IS NULL
-       AND post.published_date <= ${now} AND config.hide = 0
-     ORDER BY post.published_date, post.id
-  `;
+  const seriesPosts = !series ? [] : await db.post.findMany({
+    where: { seriesId: series.id, ...settledPublicPostWhere() },
+    orderBy: [{ publishedAt: 'asc' }, { id: 'asc' }],
+    select: { id: true, slug: true, title: true },
+  });
   return {
     ...brand,
     aeoEnabled: site?.aeoEnabled ?? false,
-    seriesNavigation: seriesNavigation(seriesPosts.map((row) => ({ ...row, id: Number(row.id) })), Number(post.id)),
+    seriesNavigation: seriesNavigation(seriesPosts.map(({ id, slug, title }) => ({ id, url: slug, title })), post.id),
     seriesName: series?.name ?? null,
     seriesUrl: series?.slug ?? null,
     seriesAuthor: series?.owner.username ?? null,
-    tags: tags.map(({ value }) => value),
+    tags: tags.map(({ name }) => name),
     banners: banners.map((banner) => ({ ...banner, contentHtml: sanitizePostHtml(banner.contentHtml) })).filter((banner) => banner.contentHtml),
   };
 }

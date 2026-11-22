@@ -1,10 +1,9 @@
 import { createHash } from 'node:crypto';
 import { createElement, type ReactNode } from 'react';
+import type { Prisma } from '@prisma/client';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { sanitizePostHtml } from '../posts/post-html.js';
 import { authorPath } from '../authors/services/profile.js';
-
-export type SqlValue = string | number | null;
 
 type StoredDate = string | Date;
 
@@ -72,7 +71,6 @@ export interface TagRow {
   id: number;
   name: string;
   count: DatabaseInteger;
-  image: string | null;
 }
 
 export interface SeriesRow {
@@ -84,7 +82,6 @@ export interface SeriesRow {
   createdDate: StoredDate;
   updatedDate: StoredDate;
   postCount: DatabaseInteger;
-  thumbnail: string;
 }
 
 export interface SeriesDetailRow extends SeriesRow {
@@ -125,10 +122,8 @@ export interface PublicPageViewer {
 }
 
 export interface PostQueryOptions {
-  conditions?: string[];
-  parameters?: SqlValue[];
-  orderBy?: string;
-  orderParameters?: SqlValue[];
+  where?: Prisma.PostWhereInput;
+  orderBy?: Prisma.PostOrderByWithRelationInput[];
   limit?: number;
   offset?: number;
 }
@@ -136,10 +131,6 @@ export interface PostQueryOptions {
 export const h = createElement;
 
 export const PAGE_SIZE = 24;
-
-export function databaseNow(): string {
-  return new Date().toISOString().replace('T', ' ').replace('Z', '');
-}
 
 export function makeAbsolute(siteUrl: URL, path: string): string {
   return new URL(path, siteUrl).href;

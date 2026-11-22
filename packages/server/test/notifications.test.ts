@@ -33,10 +33,8 @@ test('delivers scheduled publication once, retains queued retries, and respects 
            (3, 'oldreader', '!synthetic', '', 'Old reader', '', '2000-01-01', 1, 0, 0);
     INSERT INTO board_profile (user_id, bio, cover, avatar, homepage, about_md, about_html, analytics_share_url, role)
     VALUES (1, '', '', '', '', '', '', '', 'EDITOR');
-    INSERT INTO board_post (id, title, url, image, read_time, created_date, updated_date, author_id, meta_description, subtitle, published_date, image_hash)
-    VALUES (1, 'Scheduled post', 'scheduled', '', 1, '2000-01-01', '2000-01-01', 1, '', '', '2099-01-01 00:00:00', '');
-    INSERT INTO board_postconfig (post_id, hide, advertise, block_comment, cover_image_position, cover_image_ratio, cover_layout)
-    VALUES (1, 0, 0, 0, 'right', 'auto', 'default');
+    INSERT INTO "Post" (id, title, slug, readTime, createdAt, updatedAt, authorId, publishedAt)
+    VALUES (1, 'Scheduled post', 'scheduled', 1, 946684800000, 946684800000, 1, ${Date.UTC(2099, 0, 1)});
     INSERT INTO AuthorSubscription (createdAt, authorId, subscriberId)
     VALUES (946684800000, 1, 2), (946684800000, 1, 3);
   `);
@@ -52,11 +50,11 @@ test('delivers scheduled publication once, retains queued retries, and respects 
     assert.equal(await db.notification.count(), 0);
     await db.authorSubscription.deleteMany({ where: { subscriberId: 3 } });
     await db.$transaction(async (tx) => {
-      await tx.$executeRaw`UPDATE board_post SET published_date = '2000-01-02 00:00:00' WHERE id = 1`;
-      await tx.$executeRaw`UPDATE blex_scheduled_publication SET publish_at = '2000-01-02 00:00:00' WHERE post_id = 1`;
+      await tx.post.update({ where: { id: 1 }, data: { publishedAt: new Date(Date.UTC(2000, 0, 2)) } });
+      await tx.scheduledPublication.update({ where: { postId: 1 }, data: { publishAt: new Date(Date.UTC(2000, 0, 2)) } });
     });
     await processScheduledPublications(db);
-    await db.$executeRaw`UPDATE board_post SET title = 'Title change' WHERE id = 1`;
+    await db.$executeRaw`UPDATE "Post" SET title = 'Title change' WHERE id = 1`;
     await db.$transaction((tx) => syncPostPublication(tx, 1));
     const notices = await db.notification.findMany({ select: { url: true, userId: true, messageKey: true } });
     assert.deepEqual(notices, [{ url: '/@editor/scheduled', userId: 2, messageKey: 'post.published' }]);

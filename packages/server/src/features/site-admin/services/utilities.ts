@@ -2,7 +2,8 @@ import { Prisma, type PrismaClient } from '@prisma/client';
 import type { FastifyRequest } from 'fastify';
 import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import { buildImageCleanupPlan, executeImageCleanupPlan, imageCleanupPlanApi } from './image-cleanup.js';
-import { AdminSettingsOptions, ApiResult, Body, djangoTimestamp, isRecord } from '../shared.js';
+import { settledPublicPostWhere } from '../../posts/data/visibility.js';
+import { AdminSettingsOptions, ApiResult, Body, isRecord } from '../shared.js';
 
 export type UtilityAction = 'clean_tags' | 'clean_sessions' | 'clean_logs' | 'clean_images';
 
@@ -147,21 +148,21 @@ function retentionDays(name: string, defaultValue: number): number {
 }
 
 export async function readUtilityStats(db: PrismaClient): Promise<Record<string, unknown>> {
-  const now = djangoTimestamp();
+  const now = new Date();
   const epoch = BigInt(Date.now());
-  const [stats] = await db.$queryRaw<Array<Record<string, number | bigint>>>(Prisma.sql`
+  const active = { deletedAt: null };
+  const totalPosts = await db.post.count();
+  const publicPosts = await db.post.count({ where: settledPublicPostWhere(now) });
+  const publishedPosts = await db.post.count({ where: { ...active, publishedAt: { lte: now } } });
+  const scheduledPosts = await db.post.count({ where: { ...active, publishedAt: { gt: now } } });
+  const hiddenPosts = await db.post.count({ where: { isHidden: true } });
+  const draftPosts = await db.post.count({ where: { ...active, publishedAt: null } });
+  const [accounts] = await db.$queryRaw<Array<Record<string, number | bigint>>>(Prisma.sql`
     SELECT
-      (SELECT COUNT(*) FROM board_post) AS totalPosts,
-      COALESCE(SUM(CASE WHEN post.deleted_date IS NULL AND post.published_date IS NOT NULL AND post.published_date <= ${now} AND config.hide = 0 THEN 1 ELSE 0 END), 0) AS publicPosts,
-      COALESCE(SUM(CASE WHEN post.deleted_date IS NULL AND post.published_date IS NOT NULL AND post.published_date <= ${now} THEN 1 ELSE 0 END), 0) AS publishedPosts,
-      COALESCE(SUM(CASE WHEN post.deleted_date IS NULL AND post.published_date > ${now} THEN 1 ELSE 0 END), 0) AS scheduledPosts,
-      COALESCE(SUM(CASE WHEN config.hide = 1 THEN 1 ELSE 0 END), 0) AS hiddenPosts,
-      COALESCE(SUM(CASE WHEN post.deleted_date IS NULL AND post.published_date IS NULL THEN 1 ELSE 0 END), 0) AS draftPosts,
       (SELECT COUNT(*) FROM auth_user) AS totalUsers,
       (SELECT COUNT(*) FROM board_profile) AS activeProfiles,
       (SELECT COUNT(*) FROM blex_session) AS totalSessions,
       (SELECT COUNT(*) FROM blex_session WHERE expires_at < ${epoch}) AS expiredSessions
-    FROM board_post AS post LEFT JOIN board_postconfig AS config ON config.post_id = post.id
   `);
   const totalComments = await db.comment.count();
   const totalSeries = await db.series.count();
@@ -176,11 +177,16 @@ export async function readUtilityStats(db: PrismaClient): Promise<Record<string,
   } catch {
     // Some SQLite adapters disallow PRAGMA through prepared statements.
   }
-  const { totalUsers, activeProfiles, totalSessions, expiredSessions, ...postStats } = Object.fromEntries(
-    Object.entries(stats ?? {}).map(([key, value]) => [key, Number(value)]),
+  const { totalUsers, activeProfiles, totalSessions, expiredSessions } = Object.fromEntries(
+    Object.entries(accounts ?? {}).map(([key, value]) => [key, Number(value)]),
   );
   return {
-    ...postStats,
+    totalPosts,
+    publicPosts,
+    publishedPosts,
+    scheduledPosts,
+    hiddenPosts,
+    draftPosts,
     totalComments,
     totalUsers,
     activeProfiles,
@@ -206,35 +212,23 @@ async function runUtilityCleanup(
     return imageCleanupPlanApi(plan, dryRun);
   }
   if (action === 'clean_tags') {
-    const [counts] = await db.$queryRaw<Array<{ totalTags: number | bigint; usedTags: number | bigint }>>`
-      SELECT COUNT(*) AS totalTags,
-        SUM(CASE WHEN EXISTS (SELECT 1 FROM board_post_tags AS relation WHERE relation.tag_id = tag.id) THEN 1 ELSE 0 END) AS usedTags
-      FROM board_tag AS tag
-    `;
-    const unusedRows = await db.$queryRaw<Array<{ value: string }>>`
-      SELECT tag.value FROM board_tag AS tag
-      WHERE NOT EXISTS (SELECT 1 FROM board_post_tags AS relation WHERE relation.tag_id = tag.id)
-      ORDER BY tag.id
-    `;
-    const topTags = await db.$queryRaw<Array<{ name: string; count: number | bigint }>>`
-      SELECT tag.value AS name, COUNT(relation.post_id) AS count
-      FROM board_tag AS tag JOIN board_post_tags AS relation ON relation.tag_id = tag.id
-      GROUP BY tag.id, tag.value ORDER BY count DESC LIMIT 10
-    `;
-    const deleted = dryRun ? 0 : await db.$executeRaw`
-      DELETE FROM board_tag WHERE NOT EXISTS (
-        SELECT 1 FROM board_post_tags AS relation WHERE relation.tag_id = board_tag.id
-      )
-    `;
-    const total = Number(counts?.totalTags ?? 0);
-    const used = Number(counts?.usedTags ?? 0);
+    const total = await db.tag.count();
+    const used = await db.tag.count({ where: { posts: { some: {} } } });
+    const unusedRows = await db.tag.findMany({ where: { posts: { none: {} } }, orderBy: { id: 'asc' }, select: { name: true } });
+    const topTags = await db.tag.findMany({
+      where: { posts: { some: {} } },
+      orderBy: [{ posts: { _count: 'desc' } }, { id: 'asc' }],
+      take: 10,
+      select: { name: true, _count: { select: { posts: true } } },
+    });
+    const deleted = dryRun ? 0 : (await db.tag.deleteMany({ where: { posts: { none: {} } } })).count;
     return {
       totalTags: total,
       usedTags: used,
       unusedTags: Math.max(0, total - used),
-      topTags: topTags.map((tag) => ({ name: tag.name, count: Number(tag.count) })),
-      cleanedCount: Number(deleted || unusedRows.length),
-      cleanedTags: unusedRows.slice(0, 20).map((row) => row.value),
+      topTags: topTags.map((tag) => ({ name: tag.name, count: tag._count.posts })),
+      cleanedCount: deleted || unusedRows.length,
+      cleanedTags: unusedRows.slice(0, 20).map((row) => row.name),
       dryRun,
     };
   }

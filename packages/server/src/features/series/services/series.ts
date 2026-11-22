@@ -1,5 +1,6 @@
 import { Prisma, type PrismaClient } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
+import { publicPostWhere } from '../../posts/data/visibility.js';
 import { sanitizePostHtml } from '../../posts/post-html.js';
 import { storedDateText } from '../../../compat/django-format.js';
 import { type SeriesListItem, type SeriesPostOption, arrayValues, localDate, stringValue } from '../shared.js';
@@ -12,17 +13,12 @@ interface StoredSeries extends SeriesListItem {
 const MAX_SERIES_DESCRIPTION = 500;
 const MAX_DATABASE_INTEGER = 2_147_483_647;
 
-const activePosts = { posts: { where: { deletedDate: null } } } satisfies Prisma.SeriesCountOutputTypeSelect;
+const activePosts = { posts: { where: { deletedAt: null } } } satisfies Prisma.SeriesCountOutputTypeSelect;
 
 /** Series dates have always been written at whole seconds, and public pages show them as stored. */
 function currentSecond(): Date {
   return new Date(Math.floor(Date.now() / 1000) * 1000);
 }
-
-export const SERIES_PUBLIC_FILTER = `post.deleted_date IS NULL
-  AND post.published_date IS NOT NULL
-  AND datetime(post.published_date) <= CURRENT_TIMESTAMP
-  AND COALESCE(post_config.hide, 0) = 0`;
 
 function normalizeSlug(value: string): string {
   return value.normalize('NFKC').toLowerCase()
@@ -50,21 +46,13 @@ export function parsePostIds(value: unknown): number[] | null {
   return parsed;
 }
 
-/** Post dates are still stored as Django text, which Prisma cannot compare. */
 async function countPublicPosts(db: PrismaClient, seriesIds: number[]): Promise<Map<number, number>> {
-  const counts = new Map<number, number>();
-  for (let offset = 0; offset < seriesIds.length; offset += 500) {
-    const batch = seriesIds.slice(offset, offset + 500);
-    const rows = await db.$queryRawUnsafe<Array<{ seriesId: number; total: number | bigint }>>(`
-      SELECT post.series_id AS seriesId, COUNT(*) AS total
-        FROM board_post AS post
-        LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-       WHERE post.series_id IN (${batch.map(() => '?').join(', ')}) AND ${SERIES_PUBLIC_FILTER}
-       GROUP BY post.series_id
-    `, ...batch);
-    for (const row of rows) counts.set(Number(row.seriesId), Number(row.total));
-  }
-  return counts;
+  const rows = await db.post.groupBy({
+    by: ['seriesId'],
+    where: { seriesId: { in: seriesIds }, ...publicPostWhere() },
+    _count: { _all: true },
+  });
+  return new Map(rows.map((row) => [row.seriesId!, row._count._all]));
 }
 
 export async function readSeriesRows(db: PrismaClient, ownerId: number, countKind: 'public' | 'active') {
@@ -100,27 +88,18 @@ export async function readSeriesById(db: PrismaClient, ownerId: number, id: numb
 }
 
 export async function readSeriesPostIds(db: PrismaClient, ownerId: number, seriesId: number): Promise<number[]> {
-  const rows = await db.$queryRaw<Array<{ id: number | bigint }>>`
-    SELECT id FROM board_post WHERE author_id = ${ownerId} AND series_id = ${seriesId}
-      ORDER BY id ASC
-  `;
-  return rows.map((row) => Number(row.id));
+  const rows = await db.post.findMany({ where: { authorId: ownerId, seriesId }, orderBy: { id: 'asc' }, select: { id: true } });
+  return rows.map(({ id }) => id);
 }
 
 export async function readAvailableSeriesPosts(db: PrismaClient, ownerId: number, seriesId?: number): Promise<SeriesPostOption[]> {
-  const filter = seriesId === undefined
-    ? `post.series_id IS NULL AND ${SERIES_PUBLIC_FILTER}`
-    : `(post.series_id = ? OR (post.series_id IS NULL AND ${SERIES_PUBLIC_FILTER}))`;
-  const activeFilter = seriesId === undefined ? 'AND post.deleted_date IS NULL' : '';
-  const params = seriesId === undefined ? [ownerId] : [ownerId, seriesId];
-  const rows = await db.$queryRawUnsafe<Array<{ id: number; title: string; publishedDate: string | null }>>(`
-    SELECT post.id AS id, post.title AS title, CAST(post.published_date AS TEXT) AS publishedDate
-      FROM board_post AS post
-      LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-     WHERE post.author_id = ? ${activeFilter} AND ${filter}
-     ORDER BY post.published_date DESC, post.id DESC
-  `, ...params);
-  return rows.map((row) => ({ id: Number(row.id), title: row.title, publishedDate: localDate(row.publishedDate) || null }));
+  const unassigned = { seriesId: null, ...publicPostWhere() };
+  const rows = await db.post.findMany({
+    where: { authorId: ownerId, ...(seriesId === undefined ? unassigned : { OR: [{ seriesId }, unassigned] }) },
+    orderBy: [{ publishedAt: 'desc' }, { id: 'desc' }],
+    select: { id: true, title: true, publishedAt: true },
+  });
+  return rows.map((row) => ({ id: row.id, title: row.title, publishedDate: localDate(row.publishedAt) || null }));
 }
 
 async function createUniqueSeriesUrl(db: Prisma.TransactionClient, base: string): Promise<string> {
@@ -195,11 +174,11 @@ export async function saveSeries(
       }
 
       if (input.postIds !== undefined) {
-        await tx.post.updateMany({ where: { series_id: id }, data: { series_id: null } });
+        await tx.post.updateMany({ where: { seriesId: id }, data: { seriesId: null } });
         for (let offset = 0; offset < input.postIds.length; offset += 500) {
           await tx.post.updateMany({
             where: { id: { in: input.postIds.slice(offset, offset + 500) }, authorId: ownerId },
-            data: { series_id: id },
+            data: { seriesId: id },
           });
         }
       }

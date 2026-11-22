@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { Prisma, type PrismaClient } from '@prisma/client';
+import { settledPublicPostWhere } from '../posts/data/visibility.js';
 import { publicPostPath } from '../posts/public-post.js';
 import { queuePostWebhooks } from '../integrations/webhooks/delivery.js';
 
@@ -92,16 +93,12 @@ export async function createNotification(tx: Prisma.TransactionClient, input: No
 }
 
 export async function notifyPostSubscribers(tx: Prisma.TransactionClient, postId: number) {
-  const now = new Date().toISOString().slice(0, -1).replace('T', ' ');
-  const [announcement] = await tx.$queryRaw<Array<{ authorId: number; username: string; title: string; slug: string }>>`
-    SELECT author.id AS authorId, author.username, post.title, post.url AS slug
-      FROM board_post AS post
-      JOIN board_postconfig AS config ON config.post_id = post.id
-      JOIN auth_user AS author ON author.id = post.author_id AND author.is_active = 1
-      JOIN board_profile AS profile ON profile.user_id = author.id AND profile.role = 'EDITOR'
-     WHERE post.id = ${postId} AND post.published_date <= ${now} AND post.deleted_date IS NULL AND config.hide = 0
-  `;
-  if (!announcement) return 0;
+  const post = await tx.post.findFirst({
+    where: { id: postId, ...settledPublicPostWhere(), author: { is_active: true, board_profile: { role: 'EDITOR' } } },
+    select: { authorId: true, title: true, slug: true, author: { select: { username: true } } },
+  });
+  if (!post) return 0;
+  const announcement = { authorId: post.authorId, username: post.author.username, title: post.title, slug: post.slug };
   const { authorId, username, title, slug } = announcement;
   const subscribers = await tx.authorSubscription.findMany({ where: { authorId }, select: { subscriberId: true } });
   if (!subscribers.length) return 0;
@@ -128,20 +125,19 @@ export async function notifyPostSubscribers(tx: Prisma.TransactionClient, postId
 
 /** Keeps the publication queue current. Only a first publication may notify readers and webhooks. */
 export async function syncPostPublication(tx: Prisma.TransactionClient, postId: number, { announce = false } = {}) {
-  const now = new Date().toISOString().slice(0, -1).replace('T', ' ');
-  const [post] = await tx.$queryRaw<Array<{ published: string | null }>>`
-    SELECT CAST(post.published_date AS TEXT) AS published FROM board_post AS post
-      JOIN board_postconfig AS config ON config.post_id = post.id
-     WHERE post.id = ${postId} AND post.deleted_date IS NULL AND config.hide = 0
-  `;
-  if (post?.published && post.published > now) {
-    await tx.$executeRaw`
-      INSERT INTO blex_scheduled_publication (post_id, publish_at) VALUES (${postId}, ${post.published})
-      ON CONFLICT(post_id) DO UPDATE SET publish_at = excluded.publish_at
-    `;
+  const post = await tx.post.findFirst({
+    where: { id: postId, deletedAt: null, isHidden: false, hasSettings: true },
+    select: { publishedAt: true },
+  });
+  if (post?.publishedAt && post.publishedAt > new Date()) {
+    await tx.scheduledPublication.upsert({
+      where: { postId },
+      create: { postId, publishAt: post.publishedAt },
+      update: { publishAt: post.publishedAt },
+    });
   } else {
-    await tx.$executeRaw`DELETE FROM blex_scheduled_publication WHERE post_id = ${postId}`;
-    if (announce && post?.published) {
+    await tx.scheduledPublication.deleteMany({ where: { postId } });
+    if (announce && post?.publishedAt) {
       await notifyPostSubscribers(tx, postId);
       await queuePostWebhooks(tx, postId);
     }
@@ -149,11 +145,14 @@ export async function syncPostPublication(tx: Prisma.TransactionClient, postId: 
 }
 
 export async function processScheduledPublications(db: PrismaClient) {
-  const now = new Date().toISOString().slice(0, -1).replace('T', ' ');
+  const now = new Date();
   await db.$transaction(async (tx) => {
-    const ready = await tx.$queryRaw<Array<{ id: number }>>`
-      SELECT post_id AS id FROM blex_scheduled_publication WHERE publish_at <= ${now} ORDER BY publish_at LIMIT 20
-    `;
-    for (const { id } of ready) await syncPostPublication(tx, id, { announce: true });
+    const ready = await tx.scheduledPublication.findMany({
+      where: { publishAt: { lte: now } },
+      orderBy: { publishAt: 'asc' },
+      take: 20,
+      select: { postId: true },
+    });
+    for (const { postId } of ready) await syncPostPublication(tx, postId, { announce: true });
   }, { timeout: 15_000 });
 }

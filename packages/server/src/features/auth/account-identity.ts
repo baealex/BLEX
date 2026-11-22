@@ -7,7 +7,7 @@ export async function prepareUsernameChange(tx: Prisma.TransactionClient, userId
   if (username === previous) return null;
   if (!accountUsernamePattern.test(username)) return '사용자 이름은 4~15자 사이의 소문자 영어, 숫자만 가능합니다.';
   if (await tx.user.findUnique({ where: { username }, select: { id: true } })) return '이미 사용중인 아이디입니다.';
-  const [post] = await tx.$queryRaw<unknown[]>`SELECT 1 FROM board_post WHERE author_id = ${userId} LIMIT 1`;
+  const post = await tx.post.findFirst({ where: { authorId: userId }, select: { id: true } });
   if (post || mode === 'signup') {
     const since = new Date(Date.now() - 180 * 86_400_000).toISOString().slice(0, -1).replace('T', ' ');
     const [history] = await tx.$queryRaw<unknown[]>`

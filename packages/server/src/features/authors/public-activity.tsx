@@ -1,8 +1,10 @@
 import { SiteIcon, type SiteIconName } from '../../appearance/icons.js';
 import { renderApplicationDocument } from '../../application/document.js';
-import type { PrismaClient } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { toIsoDateTime } from '../developer-api/index.js';
+import { storedDateText } from '../../compat/django-format.js';
+import { settledPublicPostWhere } from '../posts/data/visibility.js';
 import { sanitizePostHtml } from '../posts/post-html.js';
 import { publicPostPath } from '../posts/public-post.js';
 import { done, failure } from '../../platform/response.js';
@@ -17,7 +19,6 @@ const dateFormat = new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric',
 const dateLabel = new Intl.DateTimeFormat('ko-KR', { timeZone, dateStyle: 'long' });
 const relative = new Intl.RelativeTimeFormat('ko', { numeric: 'always' });
 
-function timestamp(date: Date) { return date.toISOString().slice(0, -1).replace('T', ' '); }
 function storedDate(value: string | number | bigint | Date) {
   return typeof value === 'string' ? new Date(toIsoDateTime(value) ?? '') : new Date(value instanceof Date ? value : Number(value));
 }
@@ -37,39 +38,33 @@ async function heatmap(db: PrismaClient, userId: number, own: boolean) {
   const end = new Date();
   const start = new Date(end.getTime() - 365 * 86_400_000);
   // Include both boundary days before applying the site's calendar time zone.
-  const lower = timestamp(new Date(start.getTime() - 2 * 86_400_000));
-  const upper = timestamp(new Date(end.getTime() + 2 * 86_400_000));
-  const now = timestamp(end);
-  const commentLower = BigInt(start.getTime() - 2 * 86_400_000);
-  const commentUpper = BigInt(end.getTime() + 2 * 86_400_000);
-  const rows = await db.$queryRaw<Array<{ isLike: number | bigint; date: string }>>`
-    WITH eligible AS (
-      SELECT post.id, post.author_id, post.published_date FROM board_post AS post
-        LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-       WHERE post.deleted_date IS NULL AND (${own ? 1 : 0} = 1 OR (post.published_date <= ${now} AND config.hide = 0))
-    ), entries AS (
-      SELECT 0 AS isLike, published_date AS date FROM eligible WHERE author_id = ${userId}
-      UNION ALL SELECT 1 AS isLike, likes.created_date AS date FROM board_post_likes AS likes JOIN eligible AS post ON post.id = likes.post_id
-        WHERE likes.user_id = ${userId}
-    ) SELECT isLike, CAST(date AS TEXT) AS date FROM entries WHERE date BETWEEN ${lower} AND ${upper}
-  `;
-  // Comment dates are epoch milliseconds while post and like dates are still Django text.
-  const comments = await db.$queryRaw<Array<{ date: number | bigint }>>`
-    SELECT CAST(comment.createdAt AS INTEGER) AS date
-      FROM "Comment" AS comment JOIN board_post AS post ON post.id = comment.postId
-      LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-     WHERE comment.authorId = ${userId} AND comment.createdAt BETWEEN ${commentLower} AND ${commentUpper}
-       AND post.deleted_date IS NULL AND (${own ? 1 : 0} = 1 OR (post.published_date <= ${now} AND config.hide = 0))
-  `;
+  const lower = new Date(start.getTime() - 2 * 86_400_000);
+  const upper = new Date(end.getTime() + 2 * 86_400_000);
+  const eligible: Prisma.PostWhereInput = own ? { deletedAt: null } : settledPublicPostWhere(end);
+  const [posts, comments, likes] = await Promise.all([
+    db.post.findMany({
+      where: { AND: [eligible, { authorId: userId, publishedAt: { gte: lower, lte: upper } }] },
+      orderBy: [{ publishedAt: 'asc' }, { id: 'asc' }],
+      select: { publishedAt: true },
+    }),
+    db.comment.findMany({
+      where: { authorId: userId, createdAt: { gte: lower, lte: upper }, post: eligible },
+      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+      select: { createdAt: true },
+    }),
+    db.postLike.findMany({
+      where: { userId, createdAt: { gte: lower, lte: upper }, post: eligible },
+      orderBy: { createdAt: 'asc' },
+      select: { createdAt: true },
+    }),
+  ]);
   const minDay = dateFormat.format(start);
   const maxDay = dateFormat.format(end);
   const days: Record<string, number> = {};
   // Day keys keep their first-seen order in the JSON: posts, then comments, then likes.
-  const entries = [...rows.filter((row) => !Number(row.isLike)), ...comments, ...rows.filter((row) => Number(row.isLike))];
-  for (const { date } of entries) {
-    const parsed = storedDate(date);
-    if (!Number.isFinite(parsed.getTime())) continue;
-    const day = dateFormat.format(parsed);
+  const entries = [...posts.map(({ publishedAt }) => publishedAt!), ...comments.map(({ createdAt }) => createdAt), ...likes.map(({ createdAt }) => createdAt)];
+  for (const date of entries) {
+    const day = dateFormat.format(date);
     if (day >= minDay && day <= maxDay) days[day] = (days[day] ?? 0) + 1;
   }
   return days;
@@ -93,48 +88,44 @@ const activityLabels: Record<RecentActivity['type'], { label: string; icon: Site
 };
 
 async function recentActivities(db: PrismaClient, userId: number): Promise<RecentActivity[]> {
-  const now = timestamp(new Date());
-  const cutoffDate = new Date(Date.now() - RECENT_ACTIVITY_DAYS * 86_400_000);
-  const cutoff = timestamp(cutoffDate);
-  const cutoffMilliseconds = BigInt(cutoffDate.getTime());
-  type PostActivity = { title: string; slug: string; username: string; date: string | number | bigint };
-  const [posts, series, comments, likes] = await Promise.all([
-    db.$queryRaw<PostActivity[]>`
-      SELECT post.title, post.url AS slug, account.username, CAST(post.published_date AS TEXT) AS date
-        FROM board_post AS post JOIN board_postconfig AS config ON config.post_id = post.id
-        JOIN auth_user AS account ON account.id = post.author_id
-       WHERE post.author_id = ${userId} AND post.deleted_date IS NULL AND config.hide = 0
-         AND post.published_date >= ${cutoff} AND post.published_date <= ${now}
-       ORDER BY post.published_date DESC LIMIT 6
-    `,
-    db.$queryRaw<PostActivity[]>`
-      SELECT series.name AS title, series.slug AS slug, account.username, CAST(series.createdAt AS INTEGER) AS date
-        FROM "Series" AS series JOIN auth_user AS account ON account.id = series.ownerId
-       WHERE series.ownerId = ${userId} AND series.isHidden = 0
-         AND series.createdAt >= ${cutoffMilliseconds} AND series.createdAt <= ${BigInt(Date.now())}
-         AND EXISTS (
-           SELECT 1 FROM board_post AS post JOIN board_postconfig AS config ON config.post_id = post.id
-            WHERE post.series_id = series.id AND post.deleted_date IS NULL AND config.hide = 0 AND post.published_date <= ${now}
-         )
-       ORDER BY series.createdAt DESC LIMIT 5
-    `,
-    db.$queryRaw<PostActivity[]>`
-      SELECT post.title, post.url AS slug, account.username, CAST(comment.createdAt AS INTEGER) AS date
-        FROM "Comment" AS comment JOIN board_post AS post ON post.id = comment.postId
-        JOIN board_postconfig AS config ON config.post_id = post.id JOIN auth_user AS account ON account.id = post.author_id
-       WHERE comment.authorId = ${userId} AND comment.createdAt >= ${cutoffMilliseconds}
-         AND post.deleted_date IS NULL AND config.hide = 0 AND post.published_date <= ${now}
-       ORDER BY comment.createdAt DESC LIMIT 5
-    `,
-    db.$queryRaw<PostActivity[]>`
-      SELECT post.title, post.url AS slug, account.username, CAST(likes.created_date AS TEXT) AS date
-        FROM board_post_likes AS likes JOIN board_post AS post ON post.id = likes.post_id
-        JOIN board_postconfig AS config ON config.post_id = post.id JOIN auth_user AS account ON account.id = post.author_id
-       WHERE likes.user_id = ${userId} AND likes.created_date >= ${cutoff}
-         AND post.deleted_date IS NULL AND config.hide = 0 AND post.published_date <= ${now}
-       ORDER BY likes.created_date DESC LIMIT 5
-    `,
+  const now = new Date();
+  const cutoff = new Date(now.getTime() - RECENT_ACTIVITY_DAYS * 86_400_000);
+  const publicPost = settledPublicPostWhere(now);
+  type PostActivity = { title: string; slug: string; username: string; date: Date };
+  const linkedPost = { select: { title: true, slug: true, author: { select: { username: true } } } } as const;
+  const [postRows, seriesRows, commentRows, likeRows] = await Promise.all([
+    db.post.findMany({
+      where: { AND: [publicPost, { authorId: userId, publishedAt: { gte: cutoff } }] },
+      orderBy: { publishedAt: 'desc' },
+      take: 6,
+      select: { title: true, slug: true, publishedAt: true, author: { select: { username: true } } },
+    }),
+    db.series.findMany({
+      where: { ownerId: userId, isHidden: false, createdAt: { gte: cutoff, lte: now }, posts: { some: publicPost } },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      select: { name: true, slug: true, createdAt: true, owner: { select: { username: true } } },
+    }),
+    db.comment.findMany({
+      where: { authorId: userId, createdAt: { gte: cutoff }, post: publicPost },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      select: { createdAt: true, post: linkedPost },
+    }),
+    db.postLike.findMany({
+      where: { userId, createdAt: { gte: cutoff }, post: publicPost },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      select: { createdAt: true, post: linkedPost },
+    }),
   ]);
+  const linked = ({ createdAt, post }: { createdAt: Date; post: { title: string; slug: string; author: { username: string } } }): PostActivity => ({
+    title: post.title, slug: post.slug, username: post.author.username, date: createdAt,
+  });
+  const posts = postRows.map((row): PostActivity => ({ title: row.title, slug: row.slug, username: row.author.username, date: row.publishedAt! }));
+  const series = seriesRows.map((row): PostActivity => ({ title: row.name, slug: row.slug, username: row.owner.username, date: row.createdAt }));
+  const comments = commentRows.map(linked);
+  const likes = likeRows.map(linked);
   const item = (type: RecentActivity['type'], row: PostActivity, url: string): RecentActivity => ({
     type, title: row.title, url, date: since(row.date), sortDate: storedDate(row.date).getTime(),
   });
@@ -197,31 +188,49 @@ export function AuthorActivitySection({ days, recent }: Awaited<ReturnType<typeo
 
 export interface RelatedPost { slug: string; title: string; image: string; description: string; readTime: number; published: string; username: string; name: string; avatar: string }
 
-export async function relatedPosts(db: PrismaClient, sourceId: number, sourceAuthor: number) {
-  const now = timestamp(new Date());
-  return db.$queryRaw<RelatedPost[]>`
-    WITH source_tags AS (SELECT tag_id FROM board_post_tags WHERE post_id = ${sourceId}),
-    shared AS (
-      SELECT post_id, COUNT(DISTINCT tag_id) AS overlap FROM board_post_tags
-      WHERE tag_id IN (SELECT tag_id FROM source_tags) AND post_id <> ${sourceId} GROUP BY post_id
-    ), ranked AS (
-      SELECT post.id, post.url AS slug, post.title, post.image, post.meta_description AS description,
-        post.read_time AS readTime, CAST(post.published_date AS TEXT) AS published, author.username,
-        author.first_name AS name, profile.avatar, shared.overlap, MIN(shared.overlap * 3, 10) AS tagScore,
-        CAST(shared.overlap AS REAL) / ((SELECT COUNT(*) FROM source_tags) +
-          (SELECT COUNT(*) FROM board_post_tags WHERE post_id = post.id) - shared.overlap) AS similarity,
-        post.author_id = ${sourceAuthor} AS sameAuthor,
-        MIN((SELECT COUNT(*) FROM board_post_likes WHERE post_id = post.id) * 2 +
-            (SELECT COUNT(*) FROM "Comment" AS comments WHERE comments.postId = post.id), 10) +
-         CASE WHEN julianday(${now}) - julianday(post.published_date) < 7 THEN 5
-              WHEN julianday(${now}) - julianday(post.published_date) < 30 THEN 3
-              WHEN julianday(${now}) - julianday(post.published_date) < 90 THEN 1 ELSE 0 END AS quality
-      FROM shared JOIN board_post AS post ON post.id = shared.post_id
-      JOIN board_postconfig AS config ON config.post_id = post.id AND config.hide = 0
-      JOIN auth_user AS author ON author.id = post.author_id LEFT JOIN board_profile AS profile ON profile.user_id = author.id
-      WHERE post.published_date <= ${now} AND post.deleted_date IS NULL
-    ) SELECT * FROM ranked ORDER BY tagScore DESC, overlap DESC, similarity DESC, sameAuthor, quality DESC, published DESC, id DESC LIMIT 8
-  `;
+export async function relatedPosts(db: PrismaClient, sourceId: number, sourceAuthor: number): Promise<RelatedPost[]> {
+  const now = new Date();
+  const sourceTags = (await db.tag.findMany({ where: { posts: { some: { id: sourceId } } }, select: { id: true } })).map(({ id }) => id);
+  if (!sourceTags.length) return [];
+  // Ranks on ids, dates, and counts only, then loads the eight winners.
+  const candidates = await db.post.findMany({
+    where: { AND: [settledPublicPostWhere(now), { id: { not: sourceId }, tags: { some: { id: { in: sourceTags } } } }] },
+    select: {
+      id: true, authorId: true, publishedAt: true,
+      tags: { where: { id: { in: sourceTags } }, select: { id: true } },
+      _count: { select: { tags: true, likes: true, comments: true } },
+    },
+  });
+  const ranked = candidates.map((post) => {
+    const overlap = post.tags.length;
+    const age = (now.getTime() - post.publishedAt!.getTime()) / 86_400_000;
+    return {
+      id: post.id,
+      published: post.publishedAt!.getTime(),
+      overlap,
+      tagScore: Math.min(overlap * 3, 10),
+      similarity: overlap / (sourceTags.length + post._count.tags - overlap),
+      sameAuthor: post.authorId === sourceAuthor ? 1 : 0,
+      quality: Math.min(post._count.likes * 2 + post._count.comments, 10) + (age < 7 ? 5 : age < 30 ? 3 : age < 90 ? 1 : 0),
+    };
+  }).sort((left, right) => right.tagScore - left.tagScore || right.overlap - left.overlap || right.similarity - left.similarity
+    || left.sameAuthor - right.sameAuthor || right.quality - left.quality || right.published - left.published || right.id - left.id).slice(0, 8);
+  const rows = await db.post.findMany({
+    where: { id: { in: ranked.map(({ id }) => id) } },
+    select: {
+      id: true, slug: true, title: true, image: true, description: true, readTime: true, publishedAt: true,
+      author: { select: { username: true, first_name: true, board_profile: { select: { avatar: true } } } },
+    },
+  });
+  const byId = new Map(rows.map((row) => [row.id, row]));
+  return ranked.map(({ id }) => {
+    const post = byId.get(id)!;
+    return {
+      slug: post.slug, title: post.title, image: post.image, description: post.description, readTime: post.readTime,
+      published: storedDateText(post.publishedAt!), username: post.author.username, name: post.author.first_name,
+      avatar: post.author.board_profile?.avatar ?? '',
+    };
+  });
 }
 
 export function registerPublicActivity(app: FastifyInstance, db: PrismaClient, options: ActivityOptions) {
@@ -247,7 +256,7 @@ export function registerPublicActivity(app: FastifyInstance, db: PrismaClient, o
     if (!user) return failure('NL');
     const page = Number(new URL(request.url, options.siteUrl).searchParams.get('page') || '1');
     if (!Number.isSafeInteger(page) || page < 1) return reply.code(404).send('Not found');
-    const mine = { authorId: user.id, post: { deletedDate: null } };
+    const mine = { authorId: user.id, post: { deletedAt: null } };
     const lastPage = Math.max(1, Math.ceil(await db.comment.count({ where: mine }) / 10));
     if (page > lastPage) return reply.code(404).send('Not found');
     const rows = await db.comment.findMany({
@@ -266,14 +275,12 @@ export function registerPublicActivity(app: FastifyInstance, db: PrismaClient, o
     app.get<PostRoute>(route, async (request, reply) => {
       const { username, slug } = request.params;
       const viewer = await options.currentUser(request);
-      const [source] = await db.$queryRaw<Array<{ id: number; username: string; title: string; author: number }>>`
-        SELECT post.id, account.username, post.title, account.id AS author FROM board_post AS post
-         JOIN auth_user AS account ON account.id = post.author_id LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-        WHERE account.username = ${username} AND post.url = ${slug} AND post.deleted_date IS NULL
-          AND (post.author_id = ${viewer?.id ?? -1} OR (post.published_date <= ${timestamp(new Date())} AND config.hide = 0))
-      `;
+      const source = await db.post.findFirst({
+        where: { slug, deletedAt: null, author: { username }, OR: [{ authorId: viewer?.id ?? -1 }, settledPublicPostWhere()] },
+        select: { id: true, title: true, authorId: true },
+      });
       if (!source) return reply.code(404).send('Not found');
-      const items = await relatedPosts(db, source.id, source.author);
+      const items = await relatedPosts(db, source.id, source.authorId);
       reply.header('Cache-Control', 'private, no-store');
       if (route.startsWith('/v1/')) return done({ posts: items.map((item) => ({
         url: item.slug, title: item.title, image: item.image || null, metaDescription: item.description, readTime: item.readTime,

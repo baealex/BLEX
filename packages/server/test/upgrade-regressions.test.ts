@@ -55,12 +55,12 @@ test('keeps a saved draft schedule when the API saves or publishes it again', as
     target.setUTCMilliseconds(0);
     const draft = await createAuthorPost(db, editor, { title: 'Later', content_html: '<p>Later</p>', reserved_date: target.toISOString() }, true);
     await updateAuthorPost(db, editor, draft.id, { title: 'Later again' });
-    const [stored] = await db.$queryRaw<Array<{ value: string }>>`SELECT value FROM board_postconfigmeta WHERE name = 'draft_reserved_date'`;
-    assert.equal(new Date(`${stored.value.replace(' ', 'T')}Z`).toISOString(), target.toISOString());
+    const stored = await db.post.findUniqueOrThrow({ where: { id: draft.id }, select: { draftScheduledAt: true } });
+    assert.equal(stored.draftScheduledAt?.toISOString(), target.toISOString());
 
     await publishAuthorDraft(db, editor, draft.id, {});
-    const [post] = await db.$queryRaw<Array<{ published: string }>>`SELECT CAST(published_date AS TEXT) AS published FROM board_post WHERE id = ${draft.id}`;
-    assert.equal(new Date(`${post.published.replace(' ', 'T')}Z`).toISOString(), target.toISOString());
+    const post = await db.post.findUniqueOrThrow({ where: { id: draft.id }, select: { publishedAt: true } });
+    assert.equal(post.publishedAt?.toISOString(), target.toISOString());
   } finally {
     await db.$disconnect();
     await fixture.close();
@@ -73,11 +73,11 @@ test('keeps a schedule Django stored with a time zone offset', async () => {
   try {
     const target = new Date(Date.now() + 30 * 86_400_000);
     target.setUTCMilliseconds(0);
-    seedPost(fixture.db, 7, 1, 'django-draft', { published_date: null });
-    insertRow(fixture.db, 'board_postconfigmeta', { post_id: 7, name: 'draft_reserved_date', value: target.toISOString().replace('.000Z', '+00:00') });
+    seedPost(fixture.db, 7, 1, 'django-draft', { publishedAt: null });
+    fixture.db.prepare('UPDATE "Post" SET draftScheduledAt = ? WHERE id = 7').run(target.getTime());
     await publishAuthorDraft(db, editor, 7, {});
-    const [post] = await db.$queryRaw<Array<{ published: string }>>`SELECT CAST(published_date AS TEXT) AS published FROM board_post WHERE id = 7`;
-    assert.equal(new Date(`${post.published.replace(' ', 'T')}Z`).toISOString(), target.toISOString());
+    const post = await db.post.findUniqueOrThrow({ where: { id: 7 }, select: { publishedAt: true } });
+    assert.equal(post.publishedAt?.toISOString(), target.toISOString());
   } finally {
     await db.$disconnect();
     await fixture.close();

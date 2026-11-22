@@ -5,7 +5,7 @@ import { ContentUploadError, contentUploadLimit, registerContentMultipart, saveC
 import { DeveloperMutationInputError, developerPostInput } from './mutation-input.js';
 import { PaginationQuery, SearchQuery, listPosts, postDetail, postNotFound, postVersionIssue, readOwnedPost, summarizePost } from './services/posts.js';
 import { AuthenticatedToken, authenticate, requireScope } from './services/token-auth.js';
-import { API_PREFIX, DeveloperApiOptions, Editor, QueryValue, TagRow, errorReply, formatError, parsePostId, parseValidationError, readScalar, toIsoDateTime } from './shared.js';
+import { API_PREFIX, DeveloperApiOptions, Editor, QueryValue, errorReply, formatError, parsePostId, parseValidationError, readScalar, sameVersion, toIsoDateTime } from './shared.js';
 import { registerWireFormat } from './wire-format.js';
 
 export { toIsoDateTime } from './shared.js';
@@ -137,11 +137,11 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
           try {
             const parsed = await developerPostInput(db, token.user.id, request.body, operation);
             expected = parsed.expectedUpdatedAt;
-            if (operation === 'update' && expected && expected !== toIsoDateTime(original.updatedAt)) {
+            if (operation === 'update' && expected && !sameVersion(expected, original.updatedAt)) {
               return errorReply(reply, postVersionIssue(expected, original));
             }
-            const result = operation === 'publish' ? await mutations.publish(token.user, id, parsed.body, String(original.updatedAt)) :
-              await mutations.update(token.user, id, parsed.body, expected ? String(original.updatedAt) : undefined);
+            const result = operation === 'publish' ? await mutations.publish(token.user, id, parsed.body, original.updatedAt.toISOString()) :
+              await mutations.update(token.user, id, parsed.body, expected ? original.updatedAt.toISOString() : undefined);
             const post = result && await readOwnedPost(db, token.user.id, result.id);
             return post ? reply.send({ data: await postDetail(db, post) }) : postNotFound(reply);
           } catch (failure) {
@@ -247,18 +247,15 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
     const scopeError = requireScope(token);
     if (scopeError) return errorReply(reply, scopeError);
 
-    const tags = await db.$queryRaw<TagRow[]>`
-      SELECT tag.value AS name, COUNT(DISTINCT post.id) AS postCount
-        FROM board_tag AS tag
-        JOIN board_post_tags AS post_tags ON post_tags.tag_id = tag.id
-        JOIN board_post AS post ON post.id = post_tags.post_id
-       WHERE post.author_id = ${token.user.id} AND post.deleted_date IS NULL
-       GROUP BY tag.id, tag.value
-       ORDER BY tag.value
-    `;
+    const active = { authorId: token.user.id, deletedAt: null };
+    const tags = await db.tag.findMany({
+      where: { posts: { some: active } },
+      orderBy: { name: 'asc' },
+      select: { name: true, _count: { select: { posts: { where: active } } } },
+    });
     return reply.send({ data: { tags: tags.map((tag) => ({
       name: tag.name,
-      postCount: Number(tag.postCount),
+      postCount: tag._count.posts,
     })) } });
   });
 
@@ -276,7 +273,7 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
       select: {
         id: true, name: true, slug: true, descriptionMarkdown: true, isHidden: true,
         createdAt: true, updatedAt: true,
-        _count: { select: { posts: { where: { deletedDate: null } } } },
+        _count: { select: { posts: { where: { deletedAt: null } } } },
       },
     });
     return reply.send({ data: { series: series.map((item) => ({

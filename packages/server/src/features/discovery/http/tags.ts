@@ -1,8 +1,9 @@
 import type { FastifyInstance } from 'fastify';
-import { type PrismaClient } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
 import { SiteIcon } from '../../../appearance/icons.js';
-import { PUBLIC_POST_WHERE, rawPublicPostWhere, readCardLikes, readPublicPostCount, readPublicPosts } from '../services/public-posts.js';
-import { PAGE_SIZE, PublicPageOptions, SqlValue, TagRow, canonicalPageUrl, databaseNow, h, hasUnexpected, makeAbsolute, makePaginationMeta, pageFrom, sendNotFound, totalPages, validPublicPage } from '../shared.js';
+import { publicPostWhere } from '../../posts/data/visibility.js';
+import { readCardLikes, readPublicPostCount, readPublicPosts } from '../services/public-posts.js';
+import { PAGE_SIZE, PublicPageOptions, TagRow, canonicalPageUrl, h, hasUnexpected, makeAbsolute, makePaginationMeta, pageFrom, sendNotFound, totalPages, validPublicPage } from '../shared.js';
 import { PageLayout, getLayoutContext, renderHtml } from '../pages/layout.js';
 import { EmptyState, Pagination, PostGrid } from '../pages/post-list.js';
 import { DropdownFilter, QueryFilter, ReactFragment } from '../pages/search.js';
@@ -17,47 +18,22 @@ export function registerTagsRoutes(app: FastifyInstance, db: PrismaClient, siteU
     const requestedSort = query.get('sort') ?? 'popular';
     const sort = ['popular', 'name', 'recent'].includes(requestedSort) ? requestedSort : 'popular';
     const { brand, siteName, viewer } = await getLayoutContext(request, reply, db, options);
-    const filter = searchText ? 'AND tag.value LIKE ?' : '';
-    const parameters: SqlValue[] = [databaseNow()];
-    if (searchText) parameters.push(`%${searchText}%`);
-    const countRows = await db.$queryRawUnsafe<Array<{ count: number }>>(`
-      SELECT COUNT(*) AS count FROM (
-        SELECT tag.id
-          FROM board_tag AS tag
-          JOIN board_post_tags AS post_tag ON post_tag.tag_id = tag.id
-          JOIN board_post AS post ON post.id = post_tag.post_id
-          LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-         WHERE ${PUBLIC_POST_WHERE} ${filter}
-         GROUP BY tag.id
-      ) AS public_tags
-    `, ...parameters);
-    const count = Number(countRows[0]?.count ?? 0);
+    const postFilter = publicPostWhere();
+    const where: Prisma.TagWhereInput = { posts: { some: postFilter }, ...(searchText ? { name: { contains: searchText } } : {}) };
+    const count = await db.tag.count({ where });
     const checkedPage = validPublicPage(reply, page, count, 50);
     if (checkedPage === null) return reply;
-    const orderBy = sort === 'name' ? 'tag.value ASC'
-      : sort === 'recent' ? 'tag.id DESC'
-        : 'postCount DESC, tag.value ASC';
-    const tags = await db.$queryRawUnsafe<TagRow[]>(`
-      SELECT tag.id AS id,
-             tag.value AS name,
-             COUNT(DISTINCT post.id) AS count,
-             (SELECT image_post.image FROM board_post_tags AS image_tag
-               JOIN board_post AS image_post ON image_post.id = image_tag.post_id
-               LEFT JOIN board_postconfig AS image_config ON image_config.post_id = image_post.id
-              WHERE image_tag.tag_id = tag.id
-                AND image_post.image LIKE '%images%'
-                AND ${rawPublicPostWhere('image_post', 'image_config')}
-              ORDER BY image_post.created_date DESC LIMIT 1) AS image,
-             COUNT(DISTINCT post.id) AS postCount
-        FROM board_tag AS tag
-        JOIN board_post_tags AS post_tag ON post_tag.tag_id = tag.id
-        JOIN board_post AS post ON post.id = post_tag.post_id
-        LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-       WHERE ${PUBLIC_POST_WHERE} ${filter}
-       GROUP BY tag.id
-       ORDER BY ${orderBy}
-       LIMIT ? OFFSET ?
-    `, ...parameters, 50, (checkedPage - 1) * 50);
+    const offset = (checkedPage - 1) * 50;
+    // Popularity counts only public posts, which Prisma cannot sort by, so that order is built from the short tag list.
+    const rows = await db.tag.findMany({
+      where,
+      ...(sort === 'popular' ? {} : { orderBy: sort === 'name' ? { name: 'asc' as const } : { id: 'desc' as const }, skip: offset, take: 50 }),
+      select: { id: true, name: true, _count: { select: { posts: { where: postFilter } } } },
+    });
+    const ordered = sort === 'popular'
+      ? rows.sort((left, right) => right._count.posts - left._count.posts || Buffer.compare(Buffer.from(left.name), Buffer.from(right.name))).slice(offset, offset + 50)
+      : rows;
+    const tags: TagRow[] = ordered.map((tag) => ({ id: tag.id, name: tag.name, count: tag._count.posts }));
     const pages = totalPages(count, 50);
     const path = '/tags';
     const noindex = hasUnexpected(query, ['page', 'q', 'sort']) || searchText.length > 0 || requestedSort !== 'popular';
@@ -118,16 +94,13 @@ export function registerTagsRoutes(app: FastifyInstance, db: PrismaClient, siteU
     const page = pageFrom(query);
     if (page === null) return sendNotFound(reply);
     const tagName = request.params.name;
-    const condition = `EXISTS (SELECT 1 FROM board_post_tags AS post_tag
-      JOIN board_tag AS tag ON tag.id = post_tag.tag_id
-     WHERE post_tag.post_id = post.id AND tag.value = ?)`;
-    const count = await readPublicPostCount(db, [condition], [tagName]);
+    const tagged: Prisma.PostWhereInput = { tags: { some: { name: tagName } } };
+    const count = await readPublicPostCount(db, tagged);
     if (count === 0) return sendNotFound(reply);
     const checkedPage = validPublicPage(reply, page, count, PAGE_SIZE);
     if (checkedPage === null) return reply;
     const posts = await readPublicPosts(db, {
-      conditions: [condition],
-      parameters: [tagName],
+      where: tagged,
       limit: PAGE_SIZE,
       offset: (checkedPage - 1) * PAGE_SIZE,
     });

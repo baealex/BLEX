@@ -4,7 +4,11 @@ import { join } from 'node:path';
 import { DatabaseSync, type SQLInputValue } from 'node:sqlite';
 import { verifyLegacyDatabase } from './legacy-database.js';
 
-const discardedTables = new Set(['django_migrations', 'django_session', 'django_site', 'board_oauthauthorization', 'board_seriesconfigmeta']);
+// board_postconfig and board_postconfigmeta are read while copying board_post.
+const discardedTables = new Set([
+  'django_migrations', 'django_session', 'django_site', 'board_oauthauthorization', 'board_seriesconfigmeta',
+  'board_editrequest', 'board_postconfig', 'board_postconfigmeta',
+]);
 
 const quote = (name: string) => `"${name.replaceAll('"', '""')}"`;
 
@@ -56,6 +60,7 @@ const int32 = (to: string): ColumnMapping => ({
 });
 
 const contentScope = choice('scope', ['user', 'global']);
+const choiceColumn = (to: string, allowed: readonly string[]) => choice(to, allowed) as Exclude<ColumnMapping, string>;
 
 /** Readers treat anything but a JSON object as an empty manifest, and the JSONB column would coerce bare numbers. */
 const jsonObject = (to: string, fallback: string | null = null): ColumnMapping => ({
@@ -71,8 +76,8 @@ const jsonObject = (to: string, fallback: string | null = null): ColumnMapping =
   },
 });
 
-/** 3.x treated anything but a JSON array as no scopes and skipped non-string items, so the stored list says the same. */
-const scopeList = (to: string): ColumnMapping => ({
+/** 3.x treated anything but a JSON array as empty and skipped non-string items, so the stored list says the same. */
+const stringList = (to: string): ColumnMapping => ({
   to,
   convert(value) {
     try {
@@ -92,6 +97,17 @@ const unlessPrimary = (column: string, to: string, fallback: string): ColumnMapp
   to,
   sql: `CASE WHEN id = 1 THEN ${quote(column)} ELSE ${fallback} END`,
 });
+
+const postSetting = (column: string, fallback: string) => `COALESCE((SELECT ${quote(column)} FROM board_postconfig WHERE post_id = board_post.id), ${fallback})`;
+
+/** Readers show an unreadable reservation as none, so it must not stop the import. */
+function reservationDate(value: SQLInputValue): SQLInputValue {
+  try {
+    return legacyDate(value);
+  } catch {
+    return null;
+  }
+}
 
 const tableMappings: Record<string, TableMapping> = {
   board_worklog: { to: 'WorkLog', columns: { id: 'id', owner_id: 'ownerId', title: 'title', created_at: date('createdAt') } },
@@ -205,7 +221,7 @@ const tableMappings: Record<string, TableMapping> = {
   board_developertoken: {
     to: 'DeveloperToken',
     columns: {
-      id: 'id', user_id: 'userId', name: 'name', token_prefix: 'tokenPrefix', token_hash: 'tokenHash', scopes: scopeList('scopes'),
+      id: 'id', user_id: 'userId', name: 'name', token_prefix: 'tokenPrefix', token_hash: 'tokenHash', scopes: stringList('scopes'),
       expires_at: date('expiresAt'), revoked_at: date('revokedAt'), last_used_at: date('lastUsedAt'), last_used_ip: 'lastUsedIp',
       created_date: date('createdAt'), updated_date: date('updatedAt'),
     },
@@ -216,6 +232,48 @@ const tableMappings: Record<string, TableMapping> = {
       id: 'id', owner_id: 'ownerId', url: 'slug', name: 'name', text_md: 'descriptionMarkdown', text_html: 'descriptionHtml',
       hide: 'isHidden', layout: 'layout', order: int32('order'), created_date: date('createdAt'), updated_date: date('updatedAt'),
     },
+  },
+  board_post: {
+    to: 'Post',
+    columns: {
+      id: 'id', author_id: 'authorId', series_id: 'seriesId', url: 'slug', title: 'title', subtitle: 'subtitle', meta_description: 'description',
+      image: 'image', image_hash: 'imageHash', read_time: int32('readTime'), created_date: date('createdAt'), updated_date: date('updatedAt'),
+      published_date: date('publishedAt'), deleted_date: date('deletedAt'),
+      is_hidden: { to: 'isHidden', sql: `${postSetting('hide', '0')} <> 0` },
+      is_advertised: { to: 'isAdvertised', sql: `${postSetting('advertise', '0')} <> 0` },
+      comments_blocked: { to: 'commentsBlocked', sql: `${postSetting('block_comment', '0')} <> 0` },
+      has_settings: { to: 'hasSettings', sql: 'EXISTS (SELECT 1 FROM board_postconfig WHERE post_id = board_post.id)' },
+      cover_layout: { ...choiceColumn('coverLayout', ['default', 'split', 'overlay', 'none']), sql: postSetting('cover_layout', `'default'`) },
+      cover_image_position: { ...choiceColumn('coverImagePosition', ['right', 'left']), sql: postSetting('cover_image_position', `'right'`) },
+      cover_image_ratio: { to: 'coverImageRatio', sql: postSetting('cover_image_ratio', `'auto'`) },
+      draft_reserved_date: {
+        to: 'draftScheduledAt',
+        sql: `(SELECT value FROM board_postconfigmeta WHERE post_id = board_post.id AND name = 'draft_reserved_date' ORDER BY id DESC LIMIT 1)`,
+        convert: reservationDate,
+      },
+    },
+  },
+  board_postcontent: { to: 'PostContent', columns: { post_id: 'postId', content_html: 'html' } },
+  board_tag: { to: 'Tag', columns: { id: 'id', value: 'name' } },
+  board_post_tags: { to: '_PostToTag', columns: { post_id: 'A', tag_id: 'B' } },
+  board_edithistory: {
+    to: 'PostRevision',
+    columns: {
+      id: 'id', post_id: 'postId', actor_id: 'actorId', restored_from_id: 'restoredFromId',
+      change_type: choice('type', ['edit', 'restore', 'legacy', 'draft']), title: 'title', subtitle: 'subtitle', description: 'description',
+      content: 'content', content_excerpt: 'contentExcerpt', tags: stringList('tags'),
+      source_updated_date: date('sourceUpdatedAt'), created_date: date('createdAt'),
+    },
+  },
+  board_post_likes: { to: 'PostLike', columns: { post_id: 'postId', user_id: 'userId', created_date: date('createdAt') } },
+  board_pinnedpost: { to: 'PinnedPost', columns: { user_id: 'userId', post_id: 'postId', order: int32('order'), created_date: date('createdAt') } },
+  board_postsharelink: {
+    to: 'PostShareLink',
+    columns: { id: 'id', post_id: 'postId', token: 'token', label: 'label', is_paused: 'isPaused', created_date: date('createdAt') },
+  },
+  board_post_share_link_daily_counts: {
+    to: 'PostShareDailyCount',
+    columns: { link_id: 'linkId', day: date('day'), clicks: int32('clicks') },
   },
   board_comment: {
     to: 'Comment',
@@ -320,11 +378,10 @@ function copyRows(sourcePath: string, targetPath: string) {
     }
 
     // 3.x published scheduled posts by date alone. BLEX 4 queues them explicitly.
-    target.exec(`
-      INSERT INTO blex_scheduled_publication (post_id, publish_at)
-      SELECT id, CAST(published_date AS TEXT) FROM board_post
-      WHERE deleted_date IS NULL AND published_date > strftime('%Y-%m-%d %H:%M:%f', 'now')
-    `);
+    target.prepare(`
+      INSERT INTO "ScheduledPublication" (postId, publishAt)
+      SELECT id, publishedAt FROM "Post" WHERE deletedAt IS NULL AND publishedAt > ?
+    `).run(Date.now());
 
     const integrity = target.prepare('PRAGMA integrity_check').all();
     if (integrity.length !== 1 || integrity[0].integrity_check !== 'ok') throw new Error('The imported database failed the integrity check.');

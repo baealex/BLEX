@@ -24,7 +24,7 @@ async function commentsApp() {
   seedEditor(db, 1, 'writer');
   seedEditor(db, 2, 'reader');
   insertRow(db, 'SiteSetting', { id: 1, seoEnabled: 1, aeoEnabled: 1 });
-  seedPost(db, 1, 1, 'open-post', { title: 'Open post', published_date: recent });
+  seedPost(db, 1, 1, 'open-post', { title: 'Open post', publishedAt: recent });
   insertRow(db, 'Comment', { id: 10, postId: 1, authorId: 1, markdown: 'root', html: '<p>root</p>', createdAt: prismaDate(recent) });
   insertRow(db, 'Comment', { id: 11, postId: 1, authorId: 2, parentId: 10, markdown: 'reply', html: '<p>reply</p>', createdAt: prismaDate(recent) });
   const app = await buildApp(fixture.path, testSiteUrl, { secretKey: testSecretKey, cipherKey: testCipherKey }, fixture.mediaRoot);

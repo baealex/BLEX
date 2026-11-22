@@ -6,11 +6,6 @@ export interface QueryValue {
   [key: string]: string | string[] | undefined;
 }
 
-export interface TagRow {
-  name: string;
-  postCount: number | bigint;
-}
-
 export interface DeveloperApiError {
   code: string;
   message: string;
@@ -48,18 +43,10 @@ export function toIsoDateTime(value: string | Date | null): string | null {
   return `${match[1].replace(' ', 'T')}${normalizedFraction}${offset}`;
 }
 
-export function toSqlDateTime(date: Date): string {
-  return date.toISOString()
-    .replace('T', ' ')
-    .replace(/\.(\d{3})Z$/, (_match, milliseconds: string) => `.${milliseconds}000`);
-}
-
-export function dateTimeValue(value: string | Date | null): number | null {
-  if (value === null) return null;
-  if (value instanceof Date) return value.getTime();
-  const normalized = value.includes('T') ? value : value.replace(' ', 'T');
-  const hasOffset = /(?:Z|[+-]\d{2}:\d{2})$/i.test(normalized);
-  return Date.parse(hasOffset ? normalized : `${normalized}Z`);
+/** Dates are stored in milliseconds, so a version a client saved from 3.x may carry three more digits. */
+export function sameVersion(expected: string, actual: Date): boolean {
+  const milliseconds = expected.replace(/(\.\d{3})\d{3}(?=Z|[+-]\d{2}:\d{2}$|$)/, '$1000');
+  return toIsoDateTime(milliseconds) === toIsoDateTime(actual);
 }
 
 export function formatError(code: string, message: string, statusCode: number): DeveloperApiError {

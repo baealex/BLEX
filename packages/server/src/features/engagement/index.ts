@@ -9,7 +9,7 @@ import { done, failure as error } from '../../platform/response.js';
 import { CommentRow, commentBodyLimit, commentForViewer, commentHtml, publicComments, serializeComment } from './services/comments.js';
 import { anonymizeComments } from './services/deletions.js';
 import { canSubscribe, mySubscriptions, subscriptionState } from './services/subscriptions.js';
-import { ReaderActionsOptions, activeEditor, activeUser, asBodyObject, bodyField, commentReturnTo, forbidden, isTrue, localReturnTo, missing, numberValue, publicPost, requestCsrfAccepted, textValue, truthyBodyField } from './shared.js';
+import { ReaderActionsOptions, activeEditor, activeUser, asBodyObject, bodyField, commentReturnTo, forbidden, isTrue, localReturnTo, missing, publicPost, requestCsrfAccepted, textValue, truthyBodyField } from './shared.js';
 
 export { ReaderActionUser, ReaderActionsOptions } from './shared.js';
 export { CommentPayload } from './services/comments.js';
@@ -56,29 +56,20 @@ export function registerReaderActions(
       if (!post) return missing(reply);
 
       const result = await db.$transaction(async (tx) => {
-        const removed = await tx.$executeRaw`
-          DELETE FROM board_post_likes
-          WHERE post_id = ${post.id} AND user_id = ${user.id}
-        `;
+        const like = { postId: post.id, userId: user.id };
+        const removed = await tx.postLike.deleteMany({ where: like });
         let hasLiked = false;
-        if (removed > 0) {
+        if (removed.count > 0) {
           hasLiked = false;
         } else {
-          const added = await tx.$executeRaw`
-            INSERT INTO board_post_likes (created_date, post_id, user_id)
-            VALUES (${new Date().toISOString().replace('T', ' ').replace('Z', '')}, ${post.id}, ${user.id})
-            ON CONFLICT(post_id, user_id) DO NOTHING
-          `;
+          const added = await createUnlessPresent(() => tx.postLike.create({ data: { ...like, createdAt: new Date() } }));
           if (added) await createNotification(tx, {
             recipientId: post.authorId, actor: user.username, url: publicPostPath(post.authorUsername, post.slug), title: post.title,
             key: 'post.liked', preference: 'NOTIFY_POSTS_LIKE',
           });
           hasLiked = true;
         }
-        const counts = await tx.$queryRaw<Array<{ count: number | bigint }>>`
-          SELECT COUNT(*) AS count FROM board_post_likes WHERE post_id = ${post.id}
-        `;
-        return { hasLiked, countLikes: numberValue(counts[0]?.count ?? 0) };
+        return { hasLiked, countLikes: await tx.postLike.count({ where: { postId: post.id } }) };
       });
       const body = asBodyObject(request.body);
       const returnTo = localReturnTo(body?.return_to);

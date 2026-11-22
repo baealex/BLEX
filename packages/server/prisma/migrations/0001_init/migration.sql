@@ -65,10 +65,10 @@ CREATE TABLE "NotificationDelivery" (
 );
 
 -- CreateTable
-CREATE TABLE "blex_scheduled_publication" (
-    "post_id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "publish_at" TEXT NOT NULL,
-    CONSTRAINT "blex_scheduled_publication_post_id_fkey" FOREIGN KEY ("post_id") REFERENCES "board_post" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
+CREATE TABLE "ScheduledPublication" (
+    "postId" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "publishAt" DATETIME NOT NULL,
+    CONSTRAINT "ScheduledPublication_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -79,7 +79,7 @@ CREATE TABLE "WebhookDelivery" (
     "isDone" BOOLEAN NOT NULL DEFAULT false,
 
     PRIMARY KEY ("postId", "channelId"),
-    CONSTRAINT "WebhookDelivery_postId_fkey" FOREIGN KEY ("postId") REFERENCES "board_post" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "WebhookDelivery_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "WebhookDelivery_channelId_fkey" FOREIGN KEY ("channelId") REFERENCES "WebhookChannel" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -93,44 +93,38 @@ CREATE TABLE "board_usernamechangelog" (
 );
 
 -- CreateTable
-CREATE TABLE "board_post" (
+CREATE TABLE "Post" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "authorId" INTEGER NOT NULL,
+    "seriesId" INTEGER,
+    "slug" TEXT NOT NULL,
     "title" TEXT NOT NULL,
-    "url" TEXT NOT NULL,
-    "image" TEXT NOT NULL,
-    "read_time" INTEGER NOT NULL,
-    "created_date" DATETIME NOT NULL,
-    "updated_date" DATETIME NOT NULL,
-    "author_id" INTEGER NOT NULL,
-    "series_id" INTEGER,
-    "meta_description" TEXT NOT NULL,
-    "subtitle" TEXT NOT NULL,
-    "published_date" DATETIME,
-    "image_hash" TEXT NOT NULL,
-    "deleted_date" DATETIME,
-    CONSTRAINT "board_post_series_id_fkey" FOREIGN KEY ("series_id") REFERENCES "Series" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
-    CONSTRAINT "board_post_author_id_fkey" FOREIGN KEY ("author_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+    "subtitle" TEXT NOT NULL DEFAULT '',
+    "description" TEXT NOT NULL DEFAULT '',
+    "image" TEXT NOT NULL DEFAULT '',
+    "imageHash" TEXT NOT NULL DEFAULT '',
+    "readTime" INTEGER NOT NULL DEFAULT 1,
+    "isHidden" BOOLEAN NOT NULL DEFAULT false,
+    "isAdvertised" BOOLEAN NOT NULL DEFAULT false,
+    "commentsBlocked" BOOLEAN NOT NULL DEFAULT false,
+    "coverLayout" TEXT NOT NULL DEFAULT 'default',
+    "coverImagePosition" TEXT NOT NULL DEFAULT 'right',
+    "coverImageRatio" TEXT NOT NULL DEFAULT 'auto',
+    "hasSettings" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "publishedAt" DATETIME,
+    "deletedAt" DATETIME,
+    "draftScheduledAt" DATETIME,
+    CONSTRAINT "Post_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "Post_seriesId_fkey" FOREIGN KEY ("seriesId") REFERENCES "Series" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
-CREATE TABLE "board_postcontent" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "content_html" TEXT NOT NULL,
-    "post_id" INTEGER NOT NULL,
-    CONSTRAINT "board_postcontent_post_id_fkey" FOREIGN KEY ("post_id") REFERENCES "board_post" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- CreateTable
-CREATE TABLE "board_postconfig" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "hide" BOOLEAN NOT NULL,
-    "advertise" BOOLEAN NOT NULL,
-    "block_comment" BOOLEAN NOT NULL,
-    "post_id" INTEGER NOT NULL,
-    "cover_image_position" TEXT NOT NULL,
-    "cover_image_ratio" TEXT NOT NULL,
-    "cover_layout" TEXT NOT NULL,
-    CONSTRAINT "board_postconfig_post_id_fkey" FOREIGN KEY ("post_id") REFERENCES "board_post" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+CREATE TABLE "PostContent" (
+    "postId" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "html" TEXT NOT NULL,
+    CONSTRAINT "PostContent_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -221,7 +215,7 @@ CREATE TABLE "Comment" (
     "isEdited" BOOLEAN NOT NULL DEFAULT false,
     "isHearted" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "Comment_postId_fkey" FOREIGN KEY ("postId") REFERENCES "board_post" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "Comment_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "Comment_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "auth_user" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "Comment_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "Comment" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -278,37 +272,23 @@ CREATE TABLE "DeveloperToken" (
 );
 
 -- CreateTable
-CREATE TABLE "board_edithistory" (
+CREATE TABLE "PostRevision" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "content" TEXT NOT NULL,
-    "created_date" DATETIME NOT NULL,
-    "post_id" INTEGER NOT NULL,
-    "actor_id" INTEGER,
-    "change_type" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
-    "source_updated_date" DATETIME,
-    "subtitle" TEXT NOT NULL,
-    "tags" TEXT NOT NULL,
-    "title" TEXT NOT NULL,
-    "restored_from_id" INTEGER,
-    "content_excerpt" TEXT,
-    CONSTRAINT "board_edithistory_restored_from_id_fkey" FOREIGN KEY ("restored_from_id") REFERENCES "board_edithistory" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT "board_edithistory_actor_id_fkey" FOREIGN KEY ("actor_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT "board_edithistory_post_id_fkey" FOREIGN KEY ("post_id") REFERENCES "board_post" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- CreateTable
-CREATE TABLE "board_editrequest" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "title" TEXT NOT NULL,
-    "content" TEXT NOT NULL,
-    "is_merged" BOOLEAN NOT NULL,
-    "created_date" DATETIME NOT NULL,
-    "updated_date" DATETIME NOT NULL,
-    "user_id" INTEGER NOT NULL,
-    "post_id" INTEGER NOT NULL,
-    CONSTRAINT "board_editrequest_post_id_fkey" FOREIGN KEY ("post_id") REFERENCES "board_post" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT "board_editrequest_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+    "postId" INTEGER NOT NULL,
+    "actorId" INTEGER,
+    "restoredFromId" INTEGER,
+    "type" TEXT NOT NULL,
+    "title" TEXT NOT NULL DEFAULT '',
+    "subtitle" TEXT NOT NULL DEFAULT '',
+    "description" TEXT NOT NULL DEFAULT '',
+    "content" TEXT NOT NULL DEFAULT '',
+    "contentExcerpt" TEXT,
+    "tags" JSONB NOT NULL,
+    "sourceUpdatedAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "PostRevision_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "PostRevision_actorId_fkey" FOREIGN KEY ("actorId") REFERENCES "auth_user" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "PostRevision_restoredFromId_fkey" FOREIGN KEY ("restoredFromId") REFERENCES "PostRevision" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -344,64 +324,47 @@ CREATE TABLE "Notification" (
 );
 
 -- CreateTable
-CREATE TABLE "board_pinnedpost" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "order" INTEGER NOT NULL,
-    "created_date" DATETIME NOT NULL,
-    "post_id" INTEGER NOT NULL,
-    "user_id" INTEGER NOT NULL,
-    CONSTRAINT "board_pinnedpost_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT "board_pinnedpost_post_id_fkey" FOREIGN KEY ("post_id") REFERENCES "board_post" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+CREATE TABLE "PinnedPost" (
+    "userId" INTEGER NOT NULL,
+    "postId" INTEGER NOT NULL,
+    "order" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY ("userId", "postId"),
+    CONSTRAINT "PinnedPost_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "PinnedPost_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
-CREATE TABLE "board_post_likes" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "created_date" DATETIME NOT NULL,
-    "post_id" INTEGER NOT NULL,
-    "user_id" INTEGER NOT NULL,
-    CONSTRAINT "board_post_likes_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT "board_post_likes_post_id_fkey" FOREIGN KEY ("post_id") REFERENCES "board_post" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+CREATE TABLE "PostLike" (
+    "postId" INTEGER NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY ("postId", "userId"),
+    CONSTRAINT "PostLike_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "PostLike_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
-CREATE TABLE "board_post_share_link_daily_counts" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE "PostShareDailyCount" (
+    "linkId" INTEGER NOT NULL,
     "day" DATETIME NOT NULL,
-    "clicks" BIGINT NOT NULL,
-    "link_id" INTEGER NOT NULL,
-    CONSTRAINT "board_post_share_link_daily_counts_link_id_fkey" FOREIGN KEY ("link_id") REFERENCES "board_postsharelink" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+    "clicks" INTEGER NOT NULL DEFAULT 0,
+
+    PRIMARY KEY ("linkId", "day"),
+    CONSTRAINT "PostShareDailyCount_linkId_fkey" FOREIGN KEY ("linkId") REFERENCES "PostShareLink" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
-CREATE TABLE "board_post_tags" (
+CREATE TABLE "PostShareLink" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "post_id" INTEGER NOT NULL,
-    "tag_id" INTEGER NOT NULL,
-    CONSTRAINT "board_post_tags_tag_id_fkey" FOREIGN KEY ("tag_id") REFERENCES "board_tag" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT "board_post_tags_post_id_fkey" FOREIGN KEY ("post_id") REFERENCES "board_post" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- CreateTable
-CREATE TABLE "board_postconfigmeta" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "name" TEXT NOT NULL,
-    "value" TEXT NOT NULL,
-    "created_date" DATETIME NOT NULL,
-    "updated_date" DATETIME NOT NULL,
-    "post_id" INTEGER NOT NULL,
-    CONSTRAINT "board_postconfigmeta_post_id_fkey" FOREIGN KEY ("post_id") REFERENCES "board_post" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- CreateTable
-CREATE TABLE "board_postsharelink" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "postId" INTEGER NOT NULL,
     "token" TEXT NOT NULL,
-    "label" TEXT NOT NULL,
-    "is_paused" BOOLEAN NOT NULL,
-    "created_date" DATETIME NOT NULL,
-    "post_id" INTEGER NOT NULL,
-    CONSTRAINT "board_postsharelink_post_id_fkey" FOREIGN KEY ("post_id") REFERENCES "board_post" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+    "label" TEXT NOT NULL DEFAULT '',
+    "isPaused" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "PostShareLink_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -457,9 +420,9 @@ CREATE TABLE "board_socialauthprovider" (
 );
 
 -- CreateTable
-CREATE TABLE "board_tag" (
+CREATE TABLE "Tag" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "value" TEXT NOT NULL
+    "name" TEXT NOT NULL
 );
 
 -- CreateTable
@@ -691,6 +654,14 @@ CREATE TABLE "UploadedImage" (
 );
 
 -- CreateTable
+CREATE TABLE "_PostToTag" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL,
+    CONSTRAINT "_PostToTag_A_fkey" FOREIGN KEY ("A") REFERENCES "Post" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "_PostToTag_B_fkey" FOREIGN KEY ("B") REFERENCES "Tag" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
 CREATE TABLE "_WorkLogEntryToWorkLogShare" (
     "A" INTEGER NOT NULL,
     "B" INTEGER NOT NULL,
@@ -720,7 +691,7 @@ CREATE INDEX "blex_session_expires_at_idx" ON "blex_session"("expires_at");
 CREATE INDEX "NotificationDelivery_availableAt_idx" ON "NotificationDelivery"("availableAt");
 
 -- CreateIndex
-CREATE INDEX "blex_scheduled_publication_publish_at_idx" ON "blex_scheduled_publication"("publish_at");
+CREATE INDEX "ScheduledPublication_publishAt_idx" ON "ScheduledPublication"("publishAt");
 
 -- CreateIndex
 CREATE INDEX "WebhookDelivery_isDone_availableAt_idx" ON "WebhookDelivery"("isDone", "availableAt");
@@ -732,40 +703,28 @@ CREATE INDEX "board_usern_usernam_873004_idx" ON "board_usernamechangelog"("user
 CREATE INDEX "board_usernamechangelog_user_id_42630b04" ON "board_usernamechangelog"("user_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "board_post_url_key" ON "board_post"("url");
+CREATE UNIQUE INDEX "Post_slug_key" ON "Post"("slug");
 
 -- CreateIndex
-CREATE INDEX "board_post_deleted_date_e66a3ffc" ON "board_post"("deleted_date");
+CREATE INDEX "Post_authorId_publishedAt_idx" ON "Post"("authorId", "publishedAt");
 
 -- CreateIndex
-CREATE INDEX "board_post_author__54dd01_idx" ON "board_post"("author_id", "published_date");
+CREATE INDEX "Post_authorId_createdAt_idx" ON "Post"("authorId", "createdAt");
 
 -- CreateIndex
-CREATE INDEX "board_post_publish_950f79_idx" ON "board_post"("published_date");
+CREATE INDEX "Post_publishedAt_idx" ON "Post"("publishedAt");
 
 -- CreateIndex
-CREATE INDEX "board_post_url_7e049a_idx" ON "board_post"("url");
+CREATE INDEX "Post_createdAt_idx" ON "Post"("createdAt");
 
 -- CreateIndex
-CREATE INDEX "board_post_created_69fd60_idx" ON "board_post"("created_date");
+CREATE INDEX "Post_deletedAt_idx" ON "Post"("deletedAt");
 
 -- CreateIndex
-CREATE INDEX "board_post_author__effd83_idx" ON "board_post"("author_id", "created_date");
+CREATE INDEX "Post_seriesId_idx" ON "Post"("seriesId");
 
 -- CreateIndex
-CREATE INDEX "board_post_image_hash_4631962a" ON "board_post"("image_hash");
-
--- CreateIndex
-CREATE INDEX "board_post_series_id_05abc0fb" ON "board_post"("series_id");
-
--- CreateIndex
-CREATE INDEX "board_post_author_id_1d40598b" ON "board_post"("author_id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "board_postcontent_post_id_key" ON "board_postcontent"("post_id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "board_postconfig_post_id_key" ON "board_postconfig"("post_id");
+CREATE INDEX "Post_imageHash_idx" ON "Post"("imageHash");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "auth_group_name_key" ON "auth_group"("name");
@@ -861,22 +820,13 @@ CREATE UNIQUE INDEX "DeveloperToken_tokenHash_key" ON "DeveloperToken"("tokenHas
 CREATE INDEX "DeveloperToken_userId_revokedAt_idx" ON "DeveloperToken"("userId", "revokedAt");
 
 -- CreateIndex
-CREATE INDEX "board_edith_post_id_50a332_idx" ON "board_edithistory"("post_id", "created_date");
+CREATE INDEX "PostRevision_postId_createdAt_idx" ON "PostRevision"("postId", "createdAt");
 
 -- CreateIndex
-CREATE INDEX "board_edithistory_restored_from_id_fdd2f281" ON "board_edithistory"("restored_from_id");
+CREATE INDEX "PostRevision_restoredFromId_idx" ON "PostRevision"("restoredFromId");
 
 -- CreateIndex
-CREATE INDEX "board_edithistory_actor_id_13dc7485" ON "board_edithistory"("actor_id");
-
--- CreateIndex
-CREATE INDEX "board_edithistory_post_id_7ac2da0d" ON "board_edithistory"("post_id");
-
--- CreateIndex
-CREATE INDEX "board_editrequest_post_id_77346467" ON "board_editrequest"("post_id");
-
--- CreateIndex
-CREATE INDEX "board_editrequest_user_id_0deec073" ON "board_editrequest"("user_id");
+CREATE INDEX "PostRevision_actorId_idx" ON "PostRevision"("actorId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "board_emailchange_user_id_key" ON "board_emailchange"("user_id");
@@ -891,52 +841,16 @@ CREATE UNIQUE INDEX "Notification_key_key" ON "Notification"("key");
 CREATE INDEX "Notification_userId_idx" ON "Notification"("userId");
 
 -- CreateIndex
-CREATE INDEX "board_pinnedpost_user_id_162d6fde" ON "board_pinnedpost"("user_id");
+CREATE INDEX "PinnedPost_postId_idx" ON "PinnedPost"("postId");
 
 -- CreateIndex
-CREATE INDEX "board_pinnedpost_post_id_5c30f851" ON "board_pinnedpost"("post_id");
+CREATE INDEX "PostLike_userId_createdAt_idx" ON "PostLike"("userId", "createdAt");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "board_pinnedpost_user_id_post_id_key" ON "board_pinnedpost"("user_id", "post_id");
+CREATE UNIQUE INDEX "PostShareLink_token_key" ON "PostShareLink"("token");
 
 -- CreateIndex
-CREATE INDEX "board_post__user_id_44c70b_idx" ON "board_post_likes"("user_id", "created_date");
-
--- CreateIndex
-CREATE INDEX "board_post__post_id_ce5821_idx" ON "board_post_likes"("post_id", "user_id");
-
--- CreateIndex
-CREATE INDEX "board_post_likes_user_id_ec7f0988" ON "board_post_likes"("user_id");
-
--- CreateIndex
-CREATE INDEX "board_post_likes_post_id_d498fb9b" ON "board_post_likes"("post_id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "board_post_likes_post_id_user_id_key" ON "board_post_likes"("post_id", "user_id");
-
--- CreateIndex
-CREATE INDEX "board_post_share_link_daily_counts_link_id_2f58d048" ON "board_post_share_link_daily_counts"("link_id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "board_post_share_link_daily_counts_link_id_day_key" ON "board_post_share_link_daily_counts"("link_id", "day");
-
--- CreateIndex
-CREATE INDEX "board_post_tags_tag_id_7972a030" ON "board_post_tags"("tag_id");
-
--- CreateIndex
-CREATE INDEX "board_post_tags_post_id_b46f227b" ON "board_post_tags"("post_id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "board_post_tags_post_id_tag_id_b584ff2b_uniq" ON "board_post_tags"("post_id", "tag_id");
-
--- CreateIndex
-CREATE INDEX "board_postconfigmeta_post_id_6e39a197" ON "board_postconfigmeta"("post_id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "board_postsharelink_token_key" ON "board_postsharelink"("token");
-
--- CreateIndex
-CREATE INDEX "board_postsharelink_post_id_4819c9d6" ON "board_postsharelink"("post_id");
+CREATE INDEX "PostShareLink_postId_idx" ON "PostShareLink"("postId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "board_profile_user_id_key" ON "board_profile"("user_id");
@@ -960,7 +874,7 @@ CREATE UNIQUE INDEX "board_socialauth_provider_id_uid_key" ON "board_socialauth"
 CREATE UNIQUE INDEX "board_socialauthprovider_key_key" ON "board_socialauthprovider"("key");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "board_tag_value_key" ON "board_tag"("value");
+CREATE UNIQUE INDEX "Tag_name_key" ON "Tag"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "board_twofactorauth_user_id_key" ON "board_twofactorauth"("user_id");
@@ -1036,6 +950,12 @@ CREATE UNIQUE INDEX "UploadedImage_path_key" ON "UploadedImage"("path");
 
 -- CreateIndex
 CREATE INDEX "UploadedImage_userId_idx" ON "UploadedImage"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_PostToTag_AB_unique" ON "_PostToTag"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_PostToTag_B_index" ON "_PostToTag"("B");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_WorkLogEntryToWorkLogShare_AB_unique" ON "_WorkLogEntryToWorkLogShare"("A", "B");
