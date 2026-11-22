@@ -97,3 +97,11 @@ test('preserves legacy form API envelopes and owner checks', async () => {
   assert.equal(deleted.json().status, 'DONE', deleted.body);
   assert.equal((await app.inject({ url: `/v1/forms/${id}`, headers: writerHeaders })).statusCode, 404);
 });
+
+test('renders Markdown by default and sanitizes HTML when sourceType asks for it', async () => {
+  const render = async (payload: object) => (await app.inject({ method: 'POST', url: '/v1/markdown', headers: apiHeaders, payload })).json().body.html as string;
+  assert.match(await render({ text: '**bold**' }), /<strong>bold<\/strong>/);
+  const html = await render({ text: '**kept**<script>alert(1)</script>', sourceType: 'html' });
+  assert.ok(html.includes('**kept**'));
+  assert.ok(!html.includes('<script'));
+});

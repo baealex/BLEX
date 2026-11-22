@@ -69,7 +69,7 @@ export function registerAuthorForms(app: FastifyInstance, db: PrismaClient, opti
     routes.route<Request>({ method: ['GET', 'PUT', 'DELETE'], url: '/v1/forms/:id', bodyLimit, handler: handle });
     routes.post('/v1/markdown', { bodyLimit }, async (request, reply) => {
       if (!options.validateCsrf(request)) return reply.code(403).send(failure('RJ'));
-      const { text, source_type: sourceType } = formInput(request);
+      const { text, sourceType } = formInput(request);
       return typeof text === 'string' && text ? done({ html: sourceType === 'html' ? sanitizePostHtml(text) : markdownToHtml(text) }) :
         failure('IP', '텍스트가 비어 있습니다.');
     });
