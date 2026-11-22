@@ -98,6 +98,11 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
     const dataRef = useRef(data);
     const optionsRef = useRef(options);
     const draftUrlRef = useRef<string | undefined>(options.draftUrl);
+    const pausedRef = useRef(false);
+    const activeSavesRef = useRef(new Set<Promise<string | null>>());
+    // A timer cancelled by a pause or a finishing save still owes the author a save.
+    const hasUnsavedEditsRef = useRef(false);
+    const [resumeCount, setResumeCount] = useState(0);
     const getContentSignature = useCallback((value: AutoSaveData) => JSON.stringify({
         title: value.title,
         content: value.content,
@@ -145,12 +150,13 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
     const currentDataString = getDataSignature(data);
     const currentContentString = getContentSignature(data);
 
-    // Manual save - returns the persisted draft URL on success
-    const manualSave = useCallback(async (): Promise<string | null> => {
+    const runSave = useCallback(async (): Promise<string | null> => {
         const currentData = dataRef.current;
         const currentOptions = optionsRef.current;
 
-        if (isSaving || !currentOptions.enabled) return null;
+        if (isSaving || !currentOptions.enabled || pausedRef.current) return null;
+
+        hasUnsavedEditsRef.current = false;
 
         // Clear existing timer and countdown when manually saving
         if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
@@ -214,9 +220,32 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         }
     }, [isSaving, getDataSignature, getContentSignature, t]);
 
+    // Manual save - returns the persisted draft URL on success
+    const manualSave = useCallback(() => {
+        const save = runSave();
+        activeSavesRef.current.add(save);
+        void save.finally(() => activeSavesRef.current.delete(save));
+        return save;
+    }, [runSave]);
+
+    /** Stops new saves and waits for running ones, so publishing cannot race a draft write. */
+    const pauseAutoSave = useCallback(async () => {
+        pausedRef.current = true;
+        if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
+        if (countdownRef.current) clearInterval(countdownRef.current);
+        setAutoSaveCountdown(null);
+        await Promise.all(activeSavesRef.current);
+        return draftUrlRef.current;
+    }, []);
+
+    const resumeAutoSave = useCallback(() => {
+        pausedRef.current = false;
+        setResumeCount(count => count + 1);
+    }, []);
+
     // Auto-save effect
     useEffect(() => {
-        if (!options.enabled) return;
+        if (!options.enabled || pausedRef.current) return;
 
         // Capture the hydrated editor state once autosave becomes available.
         // This separates initial draft loading from the user's first change.
@@ -228,9 +257,10 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         }
 
         // Check if data has actually changed
-        if (prevDataStringRef.current === currentDataString) return;
+        const hasNewChanges = prevDataStringRef.current !== currentDataString;
+        if (!hasNewChanges && !hasUnsavedEditsRef.current) return;
 
-        if (skipNextImageResetRef.current && prevContentStringRef.current === currentContentString) {
+        if (hasNewChanges && skipNextImageResetRef.current && prevContentStringRef.current === currentContentString) {
             skipNextImageResetRef.current = false;
             prevDataStringRef.current = currentDataString;
             return;
@@ -240,6 +270,7 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
 
         prevDataStringRef.current = currentDataString;
         prevContentStringRef.current = currentContentString;
+        hasUnsavedEditsRef.current = true;
         setHasPendingChanges(true);
 
         if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
@@ -262,6 +293,8 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
             const currentData = dataRef.current;
             if (currentData.title || currentData.content) {
                 manualSave();
+            } else {
+                hasUnsavedEditsRef.current = false;
             }
         }, intervalMs);
 
@@ -269,7 +302,7 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
             if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
             if (countdownRef.current) clearInterval(countdownRef.current);
         };
-    }, [currentDataString, currentContentString, options.enabled, intervalMs, manualSave]);
+    }, [currentDataString, currentContentString, options.enabled, intervalMs, manualSave, resumeCount]);
 
     return {
         lastSaved,
@@ -277,6 +310,8 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         hasSaveError,
         hasPendingChanges,
         autoSaveCountdown,
-        manualSave
+        manualSave,
+        pauseAutoSave,
+        resumeAutoSave
     };
 };

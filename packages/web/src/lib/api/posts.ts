@@ -285,15 +285,18 @@ export const getPostForEdit = async (username: string, postUrl: string) => {
 };
 
 export const submitPostEdit = async (username: string, postUrl: string, data: FormData) => {
-    return http.post<Response<{ url: string }>>(
-        `@${username}/${postUrl}/edit`,
+    return http.post<Response<Record<string, never>>>(
+        `v1/users/@${username}/posts/${postUrl}`,
         data,
-        {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-                'X-BLEX-Editor-Submit': 'async'
-            }
-        }
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+    );
+};
+
+export const publishPost = async (data: FormData) => {
+    return http.post<Response<{ url: string }>>(
+        'v1/posts',
+        data,
+        { headers: { 'Content-Type': 'multipart/form-data' } }
     );
 };
 

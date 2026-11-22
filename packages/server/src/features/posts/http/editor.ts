@@ -6,7 +6,8 @@ import { readDraftPreview, readPostPresentation } from '../public-post.js';
 import { postContentSecurityPolicy, renderPublicPostPage } from '../pages/public-post-page.js';
 import { sanitizePostHtml } from '../post-html.js';
 import { done, failure as failed } from '../../../platform/response.js';
-import { editorBodyLimit, editorKeepsOriginalContent, editorKeepsOriginalTags, editorModel, inputFromEditorForm, prepareEditorFields, readEditorForm, sendEditorPage } from '../pages/editor-page.js';
+import { editorKeepsOriginalContent, editorModel, inputFromEditorForm, sendEditorPage } from '../pages/editor-page.js';
+import { editorBodyLimit, editorKeepsOriginalTags, isMultipartRequest, prepareEditorFields, readEditorForm } from '../services/editor-form.js';
 import { apiPostBase, preservePostOmissions } from '../services/author-api.js';
 import { mediaUrl, parseAuthoringPostInput } from '../services/post-content.js';
 import { AuthoringSaveResult, PostValidationError, createPost, draftReservation, getSeriesOptions, loadPost, postPublic, postTags, trashPost, updatePost, updatePostSettings } from '../services/post-store.js';
@@ -201,12 +202,30 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
     });
 
     routes.post('/v1/posts', async (request, reply) => {
-      if (!options.validateCsrf(request)) return forbidden(reply);
+      // A multipart body carries its token inside, so it is read only after the author is known.
+      if (!isMultipartRequest(request) && !options.validateCsrf(request)) return forbidden(reply);
       const user = await currentAccount(request, db, options);
       if (!user) return notFound(reply);
       if (user.role !== 'EDITOR') return failed('RJ', 'Author access is required.');
+      const form = await readEditorForm(request);
+      if (!options.validateCsrf(request)) return forbidden(reply);
+      const body = form.body;
       try {
-        const post = await createPost(db, user, parseAuthoringPostInput(bodyObject(request.body)), false);
+        const draftUrl = field(body.draft_url);
+        const draft = draftUrl ? await loadPost(db, { userId: user.id, slug: draftUrl }) : null;
+        if (draftUrl && (!draft || draft.publishedDate !== null)) return notFound(reply);
+        if (form.isMultipart) {
+          const uploadError = await prepareEditorFields(db, options, user, form);
+          if (uploadError) return failed('RJ', uploadError);
+        }
+        const input = parseAuthoringPostInput(body);
+        const post = draft
+          ? await updatePost(db, user, draft, input, {
+            allowEmptyBody: false,
+            publishDraft: true,
+            preserveTags: await editorKeepsOriginalTags(db, draft, body),
+          })
+          : await createPost(db, user, input, false);
         return done({ url: post.url });
       } catch (error) {
         if (error instanceof PostValidationError) return failed(error.code, error.message);
@@ -265,6 +284,7 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
 
         const user = await editorAccount(request, reply, db, options, true);
         if (!user) return reply;
+        const form = await readEditorForm(request);
         if (!options.validateCsrf(request)) return forbidden(reply);
         const authors = await db.$queryRaw<Array<{ id: number }>>`
           SELECT id FROM auth_user WHERE username = ${request.params.username} LIMIT 1
@@ -272,7 +292,7 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
         if (!authors[0] || authors[0].id !== user.id) return notFound(reply);
         const post = await loadPost(db, { userId: user.id, slug: request.params.url });
         if (!post) return notFound(reply);
-        const body = bodyObject(request.body);
+        const body = form.body;
 
         if (request.method === 'DELETE') {
           const deletedDate = await trashPost(db, user, post);
@@ -288,8 +308,12 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
           }
         }
 
-        let input = parseAuthoringPostInput(body);
         try {
+          if (form.isMultipart) {
+            const uploadError = await prepareEditorFields(db, options, user, form);
+            if (uploadError) return failed('RJ', uploadError);
+          }
+          let input = parseAuthoringPostInput(body);
           if (post.publishedDate === null) input = await preservePostOmissions(db, post, body, input);
           else {
             if (!Object.hasOwn(body, 'cover_layout')) input.coverLayout = post.coverLayout;
@@ -297,9 +321,15 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
             if (!Object.hasOwn(body, 'cover_image_ratio')) input.coverImageRatio = post.coverImageRatio;
             if (!Object.hasOwn(body, 'block_comment')) input.blockComment = isTrue(post.blockComment);
           }
+          if (form.isMultipart) {
+            // The editor form leaves these out to mean "unchanged", while JSON clients replace them.
+            if (!field(body.series)) input.series = post.seriesUrl ?? '';
+            if (!Object.hasOwn(body, 'is_advertise') && !Object.hasOwn(body, 'advertise')) input.advertise = isTrue(post.advertise);
+          }
           await updatePost(db, user, post, input, {
             allowEmptyBody: post.publishedDate === null,
             updateDraft: post.publishedDate === null,
+            preserveTags: form.isMultipart && !field(body.tag),
           });
           return done();
         } catch (error) {
@@ -383,7 +413,7 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
             createdDate: timeSince(post.createdDate),
           });
         }
-        const form = request.method === 'DELETE' ? { body: {} } : await readEditorForm(request);
+        const form = request.method === 'DELETE' ? { body: {}, isMultipart: false } : await readEditorForm(request);
         if (!options.validateCsrf(request)) return forbidden(reply);
         if (request.method === 'DELETE') {
           const deletedDate = await trashPost(db, user, post);

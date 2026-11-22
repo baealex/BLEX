@@ -1,12 +1,9 @@
 import { renderApplicationDocument } from '../../../application/document.js';
-import { type PrismaClient } from '@prisma/client';
-import type { FastifyReply, FastifyRequest } from 'fastify';
+import type { FastifyReply } from 'fastify';
 import { SiteHeader, SiteTheme } from '../../../appearance/shell.js';
-import { ContentUploadError, saveContentFile } from '../../media/content-media.js';
 import { htmlToMarkdown } from '../authoring/markdown.js';
 import { parseAuthoringPostInput } from '../services/post-content.js';
-import { postTags } from '../services/post-store.js';
-import { AuthoringOptions, AuthoringPostInput, EditorModel, POST_DESCRIPTION_MAX, POST_SUBTITLE_MAX, POST_TITLE_MAX, POST_URL_MAX, SeriesOption, StoredPost, UserRow, bodyObject, booleanField, field, h1 } from '../shared.js';
+import { AuthoringOptions, AuthoringPostInput, EditorModel, POST_DESCRIPTION_MAX, POST_SUBTITLE_MAX, POST_TITLE_MAX, POST_URL_MAX, SeriesOption, StoredPost, UserRow, booleanField, field, h1 } from '../shared.js';
 
 export async function sendEditorPage(
   reply: FastifyReply,
@@ -252,58 +249,9 @@ export function inputFromEditorForm(body: Record<string, unknown>): AuthoringPos
   };
 }
 
-// The 3.x editor posts whole documents; Django accepted them up to the proxy limit.
-export const editorBodyLimit = 13 * 1024 * 1024;
-
-interface EditorForm {
-  body: Record<string, unknown>;
-  image?: { buffer: Buffer; filename: string };
-}
-
-export async function readEditorForm(request: FastifyRequest): Promise<EditorForm> {
-  if (!String(request.headers['content-type'] ?? '').toLowerCase().startsWith('multipart/form-data')) {
-    return { body: bodyObject(request.body) };
-  }
-  const body: Record<string, unknown> = {};
-  let image: EditorForm['image'];
-  for await (const part of request.parts()) {
-    if (part.type === 'file') {
-      const buffer = await part.toBuffer();
-      if (part.fieldname === 'image' && part.filename && buffer.length) image = { buffer, filename: part.filename };
-    } else body[part.fieldname] = part.value;
-  }
-  request.body = body;
-  return { body, image };
-}
-
-/** Maps the 3.x editor's series id and cover file onto the fields the save path understands. */
-export async function prepareEditorFields(db: PrismaClient, options: AuthoringOptions, account: UserRow, form: EditorForm): Promise<string | null> {
-  const { body, image } = form;
-  if (Object.hasOwn(body, 'content_html') && !Object.hasOwn(body, 'text_md')) {
-    const seriesId = field(body.series);
-    const [series] = /^\d+$/.test(seriesId)
-      ? await db.$queryRaw<Array<{ url: string }>>`SELECT url FROM board_series WHERE id = ${Number(seriesId)} AND owner_id = ${account.id} LIMIT 1`
-      : [];
-    body.series = series?.url ?? '';
-  }
-  if (image) {
-    try {
-      body.cover_image_url = await saveContentFile(db, options.mediaRoot, account.id, image);
-    } catch (error) {
-      if (error instanceof ContentUploadError) return error.message;
-      throw error;
-    }
-  } else if (booleanField(body.image_delete) || booleanField(body.remove_image)) body.remove_cover_image = 'true';
-  return null;
-}
-
 export function editorKeepsOriginalContent(post: StoredPost, body: Record<string, unknown>): boolean {
   if (!Object.hasOwn(body, 'text_md')) return false;
   return field(body.text_md) === (field(body.content_type) === 'html' ? post.contentHtml : htmlToMarkdown(post.contentHtml));
-}
-
-export async function editorKeepsOriginalTags(db: PrismaClient, post: StoredPost, body: Record<string, unknown>): Promise<boolean> {
-  return Object.hasOwn(body, 'tag') && field(body.tag) === (await postTags(db, post.id)).join(', ');
 }
 
 export function editorModel(

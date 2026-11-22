@@ -12,6 +12,7 @@ import PostRevisionDialog from './components/PostRevisionDialog';
 import { getSeries } from '~/lib/api/settings';
 import {
     cancelPostSchedule,
+    deletePost,
     getPostForEdit,
     publishScheduledPostNow,
     submitPostEdit
@@ -554,7 +555,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 postUrl
             });
             isIntentionalSubmitRef.current = true;
-            window.location.assign(data.body.url);
+            window.location.assign(`/@${encodeURIComponent(username)}/${encodeURIComponent(postUrl)}`);
         } catch {
             isSubmitLockedRef.current = false;
             isIntentionalSubmitRef.current = false;
@@ -591,16 +592,22 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
 
         setIsSubmitting(true);
         try {
-            const form = formRef.current;
-            if (!form) return;
+            const { data } = await deletePost(username, postUrl);
+            if (data.status === 'ERROR') {
+                toast.error(data.errorMessage || t({
+                    id: 'editor.error.move_to_trash',
+                    message: 'Could not move the post to the trash.'
+                }));
+                setIsSubmitting(false);
+                return;
+            }
 
-            const deleteField = document.createElement('input');
-            deleteField.type = 'hidden';
-            deleteField.name = 'delete';
-            deleteField.value = 'true';
-            form.appendChild(deleteField);
-
-            form.submit();
+            clearPostEditRecovery({
+                username,
+                postUrl
+            });
+            isIntentionalSubmitRef.current = true;
+            window.location.assign(`/@${encodeURIComponent(username)}`);
         } catch {
             toast.error(t({
                 id: 'editor.error.move_to_trash',

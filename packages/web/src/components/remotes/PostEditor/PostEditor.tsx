@@ -70,7 +70,7 @@ const PostEditor = ({
     switch (mode) {
         case 'new':
         case 'draft':
-            return <NewPostEditor draftUrl={draftUrl} showFirstPublishGuide={showFirstPublishGuide} />;
+            return <NewPostEditor username={username!} draftUrl={draftUrl} showFirstPublishGuide={showFirstPublishGuide} />;
 
         case 'edit':
             return <EditPostEditor username={username!} postUrl={postUrl!} />;

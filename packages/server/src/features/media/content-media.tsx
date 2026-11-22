@@ -21,8 +21,10 @@ const configuredLimit = Number(process.env.DEVELOPER_API_MAX_UPLOAD_MB ?? 20);
 export const contentUploadLimit = (Number.isSafeInteger(configuredLimit) && configuredLimit >= 1 ? configuredLimit : 20) * 1024 * 1024;
 let uploading = 0;
 
+export const contentUploadTooLargeMessage = `Image files must be ${contentUploadLimit / 1_048_576} MiB or smaller.`;
+
 function limitError() {
-  return new ContentUploadError('image.too_large', `Image files must be ${contentUploadLimit / 1_048_576} MiB or smaller.`, 400);
+  return new ContentUploadError('image.too_large', contentUploadTooLargeMessage, 400);
 }
 
 function failed() { return new ContentUploadError('image.upload_failed', 'Image upload failed.', 422); }

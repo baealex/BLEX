@@ -55,7 +55,7 @@ pnpm --filter @blex/web exec playwright install --only-shell chromium
 BLEX_SETUP_TOKEN=your-setup-token pnpm test:smoke
 ```
 
-The test creates the first administrator account, then checks signing out, signing back in, opening the mobile menu, and loading the editor. `BLEX_SMOKE_URL` overrides the default `http://127.0.0.1:8040` target.
+The test creates the first administrator account, then checks signing out, signing back in, opening the mobile menu, loading the editor, and keeping the author's text when the server rejects a publish. `BLEX_SMOKE_URL` overrides the default `http://127.0.0.1:8040` target.
 
 ## Migrations and CI
 
