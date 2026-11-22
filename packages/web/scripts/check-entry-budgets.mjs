@@ -12,11 +12,7 @@ const manifestPath = resolve(outDir, '.vite/manifest.json');
 // dependency landing in a shared entry. Re-baseline them when headroom runs low.
 const budgets = [
     {
-        entries: [
-            'src/scripts/island-loader.ts',
-            'src/scripts/lazy-loading.ts',
-            'src/scripts/alpine-loader.ts'
-        ],
+        entries: ['src/scripts/island-loader.ts'],
         label: 'base page scripts',
         maxInitialFiles: 6,
         maxInitialBytes: 65 * 1024,
@@ -24,8 +20,6 @@ const budgets = [
         allowedInitialNames: [
             'src/scripts/island-loader.ts',
             'preload-helper',
-            'src/scripts/lazy-loading.ts',
-            'src/scripts/alpine-loader.ts',
             'theme',
             'loginPrompt'
         ],

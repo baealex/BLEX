@@ -1,4 +1,3 @@
-import type Alpine from 'alpinejs';
 import 'react';
 import type { AppLocale } from '../i18n/locale';
 
@@ -29,7 +28,6 @@ declare module '*.scss' {
 
 declare global {
     interface Window {
-        Alpine: Alpine;
         configuration: {
             media: string;
             static: string;

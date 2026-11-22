@@ -25,17 +25,12 @@
             ],
             "@templates/*": [
                 "templates/*"
-            ],
-            "alpinejs": [
-                "./node_modules/@types/alpinejs",
-                "./node_modules/alpinejs"
             ]
         }
     },
     "include": [
         "src",
-        "../editor/src/utils/languages.ts",
-        "templates/**/*.alpine.ts"
+        "../editor/src/utils/languages.ts"
     ],
     "references": [
         {

@@ -34,7 +34,7 @@ export const LoginPromptProvider = ({ children }: { children: ReactNode }) => {
         });
     }, [isLoggedIn]);
 
-    // 전역 커스텀 이벤트로 모달 열기 (Alpine.js에서도 사용 가능)
+    // 전역 커스텀 이벤트로 모달 열기
     // 중복 방지: 같은 페이지에 여러 island가 있어도 한 번만 모달 표시
     useEffect(() => {
         const handleShowLoginPrompt = (event: CustomEvent<{ action: string }>) => {

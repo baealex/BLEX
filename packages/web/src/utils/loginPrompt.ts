@@ -1,7 +1,7 @@
 /**
  * Login Prompt Utility
  * Lazily mounts the LoginPrompt island and dispatches custom events to it.
- * Works with both Alpine.js and vanilla JavaScript
+ * Works with React and vanilla JavaScript
  */
 
 const LOGIN_PROMPT_ROOT_ID = 'blex-login-prompt-root';
@@ -63,13 +63,13 @@ const ensureLoginPrompt = (request: LoginPromptRequest): boolean => {
 
 /**
  * Show login prompt modal via custom event
- * Can be used from Alpine.js, React, or vanilla JavaScript
+ * Can be used from React or vanilla JavaScript
  *
  * @param action - Stable action identifier used to select a complete localized sentence.
  * @param nextUrl - Optional same-site destination after sign-in.
  *
  * @example
- * // From Alpine.js
+ * // From a React event handler
  * showLoginPrompt('like');
  *
  * @example
