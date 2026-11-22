@@ -39,12 +39,12 @@ model User {
   id                                                                               Int                                @id @default(autoincrement())
   password                                                                         String
   last_login                                                                       DateTime?
-  is_superuser                                                                     Unsupported("bool")
+  is_superuser                                                                     Boolean
   username                                                                         String                             @unique
   last_name                                                                        String
   email                                                                            String
-  is_staff                                                                         Unsupported("bool")
-  is_active                                                                        Unsupported("bool")
+  is_staff                                                                         Boolean
+  is_active                                                                        Boolean
   date_joined                                                                      DateTime
   first_name                                                                       String
   auth_user_groups                                                                 auth_user_groups[]
@@ -210,15 +210,15 @@ model PostContent {
 }
 
 model PostConfig {
-  id                   Int                 @id @default(autoincrement())
-  hide                 Unsupported("bool")
-  advertise            Unsupported("bool")
-  block_comment        Unsupported("bool")
-  postId               Int                 @unique @map("post_id")
+  id                   Int     @id @default(autoincrement())
+  hide                 Boolean
+  advertise            Boolean
+  block_comment        Boolean
+  postId               Int     @unique @map("post_id")
   cover_image_position String
   cover_image_ratio    String
   cover_layout         String
-  post                 Post                @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  post                 Post    @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("board_postconfig")
 }
@@ -280,16 +280,16 @@ model auth_user_user_permissions {
 }
 
 model board_authorinvite {
-  id                                                    Int                 @id @default(autoincrement())
-  code                                                  String              @unique
+  id                                                    Int       @id @default(autoincrement())
+  code                                                  String    @unique
   note                                                  String
-  is_active                                             Unsupported("bool")
+  is_active                                             Boolean
   created_date                                          DateTime
   claimed_date                                          DateTime?
   claimed_by_id                                         Int?
   created_by_id                                         Int?
-  auth_user_board_authorinvite_created_by_idToauth_user User?               @relation("board_authorinvite_created_by_idToauth_user", fields: [created_by_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  auth_user_board_authorinvite_claimed_by_idToauth_user User?               @relation("board_authorinvite_claimed_by_idToauth_user", fields: [claimed_by_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  auth_user_board_authorinvite_created_by_idToauth_user User?     @relation("board_authorinvite_created_by_idToauth_user", fields: [created_by_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  auth_user_board_authorinvite_claimed_by_idToauth_user User?     @relation("board_authorinvite_claimed_by_idToauth_user", fields: [claimed_by_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([claimed_by_id], map: "board_autho_claimed_0188bf_idx")
   @@index([code, is_active], map: "board_autho_code_e7ed63_idx")
@@ -329,8 +329,8 @@ model board_comment {
   id                  Int                   @id @default(autoincrement())
   text_md             String
   text_html           String
-  edited              Unsupported("bool")
-  heart               Unsupported("bool")
+  edited              Boolean
+  heart               Boolean
   created_date        DateTime
   author_id           Int?
   post_id             Int
@@ -369,17 +369,17 @@ model board_config {
 }
 
 model board_developerrequestlog {
-  id                   Int                              @id @default(autoincrement())
+  id                   Int                   @id @default(autoincrement())
   method               String
   path                 String
-  status_code          Unsupported("smallint unsigned")
+  status_code          Int
   ip_address           String?
   user_agent           String
   created_date         DateTime
   token_id             Int?
   user_id              Int
-  auth_user            User                             @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_developertoken board_developertoken?            @relation(fields: [token_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  auth_user            User                  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  board_developertoken board_developertoken? @relation(fields: [token_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([token_id, created_date], map: "board_devel_token_i_fbbd82_idx")
   @@index([user_id, created_date], map: "board_devel_user_id_e88d8c_idx")
@@ -434,16 +434,16 @@ model board_edithistory {
 }
 
 model board_editrequest {
-  id           Int                 @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
   title        String
   content      String
-  is_merged    Unsupported("bool")
+  is_merged    Boolean
   created_date DateTime
   updated_date DateTime
   user_id      Int
   post_id      Int
-  board_post   Post                @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  auth_user    User                @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  board_post   Post     @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  auth_user    User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([post_id], map: "board_editrequest_post_id_77346467")
   @@index([user_id], map: "board_editrequest_user_id_0deec073")
@@ -459,14 +459,14 @@ model board_emailchange {
 }
 
 model board_form {
-  id           Int                 @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
   title        String
   content      String
-  is_public    Unsupported("bool")
+  is_public    Boolean
   created_date DateTime
   updated_date DateTime
   user_id      Int
-  auth_user    User                @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  auth_user    User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([user_id], map: "board_form_user_id_1f43b269")
 }
@@ -483,27 +483,27 @@ model board_imagecache {
 }
 
 model board_integrationsetting {
-  id                    Int                 @id @default(autoincrement())
-  telegram_enabled      Unsupported("bool")
+  id                    Int      @id @default(autoincrement())
+  telegram_enabled      Boolean
   telegram_bot_username String
   telegram_bot_token    String
   updated_date          DateTime
 }
 
 model board_loginattempt {
-  key    String                           @id
-  window Unsupported("bigint unsigned")
-  count  Unsupported("smallint unsigned")
+  key    String @id
+  window BigInt
+  count  Int
 
   @@index([window], map: "board_loginattempt_window_a08cc5bd")
 }
 
 model board_loginsetting {
-  id                            Int                 @id @default(autoincrement())
+  id                            Int      @id @default(autoincrement())
   welcome_notification_message  String
   welcome_notification_url      String
   account_deletion_redirect_url String
-  hcaptcha_enabled              Unsupported("bool")
+  hcaptcha_enabled              Boolean
   hcaptcha_site_key             String
   hcaptcha_secret_key           String
   updated_date                  DateTime
@@ -517,7 +517,7 @@ model board_notify {
   updated_date   DateTime
   user_id        Int
   content        String
-  has_read       Unsupported("bool")
+  has_read       Boolean
   message_key    String
   message_params String
   auth_user      User                  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -563,11 +563,11 @@ model board_post_likes {
 }
 
 model board_post_share_link_daily_counts {
-  id                  Int                            @id @default(autoincrement())
+  id                  Int                 @id @default(autoincrement())
   day                 DateTime
-  clicks              Unsupported("bigint unsigned")
+  clicks              BigInt
   link_id             Int
-  board_postsharelink board_postsharelink            @relation(fields: [link_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  board_postsharelink board_postsharelink @relation(fields: [link_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([link_id, day])
   @@index([link_id], map: "board_post_share_link_daily_counts_link_id_2f58d048")
@@ -601,7 +601,7 @@ model board_postsharelink {
   id                                 Int                                  @id @default(autoincrement())
   token                              String                               @unique
   label                              String
-  is_paused                          Unsupported("bool")
+  is_paused                          Boolean
   created_date                       DateTime
   post_id                            Int
   board_post_share_link_daily_counts board_post_share_link_daily_counts[]
@@ -630,7 +630,7 @@ model board_series {
   order                  Int
   text_md                String
   text_html              String
-  hide                   Unsupported("bool")
+  hide                   Boolean
   url                    String                   @unique
   layout                 String
   created_date           DateTime
@@ -657,10 +657,10 @@ model board_seriesconfigmeta {
 }
 
 model board_sitebanner {
-  id           Int                 @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
   scope        String
   title        String
-  is_active    Unsupported("bool")
+  is_active    Boolean
   order        Int
   created_date DateTime
   updated_date DateTime
@@ -668,7 +668,7 @@ model board_sitebanner {
   banner_type  String
   position     String
   user_id      Int?
-  auth_user    User?               @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  auth_user    User?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([user_id, is_active], map: "board_siteb_user_id_7efe4d_idx")
   @@index([scope, is_active, banner_type, position], map: "board_siteb_scope_774e20_idx")
@@ -676,16 +676,16 @@ model board_sitebanner {
 }
 
 model board_sitenotice {
-  id           Int                 @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
   scope        String
   title        String
-  is_active    Unsupported("bool")
+  is_active    Boolean
   order        Int
   created_date DateTime
   updated_date DateTime
   url          String
   user_id      Int?
-  auth_user    User?               @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  auth_user    User?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([user_id, is_active], map: "board_siten_user_id_2b60d0_idx")
   @@index([scope, is_active], map: "board_siten_scope_0b3bc6_idx")
@@ -693,12 +693,12 @@ model board_sitenotice {
 }
 
 model board_sitesetting {
-  id                     Int                 @id @default(autoincrement())
+  id                     Int      @id @default(autoincrement())
   header_script          String
   footer_script          String
   updated_date           DateTime
-  aeo_enabled            Unsupported("bool")
-  seo_enabled            Unsupported("bool")
+  aeo_enabled            Boolean
+  seo_enabled            Boolean
   robots_txt_extra_rules String
   site_name              String
   logo_svg               String
@@ -725,27 +725,27 @@ model board_socialauth {
 }
 
 model board_socialauthprovider {
-  id               Int                 @id @default(autoincrement())
-  key              String              @unique
+  id               Int                @id @default(autoincrement())
+  key              String             @unique
   client_id        String
   client_secret    String
-  is_enabled       Unsupported("bool")
+  is_enabled       Boolean
   board_socialauth board_socialauth[]
 }
 
 model board_staticpage {
-  id               Int                 @id @default(autoincrement())
+  id               Int      @id @default(autoincrement())
   title            String
   content          String
   meta_description String
-  is_published     Unsupported("bool")
-  show_in_footer   Unsupported("bool")
+  is_published     Boolean
+  show_in_footer   Boolean
   order            Int
   created_date     DateTime
   updated_date     DateTime
   author_id        Int?
-  slug             String              @unique
-  auth_user        User?               @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  slug             String   @unique
+  auth_user        User?    @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([author_id], map: "board_staticpage_author_id_fecbd454")
 }
@@ -816,16 +816,16 @@ model board_utilitycleanupconfirmation {
 }
 
 model board_webhooksubscription {
-  id                Int                              @id @default(autoincrement())
+  id                Int               @id @default(autoincrement())
   webhook_url       String
   name              String
-  is_active         Unsupported("bool")
-  failure_count     Unsupported("smallint unsigned")
+  is_active         Boolean
+  failure_count     Int
   last_success_date DateTime?
   created_date      DateTime
   scope             String
   author_id         Int?
-  board_profile     board_profile?                   @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  board_profile     board_profile?    @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   deliveries        WebhookDelivery[]
 
   @@unique([scope, author_id, webhook_url], map: "board_webhooksubscription_scope_author_id_webhook_url_77edf147_uniq")
@@ -884,16 +884,16 @@ model board_worklogshare_entries {
 }
 
 model django_admin_log {
-  id                  Int                              @id @default(autoincrement())
+  id                  Int                  @id @default(autoincrement())
   object_id           String?
   object_repr         String
-  action_flag         Unsupported("smallint unsigned")
+  action_flag         Int
   change_message      String
   content_type_id     Int?
   user_id             Int
   action_time         DateTime
-  auth_user           User                             @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  django_content_type django_content_type?             @relation(fields: [content_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  auth_user           User                 @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  django_content_type django_content_type? @relation(fields: [content_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([user_id], map: "django_admin_log_user_id_c564eba6")
   @@index([content_type_id], map: "django_admin_log_content_type_id_c4bce8eb")

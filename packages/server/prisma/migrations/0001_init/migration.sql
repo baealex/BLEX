@@ -25,12 +25,12 @@ CREATE TABLE "auth_user" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "password" TEXT NOT NULL,
     "last_login" DATETIME,
-    "is_superuser" bool NOT NULL,
+    "is_superuser" BOOLEAN NOT NULL,
     "username" TEXT NOT NULL,
     "last_name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "is_staff" bool NOT NULL,
-    "is_active" bool NOT NULL,
+    "is_staff" BOOLEAN NOT NULL,
+    "is_active" BOOLEAN NOT NULL,
     "date_joined" DATETIME NOT NULL,
     "first_name" TEXT NOT NULL
 );
@@ -123,9 +123,9 @@ CREATE TABLE "board_postcontent" (
 -- CreateTable
 CREATE TABLE "board_postconfig" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "hide" bool NOT NULL,
-    "advertise" bool NOT NULL,
-    "block_comment" bool NOT NULL,
+    "hide" BOOLEAN NOT NULL,
+    "advertise" BOOLEAN NOT NULL,
+    "block_comment" BOOLEAN NOT NULL,
     "post_id" INTEGER NOT NULL,
     "cover_image_position" TEXT NOT NULL,
     "cover_image_ratio" TEXT NOT NULL,
@@ -180,7 +180,7 @@ CREATE TABLE "board_authorinvite" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "code" TEXT NOT NULL,
     "note" TEXT NOT NULL,
-    "is_active" bool NOT NULL,
+    "is_active" BOOLEAN NOT NULL,
     "created_date" DATETIME NOT NULL,
     "claimed_date" DATETIME,
     "claimed_by_id" INTEGER,
@@ -215,8 +215,8 @@ CREATE TABLE "board_comment" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "text_md" TEXT NOT NULL,
     "text_html" TEXT NOT NULL,
-    "edited" bool NOT NULL,
-    "heart" bool NOT NULL,
+    "edited" BOOLEAN NOT NULL,
+    "heart" BOOLEAN NOT NULL,
     "created_date" DATETIME NOT NULL,
     "author_id" INTEGER,
     "post_id" INTEGER NOT NULL,
@@ -249,7 +249,7 @@ CREATE TABLE "board_developerrequestlog" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "method" TEXT NOT NULL,
     "path" TEXT NOT NULL,
-    "status_code" smallint unsigned NOT NULL,
+    "status_code" INTEGER NOT NULL,
     "ip_address" TEXT,
     "user_agent" TEXT NOT NULL,
     "created_date" DATETIME NOT NULL,
@@ -301,7 +301,7 @@ CREATE TABLE "board_editrequest" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "title" TEXT NOT NULL,
     "content" TEXT NOT NULL,
-    "is_merged" bool NOT NULL,
+    "is_merged" BOOLEAN NOT NULL,
     "created_date" DATETIME NOT NULL,
     "updated_date" DATETIME NOT NULL,
     "user_id" INTEGER NOT NULL,
@@ -325,7 +325,7 @@ CREATE TABLE "board_form" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "title" TEXT NOT NULL,
     "content" TEXT NOT NULL,
-    "is_public" bool NOT NULL,
+    "is_public" BOOLEAN NOT NULL,
     "created_date" DATETIME NOT NULL,
     "updated_date" DATETIME NOT NULL,
     "user_id" INTEGER NOT NULL,
@@ -345,7 +345,7 @@ CREATE TABLE "board_imagecache" (
 -- CreateTable
 CREATE TABLE "board_integrationsetting" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "telegram_enabled" bool NOT NULL,
+    "telegram_enabled" BOOLEAN NOT NULL,
     "telegram_bot_username" TEXT NOT NULL,
     "telegram_bot_token" TEXT NOT NULL,
     "updated_date" DATETIME NOT NULL
@@ -354,8 +354,8 @@ CREATE TABLE "board_integrationsetting" (
 -- CreateTable
 CREATE TABLE "board_loginattempt" (
     "key" TEXT NOT NULL PRIMARY KEY,
-    "window" bigint unsigned NOT NULL,
-    "count" smallint unsigned NOT NULL
+    "window" BIGINT NOT NULL,
+    "count" INTEGER NOT NULL
 );
 
 -- CreateTable
@@ -364,7 +364,7 @@ CREATE TABLE "board_loginsetting" (
     "welcome_notification_message" TEXT NOT NULL,
     "welcome_notification_url" TEXT NOT NULL,
     "account_deletion_redirect_url" TEXT NOT NULL,
-    "hcaptcha_enabled" bool NOT NULL,
+    "hcaptcha_enabled" BOOLEAN NOT NULL,
     "hcaptcha_site_key" TEXT NOT NULL,
     "hcaptcha_secret_key" TEXT NOT NULL,
     "updated_date" DATETIME NOT NULL
@@ -379,7 +379,7 @@ CREATE TABLE "board_notify" (
     "updated_date" DATETIME NOT NULL,
     "user_id" INTEGER NOT NULL,
     "content" TEXT NOT NULL,
-    "has_read" bool NOT NULL,
+    "has_read" BOOLEAN NOT NULL,
     "message_key" TEXT NOT NULL,
     "message_params" TEXT NOT NULL,
     CONSTRAINT "board_notify_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -416,7 +416,7 @@ CREATE TABLE "board_post_likes" (
 CREATE TABLE "board_post_share_link_daily_counts" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "day" DATETIME NOT NULL,
-    "clicks" bigint unsigned NOT NULL,
+    "clicks" BIGINT NOT NULL,
     "link_id" INTEGER NOT NULL,
     CONSTRAINT "board_post_share_link_daily_counts_link_id_fkey" FOREIGN KEY ("link_id") REFERENCES "board_postsharelink" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
 );
@@ -446,7 +446,7 @@ CREATE TABLE "board_postsharelink" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "token" TEXT NOT NULL,
     "label" TEXT NOT NULL,
-    "is_paused" bool NOT NULL,
+    "is_paused" BOOLEAN NOT NULL,
     "created_date" DATETIME NOT NULL,
     "post_id" INTEGER NOT NULL,
     CONSTRAINT "board_postsharelink_post_id_fkey" FOREIGN KEY ("post_id") REFERENCES "board_post" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -473,7 +473,7 @@ CREATE TABLE "board_series" (
     "order" INTEGER NOT NULL,
     "text_md" TEXT NOT NULL,
     "text_html" TEXT NOT NULL,
-    "hide" bool NOT NULL,
+    "hide" BOOLEAN NOT NULL,
     "url" TEXT NOT NULL,
     "layout" TEXT NOT NULL,
     "created_date" DATETIME NOT NULL,
@@ -499,7 +499,7 @@ CREATE TABLE "board_sitebanner" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "scope" TEXT NOT NULL,
     "title" TEXT NOT NULL,
-    "is_active" bool NOT NULL,
+    "is_active" BOOLEAN NOT NULL,
     "order" INTEGER NOT NULL,
     "created_date" DATETIME NOT NULL,
     "updated_date" DATETIME NOT NULL,
@@ -515,7 +515,7 @@ CREATE TABLE "board_sitenotice" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "scope" TEXT NOT NULL,
     "title" TEXT NOT NULL,
-    "is_active" bool NOT NULL,
+    "is_active" BOOLEAN NOT NULL,
     "order" INTEGER NOT NULL,
     "created_date" DATETIME NOT NULL,
     "updated_date" DATETIME NOT NULL,
@@ -530,8 +530,8 @@ CREATE TABLE "board_sitesetting" (
     "header_script" TEXT NOT NULL,
     "footer_script" TEXT NOT NULL,
     "updated_date" DATETIME NOT NULL,
-    "aeo_enabled" bool NOT NULL,
-    "seo_enabled" bool NOT NULL,
+    "aeo_enabled" BOOLEAN NOT NULL,
+    "seo_enabled" BOOLEAN NOT NULL,
     "robots_txt_extra_rules" TEXT NOT NULL,
     "site_name" TEXT NOT NULL,
     "logo_svg" TEXT NOT NULL,
@@ -559,7 +559,7 @@ CREATE TABLE "board_socialauthprovider" (
     "key" TEXT NOT NULL,
     "client_id" TEXT NOT NULL,
     "client_secret" TEXT NOT NULL,
-    "is_enabled" bool NOT NULL
+    "is_enabled" BOOLEAN NOT NULL
 );
 
 -- CreateTable
@@ -568,8 +568,8 @@ CREATE TABLE "board_staticpage" (
     "title" TEXT NOT NULL,
     "content" TEXT NOT NULL,
     "meta_description" TEXT NOT NULL,
-    "is_published" bool NOT NULL,
-    "show_in_footer" bool NOT NULL,
+    "is_published" BOOLEAN NOT NULL,
+    "show_in_footer" BOOLEAN NOT NULL,
     "order" INTEGER NOT NULL,
     "created_date" DATETIME NOT NULL,
     "updated_date" DATETIME NOT NULL,
@@ -646,8 +646,8 @@ CREATE TABLE "board_webhooksubscription" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "webhook_url" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "is_active" bool NOT NULL,
-    "failure_count" smallint unsigned NOT NULL,
+    "is_active" BOOLEAN NOT NULL,
+    "failure_count" INTEGER NOT NULL,
     "last_success_date" DATETIME,
     "created_date" DATETIME NOT NULL,
     "scope" TEXT NOT NULL,
@@ -700,7 +700,7 @@ CREATE TABLE "django_admin_log" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "object_id" TEXT,
     "object_repr" TEXT NOT NULL,
-    "action_flag" smallint unsigned NOT NULL,
+    "action_flag" INTEGER NOT NULL,
     "change_message" TEXT NOT NULL,
     "content_type_id" INTEGER,
     "user_id" INTEGER NOT NULL,
