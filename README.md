@@ -8,7 +8,7 @@
 <h1 align="center">BLEX</h1>
 
 <p align="center">
-  An open-source platform for writing, publishing, and running a blog.
+  An open-source platform for publishing and managing your own blog.
 </p>
 
 <p align="center">
@@ -22,11 +22,10 @@
   English · <a href="README.ko.md">한국어</a>
 </p>
 
-BLEX is built around one workflow: write, organize, publish, and maintain a
-blog over time. A TypeScript server uses Fastify, React SSR, Prisma, and SQLite
-to serve the blog, editor, and administration tools in one application.
+BLEX brings writing, content management, and blog administration into one
+application. It uses TypeScript, Fastify, React SSR, Prisma, and SQLite.
 
-## Project focus
+## Features
 
 - **Writing and publishing:** visual and Markdown editing, previews, drafts, autosave recovery,
   revision history, cover images, and scheduled publishing
@@ -34,14 +33,14 @@ to serve the blog, editor, and administration tools in one application.
   likes, and pinned posts
 - **Blog operations:** branding, notices and banners, users and roles, webhooks,
   and Telegram integration
-- **Open publishing:** RSS, sitemaps, canonical and Open Graph metadata, public
-  Markdown, and a Developer API with scoped tokens
+- **Feeds, discovery, and APIs:** RSS, sitemaps, canonical URLs, Open Graph
+  metadata, Markdown versions of public posts, and a Developer API with scoped access tokens
 
-GitHub and Google login and TOTP two-factor authentication are included.
+Authentication options include GitHub and Google sign-in, plus TOTP two-factor authentication.
 
 ## Run locally with Docker
 
-Create a root `.env` with `SITE_URL=http://localhost:20002`, a random
+Create a `.env` file in the repository root with `SITE_URL=http://localhost:20002`, a random
 `SECRET_KEY`, and a 32-byte `CIPHER_KEY`. `openssl rand -hex 16` produces a
 32-character ASCII value for `CIPHER_KEY`.
 
@@ -50,14 +49,14 @@ docker compose up --build -d
 docker compose logs blex
 ```
 
-Open the `/setup` link in the logs to create the first administrator. The
-`blex-data` volume keeps the database and uploads between container replacements.
+Follow the `/setup` link in the logs to create the first administrator account.
+The `blex-data` volume preserves the database and uploads when containers are replaced.
 
 ### Production deployment
 
-Use unique secrets and set `SITE_URL` to the public HTTPS origin. Place an
-HTTPS proxy in front of the application and back up the data directory.
-[Self-hosting guide](docs/SELF_HOSTING.md)
+Generate new secrets for each installation and set `SITE_URL` to the public
+HTTPS base URL. Run the application behind an HTTPS reverse proxy and back up
+the data directory. See the [self-hosting guide](docs/SELF_HOSTING.md).
 
 ## Publishing interfaces
 
@@ -83,7 +82,7 @@ pnpm dev
 ```
 
 Open `http://localhost:8040`. The development command initializes a local
-SQLite database under `packages/server/.local/` and prints the first administrator setup link.
+SQLite database under `packages/server/.local/` and prints a setup link for the first administrator account.
 
 ## Documentation
 

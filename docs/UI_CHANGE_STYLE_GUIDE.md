@@ -6,15 +6,15 @@ This guide is separate from `DESIGN_GUIDE.md`.
 
 Do not update `DESIGN_GUIDE.md` during ordinary UI implementation.
 
-The design system is not evidence that your local change is correct. The product must prove the pattern first. Only then may the design system be updated as a deliberate baseline change.
+Following the design system does not, by itself, prove that a UI change works. Validate a new pattern in the product before proposing it as part of the design system.
 
-## Prime Rule
+## Core rule
 
 Make the smallest change that improves the current screen.
 
 If a UI change requires broad token work, shared component rewrites, or new global CSS, stop and prove that the scope is actually necessary.
 
-## Default Order
+## Recommended workflow
 
 1. Read the current screen and identify what already works.
 2. Copy the best existing local pattern in the same area.
@@ -23,11 +23,11 @@ If a UI change requires broad token work, shared component rewrites, or new glob
 5. Extract a helper only after the same structure appears at least three times with the same role, behavior, and state model.
 6. Add or change tokens only when multiple independent surfaces need the same semantic value.
 
-## What Goes Where
+## Where styles belong
 
-Use Tailwind for screen-level layout and one-off visual tuning.
+Use Tailwind for screen-level layout and small visual adjustments specific to a screen.
 
-Use React shared components for stable product primitives:
+Use shared React components for stable product primitives:
 
 - Button
 - Input
@@ -49,7 +49,7 @@ Use feature-level SCSS only when the behavior is tied to that component and cann
 
 ## Tokens
 
-Tokens are for semantic constants, not every measurement.
+Use tokens for shared semantic values, not for every measurement.
 
 Good token candidates:
 
@@ -68,7 +68,7 @@ Bad token candidates:
 
 If the value does not have a name a maintainer would naturally reuse, keep it as a Tailwind utility.
 
-## Component Extraction
+## Extracting components
 
 Do not extract because code looks similar.
 
@@ -81,17 +81,17 @@ Extract only when all are true:
 - at least three real call sites
 - the extracted API is simpler than the copied markup
 
-If the prop list becomes a design language of its own, the extraction is too early.
+If the component needs a long list of props to cover its different uses, it is too early to extract it.
 
-## Size And Density
+## Size and density
 
-Do not solve mobile touch targets by making every visible control large.
+Do not make every visible control larger just to meet mobile touch-target requirements.
 
 Keep the visible control appropriate for the surface. Add hit area only when the control is visually compact but hard to tap.
 
 Desktop management screens may be dense. Public reading and profile screens should keep more visual breathing room.
 
-## CSS Growth Rules
+## Adding CSS
 
 Before adding CSS, answer:
 
@@ -102,17 +102,17 @@ Before adding CSS, answer:
 
 If any answer is no, do not add CSS.
 
-Growth in shared styles is a smell. A UI-only fix should usually stay within the feature.
+A small UI change should usually stay within its feature. If shared styles keep growing, check whether local styles would be more appropriate.
 
-## Tests And Guardrails
+## Tests and guardrails
 
 Do not add tests that assert visual sizes, spacing, radius, or class names.
 
-Heavy E2E tests should cover only P1 flows where a broken feature would seriously hurt the service.
+Resource-intensive end-to-end tests should cover only P1 flows where a broken feature would seriously hurt the service.
 
-Use static guardrails only for architectural mistakes that are cheap to detect, such as importing from the wrong package boundary. Do not turn taste into a test suite.
+Use static guardrails only for architectural mistakes that are cheap to detect, such as importing from the wrong package boundary. Do not use automated tests to enforce subjective visual preferences.
 
-## Review Checklist
+## Review checklist
 
 Before finishing a UI change:
 
@@ -121,7 +121,7 @@ Before finishing a UI change:
 - Did this avoid new global CSS?
 - Did this avoid new tokens unless they are clearly semantic?
 - Did this avoid new tests for visual taste?
-- Does mobile remain usable without making desktop oversized?
+- Does mobile remain usable without making desktop controls too large?
 - Does dark mode use the same surface logic as light mode?
 
 If the answer is no, reduce the change before asking for review.

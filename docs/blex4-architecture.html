@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <title>BLEX 4 기술 구조와 요청 흐름</title>
+  <title>BLEX 4 Architecture and Request Flows</title>
   <style>
     :root {
       --ink: #18263a;
@@ -198,132 +198,132 @@
   <header class="site-header">
     <div class="wrap">
       <a class="brand" href="#top">BLEX 4</a>
-      <nav aria-label="문서 목차">
-        <a href="#structure">구조</a>
-        <a href="#flows">요청 흐름</a>
-        <a href="#stack">기술 스택</a>
-        <a href="#source">코드 위치</a>
+      <nav aria-label="Document navigation">
+        <a href="#structure">Architecture</a>
+        <a href="#flows">Request flows</a>
+        <a href="#stack">Technology stack</a>
+        <a href="#source">Source files</a>
       </nav>
     </div>
   </header>
 
   <main class="wrap" id="top">
     <div class="hero">
-      <h1>BLEX 4 기술 구조와 요청 흐름</h1>
-      <p>TypeScript로 작성한 Fastify 서버 한 프로세스가 React 화면과 API, 정적 파일을 제공합니다. 주소로 직접 접속하면 완성된 HTML을 받고, 그 뒤의 내부 이동은 브라우저의 공통 React 라우터가 처리합니다.</p>
+      <h1>BLEX 4 Architecture and Request Flows</h1>
+      <p>A single Fastify server, written in TypeScript, serves React pages, APIs, and static files. When a visitor opens a URL directly, the server returns rendered HTML. The shared React router handles subsequent internal navigation.</p>
     </div>
 
-    <section id="structure" aria-label="실행 구조">
+    <section id="structure" aria-label="Runtime architecture">
       <figure>
         <div class="architecture">
           <div class="node browser">
-            <h3>브라우저</h3>
-            <p>React 앱 · React Router<br>공통 헤더, 내부 링크, 폼, 뒤로 가기</p>
+            <h3>Browser</h3>
+            <p>React app · React Router<br>Shared header, links, forms, and history</p>
           </div>
           <span class="arrow" aria-hidden="true">⇄</span>
           <div class="server">
             <div class="server-title">
               <h3>Node.js · Fastify</h3>
-              <p>서비스 프로세스 1개</p>
+              <p>Single application process</p>
             </div>
             <div class="lanes">
-              <div class="lane"><strong>페이지 GET</strong><p>React SSR로 HTML 생성</p></div>
-              <div class="lane"><strong>폼 · HTTP API</strong><p>세션 검사, 설정·글·댓글 처리</p></div>
-              <div class="lane"><strong>정적 자산</strong><p>Vite 번들, CSS, 미디어 제공</p></div>
+              <div class="lane"><strong>GET requests</strong><p>HTML rendered with React SSR</p></div>
+              <div class="lane"><strong>Forms · HTTP APIs</strong><p>Sessions, settings, posts, and comments</p></div>
+              <div class="lane"><strong>Static assets</strong><p>Vite bundles, CSS, and media</p></div>
             </div>
           </div>
           <span class="arrow" aria-hidden="true">⇄</span>
           <div class="node storage">
-            <h3>SQLite</h3><p>Prisma로 읽고 쓰는 DB 파일</p>
-            <h3>미디어</h3><p>업로드가 저장되는 파일 디렉터리</p>
+            <h3>SQLite</h3><p>Database file accessed through Prisma</p>
+            <h3>Media</h3><p>Directory for uploaded files</p>
           </div>
         </div>
-        <figcaption class="architecture-note">홈·글·프로필 SSR은 서버 내부의 조회 함수를 직접 호출합니다.</figcaption>
+        <figcaption class="architecture-note">The server renders home, post, and profile pages by calling its query functions directly.</figcaption>
       </figure>
     </section>
 
     <section class="section" id="flows">
       <div class="section-heading">
-        <h2>요청 흐름</h2>
-        <p>탭을 바꿔 브라우저와 서버가 각각 하는 일을 비교할 수 있습니다.</p>
+        <h2>Request flows</h2>
+        <p>Switch tabs to compare the work done by the browser and server.</p>
       </div>
       <div class="flow-shell card">
-        <div class="tabs" role="tablist" aria-label="요청 유형">
-          <button type="button" role="tab" id="first-tab" aria-controls="first-flow" aria-selected="true">홈 첫 접속</button>
-          <button type="button" role="tab" id="link-tab" aria-controls="link-flow" aria-selected="false">홈 → 글 상세</button>
-          <button type="button" role="tab" id="form-tab" aria-controls="form-flow" aria-selected="false">계정 설정 저장</button>
+        <div class="tabs" role="tablist" aria-label="Request type">
+          <button type="button" role="tab" id="first-tab" aria-controls="first-flow" aria-selected="true">Initial page load</button>
+          <button type="button" role="tab" id="link-tab" aria-controls="link-flow" aria-selected="false">Home → post</button>
+          <button type="button" role="tab" id="form-tab" aria-controls="form-flow" aria-selected="false">Save account settings</button>
         </div>
 
         <article class="panel" id="first-flow" role="tabpanel" aria-labelledby="first-tab" tabindex="0">
           <div>
-            <h3>주소창에서 홈을 연다</h3>
-            <p class="panel-lead">브라우저가 새 문서를 요청하는 경우</p>
+            <h3>Open the home page directly</h3>
+            <p class="panel-lead">The browser requests a new document</p>
             <ol class="steps">
-              <li><h4><span class="actor">브라우저</span> 홈 주소 요청</h4><p><code>GET /</code>를 보내고, 이전에 로그인했다면 세션 쿠키를 같이 보냅니다.</p></li>
-              <li><h4><span class="actor">Fastify</span> 홈 핸들러에서 데이터 조회</h4><p>페이지 번호를 검사하고 Prisma로 사이트 설정, 공개 글 목록과 전체 글 수를 읽습니다. 세션이 있으면 사용자와 읽지 않은 알림 수를 확인합니다. 공지와 글 카드의 좋아요 정보도 조회합니다.</p></li>
-              <li><h4><span class="actor">React SSR</span> 캐시 정책과 메타데이터가 있는 HTML 응답</h4><p><code>PageLayout</code>이 헤더, 최신 글 카드, 푸터, 제목과 canonical을 담아 <code>200 text/html</code>로 보냅니다. 로그인한 사용자의 HTML에는 <code>private, no-store</code>가 적용됩니다.</p></li>
-              <li><h4><span class="actor">브라우저</span> 먼저 표시하고 공통 라우터 연결</h4><p>받은 글 목록을 바로 표시합니다. Vite가 만든 앱 스크립트가 실행되면 <code>hydrateRoot</code>가 SSR 문서에 공통 React 앱을 연결합니다.</p></li>
+              <li><h4><span class="actor">Browser</span> Request the home URL</h4><p>The browser sends <code>GET /</code> and includes a session cookie if the visitor is signed in.</p></li>
+              <li><h4><span class="actor">Fastify</span> Load data in the home handler</h4><p>The handler validates the page number and uses Prisma to load site settings, public posts, and the total post count. For signed-in visitors, it also loads the viewer and unread notification count. Other page data includes notices and like information for post cards.</p></li>
+              <li><h4><span class="actor">React SSR</span> Return HTML with cache policy and metadata</h4><p><code>PageLayout</code> renders the header, latest post cards, footer, title, and canonical URL. The server sends a <code>200 text/html</code> response and sets Cache-Control to <code>private, no-store</code> for signed-in visitors.</p></li>
+              <li><h4><span class="actor">Browser</span> Display the page and connect the router</h4><p>The browser displays the post list immediately. When the app script built by Vite runs, <code>hydrateRoot</code> connects the shared React app to the SSR document.</p></li>
             </ol>
           </div>
-          <aside class="trace" aria-label="홈 첫 접속의 HTTP 흐름">
-            <h4>브라우저에서 보이는 요청</h4>
+          <aside class="trace" aria-label="HTTP flow for the first home visit">
+            <h4>Network requests</h4>
             <pre><strong>GET /</strong>
   ← 200 text/html
-     헤더 · 글 목록 · 메타데이터
+     Header · post list · metadata
 GET /assets/blex/app.js
   ← 302 /assets/ui/assets/…
 GET /assets/ui/assets/…
-  ← Vite가 빌드한 앱 JavaScript</pre>
-            <p>검색엔진도 첫 HTML에서 본문과 메타데이터를 읽을 수 있습니다. 글 주소에는 본문과 공개 글의 <code>BlogPosting</code> JSON-LD도 들어갑니다.</p>
-            <p class="source">관련 코드 <a href="../packages/server/src/features/discovery/http/home.ts">홈 라우트</a> · <a href="../packages/server/src/application/document.tsx">SSR 문서</a></p>
+  ← App JavaScript built by Vite</pre>
+            <p>Search engines can read content and metadata from the initial HTML. Public post pages also include <code>BlogPosting</code> JSON-LD alongside the post body.</p>
+            <p class="source">Source <a href="../packages/server/src/features/discovery/http/home.ts">Home route</a> · <a href="../packages/server/src/application/document.tsx">SSR document</a></p>
           </aside>
         </article>
 
         <article class="panel" id="link-flow" role="tabpanel" aria-labelledby="link-tab" tabindex="0">
           <div>
-            <h3>홈에서 글 제목을 누른다</h3>
-            <p class="panel-lead">앱을 실행 중인 브라우저에서 내부 링크를 누르는 경우</p>
+            <h3>Click a post title on the home page</h3>
+            <p class="panel-lead">The running app handles an internal link</p>
             <ol class="steps">
-              <li><h4><span class="actor">React Router</span> 같은 출처의 링크 처리</h4><p>공통 앱이 클릭을 받아 <code>fetch</code>로 글 주소의 HTML을 요청합니다.</p></li>
-              <li><h4><span class="actor">Fastify</span> 글 상세를 서버에서 렌더링</h4><p>직접 주소를 열 때와 같은 <code>/@:username/:slug</code> 라우트입니다. 글을 볼 수 있는지 검사하고 상세 HTML을 만듭니다.</p></li>
-              <li><h4><span class="actor">브라우저</span> 주소, 본문, 메타데이터 교체</h4><p><code>ApplicationFrame</code>이 응답 HTML에서 본문을 표시하고 라우터가 제목과 canonical 등을 갱신합니다. 현재 브라우저 문서와 공통 헤더가 이어서 사용됩니다.</p></li>
-              <li><h4><span class="actor">브라우저</span> 스크롤과 화면 도구 연결</h4><p>새 글은 처음 위치에서 열리고 뒤로 가면 저장해 둔 위치로 바로 돌아갑니다. 로그인 폼과 글 편집기는 해당 화면에서 React 모듈을 로드합니다.</p></li>
+              <li><h4><span class="actor">React Router</span> Handle a same-origin link</h4><p>The shared app handles the click and uses <code>fetch</code> to request the post HTML.</p></li>
+              <li><h4><span class="actor">Fastify</span> Render the post on the server</h4><p>The server uses the same <code>/@:username/:slug</code> route as a direct visit. It checks whether the visitor can view the post, then renders the HTML.</p></li>
+              <li><h4><span class="actor">Browser</span> Update the URL, content, and metadata</h4><p><code>ApplicationFrame</code> displays content from the returned HTML, while the router updates the title and canonical URL. The browser document and shared header stay in place.</p></li>
+              <li><h4><span class="actor">Browser</span> Restore scroll and initialize interactions</h4><p>Opening a different post scrolls to the top. Going back restores the saved scroll position. Login forms and post editors load their React modules on the relevant screen.</p></li>
             </ol>
           </div>
-          <aside class="trace" aria-label="글 상세 내부 이동의 HTTP 흐름">
-            <h4>같은 문서 안에서 바뀌는 부분</h4>
-            <pre><strong>링크 클릭</strong>
+          <aside class="trace" aria-label="HTTP flow for internal post navigation">
+            <h4>Changes within the same document</h4>
+            <pre><strong>Link click</strong>
   → fetch GET /@writer/hello
   ← 200 text/html
-     제목 · canonical · 글 본문
-  → 본문 교체 · 주소 갱신
-  → 뒤로 가기 위치 저장 및 복원</pre>
-            <p>공통 React 앱이 서버에서 만든 화면 HTML을 라우트별로 가져옵니다. 공통 헤더는 React 컴포넌트이고, 화면 본문은 SSR HTML입니다.</p>
-            <p class="source">관련 코드 <a href="../packages/server/src/application/client.tsx">라우터와 로더</a> · <a href="../packages/server/src/application/frame.tsx">공통 화면</a></p>
+     Title · canonical URL · post body
+  → Replace content · update URL
+  → Save and restore history scroll position</pre>
+            <p>The shared React app fetches server-rendered HTML for each route. The shared header is a React component; page content is SSR HTML.</p>
+            <p class="source">Source <a href="../packages/server/src/application/client.tsx">Router and loader</a> · <a href="../packages/server/src/application/frame.tsx">Shared frame</a></p>
           </aside>
         </article>
 
         <article class="panel" id="form-flow" role="tabpanel" aria-labelledby="form-tab" tabindex="0">
           <div>
-            <h3>계정 설정에서 표시 이름을 저장한다</h3>
-            <p class="panel-lead">브라우저가 폼을 보내고 서버 결과를 같은 앱에서 표시하는 경우</p>
+            <h3>Save a display name in account settings</h3>
+            <p class="panel-lead">The browser submits a form and displays the result in the same app</p>
             <ol class="steps">
-              <li><h4><span class="actor">브라우저</span> 폼 데이터를 POST</h4><p>공통 앱이 폼 값을 모아 <code>POST /settings/account</code>로 보냅니다. 요청에는 세션 쿠키와 CSRF 토큰이 포함됩니다.</p></li>
-              <li><h4><span class="actor">Fastify</span> 요청과 데이터 검사</h4><p>세션과 CSRF를 검사하고, <code>intent=name</code>에 맞춰 표시 이름을 검증합니다. Prisma로 해당 계정의 값을 저장합니다.</p></li>
-              <li><h4><span class="actor">Fastify</span> 저장된 화면 주소 반환</h4><p>성공하면 <code>303</code>으로 <code>/settings/account?saved=1</code>을 안내합니다. 입력이 유효하지 않으면 오류를 담은 설정 화면 HTML을 반환합니다.</p></li>
-              <li><h4><span class="actor">React Router</span> 결과 화면 반영</h4><p>브라우저의 요청이 이동 주소를 따라가 최종 HTML을 받습니다. 공통 라우터가 그 결과를 현재 앱에 표시합니다.</p></li>
+              <li><h4><span class="actor">Browser</span> POST the form data</h4><p>The shared app collects form values and sends <code>POST /settings/account</code> with the session cookie and CSRF token.</p></li>
+              <li><h4><span class="actor">Fastify</span> Validate the request and data</h4><p>The server validates the session and CSRF token. For <code>intent=name</code>, it validates the display name and saves it using Prisma.</p></li>
+              <li><h4><span class="actor">Fastify</span> Redirect to the updated page</h4><p>After saving, the server sends a <code>303</code> redirect to <code>/settings/account?saved=1</code>. If validation fails, it returns the settings page with an error message.</p></li>
+              <li><h4><span class="actor">React Router</span> Display the result</h4><p>The browser follows the redirect and receives the final HTML. The shared router displays it in the current app.</p></li>
             </ol>
           </div>
-          <aside class="trace" aria-label="계정 설정 저장의 HTTP 흐름">
-            <h4>성공했을 때의 요청과 응답</h4>
+          <aside class="trace" aria-label="HTTP flow for saving account settings">
+            <h4>Successful request and response</h4>
             <pre><strong>POST /settings/account</strong>
   intent=name · name=…
   ← 303 See Other
 GET /settings/account?saved=1
   ← 200 text/html
-     변경된 표시 이름 · 저장 안내</pre>
-            <p>로그인과 쓰기 권한은 서버에서 검사합니다. 관리자 설정도 같은 Fastify 서버와 React 화면을 사용합니다.</p>
-            <p class="source">관련 코드 <a href="../packages/server/src/features/account/index.ts">계정 저장</a> · <a href="../packages/server/src/features/auth/session.ts">세션 조회</a></p>
+     Updated display name · confirmation</pre>
+            <p>The server checks authentication and write permissions. Administrator settings use the same Fastify server and React screens.</p>
+            <p class="source">Source <a href="../packages/server/src/features/account/index.ts">Account updates</a> · <a href="../packages/server/src/features/auth/session.ts">Session lookup</a></p>
           </aside>
         </article>
 
@@ -332,35 +332,35 @@ GET /settings/account?saved=1
 
     <section class="section" id="stack">
       <div class="section-heading">
-        <h2>기술 스택</h2>
-        <p>현재 <code>packages/server</code> 프로젝트 기준입니다. <a href="../pnpm-lock.yaml">의존성 잠금 파일</a></p>
+        <h2>Technology stack</h2>
+        <p>Versions used by <code>packages/server</code>. <a href="../pnpm-lock.yaml">Dependency lockfile</a></p>
       </div>
       <div class="grid">
-        <article class="stack card"><h3>언어 · 런타임</h3><strong>TypeScript 6 · Node.js 24</strong><p>서버와 웹 앱을 TypeScript로 작성합니다. 서비스는 Node 프로세스로 실행됩니다.</p></article>
-        <article class="stack card"><h3>서버 · API</h3><strong>Fastify 5</strong><p>SSR 페이지, 폼과 기존 HTTP API를 제공합니다.</p></article>
-        <article class="stack card"><h3>화면 · 라우팅</h3><strong>React 19 · React Router 7</strong><p>같은 React 화면을 서버에서 렌더링하고, 브라우저의 공통 앱이 내부 이동을 처리합니다.</p></article>
-        <article class="stack card"><h3>빌드 · 편집기</h3><strong>Vite 7 · Tailwind CSS 4 · Tiptap 3</strong><p>Vite가 브라우저 자산을 빌드합니다. Sass로 화면 스타일을 보완하고, Tiptap은 글쓰기 화면에서 로드합니다.</p></article>
-        <article class="stack card"><h3>데이터 · 스키마</h3><strong>Prisma 6 · SQLite</strong><p>SQLite 파일을 사용합니다. Prisma가 스키마 변경을 관리하고, 일부 기존 테이블은 파라미터 바인딩 SQL로 읽고 씁니다.</p></article>
-        <article class="stack card"><h3>배포 · 미디어</h3><strong>Docker · Sharp · FFmpeg</strong><p>서비스 이미지는 Node 기반입니다. SQLite 파일과 업로드 디렉터리를 마운트하고 이미지·영상 처리를 같은 서비스에서 실행합니다.</p></article>
+        <article class="stack card"><h3>Language · runtime</h3><strong>TypeScript 6 · Node.js 24</strong><p>The server and web app use TypeScript. The service runs as a Node process.</p></article>
+        <article class="stack card"><h3>Server · APIs</h3><strong>Fastify 5</strong><p>Serves SSR pages, forms, and existing HTTP APIs.</p></article>
+        <article class="stack card"><h3>Screens · routing</h3><strong>React 19 · React Router 7</strong><p>React renders pages on the server; the shared browser app handles internal navigation.</p></article>
+        <article class="stack card"><h3>Build · editor</h3><strong>Vite 7 · Tailwind CSS 4 · Tiptap 3</strong><p>Vite builds browser assets. Sass handles additional styles, and Tiptap loads on the writing screen.</p></article>
+        <article class="stack card"><h3>Data · schema</h3><strong>Prisma 6 · SQLite</strong><p>Data is stored in SQLite. Prisma manages schema changes, and parameterized SQL is used to read and update some existing tables.</p></article>
+        <article class="stack card"><h3>Deployment · media</h3><strong>Docker · Sharp · FFmpeg</strong><p>The runtime image uses Node. It mounts the SQLite file and upload directory and processes images and video within the same service.</p></article>
       </div>
-      <p class="upgrade"><strong>설치와 운영</strong> <a href="SELF_HOSTING.md">자체 호스팅 가이드</a>에서 실행과 백업을, <a href="UPGRADE_FROM_3.md">이전 가이드</a>에서 기존 DB와 미디어를 옮기는 절차를 확인할 수 있습니다.</p>
+      <p class="upgrade"><strong>Installation and operations</strong> The <a href="SELF_HOSTING.md">self-hosting guide</a> covers running and backing up an instance; the <a href="UPGRADE_FROM_3.md">upgrade guide</a> covers moving an existing database and media directory.</p>
     </section>
 
     <section class="section" id="source">
-      <div class="section-heading"><h2>코드 위치</h2></div>
+      <div class="section-heading"><h2>Source files</h2></div>
       <div class="table card">
         <dl>
-          <div class="row"><dt><a href="../packages/server/src/main.ts">packages/server/src/main.ts</a> · <a href="../packages/server/src/app.ts">app.ts</a> · <a href="../packages/server/src/routes/index.ts">routes</a></dt><dd>서버 시작, Prisma 연결, 페이지·API·미디어 라우트 등록</dd></div>
-          <div class="row"><dt><a href="../packages/server/src/features/discovery">packages/server/src/features/discovery</a> · <a href="../packages/server/src/features/authors">authors</a></dt><dd>홈, 검색, 태그, 프로필 페이지 조회와 SSR</dd></div>
-          <div class="row"><dt><a href="../packages/server/src/application/document.tsx">packages/server/src/application/document.tsx</a> · <a href="../packages/server/src/application/client.tsx">client.tsx</a></dt><dd>공통 HTML 문서 생성, 브라우저 진입점, 내부 이동과 폼 처리</dd></div>
-          <div class="row"><dt><a href="../packages/server/src/features/auth/http.ts">packages/server/src/features/auth/http.ts</a> · <a href="../packages/server/src/features/account/index.ts">account/index.ts</a></dt><dd>로그인 API, 사용자 세션, 계정과 프로필 설정</dd></div>
-          <div class="row"><dt><a href="../packages/server/prisma/schema.prisma">packages/server/prisma/schema.prisma</a></dt><dd>모델과 DB 스키마</dd></div>
-          <div class="row"><dt><a href="../packages/server/vite.config.ts">packages/server/vite.config.ts</a> · <a href="../Dockerfile">Dockerfile</a></dt><dd>브라우저 자산과 서비스 이미지 빌드</dd></div>
+          <div class="row"><dt><a href="../packages/server/src/main.ts">packages/server/src/main.ts</a> · <a href="../packages/server/src/app.ts">app.ts</a> · <a href="../packages/server/src/routes/index.ts">routes</a></dt><dd>Server startup, Prisma connection, and page, API, and media route registration</dd></div>
+          <div class="row"><dt><a href="../packages/server/src/features/discovery">packages/server/src/features/discovery</a> · <a href="../packages/server/src/features/authors">authors</a></dt><dd>Queries and SSR for home, search, tag, and profile pages</dd></div>
+          <div class="row"><dt><a href="../packages/server/src/application/document.tsx">packages/server/src/application/document.tsx</a> · <a href="../packages/server/src/application/client.tsx">client.tsx</a></dt><dd>Shared HTML document, browser entry, navigation, and form handling</dd></div>
+          <div class="row"><dt><a href="../packages/server/src/features/auth/http.ts">packages/server/src/features/auth/http.ts</a> · <a href="../packages/server/src/features/account/index.ts">account/index.ts</a></dt><dd>Login API, user sessions, and account and profile settings</dd></div>
+          <div class="row"><dt><a href="../packages/server/prisma/schema.prisma">packages/server/prisma/schema.prisma</a></dt><dd>Models and database schema</dd></div>
+          <div class="row"><dt><a href="../packages/server/vite.config.ts">packages/server/vite.config.ts</a> · <a href="../Dockerfile">Dockerfile</a></dt><dd>Browser asset and service image builds</dd></div>
         </dl>
       </div>
     </section>
 
-    <footer>BLEX 4 현재 구현</footer>
+    <footer>Current BLEX 4 implementation</footer>
   </main>
 
   <script>
