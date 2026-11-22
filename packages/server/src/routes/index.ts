@@ -63,7 +63,7 @@ export async function registerRoutes(app: FastifyInstance, { db, siteUrl, auth, 
   if (mediaRoot) await registerPublicMedia(app, mediaRoot);
   registerSiteAssets(app);
   registerPublicDiscovery(app, db, siteUrl);
-  registerDeveloperApi(app, db, { writable: Boolean(auth), mediaRoot, mutations: {
+  registerDeveloperApi(app, db, { writable: Boolean(auth), mediaRoot, rateLimit: auth?.developerRateLimit, mutations: {
     create: (editor, body, draft) => createAuthorPost(db, editor, body, draft),
     update: (editor, id, body, expected) => updateAuthorPost(db, editor, id, body, expected),
     publish: (editor, id, body, expected) => publishAuthorDraft(db, editor, id, body, expected),

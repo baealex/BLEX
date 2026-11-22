@@ -1,4 +1,5 @@
 import type { FastifyReply } from 'fastify';
+import type { DeveloperRateLimit } from './services/rate-limit.js';
 
 export const API_PREFIX = '/api/developer/v1';
 
@@ -108,4 +109,5 @@ export interface DeveloperApiOptions {
   writable?: boolean;
   mediaRoot?: string;
   mutations?: DeveloperPostMutations;
+  rateLimit?: Partial<DeveloperRateLimit>;
 }

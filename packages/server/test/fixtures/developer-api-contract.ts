@@ -149,7 +149,10 @@ export async function recordDeveloperApiContract(store: ContractTokenStore): Pro
   const fixture = await createMigratedDatabase();
   try {
     seed(fixture.db, store);
-    const app = await buildApp(fixture.path, testSiteUrl, { secretKey: testSecretKey, cipherKey: testCipherKey }, fixture.mediaRoot);
+    // The scenario replays far more than a minute's allowance through one token.
+    const app = await buildApp(fixture.path, testSiteUrl, {
+      secretKey: testSecretKey, cipherKey: testCipherKey, developerRateLimit: { read: Infinity, write: Infinity },
+    }, fixture.mediaRoot);
     await app.ready();
     const exchanges: ContractExchange[] = [];
     const writer = rawToken('writer000001');

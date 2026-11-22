@@ -3,7 +3,7 @@
   "info": {
     "title": "BLEX 개발자 API",
     "version": "1.0.0",
-    "description": "외부 도구에서 BLEX 포스트를 관리하기 위한 개인 토큰 API입니다."
+    "description": "외부 도구에서 BLEX 포스트를 관리하기 위한 개인 토큰 API입니다. 토큰마다 1분에 읽기 120회, 쓰기 30회까지 요청할 수 있습니다."
   },
   "paths": {
     "/api/developer/v1/me": {
@@ -74,6 +74,24 @@
           },
           "422": {
             "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeveloperErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "headers": {
+              "Retry-After": {
+                "description": "다시 요청하기 전에 기다릴 초",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -199,6 +217,24 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "headers": {
+              "Retry-After": {
+                "description": "다시 요청하기 전에 기다릴 초",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeveloperErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -277,6 +313,24 @@
           },
           "422": {
             "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeveloperErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "headers": {
+              "Retry-After": {
+                "description": "다시 요청하기 전에 기다릴 초",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -457,6 +511,24 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "headers": {
+              "Retry-After": {
+                "description": "다시 요청하기 전에 기다릴 초",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeveloperErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -554,6 +626,24 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "headers": {
+              "Retry-After": {
+                "description": "다시 요청하기 전에 기다릴 초",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeveloperErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -642,6 +732,24 @@
           },
           "422": {
             "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeveloperErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "headers": {
+              "Retry-After": {
+                "description": "다시 요청하기 전에 기다릴 초",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -764,6 +872,24 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "headers": {
+              "Retry-After": {
+                "description": "다시 요청하기 전에 기다릴 초",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeveloperErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -854,6 +980,24 @@
           },
           "422": {
             "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeveloperErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "headers": {
+              "Retry-After": {
+                "description": "다시 요청하기 전에 기다릴 초",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -965,6 +1109,24 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "headers": {
+              "Retry-After": {
+                "description": "다시 요청하기 전에 기다릴 초",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeveloperErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -1052,6 +1214,24 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "headers": {
+              "Retry-After": {
+                "description": "다시 요청하기 전에 기다릴 초",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeveloperErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -1132,6 +1312,24 @@
           },
           "422": {
             "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeveloperErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "headers": {
+              "Retry-After": {
+                "description": "다시 요청하기 전에 기다릴 초",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {

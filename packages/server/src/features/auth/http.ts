@@ -1,6 +1,7 @@
 import formBody from '@fastify/formbody';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
+import type { DeveloperRateLimit } from '../developer-api/services/rate-limit.js';
 import { authCookieOptions, csrfCookie, refreshCsrf, sessionCookie, setSessionCookies } from '../../platform/cookies.js';
 import { csrfPattern, formInput, validCsrf } from '../../platform/csrf.js';
 import { registerLoginPage } from './login-page.js';
@@ -23,6 +24,7 @@ export interface AuthConfig {
   deliverNotifications?: boolean;
   trustedProxies?: string[];
   webAssetsRoot?: string;
+  developerRateLimit?: Partial<DeveloperRateLimit>;
 }
 
 /** Tells the login screen to send the owner on to replace the key they just used. */

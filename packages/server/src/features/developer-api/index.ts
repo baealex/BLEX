@@ -4,6 +4,7 @@ import { isIP } from 'node:net';
 import { ContentUploadError, contentUploadLimit, registerContentMultipart, saveContentUpload } from '../media/content-media.js';
 import { DeveloperMutationInputError, developerPostInput } from './mutation-input.js';
 import { PaginationQuery, SearchQuery, listPosts, postDetail, postNotFound, postVersionIssue, readOwnedPost, summarizePost } from './services/posts.js';
+import { createDeveloperRateLimiter, developerRequestKind } from './services/rate-limit.js';
 import { AuthenticatedToken, authenticate, requireScope } from './services/token-auth.js';
 import { API_PREFIX, DeveloperApiOptions, Editor, QueryValue, errorReply, formatError, parseDryRun, parsePostId, parseValidationError, sameVersion, toIsoDateTime } from './shared.js';
 import { registerWireFormat } from './wire-format.js';
@@ -52,14 +53,22 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
     return payload;
   });
 
-  const authenticateRequest = async (request: FastifyRequest) => {
+  const takeRequest = createDeveloperRateLimiter(options.rateLimit);
+  const authenticateRequest = async (request: FastifyRequest, reply: FastifyReply) => {
     const result = await authenticate(db, request.headers.authorization);
-    if (options.writable && result.token) audited.set(request, result.token);
+    if (!result.token) return result;
+    const retryAfter = takeRequest(result.token.id, developerRequestKind(request.method));
+    if (retryAfter !== null) {
+      // Refused before auditing, so a client over its limit cannot keep writing to the database.
+      reply.header('Retry-After', String(retryAfter));
+      return { error: { ...formatError('request.rate_limited', 'Too many requests. Try again later.', 429), fields: { retry_after: retryAfter } } };
+    }
+    if (options.writable) audited.set(request, result.token);
     return result;
   };
 
   async function writeToken(request: FastifyRequest, reply: FastifyReply) {
-    const { token, error } = await authenticateRequest(request);
+    const { token, error } = await authenticateRequest(request, reply);
     if (error || !token) {
       errorReply(reply, error ?? formatError('auth.invalid_token', 'Invalid token.', 401));
       return null;
@@ -171,7 +180,7 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
     });
   }
   app.get(`${API_PREFIX}/me`, async (request, reply) => {
-    const auth = await authenticateRequest(request);
+    const auth = await authenticateRequest(request, reply);
     if (auth.error) return errorReply(reply, auth.error);
     const token = auth.token;
     if (!token) return reply.code(401).send({ error: { code: 'auth.invalid_token', message: 'Invalid token.' } });
@@ -196,7 +205,7 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
   });
 
   app.get<{ Querystring: PaginationQuery }>(`${API_PREFIX}/posts`, async (request, reply) => {
-    const auth = await authenticateRequest(request);
+    const auth = await authenticateRequest(request, reply);
     if (auth.error) return errorReply(reply, auth.error);
     const token = auth.token;
     if (!token) return reply.code(401).send({ error: { code: 'auth.invalid_token', message: 'Invalid token.' } });
@@ -210,7 +219,7 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
   });
 
   app.get<{ Querystring: SearchQuery }>(`${API_PREFIX}/posts/search`, async (request, reply) => {
-    const auth = await authenticateRequest(request);
+    const auth = await authenticateRequest(request, reply);
     if (auth.error) return errorReply(reply, auth.error);
     const token = auth.token;
     if (!token) return reply.code(401).send({ error: { code: 'auth.invalid_token', message: 'Invalid token.' } });
@@ -224,7 +233,7 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
   });
 
   app.get<{ Params: { postId: string } }>(`${API_PREFIX}/posts/:postId`, async (request, reply) => {
-    const auth = await authenticateRequest(request);
+    const auth = await authenticateRequest(request, reply);
     if (auth.error) return errorReply(reply, auth.error);
     const token = auth.token;
     if (!token) return reply.code(401).send({ error: { code: 'auth.invalid_token', message: 'Invalid token.' } });
@@ -240,7 +249,7 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
   });
 
   app.get(`${API_PREFIX}/tags`, async (request, reply) => {
-    const auth = await authenticateRequest(request);
+    const auth = await authenticateRequest(request, reply);
     if (auth.error) return errorReply(reply, auth.error);
     const token = auth.token;
     if (!token) return reply.code(401).send({ error: { code: 'auth.invalid_token', message: 'Invalid token.' } });
@@ -260,7 +269,7 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
   });
 
   app.get(`${API_PREFIX}/series`, async (request, reply) => {
-    const auth = await authenticateRequest(request);
+    const auth = await authenticateRequest(request, reply);
     if (auth.error) return errorReply(reply, auth.error);
     const token = auth.token;
     if (!token) return reply.code(401).send({ error: { code: 'auth.invalid_token', message: 'Invalid token.' } });

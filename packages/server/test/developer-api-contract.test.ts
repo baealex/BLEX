@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { PrismaClient } from '@prisma/client';
 import { buildApp } from '../src/app.js';
+import { createDeveloperRateLimiter } from '../src/features/developer-api/services/rate-limit.js';
 import { camelToSnake, keysFromWire, keysToWire, snakeToCamel } from '../src/features/developer-api/wire-format.js';
 import { type ContractExchange, type ContractRecording, type ContractTokenStore, recordDeveloperApiContract } from './fixtures/developer-api-contract.js';
 import { createMigratedDatabase, insertRow, seedEditor, seedPost, signIn, testCipherKey, testSecretKey, testSiteUrl } from './fixtures/migrated-database.js';
@@ -229,6 +230,70 @@ test('a dry run under either name never deletes, and an unreadable flag is refus
     await app.close();
     await fixture.cleanup();
   }
+});
+
+test('limits each token per minute, reads and writes apart, with a documented 429', async () => {
+  const fixture = await createMigratedDatabase();
+  let clock = 0;
+  const app = await buildApp(fixture.path, testSiteUrl, {
+    secretKey: testSecretKey, cipherKey: testCipherKey, developerRateLimit: { read: 3, write: 2, now: () => clock },
+  }, fixture.mediaRoot);
+  const prisma = new PrismaClient({ datasourceUrl: `file:${fixture.path}` });
+  try {
+    seedEditor(fixture.db, 1, 'writer');
+    seedPost(fixture.db, 1, 1, 'kept-post');
+    const token = (id: number) => {
+      const raw = `blex_pat_ratelimit000${id}_contract-secret`;
+      insertRow(fixture.db, 'DeveloperToken', {
+        id, userId: 1, name: `Token ${id}`, tokenPrefix: `ratelimit000${id}`, tokenHash: createHash('sha256').update(raw, 'utf8').digest('hex'),
+        scopes: '["posts:read","posts:write"]',
+      });
+      return { authorization: `Bearer ${raw}` };
+    };
+    const [first, second] = [token(1), token(2)];
+    const read = (headers: { authorization: string }) => app.inject({ url: '/api/developer/v1/me', headers });
+    const write = (headers: { authorization: string }) => app.inject({ method: 'DELETE', url: '/api/developer/v1/posts/1?dry_run=true', headers });
+
+    for (let count = 0; count < 3; count += 1) assert.equal((await read(first)).statusCode, 200);
+    clock = 15_500;
+    const limited = await read(first);
+    assert.equal(limited.statusCode, 429);
+    assert.equal(limited.headers['retry-after'], '45');
+    assert.deepEqual(limited.json(), { error: { code: 'request.rate_limited', message: 'Too many requests. Try again later.', fields: { retry_after: 45 } } });
+    const documented = spec.paths['/api/developer/v1/me'].get.responses['429'].content?.['application/json'].schema;
+    assert.deepEqual(schemaProblems(limited.json(), documented as Schema, 'limited'), []);
+
+    // Reads and writes count apart, and one token's traffic never spends another's allowance.
+    for (let count = 0; count < 2; count += 1) assert.equal((await write(first)).statusCode, 200);
+    assert.equal((await write(first)).statusCode, 429);
+    assert.equal((await read(second)).statusCode, 200);
+    const logged = await prisma.developerRequestLog.count({ where: { statusCode: 429 } });
+    assert.equal(logged, 0);
+
+    // Each window opened with its own first request: reads at 0s, writes at 15.5s.
+    clock = 60_000;
+    assert.equal((await read(first)).statusCode, 200);
+    assert.equal((await write(first)).statusCode, 429);
+    clock = 75_500;
+    assert.equal((await write(first)).statusCode, 200);
+  } finally {
+    await prisma.$disconnect();
+    await app.close();
+    await fixture.cleanup();
+  }
+});
+
+test('the rate limiter keeps a bounded number of windows', () => {
+  let clock = 0;
+  const take = createDeveloperRateLimiter({ read: 1, windowMs: 1_000, maxTrackedWindows: 2, now: () => clock });
+  assert.equal(take(1, 'read'), null);
+  assert.equal(take(1, 'read'), 1);
+  assert.equal(take(2, 'read'), null);
+  // A third token evicts the oldest window instead of growing past the bound.
+  assert.equal(take(3, 'read'), null);
+  assert.equal(take(1, 'read'), null);
+  clock = 1_000;
+  assert.equal(take(3, 'read'), null);
 });
 
 test('never returns a token secret or hash from token management', async () => {
