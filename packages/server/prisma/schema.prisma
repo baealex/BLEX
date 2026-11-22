@@ -909,13 +909,6 @@ model django_content_type {
   @@unique([app_label, model], map: "django_content_type_app_label_model_76bd3d3b_uniq")
 }
 
-model django_migrations {
-  id      Int      @id @default(autoincrement())
-  app     String
-  name    String
-  applied DateTime
-}
-
 model django_session {
   session_key  String   @id
   session_data String

@@ -36,7 +36,7 @@ function cookiesFrom(headers: string | string[] | undefined) {
 async function migratedFixture(path: string) {
   const db = new DatabaseSync(path);
   const migrations = new URL('../../prisma/migrations/', import.meta.url);
-  for (const migration of ['0000_django_3x', '0001_node_sessions', '0002_node_oauth', '0003_account_verification', '0004_notification_delivery', '0005_webhook_delivery']) {
+  for (const migration of ['0001_init']) {
     db.exec(await readFile(new URL(`${migration}/migration.sql`, migrations), 'utf8'));
   }
   return db;

@@ -18,7 +18,7 @@ test('delivers scheduled publication once, retains queued retries, and respects 
   const dbPath = join(directory, 'test.sqlite3');
   const cipher = '0123456789abcdef0123456789abcdef';
   const raw = new DatabaseSync(dbPath);
-  for (const migration of ['0000_django_3x', '0004_notification_delivery', '0005_webhook_delivery']) {
+  for (const migration of ['0001_init']) {
     raw.exec(await readFile(new URL(`../../prisma/migrations/${migration}/migration.sql`, import.meta.url), 'utf8'));
   }
   raw.exec(`

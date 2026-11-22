@@ -2,6 +2,7 @@ import { buildApp } from './app.js';
 import { createToken } from './features/auth/session.js';
 import { trustedProxiesFromEnv } from './platform/runtime-config.js';
 import { resolveWebAssetsRoot } from './application/screen-host/index.js';
+import { DatabaseSetupError, prepareDatabase } from './startup/prepare-database.js';
 
 const dbPath = process.env.BLEX_V4_DB_PATH;
 if (!dbPath) throw new Error('Set BLEX_V4_DB_PATH to a migrated SQLite database.');
@@ -17,6 +18,15 @@ const setupToken = process.env.INITIAL_SETUP_TOKEN || createToken();
 const trustedProxies = trustedProxiesFromEnv(process.env);
 if (!readOnly && siteUrl.protocol === 'https:' && !trustedProxies) {
   console.warn('BLEX_TRUSTED_PROXIES is not set. Behind an HTTPS proxy, every visitor shares one login rate limit.');
+}
+if (!readOnly) {
+  try {
+    await prepareDatabase({ databasePath: dbPath, mediaRoot: process.env.BLEX_V4_MEDIA_PATH, legacyRoot: process.env.BLEX_LEGACY_PATH });
+  } catch (error) {
+    if (!(error instanceof DatabaseSetupError)) throw error;
+    console.error(error.message);
+    process.exit(1);
+  }
 }
 const webAssetsRoot = await resolveWebAssetsRoot();
 const auth = !readOnly && secretKey && cipherKey ? { secretKey, cipherKey, setupToken, trustedProxies, deliverNotifications: true, webAssetsRoot } : undefined;
