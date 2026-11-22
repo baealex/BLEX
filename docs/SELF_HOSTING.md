@@ -1,200 +1,38 @@
-# Self-hosting Guide
+# BLEX 자체 호스팅
 
-이 문서는 Docker로 BLEX를 실행하고, 운영 설정부터 최초 관리자 생성과 첫 글 발행까지 안내합니다.
+BLEX 4는 Node.js 프로세스 한 개가 블로그, 관리자 화면과 API를 제공합니다. Docker Compose는 서비스를 시작하기 전에 같은 데이터 볼륨에 Prisma 마이그레이션을 적용합니다.
 
-BLEX Docker 이미지는 HTTP 포트만 제공합니다. 공개 운영에서는 nginx, Caddy, Cloudflare Tunnel, Traefik 등에서 HTTPS를 설정하세요.
+## 새로 설치
 
-## 1. 환경 파일 준비
+저장소 루트에 `.env`를 만듭니다.
 
-```bash
-cp samples/.env backend/.env
-mkdir -p backend/src/resources/media
-touch backend/src/db.sqlite3
-```
-
-운영 서버에서는 `backend/.env`에서 아래 값은 반드시 바꿉니다.
-
-| 값 | 기준 |
+| 설정 | 값 |
 | --- | --- |
-| `DEBUG` | 운영에서는 `FALSE` |
-| `ENABLE_ENGLISH_UI` | 새 설치의 기본값은 `TRUE`. 요청 언어에 따라 영어·한국어 UI를 제공하며, 한국어로만 운영하려면 `FALSE` |
-| `SECRET_KEY` | 샘플 값이 아닌 긴 임의 문자열 |
-| `CIPHER_KEY` | 샘플 값이 아닌 32글자 문자열 |
-| `SITE_URL` | BLEX가 외부에 공개할 기준 origin. 예: `https://blog.example.com`. 프로토콜을 포함하고, 끝의 `/`, path, query를 붙이지 않음 |
-| `RESOURCE_URL` | 기본값은 빈 값. 정적 파일과 업로드 파일을 다른 origin에서 서빙할 때만 설정 |
-| `SESSION_COOKIE_DOMAIN` | 단일 도메인이면 빈 값. 운영에서 `localhost`로 두지 않음 |
-| `INITIAL_SETUP_TOKEN` | 최초 관리자 생성 화면 보호 토큰. 비워 두면 Docker 실행 시 자동 생성 |
-| `ALLOWED_HOSTS` | 허용할 호스트 목록. 예: `blog.example.com` |
-| `CSRF_TRUSTED_ORIGINS` | HTTPS 원본. 예: `https://blog.example.com` |
-| `TRUSTED_PROXY_IPS` | Django와 접속하는 프록시의 실제 IP 목록. 기본값은 `127.0.0.1,::1` |
-| `ADMIN_AUDIT_LOG_RETENTION_DAYS` | 유틸리티의 로그 정리에서 삭제할 관리자 활동 로그 보존 기간. 기본값 365일 |
-| `DEVELOPER_API_LOG_RETENTION_DAYS` | 유틸리티의 로그 정리에서 삭제할 개발자 API 요청 로그 보존 기간. 기본값 30일 |
+| `SITE_URL` | 사용자가 접속할 origin. 로컬 예시 `http://localhost:20002`, 운영 예시 `https://blog.example.com` |
+| `SECRET_KEY` | `openssl rand -hex 32`로 만든 임의 값 |
+| `CIPHER_KEY` | `openssl rand -hex 16`로 만든 32바이트 ASCII 값 |
+| `INITIAL_SETUP_TOKEN` | 선택 사항. 비워 두면 시작할 때 생성하고 최초 설정 URL에 표시 |
+| `BLEX_DATA` | 선택 사항. Compose에서는 기본 named volume `blex-data`. 호스트 디렉터리를 쓸 때는 절대 경로 |
+| `BLEX_PORT_MAPPING` | 선택 사항. 기본값 `127.0.0.1:20002:8040` |
+| `BLEX_TRUSTED_PROXIES` | HTTPS 프록시 뒤에서는 필수. BLEX에 직접 접속하는 프록시의 IP 또는 CIDR을 쉼표로 구분. 값이 없으면 3.x의 `TRUSTED_PROXY_IPS`를 읽음 |
+| `DEVELOPER_API_MAX_UPLOAD_MB` | 선택 사항. 글 이미지와 동영상 업로드 상한, 기본 20MB |
+| `TZ` | 선택 사항. 지역 시간대 설정 |
 
-로컬 Docker 확인만 할 때는 `SITE_URL=http://localhost:20002`, `ALLOWED_HOSTS=localhost,127.0.0.1`, `CSRF_TRUSTED_ORIGINS=http://localhost:20002`처럼 맞춥니다.
-
-`ALLOWED_HOSTS`를 비워 두면 기존처럼 `*`로 동작합니다. 운영 배포에서는 명시적인 호스트 목록을 설정하세요.
-
-로그 정리는 유틸리티 화면에서 최고 관리자만 실행할 수 있습니다. 최신 관리자 활동 로그는 삭제 대상이 아니며, 위 보존 기간을 넘긴 기록만 정리됩니다.
-
-임의 문자열은 아래처럼 만들 수 있습니다.
-
-```bash
-python -c "import secrets; print(secrets.token_urlsafe(50))"
-python -c "import secrets; print(secrets.token_urlsafe(24))"
+```sh
+docker compose up --build -d
+docker compose logs blex
 ```
 
-첫 번째 값은 `SECRET_KEY`, 두 번째 값은 32글자라 `CIPHER_KEY`에 사용할 수 있습니다. `INITIAL_SETUP_TOKEN`은 직접 고정해도 되고, Docker 로그에 출력되는 자동 생성 값을 사용해도 됩니다.
+로그의 `/setup` 주소를 열어 첫 관리자를 만듭니다. 관리자 설정에서 사이트 이름, 로그인과 운영 옵션을 관리할 수 있습니다.
 
-`CIPHER_KEY`는 DB에 저장되는 OAuth Client Secret, 2FA TOTP secret, 텔레그램/hCaptcha secret 복호화에 필요합니다. 운영을 시작한 뒤 이 값을 잃어버리거나 바꾸면 기존 암호화 값은 복호화할 수 없으므로 백업 대상에 포함하세요.
+## HTTPS 프록시
 
-`ADMIN_PATH`는 비워 두면 Docker 실행 시 자동 생성되고 BLEX 로그에 출력됩니다. 재시작 후에도 같은 관리자 경로를 유지하고 싶을 때만 직접 설정하세요.
-운영에서는 북마크, 모니터링, 여러 worker 구성을 고려해 고정된 `ADMIN_PATH`를 쓰는 편이 안전합니다.
+공개 운영에서는 nginx, Caddy 등의 앞단에서 HTTPS를 종료하고 BLEX의 HTTP 포트로 전달합니다. `SITE_URL`에는 브라우저에서 쓰는 HTTPS origin을 설정합니다. 이 주소가 canonical URL, 공유 링크, OAuth 콜백, RSS와 sitemap에 사용됩니다.
 
-## 2. HTTPS 프록시 연결
+같은 호스트의 프록시는 기본 포트 매핑을 사용해 `127.0.0.1:20002`로 연결할 수 있습니다. 접속 IP를 사용한 로그인 제한을 위해 프록시가 전달 헤더를 실제 값으로 설정하도록 구성하고, BLEX가 관측하는 프록시 주소를 `BLEX_TRUSTED_PROXIES`에 지정합니다. 이 값이 없으면 모든 방문자가 하나의 로그인 제한을 함께 쓰므로, 틀린 로그인 5번에 전체 로그인이 5분간 막힐 수 있습니다. 프록시의 본문 크기 제한도 업로드 상한에 맞춥니다.
 
-BLEX 컨테이너는 nginx와 Django를 함께 실행합니다. 기본 compose는 컨테이너의 80 포트를 호스트의 `20002` 포트에 연결합니다. HTTPS 프록시가 같은 호스트에 있으면 compose 프로젝트의 `.env`에 `BLEX_PORT_MAPPING=127.0.0.1:20002:80`을 설정해 루프백에만 연결할 수 있습니다. 다른 호스트에 프록시가 있으면 방화벽에서 프록시의 접속만 허용하세요.
+## 백업과 3.x 이관
 
-```text
-인터넷
-→ HTTPS 프록시
-→ BLEX nginx (HTTP 80)
-→ Django
-```
+데이터 볼륨에는 `db.sqlite3`과 `media/`가 있습니다. 두 항목을 같은 시점에 백업하고 환경 파일도 보관합니다. 서비스가 DB를 사용하는 동안에는 SQLite의 백업 기능 또는 일관된 스냅샷을 사용합니다. 작업 일지 첨부는 `media/_work_logs/`에 저장되며 BLEX가 소유자나 공유 권한을 확인하고 제공합니다. 별도 정적 서버를 붙이는 경우 이 경로를 공개 경로에서 제외합니다.
 
-운영 서버에서는 앞단 HTTPS 프록시에서 아래를 처리하세요.
-
-* TLS 인증서 발급과 갱신
-* HTTP에서 HTTPS로 리다이렉트
-* HSTS 적용 여부
-* 공개 도메인에서 BLEX HTTP 포트로 프록시
-
-BLEX는 `SITE_URL`을 기준으로 sitemap, RSS, canonical URL, `/llms.txt`, Markdown URL을 만듭니다. 앞단 프록시에서 공개하는 주소와 같은 값을 사용하세요. `SITE_URL`에 `https://`를 적어도 BLEX가 인증서나 리다이렉트를 설정하지는 않습니다.
-
-### nginx 앞단 프록시 예시
-
-```nginx
-server {
-    listen 80;
-    server_name blog.example.com;
-    return 301 https://$host$request_uri;
-}
-
-server {
-    listen 443 ssl http2;
-    server_name blog.example.com;
-
-    ssl_certificate /etc/letsencrypt/live/blog.example.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/blog.example.com/privkey.pem;
-
-    location / {
-        proxy_pass http://127.0.0.1:20002;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-
-Caddy, Cloudflare Tunnel, Traefik을 쓰는 경우에도 원칙은 같습니다. 앞단 도구가 HTTPS를 처리하고, BLEX에는 HTTP로 넘깁니다. 이때 BLEX가 원래 요청의 HTTPS 여부를 알 수 있도록 `X-Forwarded-Proto`가 전달되어야 합니다. BLEX Docker 이미지 안의 nginx는 이 헤더가 들어오면 Django까지 보존해서 전달합니다.
-
-공개 요청은 HTTPS 프록시를 통과하도록 구성하고, 그 프록시에서 클라이언트가 보낸 `X-Forwarded-Proto`를 실제 연결 방식으로 덮어쓰세요. 로그인 시도 제한이 실제 방문자 IP를 사용하도록 컨테이너에서 관측한 앞단 프록시 IP도 `TRUSTED_PROXY_IPS`에 포함하세요. 업로드 파일을 별도 서버에서 제공할 때는 앱 쿠키가 전달되지 않는 출처를 쓰거나 BLEX nginx와 동일하게 `Content-Security-Policy: sandbox` 헤더를 적용하세요.
-
-## 3. 실행
-
-```bash
-docker compose up -d
-docker compose logs -f blex
-```
-
-기본 Docker 이미지는 nginx와 Gunicorn을 한 컨테이너에서 실행합니다. 작은 서버를 고려해 Gunicorn worker는 1개이며, `docker-compose.yml`은 이 기본 실행값을 그대로 사용합니다. 512MB급 서버에서는 이 설정으로 시작하고, 메모리 여유가 확인된 경우에만 compose의 `command`로 worker 수를 직접 덮어쓰세요.
-
-기존 `blex-backend`, `blex-nginx` 두 이미지 compose에서 업그레이드할 때는 새 compose를 받은 뒤 orphan 컨테이너까지 정리합니다. DB와 media는 기존 호스트 경로를 그대로 사용합니다.
-
-```bash
-docker compose pull
-docker compose up -d --remove-orphans
-```
-
-운영 환경값을 바꾼 뒤에는 Django system check를 실행합니다.
-
-```bash
-docker compose exec blex python manage.py check
-```
-
-`SITE_URL`이 비어 있거나 로컬 주소면 BLEX 공개 URL 경고가 표시됩니다. 운영 공개 전에는 `SITE_URL`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`를 실제 도메인 기준으로 맞춥니다.
-
-## 4. 최초 관리자 생성
-
-BLEX 로그에 출력되는 `Initial setup URL`을 브라우저에서 엽니다.
-
-```text
-Initial setup URL: https://blog.example.com/setup?token=...
-```
-
-첫 관리자 계정을 만들면 `/admin-settings/site-settings`로 이동합니다. 이 계정은 Django 관리자 권한과 BLEX 작가 권한을 함께 받습니다.
-
-소셜 로그인을 사용할 경우 Google/GitHub 개발자 콘솔에서 OAuth 앱을 만든 뒤 BLEX 어드민의 로그인 관리 화면에 Client ID와 Client Secret을 저장합니다. 자세한 절차는 [`SOCIAL_LOGIN.md`](./SOCIAL_LOGIN.md)를 참고하세요.
-
-텔레그램 알림을 사용할 경우 텔레그램의 [@BotFather](https://t.me/BotFather)에서 `/newbot`으로 봇을 만들고, 받은 봇 토큰을 `/admin-settings/integrations`의 텔레그램 화면에 저장합니다. 저장하면 BLEX가 봇 이름을 가져오고, 사용자가 봇에게 보낸 메시지를 받을 주소(`SITE_URL` + `/v1/telegram/webHook`)를 텔레그램에 등록합니다. 텔레그램은 외부에서 접속할 수 있는 HTTPS 주소로만 메시지를 보내므로 `SITE_URL`이 공개 HTTPS 주소여야 합니다. 연결 상태는 같은 화면에 표시되며, 실패하면 이유를 확인한 뒤 `다시 연결`을 누릅니다. 텔레그램이 보내는 요청은 `SECRET_KEY`로 만든 값으로 확인하므로, `SECRET_KEY`를 바꾼 뒤에도 `다시 연결`을 한 번 눌러야 합니다. 사용자는 알림 설정의 텔레그램 화면에서 `텔레그램에서 연결하기`를 누르고 봇 대화에서 시작을 누르면 연결됩니다.
-
-## 5. 첫 글 발행
-
-`/write`에서 제목과 본문을 입력하고 발행합니다. 공개 글은 공개 URL, Markdown URL, RSS, sitemap에 노출됩니다.
-
-비공개 또는 예약 글은 공개 URL, RSS, sitemap, Markdown 공개 표면에 노출되지 않으며, 작성자에게는 글 상세 상단에 상태 안내가 표시됩니다.
-
-## 6. 백업 확인
-
-기본 compose는 아래 경로를 호스트에 보관합니다.
-
-| 데이터 | 경로 |
-| --- | --- |
-| SQLite DB | `backend/src/db.sqlite3` |
-| 업로드 파일 | `backend/src/resources/media` |
-
-운영 전에 이 두 위치가 백업 대상에 포함되는지 확인하세요.
-사이트 설정에서 올린 커스텀 로고와 아이콘도 업로드 파일에 포함됩니다. 기본 `docker-compose.yml`처럼 DB와 `resources/media`를 호스트에 유지하면 새 Docker 이미지를 pull 받아도 커스텀 브랜딩은 그대로 유지됩니다.
-DB에는 커스텀 브랜딩 경로가 남아 있지만 media 파일이 빠진 경우, 공개 화면은 깨진 이미지 대신 기본 BLEX 로고와 아이콘으로 돌아갑니다. 설정 화면에서는 기존 커스텀 기록을 삭제하거나 다시 업로드할 수 있습니다.
-SQLite를 사용하는 동안에는 실행 중인 DB 파일을 단순 복사하는 대신 SQLite 백업 명령이나 서비스 중지 후 복사를 사용하세요.
-백업은 만드는 것에서 끝내지 말고, 별도 위치에서 복원 리허설을 해 실제로 부팅되는지 확인합니다.
-DB와 media는 같은 시점의 짝으로 보관해야 글 본문과 이미지 참조가 어긋나지 않습니다.
-작업 일지 첨부도 media 볼륨의 `_work_logs/`에 보관됩니다. 별도 웹 서버가 업로드 파일을 직접 제공한다면 `/resources/media/_work_logs/`의 직접 접근을 차단하세요. 동봉된 nginx 설정은 이 경로를 차단하며, 작업 일지 첨부는 BLEX가 로그인이나 공유 링크를 확인한 뒤 응답합니다.
-
-## 7. 운영 설정 점검표
-
-공개 도메인으로 열기 전에 BLEX 설정 기준으로 아래 항목을 확인합니다. 실제 HTTPS 프록시 자체의 동작 검증은 이 문서의 자동 테스트 범위가 아니며, 사용 중인 nginx, Caddy, Cloudflare Tunnel, Traefik 설정에서 별도로 관리합니다.
-
-### 환경값
-
-* [ ] `DEBUG=FALSE`
-* [ ] `SITE_URL`이 실제 HTTPS origin이며 끝의 `/`, path, query가 없음
-* [ ] `ALLOWED_HOSTS`에 실제 도메인이 있음
-* [ ] `CSRF_TRUSTED_ORIGINS`에 실제 HTTPS origin이 있음
-* [ ] `SECRET_KEY`, `CIPHER_KEY`, `INITIAL_SETUP_TOKEN`이 샘플 값이 아님
-* [ ] 운영에서 같은 관리자 경로가 필요하면 `ADMIN_PATH`를 고정함
-
-### 앞단 HTTPS 프록시와 공개 URL
-
-* [ ] `docker compose exec blex python manage.py check` 결과를 확인함
-* [ ] 앞단 HTTPS 프록시가 인증서 발급, 갱신, HTTP→HTTPS 리다이렉트를 책임지는 구조임
-* [ ] BLEX HTTP 포트가 필요한 범위에서만 접근 가능함
-* [ ] 글 상세의 canonical, Open Graph URL, RSS, sitemap, `/llms.txt`, Markdown URL이 `SITE_URL` 기준 HTTPS 주소로 나옴
-
-### 정적 파일, 업로드, 로그
-
-* [ ] `/resources/staticfiles/`가 200 또는 404로 정상 응답하고 Django로 프록시되지 않음
-* [ ] `/resources/media/` 업로드 파일이 필요한 범위에서 응답함
-* [ ] 업로드 media URL은 비밀 저장소가 아니며, URL을 아는 사람은 접근할 수 있음을 운영자가 알고 있음
-* [ ] Docker 로그 회전 또는 외부 로그 수집을 설정함
-* [ ] 디스크 사용량 경고를 볼 수 있음
-
-예시 Docker 로그 회전 설정:
-
-```yaml
-logging:
-  driver: json-file
-  options:
-    max-size: "10m"
-    max-file: "5"
-```
+기존 설치는 BLEX 3.14에서 마지막 Django 마이그레이션을 적용하고 DB와 미디어 복제본을 BLEX 4에 등록합니다. 3.x의 `backend/.env`는 저장소 루트 `.env`로 옮기고, `BLEX_DATA`에 이관한 데이터 경로를 지정합니다. 컨테이너 포트가 80에서 8040으로 바뀌었으므로 `BLEX_PORT_MAPPING=127.0.0.1:20002:80`은 `127.0.0.1:20002:8040`으로 고칩니다. Compose의 `migrate` 서비스는 포트가 맞지 않거나 3.x DB를 두고 빈 데이터로 시작하려 하면 멈춥니다. 기존 비밀번호와 계정은 유지되며 브라우저에서 새로 로그인합니다. `CIPHER_KEY`와 `SECRET_KEY`를 보존합니다. [BLEX 3.x 이관 명령과 확인 절차](../v4/README.md#blex-3x-db-이관)

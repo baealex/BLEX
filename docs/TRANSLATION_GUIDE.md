@@ -1,5 +1,7 @@
 # Translation Guide
 
+> **BLEX 3.x:** The Django code described here was removed from this branch. It remains available at the `v3.14` tag.
+
 BLEX keeps product copy translatable while preserving posts, profile text, tags,
 search queries, and other user-authored content exactly as written.
 
@@ -16,9 +18,9 @@ islands, and reusable editor package have different runtime boundaries:
 - Django templates, validation, and server messages:
   `backend/src/locale/{locale}/LC_MESSAGES/django.po`
 - React islands:
-  `backend/islands/apps/remotes/src/locales/{locale}/messages.po`
+  `v4/islands/apps/remotes/src/locales/{locale}/messages.po`
 - Rich-text editor controls:
-  `backend/islands/packages/editor/src/TiptapEditor/i18n/locales/{locale}.ts`
+  `v4/islands/packages/editor/src/TiptapEditor/i18n/locales/{locale}.ts`
 
 Do not merge these catalogs or copy messages between them. A message belongs to
 the runtime that renders it. Editor locale files are type-checked against the
@@ -39,8 +41,8 @@ Commit both `django.po` and the compiled `django.mo` file.
 For React island messages:
 
 ```bash
-pnpm --dir backend/islands/apps/remotes i18n:extract
-# Edit backend/islands/apps/remotes/src/locales/ko/messages.po
+pnpm --dir v4/islands/apps/remotes i18n:extract
+# Edit v4/islands/apps/remotes/src/locales/ko/messages.po
 npm run islands:i18n:check
 ```
 
@@ -59,11 +61,11 @@ Use a supported BCP 47 language code, such as `fr` or `de`.
    gate.
 2. Generate its Django catalog with `makemessages -l {locale}`.
 3. Add the locale to `SUPPORTED_LOCALES` in
-   `backend/islands/apps/remotes/src/i18n/locale.ts`.
+   `v4/islands/apps/remotes/src/i18n/locale.ts`.
 4. Add its lazy catalog import in
-   `backend/islands/apps/remotes/src/i18n/index.ts`.
+   `v4/islands/apps/remotes/src/i18n/index.ts`.
 5. Copy the editor's `en.ts` catalog, translate its values, and register the new
-   dynamic loader in `backend/islands/packages/editor/src/TiptapEditor/i18n/messages.ts`.
+   dynamic loader in `v4/islands/packages/editor/src/TiptapEditor/i18n/messages.ts`.
 6. Run the extraction and compile checks for every runtime.
 7. Verify one server-rendered page, one island page, and the editor in the new locale before
    enabling it in production.

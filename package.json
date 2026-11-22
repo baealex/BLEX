@@ -1,32 +1,21 @@
 {
     "name": "blex",
-    "version": "1.0.0",
+    "version": "4.0.0",
     "description": "BLOG EXPRESS ME",
     "packageManager": "npm@12.0.1",
     "engines": {
         "node": "^24.22.1 || >=26.12.1"
     },
     "scripts": {
-        "install": "npm run server:setup && npm run islands:setup",
-        "server:setup": "node ./scripts/setup.mjs",
-        "server:dev": "node ./scripts/manage.mjs runserver 0.0.0.0:8000",
-        "server:test": "node ./scripts/manage.mjs test -v 2",
-        "server:static": "node ./scripts/manage.mjs collectstatic --noinput",
-        "server:compilemessages": "node ./scripts/manage.mjs compilemessages --ignore=mvenv",
-        "server:makemigrations": "node ./scripts/manage.mjs makemigrations",
-        "server:check-migrations": "node ./scripts/manage.mjs makemigrations --check --dry-run",
-        "server:migrate": "node ./scripts/manage.mjs migrate",
-        "server:tool": "node ./scripts/tools.mjs",
-        "islands:setup": "pnpm --dir backend/islands install",
-        "islands:dev": "pnpm --dir backend/islands run dev",
-        "islands:lint": "pnpm --dir backend/islands run lint",
-        "islands:build": "pnpm --dir backend/islands run build",
-        "islands:check-entry-budgets": "pnpm --dir backend/islands run check:entry-budgets",
-        "islands:e2e:smoke": "pnpm --dir backend/islands run e2e:smoke",
-        "islands:i18n:check": "pnpm --dir backend/islands run i18n:check",
-        "islands:test": "pnpm --dir backend/islands run test",
-        "islands:type-check": "pnpm --dir backend/islands run type-check",
-        "dev": "concurrently \"npm run server:dev\" \"npm run islands:dev\""
+        "install": "npm --prefix v4 ci",
+        "dev": "npm --prefix v4 run dev",
+        "build": "npm --prefix v4 run build",
+        "build:islands": "npm --prefix v4 run build:islands",
+        "start": "npm --prefix v4 start",
+        "test": "npm --prefix v4 test",
+        "server:test": "npm --prefix v4 test",
+        "type-check": "npm --prefix v4 run type-check",
+        "server:migrate": "npm --prefix v4 run db:migrate"
     },
     "repository": {
         "type": "git",
@@ -37,9 +26,5 @@
     "bugs": {
         "url": "https://github.com/baealex/BLEX/issues"
     },
-    "homepage": "https://github.com/baealex/BLEX#readme",
-    "devDependencies": {
-        "concurrently": "^10.0.6",
-        "pnpm": "11.17.0"
-    }
+    "homepage": "https://github.com/baealex/BLEX#readme"
 }

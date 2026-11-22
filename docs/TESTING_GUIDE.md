@@ -1,5 +1,7 @@
 # Testing Guide
 
+> **BLEX 3.x:** The Django code described here was removed from this branch. It remains available at the `v3.14` tag.
+
 > "Tests exist to catch bugs, not to hit coverage numbers."
 
 ## Philosophy

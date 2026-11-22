@@ -1,3 +1,0 @@
-"""
-Board app tests package
-"""

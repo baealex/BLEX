@@ -1,3 +1,0 @@
-"""
-Template rendering tests package
-"""

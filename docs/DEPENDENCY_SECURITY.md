@@ -41,7 +41,7 @@ advisory was withdrawn on 2026-10-23, so audits no longer report it. This
 package is used by build and translation tools; it is not a production runtime
 dependency.
 
-`backend/islands/patches/braces@3.0.3.patch` limits the parser to 100 nested
+`v4/islands/patches/braces@3.0.3.patch` limits the parser to 100 nested
 groups, following the mitigation proposed in
 [the upstream report](https://github.com/micromatch/braces/issues/70).
 Both braces and parentheses count toward the limit. Excessive nesting raises a
@@ -80,18 +80,13 @@ npm run islands:build
 npm run islands:check-entry-budgets
 ```
 
-Run from `backend/islands`:
+Run from `v4/islands`:
 
 ```sh
 pnpm install --frozen-lockfile
 pnpm audit --prod
 pnpm audit
 ```
-
-Audit the Python requirements with `pip-audit -r backend/src/requirements.txt`
-from a separate virtual environment. Installing `pip-audit` into the test
-environment also installs Pygments, which turns on syntax highlighting in
-Markdown code blocks and changes the expected output of the Markdown tests.
 
 The expected audit results for this patch set are no known Python, root npm, or
 pnpm vulnerabilities, including the full pnpm report. These results describe

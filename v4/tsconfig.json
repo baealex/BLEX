@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "ES2022",
+    "module": "NodeNext",
+    "jsx": "react-jsx",
+    "rootDir": ".",
+    "outDir": "dist",
+    "types": ["node"],
+    "noEmitOnError": true,
+    "skipLibCheck": true
+  },
+  "include": ["src", "test"]
+}

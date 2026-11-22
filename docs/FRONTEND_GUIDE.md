@@ -16,15 +16,15 @@ We organize our frontend as a **monorepo** with strict separation of concerns. D
 
 ### The Package Structure Rule
 
-- **`/backend/islands/packages/ui`**: Shared UI primitives. Reusable across any project.
+- **`/v4/islands/packages/ui`**: Shared UI primitives. Reusable across any project.
   - *Belongs here*: Button, Input, Card, Dialog, Select—atomic components.
   - *Doesn't belong*: Page-specific logic, API calls, business logic.
   - *Dependencies*: Radix UI for accessible primitives. Don't reinvent accessibility.
 
-- **`/backend/islands/packages/editor`**: The Tiptap editor. Isolated complexity.
+- **`/v4/islands/packages/editor`**: The Tiptap editor. Isolated complexity.
   - *Why isolated*: The editor is a core feature. Complexity must not leak.
 
-- **`/backend/islands/apps/remotes`**: Islands App. React meets Django.
+- **`/v4/islands/apps/remotes`**: Islands App. React meets Django.
   - *What it does*: Web Components wrapper (`<island-component>`), lazy loading, query caching.
 
 > **"If a component could be used on a different project, it belongs in `/packages/ui`. If it's BLEX-specific, it lives in `/apps/remotes`."**

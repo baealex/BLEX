@@ -1,5 +1,7 @@
 # BLEX Backend Philosophy
 
+> **BLEX 3.x:** The Django code described here was removed from this branch. It remains available at the `v3.14` tag.
+
 > "Code is read much more often than it is written." — Guido van Rossum
 
 ## 1. The Core Principle
