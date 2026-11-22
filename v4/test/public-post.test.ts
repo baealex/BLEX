@@ -172,7 +172,7 @@ test('includes the body and share metadata in the initial React HTML response', 
   assert.match(response.body, /href="\/assets\/blex\/theme\.css"/);
   assert.match(response.body, /property="og:image" content="https:\/\/blog\.example\/resources\/media\/images\/cover\.png"/);
   assert.match(response.body, /aspect-ratio:4 \/ 3/);
-  assert.match(response.body, /Global banner.*Public article body.*#example-tag/);
+  assert.match(response.body, /Global banner.*Public article body.*#<\/span>example-tag/);
   assert.match(response.body, /Author banner/);
   assert.match(response.body, /href="\/static\/in-footer"[^>]*>Footer link/);
   assert.doesNotMatch(response.body, /Other banner|Inactive banner|Private footer link/);

@@ -419,9 +419,9 @@ function handleGlobalClick(event: MouseEvent) {
     void (async () => {
       try {
         await navigator.clipboard.writeText(copiedButton.dataset.copyLink ?? '');
-        if (generation === routeGeneration && copiedButton.isConnected && status?.isConnected) status.textContent = '링크를 복사했습니다.';
+        if (generation === routeGeneration && copiedButton.isConnected && status?.isConnected) status.textContent = copiedButton.dataset.copyMessage ?? '링크가 복사되었습니다.';
       } catch {
-        if (generation === routeGeneration && copiedButton.isConnected && status?.isConnected) status.textContent = '링크를 복사할 수 없습니다.';
+        if (generation === routeGeneration && copiedButton.isConnected && status?.isConnected) status.textContent = '복사에 실패했습니다.';
       }
     })();
   }

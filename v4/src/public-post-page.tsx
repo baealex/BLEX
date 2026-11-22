@@ -133,16 +133,16 @@ function ArticleInfo({ reader, post, postPath, authorPath, published, updated, c
     ? <form action={`/v1/users/@${encodeURIComponent(author.username)}/subscription`} method="post">
         <input type="hidden" name="return_to" value={postPath} /><input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} />
         {author.isSubscribed && <input type="hidden" name="action" value="unsubscribe" />}
-        <button type="submit" className="shrink-0 rounded-full border border-line px-3 py-1.5 text-xs font-semibold hover:bg-surface-subtle" aria-pressed={author.isSubscribed}>{author.isSubscribed ? '구독 중' : '구독'}</button>
+        <button type="submit" className="shrink-0 rounded-full border border-line px-3 py-1.5 text-xs font-semibold hover:bg-surface-subtle" aria-label={`${author.username}님의 새 글 구독`} aria-pressed={author.isSubscribed}>{author.isSubscribed ? '구독 중' : '구독'}</button>
       </form>
-    : <a {...loginPromptProps(postPath, 'subscribe')} aria-label={`${author.username} 구독`} className="shrink-0 rounded-full border border-line px-3 py-1.5 text-xs font-semibold hover:bg-surface-subtle">구독</a>);
-  const entries: Array<[string, ReactNode]> = [['작성자', <div className="flex items-start justify-between gap-4">
+    : <a {...loginPromptProps(postPath, 'subscribe')} aria-label={`${author.username}님의 새 글 구독`} className="shrink-0 rounded-full border border-line px-3 py-1.5 text-xs font-semibold hover:bg-surface-subtle">구독</a>);
+  const entries: Array<[string, ReactNode]> = [['작가', <div className="flex items-start justify-between gap-4">
     <div><a href={authorPath} className="font-semibold hover:text-content-secondary">{post.username}</a>
       {author?.bio && <p className="mt-1 leading-relaxed text-content-secondary">{author.bio}</p>}</div>{subscription}
   </div>]];
   if (published) entries.push(['최초 발행', <time dateTime={published}>{formatDate(published)}</time>]);
-  if (updated && published && formatDate(updated) !== formatDate(published)) entries.push(['수정', <time dateTime={updated}>{formatDate(updated)}</time>]);
-  if (author?.homepage) entries.push(['작성자 웹사이트', <a href={author.homepage} target="_blank" rel="noopener noreferrer" className="break-words hover:text-content">{author.homepage}</a>]);
+  if (updated && published && formatDate(updated) !== formatDate(published)) entries.push(['수정일', <time dateTime={updated}>{formatDate(updated)}</time>]);
+  if (author?.homepage) entries.push(['저자 홈페이지', <a href={author.homepage} target="_blank" rel="noopener noreferrer" className="break-words hover:text-content">{author.homepage}</a>]);
   return <section className="my-16 rounded-2xl bg-surface p-6 ring-1 ring-line/60 sm:p-8" aria-labelledby="post-info-heading">
     <h2 id="post-info-heading" className="mb-6 border-b border-line-light pb-4 text-lg font-bold leading-snug text-content">포스트 정보</h2>
     <dl className="grid gap-4 text-sm">{entries.map(([label, value]) => <div key={label} className="sm:flex sm:items-start sm:gap-6">
@@ -155,13 +155,13 @@ const dockButton = 'inline-flex h-11 min-w-11 items-center justify-center gap-1 
 
 function RelatedPosts({ posts, username }: { posts: RelatedPost[]; username: string }) {
   if (!posts.length) return <div className="py-12 text-center">
-    <div className="mb-4 inline-flex size-16 items-center justify-center rounded-full bg-surface-subtle"><SiteIcon name="search" className="size-6 text-content-hint" /></div>
+    <div className="mb-4 inline-flex size-16 items-center justify-center rounded-full bg-surface-subtle"><i className="fas fa-compass text-2xl text-content-hint" aria-hidden="true" /></div>
     <h3 className="mb-2 text-lg font-semibold">{username}의 다른 포스트 둘러보기</h3>
     <p className="mb-6 text-sm text-content-secondary">프로필에서 더 많은 포스트를 확인할 수 있습니다.</p>
-    <a href={`/@${encodeURIComponent(username)}`} className="inline-flex items-center gap-2 rounded-full bg-action px-5 py-2.5 text-sm font-medium text-content-inverted hover:bg-action-hover">프로필 보기 <span aria-hidden="true">→</span></a>
+    <a href={`/@${encodeURIComponent(username)}`} className="inline-flex items-center gap-2 rounded-full bg-action px-5 py-2.5 text-sm font-medium text-content-inverted hover:bg-action-hover"><span>프로필 보기</span><i className="fas fa-arrow-right text-xs opacity-70" aria-hidden="true" /></a>
   </div>;
   return <section aria-labelledby="related-post-heading">
-    <div className="mb-8 flex items-center gap-3"><span className="h-6 w-1.5 rounded-full bg-action" /><h3 id="related-post-heading" className="text-xl font-bold sm:text-2xl">관련 글</h3></div>
+    <div className="mb-8 flex items-center gap-3"><span className="h-6 w-1.5 rounded-full bg-action" /><h3 id="related-post-heading" className="text-xl font-bold sm:text-2xl">관련 포스트</h3></div>
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">{posts.slice(0, 4).map((post) => {
       const href = publicPostPath(post.username, post.slug);
       const image = articleImage(post.image);
@@ -180,15 +180,38 @@ function RelatedPosts({ posts, username }: { posts: RelatedPost[]; username: str
   </section>;
 }
 
+function ShareItem({ icon, label, hint }: { icon: string; label: string; hint: string }) {
+  return <>
+    <span className="flex size-8 items-center justify-center rounded-lg bg-surface-subtle text-xs"><i className={icon} aria-hidden="true" /></span>
+    <span className="flex flex-col"><span className="font-semibold">{label}</span><span className="text-xs text-content-hint">{hint}</span></span>
+  </>;
+}
+
+function PostStatusNotice({ visibility, editPath }: { visibility: string; editPath?: string }) {
+  const hidden = visibility === 'hidden';
+  return <section data-post-status-notice data-post-status-visibility={visibility} className="mb-8 rounded-lg border border-line bg-surface-subtle px-4 py-4 sm:px-5 sm:py-5">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="min-w-0">
+        <p className="text-xs font-semibold uppercase text-content-hint">포스트 상태</p>
+        <h2 className="mt-1 text-lg font-semibold text-content">{hidden ? '비공개 포스트입니다.' : '예약 발행 포스트입니다.'}</h2>
+        <p className="mt-1 text-sm leading-relaxed text-content-secondary">{hidden
+          ? '이 포스트는 작성자만 볼 수 있습니다. 공개하려면 포스트 설정에서 비공개를 해제하세요.'
+          : '예약 시각 전에는 작성자만 볼 수 있습니다. 예약 시각이 되면 공개 URL, RSS, Sitemap, Markdown URL에 반영됩니다.'}</p>
+      </div>
+      {editPath && <a href={editPath} className="inline-flex min-h-11 items-center justify-center rounded-lg border border-line px-4 py-2 text-sm font-semibold text-content-secondary transition-all duration-150 hover:bg-surface hover:text-content active:scale-95">수정하기</a>}
+    </div>
+  </section>;
+}
+
 function PostDock({ reader, post, postPath, canonical, markdown, headings, csrfToken, canManage }: {
   reader: ReaderPostView | null; post: PublicPost; postPath: string; canonical: string; markdown?: string; headings: Outline; csrfToken: string; canManage: boolean;
 }) {
   const share = [
-    ['X', `https://twitter.com/intent/tweet?${new URLSearchParams({ text: post.title, url: canonical })}`],
-    ['Threads', `https://www.threads.com/intent/post?${new URLSearchParams({ text: post.title, url: canonical })}`],
-    ['Bluesky', `https://bsky.app/intent/compose?${new URLSearchParams({ text: `${post.title} ${canonical}` })}`],
-    ['LinkedIn', `https://www.linkedin.com/sharing/share-offsite/?${new URLSearchParams({ url: canonical })}`],
-    ['Facebook', `https://www.facebook.com/sharer/sharer.php?${new URLSearchParams({ u: canonical })}`],
+    ['X에 공유', '새 창에서 공유 포스트 작성', 'fa-x-twitter', `https://twitter.com/intent/tweet?${new URLSearchParams({ text: post.title, url: canonical })}`],
+    ['Threads에 공유', 'Threads 팔로워에게 공유', 'fa-threads', `https://www.threads.com/intent/post?${new URLSearchParams({ text: post.title, url: canonical })}`],
+    ['Bluesky에 공유', 'Bluesky 팔로워에게 공유', 'fa-bluesky', `https://bsky.app/intent/compose?${new URLSearchParams({ text: `${post.title} ${canonical}` })}`],
+    ['LinkedIn에 공유', '전문 네트워크에 공유', 'fa-linkedin-in', `https://www.linkedin.com/sharing/share-offsite/?${new URLSearchParams({ url: canonical })}`],
+    ['Facebook에 공유', '피드 또는 메시지로 공유', 'fa-facebook-f', `https://www.facebook.com/sharer/sharer.php?${new URLSearchParams({ u: canonical })}`],
   ];
   return <>
     <div className="post-action-dock pointer-events-none fixed inset-x-0 z-30 flex justify-center">
@@ -196,9 +219,9 @@ function PostDock({ reader, post, postPath, canonical, markdown, headings, csrfT
         {post.visibility === 'public' && <>
           {reader?.postLike.canLike ? <form method="post" action={`/like/${encodeURIComponent(post.slug)}`}>
             <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} /><input type="hidden" name="return_to" value={postPath} />
-            <button type="submit" className={`${dockButton} px-2 text-sm font-medium`} aria-label={reader.postLike.isLiked ? '좋아요 취소' : '좋아요'} aria-pressed={reader.postLike.isLiked}>
+            <button type="submit" className={`${dockButton} px-2 text-sm font-medium`} aria-label={`${reader.postLike.isLiked ? '좋아요 취소' : '좋아요'} (${reader.postLike.countLikes})`} aria-pressed={reader.postLike.isLiked}>
               <SiteIcon name="heart" className={reader.postLike.isLiked ? 'fill-current text-danger' : undefined} />{reader.postLike.countLikes}</button>
-          </form> : <a {...loginPromptProps(postPath, 'like')} className={`${dockButton} px-2 text-sm font-medium`} aria-label="좋아요">
+          </form> : <a {...loginPromptProps(postPath, 'like')} className={`${dockButton} px-2 text-sm font-medium`} aria-label={`좋아요 (${reader?.postLike.countLikes ?? 0})`}>
             <SiteIcon name="heart" />{reader?.postLike.countLikes ?? 0}</a>}
           <div className="post-action-divider" />
         </>}
@@ -206,16 +229,23 @@ function PostDock({ reader, post, postPath, canonical, markdown, headings, csrfT
         {post.visibility === 'public' && <>
           <details className="blex-user-menu relative" data-account-menu>
             <summary className={`${dockButton} cursor-pointer`} aria-label="포스트 공유 또는 링크 복사"><SiteIcon name="share" /></summary>
-            <div className="absolute -left-12 bottom-full mb-3 w-44 rounded-xl border border-line-light bg-surface-elevated p-1 text-sm shadow-floating">
-              <button type="button" data-copy-link={canonical} className="block w-full rounded-lg px-3 py-2 text-left hover:bg-surface-subtle">링크 복사</button>
-              {markdown && <button type="button" data-copy-link={markdown} className="block w-full rounded-lg px-3 py-2 text-left hover:bg-surface-subtle">Markdown 링크 복사</button>}
-              <div className="my-1 border-t border-line-light" />
-              {share.map(([name, href]) => <a key={name} href={href} target="_blank" rel="noopener noreferrer" className="block rounded-lg px-3 py-2 hover:bg-surface-subtle">{name}</a>)}
-              {canManage && <a href={`${postPath}/share-links`} className="block rounded-lg px-3 py-2 hover:bg-surface-subtle">공유 링크 관리</a>}
+            <div className="absolute bottom-full left-1/2 z-40 mb-3 w-72 -translate-x-1/2 rounded-xl border border-line bg-surface-elevated p-2 text-left shadow-floating">
+              <div className="px-2 pb-1 text-[11px] font-bold uppercase tracking-wider text-content-hint">공유</div>
+              <button type="button" data-copy-link={canonical} className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content active:scale-[0.98]">
+                <ShareItem icon="fas fa-link" label="일반 링크" hint="브라우저에서 여는 주소" />
+              </button>
+              {share.map(([label, hint, icon, href]) => <a key={label} href={href} target="_blank" rel="noopener noreferrer" className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content active:scale-[0.98]">
+                <ShareItem icon={`fab ${icon}`} label={label} hint={hint} />
+              </a>)}
+              {markdown && <>
+                <div className="my-1 h-px bg-line-light" />
+                <button type="button" data-copy-link={markdown} data-copy-message="에이전트용 링크가 복사되었습니다." className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content active:scale-[0.98]">
+                  <ShareItem icon="fas fa-code" label="에이전트용 링크" hint="*.md 참조 주소" />
+                </button>
+              </>}
               <p className="px-3 text-xs text-content-hint" data-copy-status role="status" />
             </div>
           </details>
-          {reader && <a href="#post-comments" className={dockButton} aria-label="댓글 보기"><SiteIcon name="comment" /></a>}
         </>}
         {canManage && <a href={`${postPath}/edit`} className={dockButton} aria-label="수정하기"><SiteIcon name="pen" /></a>}
       </div>
@@ -301,12 +331,12 @@ export function renderPublicPostPage(post: PublicPost, presentation: PostPresent
               <aside className="post-detail-sidebar"><div className="sticky top-28 space-y-4">{banners('left')}</div></aside>
               <div className="post-detail-main mt-6">
                 <article itemScope itemType="https://schema.org/BlogPosting">
-                  {post.visibility !== 'public' && <p className="mb-8 rounded-lg border border-line bg-surface-subtle px-4 py-4" role="status">{post.visibility === 'hidden' ? '비공개 포스트입니다.' : '예약 발행 포스트입니다.'}</p>}
+                  {post.visibility !== 'public' && <PostStatusNotice visibility={post.visibility} editPath={canManage ? `${postPath}/edit` : undefined} />}
                   {!fullCover && coverSection}
                   {presentation.banners.some((banner) => banner.position === 'top') && <div className="mb-16 space-y-4">{banners('top')}</div>}
                   <div className="blog-post-content mb-16 max-w-none break-words" itemProp="articleBody" dangerouslySetInnerHTML={{ __html: outline.html }} />
                   {presentation.tags.length > 0 && <div className="mb-16 flex flex-wrap gap-2" itemProp="keywords">{presentation.tags.map((tag) =>
-                    <a key={tag} href={`/tag/${encodeURIComponent(tag)}`} className="inline-flex items-center rounded-full border border-line-light bg-surface-subtle px-4 py-2 text-sm font-medium text-content-secondary transition-all duration-150 hover:border-line hover:bg-line-light hover:text-content active:scale-95">#{tag}</a>,
+                    <a key={tag} href={`/tag/${encodeURIComponent(tag)}`} className="inline-flex items-center rounded-full border border-line-light bg-surface-subtle px-4 py-2 text-sm font-medium text-content-secondary transition-all duration-150 hover:border-line hover:bg-line-light hover:text-content active:scale-95"><span className="mr-1 text-content-hint">#</span>{tag}</a>,
                   )}</div>}
                   {presentation.banners.some((banner) => banner.position === 'bottom') && <div className="mb-16 space-y-4">{banners('bottom')}</div>}
                   <ArticleInfo {...{ reader, post, postPath, authorPath, published, updated, csrfToken }} />
