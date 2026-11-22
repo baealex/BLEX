@@ -42,34 +42,34 @@ export const buildPublishPayload = (
     payload.set('title', fields.title);
     payload.set('subtitle', fields.subtitle);
     payload.set('url', fields.url);
-    payload.set('content_html', fields.content);
-    payload.set('meta_description', fields.metaDescription);
+    payload.set('contentHtml', fields.content);
+    payload.set('metaDescription', fields.metaDescription);
     payload.set('hide', String(fields.hide));
     payload.set('advertise', String(fields.advertise));
-    payload.set('block_comment', String(!fields.allowComments));
+    payload.set('blockComment', String(!fields.allowComments));
     payload.set('tag', fields.tags.join(','));
     payload.set('series', fields.seriesId);
-    payload.set('cover_layout', fields.coverLayout);
-    payload.set('cover_image_position', fields.coverImagePosition);
-    payload.set('cover_image_ratio', fields.coverImageRatio);
+    payload.set('coverLayout', fields.coverLayout);
+    payload.set('coverImagePosition', fields.coverImagePosition);
+    payload.set('coverImageRatio', fields.coverImageRatio);
 
     if (fields.reservedDate) {
-        payload.set('reserved_date', toReservedDateValue(fields.reservedDate));
+        payload.set('reservedDate', toReservedDateValue(fields.reservedDate));
     } else {
-        payload.delete('reserved_date');
+        payload.delete('reservedDate');
     }
 
     if (fields.imageDeleted) {
         payload.delete('image');
-        payload.set('image_delete', 'true');
+        payload.set('imageDelete', 'true');
     } else {
-        payload.delete('image_delete');
+        payload.delete('imageDelete');
     }
 
     if (draftUrl) {
-        payload.set('draft_url', draftUrl);
+        payload.set('draftUrl', draftUrl);
     } else {
-        payload.delete('draft_url');
+        payload.delete('draftUrl');
     }
 
     return payload;

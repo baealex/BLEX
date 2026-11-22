@@ -47,12 +47,16 @@ export function parsePostIds(value: unknown): number[] | null {
 }
 
 async function countPublicPosts(db: PrismaClient, seriesIds: number[]): Promise<Map<number, number>> {
-  const rows = await db.post.groupBy({
-    by: ['seriesId'],
-    where: { seriesId: { in: seriesIds }, ...publicPostWhere() },
-    _count: { _all: true },
-  });
-  return new Map(rows.map((row) => [row.seriesId!, row._count._all]));
+  const counts = new Map<number, number>();
+  for (let offset = 0; offset < seriesIds.length; offset += 500) {
+    const rows = await db.post.groupBy({
+      by: ['seriesId'],
+      where: { seriesId: { in: seriesIds.slice(offset, offset + 500) }, ...publicPostWhere() },
+      _count: { _all: true },
+    });
+    for (const row of rows) counts.set(row.seriesId!, row._count._all);
+  }
+  return counts;
 }
 
 export async function readSeriesRows(db: PrismaClient, ownerId: number, countKind: 'public' | 'active') {

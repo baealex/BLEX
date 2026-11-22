@@ -53,7 +53,7 @@ test('keeps a saved draft schedule when the API saves or publishes it again', as
   try {
     const target = new Date(Date.now() + 30 * 86_400_000);
     target.setUTCMilliseconds(0);
-    const draft = await createAuthorPost(db, editor, { title: 'Later', content_html: '<p>Later</p>', reserved_date: target.toISOString() }, true);
+    const draft = await createAuthorPost(db, editor, { title: 'Later', contentHtml: '<p>Later</p>', reservedDate: target.toISOString() }, true);
     await updateAuthorPost(db, editor, draft.id, { title: 'Later again' });
     const stored = await db.post.findUniqueOrThrow({ where: { id: draft.id }, select: { draftScheduledAt: true } });
     assert.equal(stored.draftScheduledAt?.toISOString(), target.toISOString());
@@ -145,7 +145,7 @@ test('announces first publication but not hiding, unhiding, or restoring an old 
     await db.$transaction((tx) => syncPostPublication(tx, 2));
     assert.equal(await queued(), 0);
 
-    const draft = await createAuthorPost(db, editor, { title: 'New', content_html: '<p>New</p>' }, true);
+    const draft = await createAuthorPost(db, editor, { title: 'New', contentHtml: '<p>New</p>' }, true);
     assert.equal(await queued(), 0);
     await publishAuthorDraft(db, editor, draft.id, {});
     assert.equal(await queued(), 1);

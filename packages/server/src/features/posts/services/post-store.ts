@@ -396,8 +396,8 @@ export async function updatePostSettings(
     const series = seriesId === null ? null : await db.series.findUnique({ where: { id: seriesId }, select: { slug: true } });
     return { series: series?.slug ?? null };
   }
-  if (field(query.reserved_date)) {
-    const value = field(body.reserved_date);
+  if (field(query.reservedDate)) {
+    const value = field(body.reservedDate);
     const parsed = scheduledDate(value);
     if (!value || parsed.error || !parsed.value) throw new PostValidationError('VA', parsed.error ?? 'Check the scheduled time.');
     if (!post.publishedDate || post.publishedDate.valueOf() <= Date.now()) {

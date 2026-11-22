@@ -52,18 +52,18 @@ describe('publish submission', () => {
                 title: 'Title',
                 subtitle: 'Subtitle',
                 url: 'title',
-                content_html: '<p>Body the author wrote</p>',
-                meta_description: 'Description',
+                contentHtml: '<p>Body the author wrote</p>',
+                metaDescription: 'Description',
                 hide: 'true',
                 advertise: 'true',
-                block_comment: 'true',
+                blockComment: 'true',
                 tag: 'one,two',
                 series: '7',
-                cover_layout: 'split',
-                cover_image_position: 'left',
-                cover_image_ratio: '4:3',
-                reserved_date: '2099-01-02T03:04:05.000Z',
-                draft_url: 'saved-draft'
+                coverLayout: 'split',
+                coverImagePosition: 'left',
+                coverImageRatio: '4:3',
+                reservedDate: '2099-01-02T03:04:05.000Z',
+                draftUrl: 'saved-draft'
             }
         );
         assert.ok(payload.get('image') instanceof File);
@@ -78,9 +78,9 @@ describe('publish submission', () => {
             reservedDate: ''
         });
         assert.equal(payload.has('image'), false);
-        assert.equal(payload.get('image_delete'), 'true');
-        assert.equal(payload.has('reserved_date'), false);
-        assert.equal(payload.has('draft_url'), false);
+        assert.equal(payload.get('imageDelete'), 'true');
+        assert.equal(payload.has('reservedDate'), false);
+        assert.equal(payload.has('draftUrl'), false);
     });
 
     test('stays in the editor and reports the server error when publishing is rejected', async () => {
@@ -121,7 +121,7 @@ describe('publish submission', () => {
     test('publishes the draft an in-flight autosave just created', async () => {
         let sent;
         const events = await run(async (payload) => {
-            sent = payload.get('draft_url');
+            sent = payload.get('draftUrl');
             return {
                 data: {
                     status: 'DONE',

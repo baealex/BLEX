@@ -25,7 +25,7 @@ function PostCardLike({ post, likes }: { post: PostRow; likes?: CardLikes }): Re
   if (!likes?.csrfToken) return h('a', { ...loginPromptProps(likes?.returnTo ?? postPath(post), 'like'), className, 'aria-label': label }, content);
   return h('form', { method: 'post', action: `/like/${encodeURIComponent(post.slug)}` },
     h('input', { type: 'hidden', name: 'csrfmiddlewaretoken', value: likes.csrfToken }),
-    h('input', { type: 'hidden', name: 'return_to', value: likes.returnTo }),
+    h('input', { type: 'hidden', name: 'returnTo', value: likes.returnTo }),
     h('button', { type: 'submit', className: `cursor-pointer ${className}`, 'aria-label': label, 'aria-pressed': liked }, content),
   );
 }

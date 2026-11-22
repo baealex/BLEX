@@ -42,7 +42,7 @@ export async function readEditorForm(request: FastifyRequest): Promise<EditorFor
 export async function prepareEditorFields(db: PrismaClient, options: AuthoringOptions, account: UserRow, form: EditorForm): Promise<string | null> {
   if (form.uploadError) return form.uploadError;
   const { body, image } = form;
-  if (Object.hasOwn(body, 'content_html') && !Object.hasOwn(body, 'text_md')) {
+  if (Object.hasOwn(body, 'contentHtml') && !Object.hasOwn(body, 'textMd')) {
     const seriesId = field(body.series);
     const series = /^\d+$/.test(seriesId)
       ? await db.series.findFirst({ where: { id: Number(seriesId), ownerId: account.id }, select: { slug: true } })
@@ -51,12 +51,12 @@ export async function prepareEditorFields(db: PrismaClient, options: AuthoringOp
   }
   if (image) {
     try {
-      body.cover_image_url = await saveContentFile(db, options.mediaRoot, account.id, image);
+      body.coverImageUrl = await saveContentFile(db, options.mediaRoot, account.id, image);
     } catch (error) {
       if (error instanceof ContentUploadError) return error.message;
       throw error;
     }
-  } else if (booleanField(body.image_delete) || booleanField(body.remove_image)) body.remove_cover_image = 'true';
+  } else if (booleanField(body.imageDelete) || booleanField(body.removeImage)) body.removeCoverImage = 'true';
   return null;
 }
 

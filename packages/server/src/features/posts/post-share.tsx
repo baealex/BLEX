@@ -102,7 +102,7 @@ function sharePage(postPath: string, title: string, csrf: string, create: boolea
         <form method="post" action={action}>
           <input type="hidden" name="csrfmiddlewaretoken" value={csrf} /><input type="hidden" name="id" value={link.id} />
           <label>링크 이름 <input name="label" maxLength={labelLimit} defaultValue={link.label} required /></label>
-          <label><input name="is_paused" type="checkbox" value="true" defaultChecked={link.isPaused} /> 일시 정지</label>
+          <label><input name="isPaused" type="checkbox" value="true" defaultChecked={link.isPaused} /> 일시 정지</label>
           <button type="submit">저장</button>
         </form>
       </li>)}</ul>}
@@ -161,13 +161,13 @@ export function registerPostShare(app: FastifyInstance, db: PrismaClient, option
       const editing = request.method === 'PATCH' || linkId !== undefined;
       const name = label(input.label);
       const hasLabel = Object.hasOwn(input, 'label');
-      const hasPause = Object.hasOwn(input, 'is_paused');
+      const hasPause = Object.hasOwn(input, 'isPaused');
       if ((!editing || hasLabel) && !name) {
         const message = `공유 링크 이름을 ${labelLimit}자 이하로 입력해 주세요.`;
         return html ? sendPage(message) : failure('VA', message, 'post_share_links.invalid_label', { limit: labelLimit });
       }
-      if (!html && (Object.keys(input).some((key) => key !== 'label' && !(editing && key === 'is_paused')) ||
-          (editing && !hasLabel && !hasPause) || (hasPause && typeof input.is_paused !== 'boolean'))) return failure('VA', '올바른 요청이 아닙니다.');
+      if (!html && (Object.keys(input).some((key) => key !== 'label' && !(editing && key === 'isPaused')) ||
+          (editing && !hasLabel && !hasPause) || (hasPause && typeof input.isPaused !== 'boolean'))) return failure('VA', '올바른 요청이 아닙니다.');
       if (!editing) {
         const id = post.canCreate && name ? await createLink(db, post.id, user.id, name) : null;
         if (!id) return html ? sendPage('공개 글에만 공유 링크를 만들 수 있습니다.') :
@@ -175,7 +175,7 @@ export function registerPostShare(app: FastifyInstance, db: PrismaClient, option
         return html ? reply.redirect(`${path}/share-links`, 303) : done({ id });
       }
       if (typeof linkId !== 'string' || !/^\d+$/.test(linkId) || !Number.isSafeInteger(Number(linkId))) return reply.code(404).send('Not found');
-      const isPaused = html || hasPause ? input.is_paused === true || input.is_paused === 'true' : undefined;
+      const isPaused = html || hasPause ? input.isPaused === true || input.isPaused === 'true' : undefined;
       const { count } = await db.postShareLink.updateMany({
         where: { id: Number(linkId), postId: post.id },
         data: { ...(name ? { label: name } : {}), ...(isPaused === undefined ? {} : { isPaused }) },

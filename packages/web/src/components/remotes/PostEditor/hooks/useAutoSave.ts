@@ -42,17 +42,17 @@ const buildDraftPayload = (
         formData.append('tags', data.tags);
         if (data.subtitle) formData.append('subtitle', data.subtitle);
         if (data.description) formData.append('description', data.description);
-        if (data.seriesUrl) formData.append('series_url', data.seriesUrl);
-        if (data.customUrl) formData.append('custom_url', data.customUrl);
-        if (data.coverLayout) formData.append('cover_layout', data.coverLayout);
-        if (data.coverImagePosition) formData.append('cover_image_position', data.coverImagePosition);
-        if (data.coverImageRatio) formData.append('cover_image_ratio', data.coverImageRatio);
-        formData.append('is_hide', String(data.hide));
-        formData.append('is_advertise', String(data.advertise));
-        formData.append('block_comment', String(data.blockComment));
-        if (data.reservedDate !== undefined) formData.append('reserved_date', data.reservedDate);
+        if (data.seriesUrl) formData.append('seriesUrl', data.seriesUrl);
+        if (data.customUrl) formData.append('customUrl', data.customUrl);
+        if (data.coverLayout) formData.append('coverLayout', data.coverLayout);
+        if (data.coverImagePosition) formData.append('coverImagePosition', data.coverImagePosition);
+        if (data.coverImageRatio) formData.append('coverImageRatio', data.coverImageRatio);
+        formData.append('isHide', String(data.hide));
+        formData.append('isAdvertise', String(data.advertise));
+        formData.append('blockComment', String(data.blockComment));
+        if (data.reservedDate !== undefined) formData.append('reservedDate', data.reservedDate);
         if (data.imageFile) formData.append('image', data.imageFile);
-        if (data.imageDeleted) formData.append('image_delete', 'true');
+        if (data.imageDeleted) formData.append('imageDelete', 'true');
         return formData;
     }
 
@@ -62,15 +62,15 @@ const buildDraftPayload = (
         tags: data.tags,
         subtitle: data.subtitle,
         description: data.description,
-        series_url: data.seriesUrl,
-        custom_url: data.customUrl,
-        cover_layout: data.coverLayout,
-        cover_image_position: data.coverImagePosition,
-        cover_image_ratio: data.coverImageRatio,
-        is_hide: data.hide,
-        is_advertise: data.advertise,
-        block_comment: data.blockComment,
-        reserved_date: data.reservedDate
+        seriesUrl: data.seriesUrl,
+        customUrl: data.customUrl,
+        coverLayout: data.coverLayout,
+        coverImagePosition: data.coverImagePosition,
+        coverImageRatio: data.coverImageRatio,
+        isHide: data.hide,
+        isAdvertise: data.advertise,
+        blockComment: data.blockComment,
+        reservedDate: data.reservedDate
     };
 };
 
@@ -184,7 +184,7 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
             if (draftUrlRef.current) {
                 const response = await updateDraft(draftUrlRef.current, payload);
                 const body = ensureDraftSaved(response.data, fallbackErrorMessage);
-                // Update draftUrlRef if URL changed (e.g. custom_url was applied)
+                // Update draftUrlRef if URL changed (e.g. customUrl was applied)
                 if (body.url) {
                     const newUrl = body.url;
                     if (newUrl !== draftUrlRef.current) {

@@ -56,7 +56,7 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
       if (!options.validateCsrf(request)) return forbidden(reply);
       const body = form.body;
       try {
-        const draftUrl = field(body.draft_url);
+        const draftUrl = field(body.draftUrl);
         const draft = draftUrl ? await loadPost(db, { userId: user.id, slug: draftUrl }) : null;
         if (draftUrl && (!draft || draft.publishedDate !== null)) return notFound(reply);
         if (form.isMultipart) {
@@ -158,15 +158,15 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
           let input = parseAuthoringPostInput(body);
           if (post.publishedDate === null) input = await preservePostOmissions(db, post, body, input);
           else {
-            if (!Object.hasOwn(body, 'cover_layout')) input.coverLayout = post.coverLayout;
-            if (!Object.hasOwn(body, 'cover_image_position')) input.coverImagePosition = post.coverImagePosition;
-            if (!Object.hasOwn(body, 'cover_image_ratio')) input.coverImageRatio = post.coverImageRatio;
-            if (!Object.hasOwn(body, 'block_comment')) input.blockComment = post.blockComment;
+            if (!Object.hasOwn(body, 'coverLayout')) input.coverLayout = post.coverLayout;
+            if (!Object.hasOwn(body, 'coverImagePosition')) input.coverImagePosition = post.coverImagePosition;
+            if (!Object.hasOwn(body, 'coverImageRatio')) input.coverImageRatio = post.coverImageRatio;
+            if (!Object.hasOwn(body, 'blockComment')) input.blockComment = post.blockComment;
           }
           if (form.isMultipart) {
             // The editor form leaves these out to mean "unchanged", while JSON clients replace them.
             if (!field(body.series)) input.series = post.seriesUrl ?? '';
-            if (!Object.hasOwn(body, 'is_advertise') && !Object.hasOwn(body, 'advertise')) input.advertise = post.advertise;
+            if (!Object.hasOwn(body, 'isAdvertise') && !Object.hasOwn(body, 'advertise')) input.advertise = post.advertise;
           }
           await updatePost(db, user, post, input, {
             allowEmptyBody: post.publishedDate === null,

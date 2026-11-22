@@ -371,14 +371,14 @@ export const getPinnablePosts = async (
 
 export const addPinnedPost = async (postUrl: string) => {
     const formData = new URLSearchParams();
-    formData.append('post_url', postUrl);
+    formData.append('postUrl', postUrl);
 
     return http.post<Response<{ success: boolean }>>('v1/setting/pinned-posts', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
 };
 
 export const removePinnedPost = async (postUrl: string) => {
     const formData = new URLSearchParams();
-    formData.append('post_url', postUrl);
+    formData.append('postUrl', postUrl);
 
     return http.delete<Response<{ success: boolean }>>('v1/setting/pinned-posts', {
         data: formData,
@@ -388,7 +388,7 @@ export const removePinnedPost = async (postUrl: string) => {
 
 export const updatePinnedPostsOrder = async (postUrls: string[]) => {
     const formData = new URLSearchParams();
-    formData.append('post_urls', JSON.stringify(postUrls));
+    formData.append('postUrls', JSON.stringify(postUrls));
 
     return http.put<Response<{ success: boolean }>>('v1/setting/pinned-posts/order', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
 };

@@ -198,7 +198,7 @@ test('renders accessible SSR author, like, comment and subscription controls', a
 test('handles SSR form actions with local redirects for likes, comments and subscriptions', async () => {
   const like = await app.inject({
     method: 'POST', url: '/like/public-post', headers: signedInHeaders,
-    payload: form([['csrfmiddlewaretoken', csrfToken], ['return_to', '/@writer/public-post#post-comments']]),
+    payload: form([['csrfmiddlewaretoken', csrfToken], ['returnTo', '/@writer/public-post#post-comments']]),
   });
   assert.equal(like.statusCode, 303);
   assert.equal(like.headers.location, '/@writer/public-post#post-comments');
@@ -207,21 +207,21 @@ test('handles SSR form actions with local redirects for likes, comments and subs
 
   const commentLike = await app.inject({
     method: 'POST', url: '/v1/comments/10', headers: signedInHeaders,
-    payload: form([['csrfmiddlewaretoken', csrfToken], ['like', 'like'], ['return_to', '/@writer/public-post#comment-10']]),
+    payload: form([['csrfmiddlewaretoken', csrfToken], ['like', 'like'], ['returnTo', '/@writer/public-post#comment-10']]),
   });
   assert.equal(commentLike.statusCode, 303);
   assert.equal(commentLike.headers.location, '/@writer/public-post#comment-10');
 
   const comment = await app.inject({
     method: 'POST', url: '/v1/comments?url=public-post', headers: signedInHeaders,
-    payload: form([['csrfmiddlewaretoken', csrfToken], ['commentMd', 'New comment'], ['return_to', '/@writer/public-post#post-comments']]),
+    payload: form([['csrfmiddlewaretoken', csrfToken], ['commentMd', 'New comment'], ['returnTo', '/@writer/public-post#post-comments']]),
   });
   assert.equal(comment.statusCode, 303);
   assert.match(comment.headers.location ?? '', /^\/@writer\/public-post#comment-\d+$/);
 
   const unsubscribe = await app.inject({
     method: 'POST', url: '/v1/users/@writer/subscription', headers: signedInHeaders,
-    payload: form([['csrfmiddlewaretoken', csrfToken], ['action', 'unsubscribe'], ['return_to', '/@writer/public-post']]),
+    payload: form([['csrfmiddlewaretoken', csrfToken], ['action', 'unsubscribe'], ['returnTo', '/@writer/public-post']]),
   });
   assert.equal(unsubscribe.statusCode, 303);
   assert.equal(unsubscribe.headers.location, '/@writer/public-post');
@@ -232,8 +232,8 @@ test('handles SSR form actions with local redirects for likes, comments and subs
 test('rejects open redirects from enhanced form fields and keeps legacy API envelopes', async () => {
   const response = await app.inject({
     method: 'POST', url: '/like/public-post', headers: signedInHeaders,
-    payload: form([['csrfmiddlewaretoken', csrfToken], ['return_to', '//evil.example/path']]),
+    payload: form([['csrfmiddlewaretoken', csrfToken], ['returnTo', '//evil.example/path']]),
   });
   assert.equal(response.statusCode, 200);
-  assert.deepEqual(response.json(), { status: 'done', count_likes: 0, has_liked: false });
+  assert.deepEqual(response.json(), { status: 'done', countLikes: 0, hasLiked: false });
 });

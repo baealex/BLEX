@@ -45,7 +45,7 @@ function hiddenCsrf(token: string) {
 }
 
 function hiddenReturnTo(returnTo: string) {
-  return h('input', { type: 'hidden', name: 'return_to', value: returnTo });
+  return h('input', { type: 'hidden', name: 'returnTo', value: returnTo });
 }
 
 function authorPath(username: string): string {

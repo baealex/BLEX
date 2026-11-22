@@ -138,7 +138,7 @@ function ArticleInfo({ reader, post, postPath, authorPath, published, updated, c
   const homepage = author?.homepage ?? (/^https?:\/\//i.test(previewAuthor?.homepage ?? '') ? previewAuthor?.homepage : undefined);
   const subscription = author?.canSubscribe && (reader?.viewerAuthenticated
     ? <form action={`/v1/users/@${encodeURIComponent(author.username)}/subscription`} method="post">
-        <input type="hidden" name="return_to" value={postPath} /><input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} />
+        <input type="hidden" name="returnTo" value={postPath} /><input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} />
         {author.isSubscribed && <input type="hidden" name="action" value="unsubscribe" />}
         <button type="submit" className="shrink-0 rounded-full border border-line px-3 py-1.5 text-xs font-semibold hover:bg-surface-subtle" aria-label={`${author.username}님의 새 글 구독`} aria-pressed={author.isSubscribed}>{author.isSubscribed ? '구독 중' : '구독'}</button>
       </form>
@@ -229,7 +229,7 @@ function PostDock({ reader, post, postPath, canonical, markdown, headings, csrfT
       <div className="post-action-bar pointer-events-auto">
         {post.visibility === 'public' && <>
           {reader?.postLike.canLike ? <form method="post" action={`/like/${encodeURIComponent(post.slug)}`}>
-            <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} /><input type="hidden" name="return_to" value={postPath} />
+            <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} /><input type="hidden" name="returnTo" value={postPath} />
             <button type="submit" className={`${dockButton} px-2 text-sm font-medium`} aria-label={`${reader.postLike.isLiked ? '좋아요 취소' : '좋아요'} (${reader.postLike.countLikes})`} aria-pressed={reader.postLike.isLiked}>
               <SiteIcon name="heart" className={reader.postLike.isLiked ? 'size-4 fill-current text-danger' : 'size-4'} />{reader.postLike.countLikes}</button>
           </form> : <a {...loginPromptProps(postPath, 'like')} className={`${dockButton} px-2 text-sm font-medium`} aria-label={`좋아요 (${reader?.postLike.countLikes ?? 0})`}>

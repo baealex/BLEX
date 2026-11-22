@@ -72,12 +72,12 @@ export function registerReaderActions(
         return { hasLiked, countLikes: await tx.postLike.count({ where: { postId: post.id } }) };
       });
       const body = asBodyObject(request.body);
-      const returnTo = localReturnTo(body?.return_to);
+      const returnTo = localReturnTo(body?.returnTo);
       if (returnTo) return reply.redirect(returnTo, 303);
       return {
         status: 'done',
-        count_likes: result.countLikes,
-        has_liked: result.hasLiked,
+        countLikes: result.countLikes,
+        hasLiked: result.hasLiked,
       };
     });
 
@@ -134,7 +134,7 @@ export function registerReaderActions(
       });
       const created = await commentForViewer(db, commentId, user.id);
       if (!created) return reply.code(500).send({ error: 'Could not complete the request' });
-      const returnTo = commentReturnTo(body?.return_to, created.id);
+      const returnTo = commentReturnTo(body?.returnTo, created.id);
       if (returnTo) return reply.redirect(returnTo, 303);
       return done(serializeComment(created, user.id, !isTrue(post.blockComment)));
     });
@@ -183,7 +183,7 @@ export function registerReaderActions(
               }
               return { isLiked, countLikes: await tx.commentLike.count({ where: { commentId: comment.id } }) };
             });
-            const returnTo = localReturnTo(body?.return_to);
+            const returnTo = localReturnTo(body?.returnTo);
             if (request.method === 'POST' && returnTo) return reply.redirect(returnTo, 303);
             return done({ isLiked: result.isLiked, countLikes: result.countLikes });
           }
@@ -198,7 +198,7 @@ export function registerReaderActions(
               where: { id: comment.id, authorId: viewer.id },
               data: { markdown, html: commentHtml(markdown), isEdited: true },
             });
-            const returnTo = formEdit ? commentReturnTo(body?.return_to, comment.id) : null;
+            const returnTo = formEdit ? commentReturnTo(body?.returnTo, comment.id) : null;
             if (returnTo) return reply.redirect(returnTo, 303);
             return done();
           }
@@ -208,7 +208,7 @@ export function registerReaderActions(
               return error('AT', 'You do not have permission to delete this comment.');
             }
             await anonymizeComments(db, viewer.id, comment.id);
-            const returnTo = localReturnTo(body?.return_to);
+            const returnTo = localReturnTo(body?.returnTo);
             if (returnTo) return reply.redirect(returnTo, 303);
             const deleted = await commentForViewer(db, comment.id, viewer.id);
             return done(deleted ? serializeComment(deleted, viewer.id, !deleted.postBlockComment) : {});
@@ -242,7 +242,7 @@ export function registerReaderActions(
         const wantsUnsubscribe = request.method === 'DELETE' || (
           request.method === 'POST' && bodyField(body, 'action') === 'unsubscribe'
         );
-        const returnTo = localReturnTo(body?.return_to);
+        const returnTo = localReturnTo(body?.returnTo);
 
         if (request.method === 'GET') {
           return done(await subscriptionState(db, viewer, author));

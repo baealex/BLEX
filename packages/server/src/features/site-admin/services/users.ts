@@ -111,6 +111,7 @@ export async function readManagedUsers(db: PrismaClient, request: FastifyRequest
   const requestedPage = positiveInteger(params.get('page'), 1);
   const page = Math.min(Math.max(requestedPage, 1), totalPages);
   const ordering = userOrdering(params.get('ordering'));
+  // Sorting by a filtered post count needs SQL, and this query still reads the unmigrated account tables.
   const rows = await db.$queryRaw<ManagedUserRow[]>(Prisma.sql`
     SELECT user.id, user.username, user.first_name AS name, user.email,
       user.is_active AS isActive, user.is_staff AS isStaff, user.is_superuser AS isSuperuser,

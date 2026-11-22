@@ -91,26 +91,20 @@ export async function readPinnablePosts(
   const search = pagination.query;
   const where: Prisma.PostWhereInput = { authorId: userId, ...publicPostWhere(), pins: { none: { userId } } };
   const order = [{ publishedAt: 'desc' }, { id: 'desc' }] satisfies Prisma.PostOrderByWithRelationInput[];
-  // Title search is a literal substring match, which LIKE cannot express, over one author's short titles.
-  const matchedIds = search
-    ? (await db.post.findMany({ where, orderBy: order, select: { id: true, title: true } }))
-      .filter(({ title }) => containsLiteral(title, search)).map(({ id }) => id)
+  const select = { slug: true, title: true, image: true, publishedAt: true } satisfies Prisma.PostSelect;
+  // Title search is a literal substring match, which LIKE cannot express, over one author's short rows.
+  const matches = search
+    ? (await db.post.findMany({ where, orderBy: order, select })).filter(({ title }) => containsLiteral(title, search))
     : null;
-  const totalCount = matchedIds ? matchedIds.length : await db.post.count({ where });
+  const totalCount = matches ? matches.length : await db.post.count({ where });
   const responseLimit = pagination.limit ?? totalCount;
   const queryLimit = Math.max(1, responseLimit);
   const lastPage = Math.max(1, Math.ceil(totalCount / queryLimit));
   const page = Math.min(pagination.page, lastPage);
   const offset = (page - 1) * queryLimit;
-  const select = { id: true, slug: true, title: true, image: true, publishedAt: true } satisfies Prisma.PostSelect;
-  let rows: Array<Prisma.PostGetPayload<{ select: typeof select }>>;
-  if (matchedIds) {
-    const pageIds = matchedIds.slice(offset, offset + queryLimit);
-    const found = new Map((await db.post.findMany({ where: { id: { in: pageIds } }, select })).map((row) => [row.id, row]));
-    rows = pageIds.map((id) => found.get(id)!);
-  } else {
-    rows = await db.post.findMany({ where, orderBy: order, skip: offset, take: queryLimit, select });
-  }
+  const rows = matches
+    ? matches.slice(offset, offset + queryLimit)
+    : await db.post.findMany({ where, orderBy: order, skip: offset, take: queryLimit, select });
   return {
     posts: rows.map((row) => ({ url: row.slug, title: row.title, image: row.image || null, createdDate: localDate(row.publishedAt) })),
     pagination: {
@@ -189,6 +183,6 @@ export function parsePinnedUrls(value: unknown): string[] | null {
 
 export function pinnedPostUrl(request: FastifyRequest) {
   const body = bodyRecord(request.body);
-  const raw = stringValue(body.post_url);
+  const raw = stringValue(body.postUrl);
   return raw.trim() ? raw.trim() : null;
 }

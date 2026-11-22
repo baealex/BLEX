@@ -93,7 +93,7 @@ test('restores a Django-era trashed post and still refuses a stale trash version
     seedPost(fixture.db, 10, 1, 'trashed', { deletedAt: djangoDeletedDate });
     const restore = (expected: string) => fixture.app.inject({
       method: 'POST', url: '/v1/setting/trash-posts/trashed/restore', headers: fixture.headers,
-      payload: { expected_deleted_date: expected },
+      payload: { expectedDeletedDate: expected },
     });
     assert.equal((await restore('2026-02-01T03:04:06.000Z')).json().status, 'ERROR');
     assert.equal(fixture.count('Post', 'id = 10 AND deletedAt IS NOT NULL'), 1);
@@ -116,7 +116,7 @@ test('restores a revision of a post Django last updated with microseconds', asyn
     const list = await fixture.app.inject({ url: '/v1/users/@writer/posts/history/revisions', headers: fixture.headers });
     const restored = await fixture.app.inject({
       method: 'POST', url: '/v1/users/@writer/posts/history/revisions/1/restore', headers: fixture.headers,
-      payload: { expected_updated_date: list.json().body.currentUpdatedDate },
+      payload: { expectedUpdatedDate: list.json().body.currentUpdatedDate },
     });
     assert.equal(restored.json().status, 'DONE', restored.body);
     assert.equal(fixture.count('Post', `id = 10 AND title = 'Earlier'`), 1);
@@ -278,7 +278,7 @@ test('keeps the advertising flag when the web editor saves a post', async () => 
     seedPost(fixture.db, 10, 1, 'promoted');
     fixture.db.exec('UPDATE "Post" SET isAdvertised = 1 WHERE id = 10');
     const boundary = 'blexboundary';
-    const fields = { title: 'Promoted', content_html: '<p>Changed body</p>', url: 'promoted', tag: '' };
+    const fields = { title: 'Promoted', contentHtml: '<p>Changed body</p>', url: 'promoted', tag: '' };
     const saved = await fixture.app.inject({
       method: 'POST', url: '/v1/users/@writer/posts/promoted',
       headers: { ...fixture.headers, 'content-type': `multipart/form-data; boundary=${boundary}` },

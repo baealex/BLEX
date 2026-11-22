@@ -149,8 +149,8 @@ test('series APIs preserve ownership, counts, markdown, post selection, and orde
   assert.equal(created.json().body.postCount, 2);
   assert.match(created.json().body.url, /^writer-series-[0-9a-f]{8}$/);
   const newId = Number(created.json().body.id);
-  const [stored] = await db.$queryRaw<Array<{ text_html: string }>>`SELECT descriptionHtml AS text_html FROM "Series" WHERE id = ${newId}`;
-  assert.equal(stored.text_html, '**welcome**');
+  const [stored] = await db.$queryRaw<Array<{ textHtml: string }>>`SELECT descriptionHtml AS textHtml FROM "Series" WHERE id = ${newId}`;
+  assert.equal(stored.textHtml, '**welcome**');
   const [movedPost] = await db.$queryRaw<Array<{ seriesId: number | null }>>`SELECT seriesId FROM "Post" WHERE id = 2`;
   assert.equal(movedPost.seriesId, newId);
   const [foreignPost] = await db.$queryRaw<Array<{ seriesId: number | null }>>`SELECT seriesId FROM "Post" WHERE id = 10`;
@@ -205,21 +205,21 @@ test('pinned APIs expose public rows, reserve trash, paginate, and guard author 
   const invalidPage = await app.inject({ url: '/v1/setting/pinnable-posts?page=abc', headers: signedIn(1) });
   assert.equal(invalidPage.json().messageKey, 'pinned_posts.invalid_page');
 
-  assert.equal((await app.inject({ method: 'POST', url: '/v1/users/@writer/pinned-posts', headers: jsonHeaders(2), payload: { post_url: 'public-unassigned-newest' } })).json().errorCode, 'error:AT');
-  assert.equal((await app.inject({ method: 'POST', url: '/v1/users/@reader/pinned-posts', headers: jsonHeaders(3), payload: { post_url: 'public-unassigned-newest' } })).json().errorCode, 'error:RJ');
-  assert.equal((await app.inject({ method: 'POST', url: '/v1/users/@writer/pinned-posts', payload: { post_url: 'public-unassigned-newest' } })).json().errorCode, 'error:NL');
+  assert.equal((await app.inject({ method: 'POST', url: '/v1/users/@writer/pinned-posts', headers: jsonHeaders(2), payload: { postUrl: 'public-unassigned-newest' } })).json().errorCode, 'error:AT');
+  assert.equal((await app.inject({ method: 'POST', url: '/v1/users/@reader/pinned-posts', headers: jsonHeaders(3), payload: { postUrl: 'public-unassigned-newest' } })).json().errorCode, 'error:RJ');
+  assert.equal((await app.inject({ method: 'POST', url: '/v1/users/@writer/pinned-posts', payload: { postUrl: 'public-unassigned-newest' } })).json().errorCode, 'error:NL');
 
   const added = await app.inject({
-    method: 'POST', url: '/v1/setting/pinned-posts', headers: jsonHeaders(1), payload: { post_url: 'public-unassigned-newest' },
+    method: 'POST', url: '/v1/setting/pinned-posts', headers: jsonHeaders(1), payload: { postUrl: 'public-unassigned-newest' },
   });
   assert.equal(added.json().status, 'DONE');
   const hidden = await app.inject({
-    method: 'POST', url: '/v1/setting/pinned-posts', headers: jsonHeaders(1), payload: { post_url: 'hidden-post' },
+    method: 'POST', url: '/v1/setting/pinned-posts', headers: jsonHeaders(1), payload: { postUrl: 'hidden-post' },
   });
   assert.equal(hidden.json().messageKey, 'pinned_posts.limit_reached');
 
   const reordered = await app.inject({
-    method: 'PUT', url: '/v1/setting/pinned-posts/order', headers: jsonHeaders(1), payload: { post_urls: ['public-unassigned-newest'] },
+    method: 'PUT', url: '/v1/setting/pinned-posts/order', headers: jsonHeaders(1), payload: { postUrls: ['public-unassigned-newest'] },
   });
   assert.equal(reordered.json().status, 'DONE');
   const allOrders = await db.$queryRaw<Array<{ url: string; order: number }>>`
@@ -231,16 +231,16 @@ test('pinned APIs expose public rows, reserve trash, paginate, and guard author 
   ]);
 
   const ownerMutation = await app.inject({
-    method: 'POST', url: '/v1/users/@writer/pinned-posts', headers: jsonHeaders(1), payload: { post_url: 'public-assigned' },
+    method: 'POST', url: '/v1/users/@writer/pinned-posts', headers: jsonHeaders(1), payload: { postUrl: 'public-assigned' },
   });
   assert.equal(ownerMutation.json().messageKey, 'pinned_posts.limit_reached');
-  const noCsrf = await app.inject({ method: 'DELETE', url: '/v1/setting/pinned-posts', headers: jsonHeaders(1, false), payload: { post_url: 'public-unassigned' } });
+  const noCsrf = await app.inject({ method: 'DELETE', url: '/v1/setting/pinned-posts', headers: jsonHeaders(1, false), payload: { postUrl: 'public-unassigned' } });
   assert.equal(noCsrf.statusCode, 403);
 });
 
 test('the pinned API removes rows', async () => {
   const removed = await app.inject({
-    method: 'DELETE', url: '/v1/setting/pinned-posts', headers: jsonHeaders(1), payload: { post_url: 'public-unassigned' },
+    method: 'DELETE', url: '/v1/setting/pinned-posts', headers: jsonHeaders(1), payload: { postUrl: 'public-unassigned' },
   });
   assert.equal(removed.json().status, 'DONE', removed.body);
   const [remaining] = await db.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM "PinnedPost" WHERE userId = 1 AND postId = 1`;

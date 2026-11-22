@@ -172,7 +172,7 @@ export function registerAuthorCollections(app: FastifyInstance, db: PrismaClient
       if (!options.validateCsrf(request)) return reply.code(403).send(apiError('RJ'));
       let failure: PinnedServiceError | null = null;
       if (mode === 'order') {
-        const urls = parsePinnedUrls(bodyRecord(request.body).post_urls);
+        const urls = parsePinnedUrls(bodyRecord(request.body).postUrls);
         if (!urls) return pinnedError({ code: 'IP', key: 'pinned_posts.invalid_format' });
         failure = await reorderPinnedPosts(db, user.id, urls);
       } else {
@@ -209,7 +209,7 @@ export function registerAuthorCollections(app: FastifyInstance, db: PrismaClient
         return 'code' in result ? pinnedError(result) : apiDone({ posts: result.posts, ...result.pagination });
       }
       if (mode === 'order') {
-        const urls = parsePinnedUrls(bodyRecord(request.body).post_urls);
+        const urls = parsePinnedUrls(bodyRecord(request.body).postUrls);
         if (!urls) return pinnedError({ code: 'IP', key: 'pinned_posts.invalid_format' });
         const failure = await reorderPinnedPosts(db, owner.id, urls);
         return failure ? pinnedError(failure) : apiDone();

@@ -71,6 +71,7 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
   app.addHook('onReady', async () => {
     if (auth) {
       try {
+        // One LIMIT 0 statement proves every table the running server depends on exists.
         await db.$queryRaw`
           SELECT session.verified_until FROM blex_session AS session, blex_oauth_flow, blex_oauth_challenge,
             blex_factor_setup, "NotificationDelivery", "ScheduledPublication", "WebhookDelivery" LIMIT 0

@@ -161,8 +161,8 @@ test('gates editor URLs, rejects a bad cover without saving, and serves draft-on
 
   const editFields = {
     title: 'Existing', url: 'existing', subtitle: 'Existing subtitle',
-    meta_description: 'Existing description', content_html: '<h2>Existing content</h2><p>Do not lose this.</p>',
-    cover_layout: 'split', cover_image_position: 'left', cover_image_ratio: '4:3', block_comment: 'false',
+    metaDescription: 'Existing description', contentHtml: '<h2>Existing content</h2><p>Do not lose this.</p>',
+    coverLayout: 'split', coverImagePosition: 'left', coverImageRatio: '4:3', blockComment: 'false',
   };
   const boundary = 'blexboundary';
   const editHeaders = { ...writerHeaders, 'content-type': `multipart/form-data; boundary=${boundary}` };
@@ -170,7 +170,7 @@ test('gates editor URLs, rejects a bad cover without saving, and serves draft-on
     .map(([name, value]) => `--${boundary}\r\nContent-Disposition: form-data; name="${name}"\r\n\r\n${value}\r\n`).join('')}--${boundary}--\r\n`;
   const metadataEdit = await app.inject({
     method: 'POST', url: '/v1/users/@writer/posts/existing', headers: editHeaders,
-    payload: editorForm({ ...editFields, cover_image_url: '/resources/media/images/content/2026/11/21/cover-test.jpg' }),
+    payload: editorForm({ ...editFields, coverImageUrl: '/resources/media/images/content/2026/11/21/cover-test.jpg' }),
   });
   assert.equal(metadataEdit.json().status, 'DONE', metadataEdit.body);
   const unchangedBody = await db.$queryRaw<Array<{ html: string }>>`
@@ -184,14 +184,14 @@ test('gates editor URLs, rejects a bad cover without saving, and serves draft-on
 
   const rejectedCover = await app.inject({
     method: 'POST', url: '/v1/users/@writer/posts/existing', headers: editHeaders,
-    payload: editorForm({ ...editFields, title: 'Must not save', cover_image_url: 'https://external.example/cover.jpg' }),
+    payload: editorForm({ ...editFields, title: 'Must not save', coverImageUrl: 'https://external.example/cover.jpg' }),
   });
   assert.deepEqual([rejectedCover.statusCode, rejectedCover.json().status], [200, 'ERROR']);
   const afterRejectedCover = await db.$queryRaw<Array<{ title: string; image: string }>>`SELECT title, image FROM "Post" WHERE id = 1`;
   assert.deepEqual(afterRejectedCover[0], { title: 'Existing', image: 'images/content/2026/11/21/cover-test.jpg' });
   const removeCover = await app.inject({
     method: 'POST', url: '/v1/users/@writer/posts/existing', headers: editHeaders,
-    payload: editorForm({ ...editFields, remove_cover_image: 'on' }),
+    payload: editorForm({ ...editFields, removeCoverImage: 'on' }),
   });
   assert.equal(removeCover.json().status, 'DONE', removeCover.body);
   const removedCover = await db.$queryRaw<Array<{ image: string }>>`SELECT image FROM "Post" WHERE id = 1`;
@@ -217,15 +217,15 @@ test('creates a published Markdown post atomically with config, content, tags an
       title: 'Markdown launch',
       url: 'hello-world',
       subtitle: 'A small subtitle',
-      meta_description: 'A saved description',
-      text_md: '# Hello\n\nThis is **bold**.\n\n<script>bad()</script>',
-      content_type: 'markdown',
+      metaDescription: 'A saved description',
+      textMd: '# Hello\n\nThis is **bold**.\n\n<script>bad()</script>',
+      contentType: 'markdown',
       tag: 'TypeScript, Python',
       series: 'learning',
-      block_comment: 'false',
-      cover_layout: 'split',
-      cover_image_position: 'left',
-      cover_image_ratio: '4:3',
+      blockComment: 'false',
+      coverLayout: 'split',
+      coverImagePosition: 'left',
+      coverImageRatio: '4:3',
     }).toString(),
   });
   assert.deepEqual(response.json(), { status: 'DONE', body: { url: 'hello-world' } });
@@ -265,7 +265,7 @@ test('creates and reschedules future posts from the visible datetime-local field
     method: 'POST', url: '/v1/posts', headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
     payload: new URLSearchParams({
       title: 'Scheduled through editor', url: 'scheduled-through-editor',
-      text_md: '# Ready later', content_type: 'markdown', reserved_date: initialAt,
+      textMd: '# Ready later', contentType: 'markdown', reservedDate: initialAt,
     }).toString(),
   });
   assert.equal(create.json().status, 'DONE', create.body);
@@ -280,9 +280,9 @@ test('creates and reschedules future posts from the visible datetime-local field
 
   const laterAt = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString();
   const reschedule = await app.inject({
-    method: 'PUT', url: '/v1/users/@writer/posts/scheduled-through-editor?reserved_date=1',
+    method: 'PUT', url: '/v1/users/@writer/posts/scheduled-through-editor?reservedDate=1',
     headers: { ...writerHeaders, 'content-type': 'application/json' },
-    payload: { reserved_date: laterAt },
+    payload: { reservedDate: laterAt },
   });
   assert.equal(reschedule.json().status, 'DONE', reschedule.body);
   const queued = await db.$queryRaw<Array<{ date: string }>>`
@@ -305,7 +305,7 @@ test('serves legacy create/edit/view contracts and keeps an existing post config
   assert.equal(deniedAnonymous.statusCode, 404);
   const deniedReader = await app.inject({
     method: 'POST', url: '/v1/posts', headers: { 'x-user-id': '3', 'x-test-csrf': 'good', 'content-type': 'application/json' },
-    payload: { title: 'Reader post', text_html: '# no', content_type: 'markdown' },
+    payload: { title: 'Reader post', textHtml: '# no', contentType: 'markdown' },
   });
   assert.equal(deniedReader.json().errorCode, 'error:RJ');
   const noCsrf = await app.inject({ method: 'POST', url: '/v1/posts', headers: { 'x-user-id': '1' }, payload: { title: 'No CSRF' } });
@@ -313,7 +313,7 @@ test('serves legacy create/edit/view contracts and keeps an existing post config
 
   const created = await app.inject({
     method: 'POST', url: '/v1/posts', headers: { ...writerHeaders, 'content-type': 'application/json' },
-    payload: { title: 'API markdown', text_html: '# API\n\nA `code` sample', content_type: 'markdown', tag: 'api,one' },
+    payload: { title: 'API markdown', textHtml: '# API\n\nA `code` sample', contentType: 'markdown', tag: 'api,one' },
   });
   assert.equal(created.json().status, 'DONE', created.body);
   const apiUrl = created.json().body.url;
@@ -333,7 +333,7 @@ test('serves legacy create/edit/view contracts and keeps an existing post config
   const edited = await app.inject({
     method: 'POST', url: `/v1/users/@writer/posts/${apiUrl}`,
     headers: { ...writerHeaders, 'content-type': 'application/json' },
-    payload: { title: 'API markdown updated', text_html: '# Updated\n\n**new** body', content_type: 'markdown', tag: 'new_tag', series: 'learning', is_hide: false, is_advertise: false },
+    payload: { title: 'API markdown updated', textHtml: '# Updated\n\n**new** body', contentType: 'markdown', tag: 'new_tag', series: 'learning', isHide: false, isAdvertise: false },
   });
   assert.deepEqual(edited.json(), { status: 'DONE', body: {} });
   const updatedPost = await db.$queryRaw<Array<{ title: string; seriesId: number | null }>>`
@@ -481,8 +481,8 @@ test('links editor to owner-only revision and timelapse pages with form restore 
   assert.match(String(history.headers['x-robots-tag'] ?? ''), /noindex/);
   assert.match(history.body, /수정 기록/);
   assert.match(history.body, /이전 기록/);
-  assert.match(history.body, /name="expected_updated_date"/);
-  assert.match(history.body, /confirm_delete/);
+  assert.match(history.body, /name="expectedUpdatedDate"/);
+  assert.match(history.body, /confirmDelete/);
 
   const timeline = await app.inject({ url: `${postPath}/timelapse`, headers: writerHeaders });
   assert.equal(timeline.statusCode, 200, timeline.body);
@@ -499,7 +499,7 @@ test('links editor to owner-only revision and timelapse pages with form restore 
   const staleDelete = await app.inject({
     method: 'POST', url: `${historyPath}/${restoreId}/delete`,
     headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
-    payload: new URLSearchParams({ confirm_delete: 'yes', expected_updated_date: '2001-01-01 00:00:00.000000' }).toString(),
+    payload: new URLSearchParams({ confirmDelete: 'yes', expectedUpdatedDate: '2001-01-01 00:00:00.000000' }).toString(),
   });
   assert.equal(staleDelete.statusCode, 303);
   assert.match(staleDelete.headers.location ?? '', /conflict=1/);
@@ -508,7 +508,7 @@ test('links editor to owner-only revision and timelapse pages with form restore 
   const restore = await app.inject({
     method: 'POST', url: `${historyPath}/${restoreId}/restore`,
     headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
-    payload: new URLSearchParams({ expected_updated_date: current[0]!.updatedAt.toISOString() }).toString(),
+    payload: new URLSearchParams({ expectedUpdatedDate: current[0]!.updatedAt.toISOString() }).toString(),
   });
   assert.equal(restore.statusCode, 303, restore.body);
   assert.match(restore.headers.location ?? '', /restored=1/);
@@ -520,7 +520,7 @@ test('links editor to owner-only revision and timelapse pages with form restore 
   const remove = await app.inject({
     method: 'POST', url: `${historyPath}/${restoreId}/delete`,
     headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
-    payload: new URLSearchParams({ confirm_delete: 'yes', expected_updated_date: afterRestore[0]!.updatedAt.toISOString() }).toString(),
+    payload: new URLSearchParams({ confirmDelete: 'yes', expectedUpdatedDate: afterRestore[0]!.updatedAt.toISOString() }).toString(),
   });
   assert.equal(remove.statusCode, 303, remove.body);
   assert.match(remove.headers.location ?? '', /deleted=1/);
@@ -532,7 +532,7 @@ test('links editor to owner-only revision and timelapse pages with form restore 
 test('saves, previews, edits and publishes drafts while keeping only owner access', async () => {
   const created = await app.inject({
     method: 'POST', url: '/v1/drafts', headers: { ...writerHeaders, 'content-type': 'application/json' },
-    payload: { title: 'Draft from API', content: '# Private draft', content_type: 'markdown', tags: 'draft,notes' },
+    payload: { title: 'Draft from API', content: '# Private draft', contentType: 'markdown', tags: 'draft,notes' },
   });
   assert.equal(created.json().status, 'DONE', created.body);
   const slug = created.json().body.url;
@@ -547,9 +547,9 @@ test('saves, previews, edits and publishes drafts while keeping only owner acces
     method: 'PUT', url: `/v1/drafts/${slug}`,
     headers: { ...writerHeaders, 'content-type': 'application/json' },
     payload: {
-      title: 'Draft from API', url: slug, content_html: '<h1>Private draft</h1>', tag: 'draft, notes',
-      meta_description: 'Private draft', cover_layout: 'default', cover_image_position: 'right',
-      cover_image_ratio: 'auto', block_comment: 'false',
+      title: 'Draft from API', url: slug, contentHtml: '<h1>Private draft</h1>', tag: 'draft, notes',
+      metaDescription: 'Private draft', coverLayout: 'default', coverImagePosition: 'right',
+      coverImageRatio: 'auto', blockComment: 'false',
     },
   });
   assert.deepEqual(saveDraft.json(), { status: 'DONE', body: { url: slug } });
@@ -559,10 +559,10 @@ test('saves, previews, edits and publishes drafts while keeping only owner acces
   const publish = await app.inject({
     method: 'POST', url: '/v1/posts', headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
     payload: new URLSearchParams({
-      draft_url: slug, title: 'Draft published', url: slug,
-      text_md: '# Now public\n\nPublished **safely**.', content_type: 'markdown',
-      tag: 'live', series: 'learning', block_comment: 'false', cover_layout: 'default',
-      cover_image_position: 'right', cover_image_ratio: 'auto',
+      draftUrl: slug, title: 'Draft published', url: slug,
+      textMd: '# Now public\n\nPublished **safely**.', contentType: 'markdown',
+      tag: 'live', series: 'learning', blockComment: 'false', coverLayout: 'default',
+      coverImagePosition: 'right', coverImageRatio: 'auto',
     }).toString(),
   });
   assert.deepEqual(publish.json(), { status: 'DONE', body: { url: slug } });

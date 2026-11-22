@@ -511,15 +511,15 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             payload.set('title', formData.title);
             payload.set('subtitle', formData.subtitle);
             payload.set('url', formData.url);
-            payload.set('content_html', formData.content);
-            payload.set('meta_description', formData.metaDescription);
+            payload.set('contentHtml', formData.content);
+            payload.set('metaDescription', formData.metaDescription);
             payload.set('hide', formData.hide ? 'true' : 'false');
             payload.set('advertise', formData.advertise ? 'true' : 'false');
-            payload.set('block_comment', formData.allowComments ? 'false' : 'true');
+            payload.set('blockComment', formData.allowComments ? 'false' : 'true');
             payload.set('tag', tags.join(','));
-            payload.set('cover_layout', formData.coverLayout);
-            payload.set('cover_image_position', formData.coverImagePosition);
-            payload.set('cover_image_ratio', formData.coverImageRatio);
+            payload.set('coverLayout', formData.coverLayout);
+            payload.set('coverImagePosition', formData.coverImagePosition);
+            payload.set('coverImageRatio', formData.coverImageRatio);
 
             if (selectedSeries.id) {
                 payload.set('series', selectedSeries.id);
@@ -528,15 +528,15 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             }
 
             if (isScheduledPost && hasReservedDateChanged()) {
-                payload.set('reserved_date', toReservedDateValue(formData.reservedDate));
+                payload.set('reservedDate', toReservedDateValue(formData.reservedDate));
             } else {
-                payload.delete('reserved_date');
+                payload.delete('reservedDate');
             }
 
             if (imageDeleted) {
-                payload.set('image_delete', 'true');
+                payload.set('imageDelete', 'true');
             } else {
-                payload.delete('image_delete');
+                payload.delete('imageDelete');
             }
 
             const { data } = await submitPostEdit(username, postUrl, payload);

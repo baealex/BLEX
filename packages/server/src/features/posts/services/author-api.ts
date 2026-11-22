@@ -28,7 +28,7 @@ export function apiPostBase(post: StoredPost, contentHtml: string): Record<strin
 }
 
 function hasPostContent(body: Record<string, unknown>): boolean {
-  return ['content_html', 'content', 'text_html', 'text_md', 'content_markdown', 'markdown']
+  return ['contentHtml', 'content', 'textHtml', 'textMd', 'contentMarkdown', 'markdown']
     .some((key) => Object.hasOwn(body, key));
 }
 
@@ -41,7 +41,7 @@ export async function preservePostOmissions(
   const hasText = hasPostContent(body);
   const tags = await postTags(db, post.id);
   const isScheduled = Boolean(post.publishedDate && post.publishedDate.valueOf() > Date.now());
-  const reservedDate = Object.hasOwn(body, 'reserved_date')
+  const reservedDate = Object.hasOwn(body, 'reservedDate')
     ? input.reservedDate
     : post.publishedDate === null
       ? await draftReservation(db, post.id)
@@ -51,18 +51,18 @@ export async function preservePostOmissions(
     title: Object.hasOwn(body, 'title') ? input.title : post.title,
     subtitle: Object.hasOwn(body, 'subtitle') ? input.subtitle : post.subtitle,
     text: hasText ? input.text : '',
-    description: Object.hasOwn(body, 'description') || Object.hasOwn(body, 'meta_description')
+    description: Object.hasOwn(body, 'description') || Object.hasOwn(body, 'metaDescription')
       ? input.description
       : hasText ? descriptionFromHtml(resolveContent(input)) : post.description,
-    url: Object.hasOwn(body, 'custom_url') || Object.hasOwn(body, 'url') ? input.url : post.url,
+    url: Object.hasOwn(body, 'customUrl') || Object.hasOwn(body, 'url') ? input.url : post.url,
     tags: Object.hasOwn(body, 'tags') || Object.hasOwn(body, 'tag') ? input.tags : tags.join(','),
-    series: Object.hasOwn(body, 'series_url') || Object.hasOwn(body, 'series') ? input.series : post.seriesUrl ?? '',
-    hide: Object.hasOwn(body, 'is_hide') || Object.hasOwn(body, 'hide') ? input.hide : post.hide,
-    advertise: Object.hasOwn(body, 'is_advertise') || Object.hasOwn(body, 'advertise') ? input.advertise : post.advertise,
-    blockComment: Object.hasOwn(body, 'block_comment') ? input.blockComment : post.blockComment,
-    coverLayout: Object.hasOwn(body, 'cover_layout') ? input.coverLayout : post.coverLayout,
-    coverImagePosition: Object.hasOwn(body, 'cover_image_position') ? input.coverImagePosition : post.coverImagePosition,
-    coverImageRatio: Object.hasOwn(body, 'cover_image_ratio') ? input.coverImageRatio : post.coverImageRatio,
+    series: Object.hasOwn(body, 'seriesUrl') || Object.hasOwn(body, 'series') ? input.series : post.seriesUrl ?? '',
+    hide: Object.hasOwn(body, 'isHide') || Object.hasOwn(body, 'hide') ? input.hide : post.hide,
+    advertise: Object.hasOwn(body, 'isAdvertise') || Object.hasOwn(body, 'advertise') ? input.advertise : post.advertise,
+    blockComment: Object.hasOwn(body, 'blockComment') ? input.blockComment : post.blockComment,
+    coverLayout: Object.hasOwn(body, 'coverLayout') ? input.coverLayout : post.coverLayout,
+    coverImagePosition: Object.hasOwn(body, 'coverImagePosition') ? input.coverImagePosition : post.coverImagePosition,
+    coverImageRatio: Object.hasOwn(body, 'coverImageRatio') ? input.coverImageRatio : post.coverImageRatio,
     reservedDate,
   };
 }
@@ -103,9 +103,9 @@ async function ownedPostByReference(
 
 /**
  * Create a post with the same persistence and sanitization path as `/v1/posts`.
- * Accepted body fields include title, subtitle, content/text_md/content_markdown,
- * content_type, description/meta_description, url/custom_url, tags/tag, series,
- * hide/is_hide, advertise/is_advertise, block_comment, cover settings and reserved_date.
+ * Accepted body fields include title, subtitle, content/textMd/contentMarkdown,
+ * contentType, description/metaDescription, url/customUrl, tags/tag, series,
+ * hide/isHide, advertise/isAdvertise, blockComment, cover settings and reservedDate.
  */
 export async function createAuthorPost(
   db: PrismaClient,

@@ -28,11 +28,11 @@ export function managementDate(value: DbDate, scheduled = false): string {
 
 const managedSorts: Record<string, (direction: Prisma.SortOrder) => Prisma.PostOrderByWithRelationInput> = {
   title: (direction) => ({ title: direction }),
-  read_time: (direction) => ({ readTime: direction }),
-  published_date: (direction) => ({ publishedAt: direction }),
-  updated_date: (direction) => ({ updatedAt: direction }),
-  count_likes: (direction) => ({ likes: { _count: direction } }),
-  count_comments: (direction) => ({ comments: { _count: direction } }),
+  readTime: (direction) => ({ readTime: direction }),
+  publishedDate: (direction) => ({ publishedAt: direction }),
+  updatedDate: (direction) => ({ updatedAt: direction }),
+  countLikes: (direction) => ({ likes: { _count: direction } }),
+  countComments: (direction) => ({ comments: { _count: direction } }),
 };
 
 export async function getManagedPosts(
@@ -48,7 +48,7 @@ export async function getManagedPosts(
   const series = field(query.series);
   const search = field(query.search);
   const visibility = field(query.visibility);
-  const requestedOrder = field(query.order) || '-published_date';
+  const requestedOrder = field(query.order) || '-publishedDate';
   const where: Prisma.PostWhereInput = {
     authorId: author.id,
     deletedAt: null,

@@ -15,11 +15,7 @@ const enums: Record<string, readonly string[]> = {
   status: ['draft', 'published', 'scheduled'],
 };
 
-/** Keys of the shared authoring input, which still uses the post editor's field names. */
-const authoringFields = {
-  title: 'title', subtitle: 'subtitle', description: 'description', coverLayout: 'cover_layout',
-  coverImagePosition: 'cover_image_position', coverImageRatio: 'cover_image_ratio',
-} as const;
+const authoringFields = ['title', 'subtitle', 'description', 'coverLayout', 'coverImagePosition', 'coverImageRatio'] as const;
 
 /** `loc` is a response value, so it names the field the way the caller wrote it. */
 function invalid(field: string, type: string): never {
@@ -52,14 +48,14 @@ export async function developerPostInput(db: PrismaClient, authorId: number, inp
   }
 
   const body: Record<string, unknown> = {};
-  for (const [field, authoringField] of Object.entries(authoringFields)) {
-    if (values[field] != null) body[authoringField] = values[field];
+  for (const field of authoringFields) {
+    if (values[field] != null) body[field] = values[field];
   }
   const slug = values.slug ?? values.url;
   if (slug != null) body.url = slug;
   // Like 3.x, a draft created through the API ignores any publication time.
   if (values.publishedAt != null && operation !== 'update' && !(operation === 'create' && status === 'draft')) {
-    body.reserved_date = values.publishedAt;
+    body.reservedDate = values.publishedAt;
   }
 
   const format = bodyFields.find((field) => Object.hasOwn(values, field));
@@ -68,9 +64,9 @@ export async function developerPostInput(db: PrismaClient, authorId: number, inp
       throw new DeveloperMutationInputError('post.invalid_content_type', 'content_type must be either html or markdown.');
     }
     body.content = values[format] ?? '';
-    body.content_type = format === 'markdown' ? 'markdown' : values.contentType ?? 'html';
+    body.contentType = format === 'markdown' ? 'markdown' : values.contentType ?? 'html';
   } else if (operation === 'create') {
-    body.content_type = values.contentType ?? 'html';
+    body.contentType = values.contentType ?? 'html';
   }
 
   const tags = Object.hasOwn(values, 'tags') ? values.tags : values.tag;
@@ -80,17 +76,17 @@ export async function developerPostInput(db: PrismaClient, authorId: number, inp
   if (tags !== undefined) body.tag = Array.isArray(tags) ? tags.map((tag) => tag.trim()).filter(Boolean).join(',') : tags ?? '';
 
   const hidden = Object.hasOwn(values, 'isHidden') ? values.isHidden : values.isHide;
-  if (hidden != null) body.is_hide = boolean(hidden, 'isHidden');
-  if (values.isAdvertise != null) body.is_advertise = boolean(values.isAdvertise, 'isAdvertise');
+  if (hidden != null) body.isHide = boolean(hidden, 'isHidden');
+  if (values.isAdvertise != null) body.isAdvertise = boolean(values.isAdvertise, 'isAdvertise');
 
   if (values.seriesUrl != null) {
-    body.series_url = values.seriesUrl;
+    body.seriesUrl = values.seriesUrl;
   } else if (values.seriesId != null && values.seriesId !== '') {
     const id = typeof values.seriesId === 'string' && /^\d+$/.test(values.seriesId) ? Number(values.seriesId) : values.seriesId;
     if (!Number.isSafeInteger(id)) invalid('seriesId', 'Input should be a valid integer');
     const series = await db.series.findFirst({ where: { id: id as number, ownerId: authorId }, select: { slug: true } });
     if (!series) throw new DeveloperMutationInputError('post.series_not_found', 'No series matches series_id.', 404);
-    body.series_url = series.slug;
+    body.seriesUrl = series.slug;
   }
 
   return { body, asDraft: status === 'draft', expectedUpdatedAt: typeof values.expectedUpdatedAt === 'string' ? values.expectedUpdatedAt : undefined };

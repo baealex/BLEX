@@ -23,7 +23,7 @@ function subscriptionControl(
   }
   return h('form', { className: 'mb-0', method: 'post', action: `/v1/users/@${encodeURIComponent(author.username)}/subscription` },
     h('input', { type: 'hidden', name: 'csrfmiddlewaretoken', value: csrfToken }),
-    h('input', { type: 'hidden', name: 'return_to', value: path }),
+    h('input', { type: 'hidden', name: 'returnTo', value: path }),
     state.isSubscribed ? h('input', { type: 'hidden', name: 'action', value: 'unsubscribe' }) : null,
     h('button', { type: 'submit', 'aria-pressed': state.isSubscribed, 'aria-label': subscribeLabel,
       className: `inline-flex items-center justify-center gap-2 rounded-full border px-5 py-2.5 text-sm font-semibold transition-all duration-150 ${state.isSubscribed ? 'border-line bg-surface text-content-secondary hover:border-line-strong hover:text-content' : 'border-transparent bg-action text-content-inverted hover:bg-action-hover active:scale-95'}` },

@@ -59,7 +59,7 @@ export function registerRevisionsRoutes(routes: FastifyInstance, db: PrismaClien
         }
         const revision = await loadRevision(db, post.id, revisionId);
         if (!revision) return notFound(reply);
-        const expected = field(bodyObject(request.body).expected_updated_date);
+        const expected = field(bodyObject(request.body).expectedUpdatedDate);
         if (!expected) return forbidden(reply);
         try {
           const result = await restoreRevision(db, account, post, revision, expected);
@@ -86,8 +86,8 @@ export function registerRevisionsRoutes(routes: FastifyInstance, db: PrismaClien
           return notFound(reply);
         }
         const body = bodyObject(request.body);
-        if (field(body.confirm_delete) !== 'yes') return forbidden(reply);
-        const expected = field(body.expected_updated_date);
+        if (field(body.confirmDelete) !== 'yes') return forbidden(reply);
+        const expected = field(body.expectedUpdatedDate);
         if (!expected) return forbidden(reply);
         try {
           assertExpectedUpdatedAt(post.updatedDate, expected);
@@ -170,7 +170,7 @@ export function registerRevisionsRoutes(routes: FastifyInstance, db: PrismaClien
         const revision = await loadRevision(db, post.id, revisionId);
         if (!revision) return notFound(reply);
         const body = bodyObject(request.body);
-        const expected = field(body.expected_updated_date ?? body.expectedUpdatedDate);
+        const expected = field(body.expectedUpdatedDate);
         if (!expected) return failed('VA', 'Check the current post version.');
         try {
           const result = await restoreRevision(db, account, post, revision, expected);

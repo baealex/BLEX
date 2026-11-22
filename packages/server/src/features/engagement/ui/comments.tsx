@@ -165,7 +165,7 @@ function CommentForm({
   return <form className="space-y-3" method="post" action={nativeForm?.action} onSubmit={handleSubmit}>
     {nativeForm && <>
       <input type="hidden" name="csrfmiddlewaretoken" value={nativeForm.csrfToken} />
-      <input type="hidden" name="return_to" value={nativeForm.returnTo} />
+      <input type="hidden" name="returnTo" value={nativeForm.returnTo} />
     </>}
     <div className="relative">
       <textarea ref={textarea} name="commentMd" className={fieldClass} value={value} rows={3} maxLength={10000} required

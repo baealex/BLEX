@@ -114,14 +114,14 @@ test('returns the legacy raw post-like envelope and serializes concurrent toggle
   assert.deepEqual(anonymous.json(), { status: 'error', message: 'Authentication required' });
 
   const first = await app.inject({ method: 'POST', url: '/like/public-post', headers: signedIn });
-  assert.deepEqual(first.json(), { status: 'done', count_likes: 1, has_liked: true });
+  assert.deepEqual(first.json(), { status: 'done', countLikes: 1, hasLiked: true });
   const toggles = await Promise.all([
     app.inject({ method: 'POST', url: '/like/public-post', headers: signedIn }),
     app.inject({ method: 'POST', url: '/like/public-post', headers: signedIn }),
   ]);
-  assert.deepEqual(toggles.map((response) => response.json()).sort((left, right) => left.count_likes - right.count_likes), [
-    { status: 'done', count_likes: 0, has_liked: false },
-    { status: 'done', count_likes: 1, has_liked: true },
+  assert.deepEqual(toggles.map((response) => response.json()).sort((left, right) => left.countLikes - right.countLikes), [
+    { status: 'done', countLikes: 0, hasLiked: false },
+    { status: 'done', countLikes: 1, hasLiked: true },
   ]);
   const rows = await db.$queryRaw<Array<{ count: number | bigint }>>`
     SELECT COUNT(*) AS count FROM "PostLike" WHERE postId = 1 AND userId = 2
@@ -252,7 +252,7 @@ test('gets, edits, likes and soft-deletes comments with owner checks', async () 
   assert.equal(Number(changed[0]?.edited), 1);
   const formEdit = await app.inject({ method: 'POST', url: '/v1/comments/11',
     headers: { ...signedIn, 'content-type': 'application/x-www-form-urlencoded' },
-    payload: 'action=edit&commentMd=Edited+from+the+article&return_to=%2F%40editor%2Fpublic',
+    payload: 'action=edit&commentMd=Edited+from+the+article&returnTo=%2F%40editor%2Fpublic',
   });
   assert.equal(formEdit.statusCode, 303);
   assert.equal(formEdit.headers.location, '/@editor/public#comment-11');

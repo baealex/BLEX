@@ -93,7 +93,7 @@ export const updatePostShareLink = (
     username: string,
     postUrl: string,
     linkId: number,
-    changes: { label: string } | { is_paused: boolean }
+    changes: { label: string } | { isPaused: boolean }
 ) => http.patch<Response<Record<string, never>>>(
     `${postShareLinksPath(username, postUrl)}/${linkId}`,
     changes
@@ -173,14 +173,14 @@ export interface DraftSummary {
     updatedDate: string;
 }
 
-export const createDraft = async (data: { title: string; content: string; tags: string; subtitle?: string; description?: string; series_url?: string; cover_layout?: string; cover_image_position?: string; cover_image_ratio?: string; is_hide?: boolean; is_advertise?: boolean; block_comment?: boolean; reserved_date?: string } | FormData) => {
+export const createDraft = async (data: { title: string; content: string; tags: string; subtitle?: string; description?: string; seriesUrl?: string; coverLayout?: string; coverImagePosition?: string; coverImageRatio?: string; isHide?: boolean; isAdvertise?: boolean; blockComment?: boolean; reservedDate?: string } | FormData) => {
     if (data instanceof FormData) {
         return http.post<Response<{ url: string }>>('v1/drafts', data, { headers: { 'Content-Type': 'multipart/form-data' } });
     }
     return http.post<Response<{ url: string }>>('v1/drafts', data, { headers: { 'Content-Type': 'application/json' } });
 };
 
-export const updateDraft = async (url: string, data: { title?: string; content?: string; tags?: string; subtitle?: string; description?: string; series_url?: string; cover_layout?: string; cover_image_position?: string; cover_image_ratio?: string; is_hide?: boolean; is_advertise?: boolean; block_comment?: boolean; reserved_date?: string } | FormData) => {
+export const updateDraft = async (url: string, data: { title?: string; content?: string; tags?: string; subtitle?: string; description?: string; seriesUrl?: string; coverLayout?: string; coverImagePosition?: string; coverImageRatio?: string; isHide?: boolean; isAdvertise?: boolean; blockComment?: boolean; reservedDate?: string } | FormData) => {
     if (data instanceof FormData) {
         return http.put<Response<{ url: string }>>(`v1/drafts/${url}`, data, { headers: { 'Content-Type': 'multipart/form-data' } });
     }

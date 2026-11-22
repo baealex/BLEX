@@ -58,13 +58,13 @@ const PostsFilter = ({
         tag => typeof tag.name === 'string' && tag.name.trim().length > 0
     );
     const getOrderLabel = (order: string) => {
-        if (isScheduled && order === '-published_date') {
+        if (isScheduled && order === '-publishedDate') {
             return t({
                 id: 'settings.posts.order.scheduled_farthest',
                 message: 'Latest scheduled time'
             });
         }
-        if (isScheduled && order === 'published_date') {
+        if (isScheduled && order === 'publishedDate') {
             return t({
                 id: 'settings.posts.order.scheduled_soonest',
                 message: 'Soonest scheduled time'

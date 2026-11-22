@@ -105,27 +105,27 @@ export function validatePostInput(input: AuthoringPostInput, allowEmptyBody: boo
 }
 
 export function parseAuthoringPostInput(body: Record<string, unknown>): AuthoringPostInput {
-  const text = inputField(body, 'content_html', 'content', 'text_html', 'text_md', 'content_markdown', 'markdown');
-  const contentType = field(body.content_type) || (body.content_markdown !== undefined || body.markdown !== undefined ? 'markdown' : 'html');
+  const text = inputField(body, 'contentHtml', 'content', 'textHtml', 'textMd', 'contentMarkdown', 'markdown');
+  const contentType = field(body.contentType) || (body.contentMarkdown !== undefined || body.markdown !== undefined ? 'markdown' : 'html');
   const tagsValue = Array.isArray(body.tag) ? body.tag : Array.isArray(body.tags) ? body.tags : undefined;
   return {
     title: field(body.title),
     subtitle: field(body.subtitle),
     text,
     contentType,
-    description: inputField(body, 'description', 'meta_description'),
-    url: field(body.url) || field(body.custom_url),
+    description: inputField(body, 'description', 'metaDescription'),
+    url: field(body.url) || field(body.customUrl),
     tags: tagsValue ? tagsValue.map(field).join(',') : inputField(body, 'tag', 'tags'),
-    series: field(body.series) || field(body.series_url),
-    hide: booleanField(body.is_hide ?? body.hide),
-    advertise: booleanField(body.is_advertise ?? body.advertise),
-    blockComment: booleanField(body.block_comment),
-    coverLayout: field(body.cover_layout) || 'default',
-    coverImagePosition: field(body.cover_image_position) || 'right',
-    coverImageRatio: field(body.cover_image_ratio) || 'auto',
-    coverImage: Object.hasOwn(body, 'cover_image_url') ? field(body.cover_image_url) : undefined,
-    removeCoverImage: booleanField(body.remove_cover_image),
-    reservedDate: field(body.reserved_date),
+    series: field(body.series) || field(body.seriesUrl),
+    hide: booleanField(body.isHide ?? body.hide),
+    advertise: booleanField(body.isAdvertise ?? body.advertise),
+    blockComment: booleanField(body.blockComment),
+    coverLayout: field(body.coverLayout) || 'default',
+    coverImagePosition: field(body.coverImagePosition) || 'right',
+    coverImageRatio: field(body.coverImageRatio) || 'auto',
+    coverImage: Object.hasOwn(body, 'coverImageUrl') ? field(body.coverImageUrl) : undefined,
+    removeCoverImage: booleanField(body.removeCoverImage),
+    reservedDate: field(body.reservedDate),
   };
 }
 

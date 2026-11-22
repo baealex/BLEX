@@ -70,7 +70,7 @@ export function registerManagementRoutes(routes: FastifyInstance, db: PrismaClie
         }
         if (!options.validateCsrf(request)) return forbidden(reply);
         const slug = request.params.url;
-        const expected = field(queryObject(request).expectedDeletedDate ?? queryObject(request).expected_deleted_date);
+        const expected = field(queryObject(request).expectedDeletedDate);
         if (!slug || !expected) return failed('VA', 'Check the current trash state.');
         const post = await loadTrashedPost(db, account, slug);
         if (!post) return notFound(reply);
@@ -89,7 +89,7 @@ export function registerManagementRoutes(routes: FastifyInstance, db: PrismaClie
       if (!account) return reply;
       if (!options.validateCsrf(request)) return forbidden(reply);
       const body = bodyObject(request.body);
-      const expected = field(body.expected_deleted_date ?? body.expectedDeletedDate);
+      const expected = field(body.expectedDeletedDate);
       if (!expected) return failed('VA', 'Check the current trash state.');
       const post = await loadTrashedPost(db, account, request.params.url);
       if (!post) return notFound(reply);

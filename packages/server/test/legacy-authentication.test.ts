@@ -141,7 +141,7 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     assert.equal((await app.inject(url)).headers.location, '/@neweditor/developer-draft');
     const visited = await app.inject({ url: shareApi, headers: verified });
     assert.equal(visited.json().body.links[0].totalClicks, 1);
-    const paused = await app.inject({ method: 'PATCH', url: `${shareApi}/${link.id}`, headers: verified, payload: { is_paused: true } });
+    const paused = await app.inject({ method: 'PATCH', url: `${shareApi}/${link.id}`, headers: verified, payload: { isPaused: true } });
     assert.equal(paused.json().status, 'DONE');
     assert.equal((await app.inject(url)).statusCode, 404);
     const concealed = await app.inject({ method: 'PATCH', url: updateUrl, headers: apiRequest.headers, payload: { is_hidden: true } });
