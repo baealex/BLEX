@@ -23,7 +23,6 @@ jobs:
         target:
           - { image: 'baealex/blex:latest', category: blex-container }
           - { image: 'baealex/blex:4', category: blex-4-container }
-          - { image: 'baealex/blex:4-migration', category: blex-4-migration }
     steps:
       - uses: actions/checkout@v6
 

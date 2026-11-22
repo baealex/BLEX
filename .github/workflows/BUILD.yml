@@ -98,20 +98,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Build migration candidate
-        id: migration
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          file: ./Dockerfile
-          target: migration
-          platforms: linux/amd64,linux/arm64/v8
-          pull: true
-          push: true
-          tags: ${{ env.IMAGE }}:${{ github.sha }}-migration
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-
       - name: Scan AMD64 candidate
         uses: ./.github/actions/image-security
         with:
@@ -127,55 +113,30 @@ jobs:
           platform: linux/arm64
           category: blex-container-arm64
 
-      - name: Scan AMD64 migration candidate
-        uses: ./.github/actions/image-security
-        with:
-          image: ${{ env.IMAGE }}@${{ steps.migration.outputs.digest }}
-          platform: linux/amd64
-          category: blex-migration-amd64
-
-      - name: Scan ARM64 migration candidate
-        if: ${{ !cancelled() && steps.migration.outcome == 'success' }}
-        uses: ./.github/actions/image-security
-        with:
-          image: ${{ env.IMAGE }}@${{ steps.migration.outputs.digest }}
-          platform: linux/arm64
-          category: blex-migration-arm64
-
       - name: Publish verified release tags
         if: github.ref_type == 'tag'
         env:
           RELEASE_VERSION: ${{ steps.release.outputs.version }}
           IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
-          MIGRATION_DIGEST: ${{ steps.migration.outputs.digest }}
         run: |
           major="${RELEASE_VERSION%%.*}"
           docker buildx imagetools create \
             --tag "${IMAGE}:${RELEASE_VERSION}" \
             --tag "${IMAGE}:${major}" \
             "${IMAGE}@${IMAGE_DIGEST}"
-          docker buildx imagetools create \
-            --tag "${IMAGE}:${RELEASE_VERSION}-migration" \
-            --tag "${IMAGE}:${major}-migration" \
-            "${IMAGE}@${MIGRATION_DIGEST}"
 
       - name: Verify multi-platform release image
         if: github.ref_type == 'tag'
         env:
           RELEASE_VERSION: ${{ steps.release.outputs.version }}
           IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
-          MIGRATION_DIGEST: ${{ steps.migration.outputs.digest }}
         shell: bash
         run: |
           major="${RELEASE_VERSION%%.*}"
-          for suffix in '' -migration; do
-            expected="$IMAGE_DIGEST"
-            if [[ "$suffix" == -migration ]]; then expected="$MIGRATION_DIGEST"; fi
-            for tag in "$RELEASE_VERSION$suffix" "$major$suffix"; do
-              manifest=$(docker buildx imagetools inspect "${IMAGE}:${tag}")
-              grep -q 'linux/amd64' <<< "$manifest"
-              grep -q 'linux/arm64' <<< "$manifest"
-              digest=$(awk '/^Digest:/ { print $2 }' <<< "$manifest")
-              test "$digest" = "$expected"
-            done
+          for tag in "$RELEASE_VERSION" "$major"; do
+            manifest=$(docker buildx imagetools inspect "${IMAGE}:${tag}")
+            grep -q 'linux/amd64' <<< "$manifest"
+            grep -q 'linux/arm64' <<< "$manifest"
+            digest=$(awk '/^Digest:/ { print $2 }' <<< "$manifest")
+            test "$digest" = "$IMAGE_DIGEST"
           done

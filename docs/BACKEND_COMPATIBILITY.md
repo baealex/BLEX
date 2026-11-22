@@ -15,7 +15,7 @@ All test paths below are relative to `packages/server/test/`.
 | Public visibility, Markdown, sitemaps, and RSS | `public-discovery.test.ts`, `public-post.test.ts`, `public-pages.test.ts` |
 | Public and private media, uploads, and deletion | `public-media.test.ts`, `content-media.test.ts`, `work-logs.test.ts` |
 | Developer API token scopes and write operations | `developer-api.test.ts` |
-| Existing database migration and schema constraints | `database-baseline.test.ts`, `upgrade-data-regressions.test.ts` |
+| Existing database migration and schema constraints | `database-startup.test.ts`, `legacy-database.test.ts`, `upgrade-data-regressions.test.ts` |
 
 ## Verification
 

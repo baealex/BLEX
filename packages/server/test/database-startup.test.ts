@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
-import { DatabaseSetupError, prepareDatabase } from '../src/startup/prepare-database.js';
+import { DatabaseSetupError, portMappingProblem, prepareDatabase } from '../src/startup/prepare-database.js';
 import { insertRow } from './fixtures/migrated-database.js';
 
 const legacySchema = new URL('../../prisma/legacy/django-3.14.sql', import.meta.url);
@@ -34,6 +34,22 @@ async function createLegacyDatabase(path: string, version = '0070_author_subscri
 
 const fileHash = async (path: string) => createHash('sha256').update(await readFile(path)).digest('hex');
 const count = (db: DatabaseSync, table: string) => Number((db.prepare(`SELECT COUNT(*) AS total FROM "${table}"`).get() as { total: number }).total);
+
+test('stops a Compose file that still maps the 3.x container port', async () => {
+  assert.equal(portMappingProblem(undefined, '8040'), null);
+  assert.equal(portMappingProblem('127.0.0.1:20002:8040', '8040'), null);
+  assert.equal(portMappingProblem('8080:8040/tcp', '8040'), null);
+  assert.equal(portMappingProblem('9000:9000', '9000'), null);
+  assert.match(portMappingProblem('127.0.0.1:20002:80', '8040') ?? '', /Change it to 127\.0\.0\.1:20002:8040/);
+
+  const space = await workspace();
+  try {
+    await assert.rejects(prepareDatabase({ ...space.options, portMapping: '20002:80' }), DatabaseSetupError);
+    assert.equal(existsSync(space.databasePath), false);
+  } finally {
+    await space.cleanup();
+  }
+});
 
 test('creates a new database and leaves it in place on the next start', async () => {
   const space = await workspace();
@@ -63,6 +79,10 @@ test('imports a 3.14 installation once and leaves the original unchanged', async
     insertRow(legacy, 'board_post', { id: 6, author_id: 7, url: 'published', title: 'Published', published_date: '2020-01-01 00:00:00.123456' });
     insertRow(legacy, 'board_comment', { id: 1, post_id: 6, author_id: 7, text_md: 'Hello', text_html: '<p>Hello</p>' });
     insertRow(legacy, 'django_session', { session_key: 'discarded', session_data: 'x', expire_date: '2099-01-01' });
+    insertRow(legacy, 'board_worklog', { id: 3, owner_id: 7, title: 'Imported log', created_at: '2024-02-03 04:05:06.789000' });
+    insertRow(legacy, 'board_worklogentry', { id: 4, log_id: 3, title: 'Imported entry', created_at: '2024-02-03 04:05:07+09:00' });
+    insertRow(legacy, 'board_worklogshare', { id: 5, log_id: 3, token: 'a'.repeat(32), headline: 'Shared', created_at: '2024-02-03 04:05:08' });
+    insertRow(legacy, 'board_worklogshare_entries', { worklogshare_id: 5, worklogentry_id: 4 });
     legacy.exec(`UPDATE sqlite_sequence SET seq = 40 WHERE name = 'board_post'`);
     legacy.close();
     await writeFile(join(space.legacyRoot, 'resources', 'media', 'images', 'cover.png'), 'image');
@@ -83,6 +103,9 @@ test('imports a 3.14 installation once and leaves the original unchanged', async
     assert.deepEqual({ ...imported.prepare('SELECT post_id, publish_at FROM blex_scheduled_publication').get() }, { post_id: 5, publish_at: '2099-01-01 00:00:00' });
     assert.equal(Number((imported.prepare(`SELECT seq FROM sqlite_sequence WHERE name = 'board_post'`).get() as { seq: number }).seq), 40);
     assert.equal(count(imported, '_prisma_migrations'), 1);
+    assert.equal(Number((imported.prepare('SELECT createdAt FROM WorkLog WHERE id = 3').get() as { createdAt: number }).createdAt), Date.UTC(2024, 1, 3, 4, 5, 6, 789));
+    assert.equal(Number((imported.prepare('SELECT createdAt FROM WorkLogEntry WHERE id = 4').get() as { createdAt: number }).createdAt), Date.UTC(2024, 1, 2, 19, 5, 7));
+    assert.deepEqual({ ...imported.prepare('SELECT A, B FROM _WorkLogEntryToWorkLogShare').get() }, { A: 4, B: 5 });
     imported.close();
 
     const changed = new DatabaseSync(source);

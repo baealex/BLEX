@@ -21,7 +21,13 @@ if (!readOnly && siteUrl.protocol === 'https:' && !trustedProxies) {
 }
 if (!readOnly) {
   try {
-    await prepareDatabase({ databasePath: dbPath, mediaRoot: process.env.BLEX_V4_MEDIA_PATH, legacyRoot: process.env.BLEX_LEGACY_PATH });
+    await prepareDatabase({
+      databasePath: dbPath,
+      mediaRoot: process.env.BLEX_V4_MEDIA_PATH,
+      legacyRoot: process.env.BLEX_LEGACY_PATH,
+      portMapping: process.env.BLEX_PORT_MAPPING,
+      containerPort: String(port),
+    });
   } catch (error) {
     if (!(error instanceof DatabaseSetupError)) throw error;
     console.error(error.message);

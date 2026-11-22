@@ -7,7 +7,6 @@ import { createAuthorPost, publishAuthorDraft, updateAuthorPost } from '../src/f
 import { syncPostPublication } from '../src/features/notifications/model.js';
 import { sanitizePostHtml } from '../src/features/posts/post-html.js';
 import { trustedProxiesFromEnv } from '../src/platform/runtime-config.js';
-import { upgradeProblems } from '../src/compat/upgrade-preflight.js';
 import {
   createMigratedDatabase, insertRow, seedEditor, seedPost, signIn,
   testCipherKey, testSecretKey, testSiteUrl,
@@ -161,17 +160,3 @@ test('reads the 3.x trusted proxy setting when the BLEX 4 name is absent', () =>
   assert.equal(trustedProxiesFromEnv({ BLEX_TRUSTED_PROXIES: ' , ' }), undefined);
 });
 
-test('stops a Compose upgrade that would miss the 3.x data or port', () => {
-  const clean = { portMapping: '127.0.0.1:20002:8040', containerPort: '8040', legacyDatabase: false, currentDatabase: false };
-  assert.deepEqual(upgradeProblems(clean), []);
-  assert.deepEqual(upgradeProblems({ ...clean, portMapping: '8080:8040/tcp' }), []);
-  assert.deepEqual(upgradeProblems({ ...clean, portMapping: '9000:9000', containerPort: '9000' }), []);
-  assert.deepEqual(upgradeProblems({ ...clean, legacyDatabase: true, currentDatabase: true }), []);
-
-  assert.match(upgradeProblems({ ...clean, unwritableMediaFolders: 3 })[0], /chown -R 1000:1000/);
-
-  const [port] = upgradeProblems({ ...clean, portMapping: '127.0.0.1:20002:80' });
-  assert.match(port, /127\.0\.0\.1:20002:8040/);
-  const [data] = upgradeProblems({ ...clean, legacyDatabase: true });
-  assert.match(data, /BLEX_DATA/);
-});

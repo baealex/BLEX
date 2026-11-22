@@ -34,22 +34,38 @@ const guidance: Record<'legacy' | 'prerelease' | 'unknown', string> = {
   unknown: 'This file is not a BLEX database. Check the BLEX 4 data directory.',
 };
 
+/** A 3.x Compose file still maps to port 80, which would start a site nobody can reach. */
+export function portMappingProblem(portMapping: string | undefined, containerPort: string): string | null {
+  if (!portMapping) return null;
+  const parts = portMapping.split('/')[0].split(':');
+  const mappedPort = parts.at(-1);
+  if (mappedPort === containerPort) return null;
+  const suggested = [...parts.slice(0, -1), containerPort].join(':');
+  return `BLEX_PORT_MAPPING points to container port ${mappedPort}, but BLEX 4 listens on ${containerPort}. Change it to ${suggested}.`;
+}
+
 export interface PrepareDatabaseOptions {
   databasePath: string;
   mediaRoot?: string;
   legacyRoot?: string;
   oldComposeDatabase?: string;
+  portMapping?: string;
+  containerPort?: string;
   log?: (message: string) => void;
 }
 
 /** Brings the database to the current schema before the server opens it. */
 export async function prepareDatabase({
-  databasePath, mediaRoot, legacyRoot = '/legacy', oldComposeDatabase = '/app/db.sqlite3', log = console.info,
+  databasePath, mediaRoot, legacyRoot = '/legacy', oldComposeDatabase = '/app/db.sqlite3',
+  portMapping, containerPort = '8040', log = console.info,
 }: PrepareDatabaseOptions) {
   if (existsSync(oldComposeDatabase)) {
     throw new DatabaseSetupError('Found a BLEX 3.x Compose setup. Your data was not changed. Use the baealex/blex:4 image, map the port to 8040, '
       + 'mount a data volume at /var/lib/blex, and mount ./backend/src read-only at /legacy. See docs/UPGRADE_FROM_3.md.');
   }
+
+  const portProblem = portMappingProblem(portMapping, containerPort);
+  if (portProblem) throw new DatabaseSetupError(`${portProblem} Your data was not changed.`);
 
   const kind = databaseKind(databasePath);
   if (kind === 'legacy' || kind === 'prerelease' || kind === 'unknown') {

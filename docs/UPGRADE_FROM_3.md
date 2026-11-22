@@ -1,76 +1,72 @@
 # Upgrade from BLEX 3.14 to 4
 
-For new installations and routine operations, use the [self-hosting guide](SELF_HOSTING.md). This guide explains how to migrate an existing SQLite database, media files, and accounts to BLEX 4. The previous code and documentation are available at the `v3.14` Git tag.
+BLEX 4 imports a 3.14 installation once, the first time it starts. The original database and media are mounted read-only and stay unchanged. For new installations and routine operations, use the [self-hosting guide](SELF_HOSTING.md).
 
-## Preparation
+## Before you start
 
-- The final Django migration in 3.14 is `0070_author_subscription`. Upgrade older installations to this schema before migrating to BLEX 4.
-- Existing password hashes and social account links are preserved. Users must sign in again after the upgrade.
-- Preserve `CIPHER_KEY`, `SECRET_KEY`, and `SITE_URL`. Changing `CIPHER_KEY` prevents BLEX from reading stored social login and two-factor authentication secrets.
+- **Reach 3.14 first.** BLEX 4 only imports the final 3.14 schema. If you run an older 3.x version, set the image to `baealex/blex:3.14`, start it once so it applies its migrations, and stop it.
+- **Back up** the SQLite database, media, and environment file.
+- **Keep `SECRET_KEY`, `CIPHER_KEY`, and `SITE_URL`.** Changing `CIPHER_KEY` prevents BLEX from reading stored social login and two-factor authentication secrets.
+- Password hashes and social account links are preserved. Everyone signs in again after the upgrade.
 
-Build the migration image from the repository root.
+## Upgrade with Compose
 
-```sh
-docker build --target migration -t blex4-migration .
-export BLEX_DATA=/absolute/path/to/blex4-data
-mkdir -p "$BLEX_DATA/media"
-```
-
-## Move the database and media
-
-1. Stop the existing service and back up the SQLite database, media, and environment file. Use the SQLite CLI's `.backup` command or a consistent snapshot. Keep the originals and place working copies at `$BLEX_DATA/db.sqlite3` and `$BLEX_DATA/media/`.
-2. Apply the remaining 3.14 migrations to the database copy.
+1. Stop BLEX 3.x.
 
    ```sh
-   docker run --rm --env-file /absolute/path/to/blex3.env \
-     --mount "type=bind,source=$BLEX_DATA/db.sqlite3,target=/app/db.sqlite3" \
-     --mount "type=bind,source=$BLEX_DATA/media,target=/app/resources/media" \
-     --entrypoint python baealex/blex:3.14 manage.py migrate --noinput
+   docker compose down
    ```
 
-3. Set ownership so the BLEX 4 container's `node` user (Linux UID 1000) can read from and write to the copied data directory, database, and media files. SQLite must be able to create journal files, and media subdirectories must also be writable.
-4. Verify the schema, SQLite integrity, and foreign keys. Register the Prisma baseline, then apply the BLEX 4 migrations.
+2. Change the `blex` service in `docker-compose.yml`. BLEX 4 listens on port 8040 and keeps its data in a volume of its own, with the 3.x folder mounted read-only at `/legacy`.
+
+   ```yaml
+   services:
+     blex:
+       image: baealex/blex:4
+       env_file: ./backend/.env
+       restart: unless-stopped
+       ports:
+         - "127.0.0.1:20002:8040"
+       volumes:
+         - blex-data:/var/lib/blex
+         - ./backend/src:/legacy:ro
+
+   volumes:
+     blex-data:
+   ```
+
+3. If your environment file sets `BLEX_PORT_MAPPING`, change its container port from `80` to `8040`. Behind an HTTPS proxy, set `BLEX_TRUSTED_PROXIES` to the proxy's IP address or CIDR range. BLEX also reads the previous `TRUSTED_PROXY_IPS` setting.
+
+4. Start BLEX 4 and read the log.
 
    ```sh
-   docker run --rm --user 1000:1000 \
-     --mount "type=bind,source=$BLEX_DATA,target=/var/lib/blex" \
-     -e DATABASE_URL=file:/var/lib/blex/db.sqlite3 blex4-migration sh -ec '
-       node dist/src/compat/database-baseline.js /var/lib/blex/db.sqlite3 &&
-       node node_modules/prisma/build/index.js migrate resolve --applied 0000_django_3x &&
-       node node_modules/prisma/build/index.js migrate deploy'
+   docker compose pull
+   docker compose up -d
+   docker compose logs blex
    ```
 
-   Register the baseline only once per database. If `migrate resolve` succeeded, retry from `migrate deploy`. Later BLEX 4 upgrades use `migrate deploy` without repeating the baseline verification.
+   The log reports how many rows were imported. Check that post and media URLs work, then test password login, social login, two-factor authentication, saving a post, and the admin settings.
 
-## Configure and start Compose
+## What the first start does
 
-Copy your existing configuration from `backend/.env` to `.env` at the repository root, then update the following settings.
+1. Checks that `/legacy/db.sqlite3` is an intact 3.14 database.
+2. Builds a new database beside the destination and copies your data into it, leaving out Django's internal records and old sessions.
+3. Copies media into the BLEX 4 data volume.
+4. Verifies the result and moves the new database into place.
 
-| Setting | Change |
-| --- | --- |
-| `BLEX_DATA` | Absolute path to the migrated data directory |
-| `BLEX_PORT_MAPPING` | Change the container port from `80` to `8040`, for example `127.0.0.1:20002:8040` |
-| `BLEX_TRUSTED_PROXIES` | HTTPS proxy IP addresses or CIDR ranges. BLEX also reads the previous `TRUSTED_PROXY_IPS` setting as a fallback |
-| `SITE_URL`, `SECRET_KEY`, `CIPHER_KEY` | Preserve the existing values |
+If any step fails, BLEX removes the unfinished database, reports the reason, and exits. Fix the problem and start it again. Once the import succeeds, later starts use the BLEX 4 database and never read `/legacy` again.
 
-```sh
-docker compose up --build -d
-docker compose logs blex
-```
+BLEX also stops without changing data if it finds an unchanged 3.x Compose file, a 3.x database in the BLEX 4 data directory, or a port mapping that still points to port 80.
 
-Compose's preflight checks prevent startup if the container port mapping is incorrect, an existing database has not been copied into the new data directory, or media directories are not writable.
+## Roll back
 
-Check that existing post and media URLs still work. Test password login, social login, two-factor authentication, saving posts, and the admin settings. To restore the previous version, first decide how to handle changes made after the switch, then restore the pre-upgrade database and media backups together.
+Restore your previous `docker-compose.yml` and start BLEX 3.14. Its database was not changed. Posts, comments, and settings written in BLEX 4 are not carried back.
 
-## Preview public pages from a backup
-
-Before switching to BLEX 4, preview public pages using a read-only copy of the database. Run from the repository root.
+## Later updates
 
 ```sh
-pnpm install
-pnpm build
-BLEX_V4_READ_ONLY=1 BLEX_V4_DB_PATH=/absolute/path/to/db.sqlite3 \
-  BLEX_V4_MEDIA_PATH=/absolute/path/to/media pnpm start
+docker compose pull
+docker compose up -d
 ```
 
-Open `http://localhost:8040`. Signing in and editing are disabled in this mode.
+BLEX applies any new migrations when it starts. You can remove the `/legacy` mount after a successful import.

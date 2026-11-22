@@ -1,30 +1,20 @@
 services:
-  migrate:
+  blex:
     build:
       context: .
-      target: migration
+    env_file: ${BLEX_ENV_FILE:-./.env}
     environment:
       BLEX_PORT_MAPPING: ${BLEX_PORT_MAPPING:-127.0.0.1:20002:8040}
-      BLEX_CONTAINER_PORT: ${PORT:-8040}
-    command: ["sh", "-ec", "node dist/src/compat/upgrade-preflight.js && exec node node_modules/prisma/build/index.js migrate deploy"]
+    restart: unless-stopped
     volumes:
       - ${BLEX_DATA:-blex-data}:/var/lib/blex
+      # BLEX imports a 3.14 install from here once, on its first start.
       - type: bind
         source: ./backend/src
         target: /legacy
         read_only: true
         bind:
           create_host_path: true
-  blex:
-    build:
-      context: .
-    env_file: ${BLEX_ENV_FILE:-./.env}
-    depends_on:
-      migrate:
-        condition: service_completed_successfully
-    restart: unless-stopped
-    volumes:
-      - ${BLEX_DATA:-blex-data}:/var/lib/blex
     ports:
       - "${BLEX_PORT_MAPPING:-127.0.0.1:20002:8040}"
 
