@@ -5,8 +5,8 @@ export type IdentityMode = 'account' | 'signup';
 
 export async function prepareUsernameChange(tx: Prisma.TransactionClient, userId: number, previous: string, username: string, mode: IdentityMode) {
   if (username === previous) return null;
-  if (!accountUsernamePattern.test(username)) return '아이디는 소문자 영문과 숫자로 4~15자를 입력해 주세요.';
-  if (await tx.user.findUnique({ where: { username }, select: { id: true } })) return '이미 사용 중인 아이디입니다.';
+  if (!accountUsernamePattern.test(username)) return '사용자 이름은 4~15자 사이의 소문자 영어, 숫자만 가능합니다.';
+  if (await tx.user.findUnique({ where: { username }, select: { id: true } })) return '이미 사용중인 아이디입니다.';
   const [post] = await tx.$queryRaw<unknown[]>`SELECT 1 FROM board_post WHERE author_id = ${userId} LIMIT 1`;
   if (post || mode === 'signup') {
     const since = new Date(Date.now() - 180 * 86_400_000).toISOString().slice(0, -1).replace('T', ' ');

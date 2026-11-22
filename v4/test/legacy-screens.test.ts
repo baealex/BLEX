@@ -111,6 +111,30 @@ test('mounts the 3.x editor for new, draft, and existing posts', async () => {
   }
 });
 
+test('mounts the 3.x search and signup screens', async () => {
+  const fixture = await screensApp();
+  try {
+    const search = await fixture.app.inject('/search?q=hello&username=writer');
+    assert.equal(islandProps(search.body).name, 'SearchPage');
+    assert.deepEqual(islandProps(search.body).props, { username: 'writer' });
+    assert.match(search.body, /name="robots" content="noindex,follow"/);
+    assert.doesNotMatch(search.body, /data-site-search/);
+    assert.doesNotMatch(search.body, /isAuthenticated/);
+
+    const signup = await fixture.app.inject('/sign?invite=welcome&next=/tags');
+    assert.equal(islandProps(signup.body).name, 'Signup');
+    const globals = /id="blex-island-globals"[^>]*>([^<]+)</.exec(signup.body);
+    assert.deepEqual(JSON.parse(globals?.[1] ?? '{}'), { HCAPTCHA_SITE_KEY: '', NEXT_URL: '/tags', INVITE_CODE: 'welcome' });
+    assert.doesNotMatch(signup.body, /js\.hcaptcha\.com\/1\/api\.js/);
+
+    const signedIn = await fixture.app.inject({ url: '/sign?next=/tags', headers: signIn(fixture.db, 2) });
+    assert.equal(signedIn.statusCode, 302);
+    assert.equal(signedIn.headers.location, '/tags');
+  } finally {
+    await fixture.close();
+  }
+});
+
 test('saves long multipart editor submissions with a cover image', async () => {
   const fixture = await screensApp();
   try {

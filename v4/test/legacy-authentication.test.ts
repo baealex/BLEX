@@ -8,7 +8,7 @@ import { PrismaClient } from '@prisma/client';
 import { Secret, TOTP } from 'otpauth';
 import { buildApp } from '../src/app.js';
 import { verifyDjangoPassword } from '../src/auth/django-password.js';
-import { decryptDjangoSecret } from '../src/auth/django-secret.js';
+import { decryptDjangoSecret, encryptDjangoSecret } from '../src/auth/django-secret.js';
 import { authenticatePassword } from '../src/auth/password-login.js';
 import { verifyDjangoSecondFactor } from '../src/auth/two-factor.js';
 import { PUBLIC_POST_QUERY_ID, VIEWER_QUERY_ID } from '../src/graphql.js';
@@ -68,7 +68,7 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     assert.equal(page.statusCode, 200);
     assert.match(page.body, /value="synthetic-invite"/);
     const captchaDb = new DatabaseSync(path);
-    captchaDb.prepare('UPDATE board_loginsetting SET hcaptcha_enabled = 1, hcaptcha_site_key = ? WHERE id = 1').run('synthetic-site-key');
+    captchaDb.prepare('UPDATE board_loginsetting SET hcaptcha_enabled = 1, hcaptcha_site_key = ?, hcaptcha_secret_key = ? WHERE id = 1').run('synthetic-site-key', encryptDjangoSecret('synthetic-captcha-secret', cipherKey));
     captchaDb.close();
     const captchaPage = await app.inject('/sign');
     assert.equal(captchaPage.statusCode, 200, captchaPage.body);
@@ -623,7 +623,7 @@ test('creates a first administrator against an empty Prisma database once', asyn
       method: 'POST', url: '/setup', headers,
       payload: { ...account, setup_token: setupToken, password: 'password123', password_check: 'password123' },
     });
-    assert.match(weak.body, /흔한 비밀번호/);
+    assert.match(weak.body, /흔히 사용되는 비밀번호/);
     const created = await app.inject({
       method: 'POST', url: '/setup', headers,
       payload: { ...account, setup_token: setupToken, password, password_check: password },

@@ -117,13 +117,13 @@ export function registerSetup(app: FastifyInstance, db: PrismaClient, siteUrl: U
       .send(setupMarkup(csrf, validToken ? provided : '', message));
 
     if (!validToken) return fail('설정 토큰을 확인해 주세요.');
-    if (!accountUsernamePattern.test(username)) return fail('아이디는 소문자 영문과 숫자로 4~15자를 입력해 주세요.');
+    if (!accountUsernamePattern.test(username)) return fail('사용자 이름은 4~15자 사이의 소문자 영어, 숫자만 가능합니다.');
     if (!displayName || displayName.length > 150) return fail('표시 이름을 확인해 주세요.');
-    if (email.length > 254 || !accountEmailPattern.test(email)) return fail('유효한 이메일을 입력해 주세요.');
+    if (email.length > 254 || !accountEmailPattern.test(email)) return fail('올바른 이메일 주소가 아닙니다.');
     if (password !== fields.password_check) return fail('비밀번호가 일치하지 않습니다.');
     const passwordError = describeInvalidPassword(password, [username, displayName, email]);
     if (passwordError) return fail(passwordError);
-    if (await db.user.findUnique({ where: { username }, select: { id: true } })) return fail('이미 사용 중인 아이디입니다.');
+    if (await db.user.findUnique({ where: { username }, select: { id: true } })) return fail('이미 사용중인 아이디입니다.');
 
     const passwordHash = await hashDjangoPassword(password);
     const userId = await db.$transaction(async (tx) => {

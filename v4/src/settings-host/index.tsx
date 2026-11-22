@@ -5,11 +5,13 @@ import { access, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { renderToString } from 'react-dom/server';
 import { readAdminAccess } from '../admin-settings/access.js';
-import { SiteHeader, SiteTheme } from '../appearance/shell.js';
+import { SiteFooter, SiteHeader, SiteTheme } from '../appearance/shell.js';
 import { applicationContentSecurityPolicy, scriptJson } from '../application/document.js';
 import { authCookieOptions, csrfCookie, requestCookies } from '../auth/cookies.js';
 import { decryptDjangoSecret } from '../auth/django-secret.js';
+import { safeReturnPath } from '../auth/oauth.js';
 import { createToken } from '../auth/session.js';
+import { hasAdministrator } from '../auth/setup.js';
 import { readPublicSiteBrand } from '../public-pages/index.js';
 
 interface ManifestEntry { file: string }
@@ -79,6 +81,31 @@ async function readViewerState(db: PrismaClient, userId: number, cipherKey: stri
   return { ...row, telegramConfigured: Boolean(row.telegramToken && decryptsToValue(row.telegramToken, cipherKey)) };
 }
 
+type ViewerState = Awaited<ReturnType<typeof readViewerState>>;
+interface IslandViewer { user: { id: number; username: string }; isStaff: boolean; state: ViewerState }
+interface IslandPage {
+  component: string;
+  props: Record<string, unknown>;
+  title: (siteName: string) => string;
+  robots?: string;
+  canonical?: string;
+  contentClass?: string;
+  globals?: Record<string, unknown>;
+  captcha?: boolean;
+  searchPage?: boolean;
+  hideAuthLinks?: boolean;
+  footer?: boolean;
+}
+
+/** 3.x only offers the captcha widget when the stored secret can actually verify it. */
+async function readCaptchaSiteKey(db: PrismaClient, cipherKey: string): Promise<string> {
+  const [row] = await db.$queryRaw<Array<{ enabled: number | bigint | boolean; siteKey: string; secret: string }>>`
+    SELECT hcaptcha_enabled AS enabled, hcaptcha_site_key AS siteKey, hcaptcha_secret_key AS secret
+      FROM board_loginsetting WHERE id = 1
+  `;
+  return row?.enabled && decryptsToValue(row.secret, cipherKey) ? row.siteKey.trim() : '';
+}
+
 export function registerSettingsHost(app: FastifyInstance, db: PrismaClient, options: SettingsHostOptions) {
   let manifest: Promise<Manifest> | undefined;
   const readManifest = () => manifest ??= readFile(`${options.islandsRoot}.vite/manifest.json`, 'utf8').then((text) => JSON.parse(text) as Manifest);
@@ -89,43 +116,43 @@ export function registerSettingsHost(app: FastifyInstance, db: PrismaClient, opt
     });
   });
 
-  const sendIsland = async (
-    request: FastifyRequest, reply: FastifyReply, user: { id: number; username: string }, isStaff: boolean,
-    component: string, componentProps: (isEditor: boolean, state: Awaited<ReturnType<typeof readViewerState>>) => Record<string, unknown>, pageTitle: string,
-  ) => {
-    const [state, brand, assets] = await Promise.all([readViewerState(db, user.id, options.cipherKey), readPublicSiteBrand(db), readManifest()]);
+  const sendDocument = async (request: FastifyRequest, reply: FastifyReply, viewer: IslandViewer | null, page: IslandPage) => {
+    const [brand, assets] = await Promise.all([readPublicSiteBrand(db), readManifest()]);
     let csrf = requestCookies(request)[csrfCookie] ?? '';
     if (!/^[A-Za-z0-9_-]{43}$/.test(csrf)) {
       csrf = createToken();
       reply.setCookie(csrfCookie, csrf, authCookieOptions(options.siteUrl));
     }
-    const isEditor = state.role === 'EDITOR';
-    const props = componentProps(isEditor, state);
     const configuration = {
       media: '/resources/media/', static: '/resources/',
-      locale: state.language || 'ko',
-      timeZone: state.timeZone || process.env.TZ || 'Asia/Seoul',
-      user: { isAuthenticated: 'True', username: user.username },
+      locale: viewer?.state.language || 'ko',
+      timeZone: viewer?.state.timeZone || process.env.TZ || 'Asia/Seoul',
+      ...(viewer ? { user: { isAuthenticated: 'True', username: viewer.user.username } } : {}),
       googleClientId: '', githubClientId: '',
     };
-    const island = `<island-component name="${component}" data-island-name="${component}" data-island-status="pending" class="block" props="${encodeURIComponent(JSON.stringify(props))}"><div data-island-fallback role="status" aria-live="polite" class="flex min-h-52 items-center justify-center gap-2 py-12 text-sm font-medium text-content-secondary"><span aria-hidden="true" class="h-4 w-4 animate-spin rounded-full border-2 border-line-strong border-t-action motion-reduce:animate-none"></span><span>불러오는 중...</span></div></island-component>`;
-    const title = pageTitle.replace('{site}', brand.siteName);
+    const island = `<island-component name="${page.component}" data-island-name="${page.component}" data-island-status="pending" class="block" props="${encodeURIComponent(JSON.stringify(page.props))}"><div data-island-fallback role="status" aria-live="polite" class="flex min-h-52 items-center justify-center gap-2 py-12 text-sm font-medium text-content-secondary"><span aria-hidden="true" class="h-4 w-4 animate-spin rounded-full border-2 border-line-strong border-t-action motion-reduce:animate-none"></span><span>불러오는 중...</span></div></island-component>`;
+    const robots = page.robots ?? 'noindex,nofollow';
     const html = renderToString(<html lang={configuration.locale}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="color-scheme" content="light dark" />
-        <meta name="robots" content="noindex,nofollow" />
-        <title>{title}</title>
+        <meta name="robots" content={robots} />
+        <title>{page.title(brand.siteName)}</title>
+        {page.canonical && <link rel="canonical" href={page.canonical} />}
         <link rel="icon" href={brand.faviconUrl} />
         <SiteTheme />
         {styleEntries.map((entry) => <link key={entry} rel="stylesheet" href={manifestAsset(assets, entry)} />)}
         <script type="application/json" id="blex-island-config" dangerouslySetInnerHTML={{ __html: scriptJson(configuration) }} />
+        {page.globals && <script type="application/json" id="blex-island-globals" dangerouslySetInnerHTML={{ __html: scriptJson(page.globals) }} />}
+        {page.captcha && <script src="https://js.hcaptcha.com/1/api.js" async defer />}
       </head>
       <body className="antialiased bg-surface-page text-content selection:bg-action selection:text-content-inverted">
         <input type="hidden" name="csrfmiddlewaretoken" value={csrf} />
-        <SiteHeader brand={brand} viewer={{ username: user.username, hasEditorRole: isEditor, isStaff, csrfToken: csrf, unreadCount: Number(state.unread) }} />
-        <main className="min-h-[calc(100vh-10.5rem)]"><div dangerouslySetInnerHTML={{ __html: island }} /></main>
+        <SiteHeader brand={brand} searchPage={page.searchPage} hideAuthLinks={page.hideAuthLinks}
+          viewer={viewer ? { username: viewer.user.username, hasEditorRole: viewer.state.role === 'EDITOR', isStaff: viewer.isStaff, csrfToken: csrf, unreadCount: Number(viewer.state.unread) } : null} />
+        <main className="min-h-[calc(100vh-10.5rem)]"><div className={page.contentClass} dangerouslySetInnerHTML={{ __html: island }} /></main>
+        {page.footer && <SiteFooter brand={brand} />}
         <script type="module" src="/assets/blex/island-host.js" />
         <script type="module" src={manifestAsset(assets, loaderEntry)} />
       </body>
@@ -135,6 +162,44 @@ export function registerSettingsHost(app: FastifyInstance, db: PrismaClient, opt
       .header('Vary', 'Cookie')
       .header('Content-Security-Policy', applicationContentSecurityPolicy)
       .send(`<!doctype html>${html}`);
+  };
+
+  const sendIsland = async (
+    request: FastifyRequest, reply: FastifyReply, user: { id: number; username: string }, isStaff: boolean,
+    component: string, componentProps: (isEditor: boolean, state: ViewerState) => Record<string, unknown>, pageTitle: string,
+  ) => {
+    const state = await readViewerState(db, user.id, options.cipherKey);
+    return sendDocument(request, reply, { user, isStaff, state }, {
+      component, props: componentProps(state.role === 'EDITOR', state), title: (site) => pageTitle.replace('{site}', () => site),
+    });
+  };
+
+  // Signed-in visitors and first-run installs keep the existing /sign redirects.
+  const sendSignup = async (request: FastifyRequest, reply: FastifyReply, query: URLSearchParams) => {
+    if (await options.currentUser(request) || !await hasAdministrator(db)) return undefined;
+    const next = safeReturnPath(query.get('next') ?? undefined, options.siteUrl);
+    const siteKey = await readCaptchaSiteKey(db, options.cipherKey);
+    return sendDocument(request, reply, null, {
+      component: 'Signup', props: {}, title: (site) => `회원가입 - ${site}`, robots: 'noindex',
+      contentClass: 'flex items-center justify-center my-16 px-4 md:px-6', hideAuthLinks: true, footer: true, captcha: Boolean(siteKey),
+      globals: { HCAPTCHA_SITE_KEY: siteKey, NEXT_URL: next === '/' ? '' : next, INVITE_CODE: (query.get('invite') ?? '').trim() },
+    });
+  };
+
+  const sendSearch = async (request: FastifyRequest, reply: FastifyReply, query: URLSearchParams) => {
+    const user = await options.currentUser(request);
+    const account = user ? await readAdminAccess(db, user.id) : null;
+    const viewer = user && account?.active
+      ? { user, isStaff: account.staff, state: await readViewerState(db, user.id, options.cipherKey) }
+      : null;
+    const username = (query.get('username') ?? '').trim();
+    const searchText = query.get('q');
+    return sendDocument(request, reply, viewer, {
+      component: 'SearchPage', props: username ? { username } : {},
+      title: (site) => (searchText ? `검색: ${searchText} - ${site}` : `검색 - ${site}`),
+      robots: 'noindex,follow', canonical: new URL('/search', options.siteUrl).href,
+      contentClass: 'max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12', searchPage: true, footer: true,
+    });
   };
 
   const sendHost = (request: FastifyRequest, reply: FastifyReply, mode: 'user' | 'admin', basePath: string, user: { id: number; username: string }, isStaff: boolean, isSuperuser: boolean, canManageSiteSettings: boolean) =>
@@ -181,6 +246,11 @@ export function registerSettingsHost(app: FastifyInstance, db: PrismaClient, opt
     const path = rawPath.replace(/\/{2,}/g, '/');
     const editorResponse = await sendEditor(request, reply, path, query);
     if (editorResponse) return editorResponse;
+    if (path === '/search') return sendSearch(request, reply, new URLSearchParams(query));
+    if (path === '/sign') {
+      const signup = await sendSignup(request, reply, new URLSearchParams(query));
+      if (signup) return signup;
+    }
     const match = /^\/(settings|admin-settings)(?:\/(.*))?$/.exec(path);
     if (!match) return;
     const [, area, rest] = match;

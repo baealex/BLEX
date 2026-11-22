@@ -33,6 +33,12 @@ async function signupSettings(db: PrismaClient) {
   return settings;
 }
 
+/** Like 3.x, a captcha without a usable secret is treated as switched off. */
+function activeCaptcha(settings: SignupSettings | undefined, cipherKey: string) {
+  const secret = settings?.captchaEnabled ? decryptDjangoSecret(settings.secretKey, cipherKey) : null;
+  return secret ? { secret, siteKey: settings!.siteKey.trim() } : null;
+}
+
 function legacyError(code: string, errorMessage: string) {
   return { status: 'ERROR', errorCode: `error:${code}`, errorMessage };
 }
@@ -49,7 +55,7 @@ async function findInvite(db: PrismaClient | Prisma.TransactionClient, code: str
     SELECT id, is_active AS active, claimed_by_id AS owner FROM board_authorinvite WHERE code = ${code}
   `;
   if (!invite) throw new InvalidSignup('유효하지 않은 초대 코드입니다.', 'RJ');
-  if (!invite.active || invite.owner !== null) throw new InvalidSignup('이미 사용했거나 만료된 초대 코드입니다.', 'RJ');
+  if (!invite.active || invite.owner !== null) throw new InvalidSignup('이미 사용되었거나 비활성화된 초대 코드입니다.', 'RJ');
   return invite;
 }
 
@@ -71,16 +77,16 @@ async function verifyChallenge(fetchProvider: typeof fetch, secret: string, chal
 }
 
 async function createPasswordAccount(db: PrismaClient, request: FastifyRequest, config: AuthConfig) {
-  if (!await hasAdministrator(db)) throw new InvalidSignup('먼저 관리자 계정을 만들어 주세요.', 'RJ');
+  if (!await hasAdministrator(db)) throw new InvalidSignup('첫 관리자 계정을 먼저 만들어주세요.', 'RJ');
   const input = formInput(request);
   const username = regularField(input, 'username');
   const displayName = regularField(input, 'name');
   const email = regularField(input, 'email');
   const password = regularField(input, 'password');
   const inviteCode = regularField(input, 'invite_code').trim();
-  if (!accountUsernamePattern.test(username)) throw new InvalidSignup('아이디는 소문자 영문과 숫자로 4~15자를 입력해 주세요.');
-  if (await db.user.findUnique({ where: { username }, select: { id: true } })) throw new InvalidSignup('이미 사용 중인 아이디입니다.');
-  if (email.length > 254 || !accountEmailPattern.test(email)) throw new InvalidSignup('유효한 이메일을 입력해 주세요.');
+  if (await db.user.findUnique({ where: { username }, select: { id: true } })) throw new InvalidSignup('이미 사용중인 아이디입니다.');
+  if (!accountUsernamePattern.test(username)) throw new InvalidSignup('사용자 이름은 4~15자 사이의 소문자 영어, 숫자만 가능합니다.');
+  if (email.length > 254 || !accountEmailPattern.test(email)) throw new InvalidSignup('올바른 이메일 주소가 아닙니다.');
   if (displayName.length > 150) throw new InvalidSignup('표시 이름은 150자까지 입력할 수 있습니다.');
   const passwordError = describeInvalidPassword(password, [username, displayName, email]);
   if (passwordError) throw new InvalidSignup(passwordError);
@@ -88,12 +94,12 @@ async function createPasswordAccount(db: PrismaClient, request: FastifyRequest, 
   const settings = await signupSettings(db);
   const attempt = await reserveLoginAttempt(db, `${config.secretKey}:signup`, request.ip, username);
   if (!attempt) throw new InvalidSignup('가입 시도가 너무 많습니다. 잠시 후 다시 시도해 주세요.', 'RJ');
-  if (settings?.captchaEnabled) {
+  const captcha = activeCaptcha(settings, config.cipherKey);
+  if (captcha) {
     const challenge = regularField(input, 'h-captcha-response').trim();
-    const secret = decryptDjangoSecret(settings.secretKey, config.cipherKey);
-    if (!challenge) throw new InvalidSignup('보안 인증을 완료해 주세요.');
-    if (!secret || !await verifyChallenge(config.fetchProvider ?? fetch, secret, challenge)) {
-      throw new InvalidSignup('보안 인증에 실패했습니다.', 'RJ');
+    if (!challenge) throw new InvalidSignup('보안 검증이 필요합니다.');
+    if (!await verifyChallenge(config.fetchProvider ?? fetch, captcha.secret, challenge)) {
+      throw new InvalidSignup('보안 검증에 실패했습니다.', 'RJ');
     }
   }
 
@@ -103,7 +109,7 @@ async function createPasswordAccount(db: PrismaClient, request: FastifyRequest, 
   const userId = await db.$transaction(async (tx) => {
     // Acquire the SQLite write lock before rechecking the username and invitation.
     await tx.$executeRaw`UPDATE auth_user SET username = username WHERE username = ${username}`;
-    if (await tx.user.findUnique({ where: { username }, select: { id: true } })) throw new InvalidSignup('이미 사용 중인 아이디입니다.');
+    if (await tx.user.findUnique({ where: { username }, select: { id: true } })) throw new InvalidSignup('이미 사용중인 아이디입니다.');
     const invite = await findInvite(tx, inviteCode);
     const id = await insertAccount(tx, {
       username, displayName, email: normalizeAccountEmail(email), passwordHash, editor: Boolean(invite), language, timeZone,
@@ -180,7 +186,7 @@ export function registerSignup(app: FastifyInstance, db: PrismaClient, siteUrl: 
     const [settings, providers, brand] = await Promise.all([signupSettings(db), publicOAuthProviders(db, config.cipherKey), readPublicSiteBrand(db)]);
     return reply.setCookie(csrfCookie, csrf, authCookieOptions(siteUrl)).type('text/html; charset=utf-8')
       .send(signupMarkup(csrf, next, typeof request.query.invite === 'string' ? request.query.invite : '',
-        settings?.captchaEnabled ? settings.siteKey : '', providers.map((provider) => provider.name), brand));
+        activeCaptcha(settings, config.cipherKey)?.siteKey ?? '', providers.map((provider) => provider.name), brand));
   });
 
   for (const route of ['/sign', '/v1/sign']) {
@@ -204,7 +210,7 @@ export function registerSignup(app: FastifyInstance, db: PrismaClient, siteUrl: 
         if (route === '/v1/sign') return legacyError(error.code, error.message);
         const [settings, providers, brand] = await Promise.all([signupSettings(db), publicOAuthProviders(db, config.cipherKey), readPublicSiteBrand(db)]);
         return reply.type('text/html; charset=utf-8').send(signupMarkup(request.cookies[csrfCookie] ?? '', next,
-          regularField(formInput(request), 'invite_code'), settings?.captchaEnabled ? settings.siteKey : '', providers.map((provider) => provider.name), brand, error.message));
+          regularField(formInput(request), 'invite_code'), activeCaptcha(settings, config.cipherKey)?.siteKey ?? '', providers.map((provider) => provider.name), brand, error.message));
       }
     });
   }

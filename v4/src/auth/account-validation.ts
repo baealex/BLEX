@@ -48,16 +48,19 @@ function similarity(left: string, right: string): number {
   return (2 * matches) / ([...left].length + [...right].length);
 }
 
+// Django's own Korean validator wording, in the order callers pass the account fields.
+const personalFieldLabels = ['사용자 이름', '이름', '이메일 주소'];
+
 export function describeInvalidPassword(password: string, personalFields: string[]): string | null {
   if ([...password].length < 8) return '비밀번호는 8자 이상이어야 합니다.';
   const lower = password.toLowerCase();
-  for (const field of personalFields) {
+  for (const [index, field] of personalFields.entries()) {
     const parts = field.toLowerCase().split(/[^\p{L}\p{N}_]+/u);
     if ([...parts, field.toLowerCase()].some((part) => part && similarity(lower, part) >= 0.7)) {
-      return '비밀번호는 아이디, 이름, 이메일과 달라야 합니다.';
+      return `비밀번호가 ${personalFieldLabels[index]}와 너무 유사합니다.`;
     }
   }
-  if (isCommon(password)) return '너무 흔한 비밀번호입니다.';
-  if (/^\p{N}+$/u.test(password)) return '숫자 외 문자도 포함해 주세요.';
+  if (isCommon(password)) return '너무 흔히 사용되는 비밀번호입니다.';
+  if (/^\p{N}+$/u.test(password)) return '비밀번호가 전부 숫자로 되어 있습니다.';
   return null;
 }
