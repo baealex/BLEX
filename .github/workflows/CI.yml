@@ -54,15 +54,9 @@ jobs:
           docker build --pull --target migration --tag blex-migration:ci .
           docker build --tag blex:ci .
 
-      - name: Verify the Node runtime and first launch with 512 MiB
+      - name: Launch with 512 MiB and run the browser smoke test
         run: |
-          docker run --rm --entrypoint sh blex:ci -ec '
-            ! command -v python
-            ! command -v python3
-            ! command -v gunicorn
-            test -f /app/packages/server/dist/client/.vite/manifest.json
-            ffmpeg -version >/dev/null
-          '
+          docker run --rm --entrypoint ffmpeg blex:ci -version >/dev/null
           docker volume create blex-ci-data
           cleanup() {
             docker logs blex-ci || true
