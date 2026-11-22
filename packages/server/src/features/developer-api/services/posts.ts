@@ -2,7 +2,7 @@ import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyReply } from 'fastify';
 import { AuthenticatedToken } from './token-auth.js';
 import { postIdsMatching, type PostTextField } from '../../posts/data/text-match.js';
-import { settledPublicPostWhere } from '../../posts/data/visibility.js';
+import { publicPostWhere } from '../../posts/data/visibility.js';
 import { DeveloperApiError, QueryValue, errorReply, formatError, parseIntegerQuery, readScalar, toIsoDateTime } from '../shared.js';
 
 const postSelect = {
@@ -35,7 +35,7 @@ function statusFilter(status: string, now: Date): Prisma.PostWhereInput | Develo
   switch (status) {
     case '': return {};
     case 'draft': return { publishedAt: null };
-    case 'published': return settledPublicPostWhere(now);
+    case 'published': return publicPostWhere(now);
     case 'scheduled': return { publishedAt: { gt: now } };
     case 'hidden': return { publishedAt: { lte: now }, isHidden: true };
     default: return formatError('post.invalid_status', 'Unsupported status.', 400);

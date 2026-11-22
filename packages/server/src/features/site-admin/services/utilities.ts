@@ -2,7 +2,7 @@ import { Prisma, type PrismaClient } from '@prisma/client';
 import type { FastifyRequest } from 'fastify';
 import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import { buildImageCleanupPlan, executeImageCleanupPlan, imageCleanupPlanApi } from './image-cleanup.js';
-import { settledPublicPostWhere } from '../../posts/data/visibility.js';
+import { publicPostWhere } from '../../posts/data/visibility.js';
 import { AdminSettingsOptions, ApiResult, Body, isRecord } from '../shared.js';
 
 export type UtilityAction = 'clean_tags' | 'clean_sessions' | 'clean_logs' | 'clean_images';
@@ -152,7 +152,7 @@ export async function readUtilityStats(db: PrismaClient): Promise<Record<string,
   const epoch = BigInt(Date.now());
   const active = { deletedAt: null };
   const totalPosts = await db.post.count();
-  const publicPosts = await db.post.count({ where: settledPublicPostWhere(now) });
+  const publicPosts = await db.post.count({ where: publicPostWhere(now) });
   const publishedPosts = await db.post.count({ where: { ...active, publishedAt: { lte: now } } });
   const scheduledPosts = await db.post.count({ where: { ...active, publishedAt: { gt: now } } });
   const hiddenPosts = await db.post.count({ where: { isHidden: true } });

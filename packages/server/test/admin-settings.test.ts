@@ -125,11 +125,11 @@ function seedDatabase() {
       (5, 'profileless', 'No Profile', 'profileless@example.test', 1, 0, 0, '2025-01-04 00:00:00', NULL);
     INSERT INTO board_profile (id, user_id, role) VALUES
       (1, 1, 'EDITOR'), (2, 2, 'EDITOR'), (3, 3, 'READER'), (4, 4, 'EDITOR');
-    INSERT INTO "Post" ("id", "authorId", "deletedAt", "publishedAt", "slug", "title", "createdAt", "updatedAt", "hasSettings") VALUES
-    (1, 1, NULL, NULL, 'post-1', '', 946684800000, 946684800000, 0),
-    (2, 1, NULL, NULL, 'post-2', '', 946684800000, 946684800000, 0),
-    (3, 1, 1735948800000, NULL, 'post-3', '', 946684800000, 946684800000, 0),
-    (4, 3, NULL, 4070908800000, 'post-4', '', 946684800000, 946684800000, 0);
+    INSERT INTO "Post" ("id", "authorId", "deletedAt", "publishedAt", "slug", "title", "createdAt", "updatedAt") VALUES
+    (1, 1, NULL, NULL, 'post-1', '', 946684800000, 946684800000),
+    (2, 1, NULL, NULL, 'post-2', '', 946684800000, 946684800000),
+    (3, 1, 1735948800000, NULL, 'post-3', '', 946684800000, 946684800000),
+    (4, 3, NULL, 4070908800000, 'post-4', '', 946684800000, 946684800000);
     INSERT INTO django_content_type VALUES (1, 'board', 'sitesetting');
     INSERT INTO auth_permission VALUES (1, 1, 'change_sitesetting', 'Can change site settings');
     INSERT INTO auth_user_user_permissions VALUES (1, 1, 1);

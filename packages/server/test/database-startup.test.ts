@@ -328,13 +328,13 @@ test('imports the 3.14 post domain with merged settings, keys, and counters', as
 
     const imported = new DatabaseSync(space.databasePath, { readOnly: true });
     assert.deepEqual({ ...imported.prepare(`SELECT authorId, slug, title, subtitle, description, image, imageHash, readTime, isHidden, isAdvertised, commentsBlocked,
-      hasSettings, coverLayout, coverImagePosition, coverImageRatio, createdAt, updatedAt, publishedAt, draftScheduledAt FROM Post WHERE id = 5`).get() }, {
+      coverLayout, coverImagePosition, coverImageRatio, createdAt, updatedAt, publishedAt, draftScheduledAt FROM Post WHERE id = 5`).get() }, {
       authorId: 7, slug: 'configured', title: 'Configured', subtitle: 'Sub', description: 'Desc', image: 'images/a.png', imageHash: 'hash', readTime: 3,
-      isHidden: 1, isAdvertised: 1, commentsBlocked: 1, hasSettings: 1, coverLayout: 'split', coverImagePosition: 'left', coverImageRatio: '4:3',
+      isHidden: 1, isAdvertised: 1, commentsBlocked: 1, coverLayout: 'split', coverImagePosition: 'left', coverImageRatio: '4:3',
       createdAt: Date.UTC(2024, 0, 1, 0, 0, 0, 123), updatedAt: Date.UTC(2024, 0, 2, 0, 0, 0, 654), publishedAt: Date.UTC(2024, 0, 3), draftScheduledAt: null,
     });
-    assert.deepEqual({ ...imported.prepare('SELECT isHidden, isAdvertised, commentsBlocked, hasSettings, coverLayout, coverImagePosition, coverImageRatio FROM Post WHERE id = 6').get() }, {
-      isHidden: 0, isAdvertised: 0, commentsBlocked: 0, hasSettings: 0, coverLayout: 'default', coverImagePosition: 'right', coverImageRatio: 'auto',
+    assert.deepEqual({ ...imported.prepare('SELECT isHidden, isAdvertised, commentsBlocked, coverLayout, coverImagePosition, coverImageRatio FROM Post WHERE id = 6').get() }, {
+      isHidden: 0, isAdvertised: 0, commentsBlocked: 0, coverLayout: 'default', coverImagePosition: 'right', coverImageRatio: 'auto',
     });
     assert.equal((imported.prepare('SELECT draftScheduledAt AS date FROM Post WHERE id = 9').get() as { date: number }).date, Date.UTC(2099, 1, 2));
     assert.equal((imported.prepare('SELECT draftScheduledAt AS date FROM Post WHERE id = 10').get() as { date: number | null }).date, null);

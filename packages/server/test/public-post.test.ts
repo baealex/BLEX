@@ -24,20 +24,20 @@ ${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', '
 
   INSERT INTO auth_user (id, username, password) VALUES (7, 'writer', 'test-only-password'), (8, 'other-writer', 'test-only-password');
   INSERT INTO board_usernamechangelog VALUES (1, 7, 'old-writer');
-  INSERT INTO "Post" ("id", "authorId", "slug", "title", "description", "publishedAt", "deletedAt", "createdAt", "updatedAt", "hasSettings") VALUES
-    (1, 7, 'public', 'Public article', 'Public description', 946721042123, NULL, 946684800000, 946684800000, 0),
-    (2, 7, 'hidden', 'Hidden article', '', 946721042000, NULL, 946684800000, 946684800000, 0),
-    (3, 7, 'scheduled', 'Scheduled article', '', 253370801042000, NULL, 946684800000, 946684800000, 0),
-    (4, 7, 'draft', 'Draft article', '', NULL, NULL, 946684800000, 946684800000, 0),
-    (5, 7, 'trashed', 'Trashed article', '', 946721042000, 949399442000, 946684800000, 946684800000, 0),
-    (6, 7, 'no-config', 'No config', '', 946721042000, NULL, 946684800000, 946684800000, 0),
-    (7, 7, '${legacySlug}', 'Long legacy URL', '', 946721042000, NULL, 946684800000, 946684800000, 0);
-  UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 1;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 1 WHERE id = 2;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 3;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 4;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 5;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 7;
+  INSERT INTO "Post" ("id", "authorId", "slug", "title", "description", "publishedAt", "deletedAt", "createdAt", "updatedAt") VALUES
+    (1, 7, 'public', 'Public article', 'Public description', 946721042123, NULL, 946684800000, 946684800000),
+    (2, 7, 'hidden', 'Hidden article', '', 946721042000, NULL, 946684800000, 946684800000),
+    (3, 7, 'scheduled', 'Scheduled article', '', 253370801042000, NULL, 946684800000, 946684800000),
+    (4, 7, 'draft', 'Draft article', '', NULL, NULL, 946684800000, 946684800000),
+    (5, 7, 'trashed', 'Trashed article', '', 946721042000, 949399442000, 946684800000, 946684800000),
+    (6, 7, 'no-config', 'No config', '', 946721042000, NULL, 946684800000, 946684800000),
+    (7, 7, '${legacySlug}', 'Long legacy URL', '', 946721042000, NULL, 946684800000, 946684800000);
+  UPDATE "Post" SET isHidden = 0 WHERE id = 1;
+    UPDATE "Post" SET isHidden = 1 WHERE id = 2;
+    UPDATE "Post" SET isHidden = 0 WHERE id = 3;
+    UPDATE "Post" SET isHidden = 0 WHERE id = 4;
+    UPDATE "Post" SET isHidden = 0 WHERE id = 5;
+    UPDATE "Post" SET isHidden = 0 WHERE id = 7;
   INSERT INTO SiteSetting (id, siteName, aeoEnabled, seoEnabled, logoSvg, iconManifest, updatedAt) VALUES (1, 'Synthetic Site', 1, 0, 'brand/logo/default/hash/logo.svg', '{"ico":"brand/icon/default/hash/favicon.ico"}', 946684800000);
   INSERT INTO SiteBanner (id, userId, isActive, type, position, contentHtml, scope, "order", createdAt, updatedAt) VALUES
     (1, NULL, 1, 'horizontal', 'top', '<p>Global banner</p>', 'global', 0, 946684800000, 946684800000),
@@ -102,12 +102,14 @@ test('hides posts that are not public from public pages', async () => {
   assert.equal((await app.inject('/@someone-else/public')).statusCode, 404);
 });
 
-test('redirects previous public post links and preserves direct reads for older posts without settings', async () => {
+test('redirects previous public post links, including posts imported without a settings row', async () => {
   const redirect = await app.inject('/@old-writer/public');
   assert.equal(redirect.statusCode, 302);
   assert.equal(redirect.headers.location, '/@writer/public');
   assert.equal((await app.inject('/@writer/no-config')).statusCode, 200);
-  assert.equal((await app.inject('/@old-writer/no-config')).statusCode, 404);
+  const imported = await app.inject('/@old-writer/no-config');
+  assert.equal(imported.statusCode, 302);
+  assert.equal(imported.headers.location, '/@writer/no-config');
 });
 
 test('accepts long legacy slugs and renders stored image, video, and supported embed sources', async () => {

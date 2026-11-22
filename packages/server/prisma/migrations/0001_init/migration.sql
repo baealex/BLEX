@@ -110,7 +110,6 @@ CREATE TABLE "Post" (
     "coverLayout" TEXT NOT NULL DEFAULT 'default',
     "coverImagePosition" TEXT NOT NULL DEFAULT 'right',
     "coverImageRatio" TEXT NOT NULL DEFAULT 'auto',
-    "hasSettings" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "publishedAt" DATETIME,

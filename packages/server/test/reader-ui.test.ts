@@ -44,9 +44,9 @@ ${migratedTableSql('Series', 'Post', 'PostContent', 'Tag', '_PostToTag', 'PostRe
       (1, 1, 'Author bio', 'avatars/writer.png', 'covers/writer.png', 'javascript:alert(1)', 'EDITOR'),
       (2, 2, 'Reader bio', '', '', '', 'READER'),
       (3, 3, '', '', '', '', 'EDITOR');
-    INSERT INTO "Post" ("id", "title", "slug", "authorId", "publishedAt", "deletedAt", "createdAt", "updatedAt", "hasSettings") VALUES
-    (1, 'Public post', 'public-post', 1, 1767225600000, NULL, 946684800000, 946684800000, 0);
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0, commentsBlocked = 0 WHERE id = 1;
+    INSERT INTO "Post" ("id", "title", "slug", "authorId", "publishedAt", "deletedAt", "createdAt", "updatedAt") VALUES
+    (1, 'Public post', 'public-post', 1, 1767225600000, NULL, 946684800000, 946684800000);
+    UPDATE "Post" SET isHidden = 0, commentsBlocked = 0 WHERE id = 1;
     INSERT INTO "PostLike" ("createdAt", "postId", "userId") VALUES
     (1767225600000, 1, 2);
     INSERT INTO "Comment" ("id", "markdown", "html", "isEdited", "isHearted", "createdAt", "authorId", "postId", "parentId") VALUES
@@ -83,9 +83,9 @@ function seed() {
       (1, 1, 'Author bio', 'avatars/writer.png', 'covers/writer.png', 'javascript:alert(1)', 'EDITOR'),
       (2, 2, 'Reader bio', '', '', '', 'READER'),
       (3, 3, '', '', '', '', 'EDITOR');
-    INSERT INTO "Post" ("id", "title", "slug", "authorId", "publishedAt", "deletedAt", "createdAt", "updatedAt", "hasSettings") VALUES
-    (1, 'Public post', 'public-post', 1, 1767225600000, NULL, 946684800000, 946684800000, 0);
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0, commentsBlocked = 0 WHERE id = 1;
+    INSERT INTO "Post" ("id", "title", "slug", "authorId", "publishedAt", "deletedAt", "createdAt", "updatedAt") VALUES
+    (1, 'Public post', 'public-post', 1, 1767225600000, NULL, 946684800000, 946684800000);
+    UPDATE "Post" SET isHidden = 0, commentsBlocked = 0 WHERE id = 1;
     INSERT INTO "PostLike" ("createdAt", "postId", "userId") VALUES
     (1767225600000, 1, 2);
     INSERT INTO "Comment" ("id", "markdown", "html", "isEdited", "isHearted", "createdAt", "authorId", "postId", "parentId") VALUES

@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { Prisma, type PrismaClient } from '@prisma/client';
-import { settledPublicPostWhere } from '../posts/data/visibility.js';
+import { publicPostWhere } from '../posts/data/visibility.js';
 import { publicPostPath } from '../posts/public-post.js';
 import { queuePostWebhooks } from '../integrations/webhooks/delivery.js';
 
@@ -94,7 +94,7 @@ export async function createNotification(tx: Prisma.TransactionClient, input: No
 
 export async function notifyPostSubscribers(tx: Prisma.TransactionClient, postId: number) {
   const post = await tx.post.findFirst({
-    where: { id: postId, ...settledPublicPostWhere(), author: { is_active: true, board_profile: { role: 'EDITOR' } } },
+    where: { id: postId, ...publicPostWhere(), author: { is_active: true, board_profile: { role: 'EDITOR' } } },
     select: { authorId: true, title: true, slug: true, author: { select: { username: true } } },
   });
   if (!post) return 0;
@@ -126,7 +126,7 @@ export async function notifyPostSubscribers(tx: Prisma.TransactionClient, postId
 /** Keeps the publication queue current. Only a first publication may notify readers and webhooks. */
 export async function syncPostPublication(tx: Prisma.TransactionClient, postId: number, { announce = false } = {}) {
   const post = await tx.post.findFirst({
-    where: { id: postId, deletedAt: null, isHidden: false, hasSettings: true },
+    where: { id: postId, deletedAt: null, isHidden: false },
     select: { publishedAt: true },
   });
   if (post?.publishedAt && post.publishedAt > new Date()) {

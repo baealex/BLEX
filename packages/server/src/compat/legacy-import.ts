@@ -242,7 +242,6 @@ const tableMappings: Record<string, TableMapping> = {
       is_hidden: { to: 'isHidden', sql: `${postSetting('hide', '0')} <> 0` },
       is_advertised: { to: 'isAdvertised', sql: `${postSetting('advertise', '0')} <> 0` },
       comments_blocked: { to: 'commentsBlocked', sql: `${postSetting('block_comment', '0')} <> 0` },
-      has_settings: { to: 'hasSettings', sql: 'EXISTS (SELECT 1 FROM board_postconfig WHERE post_id = board_post.id)' },
       cover_layout: { ...choiceColumn('coverLayout', ['default', 'split', 'overlay', 'none']), sql: postSetting('cover_layout', `'default'`) },
       cover_image_position: { ...choiceColumn('coverImagePosition', ['right', 'left']), sql: postSetting('cover_image_position', `'right'`) },
       cover_image_ratio: { to: 'coverImageRatio', sql: postSetting('cover_image_ratio', `'auto'`) },

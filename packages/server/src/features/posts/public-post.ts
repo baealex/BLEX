@@ -1,6 +1,6 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
 import { storedDateText } from '../../compat/django-format.js';
-import { publicPostWhere, settledPublicPostWhere } from './data/visibility.js';
+import { publicPostWhere } from './data/visibility.js';
 import { sanitizePostHtml } from './post-html.js';
 import { readPublicSiteBrand, type SiteBrand } from '../discovery/pages/index.js';
 
@@ -124,8 +124,7 @@ export async function readPublicPost(
           ...publicPostWhere(now),
           OR: [
             { author: { username } },
-            // A former username has never reached a post without a settings row.
-            { hasSettings: true, author: { usernameChanges: { some: { username } } } },
+            { author: { usernameChanges: { some: { username } } } },
           ],
         },
       ],
@@ -183,7 +182,7 @@ export async function readPostPresentation(db: PrismaClient, post: Pick<PublicPo
   ]);
   const series = placement?.series && !placement.series.isHidden ? placement.series : null;
   const seriesPosts = !series ? [] : await db.post.findMany({
-    where: { seriesId: series.id, ...settledPublicPostWhere() },
+    where: { seriesId: series.id, ...publicPostWhere() },
     orderBy: [{ publishedAt: 'asc' }, { id: 'asc' }],
     select: { id: true, slug: true, title: true },
   });

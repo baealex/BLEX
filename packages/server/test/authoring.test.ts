@@ -78,12 +78,12 @@ ${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', '
     (2, 'Another writer form', 'Private form body', 0, ${Date.now()}, ${Date.now()}, 2);
   INSERT INTO UploadedImage (id, key, path, size, userId) VALUES
     (1, 'cover-hash', 'images/content/2026/11/21/cover-test.jpg', 12, 1);
-  INSERT INTO "Post" ("id", "title", "subtitle", "slug", "image", "imageHash", "readTime", "createdAt", "updatedAt", "authorId", "seriesId", "description", "publishedAt", "deletedAt", "hasSettings") VALUES
-    (1, 'Existing', 'Existing subtitle', 'existing', '', '', 2, ${prismaDate(now)}, ${prismaDate(now)}, 1, 1, 'Existing description', ${prismaDate(now)}, NULL, 0),
-    (2, 'Draft note', '', 'draft-note', '', '', 1, ${prismaDate(now)}, ${prismaDate(now)}, 1, 1, '', NULL, NULL, 0),
-    (3, 'Scheduled', '', 'scheduled', '', '', 1, ${prismaDate(now)}, ${prismaDate(now)}, 1, NULL, '', 4070908800000, NULL, 0),
-    (4, 'Hidden', '', 'hidden-post', '', '', 1, ${prismaDate(now)}, ${prismaDate(now)}, 1, NULL, '', ${prismaDate(now)}, NULL, 0),
-    (5, 'Elapsed schedule', '', 'trashed-schedule', '', '', 1, ${prismaDate(now)}, ${prismaDate(now)}, 1, NULL, '', ${prismaDate(oneHourAgo)}, ${prismaDate(twoHoursAgo)}, 0);
+  INSERT INTO "Post" ("id", "title", "subtitle", "slug", "image", "imageHash", "readTime", "createdAt", "updatedAt", "authorId", "seriesId", "description", "publishedAt", "deletedAt") VALUES
+    (1, 'Existing', 'Existing subtitle', 'existing', '', '', 2, ${prismaDate(now)}, ${prismaDate(now)}, 1, 1, 'Existing description', ${prismaDate(now)}, NULL),
+    (2, 'Draft note', '', 'draft-note', '', '', 1, ${prismaDate(now)}, ${prismaDate(now)}, 1, 1, '', NULL, NULL),
+    (3, 'Scheduled', '', 'scheduled', '', '', 1, ${prismaDate(now)}, ${prismaDate(now)}, 1, NULL, '', 4070908800000, NULL),
+    (4, 'Hidden', '', 'hidden-post', '', '', 1, ${prismaDate(now)}, ${prismaDate(now)}, 1, NULL, '', ${prismaDate(now)}, NULL),
+    (5, 'Elapsed schedule', '', 'trashed-schedule', '', '', 1, ${prismaDate(now)}, ${prismaDate(now)}, 1, NULL, '', ${prismaDate(oneHourAgo)}, ${prismaDate(twoHoursAgo)});
   INSERT INTO "PostContent" ("postId", "html") VALUES
     (1, '<h2>Existing content</h2><p>Do not lose this.</p>'),
     (2, '<p>Draft starts here.</p>'),
@@ -93,11 +93,11 @@ ${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', '
   INSERT INTO "PostRevision" (id, postId, actorId, restoredFromId, title, subtitle, content, contentExcerpt, description, tags, sourceUpdatedAt, type, createdAt) VALUES
     (1, 1, 1, NULL, 'Old version', 'Old subtitle', '<p>Old body</p>', 'Old body', 'Old description', '["oldtag"]', ${prismaDate('2020-01-02 03:04:05.123456')}, 'edit', ${prismaDate('2020-01-02 03:04:05.123456')}),
     (2, 1, NULL, NULL, '_NO_CHANGED_', '', '_NO_CHANGED_', '', '', '[]', NULL, 'legacy', ${prismaDate('2021-01-02 03:04:05.000000')});
-  UPDATE "Post" SET hasSettings = 1, isHidden = 0, isAdvertised = 0, commentsBlocked = 1, coverLayout = 'split', coverImagePosition = 'left', coverImageRatio = '4:3' WHERE id = 1;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0, isAdvertised = 0, commentsBlocked = 0, coverLayout = 'default', coverImagePosition = 'right', coverImageRatio = 'auto' WHERE id = 2;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0, isAdvertised = 0, commentsBlocked = 0, coverLayout = 'default', coverImagePosition = 'right', coverImageRatio = 'auto' WHERE id = 3;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 1, isAdvertised = 0, commentsBlocked = 0, coverLayout = 'default', coverImagePosition = 'right', coverImageRatio = 'auto' WHERE id = 4;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 1, isAdvertised = 0, commentsBlocked = 0, coverLayout = 'default', coverImagePosition = 'right', coverImageRatio = 'auto' WHERE id = 5;
+  UPDATE "Post" SET isHidden = 0, isAdvertised = 0, commentsBlocked = 1, coverLayout = 'split', coverImagePosition = 'left', coverImageRatio = '4:3' WHERE id = 1;
+    UPDATE "Post" SET isHidden = 0, isAdvertised = 0, commentsBlocked = 0, coverLayout = 'default', coverImagePosition = 'right', coverImageRatio = 'auto' WHERE id = 2;
+    UPDATE "Post" SET isHidden = 0, isAdvertised = 0, commentsBlocked = 0, coverLayout = 'default', coverImagePosition = 'right', coverImageRatio = 'auto' WHERE id = 3;
+    UPDATE "Post" SET isHidden = 1, isAdvertised = 0, commentsBlocked = 0, coverLayout = 'default', coverImagePosition = 'right', coverImageRatio = 'auto' WHERE id = 4;
+    UPDATE "Post" SET isHidden = 1, isAdvertised = 0, commentsBlocked = 0, coverLayout = 'default', coverImagePosition = 'right', coverImageRatio = 'auto' WHERE id = 5;
   INSERT INTO "Tag" ("id", "name") VALUES
     (1, 'legacy-tag');
   INSERT INTO "_PostToTag" ("A", "B") VALUES

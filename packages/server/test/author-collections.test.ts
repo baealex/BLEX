@@ -47,31 +47,31 @@ function seed() {
     (10, 0, '**series description**', '<p><strong>series description</strong></p>', 0, 'writer-series', 'list', 1704099600000, 1704099600000, 1, 'Writer Series'),
     (11, 1, '', '', 1, 'hidden-series', 'list', 1704186000000, 1704186000000, 1, 'Hidden Series'),
     (20, 0, '', '', 0, 'other-series', 'list', 1704272400000, 1704272400000, 2, 'Other Series');
-    INSERT INTO "Post" ("id", "slug", "title", "image", "publishedAt", "deletedAt", "authorId", "seriesId", "updatedAt", "createdAt", "hasSettings") VALUES
-    (1, 'public-unassigned', 'Public unassigned', '', 1717243200000, NULL, 1, NULL, 1717243200000, 946684800000, 0),
-    (2, 'public-assigned', 'Public assigned', '', 1717329600000, NULL, 1, 10, 1717329600000, 946684800000, 0),
-    (3, 'hidden-post', 'Hidden post', '', 1717416000000, NULL, 1, NULL, 1717416000000, 946684800000, 0),
-    (4, 'draft-post', 'Draft post', '', NULL, NULL, 1, NULL, 1717502400000, 946684800000, 0),
-    (5, 'scheduled-post', 'Scheduled post', '', 4084344000000, NULL, 1, NULL, 1717588800000, 946684800000, 0),
-    (6, 'trashed-post', 'Trashed post', '', 1717675200000, 1717761600000, 1, NULL, 1717675200000, 946684800000, 0),
-    (7, 'assigned-hidden', 'Assigned hidden', '', 1717761600000, NULL, 1, 10, 1717761600000, 946684800000, 0),
-    (8, 'assigned-draft', 'Assigned draft', '', NULL, NULL, 1, 10, 1717848000000, 946684800000, 0),
-    (9, 'assigned-trash', 'Assigned trash', '', 1717934400000, 1718020800000, 1, 10, 1717934400000, 946684800000, 0),
-    (10, 'other-public', 'Other public', '', 1718020800000, NULL, 2, NULL, 1718020800000, 946684800000, 0),
-    (11, 'hidden-series-public', 'Hidden series public post', '', 1718107200000, NULL, 1, 11, 1718107200000, 946684800000, 0),
-    (12, 'public-unassigned-newest', 'Public unassigned newest', '', 1718193600000, NULL, 1, NULL, 1718193600000, 946684800000, 0);
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 1;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 2;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 1 WHERE id = 3;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 4;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 5;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 6;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 1 WHERE id = 7;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 8;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 9;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 10;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 11;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 12;
+    INSERT INTO "Post" ("id", "slug", "title", "image", "publishedAt", "deletedAt", "authorId", "seriesId", "updatedAt", "createdAt") VALUES
+    (1, 'public-unassigned', 'Public unassigned', '', 1717243200000, NULL, 1, NULL, 1717243200000, 946684800000),
+    (2, 'public-assigned', 'Public assigned', '', 1717329600000, NULL, 1, 10, 1717329600000, 946684800000),
+    (3, 'hidden-post', 'Hidden post', '', 1717416000000, NULL, 1, NULL, 1717416000000, 946684800000),
+    (4, 'draft-post', 'Draft post', '', NULL, NULL, 1, NULL, 1717502400000, 946684800000),
+    (5, 'scheduled-post', 'Scheduled post', '', 4084344000000, NULL, 1, NULL, 1717588800000, 946684800000),
+    (6, 'trashed-post', 'Trashed post', '', 1717675200000, 1717761600000, 1, NULL, 1717675200000, 946684800000),
+    (7, 'assigned-hidden', 'Assigned hidden', '', 1717761600000, NULL, 1, 10, 1717761600000, 946684800000),
+    (8, 'assigned-draft', 'Assigned draft', '', NULL, NULL, 1, 10, 1717848000000, 946684800000),
+    (9, 'assigned-trash', 'Assigned trash', '', 1717934400000, 1718020800000, 1, 10, 1717934400000, 946684800000),
+    (10, 'other-public', 'Other public', '', 1718020800000, NULL, 2, NULL, 1718020800000, 946684800000),
+    (11, 'hidden-series-public', 'Hidden series public post', '', 1718107200000, NULL, 1, 11, 1718107200000, 946684800000),
+    (12, 'public-unassigned-newest', 'Public unassigned newest', '', 1718193600000, NULL, 1, NULL, 1718193600000, 946684800000);
+    UPDATE "Post" SET isHidden = 0 WHERE id = 1;
+    UPDATE "Post" SET isHidden = 0 WHERE id = 2;
+    UPDATE "Post" SET isHidden = 1 WHERE id = 3;
+    UPDATE "Post" SET isHidden = 0 WHERE id = 4;
+    UPDATE "Post" SET isHidden = 0 WHERE id = 5;
+    UPDATE "Post" SET isHidden = 0 WHERE id = 6;
+    UPDATE "Post" SET isHidden = 1 WHERE id = 7;
+    UPDATE "Post" SET isHidden = 0 WHERE id = 8;
+    UPDATE "Post" SET isHidden = 0 WHERE id = 9;
+    UPDATE "Post" SET isHidden = 0 WHERE id = 10;
+    UPDATE "Post" SET isHidden = 0 WHERE id = 11;
+    UPDATE "Post" SET isHidden = 0 WHERE id = 12;
     INSERT INTO "PinnedPost" ("order", "createdAt", "postId", "userId") VALUES
     (0, 1717243200000, 1, 1),
     (1, 1717329600000, 3, 1),

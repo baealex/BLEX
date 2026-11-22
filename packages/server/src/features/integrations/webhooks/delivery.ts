@@ -1,5 +1,5 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
-import { settledPublicPostWhere } from '../../posts/data/visibility.js';
+import { publicPostWhere } from '../../posts/data/visibility.js';
 import { publicPostPath } from '../../posts/public-post.js';
 import { parseWebhookUrl, sendWebhook, type SendWebhook } from './transport.js';
 
@@ -51,7 +51,7 @@ export async function deliverPostWebhook(db: PrismaClient, siteUrl: URL, signal:
     select: { url: true, scope: true, ownerId: true },
   });
   const stored = channel ? await db.post.findFirst({
-    where: { id: job.postId, ...settledPublicPostWhere(sentAt) },
+    where: { id: job.postId, ...publicPostWhere(sentAt) },
     select: { authorId: true, title: true, slug: true, author: { select: { username: true, first_name: true, board_profile: { select: { role: true } } } } },
   }) : null;
   const post = stored && {

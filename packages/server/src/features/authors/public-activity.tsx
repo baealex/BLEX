@@ -4,7 +4,7 @@ import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { toIsoDateTime } from '../developer-api/index.js';
 import { storedDateText } from '../../compat/django-format.js';
-import { settledPublicPostWhere } from '../posts/data/visibility.js';
+import { publicPostWhere } from '../posts/data/visibility.js';
 import { sanitizePostHtml } from '../posts/post-html.js';
 import { publicPostPath } from '../posts/public-post.js';
 import { done, failure } from '../../platform/response.js';
@@ -40,7 +40,7 @@ async function heatmap(db: PrismaClient, userId: number, own: boolean) {
   // Include both boundary days before applying the site's calendar time zone.
   const lower = new Date(start.getTime() - 2 * 86_400_000);
   const upper = new Date(end.getTime() + 2 * 86_400_000);
-  const eligible: Prisma.PostWhereInput = own ? { deletedAt: null } : settledPublicPostWhere(end);
+  const eligible: Prisma.PostWhereInput = own ? { deletedAt: null } : publicPostWhere(end);
   const [posts, comments, likes] = await Promise.all([
     db.post.findMany({
       where: { AND: [eligible, { authorId: userId, publishedAt: { gte: lower, lte: upper } }] },
@@ -90,7 +90,7 @@ const activityLabels: Record<RecentActivity['type'], { label: string; icon: Site
 async function recentActivities(db: PrismaClient, userId: number): Promise<RecentActivity[]> {
   const now = new Date();
   const cutoff = new Date(now.getTime() - RECENT_ACTIVITY_DAYS * 86_400_000);
-  const publicPost = settledPublicPostWhere(now);
+  const publicPost = publicPostWhere(now);
   type PostActivity = { title: string; slug: string; username: string; date: Date };
   const linkedPost = { select: { title: true, slug: true, author: { select: { username: true } } } } as const;
   const [postRows, seriesRows, commentRows, likeRows] = await Promise.all([
@@ -194,7 +194,7 @@ export async function relatedPosts(db: PrismaClient, sourceId: number, sourceAut
   if (!sourceTags.length) return [];
   // Ranks on ids, dates, and counts only, then loads the eight winners.
   const candidates = await db.post.findMany({
-    where: { AND: [settledPublicPostWhere(now), { id: { not: sourceId }, tags: { some: { id: { in: sourceTags } } } }] },
+    where: { AND: [publicPostWhere(now), { id: { not: sourceId }, tags: { some: { id: { in: sourceTags } } } }] },
     select: {
       id: true, authorId: true, publishedAt: true,
       tags: { where: { id: { in: sourceTags } }, select: { id: true } },
@@ -276,7 +276,7 @@ export function registerPublicActivity(app: FastifyInstance, db: PrismaClient, o
       const { username, slug } = request.params;
       const viewer = await options.currentUser(request);
       const source = await db.post.findFirst({
-        where: { slug, deletedAt: null, author: { username }, OR: [{ authorId: viewer?.id ?? -1 }, settledPublicPostWhere()] },
+        where: { slug, deletedAt: null, author: { username }, OR: [{ authorId: viewer?.id ?? -1 }, publicPostWhere()] },
         select: { id: true, title: true, authorId: true },
       });
       if (!source) return reply.code(404).send('Not found');

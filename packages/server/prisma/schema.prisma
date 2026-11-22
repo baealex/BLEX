@@ -217,8 +217,6 @@ model Post {
   coverImagePosition CoverImagePosition @default(right)
   /// One of auto, 16:9, 4:3, 1:1, or 3:4.
   coverImageRatio    String             @default("auto")
-  /// False only for an imported 3.x post that never had a settings row. Direct reads and most lists show it, while reader actions, activity, related posts, series navigation, share links, and announcements leave it out. The first full save sets it.
-  hasSettings        Boolean            @default(true)
   createdAt          DateTime           @default(now())
   /// Set by the editor. Hiding, pinning, or moving a post must not change it.
   updatedAt          DateTime           @default(now())

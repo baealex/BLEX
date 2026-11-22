@@ -51,7 +51,6 @@ export interface StoredPost {
   hide: boolean;
   advertise: boolean;
   blockComment: boolean;
-  hasSettings: boolean;
   coverLayout: string;
   coverImagePosition: string;
   coverImageRatio: string;

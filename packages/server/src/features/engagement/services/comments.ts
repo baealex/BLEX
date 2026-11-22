@@ -1,6 +1,6 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
 import { timeSince } from '../../../compat/django-format.js';
-import { settledPublicPostWhere } from '../../posts/data/visibility.js';
+import { publicPostWhere } from '../../posts/data/visibility.js';
 import { sanitizeCommentHtml } from '../../posts/post-html.js';
 import { DEFAULT_AVATAR, absoluteMediaUrl } from '../shared.js';
 
@@ -111,8 +111,8 @@ export async function commentForViewer(
 ): Promise<PostCommentRow | null> {
   const comment = await db.comment.findUnique({ where: { id }, select: commentSelect(viewerId) });
   if (!comment) return null;
-  const post = await db.post.findFirst({
-    where: { id: comment.postId, hasSettings: true },
+  const post = await db.post.findUnique({
+    where: { id: comment.postId },
     select: {
       title: true, slug: true, commentsBlocked: true, deletedAt: true, publishedAt: true, isHidden: true,
       author: { select: { username: true } },
@@ -134,7 +134,7 @@ export async function publicComments(
   viewerId: number | null,
 ): Promise<{ canComment: boolean; comments: CommentPayload[] }> {
   const post = await db.post.findFirst({
-    where: { slug, ...settledPublicPostWhere() },
+    where: { slug, ...publicPostWhere() },
     select: { id: true, commentsBlocked: true },
   });
   if (!post) return { canComment: false, comments: [] };

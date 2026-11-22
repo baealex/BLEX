@@ -1,6 +1,6 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { settledPublicPostWhere } from '../posts/data/visibility.js';
+import { publicPostWhere } from '../posts/data/visibility.js';
 
 export interface ReaderActionUser {
   id: number;
@@ -132,13 +132,13 @@ function readerPost(row: Prisma.PostGetPayload<{ select: typeof readerPostSelect
 }
 
 export async function publicPost(db: PrismaClient, slug: string): Promise<PostRow | null> {
-  const row = await db.post.findFirst({ where: { slug, ...settledPublicPostWhere() }, select: readerPostSelect });
+  const row = await db.post.findFirst({ where: { slug, ...publicPostWhere() }, select: readerPostSelect });
   return row && readerPost(row);
 }
 
 /** 3.x still shows the owner the reader panel on a hidden or scheduled post. */
 export async function ownedPost(db: PrismaClient, slug: string, ownerId: number): Promise<PostRow | null> {
-  const row = await db.post.findFirst({ where: { slug, authorId: ownerId, deletedAt: null, hasSettings: true }, select: readerPostSelect });
+  const row = await db.post.findFirst({ where: { slug, authorId: ownerId, deletedAt: null }, select: readerPostSelect });
   return row && readerPost(row);
 }
 

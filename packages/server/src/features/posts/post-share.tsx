@@ -6,7 +6,7 @@ import { randomInt } from 'node:crypto';
 import { authCookieOptions, csrfCookie, requestCookies } from '../../platform/cookies.js';
 import { csrfPattern, formInput } from '../../platform/csrf.js';
 import { createToken } from '../auth/session.js';
-import { settledPublicPostWhere } from './data/visibility.js';
+import { publicPostWhere } from './data/visibility.js';
 import { publicPostPath } from './public-post.js';
 import { done, messageFailure as failure } from '../../platform/response.js';
 
@@ -41,10 +41,10 @@ async function managedPost(db: PrismaClient, userId: number, parameters: PostPar
       authorId: userId, author: { username: parameters.username }, slug: parameters.slug,
       publishedAt: { not: null }, deletedAt: null,
     },
-    select: { id: true, title: true, publishedAt: true, isHidden: true, hasSettings: true },
+    select: { id: true, title: true, publishedAt: true, isHidden: true },
   });
   if (!post) return null;
-  return { id: post.id, title: post.title, canCreate: post.publishedAt! <= new Date() && !post.isHidden && post.hasSettings };
+  return { id: post.id, title: post.title, canCreate: post.publishedAt! <= new Date() && !post.isHidden };
 }
 
 async function listLinks(db: PrismaClient, postId: number, siteUrl: URL) {
@@ -71,7 +71,7 @@ async function createLink(db: PrismaClient, postId: number, authorId: number, na
     const token = Array.from({ length: 6 }, () => alphabet[randomInt(alphabet.length)]).join('');
     try {
       const link = await db.$transaction(async (tx) => {
-        const post = await tx.post.findFirst({ where: { id: postId, authorId, ...settledPublicPostWhere() }, select: { id: true } });
+        const post = await tx.post.findFirst({ where: { id: postId, authorId, ...publicPostWhere() }, select: { id: true } });
         return post && tx.postShareLink.create({ data: { token, label: name, postId: post.id, createdAt: new Date() }, select: { id: true } });
       });
       return link?.id ?? null;
@@ -114,7 +114,7 @@ export function registerPostShare(app: FastifyInstance, db: PrismaClient, option
     reply.header('Cache-Control', 'private, no-store');
     if (!/^[\w-]{1,22}$/.test(request.params.token)) return reply.code(404).send('Not found');
     const result = await db.postShareLink.findFirst({
-      where: { token: request.params.token, isPaused: false, post: settledPublicPostWhere() },
+      where: { token: request.params.token, isPaused: false, post: publicPostWhere() },
       select: { id: true, post: { select: { slug: true, author: { select: { username: true } } } } },
     });
     if (!result) return reply.code(404).send('Not found');

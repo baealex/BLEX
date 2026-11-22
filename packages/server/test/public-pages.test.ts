@@ -70,21 +70,21 @@ ${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', '
     (1, 1, 'First series description', '<p>First series description</p>', 0, 'public-series', '', 1577836800000, 1577923200000, 1, 'Public series'),
     (2, 2, 'Second series description', '<p>Second series description</p>', 0, 'other-series', '', 1578009600000, 1578096000000, 1, 'Other series'),
     (3, 3, 'Hidden series', '<p>Hidden series</p>', 1, 'hidden-series', '', 1577836800000, 1577836800000, 1, 'Hidden series');
-  INSERT INTO "Post" ("id", "title", "subtitle", "slug", "image", "readTime", "createdAt", "updatedAt", "authorId", "seriesId", "description", "publishedAt", "deletedAt", "hasSettings") VALUES
-    (1, 'Public new article', 'A useful subtitle', 'public-new', 'images/public-new.jpg', 4, 1580515200123, 1580515200123, 1, 1, 'Public description', 1580515200123, NULL, 0),
-    (2, 'Public older article', '', 'public-old', '', 2, 1577836800000, 1577836800000, 1, 2, '', 1577836800000, NULL, 0),
-    (3, 'Reader public article', '', 'reader-public', '', 1, 1577923200000, 1577923200000, 2, NULL, '', 1577923200000, NULL, 0),
-    (4, 'Hidden article', '', 'hidden-article', '', 1, 1578096000000, 1578096000000, 1, NULL, '', 1578096000000, NULL, 0),
-    (5, 'Draft article', '', 'draft-article', '', 1, 1578182400000, 1578182400000, 1, NULL, '', NULL, NULL, 0),
-    (6, 'Scheduled article', '', 'scheduled-article', '', 1, 253370764800000, 253370764800000, 1, NULL, '', 253370764800000, NULL, 0),
-    (7, 'Deleted article', '', 'deleted-article', '', 1, 1578268800000, 1578268800000, 1, NULL, '', 1578268800000, 1580515200000, 0);
-  UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 1;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 2;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 3;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 1 WHERE id = 4;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 5;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 6;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 7;
+  INSERT INTO "Post" ("id", "title", "subtitle", "slug", "image", "readTime", "createdAt", "updatedAt", "authorId", "seriesId", "description", "publishedAt", "deletedAt") VALUES
+    (1, 'Public new article', 'A useful subtitle', 'public-new', 'images/public-new.jpg', 4, 1580515200123, 1580515200123, 1, 1, 'Public description', 1580515200123, NULL),
+    (2, 'Public older article', '', 'public-old', '', 2, 1577836800000, 1577836800000, 1, 2, '', 1577836800000, NULL),
+    (3, 'Reader public article', '', 'reader-public', '', 1, 1577923200000, 1577923200000, 2, NULL, '', 1577923200000, NULL),
+    (4, 'Hidden article', '', 'hidden-article', '', 1, 1578096000000, 1578096000000, 1, NULL, '', 1578096000000, NULL),
+    (5, 'Draft article', '', 'draft-article', '', 1, 1578182400000, 1578182400000, 1, NULL, '', NULL, NULL),
+    (6, 'Scheduled article', '', 'scheduled-article', '', 1, 253370764800000, 253370764800000, 1, NULL, '', 253370764800000, NULL),
+    (7, 'Deleted article', '', 'deleted-article', '', 1, 1578268800000, 1578268800000, 1, NULL, '', 1578268800000, 1580515200000);
+  UPDATE "Post" SET isHidden = 0 WHERE id = 1;
+    UPDATE "Post" SET isHidden = 0 WHERE id = 2;
+    UPDATE "Post" SET isHidden = 0 WHERE id = 3;
+    UPDATE "Post" SET isHidden = 1 WHERE id = 4;
+    UPDATE "Post" SET isHidden = 0 WHERE id = 5;
+    UPDATE "Post" SET isHidden = 0 WHERE id = 6;
+    UPDATE "Post" SET isHidden = 0 WHERE id = 7;
   INSERT INTO "PostLike" ("postId", "userId", "createdAt") VALUES
     (1, 2, 1580601600000);
   INSERT INTO "PostContent" ("postId", "html") VALUES

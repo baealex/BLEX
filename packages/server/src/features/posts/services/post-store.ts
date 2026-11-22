@@ -7,7 +7,7 @@ import { AuthoringPostInput, DbDate, POST_URL_MAX, RESERVED_URLS, StoredPost, Us
 const storedPostSelect = {
   id: true, title: true, subtitle: true, slug: true, image: true, description: true,
   createdAt: true, updatedAt: true, publishedAt: true, deletedAt: true, authorId: true, readTime: true, seriesId: true,
-  isHidden: true, isAdvertised: true, commentsBlocked: true, hasSettings: true,
+  isHidden: true, isAdvertised: true, commentsBlocked: true,
   coverLayout: true, coverImagePosition: true, coverImageRatio: true,
   author: { select: { username: true, board_profile: { select: { avatar: true } } } },
   series: { select: { name: true, slug: true, isHidden: true } },
@@ -27,7 +27,7 @@ export async function loadPost(
     authorId: row.authorId, authorUsername: row.author.username, authorAvatar: row.author.board_profile?.avatar ?? null,
     readTime: row.readTime, seriesId: row.seriesId, seriesName: row.series?.name ?? null, seriesUrl: row.series?.slug ?? null,
     seriesHidden: row.series?.isHidden ?? false, contentHtml: row.content?.html ?? '',
-    hide: row.isHidden, advertise: row.isAdvertised, blockComment: row.commentsBlocked, hasSettings: row.hasSettings,
+    hide: row.isHidden, advertise: row.isAdvertised, blockComment: row.commentsBlocked,
     coverLayout: row.coverLayout, coverImagePosition: row.coverImagePosition, coverImageRatio: row.coverImageRatio,
   };
 }
@@ -304,8 +304,7 @@ export async function updatePost(
         title, subtitle: input.subtitle, slug: nextUrl, image: coverImage, seriesId, description,
         readTime: html === null ? readingTime(post.contentHtml) : readingTime(html),
         updatedAt: now, publishedAt: nextPublishDate,
-        // Saving the form gives an imported post without a settings row its first settings.
-        isHidden: input.hide, isAdvertised: input.advertise, commentsBlocked: input.blockComment, hasSettings: true,
+        isHidden: input.hide, isAdvertised: input.advertise, commentsBlocked: input.blockComment,
         coverLayout: input.coverLayout as CoverLayout, coverImagePosition: input.coverImagePosition as CoverImagePosition,
         coverImageRatio: input.coverImageRatio,
       },
@@ -372,10 +371,8 @@ export async function updatePostSettings(
   if (field(query.hide)) {
     const hide = !post.hide;
     await db.$transaction(async (tx) => {
-      // An imported post without a settings row keeps its visibility until a full save creates its settings.
-      await tx.post.updateMany({ where: { id: post.id, hasSettings: true }, data: { isHidden: hide } });
       if (hide) await tx.pinnedPost.deleteMany({ where: { postId: post.id } });
-      await tx.post.update({ where: { id: post.id }, data: { updatedAt: now }, select: { id: true } });
+      await tx.post.update({ where: { id: post.id }, data: { isHidden: hide, updatedAt: now }, select: { id: true } });
       await syncPostPublication(tx, post.id);
     });
     return { isHide: hide };

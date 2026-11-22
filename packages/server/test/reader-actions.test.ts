@@ -50,17 +50,17 @@ ${migratedTableSql('Series', 'Post', 'PostContent', 'Tag', '_PostToTag', 'PostRe
     (3, 3, '', '', 'EDITOR'),
     (4, 4, 'Second bio', 'https://images.example/second.png', 'EDITOR'),
     (5, 5, 'Other reader bio', '', 'READER');
-  INSERT INTO "Post" ("id", "title", "slug", "authorId", "publishedAt", "deletedAt", "createdAt", "updatedAt", "hasSettings") VALUES
-    (1, 'Public post', 'public-post', 1, 1767225600123, NULL, 946684800000, 946684800000, 0),
-    (2, 'Hidden post', 'hidden-post', 1, 1767225600123, NULL, 946684800000, 946684800000, 0),
-    (3, 'Draft post', 'draft-post', 1, NULL, NULL, 946684800000, 946684800000, 0),
-    (4, 'Blocked comments', 'blocked-comments', 1, 1767225600123, NULL, 946684800000, 946684800000, 0),
-    (5, 'Deleted post', 'deleted-post', 1, 1767225600123, 1767312000000, 946684800000, 946684800000, 0);
-  UPDATE "Post" SET hasSettings = 1, isHidden = 0, commentsBlocked = 0 WHERE id = 1;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 1, commentsBlocked = 0 WHERE id = 2;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0, commentsBlocked = 0 WHERE id = 3;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0, commentsBlocked = 1 WHERE id = 4;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0, commentsBlocked = 0 WHERE id = 5;
+  INSERT INTO "Post" ("id", "title", "slug", "authorId", "publishedAt", "deletedAt", "createdAt", "updatedAt") VALUES
+    (1, 'Public post', 'public-post', 1, 1767225600123, NULL, 946684800000, 946684800000),
+    (2, 'Hidden post', 'hidden-post', 1, 1767225600123, NULL, 946684800000, 946684800000),
+    (3, 'Draft post', 'draft-post', 1, NULL, NULL, 946684800000, 946684800000),
+    (4, 'Blocked comments', 'blocked-comments', 1, 1767225600123, NULL, 946684800000, 946684800000),
+    (5, 'Deleted post', 'deleted-post', 1, 1767225600123, 1767312000000, 946684800000, 946684800000);
+  UPDATE "Post" SET isHidden = 0, commentsBlocked = 0 WHERE id = 1;
+    UPDATE "Post" SET isHidden = 1, commentsBlocked = 0 WHERE id = 2;
+    UPDATE "Post" SET isHidden = 0, commentsBlocked = 0 WHERE id = 3;
+    UPDATE "Post" SET isHidden = 0, commentsBlocked = 1 WHERE id = 4;
+    UPDATE "Post" SET isHidden = 0, commentsBlocked = 0 WHERE id = 5;
   INSERT INTO "Comment" ("id", "markdown", "html", "isEdited", "isHearted", "createdAt", "authorId", "postId", "parentId") VALUES
     (10, 'Writer parent', '<p>Writer parent</p><script>window.bad = true</script>', 0, 0, 1767225600123, 1, 1, NULL),
     (11, 'Reader reply', '<p>Reader reply</p>', 1, 0, 1767312000654, 2, 1, 10),

@@ -35,21 +35,21 @@ ${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', '
   INSERT INTO StaticPage (id, slug, title, content, isPublished, updatedAt) VALUES (1, 'about-ai', 'About AI', '<h2>About BLEX</h2><p>Static <strong>page</strong>.</p>', 1, ${Date.UTC(2000, 0, 3)});
   INSERT INTO StaticPage (id, slug, title, content, isPublished, updatedAt) VALUES (2, 'private', 'Private page', '<p>Do not expose</p>', 0, ${Date.UTC(2000, 0, 4)});
 
-  INSERT INTO "Post" ("id", "authorId", "slug", "title", "subtitle", "publishedAt", "updatedAt", "deletedAt", "seriesId", "createdAt", "hasSettings") VALUES
-    (1, 1, 'public', 'Public Post', 'An optional subtitle', 946728000000, 947075400000, NULL, 1, 946684800000, 0),
-    (2, 1, 'hidden', 'Hidden Post', '', 946728000000, 947075400000, NULL, 1, 946684800000, 0),
-    (3, 1, 'draft', 'Draft Post', '', NULL, 947075400000, NULL, NULL, 946684800000, 0),
-    (4, 1, 'scheduled', 'Scheduled Post', '', 253370764800000, 947075400000, NULL, NULL, 946684800000, 0),
-    (5, 1, 'trashed', 'Trashed Post', '', 946728000000, 947075400000, 947116800000, NULL, 946684800000, 0),
-    (6, 1, 'series-hidden-post', 'Series hidden post', '', 946728000000, 947075400000, NULL, 1, 946684800000, 0),
-    (7, 1, 'hidden-series-post', 'Hidden series post', '', 946728000000, 947075400000, NULL, 2, 946684800000, 0);
-  UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 1;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 1 WHERE id = 2;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 3;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 4;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 5;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 1 WHERE id = 6;
-    UPDATE "Post" SET hasSettings = 1, isHidden = 0 WHERE id = 7;
+  INSERT INTO "Post" ("id", "authorId", "slug", "title", "subtitle", "publishedAt", "updatedAt", "deletedAt", "seriesId", "createdAt") VALUES
+    (1, 1, 'public', 'Public Post', 'An optional subtitle', 946728000000, 947075400000, NULL, 1, 946684800000),
+    (2, 1, 'hidden', 'Hidden Post', '', 946728000000, 947075400000, NULL, 1, 946684800000),
+    (3, 1, 'draft', 'Draft Post', '', NULL, 947075400000, NULL, NULL, 946684800000),
+    (4, 1, 'scheduled', 'Scheduled Post', '', 253370764800000, 947075400000, NULL, NULL, 946684800000),
+    (5, 1, 'trashed', 'Trashed Post', '', 946728000000, 947075400000, 947116800000, NULL, 946684800000),
+    (6, 1, 'series-hidden-post', 'Series hidden post', '', 946728000000, 947075400000, NULL, 1, 946684800000),
+    (7, 1, 'hidden-series-post', 'Hidden series post', '', 946728000000, 947075400000, NULL, 2, 946684800000);
+  UPDATE "Post" SET isHidden = 0 WHERE id = 1;
+    UPDATE "Post" SET isHidden = 1 WHERE id = 2;
+    UPDATE "Post" SET isHidden = 0 WHERE id = 3;
+    UPDATE "Post" SET isHidden = 0 WHERE id = 4;
+    UPDATE "Post" SET isHidden = 0 WHERE id = 5;
+    UPDATE "Post" SET isHidden = 1 WHERE id = 6;
+    UPDATE "Post" SET isHidden = 0 WHERE id = 7;
   INSERT INTO "PostContent" ("postId", "html") VALUES
     (1, '<h2>Outcome</h2><p>Agents <strong>parse</strong> links <a href="/source">source</a>.</p><script>unsafe()</script>'),
     (2, '<p>Hidden body</p>'),
