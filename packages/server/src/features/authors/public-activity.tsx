@@ -5,6 +5,7 @@ import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { toIsoDateTime } from '../developer-api/index.js';
 import { sanitizePostHtml } from '../posts/post-html.js';
 import { publicPostPath } from '../posts/public-post.js';
+import { done, failure } from '../../platform/response.js';
 
 interface ActivityOptions {
   currentUser: (request: FastifyRequest) => Promise<{ id: number } | null>;
@@ -16,8 +17,6 @@ const dateFormat = new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric',
 const dateLabel = new Intl.DateTimeFormat('ko-KR', { timeZone, dateStyle: 'long' });
 const relative = new Intl.RelativeTimeFormat('ko', { numeric: 'always' });
 
-function done(body: object = {}) { return { status: 'DONE', body }; }
-function failure(code: string) { return { status: 'ERROR', errorCode: `error:${code}`, errorMessage: '' }; }
 function timestamp(date: Date) { return date.toISOString().slice(0, -1).replace('T', ' '); }
 function storedDate(value: string) { return new Date(toIsoDateTime(value) ?? ''); }
 function since(value: string) {

@@ -37,6 +37,7 @@ import {
   type AdminSiteSettings,
   type AdminUtilityAction,
 } from './pages.js';
+import { done as success, failure } from '../../platform/response.js';
 
 const SITE_DEFAULT_NAME = 'BLEX';
 const SITE_DEFAULT_DESCRIPTION = 'BLOG EXPRESS ME';
@@ -166,14 +167,6 @@ interface ManagedUserRow {
 
 type ApiResult<T> = { ok: true; body: T } | { ok: false; code: string; message: string };
 type Body = Record<string, unknown>;
-
-function success(body: unknown = {}) {
-  return { status: 'DONE', body };
-}
-
-function failure(code: string, message = '') {
-  return { status: 'ERROR', errorCode: `error:${code}`, errorMessage: message };
-}
 
 function isRecord(value: unknown): value is Body {
   return Boolean(value && typeof value === 'object' && !Array.isArray(value) && !Buffer.isBuffer(value));

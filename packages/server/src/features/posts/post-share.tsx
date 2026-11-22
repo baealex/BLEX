@@ -7,6 +7,7 @@ import { authCookieOptions, csrfCookie, requestCookies } from '../auth/cookies.j
 import { csrfPattern, formInput } from '../auth/csrf.js';
 import { createToken } from '../auth/session.js';
 import { publicPostPath } from './public-post.js';
+import { done, messageFailure as failure } from '../../platform/response.js';
 
 interface ShareOptions {
   currentUser: (request: FastifyRequest) => Promise<{ id: number; username: string; hasEditorRole: boolean } | null>;
@@ -26,11 +27,6 @@ function dayAt(date = new Date()) {
 }
 
 function dateValue(now = new Date()) { return now.toISOString().slice(0, -1).replace('T', ' '); }
-function done(body: object = {}) { return { status: 'DONE', body }; }
-function failure(code: string, errorMessage = '', key?: string, params: object = {}) {
-  return { status: 'ERROR', errorCode: `error:${code}`, errorMessage, ...(key && { messageKey: key, messageParams: params }) };
-}
-
 function label(value: unknown) {
   const cleaned = typeof value === 'string' ? value.trim() : '';
   return cleaned && [...cleaned].length <= labelLimit ? cleaned : null;

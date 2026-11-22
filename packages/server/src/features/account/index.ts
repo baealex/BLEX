@@ -18,6 +18,7 @@ import {
   type ProfileSettingsView,
   type RegionalPreferences,
 } from './pages.js';
+import { done as success, failure } from '../../platform/response.js';
 
 export interface PersonalSettingsOptions {
   currentUser: (request: FastifyRequest) => Promise<PersonalSettingsUser | null>;
@@ -46,14 +47,6 @@ const DEFAULT_TIME_ZONE = process.env.TZ || 'Asia/Seoul';
 const MAX_PROFILE_IMAGE_BYTES = 10 * 1024 * 1024;
 const MAX_PROFILE_IMAGE_PIXELS = 16_000_000;
 const MAX_ABOUT_MARKDOWN_BYTES = 256 * 1024;
-
-function success(body: unknown = {}) {
-  return { status: 'DONE', body };
-}
-
-function failure(code: string, message = '', extra: Record<string, unknown> = {}) {
-  return { status: 'ERROR', errorCode: `error:${code}`, errorMessage: message, ...extra };
-}
 
 function needLogin() {
   return failure('NL');

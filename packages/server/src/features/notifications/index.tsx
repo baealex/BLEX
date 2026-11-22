@@ -7,6 +7,7 @@ import { createToken } from '../auth/session.js';
 import { SiteIcon } from '../../appearance/shell.js';
 import { renderSettingsShell } from '../../application/settings-shell.js';
 import { notificationParams, notificationPreferences, notificationText, type NotificationPreference } from './model.js';
+import { done, failure } from '../../platform/response.js';
 
 interface NotificationUser {
   id: number;
@@ -28,9 +29,6 @@ const labels: Record<NotificationPreference, string> = {
   NOTIFY_POSTS_LIKE: '내 글에 좋아요', NOTIFY_POSTS_COMMENT: '내 글에 댓글 또는 답글',
   NOTIFY_COMMENT_LIKE: '내 댓글에 좋아요', NOTIFY_MENTION: '댓글에서 나를 멘션',
 };
-
-function done(body: object = {}) { return { status: 'DONE', body }; }
-function failure(code: string, errorMessage = '') { return { status: 'ERROR', errorCode: `error:${code}`, errorMessage }; }
 
 function relativeTime(stored: string, language: string) {
   const date = new Date(stored.replace(' ', 'T') + 'Z');

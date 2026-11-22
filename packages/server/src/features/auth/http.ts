@@ -12,6 +12,7 @@ import { registerAccountSecurity } from './security.js';
 import { registerSetup } from './setup.js';
 import { registerSignup } from './signup.js';
 import { verifyDjangoSecondFactor } from './two-factor.js';
+import { done as success, failure } from '../../platform/response.js';
 
 export interface AuthConfig {
   secretKey: string;
@@ -22,14 +23,6 @@ export interface AuthConfig {
   deliverNotifications?: boolean;
   trustedProxies?: string[];
   islandsRoot?: string;
-}
-
-function success(body: Record<string, unknown> = {}) {
-  return { status: 'DONE', body };
-}
-
-function failure(code: string, errorMessage = '') {
-  return { status: 'ERROR', errorCode: `error:${code}`, errorMessage };
 }
 
 export function registerAuthentication(app: FastifyInstance, db: PrismaClient, siteUrl: URL, config: AuthConfig) {

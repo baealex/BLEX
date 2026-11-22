@@ -10,6 +10,7 @@ import { djangoJsonUtc } from '../../../compat/django-format.js';
 import type { AdminCapabilities } from '../../site-admin/pages.js';
 import { renderSettingsShell } from '../../../application/settings-shell.js';
 import { parseWebhookUrl, sendWebhook, type SendWebhook } from './transport.js';
+import { done, failure } from '../../../platform/response.js';
 
 interface ChannelOptions {
   currentUser: (request: FastifyRequest) => Promise<{
@@ -22,9 +23,6 @@ interface ChannelOptions {
 
 interface Channel { id: number; name: string; webhookUrl: string; isActive: number | bigint; failureCount: number | bigint; createdDate: string }
 type Scope = 'user' | 'global';
-
-function done(body: object = {}) { return { status: 'DONE', body }; }
-function failure(code: string, errorMessage = '') { return { status: 'ERROR', errorCode: `error:${code}`, errorMessage }; }
 
 async function channels(db: PrismaClient, scope: Scope, owner: number | null) {
   return db.$queryRaw<Channel[]>`

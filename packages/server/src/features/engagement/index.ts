@@ -6,6 +6,7 @@ import { decryptDjangoSecret } from '../auth/django-secret.js';
 import { timeSince } from '../../compat/django-format.js';
 import { sanitizeCommentHtml } from '../posts/post-html.js';
 import { publicPostPath } from '../posts/public-post.js';
+import { done, failure as error } from '../../platform/response.js';
 
 export interface ReaderActionUser {
   id: number;
@@ -133,14 +134,6 @@ const DEFAULT_AVATAR = '/resources/assets/images/default-avatar.jpg';
 const DEFAULT_LANGUAGE_DELETED_COMMENT = '<p>삭제된 댓글입니다.</p>';
 // A percent-encoded Korean character takes nine bytes, so 10,000 characters need about 90 KiB.
 const commentBodyLimit = 128 * 1024;
-
-function done(body: object = {}): Record<string, unknown> {
-  return { status: 'DONE', body };
-}
-
-function error(code: string, message = ''): Record<string, unknown> {
-  return { status: 'ERROR', errorCode: `error:${code}`, errorMessage: message };
-}
 
 function numberValue(value: DbInteger | number | bigint): number {
   return Number(value ?? 0);

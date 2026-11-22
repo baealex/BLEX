@@ -15,6 +15,7 @@ import { postContentSecurityPolicy, renderPublicPostPage } from '../pages/public
 import { sanitizePostHtml } from '../post-html.js';
 import { renderSettingsShell } from '../../../application/settings-shell.js';
 import { markdownToHtml, htmlToMarkdown } from './markdown.js';
+import { done, failure as failed } from '../../../platform/response.js';
 
 export interface AuthoringUser {
   id: number;
@@ -173,14 +174,6 @@ const RESERVED_URLS = new Set(['about', 'posts', 'series']);
 const COVER_LAYOUTS = new Set(['default', 'split', 'overlay', 'none']);
 const COVER_POSITIONS = new Set(['left', 'right']);
 const COVER_RATIOS = new Set(['auto', '16:9', '4:3', '1:1', '3:4']);
-
-function done(body: object = {}): Record<string, unknown> {
-  return { status: 'DONE', body };
-}
-
-function failed(code: string, message = ''): Record<string, unknown> {
-  return { status: 'ERROR', errorCode: `error:${code}`, errorMessage: message };
-}
 
 function numberValue(value: number | bigint | boolean | null | undefined): number {
   return Number(value ?? 0);

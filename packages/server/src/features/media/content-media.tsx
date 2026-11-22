@@ -10,6 +10,7 @@ import sharp from 'sharp';
 import { authCookieOptions, csrfCookie, requestCookies } from '../auth/cookies.js';
 import { csrfPattern } from '../auth/csrf.js';
 import { createToken } from '../auth/session.js';
+import { failure } from '../../platform/response.js';
 
 export class ContentUploadError extends Error {
   constructor(readonly code: string, message: string, readonly status: number) { super(message); }
@@ -237,7 +238,7 @@ export function registerContentMedia(app: FastifyInstance, db: PrismaClient, opt
     routes.post('/v1/image', { bodyLimit: contentUploadLimit + 8192 }, async (request, reply) => {
       const user = await options.currentUser(request);
       if (!user) return reply.code(404).send('Not found');
-      const error = (code: string, errorMessage = '') => ({ status: 'ERROR', errorCode: `error:${code}`, errorMessage });
+      const error = failure;
       if (!user.hasEditorRole) return error('AT');
       if (!options.validateCsrf(request)) return reply.code(403).send(error('RJ'));
       try {

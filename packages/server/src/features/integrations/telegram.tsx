@@ -9,6 +9,7 @@ import { csrfPattern, formInput } from '../auth/csrf.js';
 import { decryptDjangoSecret, encryptDjangoSecret } from '../auth/django-secret.js';
 import { createToken } from '../auth/session.js';
 import { renderSettingsShell } from '../../application/settings-shell.js';
+import { done, failure } from '../../platform/response.js';
 
 interface TelegramOptions {
   currentUser: (request: FastifyRequest) => Promise<{
@@ -25,8 +26,6 @@ interface TelegramOptions {
 const pagePath = '/settings/integration';
 const tokenChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
-function done(body: object = {}) { return { status: 'DONE', body }; }
-function failure(code: string, errorMessage = '') { return { status: 'ERROR', errorCode: `error:${code}`, errorMessage }; }
 function timestamp(date: Date) { return date.toISOString().slice(0, -1).replace('T', ' '); }
 
 export function telegramWebhookSecret(secretKey: string, botToken: string) {

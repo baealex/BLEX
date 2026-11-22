@@ -10,6 +10,7 @@ import { acquireVerification, hasVerification, readVerificationAccount, type Ver
 import { SiteIcon } from '../../appearance/shell.js';
 import { renderSettingsShell } from '../../application/settings-shell.js';
 import { parseScopes, toIsoDateTime } from './index.js';
+import { done } from '../../platform/response.js';
 
 interface TokenUser { id: number; username: string; hasEditorRole: boolean; isStaff?: boolean; notifyCount?: number }
 interface TokenOptions {
@@ -34,8 +35,6 @@ const tokenFields = Prisma.sql`id, name, token_prefix AS tokenPrefix, scopes,
   CAST(expires_at AS TEXT) AS expiresAt, CAST(revoked_at AS TEXT) AS revokedAt,
   CAST(last_used_at AS TEXT) AS lastUsedAt, CAST(created_date AS TEXT) AS createdAt`;
 const managePath = '/settings/developer-api';
-
-function done(body: object = {}) { return { status: 'DONE', body }; }
 
 function serialize(token: TokenRow) {
   return { ...token, scopes: parseScopes(token.scopes), expiresAt: toIsoDateTime(token.expiresAt), revokedAt: toIsoDateTime(token.revokedAt),

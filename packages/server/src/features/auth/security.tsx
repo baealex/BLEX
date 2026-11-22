@@ -18,12 +18,13 @@ import { renderSettingsShell } from '../../application/settings-shell.js';
 import { renderApplicationDocument } from '../../application/document.js';
 import { SiteFooter, SiteHeader, SiteTheme } from '../../appearance/shell.js';
 import { readPublicSiteBrand } from '../discovery/pages/index.js';
+import { done, failure } from '../../platform/response.js';
 
 const securityPath = '/settings/security';
-const success = { status: 'DONE', body: {} };
+const success = done();
 
 export function securityError(code: string, errorMessage = '') {
-  return { status: 'ERROR', errorCode: `error:${code}`, errorMessage };
+  return failure(code, errorMessage);
 }
 
 export const verificationRequired = {

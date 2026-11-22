@@ -8,6 +8,7 @@ import { markdownToHtml } from './authoring/markdown.js';
 import { djangoJsonLocal } from '../../compat/django-format.js';
 import { sanitizePostHtml } from './post-html.js';
 import { renderSettingsShell } from '../../application/settings-shell.js';
+import { done, failure } from '../../platform/response.js';
 
 interface FormViewer {
   id: number;
@@ -27,9 +28,6 @@ interface FormOptions {
 interface AuthorForm { id: number; title: string; content: string; createdDate: string }
 const formsPath = '/settings/forms';
 const bodyLimit = 1024 * 1024;
-
-function done(body: object = {}) { return { status: 'DONE', body }; }
-function failure(code: string, errorMessage = '') { return { status: 'ERROR', errorCode: `error:${code}`, errorMessage }; }
 
 function displayDate(value: string | null): string {
   if (!value) return '';

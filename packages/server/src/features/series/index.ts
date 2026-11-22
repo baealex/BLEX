@@ -14,6 +14,7 @@ import {
   type SeriesListItem,
   type SeriesPostOption,
 } from './pages.js';
+import { done as apiDone, messageFailure as apiError } from '../../platform/response.js';
 
 export interface AuthorCollectionsOptions {
   currentUser: (request: FastifyRequest) => Promise<CollectionUser | null>;
@@ -90,17 +91,6 @@ function cookieValue(request: FastifyRequest, name: string): string {
 function requestCsrfToken(request: FastifyRequest): string {
   const value = cookieValue(request, 'csrftoken');
   return /^[A-Za-z0-9_-]{43}$/.test(value) ? value : '';
-}
-
-function apiDone(body: unknown = {}) {
-  return { status: 'DONE', body };
-}
-
-function apiError(code: string, message = '', messageKey?: string, messageParams: Record<string, unknown> = {}) {
-  return {
-    status: 'ERROR', errorCode: `error:${code}`, errorMessage: message,
-    ...(messageKey ? { messageKey, messageParams } : {}),
-  };
 }
 
 function pinnedError(error: PinnedServiceError) {
