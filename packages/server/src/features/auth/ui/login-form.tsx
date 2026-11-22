@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { navigateTo } from '../../../application/navigation.js';
+import { recoveredAccountPath } from '../recovery-path.js';
 import { AuthPanel } from './panel.js';
 
 export interface LoginModel {
@@ -87,7 +88,8 @@ export function LoginForm({ model }: LoginFormProps) {
         return;
       }
 
-      navigateTo(model.next);
+      // Spending the recovery key turned two-factor off, so go straight to where it can be set up again.
+      navigateTo(result.body?.recoveryKeyUsed === true ? recoveredAccountPath : model.next);
     } catch (cause) {
       if (controller.signal.aborted) return;
       setError({
@@ -168,7 +170,7 @@ export function LoginForm({ model }: LoginFormProps) {
                 required
                 disabled={isSubmitting}
               />
-              <p className="blex-login__hint" id="blex-login-code-help">인증 앱의 코드 또는 복구 코드를 사용할 수 있습니다.</p>
+              <p className="blex-login__hint" id="blex-login-code-help">인증 앱의 코드 또는 복구 코드를 사용할 수 있습니다. 복구 코드는 한 번만 쓸 수 있고, 사용하면 2단계 인증이 해제됩니다.</p>
             </>
           ) : showCode ? (
             <>
@@ -187,7 +189,7 @@ export function LoginForm({ model }: LoginFormProps) {
                 required
                 disabled={isSubmitting}
               />
-              <p className="blex-login__hint" id="blex-login-code-help">인증 앱의 코드 또는 복구 코드를 사용할 수 있습니다.</p>
+              <p className="blex-login__hint" id="blex-login-code-help">인증 앱의 코드 또는 복구 코드를 사용할 수 있습니다. 복구 코드는 한 번만 쓸 수 있고, 사용하면 2단계 인증이 해제됩니다.</p>
               <button
                 className="blex-login__text-button"
                 type="button"

@@ -25,6 +25,7 @@ const AccountSettings = () => {
     const [showQRModal, setShowQRModal] = useState(false);
     const [qrCode, setQrCode] = useState<string>('');
     const [recoveryKey, setRecoveryKey] = useState<string>('');
+    const [recoveryKeyUsed] = useState(() => new URLSearchParams(window.location.search).has('recoveryKeyUsed'));
     const { confirm } = useConfirm();
     const networkErrorMessage = t({
         id: 'common.network_error',
@@ -365,6 +366,7 @@ const AccountSettings = () => {
             {/* Security */}
             <SecuritySection
                 has2fa={accountData?.has2fa || false}
+                recoveryKeyUsed={recoveryKeyUsed}
                 onToggle2FA={handle2FA}
                 onDeleteAccount={handleDeleteAccount}
             />

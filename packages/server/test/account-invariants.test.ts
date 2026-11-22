@@ -192,25 +192,101 @@ test('a factor setup activates once under concurrency, and only with a valid cod
   assert.equal(await db.factorSetup.count(), 0);
 }, (fixture) => seedUser(fixture, 1, 'writer')));
 
-test('stored 2FA secrets and recovery keys keep working, and a recovery key stays reusable as in 3.14', () => withApp(async (app, db) => {
-  const first = await signIn(app, 'writer', 'test-only-recovery-code');
-  const second = await signIn(app, 'writer', 'test-only-recovery-code');
-  assert.equal(await isSignedIn(app, first), true);
-  assert.equal(await isSignedIn(app, second), true);
-  const totp = new TOTP({ secret: Secret.fromBase32(totpBase32) }).generate();
-  assert.equal(await isSignedIn(app, await signIn(app, 'writer', totp)), true);
-  const stored = await db.twoFactorAuth.findUniqueOrThrow({ where: { userId: 1 }, select: { totpSecret: true, recoveryKey: true } });
-  assert.equal(verifySecondFactor(stored, 'wrong-recovery-code', testCipherKey), false);
-  const login = await app.inject({ url: '/v1/auth/security', headers: first });
-  assert.deepEqual(login.json().body, { isEnabled: true, hasRecoveryKey: true });
-  assert.doesNotMatch(login.body, new RegExp(stored.recoveryKey));
-}, (fixture) => {
+const importedRecoveryCode = 'test-only-recovery-code';
+const importedRecoveryHash = '831c28715dcd5f61787dc41ad7bf1663f904ab40c6220da4630e7fddecae6fe8';
+const seedFactorUser = (fixture: Awaited<ReturnType<typeof createMigratedDatabase>>, createdAt = Date.UTC(2024, 0, 1)) => {
   seedUser(fixture, 1, 'writer');
-  insertRow(fixture.db, 'TwoFactorAuth', {
-    userId: 1, totpSecret: encryptSecret(totpBase32, testCipherKey),
-    recoveryKey: '831c28715dcd5f61787dc41ad7bf1663f904ab40c6220da4630e7fddecae6fe8',
+  insertRow(fixture.db, 'TwoFactorAuth', { userId: 1, totpSecret: encryptSecret(totpBase32, testCipherKey), recoveryKey: importedRecoveryHash, createdAt });
+};
+const currentCode = () => new TOTP({ secret: Secret.fromBase32(totpBase32) }).generate();
+
+test('an imported recovery key signs in exactly once under concurrency and turns the factor off', () => withApp(async (app, db) => {
+  const anonymous = browser(await app.inject('/v1/login'));
+  const attempts = await Promise.all(Array.from({ length: 4 }, () => app.inject({
+    method: 'POST', url: '/v1/login', headers: anonymous, payload: { username: 'writer', password, code: importedRecoveryCode },
+  })));
+  const winners = attempts.filter((response) => response.json().status === 'DONE');
+  assert.equal(winners.length, 1);
+  assert.equal(winners[0].json().body.recoveryKeyUsed, true);
+  assert.equal(winners[0].json().body.hasConnected2fa, false);
+  assert.doesNotMatch(winners[0].body, new RegExp(importedRecoveryHash));
+  for (const loser of attempts.filter((response) => response !== winners[0])) assert.equal(loser.json().errorCode, 'error:RJ');
+  assert.equal(await db.twoFactorAuth.count({ where: { userId: 1 } }), 0);
+
+  const replay = await app.inject({ method: 'POST', url: '/v1/login', headers: anonymous, payload: { username: 'writer', password, code: importedRecoveryCode } });
+  assert.equal(replay.json().errorCode, 'error:RJ');
+  assert.equal(replay.headers['set-cookie'], undefined);
+  assert.match(replay.json().errorMessage, /이미 사용한 복구 키/);
+}, seedFactorUser));
+
+test('an owner without their authenticator is never locked out after spending the key', () => withApp(async (app, db) => {
+  const otherDevice = await signIn(app, 'writer', currentCode());
+  const proved = browser(await app.inject({ method: 'POST', url: '/reauthenticate', headers: otherDevice, payload: { password, code: currentCode() } }), otherDevice);
+  assert.equal((await app.inject({ url: '/v1/setting/account', headers: proved })).json().body.has2fa, true);
+
+  const recovered = await signIn(app, 'writer', importedRecoveryCode);
+  // A proof from before the key was spent no longer unlocks anything.
+  assert.equal((await app.inject({ method: 'POST', url: '/v1/auth/security', headers: proved })).json().errorCode, 'error:RE');
+  assert.equal((await app.inject({ url: '/v1/setting/account', headers: recovered })).json().body.has2fa, false);
+  assert.equal((await app.inject({ method: 'POST', url: '/v1/logout', headers: recovered })).json().status, 'DONE');
+
+  const passwordOnly = await signIn(app, 'writer');
+  const verified = await reauthenticate(app, passwordOnly);
+  const setup = await app.inject({ method: 'POST', url: '/v1/auth/security', headers: verified });
+  const replacement = setup.json().body.recoveryKey as string;
+  assert.notEqual(replacement, importedRecoveryCode);
+  const pending = await db.factorSetup.findFirstOrThrow({ select: { secret: true } });
+  const code = new TOTP({ secret: Secret.fromBase32(decryptSecret(pending.secret, testCipherKey)!) }).generate();
+  assert.equal((await app.inject({ method: 'POST', url: '/v1/auth/security/verify', headers: verified, payload: { code } })).json().status, 'DONE');
+  assert.equal(await db.twoFactorAuth.count({ where: { userId: 1 } }), 1);
+
+  const challenged = browser(await app.inject('/v1/login'));
+  assert.equal((await app.inject({ method: 'POST', url: '/v1/login', headers: challenged, payload: { username: 'writer', password } })).json().body.security, true);
+  assert.equal(await isSignedIn(app, await signIn(app, 'writer', replacement)), true);
+  assert.equal(await db.twoFactorAuth.count({ where: { userId: 1 } }), 0);
+}, (fixture) => seedFactorUser(fixture, Date.now())));
+
+test('a recovery key used on an OAuth challenge is spent once and never burned by a failed challenge', () => withApp(async (app, db) => {
+  const challenge = async () => {
+    const token = createToken();
+    await db.oAuthChallenge.create({
+      data: { tokenHash: createHash('sha256').update(token).digest('hex'), socialAccountId: 1, returnPath: '/', expiresAt: new Date(Date.now() + 60_000) },
+    });
+    return token;
+  };
+  const anonymous = browser(await app.inject('/v1/login'));
+  const submit = (token: string, code: string) => app.inject({
+    method: 'POST', url: '/v1/login', headers: { ...anonymous, cookie: `${anonymous.cookie}; blex_oauth_challenge=${token}` }, payload: { oauth2fa: true, code },
   });
+
+  assert.equal((await submit(await challenge(), 'not-the-recovery-key')).json().errorCode, 'error:RJ');
+  assert.equal(await db.twoFactorAuth.count({ where: { userId: 1 } }), 1);
+
+  const token = await challenge();
+  const signedIn = await submit(token, importedRecoveryCode);
+  assert.equal(signedIn.json().status, 'DONE', signedIn.body);
+  assert.equal(signedIn.json().body.recoveryKeyUsed, true);
+  assert.equal(await db.twoFactorAuth.count({ where: { userId: 1 } }), 0);
+  assert.equal((await submit(token, importedRecoveryCode)).json().errorCode, 'error:RJ');
+}, (fixture) => {
+  seedFactorUser(fixture);
+  insertRow(fixture.db, 'SocialProvider', { id: 1, key: 'google', clientId: 'client', clientSecret: encryptSecret('oauth-secret', testCipherKey), isEnabled: 1 });
+  insertRow(fixture.db, 'SocialAccount', { id: 1, providerId: 1, uid: 'uid-1', userId: 1 });
 }));
+
+test('a recovery key spent on a step-up check keeps that proof, and a wrong code spends nothing', () => withApp(async (app, db) => {
+  const session = await signIn(app, 'writer', currentCode());
+  const wrong = await app.inject({ method: 'POST', url: '/reauthenticate', headers: session, payload: { password, code: 'not-the-recovery-key' } });
+  assert.equal(wrong.statusCode, 200);
+  assert.equal((await db.twoFactorAuth.findUniqueOrThrow({ where: { userId: 1 } })).recoveryKey, importedRecoveryHash);
+
+  const spent = await app.inject({ method: 'POST', url: '/reauthenticate', headers: session, payload: { password, code: importedRecoveryCode } });
+  assert.equal(spent.statusCode, 302);
+  assert.equal(spent.headers.location, '/settings/account?recoveryKeyUsed=1');
+  assert.equal(await db.twoFactorAuth.count({ where: { userId: 1 } }), 0);
+  const proved = browser(spent, session);
+  assert.equal((await app.inject({ method: 'POST', url: '/v1/auth/security', headers: proved })).json().status, 'DONE');
+}, seedFactorUser));
 
 test('concurrent deletions never remove the last active superuser', () => withApp(async (app, db) => {
   const first = await reauthenticate(app, await signIn(app, 'adminone'));

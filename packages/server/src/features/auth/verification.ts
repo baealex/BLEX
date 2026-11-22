@@ -2,6 +2,7 @@ import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyRequest } from 'fastify';
 import { sessionCookie } from '../../platform/cookies.js';
 import { credentialTag, createToken, readSession, tokenHash } from './session.js';
+import { RecoveryKeySpent, spendRecoveryKey } from './two-factor.js';
 
 const verificationLifetime = 300_000;
 
@@ -62,17 +63,29 @@ function unchangedAccount(account: VerificationAccount): Prisma.UserWhereInput {
   };
 }
 
-export async function recordVerification(db: PrismaClient, account: VerificationAccount, requireFactor = false) {
+export async function recordVerification(db: PrismaClient, account: VerificationAccount, requireFactor = false, spentRecoveryKey?: string) {
   const token = createToken();
+  const storedToken = tokenHash(token)!;
   const now = new Date();
-  const { count } = await db.session.updateMany({
-    where: { tokenHash: account.sessionHash, expiresAt: { gt: now }, user: unchangedAccount(account) },
-    data: {
-      tokenHash: tokenHash(token)!, verifiedUntil: new Date(now.getTime() + verificationLifetime),
-      verifiedFactorId: account.factorId, requiresFactor: requireFactor,
-    },
-  });
-  return count === 1 ? token : null;
+  try {
+    const recorded = await db.$transaction(async (tx) => {
+      const { count } = await tx.session.updateMany({
+        where: { tokenHash: account.sessionHash, expiresAt: { gt: now }, user: unchangedAccount(account) },
+        data: {
+          tokenHash: storedToken, verifiedUntil: new Date(now.getTime() + verificationLifetime),
+          // Spending the key removes the factor, so this proof must describe an account without one.
+          verifiedFactorId: spentRecoveryKey === undefined ? account.factorId : null, requiresFactor: requireFactor,
+        },
+      });
+      if (count !== 1) return false;
+      if (spentRecoveryKey !== undefined) await spendRecoveryKey(tx, account.id, spentRecoveryKey, storedToken);
+      return true;
+    });
+    return recorded ? token : null;
+  } catch (error) {
+    if (error instanceof RecoveryKeySpent) return null;
+    throw error;
+  }
 }
 
 export async function acquireVerification(tx: Prisma.TransactionClient, account: VerificationAccount) {
