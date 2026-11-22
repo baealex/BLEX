@@ -9,6 +9,7 @@ import { lstat, mkdir, readFile, readdir, realpath, rmdir, stat, unlink, writeFi
 import { isAbsolute, relative, resolve, sep } from 'node:path';
 import { domainToASCII } from 'node:url';
 import { encryptDjangoSecret, decryptDjangoSecret } from '../auth/django-secret.js';
+import { djangoIso } from '../django-format.js';
 import { sanitizePostHtml } from '../post-html.js';
 import { adminSettingsCapabilities, readAdminAccess, type UserAccess } from './access.js';
 import {
@@ -212,10 +213,7 @@ function djangoTimestamp(date = new Date()): string {
 }
 
 function isoDate(value: string | null): string {
-  if (!value) return '';
-  const normalized = value.replace(' ', 'T');
-  if (/(?:Z|[+-]\d{2}:?\d{2})$/i.test(normalized)) return normalized;
-  return `${normalized}+00:00`;
+  return djangoIso(value) ?? '';
 }
 
 function pageNumber(request: FastifyRequest): URLSearchParams {
@@ -1525,7 +1523,7 @@ function serializeStaticPage(row: StaticPageRow): AdminStaticPage {
     id: row.id,
     title: row.title,
     slug: row.slug,
-    content: sanitizePostHtml(row.content),
+    content: row.content,
     metaDescription: row.metaDescription,
     isPublished: booleanValue(row.isPublished),
     showInFooter: booleanValue(row.showInFooter),
@@ -1588,7 +1586,7 @@ async function saveStaticPage(
     `;
     if (duplicate) return { ok: false, code: 'AE', message: 'This slug is already in use.' };
   }
-  if ('content' in payload) payload.content = sanitizePostHtml(stringValue(payload.content));
+  if ('content' in payload) payload.content = stringValue(payload.content);
   const timestamp = djangoTimestamp();
   try {
     if (id === undefined) {
@@ -1710,11 +1708,11 @@ async function saveNotice(
   return notice ? { ok: true, body: notice } : { ok: false, code: 'NF', message: 'Notice not found.' };
 }
 
-function serializeBanner(row: BannerRow): AdminBanner {
+function serializeBanner(row: BannerRow, scope: 'global' | 'user'): AdminBanner {
   return {
     id: row.id,
     title: row.title,
-    contentHtml: sanitizePostHtml(row.contentHtml),
+    contentHtml: scope === 'global' ? row.contentHtml : sanitizePostHtml(row.contentHtml),
     bannerType: row.bannerType,
     position: row.position,
     isActive: booleanValue(row.isActive),
@@ -1739,7 +1737,7 @@ async function readBanners(
      WHERE banner.scope = ${scope} AND (${scope} = 'global' OR banner.user_id = ${ownerId ?? 0})
      ORDER BY banner."order" ASC, banner.created_date DESC
   `;
-  return rows.map(serializeBanner);
+  return rows.map((row) => serializeBanner(row, scope));
 }
 
 async function readBanner(
@@ -1757,7 +1755,7 @@ async function readBanner(
      WHERE banner.scope = ${scope} AND (${scope} = 'global' OR banner.user_id = ${ownerId ?? 0})
        AND banner.id = ${id} LIMIT 1
   `;
-  return row ? serializeBanner(row) : null;
+  return row ? serializeBanner(row, scope) : null;
 }
 
 function positiveInteger(value: string | null, fallback: number): number {
@@ -2020,7 +2018,6 @@ function bannerPayload(body: Body, form = false): Body {
     const order = typeof raw === 'number' ? raw : /^-?\d+$/.test(String(raw)) ? Number(raw) : NaN;
     result.order = Number.isSafeInteger(order) ? order : 0;
   }
-  if (typeof result.content_html === 'string') result.content_html = sanitizePostHtml(result.content_html);
   return result;
 }
 
@@ -2044,7 +2041,7 @@ async function saveBanner(
   const current = id === undefined ? null : await readBanner(db, id, scope, scope === 'user' ? userId : null);
   if (id !== undefined && !current) return { ok: false, code: 'NF', message: 'Banner not found.' };
   const title = 'title' in input ? stringValue(input.title) : current?.title ?? '';
-  const contentHtml = 'content_html' in input ? sanitizePostHtml(stringValue(input.content_html)) : current?.contentHtml ?? '';
+  const contentHtml = 'content_html' in input ? (scope === 'global' ? stringValue(input.content_html) : sanitizePostHtml(stringValue(input.content_html))) : current?.contentHtml ?? '';
   const bannerType = 'banner_type' in input ? stringValue(input.banner_type) : current?.bannerType ?? 'horizontal';
   const position = 'position' in input ? stringValue(input.position) : current?.position ?? 'top';
   if (id === undefined && !title) return { ok: false, code: 'VA', message: 'Enter a banner name.' };
@@ -3693,7 +3690,7 @@ export function registerAdminSettings(app: FastifyInstance, db: PrismaClient, op
       }
       return reply.send(success({ message: 'Banner order updated.' }));
     });
-    routes.get<{ Params: { bannerId: string } }>('/v1/banners/:bannerId', async (request, reply) => {
+    routes.get<{ Params: { bannerId: string } }>('/v1/banners/:bannerId(^\\d+$)', async (request, reply) => {
       const permission = await editorApiAccess(request, db, options);
       if ('response' in permission) return reply.send(permission.response);
       const bannerId = validRouteId(request.params.bannerId);
@@ -3708,7 +3705,7 @@ export function registerAdminSettings(app: FastifyInstance, db: PrismaClient, op
       const saved = await saveBanner(db, permission.user.id, bannerPayload(apiJsonBody(request)), undefined, 'user');
       return saved.ok ? reply.send(success(bannerApi(saved.body, false))) : reply.send(failure(saved.code, saved.message));
     });
-    routes.put<{ Params: { bannerId: string }; Body: unknown }>('/v1/banners/:bannerId', { bodyLimit: 1024 * 1024 }, async (request, reply) => {
+    routes.put<{ Params: { bannerId: string }; Body: unknown }>('/v1/banners/:bannerId(^\\d+$)', { bodyLimit: 1024 * 1024 }, async (request, reply) => {
       if (!csrfValid(request, options)) return reply.code(403).type('text/plain; charset=utf-8').send('Forbidden');
       const permission = await editorApiAccess(request, db, options);
       if ('response' in permission) return reply.send(permission.response);
@@ -3719,7 +3716,7 @@ export function registerAdminSettings(app: FastifyInstance, db: PrismaClient, op
       const saved = await saveBanner(db, permission.user.id, bannerPayload(apiJsonBody(request)), bannerId, 'user');
       return saved.ok ? reply.send(success(bannerApi(saved.body, false))) : reply.send(failure(saved.code, saved.message));
     });
-    routes.delete<{ Params: { bannerId: string } }>('/v1/banners/:bannerId', async (request, reply) => {
+    routes.delete<{ Params: { bannerId: string } }>('/v1/banners/:bannerId(^\\d+$)', async (request, reply) => {
       if (!csrfValid(request, options)) return reply.code(403).type('text/plain; charset=utf-8').send('Forbidden');
       const permission = await editorApiAccess(request, db, options);
       if ('response' in permission) return reply.send(permission.response);
@@ -3777,7 +3774,7 @@ export function registerAdminSettings(app: FastifyInstance, db: PrismaClient, op
       if ('response' in permission) return reply.send(permission.response);
       return reply.send(success({ banners: (await readBanners(db)).map((banner) => bannerApi(banner)) }));
     });
-    routes.get<{ Params: { bannerId: string } }>('/v1/global-banners/:bannerId', async (request, reply) => {
+    routes.get<{ Params: { bannerId: string } }>('/v1/global-banners/:bannerId(^\\d+$)', async (request, reply) => {
       const permission = await apiAccess(request, db, options);
       if ('response' in permission) return reply.send(permission.response);
       const bannerId = validRouteId(request.params.bannerId);
@@ -3792,7 +3789,7 @@ export function registerAdminSettings(app: FastifyInstance, db: PrismaClient, op
       const saved = await saveBanner(db, permission.user.id, bannerPayload(apiJsonBody(request)));
       return saved.ok ? reply.send(success(bannerApi(saved.body))) : reply.send(failure(saved.code, saved.message));
     });
-    routes.put<{ Params: { bannerId: string }; Body: unknown }>('/v1/global-banners/:bannerId', { bodyLimit: 1024 * 1024 }, async (request, reply) => {
+    routes.put<{ Params: { bannerId: string }; Body: unknown }>('/v1/global-banners/:bannerId(^\\d+$)', { bodyLimit: 1024 * 1024 }, async (request, reply) => {
       if (!csrfValid(request, options)) return reply.code(403).type('text/plain; charset=utf-8').send('Forbidden');
       const permission = await apiAccess(request, db, options);
       if ('response' in permission) return reply.send(permission.response);
@@ -3801,7 +3798,7 @@ export function registerAdminSettings(app: FastifyInstance, db: PrismaClient, op
       const saved = await saveBanner(db, permission.user.id, bannerPayload(apiJsonBody(request)), bannerId);
       return saved.ok ? reply.send(success(bannerApi(saved.body))) : reply.send(failure(saved.code, saved.message));
     });
-    routes.delete<{ Params: { bannerId: string } }>('/v1/global-banners/:bannerId', async (request, reply) => {
+    routes.delete<{ Params: { bannerId: string } }>('/v1/global-banners/:bannerId(^\\d+$)', async (request, reply) => {
       if (!csrfValid(request, options)) return reply.code(403).type('text/plain; charset=utf-8').send('Forbidden');
       const permission = await apiAccess(request, db, options);
       if ('response' in permission) return reply.send(permission.response);

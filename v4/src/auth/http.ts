@@ -21,6 +21,7 @@ export interface AuthConfig {
   mediaRoot?: string;
   deliverNotifications?: boolean;
   trustedProxies?: string[];
+  islandsRoot?: string;
 }
 
 function success(body: Record<string, unknown> = {}) {

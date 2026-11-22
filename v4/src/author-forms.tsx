@@ -5,7 +5,7 @@ import { authCookieOptions, csrfCookie, requestCookies } from './auth/cookies.js
 import { csrfPattern, formInput } from './auth/csrf.js';
 import { createToken } from './auth/session.js';
 import { markdownToHtml } from './authoring/markdown.js';
-import { toIsoDateTime } from './developer-api/index.js';
+import { djangoJsonLocal } from './django-format.js';
 import { sanitizePostHtml } from './post-html.js';
 import { renderSettingsShell } from './settings-shell.js';
 
@@ -94,7 +94,7 @@ export function registerAuthorForms(app: FastifyInstance, db: PrismaClient, opti
       if (!editor) return html ? reply.redirect(`/login?${new URLSearchParams({ next: formsPath })}`, 302) : failure('NL');
       if (!editor.hasEditorRole) return html
         ? reply.code(404).type('text/plain; charset=utf-8').send('페이지를 찾을 수 없습니다.')
-        : failure('AT');
+        : failure('RJ', 'Author access is required.');
       const input = formInput(request);
       const rawId = request.params?.id ?? (html ? request.query.id ?? input.id : undefined);
       const id = typeof rawId === 'string' && /^\d+$/.test(rawId) ? Number(rawId) : undefined;
@@ -108,7 +108,7 @@ export function registerAuthorForms(app: FastifyInstance, db: PrismaClient, opti
         ? reply.code(404).type('text/plain; charset=utf-8').send('서식을 찾을 수 없습니다.')
         : reply.code(404).send('Not found');
       const forms = () => db.$queryRaw<AuthorForm[]>`
-        SELECT id, title, CAST(created_date AS TEXT) AS createdDate FROM board_form WHERE user_id = ${editor.id} ORDER BY created_date DESC
+        SELECT id, title, CAST(created_date AS TEXT) AS createdDate FROM board_form WHERE user_id = ${editor.id} ORDER BY id
       `;
       const page = async (error?: string) => {
         const previous = requestCookies(request)[csrfCookie] ?? '';
@@ -119,7 +119,7 @@ export function registerAuthorForms(app: FastifyInstance, db: PrismaClient, opti
       if (request.method === 'GET') {
         if (html) return page();
         if (selected) return done({ id: selected.id, title: selected.title, content: selected.content });
-        return done({ forms: (await forms()).map((row) => ({ ...row, createdDate: toIsoDateTime(row.createdDate) })) });
+        return done({ forms: (await forms()).map((row) => ({ ...row, createdDate: djangoJsonLocal(row.createdDate) })) });
       }
       if (!options.validateCsrf(request)) {
         if (html) {

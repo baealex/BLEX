@@ -31,8 +31,10 @@ import { registerPublicDiscovery, searchIndexingEnabled } from './public-discove
 import { registerPublicMedia } from './public-media.js';
 import { readPublicFeed, registerPublicPages } from './public-pages/index.js';
 import { renderPublicPostPage } from './public-post-page.js';
+import { registerLegacyApiContract } from './legacy-api-contract.js';
 import { readReaderPostView, registerReaderActions } from './reader-actions/index.js';
 import { registerSubscriptionPage } from './reader-ui/subscriptions.js';
+import { registerSettingsHost } from './settings-host/index.js';
 import { registerSiteAssets } from './site-assets.js';
 import { registerTelegram } from './telegram.js';
 import { registerUploadGuard } from './upload-guard.js';
@@ -92,10 +94,12 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
   const currentUser = (request: FastifyRequest) => auth
     ? readSession(db, requestCookies(request)[sessionCookie], auth.secretKey)
     : Promise.resolve(null);
+  registerLegacyApiContract(app, db, { currentUser });
   const routeOptions = { currentUser, validateCsrf: (request: FastifyRequest) => validCsrf(request, siteUrl), siteUrl, mediaRoot };
   if (auth) {
     await app.register(cookie);
     registerUploadGuard(app, currentUser);
+    if (auth.islandsRoot) registerSettingsHost(app, db, { currentUser, siteUrl, islandsRoot: auth.islandsRoot, cipherKey: auth.cipherKey });
     registerAuthentication(app, db, siteUrl, { ...auth, mediaRoot });
     registerPersonalSettings(app, db, { ...routeOptions, updatePassword: passwordUpdater(db, siteUrl, auth) });
     registerNotifications(app, db, routeOptions);

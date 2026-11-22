@@ -6,6 +6,9 @@ import { Prisma, type PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { SiteHeader, SiteTheme } from '../appearance/shell.js';
 import { syncPostPublication } from '../notifications/model.js';
+import multipart from '@fastify/multipart';
+import { ContentUploadError, contentUploadLimit, saveContentFile } from '../content-media.js';
+import { djangoIso, localDate, localDateTimeText, timeSince } from '../django-format.js';
 import { sanitizePostHtml } from '../post-html.js';
 import { renderSettingsShell } from '../settings-shell.js';
 import { markdownToHtml, htmlToMarkdown } from './markdown.js';
@@ -225,11 +228,7 @@ function nowString(): string {
 }
 
 function dateAsIso(value: DbDate): string | null {
-  if (!value) return null;
-  if (value instanceof Date) return value.toISOString();
-  const normalized = value.includes('T') ? value : value.replace(' ', 'T');
-  const date = new Date(/(?:Z|[+-]\d\d:\d\d)$/i.test(normalized) ? normalized : `${normalized}Z`);
-  return Number.isNaN(date.valueOf()) ? null : date.toISOString();
+  return djangoIso(value);
 }
 
 function localDateTime(value: DbDate): string {
@@ -279,6 +278,7 @@ async function getManagedPosts(
   author: UserRow,
   query: Record<string, unknown>,
   scheduled: boolean,
+  legacyApi = false,
 ): Promise<{ posts: Array<Record<string, unknown>>; username: string; page: number; lastPage: number; totalCount: number }> {
   const page = managementPage(query.page);
   const filters: Prisma.Sql[] = [
@@ -336,7 +336,7 @@ async function getManagedPosts(
            COALESCE((SELECT group_concat(tag_rows.value, ',') FROM (
              SELECT tag.value AS value FROM board_post_tags AS link
                JOIN board_tag AS tag ON tag.id = link.tag_id
-              WHERE link.post_id = post.id ORDER BY tag.value
+              WHERE link.post_id = post.id ORDER BY link.tag_id
            ) AS tag_rows), '') AS tag,
            COALESCE(series.url, '') AS series
       FROM board_post AS post
@@ -354,9 +354,11 @@ async function getManagedPosts(
     posts: rows.map((post) => ({
       url: post.url,
       title: post.title,
-      image: mediaUrl(post.image),
-      createdDate: managementDate(post.publishedDate, scheduled),
-      updatedDate: managementDate(post.updatedDate),
+      image: legacyApi ? post.image || null : mediaUrl(post.image),
+      createdDate: legacyApi
+        ? scheduled ? localDateTimeText(post.publishedDate) : localDate(post.publishedDate)
+        : managementDate(post.publishedDate, scheduled),
+      updatedDate: legacyApi ? localDate(post.updatedDate) : managementDate(post.updatedDate),
       isHide: isTrue(post.hide),
       countLikes: numberValue(post.countLikes),
       countComments: numberValue(post.countComments),
@@ -1672,7 +1674,7 @@ function inputFromEditorForm(body: Record<string, unknown>): AuthoringPostInput 
   return {
     ...parseAuthoringPostInput(body),
     text: field(body.text_md) || field(body.content_html),
-    contentType: field(body.content_type) || 'markdown',
+    contentType: field(body.content_type) || (Object.hasOwn(body, 'text_md') ? 'markdown' : 'html'),
     description: field(body.meta_description),
     url: field(body.url),
     tags: field(body.tag),
@@ -1685,6 +1687,51 @@ function inputFromEditorForm(body: Record<string, unknown>): AuthoringPostInput 
     coverImage: Object.hasOwn(body, 'cover_image_url') ? field(body.cover_image_url) : undefined,
     removeCoverImage: booleanField(body.remove_cover_image),
   };
+}
+
+// The 3.x editor posts whole documents; Django accepted them up to the proxy limit.
+const editorBodyLimit = 13 * 1024 * 1024;
+
+interface EditorForm {
+  body: Record<string, unknown>;
+  image?: { buffer: Buffer; filename: string };
+}
+
+async function readEditorForm(request: FastifyRequest): Promise<EditorForm> {
+  if (!String(request.headers['content-type'] ?? '').toLowerCase().startsWith('multipart/form-data')) {
+    return { body: bodyObject(request.body) };
+  }
+  const body: Record<string, unknown> = {};
+  let image: EditorForm['image'];
+  for await (const part of request.parts()) {
+    if (part.type === 'file') {
+      const buffer = await part.toBuffer();
+      if (part.fieldname === 'image' && part.filename && buffer.length) image = { buffer, filename: part.filename };
+    } else body[part.fieldname] = part.value;
+  }
+  request.body = body;
+  return { body, image };
+}
+
+/** Maps the 3.x editor's series id and cover file onto the fields the save path understands. */
+async function prepareEditorFields(db: PrismaClient, options: AuthoringOptions, account: UserRow, form: EditorForm): Promise<string | null> {
+  const { body, image } = form;
+  if (Object.hasOwn(body, 'content_html') && !Object.hasOwn(body, 'text_md')) {
+    const seriesId = field(body.series);
+    const [series] = /^\d+$/.test(seriesId)
+      ? await db.$queryRaw<Array<{ url: string }>>`SELECT url FROM board_series WHERE id = ${Number(seriesId)} AND owner_id = ${account.id} LIMIT 1`
+      : [];
+    body.series = series?.url ?? '';
+  }
+  if (image) {
+    try {
+      body.cover_image_url = await saveContentFile(db, options.mediaRoot, account.id, image);
+    } catch (error) {
+      if (error instanceof ContentUploadError) return error.message;
+      throw error;
+    }
+  } else if (booleanField(body.image_delete) || booleanField(body.remove_image)) body.remove_cover_image = 'true';
+  return null;
 }
 
 function editorKeepsOriginalContent(post: StoredPost, body: Record<string, unknown>): boolean {
@@ -2308,6 +2355,14 @@ export function registerAuthoring(
 ): void {
   app.register(async (routes) => {
     await routes.register(formBody);
+    await routes.register(multipart, { limits: { files: 1, fileSize: contentUploadLimit, fields: 40, fieldSize: editorBodyLimit, parts: 41 } });
+    // Large editor bodies are only parsed for a signed-in session.
+    const sessionBeforeBody = async (request: FastifyRequest, reply: FastifyReply) => {
+      if (request.method === 'GET' || request.method === 'HEAD' || await options.currentUser(request)) return;
+      if (request.url.startsWith('/v1/')) return reply.send(failed('NL', 'Login required.'));
+      editorRedirect(reply, false);
+      return reply;
+    };
     routes.removeContentTypeParser('application/json');
     routes.addContentTypeParser('application/json', { parseAs: 'string' }, (_request, body, doneParse) => {
       try {
@@ -2320,6 +2375,8 @@ export function registerAuthoring(
     routes.route({
       method: ['GET', 'POST'],
       url: '/write',
+      bodyLimit: editorBodyLimit,
+      onRequest: sessionBeforeBody,
       handler: async (request, reply) => {
         const account = await editorAccount(request, reply, db, options, false);
         if (!account) return reply;
@@ -2374,10 +2431,14 @@ export function registerAuthoring(
           return reply;
         }
 
+        const form = await readEditorForm(request);
         if (!options.validateCsrf(request)) return forbidden(reply);
-        const body = bodyObject(request.body);
+        const body = form.body;
+        const uploadError = await prepareEditorFields(db, options, account, form);
+        if (uploadError) return reply.redirect(field(body.draft_url) ? `/write?draft=${encodeURIComponent(field(body.draft_url))}` : '/write', 303);
         const input = inputFromEditorForm(body);
-        const action = field(body.action) || 'publish';
+        const savesDraft = field(body.is_draft) === 'true';
+        const action = field(body.action) || (savesDraft ? 'draft' : 'publish');
         const draftUrl = field(body.draft_url);
         let existingDraft: StoredPost | null = null;
         if (draftUrl) {
@@ -2399,6 +2460,7 @@ export function registerAuthoring(
                 preserveTags: await editorKeepsOriginalTags(db, existingDraft, body),
               })
               : await createPost(db, account, input, true);
+            if (savesDraft) return reply.redirect(`/@${encodeURIComponent(account.username)}/${encodeURIComponent(saved.url)}/edit`, 302);
             return reply.redirect(`/write?draft=${encodeURIComponent(saved.url)}&saved=1`, 302);
           }
           if (existingDraft) {
@@ -2439,6 +2501,8 @@ export function registerAuthoring(
     routes.route<{ Params: { username: string; slug: string } }>({
       method: ['GET', 'POST'],
       url: '/@:username/:slug/edit',
+      bodyLimit: editorBodyLimit,
+      onRequest: sessionBeforeBody,
       handler: async (request, reply) => {
         const account = await editorAccount(request, reply, db, options, false);
         if (!account) return reply;
@@ -2474,20 +2538,36 @@ export function registerAuthoring(
           return reply;
         }
 
+        const form = await readEditorForm(request);
         if (!options.validateCsrf(request)) return forbidden(reply);
         const post = await loadPost(db, { username: request.params.username, slug: request.params.slug });
         if (!post || post.authorId !== account.id) return notFound(reply);
-        const body = bodyObject(request.body);
-        const action = field(body.action) || 'publish';
+        const body = form.body;
+        const isAsyncSubmit = request.headers['x-blex-editor-submit'] === 'async';
+        const action = field(body.delete) === 'true' ? 'delete' : field(body.action) || 'publish';
         if (action === 'delete') {
           await trashPost(db, account, post);
           return reply.redirect(`/@${encodeURIComponent(account.username)}`, 302);
         }
+        const uploadError = await prepareEditorFields(db, options, account, form);
+        if (uploadError) return isAsyncSubmit ? failed('RJ', uploadError) : reply.redirect(`/@${encodeURIComponent(account.username)}/${encodeURIComponent(post.url)}/edit`, 303);
         const parsedInput = inputFromEditorForm(body);
         // The editor form has no advertising control, so an omitted flag keeps the stored value.
         const keepsAdvertise = !Object.hasOwn(body, 'is_advertise') && !Object.hasOwn(body, 'advertise');
         const input = keepsAdvertise ? { ...parsedInput, advertise: isTrue(post.advertise) } : parsedInput;
+        if (isAsyncSubmit) {
+          // A 3.x edit that omits the series or tags keeps the stored values.
+          if (!field(body.series)) input.series = post.seriesUrl ?? '';
+        }
         try {
+          if (isAsyncSubmit) {
+            await updatePost(db, account, post, input, {
+              allowEmptyBody: post.publishedDate === null,
+              updateDraft: post.publishedDate === null,
+              preserveTags: !field(body.tag),
+            });
+            return done({ url: `/@${encodeURIComponent(account.username)}/${encodeURIComponent(post.url)}` });
+          }
           if (post.publishedDate === null && action === 'publish') {
             const saved = await updatePost(db, account, post, input, {
               allowEmptyBody: false,
@@ -2505,6 +2585,7 @@ export function registerAuthoring(
           });
           return reply.redirect(`/@${encodeURIComponent(account.username)}/${encodeURIComponent(post.url)}/edit`, 302);
         } catch (error) {
+          if (isAsyncSubmit && error instanceof PostValidationError) return failed(error.code, error.message);
           const message = error instanceof PostValidationError ? error.message : '글을 저장하지 못했습니다.';
           await sendEditorPage(reply, editorModel(account, cookieValue(request, 'csrftoken'), await getSeriesOptions(db, account.id), {
             isEdit: true,
@@ -2657,6 +2738,8 @@ export function registerAuthoring(
     routes.route({
       method: ['GET', 'POST'],
       url: '/v1/drafts',
+      bodyLimit: editorBodyLimit,
+      onRequest: sessionBeforeBody,
       handler: async (request, reply) => {
         const user = await editorAccount(request, reply, db, options, true);
         if (!user) return reply;
@@ -2673,13 +2756,16 @@ export function registerAuthoring(
             url: draft.url,
             title: draft.title,
             image: draft.image || null,
-            createdDate: draft.createdDate ? dateAsIso(draft.createdDate) : null,
-            updatedDate: dateAsIso(draft.updatedDate),
+            createdDate: draft.createdDate ? timeSince(draft.createdDate) : null,
+            updatedDate: localDate(draft.updatedDate),
           })) });
         }
+        const form = await readEditorForm(request);
         if (!options.validateCsrf(request)) return forbidden(reply);
         try {
-          const post = await createPost(db, user, parseAuthoringPostInput(bodyObject(request.body)), true);
+          const uploadError = await prepareEditorFields(db, options, user, form);
+          if (uploadError) return failed('RJ', uploadError);
+          const post = await createPost(db, user, parseAuthoringPostInput(form.body), true);
           return done({ url: post.url });
         } catch (error) {
           if (error instanceof PostValidationError) return failed(error.code, error.message);
@@ -2692,6 +2778,8 @@ export function registerAuthoring(
     routes.route<{ Params: { url: string } }>({
       method: ['GET', 'PUT', 'DELETE'],
       url: '/v1/drafts/:url',
+      bodyLimit: editorBodyLimit,
+      onRequest: sessionBeforeBody,
       handler: async (request, reply) => {
         const user = await editorAccount(request, reply, db, options, true);
         if (!user) return reply;
@@ -2717,16 +2805,19 @@ export function registerAuthoring(
             blockComment: isTrue(post.blockComment),
             reservedDate: await draftReservation(db, post.id),
             series: post.seriesUrl ? { url: post.seriesUrl, name: post.seriesName } : null,
-            createdDate: dateAsIso(post.createdDate),
+            createdDate: timeSince(post.createdDate),
           });
         }
+        const form = request.method === 'DELETE' ? { body: {} } : await readEditorForm(request);
         if (!options.validateCsrf(request)) return forbidden(reply);
         if (request.method === 'DELETE') {
           const deletedDate = await trashPost(db, user, post);
           return done({ trashed: true, deletedDate });
         }
         try {
-          const body = bodyObject(request.body);
+          const uploadError = await prepareEditorFields(db, options, user, form);
+          if (uploadError) return failed('RJ', uploadError);
+          const body = form.body;
           await updatePost(db, user, post, await preservePostOmissions(db, post, body, parseAuthoringPostInput(body)), {
             allowEmptyBody: true,
             updateDraft: true,
@@ -2849,7 +2940,8 @@ export function registerAuthoring(
       const account = await editorAccount(request, reply, db, options, true);
       if (!account) return reply;
       try {
-        return done(await getManagedPosts(db, account, queryObject(request), false));
+        const { page: _page, ...body } = await getManagedPosts(db, account, queryObject(request), false, true);
+        return done(body);
       } catch (error) {
         if (error instanceof ManagementQueryError) return notFound(reply);
         throw error;
@@ -2858,14 +2950,14 @@ export function registerAuthoring(
     routes.get('/v1/setting/tag', async (request, reply) => {
       const account = await editorAccount(request, reply, db, options, true);
       if (!account) return reply;
-      const tags = await db.$queryRaw<Array<{ name: string; count: number | bigint }>>`
-        SELECT tag.value AS name, COUNT(*) AS count
+      const tags = await db.$queryRaw<Array<{ name: string | null; count: number | bigint }>>`
+        SELECT tag.value AS name, COUNT(tag.value) AS count
           FROM board_post AS post
-          JOIN board_post_tags AS link ON link.post_id = post.id
-          JOIN board_tag AS tag ON tag.id = link.tag_id
-         WHERE post.author_id = ${account.id}
-         GROUP BY tag.id, tag.value
-         ORDER BY count DESC, tag.value ASC
+          LEFT JOIN board_post_tags AS link ON link.post_id = post.id
+          LEFT JOIN board_tag AS tag ON tag.id = link.tag_id
+         WHERE post.author_id = ${account.id} AND post.deleted_date IS NULL
+         GROUP BY tag.value
+         ORDER BY count DESC
       `;
       return done({
         username: account.username,
@@ -2876,7 +2968,8 @@ export function registerAuthoring(
       const account = await editorAccount(request, reply, db, options, true);
       if (!account) return reply;
       try {
-        return done(await getManagedPosts(db, account, queryObject(request), true));
+        const { page: _page, ...body } = await getManagedPosts(db, account, queryObject(request), true, true);
+        return done(body);
       } catch (error) {
         if (error instanceof ManagementQueryError) return notFound(reply);
         throw error;

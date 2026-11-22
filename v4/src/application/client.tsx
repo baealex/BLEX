@@ -361,7 +361,8 @@ const excludedFileExtension = /\.(?:css|m?js|map|png|jpe?g|gif|webp|avif|svg|ico
 
 function isInternalApplicationUrl(url: URL): boolean {
   if (url.origin !== window.location.origin || !['http:', 'https:'].includes(url.protocol)) return false;
-  if (/^\/(?:assets|resources|images|media)(?:\/|$)/i.test(url.pathname)) return false;
+  if (/^\/(?:assets|resources|images|media|settings|admin-settings)(?:\/|$)/i.test(url.pathname)) return false;
+  if (/^\/write\/?$/i.test(url.pathname) || /^\/@[^/]+\/[^/]+\/edit\/?$/i.test(url.pathname)) return false;
   if (excludedFileExtension.test(url.pathname)) return false;
   if (/^\/login\/(?:start|callback)(?:\/|$)/i.test(url.pathname) || /^\/oauth(?:\/|$)/i.test(url.pathname)) return false;
   return true;
@@ -651,7 +652,10 @@ function restorePagePosition(type: PageChangeDetail['navigationType'], locationK
 }
 
 function focusWithoutScroll(element: HTMLElement): void {
-  if (!element.hasAttribute('tabindex') && !/^(?:A|BUTTON|INPUT|SELECT|TEXTAREA)$/.test(element.tagName)) element.tabIndex = -1;
+  if (!element.hasAttribute('tabindex') && !/^(?:A|BUTTON|INPUT|SELECT|TEXTAREA)$/.test(element.tagName)) {
+    element.tabIndex = -1;
+    element.dataset.blexRouteFocus = '';
+  }
   try { element.focus({ preventScroll: true }); } catch { element.focus(); }
 }
 

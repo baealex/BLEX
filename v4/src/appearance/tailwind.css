@@ -196,3 +196,7 @@
 .comment-content blockquote {
     @apply my-2 border-l border-line-light pl-3 text-content-secondary;
 }
+
+[data-blex-route-focus]:focus {
+  outline: none;
+}

@@ -96,7 +96,7 @@ test('preserves legacy form API envelopes and owner checks', async () => {
   const detail = await app.inject({ url: `/v1/forms/${id}`, headers: writerHeaders });
   assert.deepEqual(detail.json().body, { id, title: '새 포스트 서식', content: '## 시작' });
   const readerDetail = await app.inject({ url: `/v1/forms/${id}`, headers: { 'x-test-user': '2' } });
-  assert.equal(readerDetail.json().errorCode, 'error:AT', readerDetail.body);
+  assert.equal(readerDetail.json().errorCode, 'error:RJ', readerDetail.body);
 
   const updated = await app.inject({
     method: 'PUT', url: `/v1/forms/${id}`, headers: apiHeaders,

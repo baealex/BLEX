@@ -2,6 +2,7 @@ import formBody from '@fastify/formbody';
 import { Prisma, type PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { createNotification } from '../notifications/model.js';
+import { timeSince } from '../django-format.js';
 import { sanitizeCommentHtml } from '../post-html.js';
 import { publicPostPath } from '../posts.js';
 
@@ -203,26 +204,7 @@ function parseStoredDate(value: DbDate): Date | null {
   return Number.isNaN(date.valueOf()) ? null : date;
 }
 
-/** Follows the 3.x comment date: a calendar date after a year, otherwise the largest elapsed unit. */
-export function timeSince(value: DbDate, now = new Date()): string {
-  const date = parseStoredDate(value);
-  if (!date) return '';
-  if (now.valueOf() - date.valueOf() > 365 * 24 * 60 * 60 * 1000) {
-    const local = new Date(date.valueOf() + 9 * 60 * 60 * 1000);
-    return `${local.getUTCFullYear()}년 ${local.getUTCMonth() + 1}월 ${local.getUTCDate()}일`;
-  }
-  const withinMonth = (moment: Date) => moment.valueOf() - Date.UTC(moment.getUTCFullYear(), moment.getUTCMonth(), 1);
-  const months = (now.getUTCFullYear() - date.getUTCFullYear()) * 12 + now.getUTCMonth() - date.getUTCMonth()
-    - (withinMonth(date) > withinMonth(now) ? 1 : 0);
-  if (months >= 12) return `${Math.floor(months / 12)}년 전`;
-  if (months > 0) return `${months}개월 전`;
-  const minutes = Math.max(0, Math.floor((now.valueOf() - date.valueOf()) / 60_000));
-  const units: Array<[number, string]> = [[7 * 24 * 60, '주'], [24 * 60, '일'], [60, '시간']];
-  for (const [size, label] of units) {
-    if (minutes >= size) return `${Math.floor(minutes / size)}${label} 전`;
-  }
-  return `${minutes}분 전`;
-}
+export { timeSince };
 
 function localDateOnly(value: DbDate): string {
   const date = parseStoredDate(value);

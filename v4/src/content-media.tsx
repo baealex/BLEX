@@ -128,18 +128,34 @@ async function prepFiles(input: Buffer, extension: string, working: string) {
   return { output, extension: animated ? 'mp4' : extension };
 }
 
-export async function saveContentUpload(
+/** Stores a cover image the editor already received with its form. */
+export function saveContentFile(
+  db: PrismaClient, mediaRoot: string | undefined, userId: number, file: { buffer: Buffer; filename: string },
+) {
+  return storeContent(db, mediaRoot, userId, async () => file);
+}
+
+export function saveContentUpload(
   db: PrismaClient, mediaRoot: string | undefined, userId: number, request: FastifyRequest, validateCsrf?: (request: FastifyRequest) => boolean,
 ) {
-  if (!mediaRoot) throw failed();
-  if (uploading >= 2) throw new ContentUploadError('image.upload_busy', 'Image uploads are busy. Try again in a few seconds.', 429);
-  uploading += 1;
-  try {
+  return storeContent(db, mediaRoot, userId, async () => {
     const file = await parseContentUpload(request);
     if (validateCsrf) {
       request.body = { csrfmiddlewaretoken: file.csrf };
       if (!validateCsrf(request)) throw new ContentUploadError('image.csrf', '요청 출처를 확인할 수 없습니다.', 403);
     }
+    return file;
+  });
+}
+
+async function storeContent(
+  db: PrismaClient, mediaRoot: string | undefined, userId: number, readFile: () => Promise<{ buffer: Buffer; filename: string }>,
+) {
+  if (!mediaRoot) throw failed();
+  if (uploading >= 2) throw new ContentUploadError('image.upload_busy', 'Image uploads are busy. Try again in a moment.', 429);
+  uploading += 1;
+  try {
+    const file = await readFile();
     const root = await realpath(mediaRoot);
     const key = createHash('sha256').update(file.buffer).digest('base64');
     const [cached] = await db.$queryRaw<Array<{ path: string }>>`SELECT path FROM board_imagecache WHERE key = ${key}`;

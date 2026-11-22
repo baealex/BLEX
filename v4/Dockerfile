@@ -1,3 +1,16 @@
+FROM --platform=$BUILDPLATFORM node:24.22.1-alpine AS islands-builder
+ARG PNPM_VERSION=11.17.0
+WORKDIR /app/islands
+COPY --from=backend islands/package.json islands/pnpm-lock.yaml islands/pnpm-workspace.yaml ./
+COPY --from=backend islands/patches/ ./patches/
+COPY --from=backend islands/apps/remotes/package.json ./apps/remotes/package.json
+COPY --from=backend islands/packages/ui/package.json ./packages/ui/package.json
+COPY --from=backend islands/packages/editor/package.json ./packages/editor/package.json
+RUN npm i -g pnpm@${PNPM_VERSION} && pnpm i --frozen-lockfile
+COPY --from=backend islands/ ./
+COPY --from=backend src/board/templates/ /app/src/board/templates/
+RUN pnpm build && find /app/src/resources/staticfiles/islands -name '*.map' -delete
+
 FROM node:24.22.1-alpine AS node-base
 WORKDIR /app
 
@@ -28,6 +41,7 @@ COPY package.json ./
 COPY --from=runtime-dependencies /app/node_modules ./node_modules
 COPY --from=build /app/dist/src ./dist/src
 COPY --from=build /app/dist/client ./dist/client
+COPY --from=islands-builder /app/src/resources/staticfiles/islands ./dist/islands
 COPY data ./data
 COPY public ./public
 RUN install -d -o node -g node /var/lib/blex /var/lib/blex/media \

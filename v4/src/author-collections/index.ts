@@ -928,7 +928,7 @@ export function registerAuthorCollections(app: FastifyInstance, db: PrismaClient
       const { user, error } = await apiEditor(request);
       if (!user) return error;
       const [pinnedPosts, reservedCount] = await Promise.all([readPinnedPosts(db, user.id), reservedPinnedCount(db, user.id)]);
-      return apiDone({ pinnedPosts, username: user.username, maxCount: MAX_PINNED_POSTS, reservedCount });
+      return apiDone({ pinnedPosts: pinnedPosts.map(({ publishedDate: _publishedDate, ...pin }) => pin), username: user.username, maxCount: MAX_PINNED_POSTS, reservedCount });
     });
 
     routes.get('/v1/setting/pinnable-posts', async (request, reply) => {

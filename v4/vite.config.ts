@@ -17,6 +17,7 @@ export default defineConfig({
         fileURLToPath(new URL('./src/auth-ui/login-client.tsx', import.meta.url)),
         fileURLToPath(new URL('./src/authoring-ui/editor-client.tsx', import.meta.url)),
         fileURLToPath(new URL('./src/reader-ui/comments-client.tsx', import.meta.url)),
+        fileURLToPath(new URL('./src/settings-host/client.ts', import.meta.url)),
         fileURLToPath(new URL('./src/appearance/site-client.ts', import.meta.url)),
       ],
     },

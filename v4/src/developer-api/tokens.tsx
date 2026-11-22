@@ -181,7 +181,8 @@ export function registerDeveloperTokens(app: FastifyInstance, db: PrismaClient, 
     routes.addHook('onRequest', async (_request, reply) => { reply.header('Cache-Control', 'private, no-store'); });
     routes.get('/v1/developer-tokens', async (request) => {
       const user = await options.currentUser(request);
-      if (!user?.hasEditorRole) return securityError(user ? 'AT' : 'NL');
+      if (!user) return securityError('NL');
+      if (!user.hasEditorRole) return { status: 'ERROR', errorCode: 'error:RJ', errorMessage: 'Author access is required.' };
       return done({ tokens: (await listTokens(db, user.id)).map(serialize) });
     });
     routes.post('/v1/developer-tokens', async (request, reply) => {

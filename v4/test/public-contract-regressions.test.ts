@@ -220,6 +220,8 @@ test('keeps the stylesheet of an administrator-written static page without its a
     assert.ok(body.includes('<style>.welcome { color: red; }</style>'));
     assert.ok(body.includes('<div class="welcome">Hello</div>'));
     assert.doesNotMatch(body, /onload="bad|<script>bad/);
+    fixture.db.prepare("UPDATE board_staticpage SET content = ? WHERE id = 1").run('<p onclick="evil()">Safe</p><a href="javascript:evil()">bad</a>');
+    assert.doesNotMatch((await fixture.app.inject('/static/about')).body, /onclick=|javascript:evil/);
   } finally {
     await fixture.close();
   }

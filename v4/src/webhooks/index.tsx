@@ -6,7 +6,7 @@ import { authCookieOptions, csrfCookie, requestCookies } from '../auth/cookies.j
 import { csrfPattern, formInput } from '../auth/csrf.js';
 import { createToken } from '../auth/session.js';
 import { adminSettingsCapabilities, readAdminAccess, type UserAccess } from '../admin-settings/access.js';
-import { toIsoDateTime } from '../developer-api/index.js';
+import { djangoJsonUtc } from '../django-format.js';
 import type { AdminCapabilities } from '../admin-settings/pages.js';
 import { renderSettingsShell } from '../settings-shell.js';
 import { parseWebhookUrl, sendWebhook, type SendWebhook } from './transport.js';
@@ -141,7 +141,7 @@ export function registerWebhooks(app: FastifyInstance, db: PrismaClient, options
         const html = !request.url.startsWith('/v1/');
         const user = await options.currentUser(request);
         if (!user) return html ? reply.redirect(`/login?${new URLSearchParams({ next: pagePath })}`, 302) : failure('NL');
-        if (!(global ? user.isStaff : user.hasEditorRole)) return html ? reply.code(404).send('페이지를 찾을 수 없습니다.') : failure('RJ');
+        if (!(global ? user.isStaff : user.hasEditorRole)) return html ? reply.code(404).send('페이지를 찾을 수 없습니다.') : failure('RJ', global ? 'Administrator access is required.' : 'Author access is required.');
         const profile = global ? null : await db.board_profile.findUnique({ where: { user_id: user.id }, select: { id: true } });
         if (!global && !profile) return html ? reply.code(404).send('페이지를 찾을 수 없습니다.') : failure('NF');
         const owner = profile?.id ?? null;
@@ -162,7 +162,7 @@ export function registerWebhooks(app: FastifyInstance, db: PrismaClient, options
         if (request.method === 'GET') {
           if (html) return page();
           return done({ channels: (await channels(db, scope, owner)).map((channel) => ({ ...channel,
-            isActive: Boolean(channel.isActive), failureCount: Number(channel.failureCount), createdDate: toIsoDateTime(channel.createdDate) })) });
+            isActive: Boolean(channel.isActive), failureCount: Number(channel.failureCount), createdDate: djangoJsonUtc(channel.createdDate) })) });
         }
         if (!options.validateCsrf(request)) return html
           ? reply.code(403).send('요청이 거부되었습니다.')

@@ -186,8 +186,8 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     const reused = await app.inject({ method: 'POST', url: '/v1/sign', headers,
       payload: { ...fields, username: 'anothereditor', invite_code: 'synthetic-invite' } });
     assert.equal(reused.json().errorCode, 'error:RJ');
-    assert.equal((await app.inject('/v1/sign?username=neweditor')).json().body.is_available, false);
-    assert.equal((await app.inject('/v1/sign?username=anothereditor')).json().body.is_available, true);
+    assert.equal((await app.inject('/v1/sign?username=neweditor')).json().body.isAvailable, false);
+    assert.equal((await app.inject('/v1/sign?username=anothereditor')).json().body.isAvailable, true);
     const promoteFixture = new DatabaseSync(path);
     promoteFixture.prepare(`UPDATE auth_user SET is_staff = 1 WHERE username = 'neweditor'`).run();
     promoteFixture.exec(`
@@ -392,7 +392,7 @@ test('keeps the legacy login envelope and issues a new session only after CSRF, 
     }
     const limited = await app.inject({ method: 'POST', url: '/v1/login', payload: credentials, headers: csrfHeaders });
     assert.equal(limited.json().errorCode, 'error:RJ');
-    assert.match(limited.json().errorMessage, /Too many/);
+    assert.match(limited.json().errorMessage, /너무 많은 실패/);
   } finally {
     await app.close();
     await rm(directory, { recursive: true });

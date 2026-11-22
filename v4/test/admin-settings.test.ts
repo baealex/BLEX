@@ -626,7 +626,7 @@ test('provides staff-only static page CRUD and sanitizes persisted page HTML', a
   assert.equal(page.slug, 'privacy');
   assert.equal(page.is_published, true);
   assert.equal(page.show_in_footer, true);
-  assert.doesNotMatch(String(page.content), /script|onclick|javascript:/i);
+  assert.match(String(page.content), /onclick/, 'staff edit the stored page source as in 3.x');
   const pageId = Number(page.id);
 
   const duplicate = await app.inject({
@@ -707,10 +707,10 @@ test('manages global notices and sanitized banners through APIs and staff forms'
   const banner = body(bannerCreate).body as Record<string, unknown>;
   const bannerId = Number(banner.id);
   assert.equal(banner.created_by, 'site-editor');
-  assert.doesNotMatch(String(banner.content_html), /script|onclick/i);
+  assert.match(String(banner.content_html), /onclick/, 'global banners keep their source as in 3.x');
   const bannerPage = await app.inject({ url: '/admin-settings/global-banners', headers: headers(1) });
   assert.match(bannerPage.body, /Welcome/);
-  assert.doesNotMatch(bannerPage.body, /onclick|alert\(1\)/);
+  assert.doesNotMatch(bannerPage.body, /<p onclick|<script>alert/);
   const order = await app.inject({
     method: 'PUT', url: '/v1/global-banners/order', headers: jsonHeaders(1),
     payload: JSON.stringify({ order: [[bannerId, 0], ['999999', 2], ['broken']] }),
