@@ -1,43 +1,43 @@
-# BLEX 자체 호스팅
+# Self-hosting BLEX
 
-BLEX 4는 Node.js 프로세스 한 개가 블로그, 관리자 화면과 API를 제공합니다. Docker Compose는 서비스를 시작하기 전에 같은 데이터 볼륨에 Prisma 마이그레이션을 적용합니다.
+BLEX 4 serves the blog, admin pages, and APIs from one Node.js process. Docker Compose applies Prisma migrations to the shared data volume before starting the application.
 
-## 새로 설치
+## New installation
 
-저장소 루트에 `.env`를 만듭니다.
+Create a `.env` file at the repository root.
 
-| 설정 | 값 |
+| Setting | Value |
 | --- | --- |
-| `SITE_URL` | 사용자가 접속할 origin. 로컬 예시 `http://localhost:20002`, 운영 예시 `https://blog.example.com` |
-| `SECRET_KEY` | `openssl rand -hex 32`로 만든 임의 값 |
-| `CIPHER_KEY` | `openssl rand -hex 16`로 만든 32바이트 ASCII 값 |
-| `INITIAL_SETUP_TOKEN` | 선택 사항. 비워 두면 시작할 때 생성하고 최초 설정 URL에 표시 |
-| `BLEX_DATA` | 선택 사항. Compose에서는 기본 named volume `blex-data`. 호스트 디렉터리를 쓸 때는 절대 경로 |
-| `BLEX_PORT_MAPPING` | 선택 사항. 기본값 `127.0.0.1:20002:8040` |
-| `BLEX_TRUSTED_PROXIES` | HTTPS 프록시 뒤에서는 필수. BLEX에 직접 접속하는 프록시의 IP 또는 CIDR을 쉼표로 구분 |
-| `DEVELOPER_API_MAX_UPLOAD_MB` | 선택 사항. 글 이미지와 동영상 업로드 상한, 기본 20MB |
-| `TZ` | 선택 사항. 지역 시간대 설정 |
+| `SITE_URL` | Base URL visitors use (scheme, hostname, and port). Local example: `http://localhost:20002`; production example: `https://blog.example.com` |
+| `SECRET_KEY` | A random value generated with `openssl rand -hex 32` |
+| `CIPHER_KEY` | A 32-byte ASCII value generated with `openssl rand -hex 16` |
+| `INITIAL_SETUP_TOKEN` | Optional. When left empty, BLEX generates a token at startup and includes it in the setup URL |
+| `BLEX_DATA` | Optional. Compose uses the `blex-data` named volume by default. Use an absolute path for a host directory |
+| `BLEX_PORT_MAPPING` | Optional. Defaults to `127.0.0.1:20002:8040` |
+| `BLEX_TRUSTED_PROXIES` | Required behind an HTTPS proxy. Comma-separated IP addresses or CIDR ranges of proxies that connect directly to BLEX |
+| `DEVELOPER_API_MAX_UPLOAD_MB` | Optional. Upload size limit for post images and videos; defaults to 20 MB |
+| `TZ` | Optional. Local time zone |
 
 ```sh
 docker compose up --build -d
 docker compose logs blex
 ```
 
-로그의 `/setup` 주소를 열어 첫 관리자를 만듭니다. 관리자 설정에서 사이트 이름, 로그인과 운영 옵션을 관리할 수 있습니다.
+Follow the `/setup` URL in the logs to create the first administrator account. Use the admin settings to configure the site name, login options, and other site settings.
 
-## HTTPS 프록시
+## HTTPS reverse proxy
 
-공개 운영에서는 nginx, Caddy 등의 앞단에서 HTTPS를 종료하고 BLEX의 HTTP 포트로 전달합니다. `SITE_URL`에는 브라우저에서 쓰는 HTTPS origin을 설정합니다. 이 주소가 canonical URL, 공유 링크, OAuth 콜백, RSS와 sitemap에 사용됩니다.
+For public deployments, use a reverse proxy such as nginx or Caddy to handle HTTPS and forward requests to BLEX's HTTP port. Set `SITE_URL` to the public HTTPS base URL. BLEX uses it for canonical URLs, share links, OAuth callbacks, RSS, and sitemaps.
 
-같은 호스트의 프록시는 기본 포트 매핑을 사용해 `127.0.0.1:20002`로 연결할 수 있습니다. 접속 IP를 사용한 로그인 제한을 위해 프록시가 전달 헤더를 실제 값으로 설정하도록 구성하고, BLEX가 관측하는 프록시 주소를 `BLEX_TRUSTED_PROXIES`에 지정합니다. 이 값이 없으면 모든 방문자가 하나의 로그인 제한을 함께 쓰므로, 틀린 로그인 5번에 전체 로그인이 5분간 막힐 수 있습니다. 프록시의 본문 크기 제한도 업로드 상한에 맞춥니다.
+A proxy on the same host can use the default port mapping at `127.0.0.1:20002`. Configure the proxy to forward the original client IP address and request protocol. Set `BLEX_TRUSTED_PROXIES` to the proxy IP addresses seen by BLEX. Without this setting, all visitors behind the proxy share a login rate limit: five failed attempts can block everyone from logging in for five minutes. Match the proxy's request-body limit to the upload limit.
 
-## 백업
+## Backups
 
-데이터 볼륨에는 `db.sqlite3`과 `media/`가 있습니다. 두 항목을 같은 시점에 백업하고 환경 파일도 보관합니다. 서비스가 DB를 사용하는 동안에는 SQLite의 백업 기능 또는 일관된 스냅샷을 사용합니다. 작업 일지 첨부는 `media/_work_logs/`에 저장되며 BLEX가 소유자나 공유 권한을 확인하고 제공합니다. 별도 정적 서버를 붙이는 경우 이 경로를 공개 경로에서 제외합니다.
+The data volume contains `db.sqlite3` and `media/`. Back up the database and media together so they represent the same point in time. Keep a copy of the environment file as well. While the database is in use, use SQLite's backup API or a consistent snapshot. Work-log attachments are stored under `media/_work_logs/`. BLEX checks ownership or sharing permissions before serving them. Exclude this directory from public paths if you add a separate static file server.
 
-## 이미지로 직접 실행
+## Run containers directly
 
-Compose 대신 직접 컨테이너를 실행하려면 저장소 루트에서 이미지 두 개를 빌드합니다.
+To run containers without Compose, build both images from the repository root.
 
 ```sh
 docker build --target migration -t blex4-migration .
@@ -46,9 +46,9 @@ export BLEX_DATA=/absolute/path/to/blex4-data
 mkdir -p "$BLEX_DATA/media"
 ```
 
-컨테이너의 `node` 사용자(리눅스 UID 1000)가 데이터 디렉터리와 미디어 하위 디렉터리를 읽고 쓸 수 있도록 소유권을 맞춥니다. SQLite 저널 파일도 이 디렉터리에 작성됩니다.
+Set ownership so the container's `node` user (Linux UID 1000) can read from and write to the data directory and all media subdirectories. SQLite also writes journal files in the data directory.
 
-빈 데이터 디렉터리에 스키마를 적용하고, 위 설정을 저장한 환경 파일로 서비스를 실행합니다.
+Apply the schema to an empty data directory, then start the service with an environment file containing the settings above.
 
 ```sh
 docker run --rm --user 1000:1000 \
@@ -59,8 +59,8 @@ docker run --rm --env-file /absolute/path/to/blex.env \
   -p 127.0.0.1:20002:8040 blex4
 ```
 
-이후 업데이트에서도 서비스 시작 전에 같은 데이터 디렉터리에 마이그레이션을 적용합니다. 서비스 이미지는 FFmpeg와 두 프런트엔드 빌드를 포함합니다.
+For later updates, apply migrations to the same data directory before starting the service. The runtime image includes FFmpeg and the compiled assets for both frontend builds.
 
-## 기존 설치에서 이전
+## Upgrade an existing installation
 
-[BLEX 3.14에서 4로 이전](UPGRADE_FROM_3.md)에 DB 기준선 등록, 환경 파일과 포트 변경, 전환 후 확인 절차를 정리했습니다.
+[Upgrade from BLEX 3.14 to 4](UPGRADE_FROM_3.md) covers registering the database baseline, updating environment settings and ports, and verifying the upgrade.

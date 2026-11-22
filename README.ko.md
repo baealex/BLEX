@@ -88,6 +88,8 @@ DB를 초기화하고 최초 관리자 설정 링크를 출력합니다.
 
 ## 문서
 
+상세 가이드는 영어로 제공합니다.
+
 - [설치와 운영](docs/SELF_HOSTING.md) · [소셜 로그인](docs/SOCIAL_LOGIN.md)
 - [BLEX 3.14에서 4로 이전](docs/UPGRADE_FROM_3.md)
 - [개발 규칙](docs/DEV_CONVENTION.md) · [테스트](docs/TESTING_GUIDE.md)

@@ -8,39 +8,39 @@
 
 > "Good design is actually a lot harder to notice than poor design, in part because good designs fit our needs so well that the design is invisible." — Donald Norman
 
-## 1. The Soul of the Product
+## 1. Design principles
 
-BLEX is not just a tool; it is an environment. We do not impress with complexity; we impress with **restraint**.
+Keep the interface focused and restrained. Add complexity only when it serves a clear purpose.
 
-### Sophistication through Subtraction
-- **Less is Premium**: Every element must fight for its existence. If it doesn't serve a clear purpose, delete it.
-- **The "High-End" Detail**: It's about the perfect 8px radius, the subtle border (`color-line`), and the way a button presses down when clicked.
+### Keep the interface simple
+- **Remove unnecessary elements**: Keep only elements that serve a clear purpose.
+- **Pay attention to details**: Details such as an 8px corner radius, a subtle border (`color-line`), and a clear pressed state make the interface feel polished.
 
-### It Must Feel "Alive"
-- **Motion is Meaning**: Nothing just "appears". It fades in, slides up, or scales. `duration-150` for interactions, `duration-500` for entrances.
-- **Tangible Feedback**: When clicked, it must *feel* clicked. A lack of feedback is a broken promise.
+### Give clear feedback
+- **Use purposeful motion**: Animate entrances with a fade, slide, or scale transition. `duration-150` for interactions, `duration-500` for entrances.
+- **Acknowledge interactions**: Give controls a visible pressed state so users can tell that a click or tap registered.
 
 ---
 
-## 2. The "Beacon" Rule
+## 2. Follow proven patterns
 
 This document is the **minimum standard**, not the maximum limit.
 
 > **If you see a component in the codebase that feels better than what is described here, follow that. Then update this document.**
 
-We evolve by copying our best work, then making it the new baseline.
+Build on the strongest patterns already used in the product, then adopt them as the new baseline.
 
 ---
 
-## 3. Visual Language
+## 3. Visual language
 
-Our aesthetic is **Minimalism** meets **Boldness**.
+Use a minimal interface with a clear visual hierarchy.
 
-### The Palette of Restraint
+### Color palette
 
 > **"Content is the only color. Everything else whispers."**
 
-We use **Monochrome** because user content must be the star. Our interface is the stage, not the performer.
+Use a mostly monochrome interface so user content remains the focus.
 
 - **Token-First**: Always use semantic tokens (`surface/content/line/action/state`), never hardcoded hex or legacy aliases.
 - **Surface**: `bg-surface`, `bg-surface-page`, `bg-surface-subtle` define hierarchy in both light and dark.
@@ -49,64 +49,64 @@ We use **Monochrome** because user content must be the star. Our interface is th
 - **Accent**: State tokens only (`color-success`, `color-warning`, `color-danger`).
 
 ### Typography
-- **Readability is Luxury**: Use generous line heights (`leading-relaxed`).
+- **Prioritize readability**: Use generous line heights (`leading-relaxed`).
 - **Headings**: Semantic and structural. Avoid excessive bold weights.
 
 ---
 
-## 4. Interaction Patterns
+## 4. Interaction patterns
 
 Consistency creates comfort. Use these as your baseline.
 
-### Essential Tokens
+### Design tokens
 
 | Context | Value | Tailwind | Why |
 |:---|:---|:---|:---|
 | **Radius** | 6-16px | `rounded-md` to `rounded-2xl` | Scale with information density |
-| **Duration** | 150ms | `duration-150` | Crisp, not sluggish |
-| **Space** | 8px Grid | `p-4`, `gap-2` | Everything aligns |
-| **Shadow** | Subtle | `border border-line` + `shadow-subtle` | Depth without drama |
+| **Duration** | 150ms | `duration-150` | Responsive feedback |
+| **Space** | 8px Grid | `p-4`, `gap-2` | Consistent alignment |
+| **Shadow** | Subtle | `border border-line` + `shadow-subtle` | Subtle depth |
 
-### Radius as Intent, Not Size
+### Choose corner radii by context
 
 Radius signals **information density** and **hierarchy**, not just visual weight.
 
-- **Cards, Modals** (`rounded-2xl` / 16px): High information density. Needs substance to hold attention.
-- **Dropdowns, Popovers** (`rounded-xl` / 12px): Focused context. Balanced refinement.
-- **Buttons, Inputs** (`rounded-lg` / 8px): Instant action. Crisp and confident.
-- **Tags, Badges** (`rounded-md` / 6px or `rounded-full`): Low priority. Subtle or playful.
-- **Avatars, Indicators** (`rounded-full`): Identity. Always circular.
+- **Cards, Modals** (`rounded-2xl` / 16px): High information density and clear visual grouping.
+- **Dropdowns, Popovers** (`rounded-xl` / 12px): Focused content within a smaller surface.
+- **Buttons, Inputs** (`rounded-lg` / 8px): Controls for immediate actions.
+- **Tags, Badges** (`rounded-md` / 6px or `rounded-full`): Secondary labels and status information.
+- **Avatars, Indicators** (`rounded-full`): Identity elements; use circular shapes.
 
-*Why stop at 16px?* Beyond this, corners compete with content. We want sophisticated, not decorative.
+Keep the standard corner-radius scale within 6–16px so corners do not distract from the content.
 
-### Component Vibe Checks
+### Component checks
 
 **The Button**
-*Does it feel solid?*
-`bg-action` with `hover:bg-action-hover` and `text-content-inverted`. It anchors the page.
+*Is the primary action easy to identify?*
+`bg-action` with `hover:bg-action-hover` and `text-content-inverted`. This makes the primary action stand out.
 
 **The Card**
-*Does it feel real?*
-`border border-line bg-surface-subtle` with soft hover transition. It frames, never cages.
+*Is the content grouped clearly?*
+`border border-line bg-surface-subtle` with a subtle hover transition. Use the border and surface to group content without dominating it.
 
 **The Action**
-*Did I acknowledge the user?*
-Every interactive element needs `:active` state (`active:scale-95`).
+*Does the interaction provide feedback?*
+Every interactive element needs an `:active` state (`active:scale-95`).
 
 ---
 
-## 5. Theme System (Light/Dark)
+## 5. Light and dark themes
 
-Dark mode is not an optional skin. It is a first-class rendering mode.
+Treat dark mode as a supported rendering mode throughout the interface.
 
-### Token Files
+### Token files
 
 - Main-app tokens and Tailwind mappings live in `packages/server/src/appearance/variables.css` and `packages/server/src/appearance/tailwind.css`.
 - Web tokens and mappings live in `packages/web/styles/variables.css` and `packages/web/styles/tailwind.css`.
 - Keep shared semantic values consistent across both builds. Tailwind mappings must stay mapping-only (`@theme inline`), not duplicate token values.
 - Legacy aliases (`--color-bg-*`, `--color-text-*`, `--color-border-*`, `--color-interactive-*`, `--glass-*`) are deprecated and must not be reintroduced.
 
-### Theme Activation and Persistence
+### Applying and saving the theme
 
 - Theme is applied via `html[data-theme="light|dark"]`.
 - Default follows system preference when no explicit user choice exists.
@@ -114,7 +114,7 @@ Dark mode is not an optional skin. It is a first-class rendering mode.
 - The shared theme client in `packages/server/src/appearance/site-client.ts` reads the cookie or system preference and sets `data-theme`. Keep initialization early to avoid a visible theme mismatch.
 - Client theme changes must update `data-theme` and keep runtime listeners in sync.
 
-### Component Rules for Dark Mode
+### Dark mode in components
 
 - No hardcoded color classes (`gray-*`, `black`, `white`) in product UI where semantic tokens exist.
 - Prose styles must use prose tokens (`--color-prose-*`), not hardcoded link/blockquote colors.
@@ -123,40 +123,40 @@ Dark mode is not an optional skin. It is a first-class rendering mode.
 
 ---
 
-## 6. Mobile First (For Real)
+## 6. Mobile first
 
-Mobile is not a "version". It is *the* version.
+Design for mobile from the start.
 
 > "On mobile, every pixel is precious, every tap is intentional, and every hesitation is a failure."
 
-### Touch Demands Substance
+### Touch targets and spacing
 
-- **Touch is Commitment**: Minimum 44×44px touch targets. Tiny targets are betrayals.
-- **Feedback is Respect**: Buttons must press down (`active:scale-95`, `active:bg-surface-subtle`).
-- **Space is Generosity**: Use `py-3` for menu items, `gap-3` for icons. Let the thumb land safely.
+- **Touch targets**: Provide a minimum tappable area of 44×44px.
+- **Pressed states**: Buttons must respond visibly to taps (`active:scale-95`, `active:bg-surface-subtle`).
+- **Spacing**: Use `py-3` for menu items and `gap-3` for icons to make them easy to tap.
 
-### Mobile Vibe Checks
+### Mobile checks
 
 **The Dropdown**
-*Can I tap without hesitation?*
+*Are items easy to tap?*
 `py-3` feels safe. `py-2` feels risky.
 
 **The Header**
-*Is it calm?*
+*Does it show only the essential controls?*
 Collapse to essentials: search, notifications, user menu.
 
 **The Input**
-*Does it want my text?*
-`h-12` minimum. If it feels timid, make it taller.
+*Is it easy to focus and type?*
+`h-12` minimum. Increase the height if the field is difficult to tap.
 
 ---
 
-## 7. Checklist for Greatness
+## 7. Design review checklist
 
-Before calling it "done":
+Before finishing a design change:
 1. **Is it minimal?** Can I remove one more element?
-2. **Does it breathe?** Enough whitespace?
+2. **Is there enough whitespace?**
 3. **Is it smooth?** Did that modal glide or jerk?
 4. **Does it work on mobile?** Test at 375px width.
 5. **Does it render correctly in both themes?** Verify light and dark for the same screen.
-6. **Would I ship this?** If it feels "janky", fix it.
+6. **Does it feel finished?** Resolve rough or inconsistent interactions.
