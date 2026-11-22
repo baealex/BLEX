@@ -1,113 +1,46 @@
 # Translation Guide
 
-> **BLEX 3.x:** The Django code described here was removed from this branch. It remains available at the `v3.14` tag.
+Keep product messages separate from posts, profile text, tags, queries, and other user-authored content. Preserve authored content exactly as written.
 
-BLEX keeps product copy translatable while preserving posts, profile text, tags,
-search queries, and other user-authored content exactly as written.
+## Current coverage
 
-English is the source language. Translators normally edit PO catalogs rather
-than Django templates or React components. The reusable editor package keeps a
-small typed catalog of its own so it is not coupled to the host application's
-i18n framework.
+The additional React screens use Lingui, and the reusable editor has a typed catalog. Many main-app SSR pages still contain Korean copy directly in `packages/server/src/`; they do not share a complete server translation catalog. Enabling English does not make every page English.
 
-## Catalog ownership
+| Surface | Messages and locale handling |
+| --- | --- |
+| Web screens | `packages/web/src/locales/{locale}/messages.po`; host locale supplied by `packages/server/src/application/screen-host/index.tsx` |
+| Reusable editor | `packages/editor/src/TiptapEditor/i18n/locales/{locale}.ts` |
+| System notifications | Message keys, parameters, and text templates in `packages/server/src/features/notifications/model.ts` |
+| Main app pages and API fallback text | Owning modules in `packages/server/src/`; check their existing language handling before editing |
 
-BLEX has three catalog surfaces because its server-rendered pages, React
-screens, and reusable editor package have different runtime boundaries:
+English is the source language for catalogs. Korean and English catalogs are included. The web runtime reads `window.configuration.locale`, falling back to the document language; it does not choose a separate locale from `navigator.language`.
 
-- Django templates, validation, and server messages:
-  `backend/src/locale/{locale}/LC_MESSAGES/django.po`
-- React screens:
-  `packages/web/src/locales/{locale}/messages.po`
-- Rich-text editor controls:
-  `packages/editor/src/TiptapEditor/i18n/locales/{locale}.ts`
+`ENABLE_ENGLISH_UI=TRUE` enables English in supported server paths. Regional preference choices also expose English when `DEBUG=TRUE`. These flags do not provide full UI translation coverage.
 
-Do not merge these catalogs or copy messages between them. A message belongs to
-the runtime that renders it. Editor locale files are type-checked against the
-English key set, and only the active non-English catalog is loaded.
+## Update translations
 
-## Update an existing translation
+Run from the repository root after installing workspace dependencies with `pnpm install`:
 
-For Django messages:
-
-```bash
-node scripts/manage.mjs makemessages -l ko --ignore=mvenv --no-wrap
-# Edit backend/src/locale/ko/LC_MESSAGES/django.po
-npm run server:compilemessages
-```
-
-Commit both `django.po` and the compiled `django.mo` file.
-
-For React screen messages:
-
-```bash
+```sh
 pnpm --dir packages/web i18n:extract
 # Edit packages/web/src/locales/ko/messages.po
 pnpm i18n:check
 ```
 
-Commit the PO catalogs. Compiled Lingui `.mjs` files are generated locally and
-ignored by Git.
+Keep explicit, domain-prefixed Lingui IDs stable and use complete English defaults. Preserve placeholders and ICU expressions. Track PO catalogs; generated Lingui `.mjs` files are ignored.
 
-For editor messages, translate the values in the locale's typed catalog without
-changing keys or `{placeholders}`, then run the screen tests and type checks.
+For the reusable editor, edit the typed locale values without changing keys or `{placeholders}`. Its [README](../packages/editor/README.md) describes catalog loading and host overrides. The main app's visual editor in `packages/server/src/features/posts/editor/` is a separate implementation.
 
 ## Add a language
 
-Use a supported BCP 47 language code, such as `fr` or `de`.
+- Add its code to `SUPPORTED_LOCALES` in `packages/web/src/i18n/locale.ts` and its catalog loader in `src/i18n/index.ts` in the same app.
+- Add and translate the PO catalog. The Lingui configuration derives its locales from `SUPPORTED_LOCALES`.
+- If used by the reusable editor, add its typed catalog and loader as described in the editor README.
+- Update the server's supported language choices and selection paths in `packages/server/src/features/account/services/regional.ts`, `packages/server/src/features/auth/account-validation.ts`, and any affected message handlers. Adding a browser catalog alone does not add server support.
+- Verify the affected SSR pages, web screens, notifications, and editor before exposing the language to users.
 
-1. Add the language to `SUPPORTED_UI_LANGUAGES` in
-   `backend/src/main/settings.py` and define an intentional production release
-   gate.
-2. Generate its Django catalog with `makemessages -l {locale}`.
-3. Add the locale to `SUPPORTED_LOCALES` in
-   `packages/web/src/i18n/locale.ts`.
-4. Add its lazy catalog import in
-   `packages/web/src/i18n/index.ts`.
-5. Copy the editor's `en.ts` catalog, translate its values, and register the new
-   dynamic loader in `packages/editor/src/TiptapEditor/i18n/messages.ts`.
-6. Run the extraction and compile checks for every runtime.
-7. Verify one server-rendered page, one screen page, and the editor in the new locale before
-   enabling it in production.
+## Notifications and checks
 
-The Lingui configuration and browser configuration type derive their locale
-lists from `SUPPORTED_LOCALES`, so they do not need a separate update.
+System notifications use stable `message_key` and `message_params` values with fallback content. Add templates through `notificationText` and preserve rendering for existing stored notifications. Administrator-authored announcements remain content.
 
-## Translation rules
-
-- Preserve placeholders exactly: `%(query)s`, `{username}`, and ICU plural
-  expressions are part of the message contract.
-- Translate complete sentences. Do not assemble translated grammar from small
-  fragments.
-- Keep explicit Lingui IDs stable. Changing an ID creates a new message.
-- Do not translate brand names, URLs, code, or user-authored content unless the
-  product explicitly introduces translated content variants.
-- Read the result in context. Automated checks catch missing or invalid
-  messages, but they cannot judge tone or natural wording.
-
-## Persisted notifications
-
-Do not store a completed, localized sentence for a system-generated
-notification. Store its stable message key and interpolation parameters through
-`create_system_notify`; the notification is rendered in the active language
-when it is read or delivered. Add new templates to
-`NotificationMessageService` using an English source sentence.
-
-Admin-authored announcements and welcome messages are content, not product
-copy. Continue to store and display them exactly as written through
-`create_notify`. Existing unstructured notifications also remain unchanged as
-fallback content.
-
-## Required checks
-
-```bash
-npm run server:compilemessages
-pnpm i18n:check
-ppnpm test:web
-pnpm lint
-pnpm type-check
-```
-
-Run a focused Django test for the changed page. Do not add a test for every
-translated sentence; cover locale negotiation, catalog wiring, interpolation,
-and critical user flows instead.
+Run the web checks in [Testing Guide](TESTING_GUIDE.md). For changes to server language handling or notifications, also run `pnpm test` and `pnpm type-check`. Test locale selection, interpolation, catalog loading, and critical flows rather than every translated sentence.

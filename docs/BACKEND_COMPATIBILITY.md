@@ -1,43 +1,26 @@
-# Backend Compatibility Contract
+# Backend Compatibility
 
-> **BLEX 3.x:** The Django code described here was removed from this branch. It remains available at the `v3.14` tag.
+Refactors preserve observable behavior. Cover the affected contract before moving code, and describe intentional behavior changes separately.
 
-Backend refactors must preserve observable behavior unless a separately approved change explicitly
-introduces a new contract. A refactor PR must add or update a characteristic test before moving code.
+## Contracts and coverage
 
-## Protected surface
+All test paths below are relative to `packages/server/test/`.
 
-| Contract | Authoritative coverage |
+| Contract | Coverage |
 | --- | --- |
-| Page, legacy v1, and developer API routes, names, callbacks, and matching priority | `board.tests.test_backend_compatibility_contract.URLCompatibilityContractTests` |
-| Legacy v1 HTTP 200 response envelope, error codes, messages, and camelCase serialization | `board.tests.test_backend_compatibility_contract.LegacyResponseCompatibilityContractTests` and `board.tests.api` |
-| Authentication, signup, OAuth, settings, and 2FA session behavior | `board.tests.api.test_auth`, `test_setting`, `test_two_factor_auth`, and `board.tests.templates.test_oauth_callback` |
-| Post, draft, publish, related-post, like, and pinned-post behavior | `board.tests.api.test_post`, `test_draft`, `test_pinned_post`, `board.tests.templates.test_post_detail`, and `TemplateLikeCompatibilityContractTests` |
-| Public visibility across `/llms.txt`, Markdown, sitemap, `/posts/sitemap.xml`, and RSS | `board.tests.test_agent_content`, `board.tests.templates.test_agent_discovery`, and `board.tests.services.test_public_post_service` |
-| `board.models` imports, Django model identity, and database table names | `board.tests.test_backend_compatibility_contract.PythonImportCompatibilityContractTests` |
-| `board.views.api.v1` endpoint re-exports | `board.tests.test_backend_compatibility_contract.PythonImportCompatibilityContractTests` |
-| `PostService` facade method parameter names, order, and defaults | `board.tests.test_backend_compatibility_contract.PythonImportCompatibilityContractTests` |
-| Post image deduplication, replacement, deletion, and shared-file behavior | `board.tests.services.test_image_dedup` |
-| Valid migration history and model state | Full backend suite plus `npm run server:check-migrations` |
+| HTTP response envelopes, status codes, fields, and route behavior | `public-contract-regressions.test.ts`, `upgrade-regressions.test.ts` |
+| Login, signup, OAuth, sessions, and two-factor authentication | `legacy-authentication.test.ts` |
+| Post editing, drafts, publishing, and collections | `authoring.test.ts`, `author-collections.test.ts`, `upgrade-data-regressions.test.ts` |
+| Settings and administrator permissions | `personal-settings.test.ts`, `admin-settings.test.ts`, `legacy-screens.test.ts` |
+| Public visibility, Markdown, sitemaps, and RSS | `public-discovery.test.ts`, `public-post.test.ts`, `public-pages.test.ts` |
+| Public and private media, uploads, and deletion | `public-media.test.ts`, `content-media.test.ts`, `work-logs.test.ts` |
+| Scoped Developer API tokens and mutations | `developer-api.test.ts` |
+| Database adoption and schema constraints | `database-baseline.test.ts`, `upgrade-data-regressions.test.ts` |
 
-## Refactor verification
+## Verification
 
-Run the smallest relevant test module while developing, then run both commands before opening or
-merging a backend refactor PR:
+Run focused tests while developing, then `pnpm test` and `pnpm type-check` before review. Commands and fixtures are described in the [Testing Guide](TESTING_GUIDE.md).
 
-```bash
-ppnpm test
-npm run server:check-migrations
-```
+When changing public visibility or rendering, update `/llms.txt`, post and series Markdown, sitemaps, and RSS together. Include hidden, draft, scheduled, and deleted content in the affected tests.
 
-Database constraint migrations must also test their data migration against duplicates. Cleanup may
-merge only invalid duplicates deterministically and must retain all valid rows and relationships.
-
-When public post visibility or rendering changes, update `/llms.txt`, post and series Markdown,
-sitemaps, and RSS behavior and tests together as required by `AGENTS.md`.
-
-## Compatibility-first rule
-
-Do not use a structural refactor to correct an existing API status code, response field, error
-message, filter default, ordering rule, URL, import, or session transition. Preserve it through a
-facade or re-export and propose any intentional behavior change separately.
+Schema changes must preserve valid rows and relationships. Test both an empty database and an upgraded copy using the [upgrade guide](UPGRADE_FROM_3.md).

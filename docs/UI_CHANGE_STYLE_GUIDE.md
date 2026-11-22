@@ -36,16 +36,16 @@ Use React shared components for stable product primitives:
 - Dropdown
 - Tabs or segmented controls with real repeated behavior
 
-Use `main.scss` only for:
+Use shared styles (`packages/server/src/appearance/site.scss` and `packages/web/styles/main.scss`) only for:
 
 - global base rules
 - font and dependency imports
 - print rules
-- Django template behavior that cannot reasonably be expressed with Tailwind at the call site
+- shared document behavior that cannot reasonably be expressed with Tailwind at the call site
 
-Do not add screen-specific classes to `main.scss`.
+Do not add screen-specific classes to shared styles.
 
-Use template-level SCSS only when the behavior is tied to that template component and cannot stay readable as Tailwind utilities.
+Use feature-level SCSS only when the behavior is tied to that component and cannot stay readable as Tailwind utilities.
 
 ## Tokens
 
@@ -102,7 +102,7 @@ Before adding CSS, answer:
 
 If any answer is no, do not add CSS.
 
-`main.scss` growth is a smell. A UI-only fix should usually not touch it.
+Growth in shared styles is a smell. A UI-only fix should usually stay within the feature.
 
 ## Tests And Guardrails
 

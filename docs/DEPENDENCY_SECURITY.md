@@ -1,93 +1,37 @@
-# Dependency Security Patches
+# Dependency Maintenance
 
-The November 2026 dependency review covers the pinned Python runtime, root npm
-development tools, and the complete Screens pnpm dependency graph. It builds on
-the October 2026 patch set.
+Dependency manifests, the lockfile, and CI define the versions and checks in use. Check them directly rather than relying on a dated list of patched versions or past audit results.
 
-## Patched versions
+## Dependency sources
 
-| Dependency | Version | Scope |
-| --- | --- | --- |
-| certifi | 2026.10.19 | Python TLS trust store |
-| Pillow | 13.0.0 | Python image processing |
-| soupsieve | 4.0.1 | Python runtime |
-| urllib3 | 2.8.0 | Python runtime |
-| axios | 1.20.0 | Browser runtime |
-| follow-redirects | 1.16.3 | Axios Node adapter dependency |
-| Vite | 8.3.5 | Development server and build tools |
-| seroval | 1.8.1 | Router dependency |
-| brace-expansion | 5.0.12 | Development tools |
-| minimatch | 11.0.8 | Lint and build tools |
-| glob | 14.0.6 | Build scripts |
-| source-map-js | 1.2.2 | Build tools |
-| tinypool | 2.1.2 | Translation tools |
-| concurrently | 10.0.6 | Local development runner |
-| shell-quote | 1.12.0 | Development runner dependency |
+| Scope | Sources |
+| --- | --- |
+| Workspace tools and package manager | `package.json` |
+| Server, web, UI, and editor dependencies | Each package's `package.json` under `packages/` |
+| Resolved dependency versions | `pnpm-lock.yaml` |
+| Workspace overrides and local patches | `pnpm-workspace.yaml`, `patches/` |
+| Node and pnpm versions used by images | `Dockerfile` |
 
-Direct dependencies use patched version requirements. Transitive dependencies
-are updated in the lockfile within their upstream version ranges. The existing
-minimatch override moves from 10.2.5 to 11.0.8 because no 10.x release fixes
-[GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249); the
-lint toolchain runs on the forced major version. Every resolved version passes
-the workspace `minimumReleaseAge` policy without a new exclusion, which is why
-minimatch stays on 11.0.8 instead of the newer 11.0.9. CI uses the same pnpm
-11.17.0 version as the workspace and Docker build.
+Update manifests and the lockfile together. Keep pnpm aligned between the root manifest, Docker build, and CI. Preserve workspace overrides and patches during frozen installations.
 
-## Braces nesting protection
+## Braces parser patch
 
-[GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)
-reported unbounded nesting in braces 3.0.3, which has no fixed release. The
-advisory was withdrawn on 2026-10-23, so audits no longer report it. This
-package is used by build and translation tools; it is not a production runtime
-dependency.
+`patches/braces@3.0.3.patch` limits brace and parenthesis nesting to 100 groups before recursive compilation or expansion. pnpm applies it during installation. `packages/web/test/dependencySecurity.test.mjs` verifies it through the installed Lingui dependency chain.
 
-`packages/web/patches/braces@3.0.3.patch` limits the parser to 100 nested
-groups, following the mitigation proposed in
-[the upstream report](https://github.com/micromatch/braces/issues/70).
-Both braces and parentheses count toward the limit. Excessive nesting raises a
-`SyntaxError` before a recursive compiler or expander processes the tree.
-Escaped characters, quoted strings, and character classes remain literal.
-The mitigation covers string patterns parsed by the library; it does not
-validate an AST constructed outside the parser.
-
-pnpm applies the patch during installation. Docker copies the patch before its
-frozen installation. `dependencySecurity.test.mjs` tests the installed package
-through the translation tool's dependency chain, including the limit boundary,
-the 4,000-level attack pattern, and ordinary glob behavior.
-
-The local patch stays in place as a defensive limit while the published
-package remains 3.0.3. Replace it with an upstream release that bounds nesting
-when one is available.
-
-## Entry size budgets
-
-Axios 1.20.0 increases each affected feature's initial JavaScript by approximately
-5.1 KiB raw / 1.7 KiB gzip. The affected feature budgets account for this measured
-security update. Base-page and shared runtime budgets keep their existing limits.
+Keep the patch until a replacement dependency provides equivalent protection. Verify ordinary globs, boundary cases, mixed groups, escaped input, and excessive nesting when changing it.
 
 ## Verification
 
-Run from the repository root after installing dependencies:
+Run from the repository root:
 
 ```sh
+pnpm install --frozen-lockfile
+pnpm audit --prod --audit-level=high
 pnpm audit
-ppnpm test
-pnpm lint
-pnpm type-check
-ppnpm test:web
-pnpm i18n:check
-pnpm build:web
-pnpm check:entry-budgets
 ```
 
-Run from `packages/web`:
+Run the server and web checks in [Testing Guide](TESTING_GUIDE.md), including entry size budgets when browser dependencies change.
 
-```sh
-ppnpm install --frozen-lockfile
-ppnpm audit --prod
-ppnpm audit
-```
+[CI](../.github/workflows/CI.yml) audits production dependencies. The [release build](../.github/workflows/BUILD.yml) scans runtime and migration image candidates, and [Image Security](../.github/workflows/IMAGE_SECURITY.yml) scans published images on its configured schedule. The shared [image security action](../.github/actions/image-security/action.yml) defines report output and failure thresholds.
 
-The expected audit results for this patch set are no known Python, root npm, or
-pnpm vulnerabilities, including the full pnpm report. These results describe
-dependency advisories and are not a complete application security assessment.
+Audit output describes the dependency graph and advisory data at the time it runs. Record the actual results for each dependency change.

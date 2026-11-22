@@ -29,7 +29,7 @@ React SSR, Prisma, SQLite로 블로그와 에디터, 관리 도구를 제공합�
 ## 프로젝트 방향
 
 - **글쓰기와 발행:** 시각 편집과 마크다운, 미리보기, 임시저장, 자동저장 복구, 수정
-  이력, 미리보기, 커버 이미지, 예약 발행
+  이력, 커버 이미지, 예약 발행
 - **콘텐츠 관리:** 작가, 시리즈, 태그, 검색, 정적 페이지, 댓글, 좋아요,
   고정 글
 - **블로그 운영:** 브랜딩, 공지와 배너, 사용자와 역할, webhook, 텔레그램
@@ -58,8 +58,7 @@ docker compose logs blex
 
 고유한 비밀 키를 설정하고 `SITE_URL`에는 공개 HTTPS 주소를 지정하세요.
 BLEX 앞단에는 HTTPS 프록시를 두고 데이터 디렉터리를 백업합니다.
-3.x에서 업데이트할 때는 기존 SQLite와 미디어를 이관한 뒤 4.0을 실행합니다.
-[BLEX 4 설치 및 이관 가이드](packages/server/README.md)
+[자체 호스팅 가이드](docs/SELF_HOSTING.md)
 
 ## 발행 인터페이스
 
@@ -76,7 +75,7 @@ BLEX 앞단에는 HTTPS 프록시를 두고 데이터 디렉터리를 백업합�
 요구사항:
 
 - Node.js 24 LTS(24.22.1 이상) 또는 26(26.12.1 이상)
-- npm
+- pnpm 11.17.0 (`package.json` 기준)
 - 로컬에서 GIF 변환과 동영상 미리보기를 사용할 경우 FFmpeg
 
 ```bash
@@ -89,9 +88,12 @@ DB를 초기화하고 최초 관리자 설정 링크를 출력합니다.
 
 ## 문서
 
-- [BLEX 4 설치 및 이관 가이드](packages/server/README.md)
-- [개발 규칙](docs/DEV_CONVENTION.md)
-- [번역 가이드](docs/TRANSLATION_GUIDE.md)
+- [설치와 운영](docs/SELF_HOSTING.md) · [소셜 로그인](docs/SOCIAL_LOGIN.md)
+- [BLEX 3.14에서 4로 이전](docs/UPGRADE_FROM_3.md)
+- [개발 규칙](docs/DEV_CONVENTION.md) · [테스트](docs/TESTING_GUIDE.md)
+- [백엔드](docs/BACKEND_GUIDE.md) · [프런트엔드](docs/FRONTEND_GUIDE.md) · [구조도](docs/blex4-architecture.html)
+- [디자인](docs/DESIGN_GUIDE.md) · [UI 변경 규칙](docs/UI_CHANGE_STYLE_GUIDE.md)
+- [번역](docs/TRANSLATION_GUIDE.md) · [의존성 관리](docs/DEPENDENCY_SECURITY.md)
 
 ## 라이선스
 

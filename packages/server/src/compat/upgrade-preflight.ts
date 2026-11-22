@@ -19,7 +19,7 @@ export function upgradeProblems({ portMapping, containerPort, legacyDatabase, cu
     problems.push(`BLEX_PORT_MAPPING points to container port ${mappedPort}, but BLEX 4 listens on ${containerPort}. Change it to ${suggested}.`);
   }
   if (legacyDatabase && !currentDatabase) {
-    problems.push('Found a BLEX 3.x database at backend/src/db.sqlite3, but the BLEX 4 data directory is empty. Follow the upgrade guide in v4/README.md and set BLEX_DATA to the upgraded copy, or move the old database to start a new site.');
+    problems.push('Found a BLEX 3.x database at backend/src/db.sqlite3, but the BLEX 4 data directory is empty. Follow the upgrade guide in docs/UPGRADE_FROM_3.md and set BLEX_DATA to the upgraded copy, or move the old database to start a new site.');
   }
   if (unwritableMediaFolders) {
     problems.push(`BLEX 4 runs as uid 1000 and cannot write to ${unwritableMediaFolders} media folders, so uploads would fail. Run chown -R 1000:1000 on the media directory.`);
