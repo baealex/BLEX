@@ -390,7 +390,7 @@ function csrfValid(request: FastifyRequest, options: WorkLogOptions): boolean {
 
 /** Django stores UUIDs as 32 hex characters in SQLite and publishes them with hyphens. */
 function storedShareToken(value: string): string | null {
-  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)) return null;
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value)) return null;
   return value.replaceAll('-', '').toLowerCase();
 }
 

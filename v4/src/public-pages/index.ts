@@ -259,7 +259,7 @@ function dateLabel(value: StoredDate | null): string {
   if (!value) return '';
   const date = new Date(dateValue(value) ?? value);
   if (!Number.isNaN(date.valueOf())) {
-    return new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium', timeZone: 'Asia/Seoul' }).format(date);
+    return new Intl.DateTimeFormat('ko-KR', { dateStyle: 'long', timeZone: 'Asia/Seoul' }).format(date);
   }
   return value instanceof Date ? value.toISOString().slice(0, 10) : value.slice(0, 10);
 }
@@ -739,13 +739,14 @@ function subscriptionControl(
   state: SubscriptionState,
   viewer: PublicPageViewer | null,
   csrfToken: string,
+  path: string,
 ): ReactNode {
   if (!state.canSubscribe) return null;
-  const path = authorPath(author.username);
+  const subscribeLabel = `${author.username}님의 새 글 구독`;
   if (!viewer) {
     return h('a', {
       ...loginPromptProps(path, 'subscribe'),
-      'aria-label': `${author.username} 구독`,
+      'aria-label': subscribeLabel,
       className: 'inline-flex items-center gap-2 rounded-full bg-action px-5 py-2.5 text-sm font-semibold text-content-inverted transition-colors duration-150 hover:bg-action-hover active:scale-[0.98]',
     }, h('i', { className: 'fas fa-bell text-xs', 'aria-hidden': true }), '구독');
   }
@@ -753,7 +754,7 @@ function subscriptionControl(
     h('input', { type: 'hidden', name: 'csrfmiddlewaretoken', value: csrfToken }),
     h('input', { type: 'hidden', name: 'return_to', value: path }),
     state.isSubscribed ? h('input', { type: 'hidden', name: 'action', value: 'unsubscribe' }) : null,
-    h('button', { type: 'submit', 'aria-pressed': state.isSubscribed,
+    h('button', { type: 'submit', 'aria-pressed': state.isSubscribed, 'aria-label': subscribeLabel,
       className: `inline-flex items-center justify-center gap-2 rounded-full border px-5 py-2.5 text-sm font-semibold transition-all duration-150 ${state.isSubscribed ? 'border-line bg-surface text-content-secondary hover:border-line-strong hover:text-content' : 'border-transparent bg-action text-content-inverted hover:bg-action-hover active:scale-95'}` },
       h('i', { className: `fas ${state.isSubscribed ? 'fa-check' : 'fa-bell'} text-xs`, 'aria-hidden': true }),
       state.isSubscribed ? '구독 중' : '구독',
@@ -801,8 +802,6 @@ function featuredPostsSection(author: AuthorRow, featured: { kind: 'featured' | 
       isOwner ? h('nav', { className: 'flex flex-wrap gap-2', 'aria-label': '작성자 글 관리' },
         h('a', { href: '/settings/pinned-posts', className: 'inline-flex items-center gap-2 rounded-full bg-surface px-4 py-2 text-sm font-semibold text-content-secondary ring-1 ring-line/60 transition-colors hover:bg-surface-subtle hover:text-content' },
           h('i', { className: 'fas fa-thumbtack text-xs', 'aria-hidden': true }), '고정 포스트 설정'),
-        h('a', { href: '/write', className: 'inline-flex items-center gap-2 rounded-full bg-action px-4 py-2 text-sm font-semibold text-content-inverted transition-colors hover:bg-action-hover' },
-          h('i', { className: 'fas fa-pen text-xs', 'aria-hidden': true }), '포스트 작성하기'),
       ) : null,
     ),
     featured.posts.length ? h('div', { className: 'grid grid-cols-1 gap-5 sm:grid-cols-2' }, ...featured.posts.map((post) =>
@@ -816,7 +815,7 @@ function featuredPostsSection(author: AuthorRow, featured: { kind: 'featured' | 
             h('div', { className: 'mt-auto flex items-center gap-3 pt-4 text-xs text-content-hint' },
               post.publishedDate ? h('time', { dateTime: dateValue(post.publishedDate) ?? undefined }, dateLabel(post.publishedDate)) : null,
               h('span', { className: 'size-1 rounded-full bg-content-hint/70' }),
-              h('span', null, `${post.readTime}분 읽기`),
+              h('span', null, `${post.readTime}분`),
             ),
           ),
         ),
@@ -987,6 +986,7 @@ function profileHeader(
   viewer: PublicPageViewer | null = null,
   csrfToken = '',
   socialLinks: AuthorSocialLink[] = [],
+  returnTo = authorPath(author.username),
 ): ReactNode {
   const homepage = safeExternalUrl(author.homepage);
   const isOwner = viewer?.id === author.id;
@@ -1015,7 +1015,7 @@ function profileHeader(
           ? h('h1', { className: 'mb-2 text-2xl font-bold tracking-tight text-content' }, author.username)
           : h('p', { className: 'mb-2 text-2xl font-bold tracking-tight text-content' }, author.username),
         author.bio ? h('p', { className: 'mx-auto mb-6 max-w-2xl px-4 text-md font-medium leading-relaxed text-content-secondary' }, author.bio) : null,
-        subscription.canSubscribe ? h('div', { className: 'mb-6' }, subscriptionControl(author, subscription, viewer, csrfToken)) : null,
+        subscription.canSubscribe ? h('div', { className: 'mb-6' }, subscriptionControl(author, subscription, viewer, csrfToken, returnTo)) : null,
         homepage ? h('div', { className: 'mb-8' },
           h('a', { href: homepage, target: '_blank', rel: 'noopener noreferrer', className: 'group inline-flex items-center gap-2 rounded-full border border-line bg-surface px-5 py-2.5 text-sm font-semibold text-content-secondary transition-colors duration-150 hover:border-line-strong hover:text-content' },
             h('i', { className: 'fas fa-link text-xs text-content-hint transition-colors group-hover:text-content', 'aria-hidden': true }),
@@ -1083,8 +1083,53 @@ function ReactFragment({ children }: { children: ReactNode }): ReactNode {
   return h('div', null, children);
 }
 
-function selectOptions(values: Array<{ value: string; label: string }>): ReactNode[] {
-  return values.map((option) => h('option', { key: option.value || 'all', value: option.value }, option.label));
+function withoutParams(search: URLSearchParams, ...names: string[]): URLSearchParams {
+  const next = new URLSearchParams(search);
+  for (const name of names) next.delete(name);
+  return next;
+}
+
+function withQuery(path: string, search: URLSearchParams): string {
+  const query = search.toString();
+  return query ? `${path}?${query}` : path;
+}
+
+function QueryFilter({ path, search, placeholder, id }: { path: string; search: URLSearchParams; placeholder: string; id: string }): ReactNode {
+  const others = withoutParams(search, 'q', 'page');
+  return h('form', { method: 'get', action: path, className: 'relative' },
+    ...[...others].map(([name, value], index) => h('input', { key: `${name}-${index}`, type: 'hidden', name, value })),
+    h('div', { className: 'relative' },
+      h('input', { id, type: 'text', name: 'q', defaultValue: search.get('q') ?? '', placeholder, autoComplete: 'off',
+        className: 'peer w-full rounded-2xl bg-surface-elevated px-4 py-2.5 pr-10 text-content ring-1 ring-line/60 transition-all placeholder:text-content-hint focus:ring-2 focus:ring-line-strong/70 focus:outline-none' }),
+      h('a', { href: withQuery(path, others), 'aria-label': '검색어 지우기',
+        className: 'absolute top-1/2 right-3 -translate-y-1/2 text-content-hint transition-colors hover:text-content-secondary peer-placeholder-shown:hidden' },
+        h('i', { className: 'fas fa-times', 'aria-hidden': true })),
+      h('button', { type: 'submit', 'aria-label': '검색',
+        className: 'absolute top-1/2 right-3 hidden -translate-y-1/2 text-content-hint peer-placeholder-shown:block' },
+        h('i', { className: 'fas fa-search', 'aria-hidden': true })),
+    ),
+  );
+}
+
+function DropdownFilter({ path, search, param, options, current }: {
+  path: string; search: URLSearchParams; param: string; options: Array<{ value: string; label: string }>; current: string;
+}): ReactNode {
+  return h('details', { className: 'group relative w-full', 'data-account-menu': '' },
+    h('summary', { 'aria-haspopup': 'listbox',
+      className: 'flex w-full cursor-pointer list-none items-center justify-between rounded-2xl bg-surface-elevated px-4 py-2.5 text-sm font-medium text-content-secondary ring-1 ring-line/60 hover:bg-surface-subtle focus:ring-2 focus:ring-line-strong/70 focus:outline-none [&::-webkit-details-marker]:hidden' },
+      h('span', { className: 'truncate' }, options.find((option) => option.value === current)?.label ?? ''),
+      h('i', { className: 'fas fa-chevron-down ml-2 text-xs transition-transform duration-150 group-open:rotate-180', 'aria-hidden': true }),
+    ),
+    h('div', { role: 'listbox', className: 'absolute left-0 z-50 mt-2 max-h-60 w-full overflow-y-auto rounded-lg bg-surface-elevated py-1 shadow-lg ring-1 ring-line/60 sm:right-0' },
+      ...options.map((option) => {
+        const next = withoutParams(search, param, 'page');
+        if (option.value) next.set(param, option.value);
+        const selected = option.value === current;
+        return h('a', { key: option.value, href: withQuery(path, next), role: 'option', 'aria-selected': selected || undefined,
+          className: `block px-4 py-3 text-sm text-content-secondary transition-colors duration-150 hover:bg-surface-subtle ${selected ? 'bg-surface-subtle font-semibold text-content' : ''}` }, option.label);
+      }),
+    ),
+  );
 }
 
 function searchForm(query: string, username: string): ReactNode {
@@ -1472,26 +1517,18 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
           h('h1', { className: 'mb-3 text-3xl font-bold tracking-tight text-content sm:text-4xl' }, '태그 클라우드'),
           h('p', { className: 'text-content-secondary' }, '전체 태그와 태그별 포스트를 확인할 수 있습니다'),
         ),
-        h('form', { className: 'mb-12 flex flex-col items-end justify-between gap-6 sm:flex-row sm:items-center', action: '/tags', method: 'get' },
+        h('div', { className: 'mb-12 flex flex-col items-end justify-between gap-6 sm:flex-row sm:items-center' },
           h('div', { className: 'w-full sm:max-w-md sm:flex-1' },
             h('label', { htmlFor: 'tag-query', className: 'mb-2 ml-1 block text-xs font-bold uppercase tracking-wider text-content-secondary' }, '태그 검색'),
-            h('div', { className: 'flex h-12 items-center gap-2 rounded-full border border-line bg-surface px-4 shadow-sm transition-all duration-150 focus-within:ring-2 focus-within:ring-line' },
-              h('i', { className: 'fas fa-search text-sm text-content-hint', 'aria-hidden': true }),
-              h('input', { id: 'tag-query', name: 'q', type: 'search', defaultValue: searchText, placeholder: '검색어를 입력하세요', className: 'min-w-0 flex-1 bg-transparent text-sm text-content placeholder:text-content-hint focus:outline-none' }),
-              h('button', { type: 'submit', className: 'inline-flex size-10 items-center justify-center rounded-full text-content-hint transition-all duration-150 hover:bg-surface-subtle hover:text-content', 'aria-label': '태그 검색' },
-                h('i', { className: 'fas fa-arrow-right text-xs', 'aria-hidden': true }),
-              ),
-            ),
+            QueryFilter({ path: '/tags', search: query, placeholder: '검색어를 입력하세요.', id: 'tag-query' }),
           ),
           h('div', { className: 'w-full sm:w-auto' },
-            h('label', { htmlFor: 'tag-sort', className: 'mb-2 ml-1 block text-xs font-bold uppercase tracking-wider text-content-secondary' }, '정렬'),
-            h('select', { id: 'tag-sort', name: 'sort', defaultValue: sort, className: 'h-12 w-full rounded-xl border border-line bg-surface px-4 text-sm font-medium text-content sm:w-44' },
-              ...selectOptions([
-                { value: 'popular', label: '인기순' },
-                { value: 'name', label: '이름순' },
-                { value: 'recent', label: '최신순' },
-              ]),
-            ),
+            h('p', { className: 'mb-2 ml-1 block text-xs font-bold uppercase tracking-wider text-content-secondary' }, '정렬 방식'),
+            DropdownFilter({ path: '/tags', search: query, param: 'sort', current: sort, options: [
+              { value: 'popular', label: '인기순' },
+              { value: 'name', label: '이름순' },
+              { value: 'recent', label: '최신순' },
+            ] }),
           ),
         ),
         tags.length ? h('div', { className: 'grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 md:grid-cols-3 lg:grid-cols-4' }, ...tags.map((tag) =>
@@ -1507,7 +1544,7 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
               h('p', { className: 'line-clamp-2 text-sm text-content-secondary' }, `${tag.count.toLocaleString('ko-KR')}개 포스트에서 태그됨`),
             ),
           ),
-        )) : EmptyState({ title: '태그를 찾을 수 없습니다', message: searchText ? '검색과 일치하는 태그가 없습니다.' : '포스트에 태그를 추가하면 여기에 표시됩니다.', icon: 'fas fa-tags', framed: true }),
+        )) : EmptyState({ title: '태그가 없습니다', message: searchText ? '검색 조건에 맞는 태그가 없습니다.' : '포스트에 태그를 추가하면 여기에 표시됩니다.', icon: 'fas fa-tags', framed: true }),
         tags.length ? h('div', { className: 'mt-12' }, Pagination({ path, search: query, preserve, page: checkedPage, pages })) : null,
       ),
     }));
@@ -1554,11 +1591,11 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
             h('i', { className: 'fas fa-arrow-left mr-2 text-xs transition-transform duration-200 group-hover:-translate-x-0.5', 'aria-hidden': true }), '전체 태그',
           ),
         ),
-        h('header', { className: 'mb-12 text-center sm:mb-16' }, h('h1', { className: 'mb-4 text-3xl font-bold tracking-tight text-content' }, `#${tagName}`)),
+        h('header', { className: 'mb-12 text-center sm:mb-16' }, h('h1', { className: 'mb-4 text-3xl font-bold tracking-tight text-content' }, tagName)),
         posts.length ? h(ReactFragment, null,
           PostGrid({ posts, likes }),
           h('div', { className: 'mt-16 mb-8' }, Pagination({ path, search: query, preserve: [], page: checkedPage, pages })),
-        ) : EmptyState({ title: `#${tagName} 태그의 글이 없습니다`, message: '이 태그가 붙은 공개 글이 아직 없습니다.', icon: 'fas fa-hashtag', framed: true }),
+        ) : EmptyState({ title: '포스트가 없습니다', message: `#${tagName} 태그로 작성된 포스트가 아직 없습니다.`, icon: 'fas fa-hashtag', framed: true }),
       ),
     }));
   });
@@ -1764,6 +1801,7 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
        ORDER BY tag.value ASC
     `;
     const { brand, siteName, viewer } = await getLayoutContext(request, reply, db, options);
+    const [socialLinks, subscription] = await Promise.all([readAuthorSocialLinks(db, author.id), subscriptionState(db, author, viewer)]);
     const pages = totalPages(count, PAGE_SIZE);
     const path = authorPath(author.username, '/posts');
     const likes = await readCardLikes(db, request, viewer, posts);
@@ -1782,33 +1820,28 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
     return renderHtml(reply, PageLayout({
       meta,
       children: h(ReactFragment, null,
-        profileHeader(author, false),
+        profileHeader(author, false, subscription, viewer, csrfCookie(request), socialLinks, path),
         authorTabs(author, 'posts'),
         h('section', { className: 'mx-auto w-full max-w-6xl px-4 sm:px-6' },
           h('div', { className: 'mb-8' }, h('h1', { className: 'text-3xl font-bold tracking-tight text-content' }, '포스트')),
-          h('form', { className: 'mb-12 rounded-2xl bg-surface p-4 ring-1 ring-line/60', method: 'get', action: path },
+          h('div', { className: 'mb-12 rounded-2xl bg-surface p-4 ring-1 ring-line/60' },
             h('div', { className: 'flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between' },
               h('div', { className: 'w-full lg:max-w-md' },
                 h('label', { htmlFor: 'author-post-query', className: 'mb-2 ml-1 block text-xs font-semibold text-content-secondary' }, '검색'),
-                h('div', { className: 'flex h-12 items-center gap-2 rounded-full border border-line bg-surface px-4 shadow-sm focus-within:ring-2 focus-within:ring-line' },
-                  h('i', { className: 'fas fa-search text-sm text-content-hint', 'aria-hidden': true }),
-                  h('input', { id: 'author-post-query', name: 'q', type: 'search', defaultValue: searchText, placeholder: '제목 또는 본문 검색', className: 'min-w-0 flex-1 bg-transparent text-sm text-content placeholder:text-content-hint focus:outline-none' }),
-                ),
+                QueryFilter({ path, search: query, placeholder: '포스트 검색', id: 'author-post-query' }),
               ),
               h('div', { className: 'w-full lg:w-44' },
-                h('label', { htmlFor: 'author-post-tag', className: 'mb-2 ml-1 block text-xs font-semibold text-content-secondary' }, '태그'),
-                h('select', { id: 'author-post-tag', name: 'tag', defaultValue: tagFilter, className: 'h-12 w-full rounded-xl border border-line bg-surface px-4 text-sm font-medium text-content' },
-                  ...selectOptions([{ value: '', label: '전체 태그' }, ...tagOptions.map((tag) => ({ value: tag.value, label: tag.value }))]),
-                ),
+                h('p', { className: 'mb-2 ml-1 block text-xs font-semibold text-content-secondary' }, '태그'),
+                DropdownFilter({ path, search: query, param: 'tag', current: tagFilter,
+                  options: [{ value: '', label: '전체 태그' }, ...tagOptions.map((tag) => ({ value: tag.value, label: tag.value }))] }),
               ),
-              h('button', { type: 'submit', className: 'h-12 rounded-xl bg-action px-5 text-sm font-semibold text-content-inverted transition-colors hover:bg-action-hover' }, '적용'),
             ),
           ),
           h('div', { className: 'grid grid-cols-1 gap-8 md:grid-cols-3' },
             h('div', { className: 'md:col-span-3' },
               posts.length ? PostGrid({ posts, showAuthor: false, likes }) : EmptyState({
                 title: searchText || tagFilter ? '조건에 맞는 포스트가 없습니다' : '아직 공개된 포스트가 없습니다.',
-                message: searchText || tagFilter ? '검색어 또는 태그를 바꿔보세요.' : '새 포스트가 발행되면 이곳에 표시됩니다.',
+                message: searchText || tagFilter ? '검색어나 태그를 다시 확인해주세요.' : '새 포스트가 발행되면 이곳에 표시됩니다.',
                 icon: 'far fa-file-alt',
               }),
               h('div', { className: 'mt-12 mb-12' }, Pagination({ path, search: query, preserve: ['q', 'tag'], page: checkedPage, pages })),
@@ -1874,6 +1907,7 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
        LIMIT ? OFFSET ?
     `, author.id, databaseNow(), ...(searchText ? [`%${searchText}%`, `%${searchText}%`] : []), 12, (checkedPage - 1) * 12);
     const { brand, siteName, viewer } = await getLayoutContext(request, reply, db, options);
+    const [socialLinks, subscription] = await Promise.all([readAuthorSocialLinks(db, author.id), subscriptionState(db, author, viewer)]);
     const pages = totalPages(count, 12);
     const path = authorPath(author.username, '/series');
     const noindex = hasUnexpected(query, ['page', 'q', 'sort']) || Boolean(searchText) || requestedSort !== 'custom';
@@ -1890,31 +1924,25 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
         ...makePaginationMeta(siteUrl, path, query, ['q', 'sort'], checkedPage, pages),
       },
       children: h(ReactFragment, null,
-        profileHeader(author, false),
+        profileHeader(author, false, subscription, viewer, csrfCookie(request), socialLinks, path),
         authorTabs(author, 'series'),
         h('section', { className: 'mx-auto w-full max-w-6xl px-4 sm:px-6' },
           h('div', { className: 'mb-8' }, h('h1', { className: 'text-3xl font-bold tracking-tight text-content' }, '시리즈')),
-          h('form', { className: 'mb-12 rounded-2xl bg-surface p-4 ring-1 ring-line/60', method: 'get', action: path },
+          h('div', { className: 'mb-12 rounded-2xl bg-surface p-4 ring-1 ring-line/60' },
             h('div', { className: 'flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between' },
               h('div', { className: 'w-full lg:max-w-md' },
                 h('label', { htmlFor: 'author-series-query', className: 'mb-2 ml-1 block text-xs font-semibold text-content-secondary' }, '검색'),
-                h('div', { className: 'flex h-12 items-center gap-2 rounded-full border border-line bg-surface px-4 shadow-sm focus-within:ring-2 focus-within:ring-line' },
-                  h('i', { className: 'fas fa-search text-sm text-content-hint', 'aria-hidden': true }),
-                  h('input', { id: 'author-series-query', name: 'q', type: 'search', defaultValue: searchText, placeholder: '시리즈 이름이나 소개 검색', className: 'min-w-0 flex-1 bg-transparent text-sm text-content placeholder:text-content-hint focus:outline-none' }),
-                ),
+                QueryFilter({ path, search: query, placeholder: '시리즈 검색', id: 'author-series-query' }),
               ),
               h('div', { className: 'w-full lg:w-44' },
-                h('label', { htmlFor: 'author-series-sort', className: 'mb-2 ml-1 block text-xs font-semibold text-content-secondary' }, '정렬'),
-                h('select', { id: 'author-series-sort', name: 'sort', defaultValue: sort, className: 'h-12 w-full rounded-xl border border-line bg-surface px-4 text-sm font-medium text-content' },
-                  ...selectOptions([
-                    { value: 'custom', label: '작성자 지정 순서' },
-                    { value: 'newest', label: '최신순' },
-                    { value: 'oldest', label: '오래된순' },
-                    { value: 'posts', label: '포스트 많은 순' },
-                  ]),
-                ),
+                h('p', { className: 'mb-2 ml-1 block text-xs font-semibold text-content-secondary' }, '정렬'),
+                DropdownFilter({ path, search: query, param: 'sort', current: sort, options: [
+                  { value: 'custom', label: '작가 지정 순' },
+                  { value: 'newest', label: '최신순' },
+                  { value: 'oldest', label: '오래된순' },
+                  { value: 'posts', label: '포스트 많은 순' },
+                ] }),
               ),
-              h('button', { type: 'submit', className: 'h-12 rounded-xl bg-action px-5 text-sm font-semibold text-content-inverted transition-colors hover:bg-action-hover' }, '적용'),
             ),
           ),
           h('div', { className: 'grid grid-cols-1 gap-8 md:grid-cols-3' },
@@ -1923,16 +1951,16 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
                 h('a', { className: 'group block overflow-hidden rounded-2xl bg-surface ring-1 ring-line/60 transition-all duration-150 hover:ring-line-strong/70 active:scale-[0.98]', key: series.id, href: `${authorPath(author.username, '/series')}/${encodeURIComponent(series.url)}` },
                   h('div', { className: 'flex h-full flex-col p-5' },
                     h('h2', { className: 'mb-2.5 line-clamp-2 text-lg font-bold leading-snug text-content transition-colors group-hover:text-content-secondary' }, series.name),
-                    h('p', { className: 'mb-4 line-clamp-3 text-sm leading-relaxed text-content-secondary' }, plainText(series.textMarkdown || series.textHtml) || '시리즈 소개'),
+                    h('p', { className: 'mb-4 line-clamp-3 text-sm leading-relaxed text-content-secondary' }, series.textMarkdown),
                     h('div', { className: 'mt-auto flex items-center justify-between border-t border-line-light pt-4 text-xs font-medium text-content-secondary' },
-                      h('span', { className: 'flex items-center gap-1.5' }, h('i', { className: 'far fa-file-alt text-content-hint', 'aria-hidden': true }), `${series.postCount}개의 글`),
+                      h('span', { className: 'flex items-center gap-1.5' }, h('i', { className: 'far fa-file-alt text-content-hint', 'aria-hidden': true }), `${series.postCount}개 포스트`),
                       h('span', { className: 'flex items-center gap-1.5' }, h('i', { className: 'far fa-clock text-content-hint', 'aria-hidden': true }), h('time', { dateTime: dateValue(series.updatedDate) ?? undefined }, dateLabel(series.updatedDate))),
                     ),
                   ),
                 ),
               )) : EmptyState({
-                title: searchText ? '검색 결과가 없습니다' : '공개된 시리즈가 없습니다',
-                message: searchText ? '다른 검색어를 입력해 보세요.' : '공개 글이 포함된 시리즈가 여기에 표시됩니다.',
+                title: searchText ? '조건에 맞는 시리즈가 없습니다' : '아직 공개된 시리즈가 없습니다',
+                message: searchText ? '검색어를 다시 확인해주세요.' : '시리즈가 공개되면 이곳에 표시됩니다.',
                 icon: 'fas fa-layer-group',
               }),
               seriesRows.length ? h('div', { className: 'mt-12 mb-12' }, Pagination({ path, search: query, preserve: ['q', 'sort'], page: checkedPage, pages })) : null,
@@ -2066,9 +2094,9 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
               h('span', { className: 'font-semibold text-content' }, author.username),
             ),
             h('span', { className: 'size-1 rounded-full bg-content-hint/70', 'aria-hidden': true }),
-            h('span', { className: 'flex items-center gap-1.5' }, h('i', { className: 'far fa-file-alt text-xs', 'aria-hidden': true }), `${count}개의 글`),
+            h('span', { className: 'flex items-center gap-1.5' }, h('i', { className: 'far fa-file-alt text-xs', 'aria-hidden': true }), `${count}개 포스트`),
             h('span', { className: 'size-1 rounded-full bg-content-hint/70', 'aria-hidden': true }),
-            h('span', { className: 'flex items-center gap-1.5' }, h('i', { className: 'far fa-clock text-xs', 'aria-hidden': true }), `수정 ${dateLabel(series.updatedDate)}`),
+            h('span', { className: 'flex items-center gap-1.5' }, h('i', { className: 'far fa-clock text-xs', 'aria-hidden': true }), `${dateLabel(series.updatedDate)} 수정됨`),
           ),
           viewer?.id === author.id ? h('div', { className: 'mt-8' },
             h('a', { href: `/settings/series/edit/${series.id}`, className: 'inline-flex items-center gap-2 rounded-full bg-action px-5 py-2.5 text-sm font-medium text-content-inverted transition-all duration-150 hover:bg-action-hover active:scale-[0.98]' },
@@ -2089,8 +2117,8 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
           return h('article', { className: 'group relative rounded-2xl border border-line-light bg-surface-elevated p-6 transition-all duration-150 hover:ring-1 hover:ring-line/60 active:scale-[0.98]', key: post.id },
             h('a', { className: 'flex items-start gap-5', href: postPath(post) },
               h('span', { className: 'flex size-10 shrink-0 items-center justify-center rounded-xl bg-surface-subtle font-mono text-sm font-bold text-content-hint transition-colors duration-150 group-hover:bg-action group-hover:text-content-inverted' }, String(number)),
-              h('span', { className: 'min-w-0 flex-1 pt-1' },
-                h('strong', { className: 'mb-2 block text-lg font-bold leading-snug text-content transition-colors group-hover:text-content' }, post.title),
+              h('div', { className: 'min-w-0 flex-1 pt-1' },
+                h('h2', { className: 'mb-2 block text-lg font-bold leading-snug text-content transition-colors group-hover:text-content' }, post.title),
                 h('span', { className: 'flex flex-wrap items-center gap-4 text-xs font-medium text-content-hint' },
                   h('span', { className: 'flex items-center gap-1.5' }, h('i', { className: 'far fa-calendar', 'aria-hidden': true }), formatPostDate(post)),
                   h('span', { className: 'flex items-center gap-1.5' }, h('i', { className: 'far fa-clock', 'aria-hidden': true }), `${post.readTime}분`),
