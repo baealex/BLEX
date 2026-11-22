@@ -3164,7 +3164,7 @@ msgstr "{scope, select, global {Edit global banner} other {Edit banner}}"
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:492
 msgid "settings.banners.editor.html.global_help"
-msgstr "Global banners may include scripts."
+msgstr "Scripts are removed when this banner appears on public pages. To add scripts, use Global code in site settings."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:471

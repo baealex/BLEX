@@ -1,4 +1,6 @@
+/* global URL */
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { describe, test } from 'node:test';
 
 import {
@@ -18,6 +20,20 @@ describe('locale normalization', () => {
         assert.equal(normalizeLocale('ko_KR'), 'ko');
         assert.equal(normalizeLocale('fr'), 'ko');
         assert.equal(normalizeLocale(undefined), 'ko');
+    });
+});
+
+describe('global banner guidance', () => {
+    const helpText = (locale) => {
+        const catalog = readFileSync(new URL(`../src/locales/${locale}/messages.po`, import.meta.url), 'utf8');
+        return /msgid "settings\.banners\.editor\.html\.global_help"\nmsgstr "([^"]*)"/.exec(catalog)?.[1];
+    };
+
+    test('says scripts are removed, because public pages sanitize banners', () => {
+        assert.match(helpText('en'), /Scripts are removed/);
+        assert.doesNotMatch(helpText('en'), /may include scripts/);
+        assert.match(helpText('ko'), /스크립트는 제거됩니다/);
+        assert.doesNotMatch(helpText('ko'), /포함할 수 있습니다/);
     });
 });
 
