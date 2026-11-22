@@ -40,7 +40,7 @@ We write tests so we can deploy on Friday and sleep soundly.
 -   **Scenarios**: Test the "Happy Path" (it works), but obsess over the "Edge Cases" (it fails safely).
 -   **Mocking**: Don't hit real APIs in tests. Mock them.
 
-> **Command**: `npm run server:test`
+> **Command**: `ppnpm test`
 
 ---
 
@@ -140,6 +140,6 @@ Before marking a task as "Done":
 To start development locally, environment setup is simple using `npm`:
 
 ```bash
-npm i       # Installs dependencies
-npm run dev # Starts the dev server
+pnpm install       # Installs dependencies
+pnpm dev # Starts the dev server
 ```

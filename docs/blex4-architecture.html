@@ -73,6 +73,7 @@
     .server-title p { color: #b9c9e2; font-size: 12px; }
     .lanes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
     .lane { background: #233a58; border: 1px solid #344c6d; padding: 9px 10px; border-radius: 8px; }
+    .lane:last-child:nth-child(odd) { grid-column: 1 / -1; }
     .lane strong { font-size: 13px; font-weight: 760; }
     .lane p { color: #d6e0ee; font-size: 12px; line-height: 1.45; }
     .architecture-note { margin-top: 10px; color: #3f5168; font-size: 13px; }
@@ -228,7 +229,6 @@
             <div class="lanes">
               <div class="lane"><strong>페이지 GET</strong><p>React SSR로 HTML 생성</p></div>
               <div class="lane"><strong>폼 · HTTP API</strong><p>세션 검사, 설정·글·댓글 처리</p></div>
-              <div class="lane"><strong>GraphQL</strong><p>등록된 조회 실행</p></div>
               <div class="lane"><strong>정적 자산</strong><p>Vite 번들, CSS, 미디어 제공</p></div>
             </div>
           </div>
@@ -238,7 +238,7 @@
             <h3>미디어</h3><p>업로드가 저장되는 파일 디렉터리</p>
           </div>
         </div>
-        <figcaption class="architecture-note">홈·글·프로필 SSR은 서버 내부의 조회 함수를 직접 호출합니다. GraphQL은 별도의 조회 API로 같은 서버 안에 있습니다.</figcaption>
+        <figcaption class="architecture-note">홈·글·프로필 SSR은 서버 내부의 조회 함수를 직접 호출합니다.</figcaption>
       </figure>
     </section>
 
@@ -252,7 +252,6 @@
           <button type="button" role="tab" id="first-tab" aria-controls="first-flow" aria-selected="true">홈 첫 접속</button>
           <button type="button" role="tab" id="link-tab" aria-controls="link-flow" aria-selected="false">홈 → 글 상세</button>
           <button type="button" role="tab" id="form-tab" aria-controls="form-flow" aria-selected="false">계정 설정 저장</button>
-          <button type="button" role="tab" id="graphql-tab" aria-controls="graphql-flow" aria-selected="false">GraphQL 조회</button>
         </div>
 
         <article class="panel" id="first-flow" role="tabpanel" aria-labelledby="first-tab" tabindex="0">
@@ -276,7 +275,7 @@ GET /assets/blex/app.js
 GET /assets/ui/assets/…
   ← Vite가 빌드한 앱 JavaScript</pre>
             <p>검색엔진도 첫 HTML에서 본문과 메타데이터를 읽을 수 있습니다. 글 주소에는 본문과 공개 글의 <code>BlogPosting</code> JSON-LD도 들어갑니다.</p>
-            <p class="source">관련 코드 <a href="../v4/src/public-pages/index.ts">홈 라우트</a> · <a href="../v4/src/application/document.tsx">SSR 문서</a></p>
+            <p class="source">관련 코드 <a href="../packages/server/src/features/discovery/http/home.ts">홈 라우트</a> · <a href="../packages/server/src/application/document.tsx">SSR 문서</a></p>
           </aside>
         </article>
 
@@ -300,7 +299,7 @@ GET /assets/ui/assets/…
   → 본문 교체 · 주소 갱신
   → 뒤로 가기 위치 저장 및 복원</pre>
             <p>공통 React 앱이 서버에서 만든 화면 HTML을 라우트별로 가져옵니다. 공통 헤더는 React 컴포넌트이고, 화면 본문은 SSR HTML입니다.</p>
-            <p class="source">관련 코드 <a href="../v4/src/application/client.tsx">라우터와 로더</a> · <a href="../v4/src/application/frame.tsx">공통 화면</a></p>
+            <p class="source">관련 코드 <a href="../packages/server/src/application/client.tsx">라우터와 로더</a> · <a href="../packages/server/src/application/frame.tsx">공통 화면</a></p>
           </aside>
         </article>
 
@@ -324,67 +323,44 @@ GET /settings/account?saved=1
   ← 200 text/html
      변경된 표시 이름 · 저장 안내</pre>
             <p>로그인과 쓰기 권한은 서버에서 검사합니다. 관리자 설정도 같은 Fastify 서버와 React 화면을 사용합니다.</p>
-            <p class="source">관련 코드 <a href="../v4/src/personal-settings/index.ts">계정 저장</a> · <a href="../v4/src/auth/session.ts">세션 조회</a></p>
+            <p class="source">관련 코드 <a href="../packages/server/src/features/account/index.ts">계정 저장</a> · <a href="../packages/server/src/features/auth/session.ts">세션 조회</a></p>
           </aside>
         </article>
 
-        <article class="panel" id="graphql-flow" role="tabpanel" aria-labelledby="graphql-tab" tabindex="0">
-          <div>
-            <h3>등록된 공개 피드를 API로 조회한다</h3>
-            <p class="panel-lead">화면 HTML 대신 정해진 데이터 필드가 필요한 경우</p>
-            <ol class="steps">
-              <li><h4><span class="actor">API 호출자</span> 연산 ID와 변수 전송</h4><p><code>POST /graphql</code>에 서버에 등록된 쿼리의 SHA-256 ID와 <code>limit</code>을 보냅니다.</p></li>
-              <li><h4><span class="actor">Mercurius</span> 등록 목록에서 쿼리 확인</h4><p>현재 등록된 조회는 <code>PublicFeed</code>, <code>PublicPost</code>, <code>Viewer</code>입니다. 등록된 ID만 실행하고 공개 범위나 로그인 상태는 서버의 조회 함수에서 검사합니다.</p></li>
-              <li><h4><span class="actor">Fastify</span> 조회 결과를 JSON으로 응답</h4><p><code>PublicFeed</code>는 공개 글의 작성자, 주소, 제목과 설명을 반환합니다. 이 응답은 API 호출자가 필요한 화면이나 도구에서 사용합니다.</p></li>
-            </ol>
-          </div>
-          <aside class="trace" aria-label="GraphQL 요청 예시">
-            <h4>공개 피드 요청 본문</h4>
-            <pre><strong>POST /graphql</strong>
-Content-Type: application/json
-
-{
-  "query": "f2b919ffa801e417151076059574a7eb338de1c8fcfcaa7908bf19c519943208",
-  "persisted": true,
-  "variables": { "limit": 6 }
-}</pre>
-            <p class="source">관련 코드 <a href="../v4/src/graphql.ts">연산 등록·스키마</a> · <a href="../v4/src/app.ts">리졸버와 서버 설정</a></p>
-          </aside>
-        </article>
       </div>
     </section>
 
     <section class="section" id="stack">
       <div class="section-heading">
         <h2>기술 스택</h2>
-        <p>현재 <code>v4</code> 프로젝트 기준입니다. <a href="../v4/package-lock.json">의존성 잠금 파일</a></p>
+        <p>현재 <code>packages/server</code> 프로젝트 기준입니다. <a href="../pnpm-lock.yaml">의존성 잠금 파일</a></p>
       </div>
       <div class="grid">
         <article class="stack card"><h3>언어 · 런타임</h3><strong>TypeScript 6 · Node.js 24</strong><p>서버와 웹 앱을 TypeScript로 작성합니다. 서비스는 Node 프로세스로 실행됩니다.</p></article>
-        <article class="stack card"><h3>서버 · API</h3><strong>Fastify 5 · Mercurius 16</strong><p>SSR 페이지, 폼, 기존 HTTP API와 등록된 GraphQL 조회를 제공합니다.</p></article>
+        <article class="stack card"><h3>서버 · API</h3><strong>Fastify 5</strong><p>SSR 페이지, 폼과 기존 HTTP API를 제공합니다.</p></article>
         <article class="stack card"><h3>화면 · 라우팅</h3><strong>React 19 · React Router 7</strong><p>같은 React 화면을 서버에서 렌더링하고, 브라우저의 공통 앱이 내부 이동을 처리합니다.</p></article>
         <article class="stack card"><h3>빌드 · 편집기</h3><strong>Vite 7 · Tailwind CSS 4 · Tiptap 3</strong><p>Vite가 브라우저 자산을 빌드합니다. Sass로 화면 스타일을 보완하고, Tiptap은 글쓰기 화면에서 로드합니다.</p></article>
         <article class="stack card"><h3>데이터 · 스키마</h3><strong>Prisma 6 · SQLite</strong><p>SQLite 파일을 사용합니다. Prisma가 스키마 변경을 관리하고, 일부 기존 테이블은 파라미터 바인딩 SQL로 읽고 씁니다.</p></article>
         <article class="stack card"><h3>배포 · 미디어</h3><strong>Docker · Sharp · FFmpeg</strong><p>서비스 이미지는 Node 기반입니다. SQLite 파일과 업로드 디렉터리를 마운트하고 이미지·영상 처리를 같은 서비스에서 실행합니다.</p></article>
       </div>
-      <p class="upgrade"><strong>3.x DB 이관</strong> 백업 복제본을 3.14의 마지막 Django 마이그레이션인 <code>0070_author_subscription</code>까지 올립니다. 같은 DB를 Prisma 기준선으로 등록하고 4.x 마이그레이션을 적용하면 서비스는 Node로 실행합니다. <a href="../v4/README.md">실행과 이관 가이드</a></p>
+      <p class="upgrade"><strong>3.x DB 이관</strong> 백업 복제본을 3.14의 마지막 Django 마이그레이션인 <code>0070_author_subscription</code>까지 올립니다. 같은 DB를 Prisma 기준선으로 등록하고 4.x 마이그레이션을 적용하면 서비스는 Node로 실행합니다. <a href="../packages/server/README.md">실행과 이관 가이드</a></p>
     </section>
 
     <section class="section" id="source">
       <div class="section-heading"><h2>코드 위치</h2></div>
       <div class="table card">
         <dl>
-          <div class="row"><dt><a href="../v4/src/main.ts">v4/src/main.ts</a> · <a href="../v4/src/app.ts">app.ts</a></dt><dd>서버 시작, Prisma 연결, 페이지·API·미디어 라우트 등록</dd></div>
-          <div class="row"><dt><a href="../v4/src/public-pages/index.ts">v4/src/public-pages/index.ts</a></dt><dd>홈, 검색, 태그, 프로필 페이지 조회와 SSR</dd></div>
-          <div class="row"><dt><a href="../v4/src/application/document.tsx">v4/src/application/document.tsx</a> · <a href="../v4/src/application/client.tsx">client.tsx</a></dt><dd>공통 HTML 문서 생성, 브라우저 진입점, 내부 이동과 폼 처리</dd></div>
-          <div class="row"><dt><a href="../v4/src/auth/http.ts">v4/src/auth/http.ts</a> · <a href="../v4/src/personal-settings/index.ts">personal-settings/index.ts</a></dt><dd>로그인 API, 사용자 세션, 계정과 프로필 설정</dd></div>
-          <div class="row"><dt><a href="../v4/src/graphql.ts">v4/src/graphql.ts</a> · <a href="../v4/prisma/schema.prisma">prisma/schema.prisma</a></dt><dd>등록 GraphQL 연산, 모델과 DB 스키마</dd></div>
-          <div class="row"><dt><a href="../v4/vite.config.ts">v4/vite.config.ts</a> · <a href="../v4/Dockerfile">Dockerfile</a></dt><dd>브라우저 자산과 서비스 이미지 빌드</dd></div>
+          <div class="row"><dt><a href="../packages/server/src/main.ts">packages/server/src/main.ts</a> · <a href="../packages/server/src/app.ts">app.ts</a> · <a href="../packages/server/src/routes/index.ts">routes</a></dt><dd>서버 시작, Prisma 연결, 페이지·API·미디어 라우트 등록</dd></div>
+          <div class="row"><dt><a href="../packages/server/src/features/discovery">packages/server/src/features/discovery</a> · <a href="../packages/server/src/features/authors">authors</a></dt><dd>홈, 검색, 태그, 프로필 페이지 조회와 SSR</dd></div>
+          <div class="row"><dt><a href="../packages/server/src/application/document.tsx">packages/server/src/application/document.tsx</a> · <a href="../packages/server/src/application/client.tsx">client.tsx</a></dt><dd>공통 HTML 문서 생성, 브라우저 진입점, 내부 이동과 폼 처리</dd></div>
+          <div class="row"><dt><a href="../packages/server/src/features/auth/http.ts">packages/server/src/features/auth/http.ts</a> · <a href="../packages/server/src/features/account/index.ts">personal-settings/index.ts</a></dt><dd>로그인 API, 사용자 세션, 계정과 프로필 설정</dd></div>
+          <div class="row"><dt><a href="../packages/server/prisma/schema.prisma">packages/server/prisma/schema.prisma</a></dt><dd>모델과 DB 스키마</dd></div>
+          <div class="row"><dt><a href="../packages/server/vite.config.ts">packages/server/vite.config.ts</a> · <a href="../Dockerfile">Dockerfile</a></dt><dd>브라우저 자산과 서비스 이미지 빌드</dd></div>
         </dl>
       </div>
     </section>
 
-    <footer>BLEX 4 현재 구현 · 로컬 작업 브랜치 <code>refactor/v4-graphql-preview</code></footer>
+    <footer>BLEX 4 현재 구현</footer>
   </main>
 
   <script>

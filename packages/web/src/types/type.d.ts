@@ -1,0 +1,46 @@
+import 'react';
+import type { AppLocale } from '../i18n/locale';
+
+type ToastCall = (message: unknown, options?: Record<string, unknown>) => unknown;
+
+type LazyToast = ToastCall & {
+    success: ToastCall;
+    error: ToastCall;
+    info: ToastCall;
+    warning: ToastCall;
+    loading: ToastCall;
+    promise: (...args: unknown[]) => unknown;
+    dismiss: (...args: unknown[]) => unknown;
+    message: ToastCall;
+};
+
+declare module 'react' {
+    interface StyleHTMLAttributes<T> extends React.HTMLAttributes<T> {
+        jsx?: boolean;
+        global?: boolean;
+    }
+}
+
+declare module '*.scss' {
+    const content: { [className: string]: string };
+    export default content;
+}
+
+declare global {
+    interface Window {
+        configuration: {
+            media: string;
+            static: string;
+            locale: AppLocale;
+            timeZone: string;
+            user?: {
+                isAuthenticated: boolean;
+                username: string;
+            };
+            googleClientId?: string;
+            githubClientId?: string;
+        };
+        NEXT_URL: string;
+        toast: LazyToast;
+    }
+}

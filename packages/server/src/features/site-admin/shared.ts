@@ -1,0 +1,235 @@
+import { Prisma, type PrismaClient } from '@prisma/client';
+import type { FastifyReply, FastifyRequest } from 'fastify';
+import { djangoIso } from '../../compat/django-format.js';
+import { readAdminAccess, type UserAccess } from './access.js';
+import { type AdminSettingsUser } from './pages.js';
+import { done as success, failure } from '../../platform/response.js';
+
+export interface AdminSettingsOptions {
+  currentUser: (request: FastifyRequest) => Promise<AdminSettingsUser | null>;
+  validateCsrf: (request: FastifyRequest) => boolean;
+  siteUrl: URL;
+  cipherKey: string;
+  secretKey: string;
+  fetchProvider?: (url: string, init?: RequestInit) => Promise<{ json(): Promise<unknown> }>;
+  mediaRoot?: string;
+}
+
+export type ApiResult<T> = { ok: true; body: T } | { ok: false; code: string; message: string };
+
+export type Body = Record<string, unknown>;
+
+export function isRecord(value: unknown): value is Body {
+  return Boolean(value && typeof value === 'object' && !Array.isArray(value) && !Buffer.isBuffer(value));
+}
+
+export function stringValue(value: unknown): string {
+  if (typeof value === 'string') return value;
+  if (Array.isArray(value)) return stringValue(value.at(-1));
+  if (Buffer.isBuffer(value)) return value.toString('utf8');
+  return '';
+}
+
+export function booleanValue(value: unknown): boolean {
+  return value === true || value === 1 || value === 1n;
+}
+
+export function formBoolean(value: unknown): boolean {
+  return ['true', '1', 'on', 'yes'].includes(stringValue(value).toLowerCase());
+}
+
+export function csrfToken(request: FastifyRequest): string {
+  for (const part of (request.headers.cookie ?? '').split(';')) {
+    const separator = part.indexOf('=');
+    if (separator < 0 || part.slice(0, separator).trim() !== 'csrftoken') continue;
+    try {
+      const value = decodeURIComponent(part.slice(separator + 1).trim());
+      return /^[A-Za-z0-9_-]{43}$/.test(value) ? value : '';
+    } catch {
+      return '';
+    }
+  }
+  return '';
+}
+
+export function djangoTimestamp(date = new Date()): string {
+  return date.toISOString().replace('T', ' ').replace(/Z$/, '000');
+}
+
+export function isoDate(value: string | null): string {
+  return djangoIso(value) ?? '';
+}
+
+export function pageNumber(request: FastifyRequest): URLSearchParams {
+  return new URLSearchParams(request.url.split('?')[1] ?? '');
+}
+
+function loginRedirect(request: FastifyRequest, reply: FastifyReply) {
+  const next = request.url.split('?')[0] || '/admin-settings/';
+  return reply.redirect(`/login?next=${encodeURIComponent(next)}`, 302);
+}
+
+export async function pageAccess(
+  request: FastifyRequest,
+  reply: FastifyReply,
+  db: PrismaClient,
+  options: AdminSettingsOptions,
+): Promise<{ user: AdminSettingsUser; access: UserAccess } | null> {
+  const user = await options.currentUser(request);
+  if (!user) {
+    loginRedirect(request, reply);
+    return null;
+  }
+  const access = await readAdminAccess(db, user.id);
+  if (!access?.active) {
+    loginRedirect(request, reply);
+    return null;
+  }
+  if (!access.staff) {
+    reply.code(404).type('text/plain; charset=utf-8').send('페이지를 찾을 수 없습니다.');
+    return null;
+  }
+  const [profile] = await db.$queryRaw<Array<{ role: string }>>`
+    SELECT role FROM board_profile WHERE user_id = ${user.id} LIMIT 1
+  `;
+  return { user: { ...user, hasEditorRole: profile?.role === 'EDITOR', isStaff: access.staff }, access };
+}
+
+export async function editorPageAccess(
+  request: FastifyRequest,
+  reply: FastifyReply,
+  db: PrismaClient,
+  options: AdminSettingsOptions,
+): Promise<{ user: AdminSettingsUser; access: UserAccess } | null> {
+  const user = await options.currentUser(request);
+  if (!user) {
+    loginRedirect(request, reply);
+    return null;
+  }
+  const access = await readAdminAccess(db, user.id);
+  if (!access?.active) {
+    loginRedirect(request, reply);
+    return null;
+  }
+  const [profile] = await db.$queryRaw<Array<{ role: string }>>`
+    SELECT role FROM board_profile WHERE user_id = ${user.id} LIMIT 1
+  `;
+  if (profile?.role !== 'EDITOR') {
+    reply.code(404).type('text/plain; charset=utf-8').send('페이지를 찾을 수 없습니다.');
+    return null;
+  }
+  return { user: { ...user, hasEditorRole: true, isStaff: access.staff }, access };
+}
+
+export async function recordAudit(
+  db: Prisma.TransactionClient,
+  userId: number,
+  model: 'sitesetting' | 'loginsetting' | 'integrationsetting',
+  objectRepr: string,
+  changeMessage: string,
+): Promise<void> {
+  await db.$executeRaw`INSERT OR IGNORE INTO django_content_type (app_label, model) VALUES ('board', ${model})`;
+  const [contentType] = await db.$queryRaw<Array<{ id: number }>>`
+    SELECT id FROM django_content_type WHERE app_label = 'board' AND model = ${model} LIMIT 1
+  `;
+  if (!contentType) return;
+  await db.$executeRaw`
+    INSERT INTO django_admin_log (object_id, object_repr, action_flag, change_message, content_type_id, user_id, action_time)
+    VALUES ('1', ${objectRepr}, 2, ${changeMessage}, ${contentType.id}, ${userId}, ${djangoTimestamp()})
+  `;
+}
+
+export function csrfValid(request: FastifyRequest, options: AdminSettingsOptions): boolean {
+  try {
+    return options.validateCsrf(request);
+  } catch {
+    return false;
+  }
+}
+
+export function csrfValidWithBody(request: FastifyRequest, options: AdminSettingsOptions, body: unknown): boolean {
+  try {
+    const requestWithBody = Object.create(request) as FastifyRequest;
+    Object.defineProperty(requestWithBody, 'body', { value: body, enumerable: true });
+    return options.validateCsrf(requestWithBody);
+  } catch {
+    return false;
+  }
+}
+
+export async function readMultipartFields(request: FastifyRequest): Promise<{ fields: Body; files: Map<string, Buffer> }> {
+  const fields: Body = {};
+  const files = new Map<string, Buffer>();
+  for await (const part of request.parts()) {
+    if (part.type === 'file') {
+      files.set(part.fieldname, await part.toBuffer());
+    } else {
+      fields[part.fieldname] = part.value;
+    }
+  }
+  return { fields, files };
+}
+
+export async function apiAccess(
+  request: FastifyRequest,
+  db: PrismaClient,
+  options: AdminSettingsOptions,
+): Promise<{ user: AdminSettingsUser; access: UserAccess } | { response: ReturnType<typeof failure> }> {
+  const user = await options.currentUser(request);
+  if (!user) return { response: failure('NL') };
+  const access = await readAdminAccess(db, user.id);
+  if (!access?.active) return { response: failure('NL') };
+  if (!access.staff) return { response: failure('RJ', 'Administrator access is required.') };
+  return { user, access };
+}
+
+export async function editorApiAccess(
+  request: FastifyRequest,
+  db: PrismaClient,
+  options: AdminSettingsOptions,
+): Promise<{ user: AdminSettingsUser; access: UserAccess } | { response: ReturnType<typeof failure> }> {
+  const user = await options.currentUser(request);
+  if (!user) return { response: failure('NL') };
+  const access = await readAdminAccess(db, user.id);
+  if (!access?.active) return { response: failure('NL') };
+  const [profile] = await db.$queryRaw<Array<{ role: string }>>`
+    SELECT role FROM board_profile WHERE user_id = ${user.id} LIMIT 1
+  `;
+  if (profile?.role !== 'EDITOR') {
+    return { response: failure('RJ', 'Author access is required.') };
+  }
+  return { user, access };
+}
+
+export function sendApiResult<T>(reply: FastifyReply, result: ApiResult<T>) {
+  return reply.send(result.ok ? success(result.body) : failure(result.code, result.message));
+}
+
+export function positiveInteger(value: string | null, fallback: number): number {
+  if (!value || !/^\d+$/.test(value)) return fallback;
+  const number = Number(value);
+  return Number.isSafeInteger(number) ? number : fallback;
+}
+
+export function camelizeValue(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(camelizeValue);
+  if (!isRecord(value)) return value;
+  return Object.fromEntries(Object.entries(value).map(([key, item]) => [
+    key.replace(/_([a-z])/g, (_match, letter: string) => letter.toUpperCase()),
+    camelizeValue(item),
+  ]));
+}
+
+export function validRouteId(value: string): number | null {
+  if (!/^\d+$/.test(value)) return null;
+  const id = Number(value);
+  return Number.isSafeInteger(id) && id > 0 ? id : null;
+}
+
+export function apiJsonBody(request: FastifyRequest): Body {
+  return isRecord(request.body) ? request.body : {};
+}
+
+export function unauthorizedPage(reply: FastifyReply) {
+  return reply.code(404).type('text/plain; charset=utf-8').send('페이지를 찾을 수 없습니다.');
+}

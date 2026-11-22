@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="v4/public/logow.svg">
-    <img alt="BLEX" src="v4/public/logob.svg" width="108">
+    <source media="(prefers-color-scheme: dark)" srcset="packages/server/public/logow.svg">
+    <img alt="BLEX" src="packages/server/public/logob.svg" width="108">
   </picture>
 </p>
 
@@ -79,16 +79,16 @@ Requirements:
 - FFmpeg for local GIF conversion and video previews
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 Open `http://localhost:8040`. The development command initializes a local
-SQLite database under `v4/.local/` and prints the first administrator setup link.
+SQLite database under `packages/server/.local/` and prints the first administrator setup link.
 
 ## Documentation
 
-- [BLEX 4 installation and upgrade guide](v4/README.md)
+- [BLEX 4 installation and upgrade guide](packages/server/README.md)
 - [Development Convention](docs/DEV_CONVENTION.md)
 - [Translation Guide](docs/TRANSLATION_GUIDE.md)
 

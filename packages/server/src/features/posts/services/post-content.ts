@@ -1,0 +1,143 @@
+import { type PrismaClient } from '@prisma/client';
+import { Parser } from 'htmlparser2';
+import { sanitizePostHtml } from '../post-html.js';
+import { markdownToHtml } from '../authoring/markdown.js';
+import { PostValidationError } from './post-store.js';
+import { AuthoringPostInput, COVER_LAYOUTS, COVER_POSITIONS, COVER_RATIOS, POST_DESCRIPTION_MAX, POST_SUBTITLE_MAX, POST_TITLE_MAX, POST_URL_MAX, TAG_MAX, booleanField, field, inputField } from '../shared.js';
+
+export function mediaUrl(value: string | null | undefined): string | null {
+  if (!value) return null;
+  if (/^https?:\/\//i.test(value)) return value;
+  return `/resources/media/${value.replace(/^\/+/, '')}`;
+}
+
+export function coverUrlFromStored(value: string): string {
+  if (!value || /^https?:\/\//i.test(value)) return '';
+  return `/resources/media/${value.split('/').map(encodeURIComponent).join('/')}`;
+}
+
+function storedCoverPath(value: string): string {
+  if (!value.startsWith('/resources/media/') || /[\\\u0000-\u001f\u007f?#]/.test(value)) {
+    throw new PostValidationError('VA', 'Choose an image URL from the upload page.');
+  }
+  let path: string;
+  try {
+    path = value.slice('/resources/media/'.length).split('/').map(decodeURIComponent).join('/');
+  } catch {
+    throw new PostValidationError('VA', 'Choose an image URL from the upload page.');
+  }
+  const segments = path.split('/');
+  if (segments.length < 2 || segments.some((part) => !part || part === '.' || part === '..' || !/^[A-Za-z0-9._-]+$/.test(part)) ||
+      !/\.(?:jpe?g|png|gif)$/i.test(segments.at(-1) ?? '')) {
+    throw new PostValidationError('VA', 'Choose an image URL from the upload page.');
+  }
+  return path;
+}
+
+export async function resolveCoverImage(
+  db: PrismaClient,
+  userId: number,
+  requested: string | undefined,
+  current: string,
+  remove: boolean,
+): Promise<string> {
+  if (remove) return '';
+  if (!requested?.trim()) return current;
+  const path = storedCoverPath(requested.trim());
+  if (path === current) return current;
+  const owned = await db.$queryRaw<Array<{ path: string }>>`
+    SELECT path FROM board_imagecache WHERE path = ${path} AND user_id = ${userId} LIMIT 1
+  `;
+  if (!owned[0]) throw new PostValidationError('VA', 'Choose an image you uploaded.');
+  return path;
+}
+
+export function plainText(html: string): string {
+  return sanitizePostHtml(html)
+    .replace(/<br\s*\/?\s*>/gi, ' ')
+    .replace(/<\/(?:p|h[1-6]|li|blockquote|div)>/gi, ' ')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#x27;/gi, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/** Django's strip_tags followed by truncatewords(50). */
+export function descriptionFromHtml(html: string): string {
+  let text = '';
+  const parser = new Parser({ ontext: (chunk) => { text += chunk; } }, { decodeEntities: false });
+  parser.write(html);
+  parser.end();
+  const words = text.split(/\s+/u).filter(Boolean);
+  return words.length > 50 ? `${words.slice(0, 50).join(' ')}…` : words.join(' ');
+}
+
+export function readingTime(html: string): number {
+  const words = plainText(html).trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(words / 200));
+}
+
+export function slugify(value: string): string {
+  return value.normalize('NFKC').toLocaleLowerCase('ko-KR')
+    .replace(/[^\p{L}\p{N}_\s-]/gu, '')
+    .trim()
+    .replace(/[\s-]+/g, '-');
+}
+
+export function normalizedTags(value: string): string[] {
+  const prepared = slugify(value.replace(/[,_]/g, '-'));
+  return [...new Set(prepared.split('-').filter(Boolean))];
+}
+
+export function validatePostInput(input: AuthoringPostInput, allowEmptyBody: boolean): string | null {
+  const length = (value: string) => Array.from(value).length;
+  if (!allowEmptyBody && !input.title.trim()) return 'Enter a title.';
+  if (length(input.title) > POST_TITLE_MAX) return `Titles can be up to ${POST_TITLE_MAX} characters.`;
+  if (length(input.subtitle) > POST_SUBTITLE_MAX) return `Subtitles can be up to ${POST_SUBTITLE_MAX} characters.`;
+  if (length(input.description) > POST_DESCRIPTION_MAX) return `Descriptions can be up to ${POST_DESCRIPTION_MAX} characters.`;
+  if (length(slugify(input.url)) > POST_URL_MAX) return `Post URLs can be up to ${POST_URL_MAX} characters.`;
+  if (normalizedTags(input.tags).some((tag) => Array.from(tag).length > TAG_MAX)) {
+    return `Each tag can be up to ${TAG_MAX} characters.`;
+  }
+  if (!allowEmptyBody && !input.text.trim()) return 'Enter some content.';
+  if (!COVER_LAYOUTS.has(input.coverLayout)) return 'This cover style is not supported.';
+  if (!COVER_POSITIONS.has(input.coverImagePosition)) return 'This cover image position is not supported.';
+  if (!COVER_RATIOS.has(input.coverImageRatio)) return 'This cover image ratio is not supported.';
+  return null;
+}
+
+export function parseAuthoringPostInput(body: Record<string, unknown>): AuthoringPostInput {
+  const text = inputField(body, 'content_html', 'content', 'text_html', 'text_md', 'content_markdown', 'markdown');
+  const contentType = field(body.content_type) || (body.content_markdown !== undefined || body.markdown !== undefined ? 'markdown' : 'html');
+  const tagsValue = Array.isArray(body.tag) ? body.tag : Array.isArray(body.tags) ? body.tags : undefined;
+  return {
+    title: field(body.title),
+    subtitle: field(body.subtitle),
+    text,
+    contentType,
+    description: inputField(body, 'description', 'meta_description'),
+    url: field(body.url) || field(body.custom_url),
+    tags: tagsValue ? tagsValue.map(field).join(',') : inputField(body, 'tag', 'tags'),
+    series: field(body.series) || field(body.series_url),
+    hide: booleanField(body.is_hide ?? body.hide),
+    advertise: booleanField(body.is_advertise ?? body.advertise),
+    blockComment: booleanField(body.block_comment),
+    coverLayout: field(body.cover_layout) || 'default',
+    coverImagePosition: field(body.cover_image_position) || 'right',
+    coverImageRatio: field(body.cover_image_ratio) || 'auto',
+    coverImage: Object.hasOwn(body, 'cover_image_url') ? field(body.cover_image_url) : undefined,
+    removeCoverImage: booleanField(body.remove_cover_image),
+    reservedDate: field(body.reserved_date),
+  };
+}
+
+export function resolveContent(input: AuthoringPostInput): string {
+  return input.contentType === 'markdown'
+    ? markdownToHtml(input.text)
+    : sanitizePostHtml(input.text);
+}

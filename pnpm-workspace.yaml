@@ -1,0 +1,31 @@
+packages:
+  - 'packages/*'
+
+allowBuilds:
+  '@parcel/watcher': true
+  '@prisma/client': true
+  '@prisma/engines': true
+  esbuild: true
+  prisma: true
+  sharp: true
+
+minimumReleaseAgeExclude:
+  - postcss@8.5.24
+
+overrides:
+  '@prisma/config>deepmerge-ts': 8.0.0
+  '@prisma/config>effect': 3.22.1
+  '@babel/core': 7.29.6
+  baseline-browser-mapping: 2.11.0
+  browserslist: 4.28.7
+  dompurify: 3.4.12
+  esbuild: 0.28.1
+  form-data: 4.0.6
+  js-yaml: 4.3.2
+  linkify-it: 5.0.1
+  markdown-it: 14.2.0
+  minimatch: 11.0.8
+  nanoid: 3.3.18
+
+patchedDependencies:
+  braces@3.0.3: patches/braces@3.0.3.patch
