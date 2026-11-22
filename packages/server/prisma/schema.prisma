@@ -8,15 +8,15 @@ datasource db {
 }
 
 model OAuthFlow {
-  stateHash   String @id @map("state_hash")
-  browserHash String @map("browser_hash")
+  stateHash   String  @id @map("state_hash")
+  browserHash String  @map("browser_hash")
   provider    String
   verifier    String
-  returnPath  String @map("return_path")
-  expiresAt   BigInt @map("expires_at")
+  returnPath  String  @map("return_path")
+  expiresAt   BigInt  @map("expires_at")
   sessionHash String? @map("session_hash")
-  language    String @default("")
-  timeZone    String @default("") @map("time_zone")
+  language    String  @default("")
+  timeZone    String  @default("") @map("time_zone")
 
   @@index([expiresAt], map: "blex_oauth_flow_expires_at_idx")
   @@map("blex_oauth_flow")
@@ -40,7 +40,7 @@ model User {
   password                                                                         String
   last_login                                                                       DateTime?
   is_superuser                                                                     Unsupported("bool")
-  username                                                                         String                             @unique(map: "sqlite_autoindex_auth_user_1")
+  username                                                                         String                             @unique
   last_name                                                                        String
   email                                                                            String
   is_staff                                                                         Unsupported("bool")
@@ -125,9 +125,9 @@ model NotificationDelivery {
 }
 
 model ScheduledPublication {
-  postId    Int        @id @map("post_id")
-  publishAt String     @map("publish_at")
-  post      Post @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  postId    Int    @id @map("post_id")
+  publishAt String @map("publish_at")
+  post      Post   @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([publishAt], map: "blex_scheduled_publication_publish_at_idx")
   @@map("blex_scheduled_publication")
@@ -161,7 +161,7 @@ model UsernameChange {
 model Post {
   id                   Int                    @id @default(autoincrement())
   title                String
-  slug                 String                 @unique(map: "sqlite_autoindex_board_post_1") @map("url")
+  slug                 String                 @unique @map("url")
   image                String
   read_time            Int
   created_date         DateTime
@@ -186,7 +186,7 @@ model Post {
   content              PostContent?
   board_postsharelink  board_postsharelink[]
   scheduledPublication ScheduledPublication?
-  webhookDeliveries   WebhookDelivery[]
+  webhookDeliveries    WebhookDelivery[]
 
   @@index([deletedDate], map: "board_post_deleted_date_e66a3ffc")
   @@index([authorId, publishedDate], map: "board_post_author__54dd01_idx")
@@ -203,7 +203,7 @@ model Post {
 model PostContent {
   id     Int    @id @default(autoincrement())
   html   String @map("content_html")
-  postId Int    @unique(map: "sqlite_autoindex_board_postcontent_1") @map("post_id")
+  postId Int    @unique @map("post_id")
   post   Post   @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("board_postcontent")
@@ -214,7 +214,7 @@ model PostConfig {
   hide                 Unsupported("bool")
   advertise            Unsupported("bool")
   block_comment        Unsupported("bool")
-  postId               Int                 @unique(map: "sqlite_autoindex_board_postconfig_1") @map("post_id")
+  postId               Int                 @unique @map("post_id")
   cover_image_position String
   cover_image_ratio    String
   cover_layout         String
@@ -225,7 +225,7 @@ model PostConfig {
 
 model auth_group {
   id                     Int                      @id @default(autoincrement())
-  name                   String                   @unique(map: "sqlite_autoindex_auth_group_1")
+  name                   String                   @unique
   auth_group_permissions auth_group_permissions[]
   auth_user_groups       auth_user_groups[]
 }
@@ -281,7 +281,7 @@ model auth_user_user_permissions {
 
 model board_authorinvite {
   id                                                    Int                 @id @default(autoincrement())
-  code                                                  String              @unique(map: "sqlite_autoindex_board_authorinvite_1")
+  code                                                  String              @unique
   note                                                  String
   is_active                                             Unsupported("bool")
   created_date                                          DateTime
@@ -305,7 +305,7 @@ model board_authorsubscription {
   auth_user_board_authorsubscription_subscriber_idToauth_user User     @relation("board_authorsubscription_subscriber_idToauth_user", fields: [subscriber_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   auth_user_board_authorsubscription_author_idToauth_user     User     @relation("board_authorsubscription_author_idToauth_user", fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@unique([subscriber_id, author_id], map: "sqlite_autoindex_board_authorsubscription_1")
+  @@unique([subscriber_id, author_id])
   @@index([author_id, created_date], map: "board_authorsub_author_idx")
   @@index([subscriber_id], map: "board_authorsubscription_subscriber_id_27e581a7")
   @@index([author_id], map: "board_authorsubscription_author_id_8b00b85d")
@@ -362,7 +362,7 @@ model board_comment_likes {
 
 model board_config {
   id        Int     @id @default(autoincrement())
-  user_id   Int     @unique(map: "sqlite_autoindex_board_config_1")
+  user_id   Int     @unique
   language  String?
   time_zone String
   auth_user User    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -390,8 +390,8 @@ model board_developerrequestlog {
 model board_developertoken {
   id                        Int                         @id @default(autoincrement())
   name                      String
-  token_prefix              String                      @unique(map: "sqlite_autoindex_board_developertoken_1")
-  token_hash                String                      @unique(map: "sqlite_autoindex_board_developertoken_2")
+  token_prefix              String                      @unique
+  token_hash                String                      @unique
   scopes                    String
   expires_at                DateTime?
   revoked_at                DateTime?
@@ -454,7 +454,7 @@ model board_emailchange {
   email        String
   auth_token   String
   created_date DateTime
-  user_id      Int      @unique(map: "sqlite_autoindex_board_emailchange_1")
+  user_id      Int      @unique
   auth_user    User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
@@ -473,8 +473,8 @@ model board_form {
 
 model board_imagecache {
   id        Int    @id @default(autoincrement())
-  key       String @unique(map: "sqlite_autoindex_board_imagecache_1")
-  path      String @unique(map: "sqlite_autoindex_board_imagecache_2")
+  key       String @unique
+  path      String @unique
   size      Int
   user_id   Int?
   auth_user User?  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -510,8 +510,8 @@ model board_loginsetting {
 }
 
 model board_notify {
-  id             Int                 @id @default(autoincrement())
-  key            String              @unique(map: "sqlite_autoindex_board_notify_1")
+  id             Int                   @id @default(autoincrement())
+  key            String                @unique
   url            String
   created_date   DateTime
   updated_date   DateTime
@@ -520,7 +520,7 @@ model board_notify {
   has_read       Unsupported("bool")
   message_key    String
   message_params String
-  auth_user      User                @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  auth_user      User                  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   delivery       NotificationDelivery?
 
   @@index([user_id], map: "board_notify_user_id_b069f0b5")
@@ -542,7 +542,7 @@ model board_pinnedpost {
   auth_user    User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   board_post   Post     @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@unique([user_id, post_id], map: "sqlite_autoindex_board_pinnedpost_1")
+  @@unique([user_id, post_id])
   @@index([user_id], map: "board_pinnedpost_user_id_162d6fde")
   @@index([post_id], map: "board_pinnedpost_post_id_5c30f851")
 }
@@ -555,7 +555,7 @@ model board_post_likes {
   auth_user    User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   board_post   Post     @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@unique([post_id, user_id], map: "sqlite_autoindex_board_post_likes_1")
+  @@unique([post_id, user_id])
   @@index([user_id, created_date], map: "board_post__user_id_44c70b_idx")
   @@index([post_id, user_id], map: "board_post__post_id_ce5821_idx")
   @@index([user_id], map: "board_post_likes_user_id_ec7f0988")
@@ -569,7 +569,7 @@ model board_post_share_link_daily_counts {
   link_id             Int
   board_postsharelink board_postsharelink            @relation(fields: [link_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@unique([link_id, day], map: "sqlite_autoindex_board_post_share_link_daily_counts_1")
+  @@unique([link_id, day])
   @@index([link_id], map: "board_post_share_link_daily_counts_link_id_2f58d048")
 }
 
@@ -599,7 +599,7 @@ model board_postconfigmeta {
 
 model board_postsharelink {
   id                                 Int                                  @id @default(autoincrement())
-  token                              String                               @unique(map: "sqlite_autoindex_board_postsharelink_1")
+  token                              String                               @unique
   label                              String
   is_paused                          Unsupported("bool")
   created_date                       DateTime
@@ -618,7 +618,7 @@ model board_profile {
   homepage                  String
   about_md                  String
   about_html                String
-  user_id                   Int                         @unique(map: "sqlite_autoindex_board_profile_1")
+  user_id                   Int                         @unique
   analytics_share_url       String
   role                      String
   auth_user                 User                        @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -631,7 +631,7 @@ model board_series {
   text_md                String
   text_html              String
   hide                   Unsupported("bool")
-  url                    String                   @unique(map: "sqlite_autoindex_board_series_1")
+  url                    String                   @unique
   layout                 String
   created_date           DateTime
   updated_date           DateTime
@@ -719,14 +719,14 @@ model board_socialauth {
   auth_user                User                     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   board_socialauthprovider board_socialauthprovider @relation(fields: [provider_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@unique([provider_id, uid], map: "sqlite_autoindex_board_socialauth_1")
+  @@unique([provider_id, uid])
   @@index([user_id], map: "board_socialauth_user_id_92dc0ec9")
   @@index([provider_id], map: "board_socialauth_provider_id_6d0024d4")
 }
 
 model board_socialauthprovider {
   id               Int                 @id @default(autoincrement())
-  key              String              @unique(map: "sqlite_autoindex_board_socialauthprovider_1")
+  key              String              @unique
   client_id        String
   client_secret    String
   is_enabled       Unsupported("bool")
@@ -744,7 +744,7 @@ model board_staticpage {
   created_date     DateTime
   updated_date     DateTime
   author_id        Int?
-  slug             String              @unique(map: "sqlite_autoindex_board_staticpage_1")
+  slug             String              @unique
   auth_user        User?               @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([author_id], map: "board_staticpage_author_id_fecbd454")
@@ -752,7 +752,7 @@ model board_staticpage {
 
 model board_tag {
   id              Int               @id @default(autoincrement())
-  value           String            @unique(map: "sqlite_autoindex_board_tag_1")
+  value           String            @unique
   board_post_tags board_post_tags[]
 }
 
@@ -761,7 +761,7 @@ model board_telegramsync {
   auth_token     String
   auth_token_exp DateTime
   created_date   DateTime
-  user_id        Int      @unique(map: "sqlite_autoindex_board_telegramsync_1")
+  user_id        Int      @unique
   tid            String
   auth_user      User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
@@ -770,7 +770,7 @@ model board_twofactorauth {
   id           Int      @id @default(autoincrement())
   recovery_key String
   created_date DateTime
-  user_id      Int      @unique(map: "sqlite_autoindex_board_twofactorauth_1")
+  user_id      Int      @unique
   totp_secret  String
   auth_user    User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
@@ -802,7 +802,7 @@ model board_userlinkmeta {
 
 model board_utilitycleanupconfirmation {
   id                  Int       @id @default(autoincrement())
-  token_hash          String    @unique(map: "sqlite_autoindex_board_utilitycleanupconfirmation_1")
+  token_hash          String    @unique
   action              String
   session_fingerprint String
   expires_at          DateTime
@@ -861,7 +861,7 @@ model board_worklogentry {
 
 model board_worklogshare {
   id                         Int                          @id @default(autoincrement())
-  token                      String                       @unique(map: "sqlite_autoindex_board_worklogshare_1")
+  token                      String                       @unique
   headline                   String
   created_at                 DateTime
   log_id                     Int
@@ -920,5 +920,5 @@ model django_session {
 model django_site {
   id     Int    @id @default(autoincrement())
   name   String
-  domain String @unique(map: "sqlite_autoindex_django_site_1")
+  domain String @unique
 }
