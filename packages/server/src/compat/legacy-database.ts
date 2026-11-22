@@ -52,7 +52,7 @@ export function verifyLegacyDatabase(dbPath: string): number {
   try {
     const tables = db.prepare(`SELECT 1 FROM sqlite_schema WHERE type = 'table' AND name = 'django_migrations'`).get();
     const version = tables && db.prepare('SELECT 1 FROM django_migrations WHERE app = ? AND name = ?').get('board', djangoBaseline);
-    if (!version) throw new Error(`Upgrade this BLEX 3.x database to 3.14 first: run the Django migrations through ${djangoBaseline}.`);
+    if (!version) throw new Error(`Upgrade this BLEX 3.x database to 3.14 first: start the baealex/blex:3.14 image once so it applies ${djangoBaseline}, then start BLEX 4.`);
 
     baseline.exec(readFileSync(baselineSql, 'utf8'));
     const expected = schemaObjects(baseline);
