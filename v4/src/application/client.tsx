@@ -432,7 +432,7 @@ function handleDocumentSubmit(event: SubmitEvent): void {
       /^\/v1\/setting\/(?:avatar|cover)\/?$/.test(destination.pathname);
     if (destination.pathname.startsWith('/v1/') &&
         (!isFormRedirectEndpoint || !isSafeFormReturnTo(data.get('return_to')))) return;
-    if (destination.pathname === '/graphql' || destination.pathname.startsWith('/api/')) return;
+    if (destination.pathname.startsWith('/api/')) return;
     const activeRouter = router;
     if (!activeRouter) return;
     if (pendingPostForms.has(form)) {
@@ -475,7 +475,7 @@ function isSafeFormReturnTo(value: FormDataEntryValue | null): value is string {
   try {
     const url = new URL(value, window.location.href);
     return url.origin === window.location.origin && !decodeURIComponent(url.pathname).startsWith('//') && !url.pathname.startsWith('/v1/') &&
-      url.pathname !== '/graphql' && !url.pathname.startsWith('/api/') && isInternalApplicationUrl(url);
+      !url.pathname.startsWith('/api/') && isInternalApplicationUrl(url);
   } catch { return false; }
 }
 

@@ -856,16 +856,6 @@ async function readPublicPosts(db: PrismaClient, options: PostQueryOptions = {})
   );
 }
 
-export async function readPublicFeed(db: PrismaClient, limit: number | null) {
-  const posts = await readPublicPosts(db, { limit: Math.max(1, Math.min(PAGE_SIZE, limit ?? 12)) });
-  return posts.map((post) => ({
-    username: post.authorUsername,
-    slug: post.slug,
-    title: post.title,
-    description: post.description ?? '',
-  }));
-}
-
 async function readAuthor(db: PrismaClient, username: string): Promise<AuthorRow | null> {
   const now = databaseNow();
   const current = await db.$queryRaw<AuthorRow[]>`

@@ -13,7 +13,7 @@ export function wantsNotFoundPage(request: FastifyRequest): boolean {
   if (request.method !== 'GET' && request.method !== 'HEAD') return false;
   if (!String(request.headers.accept ?? '').includes('text/html')) return false;
   const path = request.url.split('?')[0];
-  return !/^\/(?:v1|api|assets|resources|rss|graphql)(?:\/|$)/.test(path) && !/\.(?:md|xml|txt|json)$/i.test(path);
+  return !/^\/(?:v1|api|assets|resources|rss)(?:\/|$)/.test(path) && !/\.(?:md|xml|txt|json)$/i.test(path);
 }
 
 export async function renderNotFoundPage(

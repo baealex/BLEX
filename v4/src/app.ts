@@ -1,7 +1,6 @@
 import cookie from '@fastify/cookie';
 import { PrismaClient } from '@prisma/client';
 import Fastify, { type FastifyError, type FastifyRequest } from 'fastify';
-import mercurius from 'mercurius';
 import { stat } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { registerAdminSettings } from './admin-settings/index.js';
@@ -19,7 +18,6 @@ import { registerContentMedia } from './content-media.js';
 import { registerDeveloperDocumentation } from './developer-api/docs.js';
 import { registerDeveloperApi } from './developer-api/index.js';
 import { registerDeveloperTokens } from './developer-api/tokens.js';
-import { registeredOperations, schema } from './graphql.js';
 import { startNotificationWorker } from './notifications/delivery.js';
 import { registerNotifications } from './notifications/index.js';
 import { registerPersonalSettings } from './personal-settings/index.js';
@@ -30,7 +28,7 @@ import { publicPostPath, readPostPresentation, readPublicPost } from './posts.js
 import { registerPublicActivity, relatedPosts } from './public-activity.js';
 import { registerPublicDiscovery, searchIndexingEnabled } from './public-discovery/index.js';
 import { registerPublicMedia } from './public-media.js';
-import { readPublicFeed, registerPublicPages } from './public-pages/index.js';
+import { registerPublicPages } from './public-pages/index.js';
 import { postContentSecurityPolicy, renderPublicPostPage } from './public-post-page.js';
 import { registerLegacyApiContract } from './legacy-api-contract.js';
 import { readReaderPostView, registerReaderActions } from './reader-actions/index.js';
@@ -171,33 +169,6 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
   app.post('/v1/report/error', { bodyLimit: 64 * 1024 }, async (request, reply) => {
     if (!routeOptions.validateCsrf(request)) return reply.code(403).send();
     return reply.code(200).send();
-  });
-
-  app.register(mercurius, {
-    schema,
-    context: (_request, reply) => {
-      reply.header('Cache-Control', 'private, no-store');
-      return {};
-    },
-    resolvers: {
-      Query: {
-        post: (_root: unknown, { username, slug }: { username: string; slug: string }) =>
-          readPublicPost(db, username, slug),
-        feed: (_root: unknown, { limit }: { limit: number | null }) => readPublicFeed(db, limit),
-        viewer: (_root, _input, context) => currentUser(context.reply.request),
-      },
-    },
-    graphiql: false,
-    allowBatchedQueries: false,
-    onlyPersisted: true,
-    persistedQueries: registeredOperations,
-    errorFormatter(execution, context) {
-      const formatted = mercurius.defaultErrorFormatter(execution, context);
-      formatted.response.errors = formatted.response.errors?.map((error) => error.path
-        ? { message: 'Could not complete the operation', path: error.path }
-        : error);
-      return formatted;
-    },
   });
 
   app.get<{ Params: { username: string; slug: string } }>('/@:username/:slug', async (request, reply) => {

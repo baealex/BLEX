@@ -53,7 +53,6 @@
 
 - Fastify routes, React SSR, and the Vite client entries live in `v4/src/`. Use `renderApplicationDocument` for app pages so direct visits receive SSR and internal links use the shared React router. Keep initial page data in the route's SSR response. Mount and clean up browser-only features with their route.
 - Keep authorization, data validation, and ownership checks in shared server services used by the routes that perform the same operation.
-- Register public GraphQL operations in `v4/src/graphql.ts`. Keep their results subject to the same visibility rules as the HTTP routes.
 - Add regression tests in `v4/test/` and run them with `npm test`. Verify migration changes on an empty SQLite database and a 3.x copy using the [upgrade guide](../v4/README.md).
 - Apply the design and UI change guides below to new React pages.
 

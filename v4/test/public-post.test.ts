@@ -5,7 +5,6 @@ import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
 import { buildApp } from '../src/app.js';
-import { PUBLIC_POST_QUERY_ID } from '../src/graphql.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-test-'));
 const databasePath = join(directory, 'Django posts.sqlite3');
@@ -72,14 +71,6 @@ test.after(async () => {
   await rm(directory, { recursive: true });
 });
 
-function postQuery(slug: string, username = 'writer') {
-  return app.inject({
-    method: 'POST',
-    url: '/graphql',
-    payload: { query: PUBLIC_POST_QUERY_ID, persisted: true, variables: { username, slug } },
-  });
-}
-
 test('serves the shared application entry in read-only mode', async () => {
   const redirect = await app.inject('/assets/blex/app.js');
   assert.equal(redirect.statusCode, 302);
@@ -91,38 +82,23 @@ test('serves the shared application entry in read-only mode', async () => {
   assert.match(String(asset.headers['cache-control']), /immutable/);
 });
 
-test('returns the approved public GraphQL operation with sanitized article HTML', async () => {
-  const response = await postQuery('public');
-  assert.equal(response.statusCode, 200, response.body);
-  assert.deepEqual(response.json(), {
-    data: { post: {
-      username: 'writer', slug: 'public', title: 'Public article',
-      description: 'Public description', contentHtml: '<p>Public article body</p>',
-    } },
-  });
-});
-
-test('rejects unregistered GraphQL documents, unknown IDs, and batches', async () => {
-  for (const payload of [
-    { query: '{ __schema { queryType { name } } }' },
-    { query: 'unknown', persisted: true },
-    [{ query: PUBLIC_POST_QUERY_ID, persisted: true }],
-  ]) {
-    const response = await app.inject({ method: 'POST', url: '/graphql', payload });
-    assert.ok(response.statusCode >= 400 && response.statusCode < 500, response.body);
+test('does not expose a GraphQL endpoint', async () => {
+  for (const url of ['/graphql', '/graphiql']) {
+    assert.equal((await app.inject(url)).statusCode, 404, url);
+    const response = await app.inject({ method: 'POST', url, payload: { query: '{ __schema { queryType { name } } }' } });
+    assert.equal(response.statusCode, 404, url);
   }
-  assert.equal((await app.inject('/graphiql')).statusCode, 404);
+  const page = await app.inject({ url: '/graphql', headers: { accept: 'text/html' } });
+  assert.equal(page.statusCode, 404);
+  assert.match(String(page.headers['content-type']), /^text\/html/);
 });
 
-test('applies the same visibility rules to GraphQL and public pages', async () => {
+test('hides posts that are not public from public pages', async () => {
   for (const slug of ['hidden', 'scheduled', 'draft', 'trashed', 'missing']) {
-    const apiResponse = await postQuery(slug);
-    assert.deepEqual(apiResponse.json(), { data: { post: null } }, slug);
     assert.equal((await app.inject(`/@writer/${slug}`)).statusCode, 404, slug);
     assert.equal((await app.inject(`/@old-writer/${slug}`)).statusCode, 404, slug);
   }
 
-  assert.deepEqual((await postQuery('public', 'someone-else')).json(), { data: { post: null } });
   assert.equal((await app.inject('/@someone-else/public')).statusCode, 404);
 });
 
@@ -130,14 +106,11 @@ test('redirects previous public post links and preserves direct reads for older 
   const redirect = await app.inject('/@old-writer/public');
   assert.equal(redirect.statusCode, 302);
   assert.equal(redirect.headers.location, '/@writer/public');
-  assert.equal((await postQuery('public', 'old-writer')).json().data.post.username, 'writer');
   assert.equal((await app.inject('/@writer/no-config')).statusCode, 200);
   assert.equal((await app.inject('/@old-writer/no-config')).statusCode, 404);
 });
 
 test('accepts long legacy slugs and renders stored image, video, and supported embed sources', async () => {
-  const api = await postQuery(legacySlug);
-  assert.equal(api.json().data.post.slug, legacySlug);
   const response = await app.inject(`/@writer/${legacySlug}`);
   assert.equal(response.statusCode, 200);
   assert.match(response.body, /<h2 id="section">Section<\/h2>/);

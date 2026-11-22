@@ -11,7 +11,6 @@ import { verifyDjangoPassword } from '../src/auth/django-password.js';
 import { decryptDjangoSecret, encryptDjangoSecret } from '../src/auth/django-secret.js';
 import { authenticatePassword } from '../src/auth/password-login.js';
 import { verifyDjangoSecondFactor } from '../src/auth/two-factor.js';
-import { PUBLIC_POST_QUERY_ID, VIEWER_QUERY_ID } from '../src/graphql.js';
 
 // Test values were produced by Django, cryptography's Fernet and PyOTP.
 const password = 'compatibility-비밀번호-2026';
@@ -172,9 +171,7 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     assert.equal(ownerRead.headers['x-robots-tag'], 'noindex, nofollow, noarchive');
     assert.match(ownerRead.body, /비공개 포스트입니다/);
     assert.equal((await app.inject({ url: postPath, headers: headersFor(reader, siteUrl) })).statusCode, 404);
-    assert.deepEqual((await app.inject({ method: 'POST', url: '/graphql', headers: verified,
-      payload: { query: PUBLIC_POST_QUERY_ID, persisted: true, variables: { username: 'neweditor', slug: 'developer-draft' } },
-    })).json(), { data: { post: null } });
+    assert.equal((await app.inject(postPath)).statusCode, 404);
     const dryRun = await app.inject({ method: 'DELETE', url: `${updateUrl}?dry_run=true`, headers: apiRequest.headers });
     assert.equal(dryRun.json().data.can_delete, true);
     const deleted = await app.inject({ method: 'DELETE', url: updateUrl, headers: apiRequest.headers });
@@ -376,10 +373,11 @@ test('keeps the legacy login envelope and issues a new session only after CSRF, 
 
     const loggedIn = await app.inject({ url: '/v1/login', headers: signedInHeaders });
     assert.equal(loggedIn.json().body.email, 'test@example.invalid');
-    const viewer = await app.inject({ method: 'POST', url: '/graphql', headers: signedInHeaders,
-      payload: { query: VIEWER_QUERY_ID, persisted: true } });
-    assert.deepEqual(viewer.json(), { data: { viewer: { username: 'account', name: 'Test', avatar: '', hasEditorRole: false } } });
-    assert.equal(viewer.headers['cache-control'], 'private, no-store');
+    const { username, name, avatar, hasEditorRole } = loggedIn.json().body;
+    assert.deepEqual({ username, name, avatar, hasEditorRole }, { username: 'account', name: 'Test', avatar: '', hasEditorRole: false });
+    const signedInHome = await app.inject({ url: '/', headers: signedInHeaders });
+    assert.equal(signedInHome.statusCode, 200, signedInHome.body);
+    assert.equal(signedInHome.headers['cache-control'], 'private, no-store');
     const logout = await app.inject({ method: 'POST', url: '/v1/logout', headers: signedInHeaders });
     assert.deepEqual(logout.json(), { status: 'DONE', body: {} });
     assert.equal((await app.inject({ url: '/v1/login', headers: signedInHeaders })).json().errorCode, 'error:NL');
