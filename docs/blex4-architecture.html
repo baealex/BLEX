@@ -343,7 +343,7 @@ GET /settings/account?saved=1
         <article class="stack card"><h3>데이터 · 스키마</h3><strong>Prisma 6 · SQLite</strong><p>SQLite 파일을 사용합니다. Prisma가 스키마 변경을 관리하고, 일부 기존 테이블은 파라미터 바인딩 SQL로 읽고 씁니다.</p></article>
         <article class="stack card"><h3>배포 · 미디어</h3><strong>Docker · Sharp · FFmpeg</strong><p>서비스 이미지는 Node 기반입니다. SQLite 파일과 업로드 디렉터리를 마운트하고 이미지·영상 처리를 같은 서비스에서 실행합니다.</p></article>
       </div>
-      <p class="upgrade"><strong>3.x DB 이관</strong> 백업 복제본을 3.14의 마지막 Django 마이그레이션인 <code>0070_author_subscription</code>까지 올립니다. 같은 DB를 Prisma 기준선으로 등록하고 4.x 마이그레이션을 적용하면 서비스는 Node로 실행합니다. <a href="../packages/server/README.md">실행과 이관 가이드</a></p>
+      <p class="upgrade"><strong>설치와 운영</strong> <a href="SELF_HOSTING.md">자체 호스팅 가이드</a>에서 실행과 백업을, <a href="UPGRADE_FROM_3.md">이전 가이드</a>에서 기존 DB와 미디어를 옮기는 절차를 확인할 수 있습니다.</p>
     </section>
 
     <section class="section" id="source">
@@ -353,7 +353,7 @@ GET /settings/account?saved=1
           <div class="row"><dt><a href="../packages/server/src/main.ts">packages/server/src/main.ts</a> · <a href="../packages/server/src/app.ts">app.ts</a> · <a href="../packages/server/src/routes/index.ts">routes</a></dt><dd>서버 시작, Prisma 연결, 페이지·API·미디어 라우트 등록</dd></div>
           <div class="row"><dt><a href="../packages/server/src/features/discovery">packages/server/src/features/discovery</a> · <a href="../packages/server/src/features/authors">authors</a></dt><dd>홈, 검색, 태그, 프로필 페이지 조회와 SSR</dd></div>
           <div class="row"><dt><a href="../packages/server/src/application/document.tsx">packages/server/src/application/document.tsx</a> · <a href="../packages/server/src/application/client.tsx">client.tsx</a></dt><dd>공통 HTML 문서 생성, 브라우저 진입점, 내부 이동과 폼 처리</dd></div>
-          <div class="row"><dt><a href="../packages/server/src/features/auth/http.ts">packages/server/src/features/auth/http.ts</a> · <a href="../packages/server/src/features/account/index.ts">personal-settings/index.ts</a></dt><dd>로그인 API, 사용자 세션, 계정과 프로필 설정</dd></div>
+          <div class="row"><dt><a href="../packages/server/src/features/auth/http.ts">packages/server/src/features/auth/http.ts</a> · <a href="../packages/server/src/features/account/index.ts">account/index.ts</a></dt><dd>로그인 API, 사용자 세션, 계정과 프로필 설정</dd></div>
           <div class="row"><dt><a href="../packages/server/prisma/schema.prisma">packages/server/prisma/schema.prisma</a></dt><dd>모델과 DB 스키마</dd></div>
           <div class="row"><dt><a href="../packages/server/vite.config.ts">packages/server/vite.config.ts</a> · <a href="../Dockerfile">Dockerfile</a></dt><dd>브라우저 자산과 서비스 이미지 빌드</dd></div>
         </dl>

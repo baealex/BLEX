@@ -1,193 +1,50 @@
-# BLEX Frontend Philosophy
+# Frontend Guide
 
-> "Perfection is achieved, not when there is nothing more to add, but when there is nothing left to take away." — Antoine de Saint-Exupéry
+BLEX renders pages with React on the server and connects a shared React Router app in the browser. Additional React screens are loaded from `packages/web/` through the server screen host.
 
-## 1. The Core Principle
+## Code layout
 
-The frontend is a **set of independent screens**—not a monolith. Each screen is self-contained, lazy-loaded, and composable.
+| Area | Location |
+| --- | --- |
+| Shared app document, frame, and navigation | `packages/server/src/application/` |
+| Public layout, theme, and styles | `packages/server/src/appearance/` |
+| Login, editor, and reader interactions | `packages/server/src/features/auth/ui/`, `packages/server/src/features/posts/editor/`, `packages/server/src/features/engagement/ui/` |
+| Web host and browser configuration | `packages/server/src/application/screen-host/` |
+| Additional screens and their API client | `packages/web/` |
+| Shared UI primitives | `packages/ui/` |
+| Reusable Tiptap editor | `packages/editor/` |
 
-We prioritize **Composability** and **Performance** over complexity. Our code should load fast, render predictably, and scale elegantly.
+`packages/server/vite.config.ts` builds the main browser entries into `packages/server/dist/client/`. The web package builds separately into `packages/server/dist/web/`; the Docker build includes both. Its `screen-loader.ts` loads the React runtime when a `data-screen` element appears, and `screen-runtime.tsx` mounts the requested screen after activating its locale.
 
----
+## Pages and browser behavior
 
-## 2. Architecture: Screens with Clear Boundaries
+- Use `renderApplicationDocument` for shared-app pages so direct visits receive SSR and internal navigation uses the app router.
+- Include the initial content and metadata in the server response. Avoid a second browser request for data already needed to render the page.
+- Mount browser features with their route and release listeners, observers, and editor instances when leaving it.
+- Keep browser-only APIs out of server render paths. Load large editor and interaction modules when their screen needs them.
+- Keep forms, focus, keyboard navigation, loading feedback, and error states usable. Check direct visits, internal navigation, and back/forward behavior.
 
-We organize our frontend as a **monorepo** with strict separation of concerns. Do not blur them.
+## Components, state, and requests
 
-### The Package Structure Rule
+- Keep props and API boundaries typed. Prefer composition and existing shared controls over new configurable component systems.
+- Put shareable filters and pagination in the URL; keep transient form and interaction state local.
+- Follow the owning runtime's request pattern. The main app uses browser `fetch` and forms; web screens use their existing Axios client, React Query, and form libraries.
+- Preserve the runtime's CSRF handling and check API error responses before consuming their bodies.
+- React Compiler is configured for the web package build. Do not assume it is enabled for the main Vite app, or add memoization without a measured need.
 
-- **`/packages/ui`**: Shared UI primitives. Reusable across any project.
-  - *Belongs here*: Button, Input, Card, Dialog, Select—atomic components.
-  - *Doesn't belong*: Page-specific logic, API calls, business logic.
-  - *Dependencies*: Radix UI for accessible primitives. Don't reinvent accessibility.
+## Styling and translation
 
-- **`/packages/editor`**: The Tiptap editor. Isolated complexity.
-  - *Why isolated*: The editor is a core feature. Complexity must not leak.
+Use semantic Tailwind tokens and follow [Design Guide](DESIGN_GUIDE.md) and [UI Change Style Guide](UI_CHANGE_STYLE_GUIDE.md). Keep screen-specific CSS close to the feature.
 
-- **`/packages/web`**: Web app. React screens served by the BLEX server.
-  - *What it does*: Screen mounting (`data-screen`), lazy loading, query caching.
+Web screens read the server-provided locale from `window.configuration.locale`, with the document language as fallback. Use the existing Lingui runtime and catalogs; do not create a separate instance per screen. See [Translation Guide](TRANSLATION_GUIDE.md) for current coverage and checks.
 
-> **"If a component could be used on a different project, it belongs in `/packages/ui`. If it's BLEX-specific, it lives in `/apps/remotes`."**
+## Development and checks
 
----
-
-## 3. TypeScript: The Contract is Sacred
-
-TypeScript is not optional. It's the **contract** between you and the future.
-
-- **Props**: Always define interfaces. Use union types for variants (`'primary' | 'secondary'`).
-- **API Responses**: Type everything. Use `Response<T>` wrappers.
-- **Strict Mode**: Non-negotiable. No `any` unless absolutely necessary—leave a comment explaining why.
-
-> **"If you're using `any`, you're lying to the compiler."**
-
----
-
-## 4. React Patterns: The Non-Negotiables
-
-### React Query for Server State
-
-Do not manage server state with `useState`. Use **React Query**.
-
-```tsx
-// ✅ Good
-const { data } = useQuery({ queryKey: ['posts'], queryFn: fetchPosts });
-
-// ❌ Bad
-useEffect(() => { fetchPosts().then(setPosts); }, []);
+```sh
+pnpm install
+pnpm dev
 ```
 
-### Component Composition Over Props
+This builds and starts the main app at `http://localhost:8040`; restart after source changes. Use the pnpm version declared in the root `package.json`. Run `pnpm build:web` to build the additional screens and their UI/editor dependencies. Restart the app after the first web build so it finds the assets.
 
-Build components that **compose**, not components that configure.
-
-```tsx
-// ✅ Good: Compose
-<Dialog>
-  <DialogTrigger>Open</DialogTrigger>
-  <DialogContent>...</DialogContent>
-</Dialog>
-
-// ❌ Bad: Configure
-<Dialog trigger="Open" content="..." />
-```
-
-### Lazy Load Screens, Not Everything
-
-**Only lazy load page-level screen components**. Use `React.lazy()` for screens that aren't on the critical rendering path.
-
-**Don't lazy load**:
-- Components needed for initial render (above the fold)
-- Small components (overhead > benefit)
-- Critical user interactions
-
-> **"The fastest code is the code that never loads. But don't create waterfalls."**
-
----
-
-## 5. Component Design Principles
-
-### The Single Responsibility Rule
-
-A component should do **one thing well**. If you're writing a component that fetches, edits, and deletes, you're doing it wrong.
-
-### Props Should Be Predictable
-
-- **Variants**: Use union types. `variant: 'primary' | 'secondary'`, not `variant: string`.
-- **Children**: Prefer `children` over `content` or `text` props for flexibility.
-
-### Style with Tailwind
-
-- Use Tailwind classes for all styling.
-- Follow design tokens from `DESIGN_GUIDE.md`: `rounded-lg`, `duration-150`, `ring-1 ring-gray-900/5`.
-- Only use SCSS when Tailwind isn't enough (animations, pseudo-elements).
-
----
-
-## 6. State Management: The Hierarchy
-
-1. **Server State**: React Query (API data, remote state)
-2. **URL State**: Search params, route params (for shareable state)
-3. **Local State**: `useState`, `useReducer` (UI toggles, form inputs)
-4. **Global State**: Context API (sparingly—theme, auth, modals only)
-
-> **"If you're prop drilling through 4+ levels, use Context or rethink your composition."**
-
----
-
-## 7. Forms and Validation
-
-- **React Hook Form** for form state management.
-- **Zod** for schema validation.
-- **`@hookform/resolvers`** to connect them.
-
-```tsx
-const schema = z.object({ username: z.string().min(3) });
-const { register, handleSubmit } = useForm({ resolver: zodResolver(schema) });
-```
-
----
-
-## 8. API Integration
-
-- **Axios** with CSRF token auto-attached.
-- **Typed Responses**: `Response<T> = DoneResponse<T> | ErrorResponse`.
-- **Error Handling**: Check `response.status` before accessing `response.body`.
-
----
-
-## 9. Internationalization
-
-- Django provides the canonical locale through `window.configuration.locale`; screens must not negotiate independently from `navigator.language`.
-- Use explicit, domain-prefixed Lingui IDs and English defaults. Product messages belong in the owning package catalog; user-authored content never does.
-- Use ICU messages for plurals and complete interpolated sentences. Format dates and numbers with the active locale instead of fixed Korean formatting.
-- The shared runtime activates its catalog before any screen root renders. Do not create a second Lingui instance inside a feature.
-- Commit `.po` catalogs, not generated `.mjs` files. Run `pnpm i18n:check` after changing translatable copy.
-
-## 10. Performance Rules
-
-### React 19 Compiler Handles Optimization
-
-We use **React 19 with the React Compiler**. It automatically handles memoization.
-
-- **Don't manually add** `useMemo`, `useCallback`, or `memo` unless you have a specific, measured performance issue.
-- **The compiler optimizes** re-renders automatically. Trust it.
-- **Only override** when profiling proves it's necessary.
-
-### Code Splitting
-
-- Use `React.lazy()` for **screens only** (not critical path components).
-- Manual bundle chunks for vendors (React, Tiptap, Zod) are already configured.
-
-### Images
-
-- `loading="lazy"` for images below the fold.
-
-> **"Premature optimization is the root of all evil. Let the compiler do its job."**
-
----
-
-## 11. Checklist for Frontend Work
-
-Before marking a task as "Done":
-
-1. **Is it typed?** No `any` types unless absolutely necessary.
-2. **Is it composable?** Can this component be reused?
-3. **Is it performant?** Did you lazy load?
-4. **Does it follow the design guide?** Check `DESIGN_GUIDE.md`.
-5. **Does it pass linting and type checks?**
-   ```bash
-   pnpm lint
-   pnpm type-check
-   ```
-
----
-
-## 12. Development Workflow
-
-```bash
-pnpm install        # Install dependencies (backend + frontend)
-pnpm dev  # Start all dev servers in parallel
-```
-
-> **Note**: Lint and type checks are **only** for Screens (React) work, **not** for Django template work.
+Run `pnpm test` and `pnpm type-check` for main-app changes. For web changes, use the workspace commands in [Testing Guide](TESTING_GUIDE.md).

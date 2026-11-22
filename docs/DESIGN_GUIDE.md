@@ -99,10 +99,11 @@ Every interactive element needs `:active` state (`active:scale-95`).
 
 Dark mode is not an optional skin. It is a first-class rendering mode.
 
-### Single Source of Truth
+### Token Files
 
-- **Token values live only in** `packages/web/styles/variables.css`.
-- **Tailwind mapping lives in** `packages/web/styles/tailwind.css` and must stay mapping-only (`@theme inline`), not duplicate token values.
+- Main-app tokens and Tailwind mappings live in `packages/server/src/appearance/variables.css` and `packages/server/src/appearance/tailwind.css`.
+- Web tokens and mappings live in `packages/web/styles/variables.css` and `packages/web/styles/tailwind.css`.
+- Keep shared semantic values consistent across both builds. Tailwind mappings must stay mapping-only (`@theme inline`), not duplicate token values.
 - Legacy aliases (`--color-bg-*`, `--color-text-*`, `--color-border-*`, `--color-interactive-*`, `--glass-*`) are deprecated and must not be reintroduced.
 
 ### Theme Activation and Persistence
@@ -110,7 +111,7 @@ Dark mode is not an optional skin. It is a first-class rendering mode.
 - Theme is applied via `html[data-theme="light|dark"]`.
 - Default follows system preference when no explicit user choice exists.
 - User override is stored in cookie key `blex_theme`.
-- Server must read cookie and set initial `data-theme` at render time to prevent first-paint mismatch.
+- The shared theme client in `packages/server/src/appearance/site-client.ts` reads the cookie or system preference and sets `data-theme`. Keep initialization early to avoid a visible theme mismatch.
 - Client theme changes must update `data-theme` and keep runtime listeners in sync.
 
 ### Component Rules for Dark Mode

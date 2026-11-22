@@ -29,7 +29,7 @@ to serve the blog, editor, and administration tools in one application.
 ## Project focus
 
 - **Writing and publishing:** visual and Markdown editing, previews, drafts, autosave recovery,
-  revision history, previews, cover images, and scheduled publishing
+  revision history, cover images, and scheduled publishing
 - **Content management:** authors, series, tags, search, static pages, comments,
   likes, and pinned posts
 - **Blog operations:** branding, notices and banners, users and roles, webhooks,
@@ -57,8 +57,7 @@ Open the `/setup` link in the logs to create the first administrator. The
 
 Use unique secrets and set `SITE_URL` to the public HTTPS origin. Place an
 HTTPS proxy in front of the application and back up the data directory.
-BLEX 3.x installations use the documented SQLite and media handoff before
-starting 4.0. [Self-hosting guide](docs/SELF_HOSTING.md)
+[Self-hosting guide](docs/SELF_HOSTING.md)
 
 ## Publishing interfaces
 
@@ -75,7 +74,7 @@ starting 4.0. [Self-hosting guide](docs/SELF_HOSTING.md)
 Requirements:
 
 - Node.js 24 LTS (24.22.1+) or 26 (26.12.1+)
-- npm
+- pnpm 11.17.0 (see `package.json`)
 - FFmpeg for local GIF conversion and video previews
 
 ```bash
@@ -88,9 +87,12 @@ SQLite database under `packages/server/.local/` and prints the first administrat
 
 ## Documentation
 
-- [BLEX 4 installation and upgrade guide](packages/server/README.md)
-- [Development Convention](docs/DEV_CONVENTION.md)
-- [Translation Guide](docs/TRANSLATION_GUIDE.md)
+- [Installation and operations](docs/SELF_HOSTING.md) · [Social login](docs/SOCIAL_LOGIN.md)
+- [Upgrade from BLEX 3.14 to 4](docs/UPGRADE_FROM_3.md)
+- [Development conventions](docs/DEV_CONVENTION.md) · [Testing](docs/TESTING_GUIDE.md)
+- [Backend](docs/BACKEND_GUIDE.md) · [Frontend](docs/FRONTEND_GUIDE.md) · [Architecture](docs/blex4-architecture.html)
+- [Design](docs/DESIGN_GUIDE.md) · [UI changes](docs/UI_CHANGE_STYLE_GUIDE.md)
+- [Translation](docs/TRANSLATION_GUIDE.md) · [Dependencies](docs/DEPENDENCY_SECURITY.md)
 
 ## License
 

@@ -1,145 +1,40 @@
-# BLEX Backend Philosophy
+# Backend Guide
 
-> **BLEX 3.x:** The Django code described here was removed from this branch. It remains available at the `v3.14` tag.
+BLEX uses Fastify, TypeScript, Prisma, and SQLite. `packages/server/src/main.ts` reads runtime configuration; `packages/server/src/app.ts` builds the application, and `packages/server/src/routes/index.ts` registers routes.
 
-> "Code is read much more often than it is written." — Guido van Rossum
+## Code layout
 
-## 1. The Core Principle
+| Area | Location |
+| --- | --- |
+| Public pages and post queries | `packages/server/src/features/discovery/`, `packages/server/src/features/posts/public-post.ts`, `packages/server/src/features/posts/pages/public-post-page.tsx` |
+| Login, sessions, OAuth, and two-factor authentication | `packages/server/src/features/auth/` |
+| Post mutations and collections | `packages/server/src/features/posts/authoring/`, `packages/server/src/features/series/` |
+| Personal and administrator settings | `packages/server/src/features/account/`, `packages/server/src/features/site-admin/` |
+| RSS, sitemaps, and public Markdown | `packages/server/src/features/discovery/feeds/` |
+| Scoped Developer API | `packages/server/src/features/developer-api/` |
+| Notifications and webhook delivery | `packages/server/src/features/notifications/`, `packages/server/src/features/integrations/webhooks/` |
+| Schema and migrations | `packages/server/prisma/` |
 
-The backend is the **silent foundation**. It doesn't need to be flashy; it needs to be **unshakable**.
+## Request handling
 
-We prioritize **Readability** and **Stability** over clever one-liners. Our code should be boringly predictable.
+- Routes parse HTTP input and return responses. Reuse server services for operations shared by HTML forms and HTTP APIs. Keep domain code in `features/<domain>`, shared HTTP helpers in `platform/`, and persisted-format compatibility code in `compat/`.
+- Check authentication, role, ownership, and visibility on the server. Client-side checks only guide the interface.
+- Validate CSRF on browser mutations. Follow the existing scoped-token checks for the Developer API.
+- Give function inputs and results explicit types where they define a boundary. Keep code and comments in English.
+- Keep initial page data in the SSR response. Use `renderApplicationDocument` for pages served by the shared React app.
+- Sanitize authored HTML through the existing post renderer. Keep private media behind its authorization route.
 
----
+## Database changes
 
-## 2. Architecture: Service First
+- Update `schema.prisma` and add a migration under `packages/server/prisma/migrations/`. Keep released migrations unchanged.
+- Some persisted SQLite column types are represented as `Unsupported` in Prisma. Follow the existing parameterized SQL access patterns for these columns.
+- Bind SQL values through Prisma's tagged templates or SQLite placeholders. Never interpolate user input into SQL text.
+- Use transactions when an operation changes related rows or queues notifications and webhooks.
+- Verify migrations against both an empty database and an upgraded database copy. Preserve valid data and relationships when adding constraints.
+- Apply migrations with `DATABASE_URL=file:/absolute/path/to/db.sqlite3 pnpm db:migrate`. Build first when using the database verification CLI.
 
-We follow a strict separation of concerns. Do not mix them.
+## Refactoring and testing
 
-### The "Service Layer" Rule
-Views should be dumb. Models should be structural. Logic belongs in **Services**.
+Preserve routes, response envelopes, URLs, and session behavior during refactors; see [Backend Compatibility](BACKEND_COMPATIBILITY.md). Test observable outcomes, including persisted state and denied access. Mock external delivery services.
 
--   **Views (`views/`)**: The Gatekeepers. They handle HTTP requests, permissions, and input validation. They *delegate* work to services.
-    -   *Bad*: Writing business logic (e.g., calculating points, sending emails) inside a View.
-    -   *Good*: `UserService.create_user(...)`
--   **Services (`services/`)**: The Workers. They contain the actual business logic. They are reusable and testable.
--   **Models (`models.py`)**: The Data Structure. Keep them lean. Only add methods that directly relate to the data itself (e.g., `__str__`, simple properties).
-
-> **"If you are writing an `if` statement in a View, ask yourself: Should this be in a Service?"**
-
----
-
-## 3. Testing: The Non-Negotiable
-
-Tests are not a "nice to have". They are **mandatory**.
-
-### The "Sleep Well" Standard
-We write tests so we can deploy on Friday and sleep soundly.
-
--   **Coverage**: Every new feature MUST have a corresponding test.
--   **Scenarios**: Test the "Happy Path" (it works), but obsess over the "Edge Cases" (it fails safely).
--   **Mocking**: Don't hit real APIs in tests. Mock them.
-
-> **Command**: `ppnpm test`
-
----
-
-## 4. Code Quality
-
-### Type Hints are Documentation
-Python is dynamic, but our codebase shouldn't be a guessing game. Use Type Hints (`str`, `int`, `List[User]`) for all function arguments and return values.
-
-### Naming is Logic
--   **Explicit > Implicit**: `get_active_user_by_email()` is better than `get_user()`.
--   **English Only**: Code, comments, and commit messages must be in English.
-
-### Backend Translations
-- Keep template, validation, model, and Admin source messages in stable English using the appropriate `gettext` primitive.
-- Change Korean copy in `backend/src/locale/ko/LC_MESSAGES/django.po`, not in model `Meta` options or branching logic.
-- Run `npm run server:compilemessages` and commit the updated `.po` and `.mo` files together.
-- A Korean copy edit must not create a model migration. Review `makemigrations --check` before committing.
-- Django is the document-locale authority. API fallbacks use the request locale, while stable message keys and machine-readable fields remain locale-neutral.
-
-### Anti-Patterns to Avoid
-
-#### 1. Inline Imports
-**Never** import modules inside functions. All imports must be at the top of the file.
-
-```python
-# BAD - Import inside function
-def set_tags(self, tags: str):
-    from board.services.tag_service import TagService  # Don't do this!
-    TagService.set_post_tags(self, tags)
-
-# GOOD - Import at top of file
-from board.services.tag_service import TagService
-
-def set_tags(self, tags: str):
-    TagService.set_post_tags(self, tags)
-```
-
-For circular import issues, use `TYPE_CHECKING`:
-```python
-from __future__ import annotations
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from board.models import Post
-```
-
-#### 2. Redundant Comments
-Don't write comments that repeat what the code does. Code should be self-explanatory.
-
-```python
-# BAD
-query_dict = request.GET.copy()  # Get the current query parameters
-query_dict['page'] = page_number  # Update the page parameter
-
-# GOOD
-query_dict = request.GET.copy()
-query_dict['page'] = page_number
-```
-
-#### 3. Underscore Private Functions
-Avoid creating `_private_functions` at module level. Use classes to group related functionality.
-
-```python
-# BAD
-def _parse_tags(tags: str) -> set:
-    ...
-
-def _get_or_create_tags(tag_values: set) -> dict:
-    ...
-
-# GOOD
-class TagService:
-    @staticmethod
-    def parse_tags(tags: str) -> Set[str]:
-        ...
-
-    @staticmethod
-    def get_or_create_tags(tag_values: Set[str]) -> Dict[str, Tag]:
-        ...
-```
-
----
-
-## 5. Checklist for Backend Work
-
-Before marking a task as "Done":
-
-1.  **Is logic in a Service?** The View should look empty.
-2.  **Are there tests?** Do they pass?
-3.  **Are types defined?** No generic `Any` unless absolutely necessary.
-4.  **Is it efficient?** Watch out for N+1 queries.
-
----
-
-## 6. Development Workflow
-
-To start development locally, environment setup is simple using `npm`:
-
-```bash
-pnpm install       # Installs dependencies
-pnpm dev # Starts the dev server
-```
+Run `pnpm test` and `pnpm type-check`. See [Testing Guide](TESTING_GUIDE.md) for focused commands and fixtures, and [Translation Guide](TRANSLATION_GUIDE.md) for localized messages.
