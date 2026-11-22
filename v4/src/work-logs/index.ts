@@ -7,7 +7,7 @@ import { createReadStream } from 'node:fs';
 import { mkdir, realpath, stat, unlink, writeFile } from 'node:fs/promises';
 import { isAbsolute, relative, resolve, sep } from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { readPublicSiteBrand } from '../public-pages/index.js';
+import { readPageChrome } from '../appearance/page-chrome.js';
 import { renderWorkLogDelete, renderWorkLogDetail, renderWorkLogIndex, renderWorkLogShared, type WorkLogEntryView, type WorkLogShareView, type WorkLogView } from './pages.js';
 
 const MAX_ATTACHMENT_SIZE = 12 * 1024 * 1024;
@@ -55,18 +55,8 @@ interface MediaFile {
   size: number;
 }
 
-async function pageChrome(db: PrismaClient, request: FastifyRequest, user: { id: number; username: string } | null) {
-  const brand = await readPublicSiteBrand(db);
-  if (!user) return { brand };
-  const [row] = await db.$queryRaw<Array<{ role: string | null; staff: number | bigint | boolean | null; unread: number | bigint }>>`
-    SELECT (SELECT role FROM board_profile WHERE user_id = ${user.id} LIMIT 1) AS role,
-           (SELECT is_staff FROM auth_user WHERE id = ${user.id}) AS staff,
-           (SELECT COUNT(*) FROM board_notify WHERE user_id = ${user.id} AND has_read = 0) AS unread
-  `;
-  return { brand, viewer: {
-    username: user.username, hasEditorRole: row?.role === 'EDITOR', isStaff: Boolean(Number(row?.staff ?? 0)),
-    unreadCount: Number(row?.unread ?? 0), csrfToken: csrfCookieValue(request),
-  } };
+function pageChrome(db: PrismaClient, request: FastifyRequest, user: { id: number; username: string } | null) {
+  return readPageChrome(db, user, csrfCookieValue(request));
 }
 
 function html(reply: FastifyReply, content: string) {

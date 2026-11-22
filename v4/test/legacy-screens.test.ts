@@ -154,6 +154,27 @@ test('serves the 3.x introduction editor only to its owner', async () => {
   }
 });
 
+test('serves the 3.x developer docs without outside requests', async () => {
+  const fixture = await screensApp();
+  try {
+    const editor = signIn(fixture.db, 1);
+    assert.equal((await fixture.app.inject('/api/developer/v1/docs')).statusCode, 302);
+    const docs = await fixture.app.inject({ url: '/api/developer/v1/docs', headers: editor });
+    assert.equal(docs.statusCode, 200);
+    assert.match(docs.body, /id="swagger-ui"/);
+    assert.match(docs.body, /"validatorUrl":null/);
+    assert.doesNotMatch(String(docs.headers['content-security-policy']), /https:/);
+    const bundle = await fixture.app.inject('/assets/swagger-ui/swagger-ui-bundle.js');
+    assert.equal(bundle.statusCode, 200);
+    assert.equal((await fixture.app.inject('/assets/swagger-ui/..%2f..%2fdeveloper-openapi.json')).statusCode, 404);
+    const quickstart = await fixture.app.inject({ url: '/docs/developer-api/quickstart', headers: editor });
+    assert.match(quickstart.body, /개발자 API 빠른 시작/);
+    assert.doesNotMatch(quickstart.body, /__SITE_ORIGIN__/);
+  } finally {
+    await fixture.close();
+  }
+});
+
 test('saves long multipart editor submissions with a cover image', async () => {
   const fixture = await screensApp();
   try {

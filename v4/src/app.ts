@@ -105,7 +105,7 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
     registerNotifications(app, db, routeOptions);
     registerAdminSettings(app, db, { ...routeOptions, cipherKey: auth.cipherKey, secretKey: auth.secretKey, fetchProvider: auth.fetchProvider });
     registerDeveloperTokens(app, db, { ...routeOptions, secretKey: auth.secretKey });
-    await registerDeveloperDocumentation(app, routeOptions);
+    await registerDeveloperDocumentation(app, db, routeOptions);
     registerContentMedia(app, db, routeOptions);
     registerAuthoring(app, db, { ...routeOptions, editorAssets: {
       script: '/assets/blex/editor.js', css: ['/assets/blex/editor.css'],
