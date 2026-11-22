@@ -5,11 +5,14 @@ import { containsLiteral } from '../../posts/data/text-match.js';
 import { type AdminManagedUser, type AdminUserList, type AdminInvite } from '../types.js';
 import { ApiResult, isoDate, positiveInteger } from '../shared.js';
 
+/** Posts in the trash do not count toward a member's post total. */
+const countedPosts = { deletedAt: null } satisfies Prisma.PostWhereInput;
+
 const managedUserSelect = {
   id: true, username: true, name: true, email: true, isActive: true, isStaff: true, isSuperuser: true,
   joinedAt: true, lastLoginAt: true,
   profile: { select: { role: true } },
-  _count: { select: { posts: { where: { deletedAt: null } } } },
+  _count: { select: { posts: { where: countedPosts } } },
 } satisfies Prisma.UserSelect;
 
 type ManagedUserRow = Prisma.UserGetPayload<{ select: typeof managedUserSelect }>;
@@ -191,7 +194,7 @@ export async function updateManagedUserRole(
       await transaction.profile.create({ data: { userId: targetId, role: roleValue }, select: { userId: true } });
     }
     await transaction.userPreference.upsert({ where: { userId: targetId }, create: { userId: targetId }, update: {}, select: { userId: true } });
-    const postCount = await transaction.post.count({ where: { authorId: targetId } });
+    const postCount = await transaction.post.count({ where: { authorId: targetId, ...countedPosts } });
     const user: AdminManagedUser = {
       id: target.id,
       username: target.username,

@@ -1176,6 +1176,17 @@ test('lists users with filters and safely updates only reader/editor roles', asy
     method: 'PATCH', url: '/v1/admin/users/3/role', headers: jsonHeaders(1), payload: JSON.stringify({ role: 'EDITOR' }),
   });
   assert.equal(body(roleUpdate).status, 'DONE', roleUpdate.body);
+  await prisma.post.update({ where: { id: 4 }, data: { deletedAt: new Date() } });
+  await prisma.post.create({ data: { id: 40, authorId: 3, slug: 'post-40', title: '', updatedAt: new Date() } });
+  const countedRole = await app.inject({
+    method: 'PATCH', url: '/v1/admin/users/3/role', headers: jsonHeaders(1), payload: JSON.stringify({ role: 'EDITOR' }),
+  });
+  const listedUsers = await app.inject({ url: '/v1/admin/users?q=reader', headers: headers(1) });
+  const listed = (body(listedUsers).body as { users: Array<{ id: number; postCount: number }> }).users.find((user) => user.id === 3);
+  assert.equal((body(countedRole).body as { user: { postCount: number } }).user.postCount, 1);
+  assert.equal(listed?.postCount, 1);
+  await prisma.post.delete({ where: { id: 40 } });
+  await prisma.post.update({ where: { id: 4 }, data: { deletedAt: null } });
   const [profile] = await prisma.$queryRaw<Array<{ role: string }>>`SELECT role FROM "Profile" WHERE userId = 3`;
   assert.equal(profile?.role, 'EDITOR');
   const [config] = await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM "UserPreference" WHERE userId = 3`;
