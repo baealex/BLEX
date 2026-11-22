@@ -8,9 +8,9 @@ import { sanitizePostHtml } from '../post-html.js';
 import { done, failure as failed } from '../../../platform/response.js';
 import { editorBodyLimit, editorKeepsOriginalContent, editorKeepsOriginalTags, editorModel, inputFromEditorForm, prepareEditorFields, readEditorForm, sendEditorPage } from '../pages/editor-page.js';
 import { apiPostBase, preservePostOmissions } from '../services/author-api.js';
-import { coverUrlFromStored, mediaUrl, parseAuthoringPostInput } from '../services/post-content.js';
+import { mediaUrl, parseAuthoringPostInput } from '../services/post-content.js';
 import { AuthoringSaveResult, PostValidationError, createPost, draftReservation, getSeriesOptions, loadPost, postPublic, postTags, trashPost, updatePost, updatePostSettings } from '../services/post-store.js';
-import { AuthoringOptions, DbBoolean, FormTemplate, StoredDraftSummary, StoredPost, bodyObject, booleanField, cookieValue, currentAccount, dateAsIso, dateTimeLocalValue, editorAccount, editorRedirect, field, forbidden, isTrue, localDateTime, notFound, nowString, numberValue, queryObject } from '../shared.js';
+import { AuthoringOptions, DbBoolean, StoredDraftSummary, StoredPost, bodyObject, booleanField, cookieValue, currentAccount, dateAsIso, editorAccount, editorRedirect, field, forbidden, isTrue, localDateTime, notFound, nowString, numberValue, queryObject } from '../shared.js';
 
 export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, options: AuthoringOptions) {
     // Large editor bodies are only parsed for a signed-in session.
@@ -29,57 +29,10 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
       handler: async (request, reply) => {
         const account = await editorAccount(request, reply, db, options, false);
         if (!account) return reply;
+        // The screen host mounts this page for editors, so only unrecognized URL spellings reach here.
+        if (request.method !== 'POST') return notFound(reply);
         const seriesOptions = await getSeriesOptions(db, account.id);
         const csrfToken = cookieValue(request, 'csrftoken');
-        if (request.method === 'GET') {
-          const query = queryObject(request);
-          const draftUrl = field(query.draft);
-          const draft = draftUrl ? await loadPost(db, { userId: account.id, slug: draftUrl }) : null;
-          const isDraft = Boolean(draft && draft.publishedDate === null);
-          const formIdValue = field(query.form);
-          let template: FormTemplate | null = null;
-          if (!draftUrl && formIdValue) {
-            if (!/^\d+$/.test(formIdValue) || !Number.isSafeInteger(Number(formIdValue)) || Number(formIdValue) < 1) {
-              return notFound(reply);
-            }
-            const forms = await db.$queryRaw<FormTemplate[]>`
-              SELECT id, title, content FROM board_form WHERE id = ${Number(formIdValue)} AND user_id = ${account.id} LIMIT 1
-            `;
-            template = forms[0] ?? null;
-            if (!template) return notFound(reply);
-          }
-          const tags = draft ? await postTags(db, draft.id) : [];
-          const content = draft
-            ? draft.contentHtml
-            : template?.content ?? '';
-          const preview = draft && isDraft && !draft.deletedDate
-            ? await draftReservation(db, draft.id)
-            : '';
-          await sendEditorPage(reply, editorModel(account, csrfToken, seriesOptions, {
-            isDraft,
-            contentType: isDraft ? 'html' : 'markdown',
-            savedDraft: isDraft && field(query.saved) === '1',
-            postUrl: isDraft ? draft!.url : '',
-            title: isDraft ? draft!.title : '',
-            subtitle: isDraft ? draft!.subtitle : '',
-            content,
-            successMessage: isDraft && field(query.saved) === '1' ? '임시 글을 저장했습니다.' : '',
-            description: isDraft ? draft!.description : '',
-            tags: tags.join(', '),
-            series: isDraft ? draft!.seriesUrl ?? '' : '',
-            hide: isDraft ? isTrue(draft!.hide) : false,
-            blockComment: isDraft ? isTrue(draft!.blockComment) : false,
-            coverLayout: isDraft ? draft!.coverLayout : 'default',
-            coverImagePosition: isDraft ? draft!.coverImagePosition : 'right',
-            coverImageRatio: isDraft ? draft!.coverImageRatio : 'auto',
-            coverImageUrl: isDraft ? coverUrlFromStored(draft!.image) : '',
-            reservedDate: isDraft ? dateTimeLocalValue(preview) : '',
-            formTitle: template?.title ?? '',
-            errorMessage: preview ? `저장된 예약 시간: ${preview}` : '',
-          }), 200, options.editorAssets);
-          return reply;
-        }
-
         const form = await readEditorForm(request);
         if (!options.validateCsrf(request)) return forbidden(reply);
         const body = form.body;
@@ -155,38 +108,8 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
       handler: async (request, reply) => {
         const account = await editorAccount(request, reply, db, options, false);
         if (!account) return reply;
-        if (request.method === 'GET') {
-          const post = await loadPost(db, { username: request.params.username, slug: request.params.slug });
-          if (!post || post.authorId !== account.id) return notFound(reply);
-          const tags = await postTags(db, post.id);
-          const csrfToken = cookieValue(request, 'csrftoken');
-          await sendEditorPage(reply, editorModel(account, csrfToken, await getSeriesOptions(db, account.id), {
-            isEdit: true,
-            isDraft: post.publishedDate === null,
-            contentType: 'html',
-            postUrl: post.url,
-            title: post.title,
-            subtitle: post.subtitle,
-            content: post.contentHtml,
-            description: post.description,
-            tags: tags.join(', '),
-            series: post.seriesUrl ?? '',
-            hide: isTrue(post.hide),
-            blockComment: isTrue(post.blockComment),
-            coverLayout: post.coverLayout,
-            coverImagePosition: post.coverImagePosition,
-            coverImageRatio: post.coverImageRatio,
-            coverImageUrl: coverUrlFromStored(post.image),
-            reservedDate: post.publishedDate === null
-              ? dateTimeLocalValue(await draftReservation(db, post.id))
-              : dateTimeLocalValue(post.publishedDate),
-            showSchedule: post.publishedDate === null || Boolean(
-              dateAsIso(post.publishedDate) && new Date(dateAsIso(post.publishedDate)!).valueOf() > Date.now(),
-            ),
-          }), 200, options.editorAssets);
-          return reply;
-        }
-
+        // The screen host mounts this page for the owner, so other readers get the same 404 as a missing post.
+        if (request.method !== 'POST') return notFound(reply);
         const form = await readEditorForm(request);
         if (!options.validateCsrf(request)) return forbidden(reply);
         const post = await loadPost(db, { username: request.params.username, slug: request.params.slug });

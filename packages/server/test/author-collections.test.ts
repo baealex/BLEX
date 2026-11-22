@@ -127,17 +127,12 @@ const jsonHeaders = (id: number, csrf = true) => ({
   'content-type': 'application/json',
 });
 
-test('renders protected series and pinned-post settings with synthetic data', async () => {
-  const anonymous = await app.inject('/settings/series');
+test('keeps the direct series editor URL protected and pre-filled', async () => {
+  const anonymous = await app.inject('/series/edit/10');
   assert.equal(anonymous.statusCode, 302);
-  assert.equal(anonymous.headers.location, '/login?next=%2Fsettings%2Fseries');
-  assert.equal((await app.inject({ url: '/settings/series', headers: signedIn(3) })).statusCode, 404);
-
-  const list = await app.inject({ url: '/settings/series', headers: signedIn(1) });
-  assert.equal(list.statusCode, 200);
-  assert.match(list.body, /Writer Series/);
-  assert.match(list.body, /href="\/series\/create"/);
-  assert.match(list.body, /name="order_10"/);
+  assert.equal(anonymous.headers.location, '/login?next=%2Fseries%2Fedit%2F10');
+  assert.equal((await app.inject({ url: '/series/edit/10', headers: signedIn(3) })).statusCode, 404);
+  assert.equal((await app.inject({ url: '/series/edit/10', headers: signedIn(2) })).statusCode, 404);
 
   const editor = await app.inject({ url: '/series/edit/10', headers: signedIn(1) });
   assert.equal(editor.statusCode, 200);
@@ -146,13 +141,6 @@ test('renders protected series and pinned-post settings with synthetic data', as
   assert.match(editor.body, /Assigned hidden/);
   assert.match(editor.body, /Assigned draft/);
   assert.match(editor.body, /Assigned trash/);
-
-  const pinned = await app.inject({ url: '/settings/pinned-posts', headers: signedIn(1) });
-  assert.equal(pinned.statusCode, 200);
-  assert.match(pinned.body, /고정 포스트 1\/6/);
-  assert.match(pinned.body, /휴지통의 고정 포스트 1개가 고정 한도를 유지합니다/);
-  assert.match(pinned.body, /Public unassigned/);
-  assert.doesNotMatch(pinned.body, /Hidden post|Draft post|Scheduled post|Trashed post/);
 });
 
 test('series APIs preserve ownership, counts, markdown, post selection, and ordering', async () => {
@@ -271,7 +259,7 @@ test('pinned APIs expose public rows, reserve trash, paginate, and guard author 
   assert.equal(noCsrf.statusCode, 403);
 });
 
-test('native collection forms save series, reorder pins, and remove pinned rows', async () => {
+test('the direct series form saves series and the pinned API removes rows', async () => {
   const csrfFormHeaders = { ...signedIn(1), 'content-type': 'application/x-www-form-urlencoded' };
   const created = await app.inject({
     method: 'POST', url: '/series/create', headers: csrfFormHeaders,
@@ -296,21 +284,10 @@ test('native collection forms save series, reorder pins, and remove pinned rows'
   const [assigned] = await db.$queryRaw<Array<{ series_id: number | null }>>`SELECT series_id FROM board_post WHERE id = 12`;
   assert.equal(assigned.series_id, formSeries.id);
 
-  const reordered = await app.inject({
-    method: 'POST', url: '/settings/pinned-posts', headers: csrfFormHeaders,
-    payload: new URLSearchParams([
-      ['csrfmiddlewaretoken', csrfToken], ['intent', 'order'], ['post_urls', 'public-unassigned'],
-    ]).toString(),
-  });
-  assert.equal(reordered.statusCode, 303);
-
   const removed = await app.inject({
-    method: 'POST', url: '/settings/pinned-posts', headers: csrfFormHeaders,
-    payload: new URLSearchParams([
-      ['csrfmiddlewaretoken', csrfToken], ['intent', 'remove'], ['post_url', 'public-unassigned'],
-    ]).toString(),
+    method: 'DELETE', url: '/v1/setting/pinned-posts', headers: jsonHeaders(1), payload: { post_url: 'public-unassigned' },
   });
-  assert.equal(removed.statusCode, 303);
+  assert.equal(removed.json().status, 'DONE', removed.body);
   const [remaining] = await db.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM board_pinnedpost WHERE user_id = 1 AND post_id = 1`;
   assert.equal(Number(remaining.count), 0);
 });

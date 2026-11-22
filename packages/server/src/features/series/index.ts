@@ -1,10 +1,10 @@
 import formBody from '@fastify/formbody';
 import { type PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { renderPinnedPostsPage, renderSeriesEditorPage, renderSeriesListPage } from './pages.js';
+import { renderSeriesEditorPage } from './pages.js';
 import { done as apiDone, messageFailure as apiError } from '../../platform/response.js';
-import { DEFAULT_PINNABLE_LIMIT, MAX_PINNED_POSTS, MAX_SEARCH_LENGTH, PinnedServiceError, addPinnedPost, parsePinnedUrls, pinnedError, pinnedPostUrl, readPinnablePosts, readPinnedPosts, removePinnedPost, reorderPinnedPosts, reservedPinnedCount } from './services/pinned-posts.js';
-import { deleteSeries, parsePostIds, readAvailableSeriesPosts, readSeriesById, readSeriesPostIds, readSeriesRows, saveSeries, seriesListItem, updateSeriesOrder } from './services/series.js';
+import { MAX_PINNED_POSTS, PinnedServiceError, addPinnedPost, parsePinnedUrls, pinnedError, pinnedPostUrl, readPinnablePosts, readPinnedPosts, removePinnedPost, reorderPinnedPosts, reservedPinnedCount } from './services/pinned-posts.js';
+import { deleteSeries, parsePostIds, readAvailableSeriesPosts, readSeriesById, readSeriesPostIds, readSeriesRows, saveSeries, updateSeriesOrder } from './services/series.js';
 import { AuthorCollectionsOptions, DatabaseUser, bodyRecord, errorMessage, html, htmlForbidden, htmlNotFound, isActiveEditor, localDate, loginRedirect, positiveInt, queryValue, readDatabaseUser, requestCsrfToken, requireActiveEditor, seriesFormError, stringValue, unauthorizedLogin } from './shared.js';
 
 export { AuthorCollectionsOptions } from './shared.js';
@@ -48,19 +48,6 @@ export function registerAuthorCollections(app: FastifyInstance, db: PrismaClient
       return { user, error: null };
     };
 
-    const sendSeriesList = async (request: FastifyRequest, reply: FastifyReply, status?: { saved?: boolean; error?: string }) => {
-      const user = await pageEditor(request, reply);
-      if (!user) return reply;
-      const rows = await readSeriesRows(db, user.id, 'active');
-      return html(reply, renderSeriesListPage({
-        user, csrfToken: requestCsrfToken(request), series: rows.map((row) => ({
-          ...seriesListItem(row), order: Number(row.order),
-        })),
-        saved: status?.saved ?? queryValue(request, 'saved') === '1',
-        error: status?.error,
-      }));
-    };
-
     const sendSeriesEditor = async (request: FastifyRequest, reply: FastifyReply, id?: number, error?: string) => {
       const user = await pageEditor(request, reply);
       if (!user) return reply;
@@ -76,72 +63,10 @@ export function registerAuthorCollections(app: FastifyInstance, db: PrismaClient
       }));
     };
 
-    const sendPinnedPage = async (request: FastifyRequest, reply: FastifyReply, error?: string) => {
-      const user = await pageEditor(request, reply);
-      if (!user) return reply;
-      const search = (queryValue(request, 'q') ?? '').trim().slice(0, MAX_SEARCH_LENGTH);
-      const page = queryValue(request, 'page');
-      const [pinnedPosts, reservedCount, pinnable] = await Promise.all([
-        readPinnedPosts(db, user.id),
-        reservedPinnedCount(db, user.id),
-        readPinnablePosts(db, user.id, search, String(DEFAULT_PINNABLE_LIMIT), page),
-      ]);
-      if ('code' in pinnable) {
-        reply.code(400);
-        return html(reply, renderPinnedPostsPage({
-          user, csrfToken: requestCsrfToken(request), pinnedPosts, maxCount: MAX_PINNED_POSTS,
-          reservedCount, pinnablePosts: [], pagination: {
-            page: 1, limit: DEFAULT_PINNABLE_LIMIT, lastPage: 1, totalCount: 0,
-            hasNext: false, hasPrevious: false,
-          }, query: search, saved: queryValue(request, 'saved') === '1',
-          error: pinnedError(pinnable).errorMessage,
-        }));
-      }
-      return html(reply, renderPinnedPostsPage({
-        user, csrfToken: requestCsrfToken(request), pinnedPosts, maxCount: MAX_PINNED_POSTS,
-        reservedCount, pinnablePosts: pinnable.posts, pagination: pinnable.pagination, query: search,
-        saved: queryValue(request, 'saved') === '1', error,
-      }));
-    };
-
-    routes.get('/settings/series', (request, reply) => sendSeriesList(request, reply));
     routes.get('/series/create', (request, reply) => sendSeriesEditor(request, reply));
     routes.get<{ Params: { id: string } }>('/series/edit/:id', (request, reply) => {
       const id = positiveInt(request.params.id);
       return id ? sendSeriesEditor(request, reply, id) : htmlNotFound(reply, '시리즈를 찾을 수 없습니다.');
-    });
-    routes.get('/settings/pinned-posts', (request, reply) => sendPinnedPage(request, reply));
-
-    routes.post('/settings/series', async (request, reply) => {
-      const user = await pageEditor(request, reply);
-      if (!user) return reply;
-      if (!options.validateCsrf(request)) return htmlForbidden(reply);
-      const body = bodyRecord(request.body);
-      if (stringValue(body.intent) === 'delete') {
-        const id = positiveInt(body.series_id);
-        if (!id || !(await deleteSeries(db, user.id, id))) return htmlNotFound(reply, '시리즈를 찾을 수 없습니다.');
-        return reply.redirect('/settings/series?saved=1', 303);
-      }
-      if (stringValue(body.intent) === 'order') {
-        const entries: Array<[number, number]> = [];
-        for (const [key, value] of Object.entries(body)) {
-          const match = key.match(/^order_(\d+)$/);
-          if (!match) continue;
-          const id = Number(match[1]);
-          const orderValue = stringValue(value);
-          if (Number.isSafeInteger(id) && /^-?\d+$/.test(orderValue) && Number.isSafeInteger(Number(orderValue))) {
-            entries.push([id, Number(orderValue)]);
-          }
-        }
-        try {
-          await updateSeriesOrder(db, user.id, entries);
-        } catch (error) {
-          reply.code(400);
-          return sendSeriesList(request, reply, { error: seriesFormError(error, '시리즈 순서를 저장하지 못했습니다.') });
-        }
-        return reply.redirect('/settings/series?saved=1', 303);
-      }
-      return reply.code(400).type('text/plain; charset=utf-8').send('요청 정보가 올바르지 않습니다.');
     });
 
     const saveSeriesFromForm = async (request: FastifyRequest, reply: FastifyReply, id?: number) => {
@@ -175,30 +100,6 @@ export function registerAuthorCollections(app: FastifyInstance, db: PrismaClient
     routes.post<{ Params: { id: string } }>('/series/edit/:id', (request, reply) => {
       const id = positiveInt(request.params.id);
       return id ? saveSeriesFromForm(request, reply, id) : htmlNotFound(reply, '시리즈를 찾을 수 없습니다.');
-    });
-
-    routes.post('/settings/pinned-posts', async (request, reply) => {
-      const user = await pageEditor(request, reply);
-      if (!user) return reply;
-      if (!options.validateCsrf(request)) return htmlForbidden(reply);
-      const body = bodyRecord(request.body);
-      let failure: PinnedServiceError | null = null;
-      const intent = stringValue(body.intent);
-      if (intent === 'add') {
-        const url = stringValue(body.post_url).trim();
-        failure = url ? await addPinnedPost(db, user.id, url) : { code: 'IP', key: 'pinned_posts.post_url_required' };
-      } else if (intent === 'remove') {
-        const url = stringValue(body.post_url).trim();
-        failure = url ? await removePinnedPost(db, user.id, url) : { code: 'IP', key: 'pinned_posts.post_url_required' };
-      } else if (intent === 'order') {
-        const urls = stringValue(body.post_urls).split(/[\r\n,]/).map((url) => url.trim()).filter(Boolean);
-        failure = await reorderPinnedPosts(db, user.id, urls);
-      } else return reply.code(400).type('text/plain; charset=utf-8').send('요청 정보가 올바르지 않습니다.');
-      if (failure) {
-        reply.code(400);
-        return sendPinnedPage(request, reply, pinnedError(failure).errorMessage);
-      }
-      return reply.redirect('/settings/pinned-posts?saved=1', 303);
     });
 
     routes.get('/v1/setting/series', async (request, reply) => {

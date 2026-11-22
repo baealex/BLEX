@@ -86,47 +86,6 @@ function csrf(csrfToken: string) {
   return h('input', { type: 'hidden', name: 'csrfmiddlewaretoken', value: csrfToken });
 }
 
-export function renderSeriesListPage(props: {
-  user: CollectionUser;
-  csrfToken: string;
-  series: SeriesListItem[];
-  saved?: boolean;
-  error?: string;
-}): string {
-  return frame('시리즈', props.user, '/settings/series', props.csrfToken, <>
-    <div className="row justify-end"><a className="button-link" href="/series/create">새 시리즈 생성</a></div>
-    {props.series.length ? <>
-      <form className="panel" method="post" action="/settings/series">
-        {csrf(props.csrfToken)}
-        <input type="hidden" name="intent" value="order" />
-        <ul className="collection-list">
-          {props.series.map((item) => <li className="collection-item row" key={item.id}>
-            <div className="grow"><a href={`/series/edit/${item.id}`}><strong>{item.name}</strong></a><div className="muted">/{item.url} · {item.totalPosts}개 포스트</div></div>
-            <label htmlFor={`series-order-${item.id}`}>표시 순서</label>
-            <input id={`series-order-${item.id}`} type="number" name={`order_${item.id}`} defaultValue={item.order} />
-            <a href={`/series/edit/${item.id}`}>편집</a>
-          </li>)}
-        </ul>
-        <div className="actions"><button type="submit">순서 저장</button></div>
-      </form>
-      <section className="panel" aria-labelledby="delete-series-heading">
-        <h2 id="delete-series-heading">시리즈 삭제</h2>
-        <ul className="collection-list">
-          {props.series.map((item) => <li className="collection-item row" key={`delete-${item.id}`}>
-            <span className="grow">{item.name}</span>
-            <form method="post" action="/settings/series">
-              {csrf(props.csrfToken)}
-              <input type="hidden" name="intent" value="delete" />
-              <input type="hidden" name="series_id" value={item.id} />
-              <button type="submit" aria-label={`${item.name} 시리즈 삭제`}>삭제</button>
-            </form>
-          </li>)}
-        </ul>
-      </section>
-    </> : <section className="panel"><p>시리즈가 없습니다.</p><a className="button-link" href="/series/create">새 시리즈 생성</a></section>}
-  </>, { saved: props.saved, error: props.error });
-}
-
 export function renderSeriesEditorPage(props: {
   user: CollectionUser;
   csrfToken: string;
@@ -166,68 +125,4 @@ export function renderSeriesEditorPage(props: {
       </form>}
     </section>
   </>, { error: props.error });
-}
-
-export function renderPinnedPostsPage(props: {
-  user: CollectionUser;
-  csrfToken: string;
-  pinnedPosts: PinnedPostItem[];
-  maxCount: number;
-  reservedCount: number;
-  pinnablePosts: PinnablePostItem[];
-  pagination: PinnablePagination;
-  query: string;
-  saved?: boolean;
-  error?: string;
-}): string {
-  const nextPage = props.pagination.page + 1;
-  const previousPage = props.pagination.page - 1;
-  const pageUrl = (page: number) => `/settings/pinned-posts?${new URLSearchParams({ q: props.query, page: String(page) })}`;
-  return frame('고정 포스트', props.user, '/settings/pinned-posts', props.csrfToken, <>
-    <section className="panel" aria-labelledby="pinned-list-heading">
-      <h2 id="pinned-list-heading">고정 포스트 {props.pinnedPosts.length}/{props.maxCount}</h2>
-      <p className="muted">아래 URL 순서를 바꾸면 프로필에 표시되는 순서가 바뀝니다.</p>
-      {props.reservedCount > 0 && <p className="status">휴지통의 고정 포스트 {props.reservedCount}개가 고정 한도를 유지합니다. 복원하면 다시 표시됩니다.</p>}
-      {props.pinnedPosts.length ? <>
-        <ol className="collection-list">
-          {props.pinnedPosts.map((item) => <li className="collection-item row" key={item.id}>
-            <div className="grow"><a href={`/@${props.user.username}/${encodeURIComponent(item.post.url)}`}><strong>{item.post.title}</strong></a><div className="muted">{displayDate(item.post.createdDate)}</div></div>
-            <form method="post" action="/settings/pinned-posts">
-              {csrf(props.csrfToken)}
-              <input type="hidden" name="intent" value="remove" />
-              <input type="hidden" name="post_url" value={item.post.url} />
-              <button type="submit">해제</button>
-            </form>
-          </li>)}
-        </ol>
-        <form method="post" action="/settings/pinned-posts" className="field">
-          {csrf(props.csrfToken)}
-          <input type="hidden" name="intent" value="order" />
-          <label htmlFor="pinned-post-order">표시 순서 (한 줄에 포스트 URL 하나)</label>
-          <textarea id="pinned-post-order" name="post_urls" rows={Math.min(6, Math.max(2, props.pinnedPosts.length))} defaultValue={props.pinnedPosts.map((item) => item.post.url).join('\n')} />
-          <div className="actions"><button type="submit">순서 저장</button></div>
-        </form>
-      </> : <p className="muted">아직 고정한 포스트가 없습니다.</p>}
-    </section>
-    <section className="panel" aria-labelledby="available-posts-heading">
-      <div className="row"><div className="grow"><h2 id="available-posts-heading">고정 가능한 포스트</h2><p className="muted">총 {props.pagination.totalCount}개 중 {props.pagination.page}페이지</p></div>
-        <form method="get" action="/settings/pinned-posts" className="row"><label htmlFor="pinned-search">포스트 제목 검색</label><input id="pinned-search" type="search" name="q" defaultValue={props.query} placeholder="포스트 제목 검색..." /><button type="submit">검색</button></form>
-      </div>
-      {props.pinnablePosts.length ? <ul className="collection-list">
-        {props.pinnablePosts.map((post) => <li className="collection-item row" key={post.url}>
-          <div className="grow"><strong>{post.title}</strong><div className="muted">{displayDate(post.createdDate)}</div></div>
-          <form method="post" action="/settings/pinned-posts">
-            {csrf(props.csrfToken)}
-            <input type="hidden" name="intent" value="add" />
-            <input type="hidden" name="post_url" value={post.url} />
-            <button type="submit" disabled={props.pinnedPosts.length + props.reservedCount >= props.maxCount}>포스트 고정</button>
-          </form>
-        </li>)}
-      </ul> : <p className="muted">검색 조건에 맞는 공개 포스트가 없습니다.</p>}
-      <div className="pagination">
-        {props.pagination.hasPrevious ? <a href={pageUrl(previousPage)}>← 이전</a> : <span />}
-        {props.pagination.hasNext ? <a href={pageUrl(nextPage)}>다음 →</a> : <span />}
-      </div>
-    </section>
-  </>, { saved: props.saved, error: props.error });
 }

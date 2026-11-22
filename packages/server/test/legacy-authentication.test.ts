@@ -104,26 +104,8 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     const tokens = await app.inject({ url: tokenUrl, headers: verified });
     assert.equal(tokens.json().body.tokens[0].tokenPrefix, issued.tokenPrefix);
     assert.equal(tokens.body.includes(issued.token), false);
-    const developerSettings = await app.inject({ url: '/settings/developer-api', headers: verified });
-    assert.equal(developerSettings.statusCode, 200);
-    assert.match(developerSettings.body, /<title>개발자 API · 설정<\/title>/);
-    assert.match(developerSettings.body, /aria-label="설정 메뉴"/);
-    assert.match(developerSettings.body, /토큰 발급/);
-    assert.match(developerSettings.body, /포스트 읽기/);
-    assert.match(developerSettings.body, /포스트 작성/);
-    assert.match(developerSettings.body, /활성 토큰 \(1\)/);
-    assert.equal(developerSettings.body.includes(issued.token), false);
-    const telegramSettings = await app.inject({ url: '/settings/integration', headers: verified });
-    assert.equal(telegramSettings.statusCode, 200);
-    assert.match(telegramSettings.body, /<title>텔레그램 연동 · 설정<\/title>/);
-    assert.match(telegramSettings.body, /연동 상태/);
-    assert.match(telegramSettings.body, /사이트에 연결할 텔레그램 봇이 설정되어 있지 않습니다/);
-    const webhookSettings = await app.inject({ url: '/settings/webhook', headers: verified });
-    assert.equal(webhookSettings.statusCode, 200);
-    assert.match(webhookSettings.body, /<title>발행 채널 · 설정<\/title>/);
-    assert.match(webhookSettings.body, /새 웹훅 추가/);
-    assert.match(webhookSettings.body, /웹훅 URL/);
-    assert.doesNotMatch(webhookSettings.body, /Webhook URL/);
+    const telegramSettings = await app.inject({ url: '/v1/setting/integration-telegram', headers: verified });
+    assert.equal(telegramSettings.json().body.isConfigured, false);
     const apiRequest = { url: '/api/developer/v1/me', headers: { authorization: `Bearer ${issued.token}` } };
     assert.equal((await app.inject(apiRequest)).json().data.user.username, 'neweditor');
     const postsUrl = '/api/developer/v1/posts';
@@ -201,33 +183,9 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
           AND content_type.app_label = 'board' AND content_type.model = 'sitesetting';
     `);
     promoteFixture.close();
-    const globalWebhookSettings = await app.inject({ url: '/admin-settings/global-webhook', headers: verified });
-    assert.equal(globalWebhookSettings.statusCode, 200);
-    assert.match(globalWebhookSettings.body, /<title>전체 발행 채널 · 관리자 설정<\/title>/);
-    assert.match(globalWebhookSettings.body, /모든 작성자가 발행한 포스트/);
-    const delegatedAdminLinks = [...new Set([...globalWebhookSettings.body.matchAll(/href="(\/admin-settings\/[^\"]+)"/g)]
-      .map((match) => match[1]))].sort();
-    assert.deepEqual(delegatedAdminLinks, [
-      '/admin-settings/global-banners', '/admin-settings/global-notices', '/admin-settings/global-webhook',
-      '/admin-settings/seo-aeo', '/admin-settings/site-settings', '/admin-settings/static-pages', '/admin-settings/users',
-    ]);
-    assert.doesNotMatch(globalWebhookSettings.body, /href="\/admin(?:\/|\")/);
-
-    const ownerLoginHeaders = headersFor(await app.inject('/v1/login'), siteUrl);
-    const ownerLogin = await app.inject({ method: 'POST', url: '/v1/login', headers: ownerLoginHeaders,
-      payload: { username: 'owner', password } });
-    assert.equal(ownerLogin.statusCode, 200, ownerLogin.body);
-    const ownerSession = headersFor(ownerLogin, siteUrl);
-    const superuserGlobalSettings = await app.inject({ url: '/admin-settings/global-webhook', headers: ownerSession });
-    assert.equal(superuserGlobalSettings.statusCode, 200, superuserGlobalSettings.body);
-    const superuserAdminLinks = [...new Set([...superuserGlobalSettings.body.matchAll(/href="(\/admin-settings\/[^\"]+)"/g)]
-      .map((match) => match[1]))].sort();
-    assert.deepEqual(superuserAdminLinks, [
-      '/admin-settings/global-banners', '/admin-settings/global-notices', '/admin-settings/global-webhook',
-      '/admin-settings/integrations', '/admin-settings/login', '/admin-settings/seo-aeo',
-      '/admin-settings/site-settings', '/admin-settings/static-pages', '/admin-settings/users', '/admin-settings/utilities',
-    ]);
-    assert.doesNotMatch(superuserGlobalSettings.body, /href="\/admin(?:\/|\")/);
+    const globalChannels = await app.inject({ url: '/v1/webhook/global-channels', headers: verified });
+    assert.equal(globalChannels.json().status, 'DONE', globalChannels.body);
+    assert.equal((await app.inject({ url: '/v1/webhook/global-channels', headers: headersFor(reader, siteUrl) })).json().errorCode, 'error:RJ');
     const check = new DatabaseSync(path, { readOnly: true });
     const account = check.prepare(`
       SELECT profile.role, config.language, config.time_zone FROM auth_user AS account
@@ -261,12 +219,6 @@ test('requires recent verification for password and 2FA changes and rotates the 
     const initial = headersFor(await app.inject('/v1/login'), siteUrl);
     const session = await app.inject({ method: 'POST', url: '/v1/login', headers: initial, payload: { username: 'account', password } });
     const signedIn = headersFor(session, siteUrl);
-    const securityPage = await app.inject({ url: '/settings/security', headers: signedIn });
-    assert.equal(securityPage.statusCode, 200, securityPage.body);
-    assert.match(securityPage.body, /href="\/assets\/blex\/theme.css"/);
-    assert.match(securityPage.body, /class="settings-ui/);
-    assert.match(securityPage.body, /계정 보안/);
-    assert.match(securityPage.body, /name="robots" content="noindex,nofollow,noarchive"/);
     const reauthenticationPage = await app.inject({ url: '/reauthenticate?next=%2Fsettings%2Fsecurity', headers: signedIn });
     assert.equal(reauthenticationPage.statusCode, 200, reauthenticationPage.body);
     assert.doesNotMatch(reauthenticationPage.body, /class="settings-ui/);

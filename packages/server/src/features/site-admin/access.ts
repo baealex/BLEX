@@ -1,5 +1,4 @@
 import type { PrismaClient } from '@prisma/client';
-import type { AdminCapabilities } from './pages.js';
 
 export interface UserAccess {
   active: boolean;
@@ -43,15 +42,3 @@ export async function readAdminAccess(db: PrismaClient, userId: number): Promise
   };
 }
 
-export function adminSettingsCapabilities(access: UserAccess): AdminCapabilities {
-  return {
-    canManageSiteSettings: access.canManageSiteSettings,
-    canManageLoginSettings: access.superuser,
-    canManageIntegrationSettings: access.superuser,
-    canManageGlobalWebhook: access.staff,
-    canManageUtilities: access.superuser,
-    canManageInvites: access.staff,
-    canManageSiteContent: access.staff,
-    canManageScripts: access.superuser,
-  };
-}

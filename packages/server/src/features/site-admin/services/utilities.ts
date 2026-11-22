@@ -1,10 +1,8 @@
 import { Prisma, type PrismaClient } from '@prisma/client';
-import type { FastifyReply, FastifyRequest } from 'fastify';
+import type { FastifyRequest } from 'fastify';
 import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
-import { adminSettingsCapabilities, type UserAccess } from '../access.js';
-import { renderAdminUtilities, type AdminSettingsUser, type AdminUtilityAction } from '../pages.js';
 import { buildImageCleanupPlan, executeImageCleanupPlan, imageCleanupPlanApi } from './image-cleanup.js';
-import { AdminSettingsOptions, ApiResult, Body, csrfToken, djangoTimestamp, isRecord, pageNumber } from '../shared.js';
+import { AdminSettingsOptions, ApiResult, Body, djangoTimestamp, isRecord } from '../shared.js';
 
 export type UtilityAction = 'clean_tags' | 'clean_sessions' | 'clean_logs' | 'clean_images';
 
@@ -423,23 +421,3 @@ export async function runUtilityAction(
   }
 }
 
-export async function pageUtilities(
-  request: FastifyRequest,
-  reply: FastifyReply,
-  db: PrismaClient,
-  options: AdminSettingsOptions,
-  user: AdminSettingsUser,
-  access: UserAccess,
-  feedback?: { action: AdminUtilityAction; data: Record<string, unknown>; confirmationToken?: string; cleanAll?: boolean },
-  error?: string,
-) {
-  return reply.type('text/html; charset=utf-8').send(renderAdminUtilities({
-    user,
-    capabilities: adminSettingsCapabilities(access),
-    stats: await readUtilityStats(db),
-    csrfToken: csrfToken(request),
-    feedback,
-    saved: !error && pageNumber(request).get('saved') === '1',
-    error,
-  }));
-}

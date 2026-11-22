@@ -291,32 +291,7 @@ test('renders only same-site uploaded MP4 and WebM links as video embeds', () =>
   assert.doesNotMatch(markdownToHtml('![traversal](/resources/media/%2e%2e/private/clip.mp4)'), /<video/);
 });
 
-test('renders authenticated SSR editor and draft-only preview with safe initial content', async () => {
-  const editor = await app.inject({ url: '/write', headers: writerHeaders });
-  assert.equal(editor.statusCode, 200, editor.body);
-  assert.match(editor.body, /<html lang="ko">/);
-  assert.match(editor.body, /name="text_md"/);
-  assert.match(editor.body, /type="datetime-local"/);
-  assert.match(editor.body, /name="reserved_date"/);
-  assert.match(editor.body, /임시 저장/);
-  assert.match(editor.body, /meta name="robots"/);
-  assert.match(editor.body, /data-site-header/);
-  assert.match(editor.body, /<dialog id="editor-settings-dialog"/);
-  assert.match(editor.body, /href="\/assets\/editor\.css"/);
-  assert.match(editor.body, /src="\/assets\/editor\.js"/);
-  assert.match(editor.body, /data-blex-page-module="editor"/);
-  assert.match(editor.body, /id="blex-editor-tools"/);
-  assert.match(editor.body, /href="\/settings\/forms"/);
-  assert.match(editor.body, /href="\/write\/images"/);
-
-  const templatedEditor = await app.inject({ url: '/write?form=1', headers: writerHeaders });
-  assert.equal(templatedEditor.statusCode, 200, templatedEditor.body);
-  assert.match(templatedEditor.body, /Short form/);
-  assert.match(templatedEditor.body, /Template body/);
-  assert.equal((await app.inject({ url: '/write?form=2', headers: writerHeaders })).statusCode, 404);
-  assert.equal((await app.inject({ url: '/write?form=1', headers: { 'x-user-id': '2' } })).statusCode, 404);
-  assert.equal((await app.inject({ url: '/write?form=not-an-id', headers: writerHeaders })).statusCode, 404);
-
+test('gates editor URLs, keeps failed saves recoverable, and serves draft-only previews', async () => {
   const unauthorized = await app.inject({ url: '/write', headers: { 'x-user-id': '3' } });
   assert.equal(unauthorized.statusCode, 302);
   assert.equal(unauthorized.headers.location, '/');
@@ -324,18 +299,6 @@ test('renders authenticated SSR editor and draft-only preview with safe initial 
   assert.equal(anonymous.statusCode, 302);
   assert.equal(anonymous.headers.location, '/login');
 
-  const edit = await app.inject({ url: '/@writer/existing/edit', headers: writerHeaders });
-  assert.equal(edit.statusCode, 200, edit.body);
-  assert.match(edit.body, /Existing content/);
-  assert.match(edit.body, /name="content_type" value="html"/);
-  assert.match(edit.body, /본문 소스/);
-  assert.match(edit.body, /data-editor-source-label=""/);
-  assert.match(edit.body, /href="\/@writer\/existing\/revisions"/);
-  assert.match(edit.body, /href="\/@writer\/existing\/timelapse"/);
-  assert.match(edit.body, /href="\/settings\/developer-api"/);
-  assert.match(edit.body, /href="\/docs\/developer-api\/quickstart"/);
-  assert.match(edit.body, /value="split"/);
-  assert.match(edit.body, /value="4:3"/);
   assert.equal((await app.inject({ url: '/@writer/existing/edit', headers: { 'x-user-id': '2' } })).statusCode, 404);
 
   const metadataEdit = await app.inject({
@@ -371,6 +334,11 @@ test('renders authenticated SSR editor and draft-only preview with safe initial 
     }).toString(),
   });
   assert.equal(rejectedCover.statusCode, 400);
+  assert.match(rejectedCover.body, /id="post-editor-form"/);
+  assert.match(rejectedCover.body, /Do not lose this\./);
+  assert.match(rejectedCover.body, /href="\/assets\/editor\.css"/);
+  assert.match(rejectedCover.body, /src="\/assets\/editor\.js"/);
+  assert.match(rejectedCover.body, /href="\/write\/images"/);
   const removeCover = await app.inject({
     method: 'POST', url: '/@writer/existing/edit',
     headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
@@ -394,10 +362,6 @@ test('renders authenticated SSR editor and draft-only preview with safe initial 
   assert.equal((await app.inject({ url: '/write/preview/scheduled', headers: writerHeaders })).statusCode, 404);
   assert.equal((await app.inject({ url: '/write/preview/draft-note', headers: { 'x-user-id': '2' } })).statusCode, 404);
 
-  const scheduledEditor = await app.inject({ url: '/@writer/scheduled/edit', headers: writerHeaders });
-  assert.equal(scheduledEditor.statusCode, 200, scheduledEditor.body);
-  assert.match(scheduledEditor.body, /name="reserved_date"/);
-  assert.match(scheduledEditor.body, /value="2099-01-01T09:00"/);
 });
 
 test('creates a published Markdown post atomically with config, content, tags and series', async () => {
@@ -475,9 +439,6 @@ test('creates and reschedules future posts from the visible datetime-local field
   `;
   assert.equal(initialQueue[0]?.date, created[0]?.published);
 
-  const edit = await app.inject({ url: '/@writer/scheduled-through-editor/edit', headers: writerHeaders });
-  assert.equal(edit.statusCode, 200, edit.body);
-  assert.match(edit.body, /name="reserved_date"/);
   const laterAt = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString();
   const reschedule = await app.inject({
     method: 'PUT', url: '/v1/users/@writer/posts/scheduled-through-editor?reserved_date=1',
@@ -585,24 +546,13 @@ test('serves settings management lists, filters and restores expired scheduled t
 
   const scheduled = await app.inject({ url: '/v1/setting/reserved-posts', headers: { 'x-user-id': '1' } });
   assert.deepEqual(scheduled.json().body.posts.map((post: { url: string }) => post.url), ['scheduled', 'scheduled-through-editor']);
-  const scheduledPage = await app.inject({ url: '/settings/posts?tab=scheduled', headers: writerHeaders });
-  assert.equal(scheduledPage.statusCode, 200, scheduledPage.body);
-  assert.match(scheduledPage.body, /Scheduled/);
-  assert.match(scheduledPage.body, /예약 포스트/);
-
-  const draftPage = await app.inject({ url: '/settings/drafts', headers: writerHeaders });
-  assert.equal(draftPage.statusCode, 200, draftPage.body);
-  assert.match(draftPage.body, /Draft note/);
-  assert.match(draftPage.body, /write\?draft=draft-note/);
+  const drafts = await app.inject({ url: '/v1/drafts', headers: { 'x-user-id': '1' } });
+  assert.ok(drafts.json().body.drafts.some((draft: { url: string }) => draft.url === 'draft-note'));
   const trash = await app.inject({ url: '/v1/setting/trash-posts?page=1', headers: { 'x-user-id': '1' } });
   assert.equal(trash.json().status, 'DONE', trash.body);
   assert.equal(trash.json().body.posts[0].sourceStatus, 'scheduled');
   assert.equal(trash.json().body.posts[0].scheduleElapsed, true);
   assert.equal(trash.json().body.retention.mode, 'manual');
-  const trashPage = await app.inject({ url: '/settings/posts?tab=trash', headers: writerHeaders });
-  assert.equal(trashPage.statusCode, 200, trashPage.body);
-  assert.match(trashPage.body, /Elapsed schedule/);
-  assert.match(trashPage.body, /복원/);
 
   const expectedDeletedDate = trash.json().body.posts[0].deletedDate;
   const stale = await app.inject({
@@ -761,10 +711,6 @@ test('saves, previews, edits and publishes drafts while keeping only owner acces
   assert.ok(list.json().body.drafts.some((draft: { url: string }) => draft.url === slug));
   assert.equal((await app.inject({ url: `/v1/drafts/${slug}`, headers: { 'x-user-id': '2' } })).statusCode, 404);
 
-  const editor = await app.inject({ url: `/write?draft=${slug}`, headers: writerHeaders });
-  assert.equal(editor.statusCode, 200, editor.body);
-  assert.match(editor.body, /name="content_type" value="html"/);
-  assert.match(editor.body, /&lt;h1&gt;Private draft&lt;\/h1&gt;/);
   const saveDraft = await app.inject({
     method: 'POST', url: '/write',
     headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
@@ -777,9 +723,6 @@ test('saves, previews, edits and publishes drafts while keeping only owner acces
   });
   assert.equal(saveDraft.statusCode, 302, saveDraft.body);
   assert.equal(saveDraft.headers.location, `/write?draft=${slug}&saved=1`);
-  const savedEditor = await app.inject({ url: saveDraft.headers.location, headers: writerHeaders });
-  assert.match(savedEditor.body, /임시 글을 저장했습니다\./);
-  assert.match(savedEditor.body, /data-saved="true"/);
   const preview = await app.inject({ url: `/write/preview/${slug}`, headers: writerHeaders });
   assert.equal(preview.statusCode, 200, preview.body);
 

@@ -1,87 +1,10 @@
 import { type PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import { done as success, failure } from '../../../platform/response.js';
-import { noticeApi, noticePayload, pageAuthorNotices, pageNotices, readNotice, readNotices, saveNotice } from '../services/notices.js';
-import { AdminSettingsOptions, apiAccess, apiJsonBody, csrfValid, editorApiAccess, editorPageAccess, isRecord, pageAccess, validRouteId } from '../shared.js';
+import { noticeApi, noticePayload, readNotice, readNotices, saveNotice } from '../services/notices.js';
+import { AdminSettingsOptions, apiAccess, apiJsonBody, csrfValid, editorApiAccess, validRouteId } from '../shared.js';
 
 export function registerNoticesRoutes(routes: FastifyInstance, db: PrismaClient, options: AdminSettingsOptions) {
-    routes.get('/admin-settings/global-notices', async (request, reply) => {
-      const result = await pageAccess(request, reply, db, options);
-      if (!result) return reply;
-      return pageNotices(request, reply, db, result.user, result.access);
-    });
-
-    routes.post<{ Body: unknown }>('/admin-settings/global-notices', { bodyLimit: 64 * 1024 }, async (request, reply) => {
-      if (!csrfValid(request, options)) return reply.code(403).type('text/plain; charset=utf-8').send('요청을 확인할 수 없습니다. 페이지를 새로고침해 주세요.');
-      const result = await pageAccess(request, reply, db, options);
-      if (!result) return reply;
-      const saved = await saveNotice(db, noticePayload(isRecord(request.body) ? request.body : {}, true));
-      if (!saved.ok) return pageNotices(request, reply, db, result.user, result.access, saved.message);
-      return reply.redirect('/admin-settings/global-notices?saved=1', 303);
-    });
-
-    routes.post<{ Params: { noticeId: string }; Body: unknown }>('/admin-settings/global-notices/:noticeId', { bodyLimit: 64 * 1024 }, async (request, reply) => {
-      if (!csrfValid(request, options)) return reply.code(403).type('text/plain; charset=utf-8').send('요청을 확인할 수 없습니다. 페이지를 새로고침해 주세요.');
-      const result = await pageAccess(request, reply, db, options);
-      if (!result) return reply;
-      const noticeId = validRouteId(request.params.noticeId);
-      if (!noticeId) return pageNotices(request, reply, db, result.user, result.access, 'Notice not found.');
-      const saved = await saveNotice(db, noticePayload(isRecord(request.body) ? request.body : {}, true), noticeId);
-      if (!saved.ok) return pageNotices(request, reply, db, result.user, result.access, saved.message);
-      return reply.redirect('/admin-settings/global-notices?saved=1', 303);
-    });
-
-    routes.post<{ Params: { noticeId: string }; Body: unknown }>('/admin-settings/global-notices/:noticeId/delete', { bodyLimit: 8 * 1024 }, async (request, reply) => {
-      if (!csrfValid(request, options)) return reply.code(403).type('text/plain; charset=utf-8').send('요청을 확인할 수 없습니다. 페이지를 새로고침해 주세요.');
-      const result = await pageAccess(request, reply, db, options);
-      if (!result) return reply;
-      const noticeId = validRouteId(request.params.noticeId);
-      if (!noticeId) return pageNotices(request, reply, db, result.user, result.access, 'Notice not found.');
-      const deleted = await db.$executeRaw`DELETE FROM board_sitenotice WHERE scope = 'global' AND id = ${noticeId}`;
-      if (deleted === 0) return pageNotices(request, reply, db, result.user, result.access, 'Notice not found.');
-      return reply.redirect('/admin-settings/global-notices?saved=1', 303);
-    });
-
-    routes.get('/settings/notices', async (request, reply) => {
-      const result = await editorPageAccess(request, reply, db, options);
-      if (!result) return reply;
-      return pageAuthorNotices(request, reply, db, result.user);
-    });
-
-    routes.post<{ Body: unknown }>('/settings/notices', { bodyLimit: 64 * 1024 }, async (request, reply) => {
-      if (!csrfValid(request, options)) return reply.code(403).type('text/plain; charset=utf-8').send('요청을 확인할 수 없습니다. 페이지를 새로고침해 주세요.');
-      const result = await editorPageAccess(request, reply, db, options);
-      if (!result) return reply;
-      const saved = await saveNotice(db, noticePayload(isRecord(request.body) ? request.body : {}, true), undefined, 'user', result.user.id);
-      if (!saved.ok) return pageAuthorNotices(request, reply, db, result.user, saved.message);
-      return reply.redirect('/settings/notices?saved=1', 303);
-    });
-
-    routes.post<{ Params: { noticeId: string }; Body: unknown }>('/settings/notices/:noticeId', { bodyLimit: 64 * 1024 }, async (request, reply) => {
-      if (!csrfValid(request, options)) return reply.code(403).type('text/plain; charset=utf-8').send('요청을 확인할 수 없습니다. 페이지를 새로고침해 주세요.');
-      const result = await editorPageAccess(request, reply, db, options);
-      if (!result) return reply;
-      const noticeId = validRouteId(request.params.noticeId);
-      if (!noticeId || !(await readNotice(db, noticeId, 'user', result.user.id))) {
-        return pageAuthorNotices(request, reply, db, result.user, 'Notice not found.');
-      }
-      const saved = await saveNotice(db, noticePayload(isRecord(request.body) ? request.body : {}, true), noticeId, 'user', result.user.id);
-      if (!saved.ok) return pageAuthorNotices(request, reply, db, result.user, saved.message);
-      return reply.redirect('/settings/notices?saved=1', 303);
-    });
-
-    routes.post<{ Params: { noticeId: string }; Body: unknown }>('/settings/notices/:noticeId/delete', { bodyLimit: 8 * 1024 }, async (request, reply) => {
-      if (!csrfValid(request, options)) return reply.code(403).type('text/plain; charset=utf-8').send('요청을 확인할 수 없습니다. 페이지를 새로고침해 주세요.');
-      const result = await editorPageAccess(request, reply, db, options);
-      if (!result) return reply;
-      const noticeId = validRouteId(request.params.noticeId);
-      const deleted = noticeId ? await db.$executeRaw`
-        DELETE FROM board_sitenotice WHERE scope = 'user' AND user_id = ${result.user.id} AND id = ${noticeId}
-      ` : 0;
-      if (!deleted) return pageAuthorNotices(request, reply, db, result.user, 'Notice not found.');
-      return reply.redirect('/settings/notices?saved=1', 303);
-    });
-
     routes.get('/v1/notices', async (request, reply) => {
       const permission = await editorApiAccess(request, db, options);
       if ('response' in permission) return reply.send(permission.response);

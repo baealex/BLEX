@@ -11,7 +11,7 @@ import { encryptDjangoSecret } from '../src/features/auth/django-secret.js';
 import { deliverTelegramNotification } from '../src/features/notifications/delivery.js';
 import { registerNotifications } from '../src/features/notifications/index.js';
 import { processScheduledPublications, syncPostPublication } from '../src/features/notifications/model.js';
-import { registerSubscriptionPage } from '../src/features/engagement/ui/subscriptions.js';
+import { mySubscriptions } from '../src/features/engagement/services/subscriptions.js';
 
 test('delivers scheduled publication once, retains queued retries, and respects a removed subscription', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'blex-notifications-'));
@@ -82,27 +82,18 @@ test('delivers scheduled publication once, retains queued retries, and respects 
       validateCsrf: () => true,
       siteUrl: site,
     });
-    registerSubscriptionPage(pages, db, {
-      currentUser: async () => reader,
-      siteUrl: site,
-    });
     await pages.ready();
     try {
-      const notificationPage = await pages.inject('/settings/notify');
-      assert.equal(notificationPage.statusCode, 200, notificationPage.body);
-      assert.equal(notificationPage.headers['cache-control'], 'private, no-store');
-      assert.match(notificationPage.body, /알림 설정/);
-      assert.match(notificationPage.body, /텔레그램 알림 관리/);
-      assert.doesNotMatch(notificationPage.body, /Telegram/);
-      assert.match(notificationPage.body, /@editor님이 새 글을 발행했습니다/);
-      assert.match(notificationPage.body, /Scheduled post/);
+      const inbox = await pages.inject('/v1/setting/notify');
+      assert.equal(inbox.statusCode, 200, inbox.body);
+      assert.equal(inbox.headers['cache-control'], 'private, no-store');
+      assert.equal(inbox.json().body.isTelegramSync, true);
+      assert.match(inbox.body, /@editor님이 새 글을 발행했습니다/);
+      assert.match(inbox.body, /Scheduled post/);
 
-      const subscriptionsPage = await pages.inject('/settings/subscriptions');
-      assert.equal(subscriptionsPage.statusCode, 200);
-      assert.match(subscriptionsPage.body, /구독한 작가가 새 글을 발행하면 알림을 보내드립니다/);
-      assert.match(subscriptionsPage.body, /구독한 작가/);
-      assert.match(subscriptionsPage.body, /2000-01-01부터 구독/);
-      assert.doesNotMatch(subscriptionsPage.body, /Telegram/);
+      const { subscriptions } = await mySubscriptions(db, reader.id);
+      assert.equal(subscriptions[0]?.username, 'editor');
+      assert.equal(subscriptions[0]?.subscribedDate, '2000-01-01');
     } finally {
       await pages.close();
     }

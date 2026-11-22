@@ -1,10 +1,8 @@
 import { Prisma, type PrismaClient } from '@prisma/client';
-import type { FastifyReply, FastifyRequest } from 'fastify';
 import { domainToASCII } from 'node:url';
 import { encryptDjangoSecret, decryptDjangoSecret } from '../../auth/django-secret.js';
-import { adminSettingsCapabilities, type UserAccess } from '../access.js';
-import { renderAdminLoginSettings, type AdminLoginSettings, type AdminSettingsUser } from '../pages.js';
-import { AdminSettingsOptions, ApiResult, Body, booleanValue, csrfToken, djangoTimestamp, formBoolean, isRecord, isoDate, pageNumber, recordAudit, stringValue } from '../shared.js';
+import { type AdminLoginSettings } from '../types.js';
+import { ApiResult, Body, booleanValue, djangoTimestamp, isRecord, isoDate, recordAudit, stringValue } from '../shared.js';
 
 const SOCIAL_PROVIDERS = [
   { key: 'google', name: 'Google' },
@@ -196,39 +194,3 @@ export async function updateLoginSettings(
   return { ok: true, body: await serializeLoginSettings(db, cipherKey) };
 }
 
-export function pageLoginPayload(body: Body): Body {
-  const providers = SOCIAL_PROVIDERS.map(({ key }) => ({
-    key,
-    is_enabled: formBoolean(body[`provider_${key}_enabled`]),
-    client_id: stringValue(body[`provider_${key}_client_id`]),
-    client_secret: stringValue(body[`provider_${key}_client_secret`]),
-    clear_client_secret: formBoolean(body[`provider_${key}_clear_secret`]),
-  }));
-  return {
-    welcome_notification_message: stringValue(body.welcome_notification_message),
-    welcome_notification_url: stringValue(body.welcome_notification_url),
-    account_deletion_redirect_url: stringValue(body.account_deletion_redirect_url),
-    hcaptcha_enabled: formBoolean(body.hcaptcha_enabled),
-    hcaptcha_site_key: stringValue(body.hcaptcha_site_key),
-    hcaptcha_secret_key: stringValue(body.hcaptcha_secret_key),
-    clear_hcaptcha_secret_key: formBoolean(body.clear_hcaptcha_secret_key),
-    social_auth_providers: providers,
-  };
-}
-
-export async function pageLoginSettings(
-  request: FastifyRequest,
-  reply: FastifyReply,
-  db: PrismaClient,
-  options: AdminSettingsOptions,
-  user: AdminSettingsUser,
-  access: UserAccess,
-  error?: string,
-) {
-  const capabilities = adminSettingsCapabilities(access);
-  const settings = await serializeLoginSettings(db, options.cipherKey);
-  return reply.type('text/html; charset=utf-8').send(renderAdminLoginSettings({
-    user, capabilities, settings, csrfToken: csrfToken(request),
-    saved: !error && pageNumber(request).get('saved') === '1', error,
-  }));
-}

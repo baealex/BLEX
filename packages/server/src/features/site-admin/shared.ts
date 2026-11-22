@@ -2,7 +2,7 @@ import { Prisma, type PrismaClient } from '@prisma/client';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { djangoIso } from '../../compat/django-format.js';
 import { readAdminAccess, type UserAccess } from './access.js';
-import { type AdminSettingsUser } from './pages.js';
+import { type AdminSettingsUser } from './types.js';
 import { done as success, failure } from '../../platform/response.js';
 
 export interface AdminSettingsOptions {
@@ -34,91 +34,12 @@ export function booleanValue(value: unknown): boolean {
   return value === true || value === 1 || value === 1n;
 }
 
-export function formBoolean(value: unknown): boolean {
-  return ['true', '1', 'on', 'yes'].includes(stringValue(value).toLowerCase());
-}
-
-export function csrfToken(request: FastifyRequest): string {
-  for (const part of (request.headers.cookie ?? '').split(';')) {
-    const separator = part.indexOf('=');
-    if (separator < 0 || part.slice(0, separator).trim() !== 'csrftoken') continue;
-    try {
-      const value = decodeURIComponent(part.slice(separator + 1).trim());
-      return /^[A-Za-z0-9_-]{43}$/.test(value) ? value : '';
-    } catch {
-      return '';
-    }
-  }
-  return '';
-}
-
 export function djangoTimestamp(date = new Date()): string {
   return date.toISOString().replace('T', ' ').replace(/Z$/, '000');
 }
 
 export function isoDate(value: string | null): string {
   return djangoIso(value) ?? '';
-}
-
-export function pageNumber(request: FastifyRequest): URLSearchParams {
-  return new URLSearchParams(request.url.split('?')[1] ?? '');
-}
-
-function loginRedirect(request: FastifyRequest, reply: FastifyReply) {
-  const next = request.url.split('?')[0] || '/admin-settings/';
-  return reply.redirect(`/login?next=${encodeURIComponent(next)}`, 302);
-}
-
-export async function pageAccess(
-  request: FastifyRequest,
-  reply: FastifyReply,
-  db: PrismaClient,
-  options: AdminSettingsOptions,
-): Promise<{ user: AdminSettingsUser; access: UserAccess } | null> {
-  const user = await options.currentUser(request);
-  if (!user) {
-    loginRedirect(request, reply);
-    return null;
-  }
-  const access = await readAdminAccess(db, user.id);
-  if (!access?.active) {
-    loginRedirect(request, reply);
-    return null;
-  }
-  if (!access.staff) {
-    reply.code(404).type('text/plain; charset=utf-8').send('페이지를 찾을 수 없습니다.');
-    return null;
-  }
-  const [profile] = await db.$queryRaw<Array<{ role: string }>>`
-    SELECT role FROM board_profile WHERE user_id = ${user.id} LIMIT 1
-  `;
-  return { user: { ...user, hasEditorRole: profile?.role === 'EDITOR', isStaff: access.staff }, access };
-}
-
-export async function editorPageAccess(
-  request: FastifyRequest,
-  reply: FastifyReply,
-  db: PrismaClient,
-  options: AdminSettingsOptions,
-): Promise<{ user: AdminSettingsUser; access: UserAccess } | null> {
-  const user = await options.currentUser(request);
-  if (!user) {
-    loginRedirect(request, reply);
-    return null;
-  }
-  const access = await readAdminAccess(db, user.id);
-  if (!access?.active) {
-    loginRedirect(request, reply);
-    return null;
-  }
-  const [profile] = await db.$queryRaw<Array<{ role: string }>>`
-    SELECT role FROM board_profile WHERE user_id = ${user.id} LIMIT 1
-  `;
-  if (profile?.role !== 'EDITOR') {
-    reply.code(404).type('text/plain; charset=utf-8').send('페이지를 찾을 수 없습니다.');
-    return null;
-  }
-  return { user: { ...user, hasEditorRole: true, isStaff: access.staff }, access };
 }
 
 export async function recordAudit(
@@ -230,6 +151,3 @@ export function apiJsonBody(request: FastifyRequest): Body {
   return isRecord(request.body) ? request.body : {};
 }
 
-export function unauthorizedPage(reply: FastifyReply) {
-  return reply.code(404).type('text/plain; charset=utf-8').send('페이지를 찾을 수 없습니다.');
-}

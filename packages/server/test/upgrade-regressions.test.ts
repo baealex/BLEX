@@ -138,8 +138,10 @@ test('announces first publication but not hiding, unhiding, or restoring an old 
     const queued = async () => Number((await db.$queryRaw<Array<{ total: bigint }>>`SELECT COUNT(*) AS total FROM blex_webhook_delivery`)[0].total);
 
     const headers = signIn(fixture.db, 1);
-    assert.equal((await fixture.app.inject({ method: 'POST', url: '/settings/posts/old-post/visibility', headers })).statusCode, 303);
-    assert.equal((await fixture.app.inject({ method: 'POST', url: '/settings/posts/old-post/visibility', headers })).statusCode, 303);
+    for (const isHide of [true, false]) {
+      const toggled = await fixture.app.inject({ method: 'PUT', url: '/v1/users/@writer/posts/old-post?hide=hide', headers });
+      assert.deepEqual(toggled.json().body, { isHide });
+    }
     await db.$transaction((tx) => syncPostPublication(tx, 2));
     assert.equal(await queued(), 0);
 

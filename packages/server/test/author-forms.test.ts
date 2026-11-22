@@ -53,30 +53,21 @@ const csrfToken = 'c'.repeat(43);
 const writerHeaders = { 'x-test-user': '1', 'x-test-csrf': 'valid', cookie: `csrftoken=${csrfToken}` };
 const apiHeaders = { ...writerHeaders, 'content-type': 'application/json' };
 
-test('renders protected Korean form settings and Korean-localized dates', async () => {
-  const anonymous = await app.inject('/settings/forms');
-  assert.equal(anonymous.statusCode, 302);
-  assert.equal(anonymous.headers.location, '/login?next=%2Fsettings%2Fforms');
-  assert.equal((await app.inject({ url: '/settings/forms', headers: { 'x-test-user': '2' } })).statusCode, 404);
+test('protects the form API by login, editor role, CSRF, and field limits', async () => {
+  assert.equal((await app.inject('/v1/forms')).json().errorCode, 'error:NL');
+  assert.equal((await app.inject({ url: '/v1/forms', headers: { 'x-test-user': '2' } })).json().errorCode, 'error:RJ');
 
-  const page = await app.inject({ url: '/settings/forms?id=1', headers: writerHeaders });
-  assert.equal(page.statusCode, 200, page.body);
-  assert.match(page.body, /<html lang="ko">/);
-  assert.match(page.body, /data-site-header/);
-  assert.match(page.body, /설정 메뉴/);
-  assert.match(page.body, /저장된 서식 \(1\)/);
-  assert.match(page.body, /첫 서식/);
-  assert.match(page.body, /2024년 2월 1일/);
-  assert.match(page.body, /새 포스트 작성/);
-  assert.match(page.body, /서식 삭제/);
-
-  const csrfPage = await app.inject({
-    method: 'POST', url: '/settings/forms', headers: { ...writerHeaders, 'x-test-csrf': 'invalid' },
-    payload: { id: '1', title: '수정', content: '내용', action: 'save' },
+  const rejected = await app.inject({
+    method: 'PUT', url: '/v1/forms/1', headers: { ...apiHeaders, 'x-test-csrf': 'invalid' },
+    payload: { title: '수정', content: '내용' },
   });
-  assert.equal(csrfPage.statusCode, 403);
-  assert.match(csrfPage.body, /요청을 확인할 수 없습니다/);
-  assert.match(csrfPage.body, new RegExp(`name="csrfmiddlewaretoken" value="${csrfToken}"`));
+  assert.equal(rejected.statusCode, 403);
+  const tooLong = await app.inject({
+    method: 'PUT', url: '/v1/forms/1', headers: apiHeaders, payload: { title: 'x'.repeat(51), content: '내용' },
+  });
+  assert.equal(tooLong.json().errorCode, 'error:IP');
+  const stored = await app.inject({ url: '/v1/forms/1', headers: writerHeaders });
+  assert.deepEqual(stored.json().body, { id: 1, title: '첫 서식', content: '첫 번째 문단' });
 });
 
 test('preserves legacy form API envelopes and owner checks', async () => {

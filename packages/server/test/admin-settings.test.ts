@@ -10,6 +10,7 @@ import { PrismaClient } from '@prisma/client';
 import { after, beforeEach, test } from 'node:test';
 import { decryptDjangoSecret, encryptDjangoSecret } from '../src/features/auth/django-secret.js';
 import { registerAdminSettings } from '../src/features/site-admin/index.js';
+import { uploadBrandAsset } from '../src/features/site-admin/services/brand-assets.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-admin-settings-'));
 const databasePath = join(directory, 'admin-settings.sqlite3');
@@ -316,9 +317,6 @@ test('gates site settings by staff and SiteSetting permission and hides global s
   const admin = await app.inject({ url: '/v1/site-settings', headers: headers(2) });
   assert.equal((body(admin).body as Record<string, unknown>).headerScript, '<script>hidden from delegated staff</script>');
 
-  const landing = await app.inject({ url: '/admin-settings/', headers: headers(1) });
-  assert.equal(landing.statusCode, 302);
-  assert.equal(landing.headers.location, '/admin-settings/site-settings');
 });
 
 test('uploads and deletes validated brand SVG assets under the legacy public media paths', async () => {
@@ -338,12 +336,6 @@ test('uploads and deletes validated brand SVG assets under the legacy public med
   const setting = await prisma.$queryRaw<Array<{ logoSvg: string }>>`SELECT logo_svg AS logoSvg FROM board_sitesetting WHERE id = 1`;
   assert.equal(logoUrl, `/resources/media/${setting[0]?.logoSvg}`);
   assert.deepEqual(await readFile(join(mediaRoot, setting[0]?.logoSvg ?? '')), svg);
-  const page = await app.inject({ url: '/admin-settings/site-settings', headers: headers(1) });
-  assert.equal(page.statusCode, 200, page.body);
-  assert.match(page.body, /multipart\/form-data/);
-  assert.match(page.body, /brand-logo-default/);
-  assert.match(page.body, /<h1[^>]*>블로그 꾸미기<\/h1>/);
-  assert.doesNotMatch(page.body, />Site identity<|name="png_512"/);
 
   const deleted = await app.inject({
     method: 'DELETE', url: '/v1/site-settings/brand-assets', headers: jsonHeaders(1),
@@ -360,11 +352,10 @@ test('generates icon derivatives for a single SVG uploaded through blog customiz
   const form = multipartPayload({ asset_type: 'icon', theme: 'default', csrfmiddlewaretoken: csrfToken }, {
     svg: { name: 'icon.svg', type: 'image/svg+xml', data: svg },
   });
-  const uploaded = await app.inject({
-    method: 'POST', url: '/admin-settings/brand-assets', headers: { ...headers(1), ...form.headers }, payload: form.payload,
-  });
-  assert.equal(uploaded.statusCode, 303, uploaded.body);
-  assert.equal(uploaded.headers.location, '/admin-settings/site-settings?saved=1');
+  const uploaded = await uploadBrandAsset(prisma, 1, false, {
+    assetType: 'icon', theme: 'default', svg, files: new Map([['svg', svg]]), manifest: '', generateDerivatives: true,
+  }, { siteUrl: new URL('https://blog.example'), cipherKey: '', secretKey: '', mediaRoot, currentUser: async () => null, validateCsrf: () => false });
+  assert.equal(uploaded.ok, true);
   const [row] = await prisma.$queryRaw<Array<{ iconManifest: string }>>`SELECT icon_manifest AS iconManifest FROM board_sitesetting WHERE id = 1`;
   const manifest = JSON.parse(row?.iconManifest ?? '{}') as { png: Record<string, string>; ico: string };
   assert.equal(Object.keys(manifest.png).length, 14);
@@ -466,23 +457,16 @@ test('updates site identity and SEO fields, validates names, and requires CSRF',
   assert.equal(Number((await prisma.$queryRaw<Array<{ total: number | bigint }>>`SELECT COUNT(*) AS total FROM django_admin_log`)[0]?.total), 1);
 });
 
-test('renders progressive site and login pages with role checks and private headers', async () => {
-  const sitePage = await app.inject({ url: '/admin-settings/site-settings', headers: headers(1) });
-  assert.equal(sitePage.statusCode, 200, sitePage.body);
-  assert.match(sitePage.headers['cache-control'] ?? '', /no-store/);
-  assert.equal(sitePage.headers['x-robots-tag'], 'noindex, nofollow, noarchive');
-  assert.match(sitePage.body, /name="site_name"/);
-  assert.match(sitePage.body, /action="\/admin-settings\/site-settings"/);
-  assert.doesNotMatch(sitePage.body, /hidden from delegated staff/);
-  assert.equal((await app.inject({ url: '/admin-settings/login', headers: headers(1) })).statusCode, 404);
-
-  const loginPage = await app.inject({ url: '/admin-settings/login', headers: headers(2) });
-  assert.equal(loginPage.statusCode, 200, loginPage.body);
-  assert.match(loginPage.body, /hCaptcha/);
-  assert.match(loginPage.body, /placeholder="기존 키를 유지하려면 비워 두세요."/);
-  assert.doesNotMatch(loginPage.body, /hs_test_secret_99|oauth_test_secret_17/);
-  assert.match(loginPage.body, /name="provider_google_client_secret"/);
-  assert.equal((await app.inject('/admin-settings/site-settings')).statusCode, 302);
+test('keeps admin API responses private and out of search indexes', async () => {
+  const response = await app.inject({ url: '/v1/site-settings', headers: headers(1) });
+  assert.equal(response.statusCode, 200, response.body);
+  assert.match(response.headers['cache-control'] ?? '', /no-store/);
+  assert.equal(response.headers['x-robots-tag'], 'noindex, nofollow, noarchive');
+  assert.doesNotMatch(response.body, /hidden from delegated staff/);
+  assert.equal(body(await app.inject({ url: '/v1/login-settings', headers: headers(1) })).errorCode, 'error:RJ');
+  const login = await app.inject({ url: '/v1/login-settings', headers: headers(2) });
+  assert.equal(body(login).status, 'DONE', login.body);
+  assert.doesNotMatch(login.body, /hs_test_secret_99|oauth_test_secret_17/);
 });
 
 test('restricts login settings to active superusers and never returns stored secrets', async () => {
@@ -579,30 +563,17 @@ test('provides staff-only author invitation APIs with single-use deletion rules'
   assert.equal(noCsrf.statusCode, 403);
 });
 
-test('renders progressive staff invitation forms and refuses deletion after claim', async () => {
-  const page = await app.inject({ url: '/admin-settings/users', headers: headers(1) });
-  assert.equal(page.statusCode, 200, page.body);
-  assert.match(page.body, /name="note"/);
-  assert.match(page.body, /작가 초대 만들기/);
-
+test('refuses to delete a staff invitation after it is claimed', async () => {
   const create = await app.inject({
-    method: 'POST', url: '/admin-settings/users', headers: formHeaders(1),
-    payload: new URLSearchParams([['csrfmiddlewaretoken', csrfToken], ['note', 'Release reviewers']]).toString(),
+    method: 'POST', url: '/v1/admin/author-invites', headers: jsonHeaders(1), payload: JSON.stringify({ note: 'Release reviewers' }),
   });
-  assert.equal(create.statusCode, 303, create.body);
-  const [created] = await prisma.$queryRaw<Array<{ id: number; code: string }>>`SELECT id, code FROM board_authorinvite LIMIT 1`;
-  assert.ok(created);
-  assert.equal((await app.inject({ url: '/admin-settings/users', headers: headers(1) })).statusCode, 200);
-
+  assert.equal(body(create).status, 'DONE', create.body);
+  const created = (body(create).body as { invite: { id: number } }).invite;
   const database = new DatabaseSync(databasePath);
   database.prepare('UPDATE board_authorinvite SET is_active = 0, claimed_by_id = 3, claimed_date = ? WHERE id = ?').run('2025-03-01 00:00:00', created.id);
   database.close();
-  const deletion = await app.inject({
-    method: 'POST', url: `/admin-settings/users/${created.id}/delete`, headers: formHeaders(1),
-    payload: new URLSearchParams([['csrfmiddlewaretoken', csrfToken]]).toString(),
-  });
-  assert.equal(deletion.statusCode, 200);
-  assert.match(deletion.body, /사용된 초대 링크는 삭제할 수 없습니다/);
+  const deletion = await app.inject({ method: 'DELETE', url: `/v1/admin/author-invites/${created.id}`, headers: headers(1) });
+  assert.equal(body(deletion).errorCode, 'error:RJ');
   assert.equal(Number((await prisma.$queryRaw<Array<{ total: number | bigint }>>`SELECT COUNT(*) AS total FROM board_authorinvite WHERE id = ${created.id}`)[0]?.total), 1);
 });
 
@@ -648,21 +619,7 @@ test('provides staff-only static page CRUD and sanitizes persisted page HTML', a
   const deleted = await app.inject({ method: 'DELETE', url: `/v1/static-pages/${pageId}`, headers: headers(1) });
   assert.equal((body(deleted).body as Record<string, unknown>).message, 'Static page deleted.');
 
-  const form = await app.inject({ url: '/admin-settings/static-pages/create', headers: headers(1) });
-  assert.equal(form.statusCode, 200);
-  assert.match(form.body, /name="content"/);
-  const savedForm = await app.inject({
-    method: 'POST', url: '/admin-settings/static-pages/create', headers: formHeaders(1),
-    payload: new URLSearchParams([
-      ['csrfmiddlewaretoken', csrfToken], ['title', 'About'], ['slug', 'about'], ['content', '<p>About us</p>'],
-      ['meta_description', 'About'], ['is_published', 'true'], ['show_in_footer', 'true'], ['order', '1'],
-    ]).toString(),
-  });
-  assert.equal(savedForm.statusCode, 303, savedForm.body);
-  const pagesPage = await app.inject({ url: '/admin-settings/static-pages', headers: headers(1) });
-  assert.equal(pagesPage.statusCode, 200);
-  assert.match(pagesPage.body, /About/);
-  assert.equal((await app.inject({ url: '/admin-settings/static-pages', headers: headers(3) })).statusCode, 404);
+  assert.equal(body(await app.inject({ url: '/v1/static-pages', headers: headers(3) })).errorCode, 'error:RJ');
 });
 
 test('manages global notices and sanitized banners through APIs and staff forms', async () => {
@@ -684,14 +641,6 @@ test('manages global notices and sanitized banners through APIs and staff forms'
   assert.equal((body(noticeUpdate).body as Record<string, unknown>).url, '/status');
   assert.equal((body(noticeUpdate).body as Record<string, unknown>).is_active, false);
   assert.equal(((body(await app.inject({ url: '/v1/global-notices', headers: headers(1) })).body as { notices: unknown[] }).notices.length), 1);
-  const noticePage = await app.inject({ url: '/admin-settings/global-notices', headers: headers(1) });
-  assert.match(noticePage.body, /Maintenance/);
-  const noticeForm = await app.inject({
-    method: 'POST', url: `/admin-settings/global-notices/${noticeId}/delete`, headers: formHeaders(1),
-    payload: new URLSearchParams([['csrfmiddlewaretoken', csrfToken]]).toString(),
-  });
-  assert.equal(noticeForm.statusCode, 303);
-
   const invalidPosition = await app.inject({
     method: 'POST', url: '/v1/global-banners', headers: jsonHeaders(1),
     payload: JSON.stringify({ title: 'Invalid', content_html: '<p>Banner</p>', banner_type: 'horizontal', position: 'left' }),
@@ -709,9 +658,6 @@ test('manages global notices and sanitized banners through APIs and staff forms'
   const bannerId = Number(banner.id);
   assert.equal(banner.created_by, 'site-editor');
   assert.match(String(banner.content_html), /onclick/, 'global banners keep their source as in 3.x');
-  const bannerPage = await app.inject({ url: '/admin-settings/global-banners', headers: headers(1) });
-  assert.match(bannerPage.body, /Welcome/);
-  assert.doesNotMatch(bannerPage.body, /<p onclick|<script>alert/);
   const order = await app.inject({
     method: 'PUT', url: '/v1/global-banners/order', headers: jsonHeaders(1),
     payload: JSON.stringify({ order: [[bannerId, 0], ['999999', 2], ['broken']] }),
@@ -816,60 +762,17 @@ test('author notices and banners are editor-only, sanitized, and scoped to their
   assert.deepEqual(body(deleted).body, { message: 'Banner deleted.' });
 });
 
-test('renders owner-only author notice and banner forms with reorder controls', async () => {
-  const notice = await app.inject({
-    method: 'POST', url: '/settings/notices', headers: formHeaders(1),
-    payload: new URLSearchParams([
-      ['csrfmiddlewaretoken', csrfToken], ['title', 'SSR author notice'], ['url', '/my-status'], ['is_active', 'true'],
-    ]).toString(),
-  });
-  assert.equal(notice.statusCode, 303, notice.body);
-  const noticePage = await app.inject({ url: '/settings/notices', headers: headers(1) });
-  assert.equal(noticePage.statusCode, 200);
-  assert.match(noticePage.body, /SSR author notice/);
-  assert.match(noticePage.body, /action="\/settings\/notices\/\d+\/delete"/);
-  assert.equal((await app.inject({ url: '/settings/notices', headers: headers(3) })).statusCode, 404);
-  const privateNoticePage = await app.inject({ url: '/settings/notices', headers: headers(2) });
-  assert.equal(privateNoticePage.statusCode, 200);
-  assert.doesNotMatch(privateNoticePage.body, /SSR author notice/);
-
+test('keeps author banners from being deleted by another editor', async () => {
   const banner = await app.inject({
-    method: 'POST', url: '/settings/banners', headers: formHeaders(1),
-    payload: new URLSearchParams([
-      ['csrfmiddlewaretoken', csrfToken], ['title', 'SSR author banner'],
-      ['content_html', '<p onclick="bad()">Safe text</p><script>bad()</script>'],
-      ['banner_type', 'horizontal'], ['position', 'top'], ['order', '7'], ['is_active', 'true'],
-    ]).toString(),
+    method: 'POST', url: '/v1/banners', headers: jsonHeaders(1),
+    payload: JSON.stringify({ title: 'Owned banner', content_html: '<p>Safe text</p>', banner_type: 'horizontal', position: 'top', order: 7, is_active: true }),
   });
-  assert.equal(banner.statusCode, 303, banner.body);
-  const bannerRows = await prisma.$queryRaw<Array<{ id: number; contentHtml: string }>>`
-    SELECT id, content_html AS contentHtml FROM board_sitebanner WHERE scope = 'user' AND user_id = 1
-  `;
-  const bannerId = Number(bannerRows[0]?.id);
-  assert.doesNotMatch(String(bannerRows[0]?.contentHtml), /script|onclick|bad\(\)/i);
-  const bannerPage = await app.inject({ url: '/settings/banners', headers: headers(1) });
-  assert.equal(bannerPage.statusCode, 200);
-  assert.match(bannerPage.body, /SSR author banner/);
-  assert.match(bannerPage.body, /action="\/settings\/banners\/order"/);
-  assert.match(bannerPage.body, new RegExp(`name="order_${bannerId}"`));
-  assert.match(bannerPage.body, /배너 순서 저장/);
-  assert.doesNotMatch(bannerPage.body, /onclick|bad\(\)/i);
-
-  const reordered = await app.inject({
-    method: 'POST', url: '/settings/banners/order', headers: formHeaders(1),
-    payload: new URLSearchParams([['csrfmiddlewaretoken', csrfToken], [`order_${bannerId}`, '1']]).toString(),
-  });
-  assert.equal(reordered.statusCode, 303, reordered.body);
-  const storedOrder = await prisma.$queryRaw<Array<{ order: number }>>`
-    SELECT "order" AS "order" FROM board_sitebanner WHERE id = ${bannerId} AND scope = 'user' AND user_id = 1
-  `;
-  assert.equal(storedOrder[0]?.order, 1);
-  const crossDelete = await app.inject({
-    method: 'POST', url: `/settings/banners/${bannerId}/delete`, headers: formHeaders(2),
-    payload: new URLSearchParams([['csrfmiddlewaretoken', csrfToken]]).toString(),
-  });
-  assert.equal(crossDelete.statusCode, 200);
-  assert.match(crossDelete.body, /배너를 찾을 수 없습니다/);
+  assert.equal(body(banner).status, 'DONE', banner.body);
+  const bannerId = Number((body(banner).body as Record<string, unknown>).id);
+  const crossDelete = await app.inject({ method: 'DELETE', url: `/v1/banners/${bannerId}`, headers: headers(2) });
+  assert.notEqual(crossDelete.statusCode === 200 ? body(crossDelete).status : 'REFUSED', 'DONE');
+  const [stored] = await prisma.$queryRaw<Array<{ total: number | bigint }>>`SELECT COUNT(*) AS total FROM board_sitebanner WHERE id = ${bannerId} AND user_id = 1`;
+  assert.equal(Number(stored?.total), 1);
 });
 
 test('gates Telegram integration settings to active superusers and keeps bot secrets hidden', async () => {
@@ -893,37 +796,22 @@ test('gates Telegram integration settings to active superusers and keeps bot sec
   });
   assert.equal(telegramCalls.length, 0);
 
-  const page = await app.inject({ url: '/admin-settings/integrations', headers: headers(2) });
-  assert.equal(page.statusCode, 200, page.body);
-  assert.match(page.body, /name="telegram_bot_token"/);
-  assert.match(page.body, /설정되지 않음/);
-  assert.doesNotMatch(page.body, /telegram-token|botToken/);
-  assert.equal((await app.inject({ url: '/admin-settings/integrations', headers: headers(1) })).statusCode, 404);
+  assert.equal(body(await app.inject({ url: '/v1/integration-settings', headers: headers(1) })).errorCode, 'error:RJ');
   const noCsrf = await app.inject({
     method: 'PUT', url: '/v1/integration-settings', headers: jsonHeaders(2, false),
     payload: JSON.stringify({ telegram_enabled: true, telegram_bot_token: '123456:valid-token' }),
   });
   assert.equal(noCsrf.statusCode, 403);
-  const noCsrfForm = await app.inject({
-    method: 'POST', url: '/admin-settings/integrations',
-    headers: { ...headers(2, false), 'content-type': 'application/x-www-form-urlencoded' },
-    payload: new URLSearchParams([['telegram_enabled', 'true'], ['telegram_bot_token', '123456:blocked-token']]).toString(),
-  });
-  assert.equal(noCsrfForm.statusCode, 403);
 
   configureTelegram({ getMe: { ok: true, result: { username: 'page_bot' } }, setWebhook: { ok: true } });
-  const savedForm = await app.inject({
-    method: 'POST', url: '/admin-settings/integrations', headers: formHeaders(2),
-    payload: new URLSearchParams([
-      ['csrfmiddlewaretoken', csrfToken], ['telegram_enabled', 'true'],
-      ['telegram_bot_username', ''], ['telegram_bot_token', '123456:page-token'],
-    ]).toString(),
+  const saved = await app.inject({
+    method: 'PUT', url: '/v1/integration-settings', headers: jsonHeaders(2),
+    payload: JSON.stringify({ telegram_enabled: true, telegram_bot_username: '', telegram_bot_token: '123456:page-token' }),
   });
-  assert.equal(savedForm.statusCode, 303, savedForm.body);
-  const updatedPage = await app.inject({ url: '/admin-settings/integrations', headers: headers(2) });
-  assert.match(updatedPage.body, /page_bot/);
-  assert.match(updatedPage.body, /기존 토큰을 유지하려면 비워 두세요./);
-  assert.doesNotMatch(updatedPage.body, /page-token/);
+  assert.equal(body(saved).status, 'DONE', saved.body);
+  const updated = await app.inject({ url: '/v1/integration-settings', headers: headers(2) });
+  assert.match(updated.body, /page_bot/);
+  assert.doesNotMatch(updated.body, /page-token/);
 });
 
 test('validates and encrypts Telegram tokens, confirms bots, and registers HMAC webhooks after saving', async () => {
@@ -1130,13 +1018,8 @@ test('binds session cleanup confirmation to its scope and deletes only the previ
   assert.deepEqual(legacy.map((row) => row.key), ['legacy-active']);
 });
 
-test('previews and confirms expired log cleanup, with a progressive superuser utility page', async () => {
-  const page = await app.inject({ url: '/admin-settings/utilities', headers: headers(2) });
-  assert.equal(page.statusCode, 200, page.body);
-  assert.match(page.body, /미사용 태그/);
-  assert.match(page.body, /만료된 세션/);
-  assert.match(page.body, /보존 기간이 지난 로그/);
-  assert.equal((await app.inject({ url: '/admin-settings/utilities', headers: headers(1) })).statusCode, 404);
+test('previews and confirms expired log cleanup for superusers only', async () => {
+  assert.equal(body(await app.inject({ url: '/v1/utilities/stats', headers: headers(1) })).errorCode, 'error:RJ');
 
   const database = new DatabaseSync(databasePath);
   database.prepare(`
@@ -1147,30 +1030,22 @@ test('previews and confirms expired log cleanup, with a progressive superuser ut
   database.close();
 
   const preview = await app.inject({
-    method: 'POST', url: '/admin-settings/utilities', headers: formHeaders(2),
-    payload: new URLSearchParams([['csrfmiddlewaretoken', csrfToken], ['action', 'clean_logs'], ['dry_run', 'true']]).toString(),
+    method: 'POST', url: '/v1/utilities/clean-logs', headers: jsonHeaders(2), payload: JSON.stringify({ dry_run: true }),
   });
-  assert.equal(preview.statusCode, 200, preview.body);
-  assert.match(preview.body, /정리 미리보기/);
-  assert.doesNotMatch(preview.body, /name="confirmationToken"/);
-  const confirmation = preview.body.match(/name="confirmation_token" value="([^"]+)"/)?.[1];
+  assert.equal(body(preview).status, 'DONE', preview.body);
+  const confirmation = (body(preview).body as { confirmationToken?: string }).confirmationToken;
   assert.ok(confirmation);
   assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM django_admin_log WHERE change_message = 'old'`)[0]?.count), 1);
 
   const execute = await app.inject({
-    method: 'POST', url: '/admin-settings/utilities', headers: formHeaders(2),
-    payload: new URLSearchParams([
-      ['csrfmiddlewaretoken', csrfToken], ['action', 'clean_logs'], ['dry_run', 'false'], ['confirmation_token', confirmation],
-    ]).toString(),
+    method: 'POST', url: '/v1/utilities/clean-logs', headers: jsonHeaders(2),
+    payload: JSON.stringify({ dry_run: false, confirmation_token: confirmation }),
   });
-  assert.equal(execute.statusCode, 200, execute.body);
-  assert.match(execute.body, /정리 결과/);
+  assert.equal(body(execute).status, 'DONE', execute.body);
   assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM django_admin_log WHERE change_message = 'old'`)[0]?.count), 0);
   assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM board_developerrequestlog`)[0]?.count), 0);
   const noCsrf = await app.inject({
-    method: 'POST', url: '/admin-settings/utilities',
-    headers: { ...headers(2, false), 'content-type': 'application/x-www-form-urlencoded' },
-    payload: new URLSearchParams([['action', 'clean_tags'], ['dry_run', 'true']]).toString(),
+    method: 'POST', url: '/v1/utilities/clean-tags', headers: jsonHeaders(2, false), payload: JSON.stringify({ dry_run: true }),
   });
   assert.equal(noCsrf.statusCode, 403);
 });
@@ -1303,15 +1178,10 @@ test('lists users with filters and safely updates only reader/editor roles', asy
   assert.equal(readerList.pagination.page, 1);
   assert.equal(readerList.pagination.page_size, 100);
 
-  const rolePage = await app.inject({ url: '/admin-settings/users', headers: headers(1) });
-  assert.match(rolePage.body, /회원 권한/);
-  assert.match(rolePage.body, /운영 권한은 별도로 관리합니다/);
-  assert.match(rolePage.body, /name="role"/);
-  const formRole = await app.inject({
-    method: 'POST', url: '/admin-settings/users/3/role', headers: formHeaders(1),
-    payload: new URLSearchParams([['csrfmiddlewaretoken', csrfToken], ['role', 'EDITOR']]).toString(),
+  const roleUpdate = await app.inject({
+    method: 'PATCH', url: '/v1/admin/users/3/role', headers: jsonHeaders(1), payload: JSON.stringify({ role: 'EDITOR' }),
   });
-  assert.equal(formRole.statusCode, 303, formRole.body);
+  assert.equal(body(roleUpdate).status, 'DONE', roleUpdate.body);
   const [profile] = await prisma.$queryRaw<Array<{ role: string }>>`SELECT role FROM board_profile WHERE user_id = 3`;
   assert.equal(profile?.role, 'EDITOR');
   const [config] = await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM board_config WHERE user_id = 3`;

@@ -3,7 +3,7 @@ import sharp from 'sharp';
 import { createHash, randomUUID } from 'node:crypto';
 import { chmod, mkdir, open, realpath, rename, rm, unlink } from 'node:fs/promises';
 import { relative, resolve, sep } from 'node:path';
-import { type PersonalSettingsUser } from '../pages.js';
+import { type PersonalSettingsUser } from '../types.js';
 import { mediaUrl } from './profile.js';
 
 export const MAX_PROFILE_IMAGE_BYTES = 10 * 1024 * 1024;

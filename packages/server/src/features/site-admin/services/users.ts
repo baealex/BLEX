@@ -1,9 +1,8 @@
 import { Prisma, type PrismaClient } from '@prisma/client';
-import type { FastifyReply, FastifyRequest } from 'fastify';
+import type { FastifyRequest } from 'fastify';
 import { randomBytes } from 'node:crypto';
-import { adminSettingsCapabilities, type UserAccess } from '../access.js';
-import { renderAdminInvites, type AdminManagedUser, type AdminUserList, type AdminInvite, type AdminSettingsUser } from '../pages.js';
-import { ApiResult, booleanValue, csrfToken, djangoTimestamp, isoDate, pageNumber, positiveInteger } from '../shared.js';
+import { type AdminManagedUser, type AdminUserList, type AdminInvite } from '../types.js';
+import { ApiResult, booleanValue, djangoTimestamp, isoDate, positiveInteger } from '../shared.js';
 
 interface InviteRow {
   id: number;
@@ -308,24 +307,3 @@ export async function deleteInvite(db: PrismaClient, inviteId: number): Promise<
   });
 }
 
-export async function pageInvites(
-  request: FastifyRequest,
-  reply: FastifyReply,
-  db: PrismaClient,
-  user: AdminSettingsUser,
-  access: UserAccess,
-  error?: string,
-) {
-  const params = userListQuery(request);
-  return reply.type('text/html; charset=utf-8').send(renderAdminInvites({
-    user,
-    capabilities: adminSettingsCapabilities(access),
-    invites: await readInvites(db),
-    managedUsers: await readManagedUsers(db, request),
-    query: params.get('q') ?? '',
-    roleFilter: userRoleFilter(params.get('role')),
-    csrfToken: csrfToken(request),
-    saved: !error && pageNumber(request).get('saved') === '1',
-    error,
-  }));
-}

@@ -1,11 +1,9 @@
 import { Prisma, type PrismaClient } from '@prisma/client';
-import type { FastifyReply, FastifyRequest } from 'fastify';
 import { realpath, stat } from 'node:fs/promises';
 import { isAbsolute, relative, resolve, sep } from 'node:path';
-import { adminSettingsCapabilities, type UserAccess } from '../access.js';
-import { renderAdminSeoSettings, renderAdminSiteSettings, type AdminSettingsUser, type AdminSiteSettings } from '../pages.js';
+import { type AdminSiteSettings } from '../types.js';
 import { ICON_PNG_SIZES } from './brand-assets.js';
-import { AdminSettingsOptions, ApiResult, Body, booleanValue, csrfToken, djangoTimestamp, formBoolean, isRecord, isoDate, pageNumber, recordAudit, stringValue } from '../shared.js';
+import { AdminSettingsOptions, ApiResult, Body, booleanValue, djangoTimestamp, isRecord, isoDate, recordAudit, stringValue } from '../shared.js';
 
 const SITE_DEFAULT_NAME = 'BLEX';
 
@@ -182,50 +180,3 @@ export function apiSitePayload(input: Body): Body {
   return input;
 }
 
-export function pageSitePayload(body: Body, onlyName: boolean): Body {
-  const result: Body = {};
-  if ('site_name' in body) result.site_name = stringValue(body.site_name);
-  if (!onlyName) {
-    result.seo_enabled = formBoolean(body.seo_enabled);
-    result.aeo_enabled = formBoolean(body.aeo_enabled);
-    result.robots_txt_extra_rules = stringValue(body.robots_txt_extra_rules);
-  }
-  if ('header_script' in body) result.header_script = stringValue(body.header_script);
-  if ('footer_script' in body) result.footer_script = stringValue(body.footer_script);
-  return result;
-}
-
-export async function pageSiteSettings(
-  request: FastifyRequest,
-  reply: FastifyReply,
-  db: PrismaClient,
-  options: AdminSettingsOptions,
-  user: AdminSettingsUser,
-  access: UserAccess,
-  error?: string,
-) {
-  const capabilities = adminSettingsCapabilities(access);
-  const settings = await serializeSiteSettings(await readSiteRow(db), access.superuser, options);
-  return reply.type('text/html; charset=utf-8').send(renderAdminSiteSettings({
-    user, capabilities, settings, csrfToken: csrfToken(request),
-    brandAssetsEnabled: Boolean(options.mediaRoot),
-    saved: !error && pageNumber(request).get('saved') === '1', error,
-  }));
-}
-
-export async function pageSeoSettings(
-  request: FastifyRequest,
-  reply: FastifyReply,
-  db: PrismaClient,
-  options: AdminSettingsOptions,
-  user: AdminSettingsUser,
-  access: UserAccess,
-  error?: string,
-) {
-  const capabilities = adminSettingsCapabilities(access);
-  const settings = await serializeSiteSettings(await readSiteRow(db), access.superuser, options);
-  return reply.type('text/html; charset=utf-8').send(renderAdminSeoSettings({
-    user, capabilities, settings, csrfToken: csrfToken(request),
-    saved: !error && pageNumber(request).get('saved') === '1', error,
-  }));
-}

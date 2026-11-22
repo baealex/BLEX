@@ -3,7 +3,7 @@ import sharp from 'sharp';
 import { createHash } from 'node:crypto';
 import { lstat, mkdir, readFile, realpath, stat, unlink, writeFile } from 'node:fs/promises';
 import { isAbsolute, relative, resolve, sep } from 'node:path';
-import { type AdminSiteSettings } from '../pages.js';
+import { type AdminSiteSettings } from '../types.js';
 import { SiteRow, ensureSiteSetting, parseManifest, readSiteRow, serializeSiteSettings } from './site-settings.js';
 import { AdminSettingsOptions, ApiResult, djangoTimestamp, isRecord, recordAudit } from '../shared.js';
 

@@ -1,9 +1,7 @@
 import { Prisma, type PrismaClient } from '@prisma/client';
-import type { FastifyReply, FastifyRequest } from 'fastify';
-import { adminSettingsCapabilities, type UserAccess } from '../access.js';
-import { renderAdminNotices, renderAuthorNotices, type AdminNotice, type AdminSettingsUser } from '../pages.js';
+import { type AdminNotice } from '../types.js';
 import { safeNavigationUrl } from './static-pages.js';
-import { ApiResult, Body, booleanValue, csrfToken, djangoTimestamp, formBoolean, isoDate, pageNumber, stringValue } from '../shared.js';
+import { ApiResult, Body, booleanValue, djangoTimestamp, isoDate, stringValue } from '../shared.js';
 
 interface NoticeRow {
   id: number;
@@ -56,10 +54,10 @@ export async function readNotice(
   return row ? serializeNotice(row) : null;
 }
 
-export function noticePayload(body: Body, form = false): Body {
+export function noticePayload(body: Body): Body {
   const result: Body = {};
   for (const field of ['title', 'url'] as const) if (field in body) result[field] = stringValue(body[field]);
-  if ('is_active' in body || form) result.is_active = form ? formBoolean(body.is_active) : body.is_active === true;
+  if ('is_active' in body) result.is_active = body.is_active === true;
   return result;
 }
 
@@ -111,36 +109,3 @@ export function noticeApi(notice: AdminNotice): Record<string, unknown> {
   };
 }
 
-export async function pageNotices(
-  request: FastifyRequest,
-  reply: FastifyReply,
-  db: PrismaClient,
-  user: AdminSettingsUser,
-  access: UserAccess,
-  error?: string,
-) {
-  return reply.type('text/html; charset=utf-8').send(renderAdminNotices({
-    user,
-    capabilities: adminSettingsCapabilities(access),
-    notices: await readNotices(db),
-    csrfToken: csrfToken(request),
-    saved: !error && pageNumber(request).get('saved') === '1',
-    error,
-  }));
-}
-
-export async function pageAuthorNotices(
-  request: FastifyRequest,
-  reply: FastifyReply,
-  db: PrismaClient,
-  user: AdminSettingsUser,
-  error?: string,
-) {
-  return reply.type('text/html; charset=utf-8').send(renderAuthorNotices({
-    user,
-    notices: await readNotices(db, 'user', user.id),
-    csrfToken: csrfToken(request),
-    saved: !error && pageNumber(request).get('saved') === '1',
-    error,
-  }));
-}

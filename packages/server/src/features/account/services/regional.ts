@@ -1,5 +1,5 @@
 import type { PrismaClient } from '@prisma/client';
-import { type RegionalPreferences } from '../pages.js';
+import { type RegionalPreferences } from '../types.js';
 import { Body, UpdateResult } from '../shared.js';
 
 type RegionalConfig = { language: string | null; timeZone: string };

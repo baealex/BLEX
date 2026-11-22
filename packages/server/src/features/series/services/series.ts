@@ -64,12 +64,6 @@ export async function readSeriesRows(db: PrismaClient, ownerId: number, countKin
   `, ownerId);
 }
 
-export function seriesListItem(row: Awaited<ReturnType<typeof readSeriesRows>>[number]): SeriesListItem {
-  return {
-    id: Number(row.id), url: row.url, name: row.name, order: Number(row.order), totalPosts: Number(row.totalPosts),
-  };
-}
-
 export async function readSeriesById(db: PrismaClient, ownerId: number, id: number): Promise<StoredSeries | null> {
   const rows = await db.$queryRaw<Array<{
     id: number; url: string; name: string; order: number | bigint; description: string;

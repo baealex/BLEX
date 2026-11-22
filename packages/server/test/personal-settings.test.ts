@@ -143,50 +143,13 @@ function legacyImagePath(username: string, kind: 'avatar' | 'cover', filename: s
   return `images/avatar/${prefix}/${username}/${kind === 'avatar' ? 'a' : 'c'}${filename}`;
 }
 
-test('serves only the implemented personal settings pages and protects them by login', async () => {
-  const anonymous = await app.inject('/settings/account');
-  assert.equal(anonymous.statusCode, 302);
-  assert.equal(anonymous.headers.location, '/login?next=%2Fsettings%2Faccount');
-
-  const index = await app.inject({ url: '/settings/', headers: headers(1) });
-  assert.equal(index.statusCode, 302);
-  assert.equal(index.headers.location, '/settings/notify');
-  const staffIndex = await app.inject({ url: '/settings/', headers: headers(2) });
-  assert.equal(staffIndex.statusCode, 302);
-  assert.equal(staffIndex.headers.location, '/settings/notify');
-
-  const accountPage = await app.inject({ url: '/settings/account', headers: headers(1) });
-  assert.equal(accountPage.statusCode, 200);
-  assert.match(accountPage.body, /href="\/settings\/profile"/);
-  assert.match(accountPage.body, /href="\/settings\/social-links"/);
-  assert.match(accountPage.body, /href="\/settings\/security"/);
-  assert.match(accountPage.body, /href="\/settings\/developer-api"/);
-  assert.doesNotMatch(accountPage.body, /href="\/settings\/(?:password|delete|email|mfa)"/);
-  assert.match(accountPage.body, /name="csrfmiddlewaretoken" value="ssss/);
-  assert.match(accountPage.body, /name="language"/);
-  assert.match(accountPage.body, /name="time_zone"/);
-  assert.match(accountPage.body, /Writer Name/);
-  assert.match(accountPage.body, /2024-03-03/);
-
-  const profilePage = await app.inject({ url: '/settings/profile', headers: headers(1) });
-  assert.equal(profilePage.statusCode, 200);
-  assert.match(profilePage.body, /프로필 사진/);
-  assert.doesNotMatch(profilePage.body, /아바타/);
-  assert.match(profilePage.body, /href="\/@writer\/about\/edit"/);
-  assert.match(profilePage.body, /name="bio"/);
-  assert.match(profilePage.body, /name="homepage"/);
-
+test('protects personal settings APIs by login', async () => {
+  for (const url of ['/v1/setting/account', '/v1/setting/profile']) {
+    assert.equal((await app.inject(url)).json().errorCode, 'error:NL');
+  }
   const profileApi = await app.inject({ url: '/v1/setting/profile', headers: headers(1) });
   assert.equal(profileApi.json().body.avatar, 'https://blog.example/resources/media/writer.png');
   assert.equal(profileApi.json().body.cover, null);
-
-  const socialPage = await app.inject({ url: '/settings/social-links', headers: headers(1) });
-  assert.equal(socialPage.statusCode, 200);
-  assert.match(socialPage.body, /name="intent" value="create"/);
-  assert.match(socialPage.body, /name="intent" value="delete"/);
-
-  const staffAccount = await app.inject({ url: '/settings/account', headers: headers(2) });
-  assert.match(staffAccount.body, /href="\/admin-settings\/"/);
 });
 
 test('reads and updates account name and regional preferences using the legacy envelopes', async () => {
@@ -236,20 +199,13 @@ test('reads and updates account name and regional preferences using the legacy e
   });
   assert.equal(denied.statusCode, 403);
 
-  const formName = await app.inject({
-    method: 'POST', url: '/settings/account', headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
-    payload: form([['csrfmiddlewaretoken', csrfToken], ['intent', 'name'], ['name', 'Form Name']]),
+  const browserLanguage = await app.inject({
+    method: 'PUT', url: '/v1/setting/regional-preferences', headers: { ...headers(1), 'content-type': 'application/json' },
+    payload: { language: null, time_zone: 'Asia/Seoul' },
   });
-  assert.equal(formName.statusCode, 303);
-  assert.equal(formName.headers.location, '/settings/account?saved=1');
-
-  const formRegional = await app.inject({
-    method: 'POST', url: '/settings/account', headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
-    payload: form([['csrfmiddlewaretoken', csrfToken], ['intent', 'regional'], ['language', 'browser'], ['time_zone', 'Asia/Seoul']]),
-  });
-  assert.equal(formRegional.statusCode, 303);
+  assert.deepEqual(browserLanguage.json(), { status: 'DONE', body: {} });
   const pageRegionalRead = await app.inject({ url: '/v1/setting/account', headers: headers(1) });
-  assert.equal(pageRegionalRead.json().body.name, 'Form Name');
+  assert.equal(pageRegionalRead.json().body.name, 'Updated Name');
   assert.equal(pageRegionalRead.json().body.regionalPreferences.language, null);
   assert.equal(pageRegionalRead.json().body.regionalPreferences.timeZone, 'Asia/Seoul');
 });
@@ -265,7 +221,7 @@ test('delegates password-bearing account changes to the injected reauthenticatio
   assert.deepEqual(user, { username: 'writer', first_name: 'Writer Name' });
 });
 
-test('updates profile safely through the API and progressive HTML form', async () => {
+test('updates profile safely through the API', async () => {
   const unsafe = await app.inject({
     method: 'PUT', url: '/v1/setting/profile', headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
     payload: form([['bio', 'Should not persist'], ['homepage', 'javascript:alert(1)']]),
@@ -280,18 +236,9 @@ test('updates profile safely through the API and progressive HTML form', async (
   });
   assert.deepEqual(updated.json(), { status: 'DONE', body: {} });
 
-  const htmlUpdate = await app.inject({
-    method: 'POST', url: '/settings/profile', headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
-    payload: form([['csrfmiddlewaretoken', csrfToken], ['bio', 'Form bio'], ['homepage', 'https://form.example']]),
-  });
-  assert.equal(htmlUpdate.statusCode, 303);
-  assert.equal(htmlUpdate.headers.location, '/settings/profile?saved=1');
   const read = await app.inject({ url: '/v1/setting/profile', headers: headers(1) });
-  assert.equal(read.json().body.bio, 'Form bio');
-  assert.equal(read.json().body.homepage, 'https://form.example');
-
-  const savedPage = await app.inject({ url: '/settings/profile?saved=1', headers: headers(1) });
-  assert.match(savedPage.body, /변경 사항을 저장했습니다/);
+  assert.equal(read.json().body.bio, 'Updated bio');
+  assert.equal(read.json().body.homepage, 'https://example.test/profile');
 });
 
 test('applies legacy social-link create, update, order and delete without crossing users', async () => {
@@ -330,11 +277,11 @@ test('applies legacy social-link create, update, order and delete without crossi
   });
   assert.equal(badSeparator.json().errorCode, 'error:VA');
 
-  const formDelete = await app.inject({
-    method: 'POST', url: '/settings/social-links', headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
-    payload: form([['csrfmiddlewaretoken', csrfToken], ['intent', 'delete'], ['id', '1']]),
+  const removed = await app.inject({
+    method: 'PUT', url: '/v1/setting/social', headers: { ...headers(1), 'content-type': 'application/json' },
+    payload: { update: '', create: '', delete: '1' },
   });
-  assert.equal(formDelete.statusCode, 303);
+  assert.equal(removed.json().status, 'DONE', removed.body);
   const afterDelete = await app.inject({ url: '/v1/setting/profile', headers: headers(1) });
   assert.deepEqual(afterDelete.json().body.social, [{ id: 4, name: 'threads', value: 'https://threads.example/writer', order: 1 }]);
 });
@@ -363,17 +310,6 @@ test('stores bounded profile images atomically under the owner media directory',
     assert.equal(metadata.width, 80);
     assert.equal(metadata.height, 40);
   }
-
-  const formUpload = multipart([
-    { name: 'csrfmiddlewaretoken', value: csrfToken },
-    { name: 'return_to', value: '/settings/profile?saved=avatar' },
-    { name: 'avatar', filename: 'avatar.png', contentType: 'image/png', value: image },
-  ]);
-  const progressiveForm = await app.inject({
-    method: 'POST', url: '/v1/setting/avatar', headers: { ...headers(1), 'content-type': formUpload.contentType }, payload: formUpload.payload,
-  });
-  assert.equal(progressiveForm.statusCode, 303);
-  assert.equal(progressiveForm.headers.location, '/settings/profile?saved=avatar');
 
   const filesBeforeFailedSave = await readdir(join(mediaRoot, ...legacyImagePath('writer', 'avatar', 'probe.png').split('/').slice(0, -1)));
   await db.$executeRaw`DELETE FROM board_profile WHERE user_id = 1`;
@@ -430,12 +366,8 @@ test('removes only scoped cover files and leaves symlink targets untouched', asy
 
   await writeFile(coverFile, 'synthetic cover', { mode: 0o600 });
   await db.$executeRaw`UPDATE board_profile SET cover = ${coverPath} WHERE user_id = 1`;
-  const formDelete = await app.inject({
-    method: 'POST', url: '/settings/profile/cover/delete', headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
-    payload: form([['csrfmiddlewaretoken', csrfToken]]),
-  });
-  assert.equal(formDelete.statusCode, 303);
-  assert.equal(formDelete.headers.location, '/settings/profile?saved=cover');
+  const removedAgain = await app.inject({ method: 'DELETE', url: '/v1/setting/cover', headers: headers(1) });
+  assert.deepEqual(removedAgain.json(), { status: 'DONE', body: { url: null } });
   await assert.rejects(readFile(coverFile), { code: 'ENOENT' });
 
   const outsideDirectory = join(directory, 'outside-profile-media');

@@ -1,12 +1,8 @@
 import formBody from '@fastify/formbody';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
-import { authCookieOptions, csrfCookie, requestCookies } from '../../platform/cookies.js';
-import { csrfPattern, formInput } from '../../platform/csrf.js';
-import { createToken } from '../auth/session.js';
-import { SiteIcon } from '../../appearance/shell.js';
-import { renderSettingsShell } from '../../application/settings-shell.js';
-import { notificationParams, notificationPreferences, notificationText, type NotificationPreference } from './model.js';
+import { formInput } from '../../platform/csrf.js';
+import { notificationParams, notificationPreferences, notificationText } from './model.js';
 import { done, failure } from '../../platform/response.js';
 
 interface NotificationUser {
@@ -22,13 +18,6 @@ interface NotificationOptions {
   validateCsrf: (request: FastifyRequest) => boolean;
   siteUrl: URL;
 }
-
-const pagePath = '/settings/notify';
-const pageSize = 50;
-const labels: Record<NotificationPreference, string> = {
-  NOTIFY_POSTS_LIKE: '내 글에 좋아요', NOTIFY_POSTS_COMMENT: '내 글에 댓글 또는 답글',
-  NOTIFY_COMMENT_LIKE: '내 댓글에 좋아요', NOTIFY_MENTION: '댓글에서 나를 멘션',
-};
 
 function relativeTime(stored: string, language: string) {
   const date = new Date(stored.replace(' ', 'T') + 'Z');
@@ -76,21 +65,12 @@ async function readPreferences(db: PrismaClient, user: NotificationUser) {
   });
 }
 
-async function canUseTelegramIntegration(db: PrismaClient): Promise<boolean> {
-  const [row] = await db.$queryRaw<Array<{ enabled: number | bigint }>>`
-    SELECT CASE WHEN telegram_enabled = 1 AND TRIM(telegram_bot_username) <> '' AND TRIM(telegram_bot_token) <> ''
-                THEN 1 ELSE 0 END AS enabled
-      FROM board_integrationsetting WHERE id = 1 LIMIT 1
-  `;
-  return Boolean(row && Number(row.enabled));
-}
-
-async function savePreferences(db: PrismaClient, user: NotificationUser, input: Record<string, unknown>, page = false) {
+async function savePreferences(db: PrismaClient, user: NotificationUser, input: Record<string, unknown>) {
   const timestamp = new Date().toISOString().slice(0, -1).replace('T', ' ');
   await db.$transaction(async (tx) => {
     for (const name of visiblePreferences(user)) {
       const value = input[name];
-      if (!page && (value === null || value === undefined || value === '')) continue;
+      if (value === null || value === undefined || value === '') continue;
       const normalized = value === true || value === 'true' ? 'true' : 'false';
       const updated = await tx.$executeRaw`
         UPDATE board_userconfigmeta SET value = ${normalized} WHERE user_id = ${user.id} AND name = ${name}
@@ -107,18 +87,6 @@ function markRead(db: PrismaClient, userId: number, input: unknown) {
   const id = typeof input === 'string' && /^\d+$/.test(input) ? Number(input) : input;
   if (typeof id !== 'number' || !Number.isSafeInteger(id) || id < 1) return Promise.resolve(0);
   return db.$executeRaw`UPDATE board_notify SET has_read = 1 WHERE id = ${id} AND user_id = ${userId}`;
-}
-
-function notificationUrl(value: string, base: URL) {
-  if (!/^(\/[^/]|\/$|https?:\/\/)/i.test(value) || value.includes('\\')) return '';
-  const url = URL.parse(value, base);
-  return url && !url.username && !url.password && ['http:', 'https:'].includes(url.protocol) ? url.href : '';
-}
-
-function pageNumber(request: FastifyRequest) {
-  const { page } = request.query as { page?: string };
-  const number = typeof page === 'string' && /^\d+$/.test(page) ? Number(page) : 1;
-  return Math.max(1, Math.min(100_000, number));
 }
 
 export function registerNotifications(app: FastifyInstance, db: PrismaClient, options: NotificationOptions) {
@@ -153,80 +121,6 @@ export function registerNotifications(app: FastifyInstance, db: PrismaClient, op
       if (!user) return failure('NL');
       if (!options.validateCsrf(request)) return reply.code(403).send(failure('RJ'));
       return (await markRead(db, user.id, formInput(request).id)) ? done() : failure('NF', '알림을 찾을 수 없습니다.');
-    });
-    routes.get(pagePath, async (request, reply) => {
-      const user = await options.currentUser(request);
-      if (!user) return reply.redirect(`/login?${new URLSearchParams({ next: pagePath })}`, 302);
-      const page = pageNumber(request);
-      const items = await notificationList(db, user.id, pageSize + 1, (page - 1) * pageSize);
-      const preferences = await readPreferences(db, user);
-      const telegramAvailable = await canUseTelegramIntegration(db);
-      const previous = requestCookies(request)[csrfCookie] ?? '';
-      const csrf = csrfPattern.test(previous) ? previous : createToken();
-      if (previous !== csrf) reply.setCookie(csrfCookie, csrf, authCookieOptions(options.siteUrl));
-      const content = <>
-        {telegramAvailable && <a className="settings-card telegram-prompt" href="/settings/integration">
-          <span className="settings-card-mark"><SiteIcon name="settings" className="h-5 w-5" /></span>
-          <span><strong>{user.hasConnectedTelegram ? '텔레그램 알림 관리' : '텔레그램 연결'}</strong>
-            <span>새 글과 중요한 알림을 텔레그램에서도 받아보세요.</span></span>
-          <SiteIcon name="chevron-down" className="h-4 w-4 shrink-0 text-content-hint" />
-        </a>}
-        {items.length ? <ul className="notification-list" aria-label="받은 알림">
-          {items.slice(0, pageSize).map((item) => {
-            const href = notificationUrl(item.url, options.siteUrl);
-            return <li key={item.id} className={`notification-item${item.isRead ? '' : ' unread'}`}>
-              <div className="notification-copy">
-                {href ? <a className="notification-link" href={href}>{item.content}</a> : <span>{item.content}</span>}
-                <div className="notification-meta"><time>{item.createdDate}</time>
-                  {!item.isRead && <span className="notification-new">새 알림</span>}
-                </div>
-              </div>
-              {!item.isRead && <form className="notification-read-form" method="post" action={pagePath}>
-                <input type="hidden" name="csrfmiddlewaretoken" value={csrf} />
-                <input type="hidden" name="id" value={item.id} />
-                <button type="submit">읽음 처리</button>
-              </form>}
-            </li>;
-          })}
-        </ul> : <section className="panel flex flex-col items-center gap-3 py-12 text-center" role="status">
-          <span className="settings-card-mark"><SiteIcon name="bell" className="h-5 w-5" /></span>
-          <p className="m-0 text-sm text-content-secondary">알림이 없습니다.</p>
-        </section>}
-        {(page > 1 || items.length > pageSize) && <nav className="pagination" aria-label="알림 페이지">
-          {page > 1 ? <a href={`${pagePath}?page=${page - 1}`}>← 이전 알림</a> : <span />}
-          {items.length > pageSize && <a href={`${pagePath}?page=${page + 1}`}>다음 알림 →</a>}
-        </nav>}
-      </>;
-      const headerAction = <details className="notification-config">
-        <summary><SiteIcon name="settings" className="h-4 w-4" /> 알림 설정</summary>
-        <div className="notification-config-panel">
-          <form method="post" action={pagePath}>
-            <input type="hidden" name="csrfmiddlewaretoken" value={csrf} />
-            <input type="hidden" name="intent" value="preferences" />
-            <h2 className="mb-2 text-sm font-semibold text-content">알림 받을 항목</h2>
-            {preferences.map(({ name, value }) => <label className="notification-option" key={name}>
-              <span>{labels[name]}</span>
-              <input type="checkbox" name={name} value="true" defaultChecked={Boolean(value)} />
-            </label>)}
-            <div className="actions"><button type="submit">저장</button></div>
-          </form>
-        </div>
-      </details>;
-      const html = renderSettingsShell({
-        mode: 'personal', title: '알림', currentPath: pagePath,
-        user: { username: user.username, hasEditorRole: user.hasEditorRole, isStaff: user.isStaff, unreadCount: user.notifyCount },
-        csrfToken: csrf, content, headerAction, canUseTelegramIntegration: telegramAvailable,
-      });
-      return reply.type('text/html; charset=utf-8').send(html);
-    });
-    routes.post(pagePath, async (request, reply) => {
-      const user = await options.currentUser(request);
-      if (!user) return reply.redirect(`/login?${new URLSearchParams({ next: pagePath })}`, 302);
-      if (!options.validateCsrf(request)) return reply.code(403).send('요청을 확인해 주세요.');
-      const input = formInput(request);
-      if (input.intent === 'preferences') await savePreferences(db, user, input, true);
-      else if (!await markRead(db, user.id, input.id)) return reply.code(404).send('알림을 찾을 수 없습니다.');
-      return reply.redirect(pagePath, 303);
     });
   });
 }

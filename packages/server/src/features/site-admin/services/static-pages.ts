@@ -1,8 +1,6 @@
 import { Prisma, type PrismaClient } from '@prisma/client';
-import type { FastifyReply, FastifyRequest } from 'fastify';
-import { adminSettingsCapabilities, type UserAccess } from '../access.js';
-import { renderAdminStaticPageEditor, renderAdminStaticPages, type AdminStaticPage, type AdminSettingsUser } from '../pages.js';
-import { ApiResult, Body, booleanValue, csrfToken, djangoTimestamp, formBoolean, isoDate, pageNumber, stringValue } from '../shared.js';
+import { type AdminStaticPage } from '../types.js';
+import { ApiResult, Body, booleanValue, djangoTimestamp, isoDate, stringValue } from '../shared.js';
 
 interface StaticPageRow {
   id: number;
@@ -82,16 +80,16 @@ export async function readStaticPage(db: PrismaClient, id: number): Promise<Admi
   return row ? serializeStaticPage(row) : null;
 }
 
-export function staticPagePayload(body: Body, form = false): Body {
+export function staticPagePayload(body: Body): Body {
   const payload: Body = {};
   for (const field of ['title', 'slug', 'content', 'meta_description'] as const) {
     if (field in body) payload[field] = stringValue(body[field]);
   }
   for (const field of ['is_published', 'show_in_footer'] as const) {
-    if (field in body || form) payload[field] = form ? formBoolean(body[field]) : body[field] === true;
+    if (field in body) payload[field] = body[field] === true;
   }
-  if ('order' in body || form) {
-    const value = form ? stringValue(body.order) : body.order;
+  if ('order' in body) {
+    const value = body.order;
     const parsed = typeof value === 'number' ? value : /^-?\d+$/.test(String(value)) ? Number(value) : NaN;
     payload.order = Number.isSafeInteger(parsed) ? parsed : 0;
   }
@@ -166,38 +164,3 @@ export function staticPageApi(page: AdminStaticPage): Record<string, unknown> {
   };
 }
 
-export async function pageStaticPages(
-  request: FastifyRequest,
-  reply: FastifyReply,
-  db: PrismaClient,
-  user: AdminSettingsUser,
-  access: UserAccess,
-  error?: string,
-) {
-  return reply.type('text/html; charset=utf-8').send(renderAdminStaticPages({
-    user,
-    capabilities: adminSettingsCapabilities(access),
-    pages: await readStaticPages(db),
-    csrfToken: csrfToken(request),
-    saved: !error && pageNumber(request).get('saved') === '1',
-    error,
-  }));
-}
-
-export async function pageStaticPageEditor(
-  request: FastifyRequest,
-  reply: FastifyReply,
-  user: AdminSettingsUser,
-  access: UserAccess,
-  page: AdminStaticPage | null,
-  error?: string,
-) {
-  return reply.type('text/html; charset=utf-8').send(renderAdminStaticPageEditor({
-    user,
-    capabilities: adminSettingsCapabilities(access),
-    page,
-    csrfToken: csrfToken(request),
-    saved: !error && pageNumber(request).get('saved') === '1',
-    error,
-  }));
-}

@@ -20,7 +20,7 @@ type Manifest = Record<string, ManifestEntry>;
 export interface ScreenHostOptions {
   currentUser(request: FastifyRequest): Promise<{ id: number; username: string } | null>;
   siteUrl: URL;
-  webAssetsRoot: string;
+  webAssetsRoot?: string;
   cipherKey: string;
 }
 
@@ -102,13 +102,16 @@ async function readCaptchaSiteKey(db: PrismaClient, cipherKey: string): Promise<
 
 export function registerScreenHost(app: FastifyInstance, db: PrismaClient, options: ScreenHostOptions) {
   let manifest: Promise<Manifest> | undefined;
-  const readManifest = () => manifest ??= readFile(`${options.webAssetsRoot}.vite/manifest.json`, 'utf8').then((text) => JSON.parse(text) as Manifest);
+  const { webAssetsRoot } = options;
+  const readManifest = () => manifest ??= readFile(`${webAssetsRoot}.vite/manifest.json`, 'utf8').then((text) => JSON.parse(text) as Manifest);
 
-  app.register(async (routes) => {
-    await routes.register(fastifyStatic, {
-      root: options.webAssetsRoot, prefix: webAssetPrefix, maxAge: '1y', immutable: true, decorateReply: false,
+  if (webAssetsRoot) {
+    app.register(async (routes) => {
+      await routes.register(fastifyStatic, {
+        root: webAssetsRoot, prefix: webAssetPrefix, maxAge: '1y', immutable: true, decorateReply: false,
+      });
     });
-  });
+  }
 
   const sendDocument = async (request: FastifyRequest, reply: FastifyReply, viewer: ScreenViewer | null, page: ScreenPage) => {
     const [brand, assets] = await Promise.all([readPublicSiteBrand(db), readManifest()]);
@@ -163,6 +166,10 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
     request: FastifyRequest, reply: FastifyReply, user: { id: number; username: string }, isStaff: boolean,
     component: string, componentProps: (isEditor: boolean, state: ViewerState) => Record<string, unknown>, pageTitle: string,
   ) => {
+    if (!webAssetsRoot) {
+      return reply.code(503).type('text/plain; charset=utf-8').header('Cache-Control', 'no-store')
+        .send('The web screens are not built. Run `pnpm build:web` and restart the server.');
+    }
     const state = await readViewerState(db, user.id, options.cipherKey);
     return sendDocument(request, reply, { user, isStaff, state }, {
       component, props: componentProps(state.role === 'EDITOR', state), title: (site) => pageTitle.replace('{site}', () => site),
@@ -241,8 +248,8 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
     const path = rawPath.replace(/\/{2,}/g, '/');
     const editorResponse = await sendEditor(request, reply, path, query);
     if (editorResponse) return editorResponse;
-    if (path === '/search') return sendSearch(request, reply, new URLSearchParams(query));
-    if (path === '/sign') {
+    if (webAssetsRoot && path === '/search') return sendSearch(request, reply, new URLSearchParams(query));
+    if (webAssetsRoot && path === '/sign') {
       const signup = await sendSignup(request, reply, new URLSearchParams(query));
       if (signup) return signup;
     }

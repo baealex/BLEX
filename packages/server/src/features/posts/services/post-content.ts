@@ -11,11 +11,6 @@ export function mediaUrl(value: string | null | undefined): string | null {
   return `/resources/media/${value.replace(/^\/+/, '')}`;
 }
 
-export function coverUrlFromStored(value: string): string {
-  if (!value || /^https?:\/\//i.test(value)) return '';
-  return `/resources/media/${value.split('/').map(encodeURIComponent).join('/')}`;
-}
-
 function storedCoverPath(value: string): string {
   if (!value.startsWith('/resources/media/') || /[\\\u0000-\u001f\u007f?#]/.test(value)) {
     throw new PostValidationError('VA', 'Choose an image URL from the upload page.');

@@ -35,12 +35,6 @@ export interface SeriesOption {
   url: string;
 }
 
-export interface FormTemplate {
-  id: number;
-  title: string;
-  content: string;
-}
-
 export interface StoredPost {
   id: number;
   title: string;
@@ -235,17 +229,6 @@ export function localDateTime(value: DbDate): string {
   }).format(date).replace(' ', 'T');
 }
 
-export function dateTimeLocalValue(value: string | DbDate): string {
-  if (!value) return '';
-  if (value instanceof Date) return localDateTime(value);
-  const normalized = value.includes('T') ? value : value.replace(' ', 'T');
-  // Django stores datetime columns as UTC-naive text in SQLite. Draft schedule
-  // metadata is normalized to the same representation before it is saved.
-  const withTimezone = /(?:Z|[+-]\d\d:\d\d)$/i.test(normalized) ? normalized : `${normalized}Z`;
-  const date = new Date(withTimezone);
-  return Number.isNaN(date.valueOf()) ? normalized.slice(0, 16) : localDateTime(date);
-}
-
 export function cookieValue(request: FastifyRequest, name: string): string {
   const cookie = request.headers.cookie;
   if (!cookie) return '';
@@ -270,14 +253,6 @@ export function notFound(reply: FastifyReply): null {
 export function forbidden(reply: FastifyReply): null {
   reply.code(403).type('text/plain; charset=utf-8').send('Forbidden');
   return null;
-}
-
-export function managementNotFound(reply: FastifyReply, message = '페이지를 찾을 수 없습니다.') {
-  return reply.code(404).type('text/plain; charset=utf-8').send(message);
-}
-
-export function managementForbidden(reply: FastifyReply) {
-  return reply.code(403).type('text/plain; charset=utf-8').send('요청 권한을 확인할 수 없습니다.');
 }
 
 export function editorRedirect(reply: FastifyReply, loggedIn: boolean): null {

@@ -14,7 +14,6 @@ import { registerDeveloperTokens } from '../features/developer-api/tokens.js';
 import { registerPublicDiscovery } from '../features/discovery/feeds/index.js';
 import { registerPublicPages } from '../features/discovery/pages/index.js';
 import { registerReaderActions } from '../features/engagement/index.js';
-import { registerSubscriptionPage } from '../features/engagement/ui/subscriptions.js';
 import { registerTelegram } from '../features/integrations/telegram.js';
 import { registerWebhooks } from '../features/integrations/webhooks/index.js';
 import { registerContentMedia } from '../features/media/content-media.js';
@@ -47,7 +46,7 @@ export async function registerRoutes(app: FastifyInstance, { db, siteUrl, auth, 
   if (auth) {
     await app.register(cookie);
     registerUploadGuard(app, currentUser);
-    if (auth.webAssetsRoot) registerScreenHost(app, db, { currentUser, siteUrl, webAssetsRoot: auth.webAssetsRoot, cipherKey: auth.cipherKey });
+    registerScreenHost(app, db, { currentUser, siteUrl, webAssetsRoot: auth.webAssetsRoot, cipherKey: auth.cipherKey });
     registerAuthentication(app, db, siteUrl, { ...auth, mediaRoot });
     registerPersonalSettings(app, db, { ...routeOptions, updatePassword: passwordUpdater(db, siteUrl, auth) });
     registerNotifications(app, db, routeOptions);
@@ -62,7 +61,6 @@ export async function registerRoutes(app: FastifyInstance, { db, siteUrl, auth, 
     registerAuthorCollections(app, db, routeOptions);
     registerTelegram(app, db, { ...routeOptions, cipherKey: auth.cipherKey, secretKey: auth.secretKey, fetchProvider: auth.fetchProvider });
     registerWebhooks(app, db, routeOptions);
-    registerSubscriptionPage(app, db, routeOptions);
   }
   if (mediaRoot) await registerPublicMedia(app, mediaRoot);
   registerSiteAssets(app);

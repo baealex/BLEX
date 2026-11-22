@@ -14,7 +14,7 @@ import {
 
 const recent = new Date(Date.now() - 3_600_000).toISOString().slice(0, -1).replace('T', ' ');
 
-async function screensApp() {
+async function screensApp({ assets = true } = {}) {
   const fixture = await createMigratedDatabase();
   const { db } = fixture;
   seedEditor(db, 1, 'writer');
@@ -36,7 +36,7 @@ async function screensApp() {
   const manifest = Object.fromEntries(['styles/tailwind.css', 'styles/main.scss', 'styles/post.scss', 'src/scripts/screen-loader.ts']
     .map((entry) => [entry, { file: `${entry.split('/').pop()}.hash` }]));
   await writeFile(join(webAssetsRoot, '.vite/manifest.json'), JSON.stringify(manifest));
-  const app = await buildApp(fixture.path, testSiteUrl, { secretKey: testSecretKey, cipherKey: testCipherKey, webAssetsRoot: `${webAssetsRoot}/` }, fixture.mediaRoot);
+  const app = await buildApp(fixture.path, testSiteUrl, { secretKey: testSecretKey, cipherKey: testCipherKey, ...(assets ? { webAssetsRoot: `${webAssetsRoot}/` } : {}) }, fixture.mediaRoot);
   await app.ready();
   return { ...fixture, app, async close() { await app.close(); await fixture.cleanup(); await rm(webAssetsRoot, { recursive: true, force: true }); } };
 }
@@ -106,6 +106,68 @@ test('mounts the 3.x editor for new, draft, and existing posts', async () => {
     const edit = screenProps((await fixture.app.inject({ url: '/@writer/kept/edit', headers })).body);
     assert.deepEqual([edit.props.mode, edit.props.postUrl], ['edit', 'kept']);
     assert.equal((await fixture.app.inject({ url: '/@writer/kept/edit', headers: signIn(fixture.db, 3) })).statusCode, 404);
+  } finally {
+    await fixture.close();
+  }
+});
+
+test('keeps login, role, and ownership answers for editor URLs the screen cannot serve', async () => {
+  const fixture = await screensApp();
+  try {
+    const writer = signIn(fixture.db, 1);
+    const reader = signIn(fixture.db, 2);
+    const staff = signIn(fixture.db, 3);
+    for (const url of ['/write', '/@writer/kept/edit']) {
+      const anonymous = await fixture.app.inject(url);
+      assert.deepEqual([anonymous.statusCode, anonymous.headers.location], [302, '/login']);
+      const denied = await fixture.app.inject({ url, headers: reader });
+      assert.deepEqual([denied.statusCode, denied.headers.location], [302, '/']);
+    }
+    assert.equal((await fixture.app.inject('/write/')).statusCode, 404);
+    assert.equal((await fixture.app.inject({ url: '/@writer/kept/edit', headers: staff })).statusCode, 404);
+    assert.equal((await fixture.app.inject({ url: '/@writer/missing/edit', headers: writer })).statusCode, 404);
+    assert.equal((await fixture.app.inject({ url: '/@nobody/kept/edit', headers: writer })).statusCode, 404);
+    assert.equal(screenProps((await fixture.app.inject({ url: '/@writer/kept/edit/', headers: writer })).body).name, 'PostEditor');
+  } finally {
+    await fixture.close();
+  }
+});
+
+test('passes each role its settings capabilities', async () => {
+  const fixture = await screensApp();
+  try {
+    insertRow(fixture.db, 'auth_user', { id: 8, username: 'delegate', password: 'pbkdf2_sha256$fixture$delegate', is_active: 1, is_staff: 1 });
+    insertRow(fixture.db, 'board_profile', { id: 8, user_id: 8, role: 'READER' });
+    const owner = screenProps((await fixture.app.inject({ url: '/admin-settings/users', headers: signIn(fixture.db, 3) })).body);
+    assert.deepEqual(owner.props.adminCapabilities, {
+      canManageSiteSettings: true, canManageLoginSettings: true, canManageIntegrationSettings: true, canManageUtilities: true,
+    });
+    const delegate = screenProps((await fixture.app.inject({ url: '/admin-settings/users', headers: signIn(fixture.db, 8) })).body);
+    assert.deepEqual(delegate.props.adminCapabilities, {
+      canManageSiteSettings: false, canManageLoginSettings: false, canManageIntegrationSettings: false, canManageUtilities: false,
+    });
+  } finally {
+    await fixture.close();
+  }
+});
+
+test('answers settings and editor pages with 503 when the web screens are not built', async () => {
+  const fixture = await screensApp({ assets: false });
+  try {
+    const writer = signIn(fixture.db, 1);
+    for (const url of ['/settings/account', '/settings/posts', '/write', '/@writer/kept/edit']) {
+      const response = await fixture.app.inject({ url, headers: writer });
+      assert.equal(response.statusCode, 503, url);
+      assert.match(response.body, /pnpm build:web/);
+    }
+    const anonymous = await fixture.app.inject('/settings/account');
+    assert.equal(anonymous.statusCode, 302);
+    assert.match(String(anonymous.headers.location), /^\/login\?next=/);
+    assert.equal((await fixture.app.inject('/write')).headers.location, '/login');
+    assert.equal((await fixture.app.inject({ url: '/admin-settings/users', headers: signIn(fixture.db, 2) })).statusCode, 404);
+    assert.equal((await fixture.app.inject({ url: '/@writer/missing/edit', headers: writer })).statusCode, 404);
+    assert.equal((await fixture.app.inject('/search')).statusCode, 200);
+    assert.equal((await fixture.app.inject('/sign')).statusCode, 200);
   } finally {
     await fixture.close();
   }

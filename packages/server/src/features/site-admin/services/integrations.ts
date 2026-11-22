@@ -1,11 +1,8 @@
 import { Prisma, type PrismaClient } from '@prisma/client';
-import type { FastifyReply, FastifyRequest } from 'fastify';
 import { createHmac } from 'node:crypto';
 import { encryptDjangoSecret, decryptDjangoSecret } from '../../auth/django-secret.js';
-import { adminSettingsCapabilities, type UserAccess } from '../access.js';
-import { renderAdminIntegrationSettings, type AdminIntegrationSettings, type AdminSettingsUser } from '../pages.js';
-import { failure } from '../../../platform/response.js';
-import { AdminSettingsOptions, ApiResult, Body, booleanValue, csrfToken, djangoTimestamp, formBoolean, isRecord, isoDate, pageNumber, recordAudit, stringValue } from '../shared.js';
+import { type AdminIntegrationSettings } from '../types.js';
+import { AdminSettingsOptions, ApiResult, Body, booleanValue, djangoTimestamp, isRecord, isoDate, recordAudit } from '../shared.js';
 
 interface IntegrationRow {
   telegramEnabled: number | bigint | boolean;
@@ -134,15 +131,6 @@ export function integrationSettingsApi(settings: AdminIntegrationSettings): Reco
   };
 }
 
-export function pageIntegrationPayload(body: Body): Body {
-  return {
-    telegram_enabled: formBoolean(body.telegram_enabled),
-    telegram_bot_username: stringValue(body.telegram_bot_username),
-    telegram_bot_token: stringValue(body.telegram_bot_token),
-    clear_telegram_bot_token: formBoolean(body.clear_telegram_bot_token),
-  };
-}
-
 export async function updateIntegrationSettings(
   db: PrismaClient,
   userId: number,
@@ -219,22 +207,3 @@ export async function updateIntegrationSettings(
   };
 }
 
-export async function pageIntegrationSettings(
-  request: FastifyRequest,
-  reply: FastifyReply,
-  db: PrismaClient,
-  options: AdminSettingsOptions,
-  user: AdminSettingsUser,
-  access: UserAccess,
-  error?: string,
-) {
-  const settings = await serializeIntegrationSettings(db, options);
-  return reply.type('text/html; charset=utf-8').send(renderAdminIntegrationSettings({
-    user,
-    capabilities: adminSettingsCapabilities(access),
-    settings,
-    csrfToken: csrfToken(request),
-    saved: !error && pageNumber(request).get('saved') === '1',
-    error,
-  }));
-}

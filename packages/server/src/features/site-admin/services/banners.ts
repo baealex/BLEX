@@ -1,9 +1,7 @@
 import { type PrismaClient } from '@prisma/client';
-import type { FastifyReply, FastifyRequest } from 'fastify';
 import { sanitizeBannerHtml } from '../../posts/post-html.js';
-import { adminSettingsCapabilities, type UserAccess } from '../access.js';
-import { renderAdminBanners, renderAuthorBanners, type AdminBanner, type AdminSettingsUser } from '../pages.js';
-import { ApiResult, Body, booleanValue, csrfToken, djangoTimestamp, formBoolean, isoDate, pageNumber, stringValue } from '../shared.js';
+import { type AdminBanner } from '../types.js';
+import { ApiResult, Body, booleanValue, djangoTimestamp, isoDate, stringValue } from '../shared.js';
 
 interface BannerRow {
   id: number;
@@ -83,14 +81,14 @@ export function bannerApi(banner: AdminBanner, includeCreatedBy = true): Record<
   };
 }
 
-export function bannerPayload(body: Body, form = false): Body {
+export function bannerPayload(body: Body): Body {
   const result: Body = {};
   for (const field of ['title', 'content_html', 'banner_type', 'position'] as const) {
     if (field in body) result[field] = stringValue(body[field]);
   }
-  if ('is_active' in body || form) result.is_active = form ? formBoolean(body.is_active) : body.is_active === true;
-  if ('order' in body || form) {
-    const raw = form ? stringValue(body.order) : body.order;
+  if ('is_active' in body) result.is_active = body.is_active === true;
+  if ('order' in body) {
+    const raw = body.order;
     const order = typeof raw === 'number' ? raw : /^-?\d+$/.test(String(raw)) ? Number(raw) : NaN;
     result.order = Number.isSafeInteger(order) ? order : 0;
   }
@@ -148,36 +146,3 @@ export async function saveBanner(
   return banner ? { ok: true, body: banner } : { ok: false, code: 'NF', message: 'Banner not found.' };
 }
 
-export async function pageBanners(
-  request: FastifyRequest,
-  reply: FastifyReply,
-  db: PrismaClient,
-  user: AdminSettingsUser,
-  access: UserAccess,
-  error?: string,
-) {
-  return reply.type('text/html; charset=utf-8').send(renderAdminBanners({
-    user,
-    capabilities: adminSettingsCapabilities(access),
-    banners: await readBanners(db),
-    csrfToken: csrfToken(request),
-    saved: !error && pageNumber(request).get('saved') === '1',
-    error,
-  }));
-}
-
-export async function pageAuthorBanners(
-  request: FastifyRequest,
-  reply: FastifyReply,
-  db: PrismaClient,
-  user: AdminSettingsUser,
-  error?: string,
-) {
-  return reply.type('text/html; charset=utf-8').send(renderAuthorBanners({
-    user,
-    banners: await readBanners(db, 'user', user.id),
-    csrfToken: csrfToken(request),
-    saved: !error && pageNumber(request).get('saved') === '1',
-    error,
-  }));
-}
