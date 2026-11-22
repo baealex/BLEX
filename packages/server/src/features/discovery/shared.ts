@@ -7,8 +7,6 @@ import { authorPath } from '../authors/services/profile.js';
 
 type StoredDate = string | Date;
 
-export type DatabaseInteger = number | bigint;
-
 export interface SiteBrand {
   siteName: string;
   logoUrl: string | null;
@@ -43,12 +41,12 @@ export interface PostRow {
   seriesUrl: string | null;
   seriesName: string | null;
   relevance?: number;
-  likeCount?: DatabaseInteger;
-  commentCount?: DatabaseInteger;
-  titleScore?: DatabaseInteger;
-  descriptionScore?: DatabaseInteger;
-  tagScore?: DatabaseInteger;
-  contentScore?: DatabaseInteger;
+  likeCount?: number;
+  commentCount?: number;
+  titleScore?: number;
+  descriptionScore?: number;
+  tagScore?: number;
+  contentScore?: number;
 }
 
 export interface AuthorRow {
@@ -63,14 +61,14 @@ export interface AuthorRow {
   aboutHtml: string;
   aboutMarkdown: string;
   role: string;
-  publicPostCount: DatabaseInteger;
-  publicSeriesCount: DatabaseInteger;
+  publicPostCount: number;
+  publicSeriesCount: number;
 }
 
 export interface TagRow {
   id: number;
   name: string;
-  count: DatabaseInteger;
+  count: number;
 }
 
 export interface SeriesRow {
@@ -81,7 +79,7 @@ export interface SeriesRow {
   textHtml: string;
   createdDate: StoredDate;
   updatedDate: StoredDate;
-  postCount: DatabaseInteger;
+  postCount: number;
 }
 
 export interface SeriesDetailRow extends SeriesRow {

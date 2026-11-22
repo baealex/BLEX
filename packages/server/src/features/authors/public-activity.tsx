@@ -3,7 +3,6 @@ import { renderApplicationDocument } from '../../application/document.js';
 import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { toIsoDateTime } from '../developer-api/index.js';
-import { storedDateText } from '../../platform/date-format.js';
 import { publicPostWhere } from '../posts/data/visibility.js';
 import { sanitizePostHtml } from '../posts/post-html.js';
 import { publicPostPath } from '../posts/public-post.js';
@@ -19,11 +18,7 @@ const dateFormat = new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric',
 const dateLabel = new Intl.DateTimeFormat('ko-KR', { timeZone, dateStyle: 'long' });
 const relative = new Intl.RelativeTimeFormat('ko', { numeric: 'always' });
 
-function storedDate(value: string | number | bigint | Date) {
-  return typeof value === 'string' ? new Date(toIsoDateTime(value) ?? '') : new Date(value instanceof Date ? value : Number(value));
-}
-function since(value: string | number | bigint | Date) {
-  const date = storedDate(value);
+function since(date: Date) {
   const age = Math.max(0, (Date.now() - date.getTime()) / 60_000);
   if (!Number.isFinite(age)) return '';
   if (age > 525_600) return dateLabel.format(date);
@@ -132,7 +127,7 @@ async function recentActivities(db: PrismaClient, userId: number): Promise<Recen
   const comments = commentRows.map(linked);
   const likes = likeRows.map(linked);
   const item = (type: RecentActivity['type'], row: PostActivity, url: string): RecentActivity => ({
-    type, title: row.title, url, date: since(row.date), sortDate: storedDate(row.date).getTime(),
+    type, title: row.title, url, date: since(row.date), sortDate: row.date.getTime(),
   });
   const seriesPath = (row: PostActivity) => `/@${encodeURIComponent(row.username)}/series/${encodeURIComponent(row.slug)}`;
   return [
@@ -191,7 +186,7 @@ export function AuthorActivitySection({ days, recent }: Awaited<ReturnType<typeo
   </section>;
 }
 
-export interface RelatedPost { slug: string; title: string; image: string; description: string; readTime: number; published: string; username: string; name: string; avatar: string }
+export interface RelatedPost { slug: string; title: string; image: string; description: string; readTime: number; published: Date; username: string; name: string; avatar: string }
 
 export async function relatedPosts(db: PrismaClient, sourceId: number, sourceAuthor: number): Promise<RelatedPost[]> {
   const now = new Date();
@@ -232,7 +227,7 @@ export async function relatedPosts(db: PrismaClient, sourceId: number, sourceAut
     const post = byId.get(id)!;
     return {
       slug: post.slug, title: post.title, image: post.image, description: post.description, readTime: post.readTime,
-      published: storedDateText(post.publishedAt!), username: post.author.username, name: post.author.name,
+      published: post.publishedAt!, username: post.author.username, name: post.author.name,
       avatar: post.author.profile?.avatar ?? '',
     };
   });
@@ -289,7 +284,7 @@ export function registerPublicActivity(app: FastifyInstance, db: PrismaClient, o
       reply.header('Cache-Control', 'private, no-store');
       if (route.startsWith('/v1/')) return done({ posts: items.map((item) => ({
         url: item.slug, title: item.title, image: item.image || null, metaDescription: item.description, readTime: item.readTime,
-        publishedDate: since(item.published), publishedDateIso: dateFormat.format(storedDate(item.published)), publishedAt: toIsoDateTime(item.published),
+        publishedDate: since(item.published), publishedDateIso: dateFormat.format(item.published), publishedAt: toIsoDateTime(item.published),
         authorUsername: item.username, authorName: item.name, authorImage: item.avatar || null,
       })) });
       return reply.type('text/html; charset=utf-8').send(renderApplicationDocument(<html lang="ko"><head><meta charSet="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />

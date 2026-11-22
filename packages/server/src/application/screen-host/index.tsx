@@ -206,7 +206,7 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
   const sendHost = (request: FastifyRequest, reply: FastifyReply, mode: 'user' | 'admin', basePath: string, user: { id: number; username: string }, isStaff: boolean, isSuperuser: boolean, canManageSiteSettings: boolean) =>
     sendScreen(request, reply, user, isStaff, 'SettingsApp', (isEditor, state) => ({
       isEditor, isStaff, isSuperuser, adminUrl: null, settingsMode: mode, basePath,
-      canUseTelegramIntegration: state.telegramConfigured || Boolean(Number(state.telegramConnected)),
+      canUseTelegramIntegration: state.telegramConfigured || state.telegramConnected > 0,
       adminCapabilities: {
         canManageSiteSettings: isStaff && canManageSiteSettings,
         canManageLoginSettings: isStaff && isSuperuser,

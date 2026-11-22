@@ -40,7 +40,7 @@ export function registerAuthorCollections(app: FastifyInstance, db: PrismaClient
       const rows = await readSeriesRows(db, user.id, 'active');
       return apiDone({
         username: user.username,
-        series: rows.map((row) => ({ id: Number(row.id), url: row.url, title: row.name, totalPosts: Number(row.totalPosts) })),
+        series: rows.map((row) => ({ id: row.id, url: row.url, title: row.name, totalPosts: row.totalPosts })),
       });
     });
 
@@ -49,7 +49,7 @@ export function registerAuthorCollections(app: FastifyInstance, db: PrismaClient
       if (!user) return error;
       const rows = await readSeriesRows(db, user.id, 'public');
       return apiDone({ series: rows.map((row) => ({
-        id: String(row.id), name: row.name, url: row.url, totalPosts: Number(row.totalPosts), createdDate: localDate(row.createdDate),
+        id: String(row.id), name: row.name, url: row.url, totalPosts: row.totalPosts, createdDate: localDate(row.createdDate),
       })) });
     });
 

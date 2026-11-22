@@ -26,7 +26,7 @@ export function registerSearchRoutes(app: FastifyInstance, db: PrismaClient, sit
     const fields = [['titleScore', 'title', '제목'], ['descriptionScore', 'description', '설명'],
       ['tagScore', 'tag', '태그'], ['contentScore', 'content', '내용']] as const;
     const results = matches.map((post) => {
-      const scored = fields.filter(([key]) => Number(post[key]) > 0);
+      const scored = fields.filter(([key]) => (post[key] ?? 0) > 0);
       const published = dateValue(post.publishedDate);
       const timeZone = process.env.TZ || 'Asia/Seoul';
       return { url: post.slug, title: post.title, image: post.image, description: post.description, readTime: post.readTime,

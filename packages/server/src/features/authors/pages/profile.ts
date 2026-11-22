@@ -164,7 +164,7 @@ export function AboutSection({ author, aboutHtml, isOwner }: { author: AuthorRow
 
 export function authorTabs(author: AuthorRow, activeTab: 'overview' | 'posts' | 'series' | 'about'): ReactNode {
   if (!isEditor(author)) return h('div', { className: 'mb-8' });
-  const tabs: Array<{ key: 'overview' | 'posts' | 'series'; href: string; label: string; count?: number | bigint }> = [
+  const tabs: Array<{ key: 'overview' | 'posts' | 'series'; href: string; label: string; count?: number }> = [
     { key: 'overview', href: authorPath(author.username), label: '개요' },
     { key: 'posts', href: authorPath(author.username, '/posts'), label: '포스트', count: author.publicPostCount },
     { key: 'series', href: authorPath(author.username, '/series'), label: '시리즈', count: author.publicSeriesCount },

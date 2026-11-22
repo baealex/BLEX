@@ -13,7 +13,7 @@ export interface ReaderActionsOptions {
   cipherKey?: string;
 }
 
-export type DbDate = string | Date | null;
+export type DbDate = Date | null;
 
 export interface ActiveUserRow {
   id: number;
@@ -71,18 +71,9 @@ export function truthyBodyField(body: Record<string, unknown> | null, key: strin
   return Boolean(value);
 }
 
-function parseStoredDate(value: DbDate): Date | null {
-  if (!value) return null;
-  if (value instanceof Date) return value;
-  const normalized = value.includes('T') ? value : value.replace(' ', 'T');
-  const date = new Date(/(?:Z|[+-]\d\d:\d\d)$/i.test(normalized) ? normalized : `${normalized}Z`);
-  return Number.isNaN(date.valueOf()) ? null : date;
-}
-
 export function localDateOnly(value: DbDate): string {
-  const date = parseStoredDate(value);
-  if (!date) return '';
-  return new Date(date.valueOf() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  if (!value) return '';
+  return new Date(value.valueOf() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
 }
 
 export function missing(reply: FastifyReply): null {

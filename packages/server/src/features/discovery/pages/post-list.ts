@@ -16,7 +16,7 @@ export interface CardLikes {
 
 function PostCardLike({ post, likes }: { post: PostRow; likes?: CardLikes }): ReactNode {
   const liked = likes?.likedIds.has(post.id) ?? false;
-  const count = Number(post.likeCount ?? 0);
+  const count = post.likeCount ?? 0;
   const className = `inline-flex h-7 min-w-[51px] items-center justify-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium transition-all duration-300 active:scale-95 ${liked
     ? 'border-danger-line bg-danger-surface text-danger'
     : 'border-line bg-surface-elevated text-content-hint hover:border-line-strong hover:bg-surface-subtle hover:text-content-secondary'}`;
@@ -70,8 +70,8 @@ function PostCard({ post, showAuthor, priority = false, likes, relativeDate = fa
           h('a', { href: authorHref, className: 'truncate text-xs font-semibold text-content transition-colors hover:text-content-secondary' }, post.authorUsername),
         ) : series ?? h('div'),
         h('div', { className: 'flex items-center gap-4 text-content-secondary' },
-          h('span', { className: 'flex items-center gap-1.5 text-xs', 'aria-label': `댓글 ${Number(post.commentCount ?? 0)}개` },
-            h(SiteIcon, { name: 'message-circle' }), h('span', null, String(Number(post.commentCount ?? 0))),
+          h('span', { className: 'flex items-center gap-1.5 text-xs', 'aria-label': `댓글 ${post.commentCount ?? 0}개` },
+            h(SiteIcon, { name: 'message-circle' }), h('span', null, String(post.commentCount ?? 0)),
           ),
           PostCardLike({ post, likes }),
         ),

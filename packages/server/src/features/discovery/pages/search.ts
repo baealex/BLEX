@@ -88,10 +88,10 @@ function highlightText(text: string, query: string): ReactNode {
 export function SearchResultCard({ post, query }: { post: PostRow; query: string }): ReactNode {
   const authorHref = `/@${encodeURIComponent(post.authorUsername)}`;
   const matched = [
-    Number(post.titleScore ?? 0) > 0 ? '제목' : null,
-    Number(post.descriptionScore ?? 0) > 0 ? '설명' : null,
-    Number(post.tagScore ?? 0) > 0 ? '태그' : null,
-    Number(post.contentScore ?? 0) > 0 ? '내용' : null,
+    (post.titleScore ?? 0) > 0 ? '제목' : null,
+    (post.descriptionScore ?? 0) > 0 ? '설명' : null,
+    (post.tagScore ?? 0) > 0 ? '태그' : null,
+    (post.contentScore ?? 0) > 0 ? '내용' : null,
   ].filter((value): value is string => value !== null);
   const hasImage = Boolean(post.image && post.image !== 'None' && post.image !== 'null');
   return h('article', { className: 'overflow-hidden rounded-2xl border border-line-light bg-surface transition-all duration-150 hover:border-line hover:shadow-subtle', key: `${post.authorUsername}-${post.slug}` },

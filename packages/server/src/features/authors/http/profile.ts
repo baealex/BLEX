@@ -344,7 +344,7 @@ export function registerProfileRoutes(app: FastifyInstance, db: PrismaClient, si
     };
     const seriesPath = `${authorPath(author.username, '/series')}/${encodeURIComponent(series.url)}`;
     if (author.username !== requestedUsername) return sendRedirect(reply, seriesPath);
-    const count = Number(series.postCount);
+    const count = series.postCount;
     const checkedPage = validPublicPage(reply, page, count, 10);
     if (checkedPage === null) return reply;
     const posts = await readPublicPosts(db, {
@@ -446,8 +446,8 @@ export function registerProfileRoutes(app: FastifyInstance, db: PrismaClient, si
                   h('span', { className: 'flex items-center gap-1.5' }, h(SiteIcon, { name: 'calendar' }), formatPostDate(post)),
                   h('span', { className: 'flex items-center gap-1.5' }, h(SiteIcon, { name: 'clock' }), `${post.readTime}분`),
                   h('span', { className: 'ml-auto flex items-center gap-3' },
-                    h('span', { className: 'flex items-center gap-1.5 transition-colors hover:text-danger' }, h(SiteIcon, { name: 'heart' }), String(Number(post.likeCount ?? 0))),
-                    h('span', { className: 'flex items-center gap-1.5 transition-colors hover:text-content' }, h(SiteIcon, { name: 'message-circle' }), String(Number(post.commentCount ?? 0))),
+                    h('span', { className: 'flex items-center gap-1.5 transition-colors hover:text-danger' }, h(SiteIcon, { name: 'heart' }), String(post.likeCount ?? 0)),
+                    h('span', { className: 'flex items-center gap-1.5 transition-colors hover:text-content' }, h(SiteIcon, { name: 'message-circle' }), String(post.commentCount ?? 0)),
                   ),
                 ),
               ),

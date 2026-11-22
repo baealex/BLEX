@@ -1,4 +1,5 @@
 import { renderApplicationDocument, scriptJson } from '../../../application/document.js';
+import { storedDateText } from '../../../platform/date-format.js';
 import type { ReactNode } from 'react';
 import { SiteIcon, type SiteIconName } from '../../../appearance/icons.js';
 import { SiteFooter, SiteHeader, SiteTheme, type HeaderViewer } from '../../../appearance/shell.js';
@@ -172,7 +173,7 @@ function RelatedPosts({ posts, username }: { posts: RelatedPost[]; username: str
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">{posts.slice(0, 4).map((post) => {
       const href = publicPostPath(post.username, post.slug);
       const image = articleImage(post.image);
-      const date = isoDate(post.published);
+      const date = isoDate(storedDateText(post.published));
       return <article key={href} className="group flex h-full flex-col overflow-hidden rounded-2xl bg-surface ring-1 ring-line/60 transition-all duration-150 hover:ring-line-strong/70">
         {image && <a href={href} className="block aspect-[16/9] overflow-hidden"><img className="size-full object-cover motion-safe:transition-transform motion-safe:group-hover:scale-105" src={image} alt={post.title} loading="lazy" /></a>}
         <div className="flex flex-1 flex-col p-5"><h4 className="mb-2 line-clamp-2 text-base font-bold leading-snug"><a href={href}>{post.title}</a></h4>

@@ -16,7 +16,7 @@ const defaultRobotsRules = [
   'Disallow: /v1/',
 ];
 
-type DbDate = Date | string | null;
+type DbDate = Date | null;
 
 type SiteSetting = {
   seoEnabled: boolean;
@@ -56,7 +56,7 @@ type FeedPostRow = {
   contentHtml: string;
 };
 
-type SitemapMetadata = { itemCount: number | bigint; latestLastmod: DbDate };
+type SitemapMetadata = { itemCount: number; latestLastmod: DbDate };
 type SitemapUrl = { location: string; lastmod?: DbDate; changefreq: string; priority: string };
 
 async function rssOrigin(db: PrismaClient, siteUrl: URL): Promise<URL> {
@@ -108,7 +108,7 @@ export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, 
       const sectionMetadata = metadata[section];
       if (!sectionMetadata.latestLastmod) allIndexesHaveLastmod = false;
       else latestLastmod = latestDate(latestLastmod, sectionMetadata.latestLastmod);
-      const pageCount = Math.max(1, Math.ceil(Number(sectionMetadata.itemCount) / sitemapLimit));
+      const pageCount = Math.max(1, Math.ceil(sectionMetadata.itemCount / sitemapLimit));
       const sectionPath = `/${section}/sitemap.xml`;
       entries.push({ location: absoluteUrl(siteUrl, sectionPath), lastmod: sectionMetadata.latestLastmod });
       for (let page = 2; page <= pageCount; page += 1) {
@@ -119,7 +119,7 @@ export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, 
       `<sitemap><loc>${xmlEscape(entry.location)}</loc>${entry.lastmod ? `<lastmod>${xmlEscape(formatIsoDate(entry.lastmod))}</lastmod>` : ''}</sitemap>`,
     ).join('')}</sitemapindex>`;
     const response = reply.type('application/xml; charset=utf-8').header('X-Robots-Tag', 'noindex, nofollow');
-    if (allIndexesHaveLastmod && latestLastmod) response.header('Last-Modified', toDate(latestLastmod).toUTCString());
+    if (allIndexesHaveLastmod && latestLastmod) response.header('Last-Modified', latestLastmod.toUTCString());
     return response.send(xml);
   });
 
@@ -128,14 +128,14 @@ export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, 
     if (!sitemapSections.includes(section as (typeof sitemapSections)[number])) return notFound(reply);
     const metadata = await readSitemapMetadata(db, section as (typeof sitemapSections)[number]);
     const page = parsePage(request.query.p);
-    const pageCount = Math.max(1, Math.ceil(Number(metadata.itemCount) / sitemapLimit));
+    const pageCount = Math.max(1, Math.ceil(metadata.itemCount / sitemapLimit));
     if (!page || page > pageCount) return notFound(reply);
     const urls = await readSitemapPage(db, siteUrl, section as (typeof sitemapSections)[number], page);
     const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="${sitemapNamespace}">${urls.map((item) =>
       `<url><loc>${xmlEscape(item.location)}</loc>${item.lastmod ? `<lastmod>${xmlEscape(formatIsoDate(item.lastmod))}</lastmod>` : ''}<changefreq>${item.changefreq}</changefreq><priority>${item.priority}</priority></url>`,
     ).join('')}</urlset>`;
     const response = reply.type('application/xml; charset=utf-8').header('X-Robots-Tag', 'noindex, nofollow');
-    if (metadata.latestLastmod) response.header('Last-Modified', toDate(metadata.latestLastmod).toUTCString());
+    if (metadata.latestLastmod) response.header('Last-Modified', metadata.latestLastmod.toUTCString());
     return response.send(xml);
   });
 
@@ -469,7 +469,7 @@ function buildRss(siteUrl: URL, posts: FeedPostRow[], channel: {
   const items = posts.map((post) => {
     const description = stripControlCharacters(sanitizePostHtml(post.contentHtml));
     const link = absoluteUrl(siteUrl, `/@${encodeURIComponent(post.username)}/${encodeURIComponent(post.slug)}`);
-    return `<item><title>${xmlEscape(post.title)}</title><link>${xmlEscape(link)}</link><description>${xmlEscape(description)}</description><guid isPermaLink="true">${xmlEscape(link)}</guid><pubDate>${xmlEscape(toDate(post.publishedDate).toUTCString())}</pubDate></item>`;
+    return `<item><title>${xmlEscape(post.title)}</title><link>${xmlEscape(link)}</link><description>${xmlEscape(description)}</description><guid isPermaLink="true">${xmlEscape(link)}</guid><pubDate>${xmlEscape((post.publishedDate ?? new Date(0)).toUTCString())}</pubDate></item>`;
   }).join('');
   return `<?xml version="1.0" encoding="utf-8"?>\n<rss version="2.0"><channel><title>${xmlEscape(channel.title)}</title><link>${xmlEscape(channel.link)}</link><description>${xmlEscape(channel.description)}</description><language>ko</language>${image}${items}</channel></rss>`;
 }
@@ -515,26 +515,15 @@ function parsePage(value: string | undefined): number | null {
 }
 
 function formatDateOnly(value: DbDate): string {
-  if (value instanceof Date) return value.toISOString().slice(0, 10);
-  return String(value ?? '').slice(0, 10);
+  return value ? value.toISOString().slice(0, 10) : '';
 }
 
 function formatIsoDate(value: DbDate): string {
-  return toDate(value).toISOString();
-}
-
-function toDate(value: DbDate): Date {
-  if (value instanceof Date) return value;
-  if (!value) return new Date(0);
-  const raw = value.trim();
-  const normalized = raw.includes('T') ? raw : raw.replace(' ', 'T');
-  const withMilliseconds = normalized.replace(/\.(\d{3})\d+(?=Z|[+-]\d{2}:?\d{2}$|$)/, '.$1');
-  const hasZone = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(withMilliseconds);
-  return new Date(hasZone ? withMilliseconds : `${withMilliseconds}Z`);
+  return (value ?? new Date(0)).toISOString();
 }
 
 function latestDate(current: DbDate, candidate: DbDate): DbDate {
-  if (!current || (candidate && toDate(candidate) > toDate(current))) return candidate;
+  if (!current || (candidate && candidate > current)) return candidate;
   return current;
 }
 
