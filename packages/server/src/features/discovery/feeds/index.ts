@@ -288,8 +288,7 @@ async function readPublicPost(db: PrismaClient, username: string, slug: string):
   const post = await db.post.findFirst({
     where: {
       slug,
-      ...publicPostWhere(),
-      author: { OR: [{ username }, { usernameChanges: { some: { username } } }] },
+      AND: [publicPostWhere(), { author: { OR: [{ username }, { usernameChanges: { some: { username } } }] } }],
     },
     select: {
       id: true, title: true, subtitle: true, slug: true, publishedAt: true, updatedAt: true,

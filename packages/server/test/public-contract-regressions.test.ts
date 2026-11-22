@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -257,6 +258,63 @@ test('renders raw HTML in Markdown with the 3.x whitespace and sorted attributes
   const started = Date.now();
   htmlToMarkdown('<br \'"><br \'>'.repeat(40_000));
   assert.ok(Date.now() - started < 3_000, 'unbalanced quotes must not make parsing quadratic');
+});
+
+test('an inactive author disappears from every public surface, and returns untouched when reactivated', async () => {
+  const fixture = await publicApp();
+  const { app, db } = fixture;
+  const needle = 'retired-needle';
+  try {
+    seedEditor(db, 2, 'retired');
+    db.exec('UPDATE "User" SET isStaff = 1, isSuperuser = 1 WHERE id = 1');
+    insertRow(db, 'Series', { id: 2, ownerId: 2, name: `${needle} series`, slug: 'retired-series', layout: 'list', isHidden: 0 });
+    seedPost(db, 7, 2, needle, { seriesId: 2, title: `${needle} title`, description: 'shared search term', publishedAt: daysAgo(1) });
+    insertRow(db, 'Tag', { id: 1, name: 'shared-topic' });
+    insertRow(db, 'Tag', { id: 2, name: `${needle}-tag` });
+    for (const [postId, tagId] of [[1, 1], [7, 1], [7, 2]]) insertRow(db, '_PostToTag', { A: postId, B: tagId });
+    insertRow(db, 'PostShareLink', { id: 1, postId: 7, token: 'retiredshare' });
+    insertRow(db, 'Comment', { id: 1, postId: 7, authorId: 1, markdown: 'note', html: '<p>note</p>', createdAt: daysAgo(1) });
+    insertRow(db, 'PostLike', { postId: 7, userId: 1, createdAt: daysAgo(1) });
+    insertRow(db, 'PinnedPost', { postId: 7, userId: 2, order: 0 });
+    const rawToken = 'blex_pat_retiredtoken_contract-secret';
+    insertRow(db, 'DeveloperToken', { id: 1, userId: 2, name: 'Retired', tokenPrefix: 'retiredtoken', tokenHash: createHash('sha256').update(rawToken, 'utf8').digest('hex'), scopes: '["posts:read"]' });
+    const rowsBefore = JSON.stringify(db.prepare('SELECT * FROM "Post" WHERE id = 7').get());
+
+    const postRoutes = [`/@retired/${needle}`, `/@retired/${needle}.md`, `/v1/users/@retired/posts/${needle}?mode=view`,
+      `/v1/users/@retired/posts/${needle}/related`, `/@retired/${needle}/related`, '/@retired/series/retired-series', '/r/retiredshare'];
+    for (const url of postRoutes) assert.ok([200, 302].includes((await app.inject(url)).statusCode), `${url} should be public before deactivation`);
+
+    db.exec('UPDATE "User" SET isActive = 0 WHERE id = 2');
+
+    for (const url of postRoutes) assert.equal((await app.inject(url)).statusCode, 404, url);
+    const reader = signIn(db, 1);
+    assert.equal((await app.inject({ url: '/v1/comments/1', headers: reader })).statusCode, 404);
+
+    const index = (await app.inject('/sitemap.xml')).body;
+    const sitemaps = [...index.matchAll(/<loc>([^<]+)<\/loc>/g)].map(([, location]) => new URL(location).pathname);
+    assert.ok(sitemaps.includes('/posts/sitemap.xml'));
+    const listings = ['/', '/rss', '/rss/@retired', '/llms.txt', '/tags', '/tag/shared-topic', `/tag/${needle}-tag`,
+      '/search?q=shared', '/search?q=shared&username=retired', '/v1/search?q=shared', '/v1/search?q=shared&username=retired',
+      '/@retired', '/@retired/partials/featured-posts', '/@writer', '/@writer/part-one', '/v1/users/@writer/posts/part-one/related', ...sitemaps];
+    for (const url of listings) assert.ok(!(await app.inject(url)).body.includes(needle), url);
+
+    const inactiveApi = await app.inject({ url: '/api/developer/v1/posts', headers: { authorization: `Bearer ${rawToken}` } });
+    assert.equal(inactiveApi.statusCode, 401);
+    assert.equal(inactiveApi.json().error.code, 'auth.inactive_user');
+
+    const admin = await app.inject({ url: '/v1/admin/users', headers: reader });
+    const managed = admin.json().body.users.find((user: { username: string }) => user.username === 'retired');
+    assert.equal(managed.isActive, false);
+    assert.equal(managed.postCount, 1);
+    assert.equal(JSON.stringify(db.prepare('SELECT * FROM "Post" WHERE id = 7').get()), rowsBefore);
+
+    db.exec('UPDATE "User" SET isActive = 1 WHERE id = 2');
+    assert.equal((await app.inject(`/@retired/${needle}`)).statusCode, 200);
+    assert.equal((await app.inject(`/@retired/${needle}.md`)).statusCode, 200);
+    assert.ok((await app.inject('/rss')).body.includes(needle));
+  } finally {
+    await fixture.close();
+  }
 });
 
 test('shows public yearly and recent activity on the author page', async () => {

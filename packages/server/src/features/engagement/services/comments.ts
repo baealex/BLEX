@@ -115,11 +115,11 @@ export async function commentForViewer(
     where: { id: comment.postId },
     select: {
       title: true, slug: true, commentsBlocked: true, deletedAt: true, publishedAt: true, isHidden: true,
-      author: { select: { username: true } },
+      author: { select: { username: true, isActive: true } },
     },
   });
   if (!post) return null;
-  const postPublic = post.deletedAt === null && post.publishedAt !== null && post.publishedAt <= new Date() && !post.isHidden;
+  const postPublic = post.author.isActive && post.deletedAt === null && post.publishedAt !== null && post.publishedAt <= new Date() && !post.isHidden;
   return {
     ...commentRow(comment, postPublic, post.commentsBlocked),
     postTitle: post.title,

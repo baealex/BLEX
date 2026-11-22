@@ -39,6 +39,7 @@ export interface StoredPost {
   deletedDate: Date | null;
   authorId: number;
   authorUsername: string;
+  authorActive: boolean;
   authorAvatar: string | null;
   readTime: number;
   seriesId: number | null;
