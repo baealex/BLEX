@@ -6,7 +6,6 @@ import test from 'node:test';
 import sharp from 'sharp';
 import { buildApp } from '../src/app.js';
 import { djangoIso, djangoJsonLocal, djangoJsonUtc, localDate, localDateTimeText } from '../src/compat/django-format.js';
-import { camelizeKey, camelizeKeys } from '../src/compat/legacy-api-contract.js';
 import {
   createMigratedDatabase, insertRow, seedEditor, seedPost, signIn,
   testCipherKey, testSecretKey, testSiteUrl, prismaDate } from './fixtures/migrated-database.js';
@@ -54,12 +53,58 @@ function multipart(fields: Record<string, string>, file?: { name: string; filena
   return { payload: Buffer.concat(parts), contentType: `multipart/form-data; boundary=${boundary}` };
 }
 
-test('converts keys exactly like the 3.x API', () => {
-  assert.equal(camelizeKey('contentHtml'), 'contentHtml');
-  assert.equal(camelizeKey('2026-11-01'), '20261101');
-  assert.equal(camelizeKey('NOTIFY_MENTION'), 'NOTIFY_MENTION');
-  assert.equal(camelizeKey('alreadyCamel'), 'alreadyCamel');
-  assert.deepEqual(camelizeKeys({ a_b: [{ c_d: 1 }], e: null }), { aB: [{ cD: 1 }], e: null });
+// No `/v1` field is defined by an external service today. Name one here if that changes.
+const externallyDefinedKeys = new Set<string>();
+
+function snakeCaseKeys(value: unknown, path = '$'): string[] {
+  if (Array.isArray(value)) return value.flatMap((item, index) => snakeCaseKeys(item, `${path}[${index}]`));
+  if (value === null || typeof value !== 'object') return [];
+  return Object.entries(value).flatMap(([key, item]) => [
+    ...(key.includes('_') && !externallyDefinedKeys.has(key) ? [`${path}.${key}`] : []),
+    ...snakeCaseKeys(item, `${path}.${key}`),
+  ]);
+}
+
+test('returns camelCase keys from every /v1 endpoint family', async () => {
+  const fixture = await screensApp();
+  try {
+    const { db } = fixture;
+    insertRow(db, 'Comment', { id: 1, postId: 1, authorId: 2, markdown: 'Hello', html: '<p>Hello</p>', createdAt: prismaDate(recent) });
+    insertRow(db, 'Notification', { id: 1, userId: 1, key: 'comment', url: '/@writer/kept', content: 'Hello', messageKey: 'notify.post_comment',
+      messageParams: JSON.stringify({ actor: 'reader', comment_id: 1, post_title: 'Kept' }) });
+    insertRow(db, 'StaticPage', { id: 1, slug: 'about', title: 'About', content: '<p>About</p>', isPublished: 1 });
+    insertRow(db, 'SiteNotice', { id: 1, scope: 'global', title: 'Notice', isActive: 1 });
+    insertRow(db, 'SiteBanner', { id: 1, scope: 'global', type: 'horizontal', position: 'top', title: 'Banner', contentHtml: '<p>Banner</p>', isActive: 1 });
+    const families = [
+      { headers: signIn(db, 1), urls: [
+        '/v1/setting/account', '/v1/setting/profile', '/v1/setting/posts', '/v1/setting/reserved-posts', '/v1/setting/series', '/v1/setting/tag',
+        '/v1/setting/notify', '/v1/setting/notify-config', '/v1/setting/unread-notify', '/v1/setting/pinned-posts', '/v1/setting/pinnable-posts',
+        '/v1/setting/trash-posts', '/v1/setting/heatmap', '/v1/setting/integration-telegram', '/v1/drafts', '/v1/forms', '/v1/series', '/v1/series/7',
+        '/v1/series/valid-posts', '/v1/banners', '/v1/notices', '/v1/developer-tokens', '/v1/webhook/channels', '/v1/subscriptions', '/v1/comments/user',
+        '/v1/social-providers', '/v1/search?q=Kept', '/v1/users/@writer/heatmap', '/v1/users/@writer/subscription',
+        '/v1/users/@writer/posts/kept?mode=edit', '/v1/users/@writer/posts/kept/related', '/v1/users/@writer/posts/kept/revisions',
+        '/v1/users/@writer/posts/kept/share-links', '/v1/users/@writer/posts/kept/timelapse', '/v1/posts/kept/comments',
+      ] },
+      { headers: signIn(db, 3), urls: [
+        '/v1/admin/users', '/v1/admin/author-invites', '/v1/site-settings', '/v1/login-settings', '/v1/integration-settings', '/v1/static-pages',
+        '/v1/static-pages/1', '/v1/global-banners', '/v1/global-banners/1', '/v1/global-notices', '/v1/global-notices/1', '/v1/webhook/global-channels',
+        '/v1/utilities/stats',
+      ] },
+    ];
+    for (const { headers, urls } of families) {
+      for (const url of urls) {
+        const response = await fixture.app.inject({ url, headers });
+        const payload = response.json() as { status: string };
+        assert.equal(payload.status, 'DONE', `${url} answered ${response.body.slice(0, 120)}`);
+        assert.deepEqual(snakeCaseKeys(payload), [], url);
+      }
+    }
+    const days = (await fixture.app.inject({ url: '/v1/users/@writer/heatmap' })).json() as { body: Record<string, number> };
+    assert.ok(Object.keys(days.body).length > 0);
+    assert.ok(Object.keys(days.body).every((day) => /^\d{8}$/.test(day)), 'heatmap days keep their compact key format');
+  } finally {
+    await fixture.close();
+  }
 });
 
 test('formats stored dates like Django', () => {

@@ -11,7 +11,7 @@ All test paths below are relative to `packages/server/test/`.
 | HTTP response envelopes, status codes, fields, and route behavior | `public-contract-regressions.test.ts`, `upgrade-regressions.test.ts` |
 | Login, signup, OAuth, sessions, and two-factor authentication | `legacy-authentication.test.ts` |
 | Post editing, drafts, publishing, and collection management | `authoring.test.ts`, `author-collections.test.ts`, `upgrade-data-regressions.test.ts` |
-| Settings and administrator permissions | `personal-settings.test.ts`, `admin-settings.test.ts`, `legacy-screens.test.ts` |
+| Settings and administrator permissions | `personal-settings.test.ts`, `admin-settings.test.ts`, `application-screens.test.ts` |
 | Public visibility, Markdown, sitemaps, and RSS | `public-discovery.test.ts`, `public-post.test.ts`, `public-pages.test.ts` |
 | Public and private media, uploads, and deletion | `public-media.test.ts`, `content-media.test.ts`, `work-logs.test.ts` |
 | Developer API token scopes and write operations | `developer-api.test.ts` |

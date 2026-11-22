@@ -70,6 +70,11 @@ async function heatmap(db: PrismaClient, userId: number, own: boolean) {
   return days;
 }
 
+/** `/v1` day keys carry no separators, so they serialize as ascending integer-like keys. */
+function compactDayKeys(days: Record<string, number>) {
+  return Object.fromEntries(Object.entries(days).map(([day, count]) => [day.replaceAll('-', ''), count]));
+}
+
 interface RecentActivity {
   type: 'post' | 'series' | 'comment' | 'like';
   title: string;
@@ -245,11 +250,11 @@ export function registerPublicActivity(app: FastifyInstance, db: PrismaClient, o
   });
   app.get<{ Params: { username: string } }>('/v1/users/@:username/heatmap', async (request, reply) => {
     const account = await db.user.findUnique({ where: { username: request.params.username }, select: { id: true } });
-    return account ? done(await heatmap(db, account.id, false)) : reply.code(404).send('Not found');
+    return account ? done(compactDayKeys(await heatmap(db, account.id, false))) : reply.code(404).send('Not found');
   });
   app.get('/v1/setting/heatmap', async (request) => {
     const user = await options.currentUser(request);
-    return user ? done(await heatmap(db, user.id, true)) : failure('NL');
+    return user ? done(compactDayKeys(await heatmap(db, user.id, true))) : failure('NL');
   });
   app.get('/v1/comments/user', async (request, reply) => {
     const user = await options.currentUser(request);

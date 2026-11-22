@@ -1,7 +1,6 @@
 import cookie from '@fastify/cookie';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
-import { registerLegacyApiContract } from '../compat/legacy-api-contract.js';
 import { registerPersonalSettings } from '../features/account/index.js';
 import { registerAuthentication, type AuthConfig } from '../features/auth/http.js';
 import { passwordUpdater } from '../features/auth/security.js';
@@ -27,6 +26,7 @@ import { registerPublicPostRoute } from '../features/posts/public-post-route.js'
 import { registerAuthorCollections } from '../features/series/index.js';
 import { registerAdminSettings } from '../features/site-admin/index.js';
 import { registerWorkLogs } from '../features/work-logs/index.js';
+import { registerApiMessages } from '../platform/api-messages.js';
 import { validCsrf } from '../platform/csrf.js';
 import { registerSiteAssets } from '../platform/site-assets.js';
 import { registerScreenHost } from '../application/screen-host/index.js';
@@ -41,7 +41,7 @@ type RouteContext = {
 
 /** Registration order is part of the HTTP contract, so feature routes are listed here and nowhere else. */
 export async function registerRoutes(app: FastifyInstance, { db, siteUrl, auth, mediaRoot, currentUser }: RouteContext) {
-  registerLegacyApiContract(app, db, { currentUser });
+  registerApiMessages(app, db, { currentUser });
   const routeOptions = { currentUser, validateCsrf: (request: FastifyRequest) => validCsrf(request, siteUrl), siteUrl, mediaRoot };
   if (auth) {
     await app.register(cookie);
