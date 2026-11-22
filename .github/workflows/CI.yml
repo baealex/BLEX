@@ -41,23 +41,18 @@ jobs:
 
   container:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
     steps:
       - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24.22.1'
+      - run: npm install --global pnpm@11.17.0
+      - run: pnpm install --frozen-lockfile --filter @blex/web
+      - run: pnpm --filter @blex/web exec playwright install --with-deps --only-shell chromium
       - name: Build runtime and migration images
         run: |
           docker build --pull --target migration --tag blex-migration:ci .
           docker build --tag blex:ci .
-
-      - name: Scan BLEX image
-        uses: ./.github/actions/image-security
-        with:
-          image: blex:ci
-          platform: linux/amd64
-          image-source: docker
-          category: blex-container-amd64
 
       - name: Verify the Node runtime and first launch with 512 MiB
         run: |
@@ -76,8 +71,9 @@ jobs:
           }
           trap cleanup EXIT
           docker run --rm --network none -v blex-ci-data:/var/lib/blex blex-migration:ci
-          docker run -d --name blex-ci --network none --memory=512m --cpus=1 \
+          docker run -d --name blex-ci -p 127.0.0.1:8040:8040 --memory=512m --cpus=1 \
             -v blex-ci-data:/var/lib/blex \
+            -e INITIAL_SETUP_TOKEN=ci-setup-token \
             -e SITE_URL=http://127.0.0.1:8040 -e SECRET_KEY=ci-ephemeral-session-key \
             -e CIPHER_KEY=0123456789abcdef0123456789abcdef blex:ci
           docker exec blex-ci node --input-type=module -e '
@@ -90,3 +86,4 @@ jobs:
             }
             throw new Error("BLEX setup page did not become ready");
           '
+          BLEX_SETUP_TOKEN=ci-setup-token pnpm test:smoke

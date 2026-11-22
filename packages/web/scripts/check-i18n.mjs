@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { spawnSync } from 'node:child_process';
@@ -88,6 +88,9 @@ const verifyRuntimeCatalogs = async () => {
     }
 };
 
+// Source references move with the code, so they do not make a catalog stale.
+const withoutSourceReferences = (catalog) => catalog?.replace(/^#:.*\r?\n/gm, '');
+
 const before = snapshotCatalogs();
 
 runLingui(['extract', '--clean']);
@@ -97,7 +100,7 @@ await verifyRuntimeCatalogs();
 const after = snapshotCatalogs();
 const paths = new Set([...before.keys(), ...after.keys()]);
 const changedPaths = [...paths]
-    .filter((path) => before.get(path) !== after.get(path))
+    .filter((path) => withoutSourceReferences(before.get(path)) !== withoutSourceReferences(after.get(path)))
     .sort();
 
 if (changedPaths.length > 0) {
@@ -105,6 +108,10 @@ if (changedPaths.length > 0) {
     changedPaths.forEach((path) => console.error(`- ${path}`));
     console.error('Run "pnpm i18n:extract", translate missing messages, and compile again.');
     process.exit(1);
+}
+
+for (const [path, catalog] of before) {
+    writeFileSync(resolve(appDir, path), catalog);
 }
 
 console.log('Lingui catalogs are current, complete, and runtime-checked.');
