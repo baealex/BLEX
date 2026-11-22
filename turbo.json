@@ -9,7 +9,10 @@
                 "dist/**"
             ]
         },
-        "@blex/remotes#build": {
+        "@blex/server#build": {
+            "cache": false
+        },
+        "@blex/web#build": {
             "dependsOn": [
                 "^build"
             ],

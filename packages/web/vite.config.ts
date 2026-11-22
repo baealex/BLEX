@@ -10,7 +10,7 @@ import { dirname, resolve } from 'path';
 const DEFAULT_DEV_SERVER_PORT = 8100;
 const DEV_SERVER_HOST = process.env.VITE_DEV_SERVER_HOST || 'localhost';
 const DEV_SERVER_INFO_PATH = process.env.VITE_DEV_SERVER_INFO_PATH
-    || resolve(__dirname, '../../../dist/islands/.vite/dev-server.json');
+    || resolve(__dirname, '../server/dist/islands/.vite/dev-server.json');
 
 const getDevServerPort = () => {
     const rawPort = process.env.VITE_DEV_SERVER_PORT;
@@ -80,7 +80,7 @@ export default defineConfig(({ mode }) => {
         },
 
         build: {
-            outDir: '../../../dist/islands',
+            outDir: '../server/dist/islands',
             emptyOutDir: true,
             manifest: true,
             modulePreload: { polyfill: true },

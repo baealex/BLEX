@@ -1,15 +1,20 @@
 packages:
   - 'packages/*'
-  - 'apps/*'
 
 allowBuilds:
   '@parcel/watcher': true
+  '@prisma/client': true
+  '@prisma/engines': true
   esbuild: true
+  prisma: true
+  sharp: true
 
 minimumReleaseAgeExclude:
   - postcss@8.5.24
 
 overrides:
+  '@prisma/config>deepmerge-ts': 8.0.0
+  '@prisma/config>effect': 3.22.1
   '@babel/core': 7.29.6
   baseline-browser-mapping: 2.11.0
   browserslist: 4.28.7

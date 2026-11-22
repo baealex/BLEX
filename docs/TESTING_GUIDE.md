@@ -213,7 +213,7 @@ workspace or download external media; mock external downloads instead.
 
 ```bash
 # All tests
-npm run server:test
+ppnpm test
 
 # Specific app
 ./scripts/manage.sh test board
@@ -341,5 +341,5 @@ Tests run automatically on every PR. Failing tests block merge.
 ```yaml
 # .github/workflows/test.yml
 - name: Run Tests
-  run: npm run server:test
+  run: ppnpm test
 ```

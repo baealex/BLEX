@@ -2,8 +2,8 @@
 /node_modules
 # Data left by BLEX 3.x installs
 /backend/
-/v4/islands/apps/remotes/src/locales/**/*.js
-/v4/islands/apps/remotes/src/locales/**/*.mjs
+/packages/web/src/locales/**/*.js
+/packages/web/src/locales/**/*.mjs
 /frontend/**.env
 
 /*.log
@@ -11,7 +11,11 @@
 test-results/
 playwright-report/
 blob-report/
-/.turbo/
+.turbo/
+stats.html
+packages/*/node_modules/
+packages/*/dist/
+packages/server/.local/
 
 DockerfileDev
 

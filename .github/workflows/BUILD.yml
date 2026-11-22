@@ -52,20 +52,17 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '24.22.1'
-          cache: npm
-          cache-dependency-path: v4/package-lock.json
 
-      - run: npm ci
-        working-directory: v4
+      - run: npm install --global pnpm@11.17.0
+
+      - run: pnpm install --frozen-lockfile
 
       - name: Validate Prisma schema
-        run: npx --no-install prisma validate
-        working-directory: v4
+        run: pnpm --filter @blex/server exec prisma validate
         env:
           DATABASE_URL: file:/tmp/blex-validation.sqlite3
 
-      - run: npm test
-        working-directory: v4
+      - run: pnpm test
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
@@ -90,8 +87,8 @@ jobs:
         id: build
         uses: docker/build-push-action@v7
         with:
-          context: ./v4
-          file: ./v4/Dockerfile
+          context: .
+          file: ./Dockerfile
           platforms: linux/amd64,linux/arm64/v8
           pull: true
           no-cache-filters: runtime
@@ -105,8 +102,8 @@ jobs:
         id: migration
         uses: docker/build-push-action@v7
         with:
-          context: ./v4
-          file: ./v4/Dockerfile
+          context: .
+          file: ./Dockerfile
           target: migration
           platforms: linux/amd64,linux/arm64/v8
           pull: true

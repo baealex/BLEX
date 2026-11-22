@@ -2,20 +2,23 @@
     "name": "blex",
     "version": "4.0.0",
     "description": "BLOG EXPRESS ME",
-    "packageManager": "npm@12.0.1",
+    "packageManager": "pnpm@11.17.0",
     "engines": {
         "node": "^24.22.1 || >=26.12.1"
     },
     "scripts": {
-        "install": "npm --prefix v4 ci",
-        "dev": "npm --prefix v4 run dev",
-        "build": "npm --prefix v4 run build",
-        "build:islands": "npm --prefix v4 run build:islands",
-        "start": "npm --prefix v4 start",
-        "test": "npm --prefix v4 test",
-        "server:test": "npm --prefix v4 test",
-        "type-check": "npm --prefix v4 run type-check",
-        "server:migrate": "npm --prefix v4 run db:migrate"
+        "dev": "pnpm --filter @blex/server run dev",
+        "dev:web": "turbo run build --filter=@blex/ui --filter=@blex/editor && turbo run dev --parallel --filter=@blex/ui --filter=@blex/editor --filter=@blex/web",
+        "build": "pnpm --filter @blex/server run build",
+        "build:web": "turbo run build --filter=@blex/web",
+        "start": "pnpm --filter @blex/server start",
+        "test": "pnpm --filter @blex/server test",
+        "test:web": "pnpm --filter @blex/editor --filter @blex/web run test",
+        "lint": "turbo run lint",
+        "type-check": "turbo run type-check",
+        "i18n:check": "pnpm --filter @blex/web run i18n:check",
+        "check:entry-budgets": "pnpm --filter @blex/web run check:entry-budgets",
+        "db:migrate": "pnpm --filter @blex/server run db:migrate"
     },
     "repository": {
         "type": "git",
@@ -26,5 +29,15 @@
     "bugs": {
         "url": "https://github.com/baealex/BLEX/issues"
     },
-    "homepage": "https://github.com/baealex/BLEX#readme"
+    "homepage": "https://github.com/baealex/BLEX#readme",
+    "devDependencies": {
+        "@baejino/eslint-config": "^0.1.1",
+        "@baejino/eslint-config-react": "^0.1.1",
+        "eslint": "^9.39.5",
+        "glob": "^14.0.6",
+        "tsup": "^8.5.1",
+        "turbo": "^2.10.4",
+        "typescript": "^5.9.3",
+        "yaml": "^2.9.0"
+    }
 }

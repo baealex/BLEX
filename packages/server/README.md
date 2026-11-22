@@ -9,15 +9,15 @@ Fastify가 React SSR, 정적 자산과 기존 HTTP API를 한 프로세스에서
 Node.js 24 이상에서 실행합니다.
 
 ```sh
-cd v4
-npm ci
-npm test
+cd packages/server
+pnpm install --frozen-lockfile
+pnpm test
 ```
 
 백업 복제본의 공개 페이지를 조회할 수 있습니다.
 
 ```sh
-BLEX_V4_READ_ONLY=1 BLEX_V4_DB_PATH=/absolute/path/to/db.sqlite3 npm start
+BLEX_V4_READ_ONLY=1 BLEX_V4_DB_PATH=/absolute/path/to/db.sqlite3 pnpm start
 ```
 
 브라우저에서 `http://localhost:8040`을 엽니다. 기존 미디어까지 조회하려면 `BLEX_V4_MEDIA_PATH`에 복제한 미디어 디렉터리를 지정합니다.
@@ -28,8 +28,8 @@ BLEX_V4_READ_ONLY=1 BLEX_V4_DB_PATH=/absolute/path/to/db.sqlite3 npm start
 저장소 루트에서 이미지 두 개를 만듭니다.
 
 ```sh
-docker build --target migration -t blex4-migration ./v4
-docker build -t blex4 ./v4
+docker build --target migration -t blex4-migration .
+docker build -t blex4 .
 ```
 
 마이그레이션 이미지는 스키마 명령을 실행할 때 사용합니다. 서비스 이미지는 Node.js로 실행되고 미디어 처리를 위해 FFmpeg를 포함합니다. 데이터 디렉터리의 파일과 미디어를 컨테이너의 `node` 사용자(리눅스 UID 1000)가 읽고 쓸 수 있어야 합니다. SQLite 저널 파일도 같은 디렉터리에 작성됩니다.

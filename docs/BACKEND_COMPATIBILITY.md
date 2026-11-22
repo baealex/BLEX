@@ -26,7 +26,7 @@ Run the smallest relevant test module while developing, then run both commands b
 merging a backend refactor PR:
 
 ```bash
-npm run server:test
+ppnpm test
 npm run server:check-migrations
 ```
 

@@ -41,7 +41,7 @@ advisory was withdrawn on 2026-10-23, so audits no longer report it. This
 package is used by build and translation tools; it is not a production runtime
 dependency.
 
-`v4/islands/patches/braces@3.0.3.patch` limits the parser to 100 nested
+`packages/web/patches/braces@3.0.3.patch` limits the parser to 100 nested
 groups, following the mitigation proposed in
 [the upstream report](https://github.com/micromatch/braces/issues/70).
 Both braces and parentheses count toward the limit. Excessive nesting raises a
@@ -70,22 +70,22 @@ security update. Base-page and shared runtime budgets keep their existing limits
 Run from the repository root after installing dependencies:
 
 ```sh
-npm audit
-npm run server:test
-npm run islands:lint
-npm run islands:type-check
-npm run islands:test
-npm run islands:i18n:check
-npm run islands:build
-npm run islands:check-entry-budgets
+pnpm audit
+ppnpm test
+pnpm lint
+pnpm type-check
+ppnpm test:web
+pnpm i18n:check
+pnpm build:web
+pnpm check:entry-budgets
 ```
 
-Run from `v4/islands`:
+Run from `packages/web`:
 
 ```sh
-pnpm install --frozen-lockfile
-pnpm audit --prod
-pnpm audit
+ppnpm install --frozen-lockfile
+ppnpm audit --prod
+ppnpm audit
 ```
 
 The expected audit results for this patch set are no known Python, root npm, or

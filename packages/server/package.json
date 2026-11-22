@@ -1,5 +1,5 @@
 {
-  "name": "@blex/v4",
+  "name": "@blex/server",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -9,13 +9,12 @@
   "scripts": {
     "postinstall": "prisma generate",
     "build": "tsc -p tsconfig.json && vite build",
-    "build:islands": "cd islands && pnpm install --frozen-lockfile && pnpm build",
-    "dev": "npm run build && node dist/src/development.js",
+    "dev": "pnpm run build && node dist/src/development.js",
     "type-check": "tsc -p tsconfig.json --noEmit",
     "db:check-legacy": "node dist/src/database-baseline.js",
     "db:migrate": "prisma migrate deploy",
     "start": "node dist/src/main.js",
-    "test": "npm run build && node --test dist/test/*.test.js"
+    "test": "pnpm run build && node --test dist/test/*.test.js"
   },
   "dependencies": {
     "@fastify/cookie": "^11.1.5",
@@ -55,11 +54,5 @@
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^6.0.0",
     "vite": "^7.3.8"
-  },
-  "overrides": {
-    "@prisma/config": {
-      "deepmerge-ts": "8.0.0",
-      "effect": "3.22.1"
-    }
   }
 }

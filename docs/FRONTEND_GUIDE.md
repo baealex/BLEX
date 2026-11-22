@@ -16,15 +16,15 @@ We organize our frontend as a **monorepo** with strict separation of concerns. D
 
 ### The Package Structure Rule
 
-- **`/v4/islands/packages/ui`**: Shared UI primitives. Reusable across any project.
+- **`/packages/ui`**: Shared UI primitives. Reusable across any project.
   - *Belongs here*: Button, Input, Card, Dialog, Select—atomic components.
   - *Doesn't belong*: Page-specific logic, API calls, business logic.
   - *Dependencies*: Radix UI for accessible primitives. Don't reinvent accessibility.
 
-- **`/v4/islands/packages/editor`**: The Tiptap editor. Isolated complexity.
+- **`/packages/editor`**: The Tiptap editor. Isolated complexity.
   - *Why isolated*: The editor is a core feature. Complexity must not leak.
 
-- **`/v4/islands/apps/remotes`**: Islands App. React meets Django.
+- **`/packages/web`**: Islands App. React meets Django.
   - *What it does*: Web Components wrapper (`<island-component>`), lazy loading, query caching.
 
 > **"If a component could be used on a different project, it belongs in `/packages/ui`. If it's BLEX-specific, it lives in `/apps/remotes`."**
@@ -142,7 +142,7 @@ const { register, handleSubmit } = useForm({ resolver: zodResolver(schema) });
 - Use explicit, domain-prefixed Lingui IDs and English defaults. Product messages belong in the owning package catalog; user-authored content never does.
 - Use ICU messages for plurals and complete interpolated sentences. Format dates and numbers with the active locale instead of fixed Korean formatting.
 - The shared runtime activates its catalog before any island root renders. Do not create a second Lingui instance inside a feature.
-- Commit `.po` catalogs, not generated `.mjs` files. Run `npm run islands:i18n:check` after changing translatable copy.
+- Commit `.po` catalogs, not generated `.mjs` files. Run `pnpm i18n:check` after changing translatable copy.
 
 ## 10. Performance Rules
 
@@ -177,8 +177,8 @@ Before marking a task as "Done":
 4. **Does it follow the design guide?** Check `DESIGN_GUIDE.md`.
 5. **Does it pass linting and type checks?**
    ```bash
-   npm run islands:lint
-   npm run islands:type-check
+   pnpm lint
+   pnpm type-check
    ```
 
 ---
@@ -186,8 +186,8 @@ Before marking a task as "Done":
 ## 12. Development Workflow
 
 ```bash
-npm i        # Install dependencies (backend + frontend)
-npm run dev  # Start all dev servers in parallel
+pnpm install        # Install dependencies (backend + frontend)
+pnpm dev  # Start all dev servers in parallel
 ```
 
 > **Note**: Lint and type checks are **only** for Islands (React) work, **not** for Django template work.

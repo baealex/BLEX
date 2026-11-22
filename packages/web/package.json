@@ -1,7 +1,7 @@
 {
-    "name": "@blex/remotes",
+    "name": "@blex/web",
     "version": "1.0.0",
-    "description": "React islands for BLEX Django project",
+    "description": "React screens for BLEX",
     "type": "module",
     "scripts": {
         "dev": "node scripts/dev.mjs",

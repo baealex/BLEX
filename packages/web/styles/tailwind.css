@@ -2,7 +2,8 @@
 @plugin "tailwindcss-animate";
 
 @source "../../../**/*.{ts,tsx}";
-@source "../../../packages/**/*.{ts,tsx}";
+@source "../../ui/**/*.{ts,tsx}";
+@source "../../editor/**/*.{ts,tsx}";
 @source not "../templates";
 @source "./template-classes.txt";
 

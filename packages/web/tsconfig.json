@@ -34,7 +34,7 @@
     },
     "include": [
         "src",
-        "../../packages/editor/src/utils/languages.ts",
+        "../editor/src/utils/languages.ts",
         "templates/**/*.alpine.ts"
     ],
     "references": [

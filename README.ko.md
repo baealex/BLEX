@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="v4/public/logow.svg">
-    <img alt="BLEX" src="v4/public/logob.svg" width="108">
+    <source media="(prefers-color-scheme: dark)" srcset="packages/server/public/logow.svg">
+    <img alt="BLEX" src="packages/server/public/logob.svg" width="108">
   </picture>
 </p>
 
@@ -59,7 +59,7 @@ docker compose logs blex
 고유한 비밀 키를 설정하고 `SITE_URL`에는 공개 HTTPS 주소를 지정하세요.
 BLEX 앞단에는 HTTPS 프록시를 두고 데이터 디렉터리를 백업합니다.
 3.x에서 업데이트할 때는 기존 SQLite와 미디어를 이관한 뒤 4.0을 실행합니다.
-[BLEX 4 설치 및 이관 가이드](v4/README.md)
+[BLEX 4 설치 및 이관 가이드](packages/server/README.md)
 
 ## 발행 인터페이스
 
@@ -80,16 +80,16 @@ BLEX 앞단에는 HTTPS 프록시를 두고 데이터 디렉터리를 백업합�
 - 로컬에서 GIF 변환과 동영상 미리보기를 사용할 경우 FFmpeg
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
-`http://localhost:8040`에 접속하세요. 개발 명령은 `v4/.local/`에 SQLite
+`http://localhost:8040`에 접속하세요. 개발 명령은 `packages/server/.local/`에 SQLite
 DB를 초기화하고 최초 관리자 설정 링크를 출력합니다.
 
 ## 문서
 
-- [BLEX 4 설치 및 이관 가이드](v4/README.md)
+- [BLEX 4 설치 및 이관 가이드](packages/server/README.md)
 - [개발 규칙](docs/DEV_CONVENTION.md)
 - [번역 가이드](docs/TRANSLATION_GUIDE.md)
 

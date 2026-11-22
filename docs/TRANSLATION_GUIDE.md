@@ -18,9 +18,9 @@ islands, and reusable editor package have different runtime boundaries:
 - Django templates, validation, and server messages:
   `backend/src/locale/{locale}/LC_MESSAGES/django.po`
 - React islands:
-  `v4/islands/apps/remotes/src/locales/{locale}/messages.po`
+  `packages/web/src/locales/{locale}/messages.po`
 - Rich-text editor controls:
-  `v4/islands/packages/editor/src/TiptapEditor/i18n/locales/{locale}.ts`
+  `packages/editor/src/TiptapEditor/i18n/locales/{locale}.ts`
 
 Do not merge these catalogs or copy messages between them. A message belongs to
 the runtime that renders it. Editor locale files are type-checked against the
@@ -41,9 +41,9 @@ Commit both `django.po` and the compiled `django.mo` file.
 For React island messages:
 
 ```bash
-pnpm --dir v4/islands/apps/remotes i18n:extract
-# Edit v4/islands/apps/remotes/src/locales/ko/messages.po
-npm run islands:i18n:check
+pnpm --dir packages/web i18n:extract
+# Edit packages/web/src/locales/ko/messages.po
+pnpm i18n:check
 ```
 
 Commit the PO catalogs. Compiled Lingui `.mjs` files are generated locally and
@@ -61,11 +61,11 @@ Use a supported BCP 47 language code, such as `fr` or `de`.
    gate.
 2. Generate its Django catalog with `makemessages -l {locale}`.
 3. Add the locale to `SUPPORTED_LOCALES` in
-   `v4/islands/apps/remotes/src/i18n/locale.ts`.
+   `packages/web/src/i18n/locale.ts`.
 4. Add its lazy catalog import in
-   `v4/islands/apps/remotes/src/i18n/index.ts`.
+   `packages/web/src/i18n/index.ts`.
 5. Copy the editor's `en.ts` catalog, translate its values, and register the new
-   dynamic loader in `v4/islands/packages/editor/src/TiptapEditor/i18n/messages.ts`.
+   dynamic loader in `packages/editor/src/TiptapEditor/i18n/messages.ts`.
 6. Run the extraction and compile checks for every runtime.
 7. Verify one server-rendered page, one island page, and the editor in the new locale before
    enabling it in production.
@@ -102,10 +102,10 @@ fallback content.
 
 ```bash
 npm run server:compilemessages
-npm run islands:i18n:check
-npm run islands:test
-npm run islands:lint
-npm run islands:type-check
+pnpm i18n:check
+ppnpm test:web
+pnpm lint
+pnpm type-check
 ```
 
 Run a focused Django test for the changed page. Do not add a test for every
