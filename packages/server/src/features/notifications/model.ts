@@ -1,10 +1,20 @@
 import { createHash } from 'node:crypto';
 import { Prisma, type PrismaClient } from '@prisma/client';
+import { publicPostWhere } from '../posts/data/visibility.js';
 import { publicPostPath } from '../posts/public-post.js';
 import { queuePostWebhooks } from '../integrations/webhooks/delivery.js';
 
 export const notificationPreferences = ['NOTIFY_POSTS_LIKE', 'NOTIFY_POSTS_COMMENT', 'NOTIFY_COMMENT_LIKE', 'NOTIFY_MENTION'] as const;
 export type NotificationPreference = typeof notificationPreferences[number];
+export const notificationPreferenceColumns = {
+  NOTIFY_POSTS_LIKE: 'notifyPostLike',
+  NOTIFY_POSTS_COMMENT: 'notifyPostComment',
+  NOTIFY_COMMENT_LIKE: 'notifyCommentLike',
+  NOTIFY_MENTION: 'notifyMention',
+} as const satisfies Record<NotificationPreference, keyof Prisma.UserPreferenceSelect>;
+export const notificationPreferenceSelect = {
+  notifyPostLike: true, notifyPostComment: true, notifyCommentLike: true, notifyMention: true,
+} satisfies Prisma.UserPreferenceSelect;
 export type NotificationKey = 'post.commented' | 'comment.mentioned' | 'comment.liked' | 'comment.replied' | 'post.liked' | 'post.published';
 
 interface NotificationInput {
@@ -39,95 +49,103 @@ export function notificationText(key: string, data: Record<string, unknown>, fal
   } as Record<string, string>)[key] ?? fallback;
 }
 
-export function notificationParams(value: string): Record<string, unknown> {
-  try {
-    const parsed: unknown = JSON.parse(value);
-    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed as Record<string, unknown> : {};
-  } catch {
-    return {};
+export function notificationParams(value: Prisma.JsonValue): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+}
+
+async function telegramDeliveryEnabled(tx: Prisma.TransactionClient) {
+  const settings = await tx.integrationSetting.findUnique({
+    where: { id: 1 },
+    select: { telegramEnabled: true, telegramBotToken: true },
+  });
+  return Boolean(settings?.telegramEnabled && settings.telegramBotToken);
+}
+
+export async function queueNotification(tx: Prisma.TransactionClient, notificationId: number, userId: number, telegramEnabled?: boolean) {
+  if (!(telegramEnabled ?? await telegramDeliveryEnabled(tx))) return;
+  const connection = await tx.telegramConnection.findFirst({ where: { userId, telegramId: { not: '' } }, select: { userId: true } });
+  if (!connection) return;
+  await tx.notificationDelivery.upsert({
+    where: { notificationId },
+    create: { notificationId, availableAt: new Date() },
+    update: {},
+  });
+}
+
+export async function createNotification(tx: Prisma.TransactionClient, input: NotificationInput, telegramEnabled?: boolean) {
+  const user = await tx.user.findFirst({ where: { id: input.recipientId, isActive: true }, select: { username: true } });
+  if (!user || user.username === input.actor) return false;
+  if (input.preference) {
+    // An unset preference stays off until the recipient turns it on.
+    const stored = await tx.userPreference.findUnique({ where: { userId: input.recipientId }, select: notificationPreferenceSelect });
+    if (stored?.[notificationPreferenceColumns[input.preference]] !== true) return false;
   }
-}
-
-export async function queueNotification(tx: Prisma.TransactionClient, notificationId: number, userId: number) {
-  await tx.$executeRaw`
-    INSERT INTO blex_notification_delivery (notification_id, available_at)
-    SELECT ${notificationId}, ${BigInt(Date.now())}
-      FROM board_telegramsync AS link, board_integrationsetting AS settings
-     WHERE link.user_id = ${userId} AND link.tid <> '' AND settings.id = 1
-       AND settings.telegram_enabled = 1 AND settings.telegram_bot_token <> ''
-    ON CONFLICT(notification_id) DO NOTHING
-  `;
-}
-
-export async function createNotification(tx: Prisma.TransactionClient, input: NotificationInput) {
-  const [user] = await tx.$queryRaw<Array<{ username: string; enabled: string | null }>>`
-    SELECT username, (SELECT value FROM board_userconfigmeta WHERE user_id = ${input.recipientId}
-      AND name = ${input.preference ?? ''} ORDER BY id LIMIT 1) AS enabled
-      FROM auth_user WHERE id = ${input.recipientId} AND is_active = 1
-  `;
-  if (!user || user.username === input.actor || (input.preference && user.enabled !== 'true')) return false;
   const data = { actor: input.actor, ...(input.commentId ? { comment_id: input.commentId } : {}), post_title: input.title };
   const payload = JSON.stringify(data);
   const key = createHash('sha256').update(user.username + input.url + `${input.key}:${payload}` + (input.hiddenKey ?? '')).digest('base64');
-  const timestamp = new Date().toISOString().slice(0, -1).replace('T', ' ');
-  const [row] = await tx.$queryRaw<Array<{ id: number }>>`
-    INSERT INTO board_notify (key, user_id, url, content, message_key, message_params, created_date, updated_date, has_read)
-    VALUES (${key}, ${input.recipientId}, ${input.url}, ${notificationText(input.key, data)}, ${input.key}, ${payload},
-            ${timestamp}, ${timestamp}, 0)
-    ON CONFLICT(key) DO NOTHING RETURNING id
-  `;
-  if (!row) return false;
-  await queueNotification(tx, row.id, input.recipientId);
+  const timestamp = new Date();
+  let notificationId: number;
+  try {
+    ({ id: notificationId } = await tx.notification.create({
+      data: {
+        key, userId: input.recipientId, url: input.url, content: notificationText(input.key, data),
+        messageKey: input.key, messageParams: data, createdAt: timestamp, updatedAt: timestamp,
+      },
+      select: { id: true },
+    }));
+  } catch (error) {
+    // The unique key is the deduplication rule, and SQLite keeps the transaction open after this conflict.
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') return false;
+    throw error;
+  }
+  await queueNotification(tx, notificationId, input.recipientId, telegramEnabled);
   return true;
 }
 
 export async function notifyPostSubscribers(tx: Prisma.TransactionClient, postId: number) {
-  const now = new Date().toISOString().slice(0, -1).replace('T', ' ');
-  const subscribers = await tx.$queryRaw<Array<{ subscriber: number; authorId: number; username: string; title: string; slug: string }>>`
-    SELECT relation.subscriber_id AS subscriber, author.id AS authorId, author.username, post.title, post.url AS slug
-      FROM board_post AS post
-      JOIN board_postconfig AS config ON config.post_id = post.id
-      JOIN auth_user AS author ON author.id = post.author_id AND author.is_active = 1
-      JOIN board_profile AS profile ON profile.user_id = author.id AND profile.role = 'EDITOR'
-      JOIN board_authorsubscription AS relation ON relation.author_id = author.id
-     WHERE post.id = ${postId} AND post.published_date <= ${now} AND post.deleted_date IS NULL AND config.hide = 0
-  `;
+  const post = await tx.post.findFirst({
+    where: { id: postId, ...publicPostWhere(), author: { isActive: true, profile: { role: 'EDITOR' } } },
+    select: { authorId: true, title: true, slug: true, author: { select: { username: true } } },
+  });
+  if (!post) return 0;
+  const announcement = { authorId: post.authorId, username: post.author.username, title: post.title, slug: post.slug };
+  const { authorId, username, title, slug } = announcement;
+  const subscribers = await tx.authorSubscription.findMany({ where: { authorId }, select: { subscriberId: true } });
   if (!subscribers.length) return 0;
-  const { authorId, username, slug } = subscribers[0];
-  const aliases = await tx.$queryRaw<Array<{ username: string }>>`
-    SELECT username FROM board_usernamechangelog WHERE user_id = ${authorId}
-  `;
+  const aliases = await tx.usernameChange.findMany({ where: { userId: authorId }, select: { username: true } });
   const url = publicPostPath(username, slug);
   const priorUrls = [url, ...aliases.map((entry) => publicPostPath(entry.username, slug))];
+  const telegramEnabled = await telegramDeliveryEnabled(tx);
+  const announced = await tx.notification.findMany({
+    where: { userId: { in: subscribers.map(({ subscriberId }) => subscriberId) }, messageKey: 'post.published', url: { in: priorUrls } },
+    select: { userId: true },
+  });
+  const alreadyNotified = new Set(announced.map(({ userId }) => userId));
   let delivered = 0;
-  for (const { subscriber, title } of subscribers) {
-    const [earlier] = await tx.$queryRaw<unknown[]>`
-      SELECT 1 FROM board_notify WHERE user_id = ${subscriber} AND message_key = 'post.published' AND url IN (${Prisma.join(priorUrls)}) LIMIT 1
-    `;
-    if (earlier) continue;
+  for (const { subscriberId: subscriber } of subscribers) {
+    if (alreadyNotified.has(subscriber)) continue;
     if (await createNotification(tx, {
       recipientId: subscriber, actor: username, title, url, key: 'post.published', hiddenKey: `post-published:${postId}`,
-    })) delivered += 1;
+    }, telegramEnabled)) delivered += 1;
   }
   return delivered;
 }
 
 /** Keeps the publication queue current. Only a first publication may notify readers and webhooks. */
 export async function syncPostPublication(tx: Prisma.TransactionClient, postId: number, { announce = false } = {}) {
-  const now = new Date().toISOString().slice(0, -1).replace('T', ' ');
-  const [post] = await tx.$queryRaw<Array<{ published: string | null }>>`
-    SELECT CAST(post.published_date AS TEXT) AS published FROM board_post AS post
-      JOIN board_postconfig AS config ON config.post_id = post.id
-     WHERE post.id = ${postId} AND post.deleted_date IS NULL AND config.hide = 0
-  `;
-  if (post?.published && post.published > now) {
-    await tx.$executeRaw`
-      INSERT INTO blex_scheduled_publication (post_id, publish_at) VALUES (${postId}, ${post.published})
-      ON CONFLICT(post_id) DO UPDATE SET publish_at = excluded.publish_at
-    `;
+  const post = await tx.post.findFirst({
+    where: { id: postId, deletedAt: null, isHidden: false },
+    select: { publishedAt: true },
+  });
+  if (post?.publishedAt && post.publishedAt > new Date()) {
+    await tx.scheduledPublication.upsert({
+      where: { postId },
+      create: { postId, publishAt: post.publishedAt },
+      update: { publishAt: post.publishedAt },
+    });
   } else {
-    await tx.$executeRaw`DELETE FROM blex_scheduled_publication WHERE post_id = ${postId}`;
-    if (announce && post?.published) {
+    await tx.scheduledPublication.deleteMany({ where: { postId } });
+    if (announce && post?.publishedAt) {
       await notifyPostSubscribers(tx, postId);
       await queuePostWebhooks(tx, postId);
     }
@@ -135,11 +153,14 @@ export async function syncPostPublication(tx: Prisma.TransactionClient, postId: 
 }
 
 export async function processScheduledPublications(db: PrismaClient) {
-  const now = new Date().toISOString().slice(0, -1).replace('T', ' ');
+  const now = new Date();
   await db.$transaction(async (tx) => {
-    const ready = await tx.$queryRaw<Array<{ id: number }>>`
-      SELECT post_id AS id FROM blex_scheduled_publication WHERE publish_at <= ${now} ORDER BY publish_at LIMIT 20
-    `;
-    for (const { id } of ready) await syncPostPublication(tx, id, { announce: true });
+    const ready = await tx.scheduledPublication.findMany({
+      where: { publishAt: { lte: now } },
+      orderBy: { publishAt: 'asc' },
+      take: 20,
+      select: { postId: true },
+    });
+    for (const { postId } of ready) await syncPostPublication(tx, postId, { announce: true });
   }, { timeout: 15_000 });
 }

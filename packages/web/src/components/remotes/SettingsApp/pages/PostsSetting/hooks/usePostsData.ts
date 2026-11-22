@@ -133,28 +133,28 @@ export const POSTS_ORDER: {
             id: 'settings.posts.order.newest_published',
             message: 'Newest published'
         }),
-        order: '-published_date'
+        order: '-publishedDate'
     },
     {
         label: msg({
             id: 'settings.posts.order.oldest_published',
             message: 'Oldest published'
         }),
-        order: 'published_date'
+        order: 'publishedDate'
     },
     {
         label: msg({
             id: 'settings.posts.order.recently_updated',
             message: 'Recently updated'
         }),
-        order: '-updated_date'
+        order: '-updatedDate'
     },
     {
         label: msg({
             id: 'settings.posts.order.least_recently_updated',
             message: 'Least recently updated'
         }),
-        order: 'updated_date'
+        order: 'updatedDate'
     },
     {
         label: msg({
@@ -175,42 +175,42 @@ export const POSTS_ORDER: {
             id: 'settings.posts.order.most_liked',
             message: 'Most liked'
         }),
-        order: '-count_likes'
+        order: '-countLikes'
     },
     {
         label: msg({
             id: 'settings.posts.order.least_liked',
             message: 'Least liked'
         }),
-        order: 'count_likes'
+        order: 'countLikes'
     },
     {
         label: msg({
             id: 'settings.posts.order.most_commented',
             message: 'Most commented'
         }),
-        order: '-count_comments'
+        order: '-countComments'
     },
     {
         label: msg({
             id: 'settings.posts.order.least_commented',
             message: 'Least commented'
         }),
-        order: 'count_comments'
+        order: 'countComments'
     },
     {
         label: msg({
             id: 'settings.posts.order.shortest',
             message: 'Shortest read'
         }),
-        order: 'read_time'
+        order: 'readTime'
     },
     {
         label: msg({
             id: 'settings.posts.order.longest',
             message: 'Longest read'
         }),
-        order: '-read_time'
+        order: '-readTime'
     }
 ];
 
@@ -218,7 +218,7 @@ const DEFAULT_FILTERS: FilterOptions = {
     search: '',
     tag: '',
     series: '',
-    order: '-published_date',
+    order: '-publishedDate',
     page: '1',
     visibility: ''
 };
@@ -361,7 +361,7 @@ export const usePostsFilterState = () => {
             search: '',
             tag: '',
             series: '',
-            order: filters.order || '-published_date',
+            order: filters.order || '-publishedDate',
             page: '1',
             visibility: ''
         });

@@ -32,6 +32,7 @@ import { api } from '~/components/shared';
 import type { Series } from './types';
 
 interface NewPostEditorProps {
+    username: string;
     draftUrl?: string;
     showFirstPublishGuide?: boolean;
 }
@@ -54,6 +55,7 @@ const generateUrlFromTitle = (title: string) => {
 };
 
 const NewPostEditor = ({
+    username,
     draftUrl,
     showFirstPublishGuide = false
 }: NewPostEditorProps) => {
@@ -225,22 +227,19 @@ const NewPostEditor = ({
         hasSaveError,
         hasPendingChanges,
         autoSaveCountdown,
-        manualSave
+        manualSave,
+        pauseAutoSave,
+        resumeAutoSave
     } = useAutoSave(autoSaveData, autoSaveOptions);
 
-    const handleSubmitError = () => {
-        // Error notification is handled inside useFormSubmit
-    };
-
-    const submitOptions = {
-        draftUrl: currentDraftUrl,
-        onBeforeSubmit: () => {
+    const { formRef, isSubmitting, submitForm } = useFormSubmit({
+        settleDraft: pauseAutoSave,
+        onPublished: (postUrl) => {
             isIntentionalSubmitRef.current = true;
+            window.location.assign(`/@${encodeURIComponent(username)}/${encodeURIComponent(postUrl)}`);
         },
-        onSubmitError: handleSubmitError
-    };
-
-    const { formRef, isSubmitting, submitForm } = useFormSubmit(submitOptions);
+        onRejected: resumeAutoSave
+    });
 
     const publishChecklist = useMemo(() => getPublishChecklist(
         {
@@ -501,26 +500,27 @@ const NewPostEditor = ({
         }));
     };
 
-    const submitCurrentPost = async (isDraft = false) => {
-        await submitForm(
-            {
-                title: formData.title,
-                url: normalizeUrlForSubmit(formData.url),
-                content: formData.content,
-                tags,
-                seriesId: selectedSeries.id,
-                coverLayout: formData.coverLayout,
-                coverImagePosition: formData.coverImagePosition,
-                coverImageRatio: formData.coverImageRatio,
-                imageDeleted,
-                reservedDate: formData.reservedDate
-            },
-            isDraft,
-            false // isEdit
-        );
+    const submitCurrentPost = async () => {
+        await submitForm({
+            title: formData.title,
+            subtitle: formData.subtitle,
+            url: normalizeUrlForSubmit(formData.url),
+            content: formData.content,
+            metaDescription: formData.metaDescription,
+            hide: formData.hide,
+            advertise: formData.advertise,
+            allowComments: formData.allowComments,
+            tags,
+            seriesId: selectedSeries.id,
+            coverLayout: formData.coverLayout,
+            coverImagePosition: formData.coverImagePosition,
+            coverImageRatio: formData.coverImageRatio,
+            imageDeleted,
+            reservedDate: formData.reservedDate
+        });
     };
 
-    const handleSubmit = async (isDraft = false) => {
+    const handleSubmit = () => {
         if (isEditorMediaUploading) {
             toast.warning(formData.reservedDate
                 ? t({
@@ -534,16 +534,7 @@ const NewPostEditor = ({
             return;
         }
 
-        if (isDraft) {
-            await submitCurrentPost(true);
-            return;
-        }
-
         setShowPublishChecklist(true);
-
-        if (!publishChecklist.canPublish) {
-            return;
-        }
     };
 
     const handleConfirmPublish = async () => {
@@ -570,7 +561,7 @@ const NewPostEditor = ({
         }
 
         setShowPublishChecklist(false);
-        await submitCurrentPost(false);
+        await submitCurrentPost();
     };
 
     return (
@@ -629,7 +620,7 @@ const NewPostEditor = ({
                 hasPendingChanges={hasPendingChanges}
                 autoSaveCountdown={autoSaveCountdown}
                 onManualSave={handleManualSave}
-                onSubmit={() => handleSubmit()}
+                onSubmit={handleSubmit}
                 onOpenDrafts={() => setIsDraftsPanelOpen(true)}
                 onPreview={handleOpenPreview}
                 isPreviewing={isPreparingPreview}

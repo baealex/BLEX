@@ -1,5 +1,6 @@
-import { type PrismaClient } from '@prisma/client';
-import { AuthorRow, AuthorSocialLink, DatabaseInteger, PublicPageViewer, SubscriptionState, databaseNow, safeExternalUrl } from '../../discovery/shared.js';
+import type { Prisma, PrismaClient } from '@prisma/client';
+import { AuthorRow, AuthorSocialLink, PublicPageViewer, SubscriptionState, safeExternalUrl } from '../../discovery/shared.js';
+import { publicPostWhere } from '../../posts/data/visibility.js';
 
 export async function subscriptionState(
   db: PrismaClient,
@@ -8,96 +9,60 @@ export async function subscriptionState(
 ): Promise<SubscriptionState> {
   const canSubscribe = isEditor(author) && viewer?.id !== author.id;
   if (!canSubscribe || !viewer) return { canSubscribe, isSubscribed: false };
-  const rows = await db.$queryRaw<Array<{ present: DatabaseInteger }>>`
-    SELECT EXISTS (
-      SELECT 1 FROM board_authorsubscription
-       WHERE author_id = ${author.id} AND subscriber_id = ${viewer.id}
-    ) AS present
-  `;
-  return { canSubscribe: true, isSubscribed: Number(rows[0]?.present ?? 0) !== 0 };
+  const subscription = await db.authorSubscription.findUnique({
+    where: { subscriberId_authorId: { subscriberId: viewer.id, authorId: author.id } },
+    select: { id: true },
+  });
+  return { canSubscribe: true, isSubscribed: subscription !== null };
+}
+
+function authorSelect() {
+  const publicPost = publicPostWhere();
+  return {
+    id: true, username: true, name: true, isActive: true,
+    profile: { select: { bio: true, avatar: true, cover: true, homepage: true, aboutHtml: true, aboutMarkdown: true, role: true } },
+    _count: { select: {
+      posts: { where: publicPost },
+      series: { where: { isHidden: false, posts: { some: publicPost } } },
+    } },
+  } satisfies Prisma.UserSelect;
+}
+
+function authorRow(user: Prisma.UserGetPayload<{ select: ReturnType<typeof authorSelect> }>): AuthorRow {
+  const { profile } = user;
+  return {
+    id: user.id, username: user.username, firstName: user.name, isActive: user.isActive,
+    bio: profile?.bio ?? '', avatar: profile?.avatar ?? '', cover: profile?.cover ?? '', homepage: profile?.homepage ?? '',
+    aboutHtml: profile?.aboutHtml ?? '', aboutMarkdown: profile?.aboutMarkdown ?? '', role: profile?.role ?? '',
+    publicPostCount: user._count.posts, publicSeriesCount: user._count.series,
+  };
 }
 
 export async function readAuthor(db: PrismaClient, username: string): Promise<AuthorRow | null> {
-  const now = databaseNow();
-  const current = await db.$queryRaw<AuthorRow[]>`
-    SELECT author.id AS id,
-           author.username AS username,
-           author.first_name AS firstName,
-           author.is_active AS isActive,
-           COALESCE(profile.bio, '') AS bio,
-           COALESCE(profile.avatar, '') AS avatar,
-           COALESCE(profile.cover, '') AS cover,
-           COALESCE(profile.homepage, '') AS homepage,
-           COALESCE(profile.about_html, '') AS aboutHtml,
-           COALESCE(profile.about_md, '') AS aboutMarkdown,
-           COALESCE(profile.role, '') AS role,
-           (SELECT COUNT(*) FROM board_post AS post
-             LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-            WHERE post.author_id = author.id
-              AND post.deleted_date IS NULL AND post.published_date IS NOT NULL
-              AND post.published_date <= ${now} AND COALESCE(post_config.hide, 0) = 0) AS publicPostCount,
-           (SELECT COUNT(*) FROM board_series AS series
-            WHERE series.owner_id = author.id AND COALESCE(series.hide, 0) = 0
-              AND EXISTS (SELECT 1 FROM board_post AS post
-                LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-               WHERE post.series_id = series.id
-                 AND post.deleted_date IS NULL AND post.published_date IS NOT NULL
-                 AND post.published_date <= ${now} AND COALESCE(post_config.hide, 0) = 0)) AS publicSeriesCount
-      FROM auth_user AS author
-      LEFT JOIN board_profile AS profile ON profile.user_id = author.id
-     WHERE author.username = ${username}
-     LIMIT 1
-  `;
-  if (current[0]) return current[0];
-
-  const previous = await db.$queryRaw<AuthorRow[]>`
-    SELECT author.id AS id,
-           author.username AS username,
-           author.first_name AS firstName,
-           author.is_active AS isActive,
-           COALESCE(profile.bio, '') AS bio,
-           COALESCE(profile.avatar, '') AS avatar,
-           COALESCE(profile.cover, '') AS cover,
-           COALESCE(profile.homepage, '') AS homepage,
-           COALESCE(profile.about_html, '') AS aboutHtml,
-           COALESCE(profile.about_md, '') AS aboutMarkdown,
-           COALESCE(profile.role, '') AS role,
-           (SELECT COUNT(*) FROM board_post AS post
-             LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-            WHERE post.author_id = author.id
-              AND post.deleted_date IS NULL AND post.published_date IS NOT NULL
-              AND post.published_date <= ${now} AND COALESCE(post_config.hide, 0) = 0) AS publicPostCount,
-           (SELECT COUNT(*) FROM board_series AS series
-            WHERE series.owner_id = author.id AND COALESCE(series.hide, 0) = 0
-              AND EXISTS (SELECT 1 FROM board_post AS post
-                LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-               WHERE post.series_id = series.id
-                 AND post.deleted_date IS NULL AND post.published_date IS NOT NULL
-                 AND post.published_date <= ${now} AND COALESCE(post_config.hide, 0) = 0)) AS publicSeriesCount
-      FROM board_usernamechangelog AS previous
-      JOIN auth_user AS author ON author.id = previous.user_id
-      LEFT JOIN board_profile AS profile ON profile.user_id = author.id
-     WHERE previous.username = ${username}
-     ORDER BY previous.created_date DESC, previous.id DESC
-     LIMIT 1
-  `;
-  return previous[0] ?? null;
+  const current = await db.user.findUnique({ where: { username }, select: authorSelect() });
+  if (current) return authorRow(current);
+  const previous = await db.usernameChange.findFirst({
+    where: { username },
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    select: { user: { select: authorSelect() } },
+  });
+  return previous ? authorRow(previous.user) : null;
 }
 
 export async function readAuthorSocialLinks(db: PrismaClient, authorId: number): Promise<AuthorSocialLink[]> {
-  const rows = await db.$queryRaw<Array<AuthorSocialLink>>`
-    SELECT id, name, value FROM board_userlinkmeta
-     WHERE user_id = ${authorId}
-     ORDER BY "order" ASC, id ASC
-  `;
+  const rows = await db.socialLink.findMany({
+    where: { userId: authorId },
+    orderBy: [{ order: 'asc' }, { id: 'asc' }],
+    select: { id: true, platform: true, url: true },
+  });
   return rows.flatMap((link) => {
-    const value = safeExternalUrl(link.value);
-    return value ? [{ ...link, value }] : [];
+    const value = safeExternalUrl(link.url);
+    return value ? [{ id: link.id, name: link.platform, value }] : [];
   });
 }
 
 export function isEditor(author: AuthorRow): boolean {
-  return Number(author.isActive) !== 0 && author.role === 'EDITOR';
+  return author.isActive && author.role === 'EDITOR';
 }
 
 export function authorPath(username: string, suffix = ''): string {

@@ -431,7 +431,7 @@ function handleDocumentSubmit(event: SubmitEvent): void {
       /^\/v1\/users\/@[^/]+\/subscription\/?$/.test(destination.pathname) ||
       /^\/v1\/setting\/(?:avatar|cover)\/?$/.test(destination.pathname);
     if (destination.pathname.startsWith('/v1/') &&
-        (!isFormRedirectEndpoint || !isSafeFormReturnTo(data.get('return_to')))) return;
+        (!isFormRedirectEndpoint || !isSafeFormReturnTo(data.get('returnTo')))) return;
     if (destination.pathname.startsWith('/api/')) return;
     const activeRouter = router;
     if (!activeRouter) return;
@@ -506,7 +506,7 @@ function showPostFeedback(form: HTMLFormElement, message: string): void {
 }
 
 function formReturnFragment(data: FormData, action: URL, finalUrl: URL): string {
-  const returnTo = data.get('return_to');
+  const returnTo = data.get('returnTo');
   if (isSafeFormReturnTo(returnTo)) {
     const target = new URL(returnTo, window.location.href);
     if (sameRoute(target, finalUrl)) return target.hash;

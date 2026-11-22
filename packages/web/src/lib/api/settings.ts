@@ -22,7 +22,7 @@ export interface RegionalPreferences {
 export const updateRegionalPreferences = (language: string | null, timeZone: string) => (
     http.put<Response<Record<string, never>>>('v1/setting/regional-preferences', {
         language,
-        time_zone: timeZone
+        timeZone
     })
 );
 
@@ -30,7 +30,7 @@ export interface AccountUpdateData {
     username?: string;
     name?: string;
     password?: string;
-    revoke_tokens?: boolean;
+    revokeTokens?: boolean;
 }
 
 export interface ProfileData {
@@ -43,13 +43,6 @@ export interface ProfileData {
 export interface ProfileUpdateData {
     bio?: string;
     homepage?: string;
-}
-
-export interface NotifyConfig {
-    notify_posts_liked?: boolean;
-    notify_posts_commented?: boolean;
-    notify_comment_liked?: boolean;
-    notify_new_follower?: boolean;
 }
 
 export interface Tag {
@@ -198,7 +191,7 @@ export interface SeriesMutationData {
     name?: string;
     url?: string;
     description?: string;
-    post_ids?: number[];
+    postIds?: number[];
 }
 
 export interface AvailableSeriesPost {
@@ -232,7 +225,7 @@ export const deleteSeriesById = async (seriesId: number) => {
 };
 
 export const getAvailablePosts = async (seriesId?: number) => {
-    const query = seriesId !== undefined ? `?series_id=${seriesId}` : '';
+    const query = seriesId !== undefined ? `?seriesId=${seriesId}` : '';
     return http.get<Response<AvailableSeriesPost[]>>(`v1/series/valid-posts${query}`);
 };
 
@@ -280,19 +273,19 @@ export interface BannerData {
 
 export interface BannerCreateData {
     title: string;
-    content_html: string;
-    banner_type: 'horizontal' | 'sidebar';
+    contentHtml: string;
+    bannerType: 'horizontal' | 'sidebar';
     position: 'top' | 'bottom' | 'left' | 'right';
-    is_active?: boolean;
+    isActive?: boolean;
     order?: number;
 }
 
 export interface BannerUpdateData {
     title?: string;
-    content_html?: string;
-    banner_type?: 'horizontal' | 'sidebar';
+    contentHtml?: string;
+    bannerType?: 'horizontal' | 'sidebar';
     position?: 'top' | 'bottom' | 'left' | 'right';
-    is_active?: boolean;
+    isActive?: boolean;
     order?: number;
 }
 
@@ -371,14 +364,14 @@ export const getPinnablePosts = async (
 
 export const addPinnedPost = async (postUrl: string) => {
     const formData = new URLSearchParams();
-    formData.append('post_url', postUrl);
+    formData.append('postUrl', postUrl);
 
     return http.post<Response<{ success: boolean }>>('v1/setting/pinned-posts', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
 };
 
 export const removePinnedPost = async (postUrl: string) => {
     const formData = new URLSearchParams();
-    formData.append('post_url', postUrl);
+    formData.append('postUrl', postUrl);
 
     return http.delete<Response<{ success: boolean }>>('v1/setting/pinned-posts', {
         data: formData,
@@ -388,7 +381,7 @@ export const removePinnedPost = async (postUrl: string) => {
 
 export const updatePinnedPostsOrder = async (postUrls: string[]) => {
     const formData = new URLSearchParams();
-    formData.append('post_urls', JSON.stringify(postUrls));
+    formData.append('postUrls', JSON.stringify(postUrls));
 
     return http.put<Response<{ success: boolean }>>('v1/setting/pinned-posts/order', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
 };
@@ -407,7 +400,7 @@ export const getWebhookChannels = async () => {
     return http.get<Response<{ channels: WebhookChannel[] }>>('v1/webhook/channels');
 };
 
-export const addWebhookChannel = async (data: { webhook_url: string; name?: string }) => {
+export const addWebhookChannel = async (data: { webhookUrl: string; name?: string }) => {
     return http.post<Response<{ success: boolean; channelId: number }>>('v1/webhook/channels', data, { headers: { 'Content-Type': 'application/json' } });
 };
 
@@ -419,7 +412,7 @@ export const getGlobalWebhookChannels = async () => {
     return http.get<Response<{ channels: WebhookChannel[] }>>('v1/webhook/global-channels');
 };
 
-export const addGlobalWebhookChannel = async (data: { webhook_url: string; name?: string }) => {
+export const addGlobalWebhookChannel = async (data: { webhookUrl: string; name?: string }) => {
     return http.post<Response<{ success: boolean; channelId: number }>>('v1/webhook/global-channels', data, { headers: { 'Content-Type': 'application/json' } });
 };
 
@@ -428,7 +421,7 @@ export const deleteGlobalWebhookChannel = async (channelId: number) => {
 };
 
 export const testWebhook = async (webhookUrl: string) => {
-    return http.post<Response<{ success: boolean }>>('v1/webhook/test', { webhook_url: webhookUrl }, { headers: { 'Content-Type': 'application/json' } });
+    return http.post<Response<{ success: boolean }>>('v1/webhook/test', { webhookUrl }, { headers: { 'Content-Type': 'application/json' } });
 };
 
 // Developer API Token API
@@ -452,7 +445,7 @@ export interface CreatedDeveloperTokenData extends DeveloperTokenData {
 export interface DeveloperTokenCreateData {
     name?: string;
     scopes: DeveloperTokenScope[];
-    expires_in_days?: number;
+    expiresInDays?: number;
 }
 
 export const getDeveloperTokens = async () => {
@@ -485,9 +478,9 @@ export interface StaticPageCreateData {
     title: string;
     slug: string;
     content: string;
-    meta_description?: string;
-    is_published?: boolean;
-    show_in_footer?: boolean;
+    metaDescription?: string;
+    isPublished?: boolean;
+    showInFooter?: boolean;
     order?: number;
 }
 
@@ -495,9 +488,9 @@ export interface StaticPageUpdateData {
     title?: string;
     slug?: string;
     content?: string;
-    meta_description?: string;
-    is_published?: boolean;
-    show_in_footer?: boolean;
+    metaDescription?: string;
+    isPublished?: boolean;
+    showInFooter?: boolean;
     order?: number;
 }
 
@@ -534,13 +527,13 @@ export interface NoticeData {
 export interface NoticeCreateData {
     title: string;
     url: string;
-    is_active?: boolean;
+    isActive?: boolean;
 }
 
 export interface NoticeUpdateData {
     title?: string;
     url?: string;
-    is_active?: boolean;
+    isActive?: boolean;
 }
 
 export const getNotices = async () => {
@@ -572,13 +565,13 @@ export interface GlobalNoticeData {
 export interface GlobalNoticeCreateData {
     title: string;
     url: string;
-    is_active?: boolean;
+    isActive?: boolean;
 }
 
 export interface GlobalNoticeUpdateData {
     title?: string;
     url?: string;
-    is_active?: boolean;
+    isActive?: boolean;
 }
 
 export const getGlobalNotices = async () => {
@@ -613,19 +606,19 @@ export interface GlobalBannerData {
 
 export interface GlobalBannerCreateData {
     title: string;
-    content_html: string;
-    banner_type: 'horizontal' | 'sidebar';
+    contentHtml: string;
+    bannerType: 'horizontal' | 'sidebar';
     position: 'top' | 'bottom' | 'left' | 'right';
-    is_active?: boolean;
+    isActive?: boolean;
     order?: number;
 }
 
 export interface GlobalBannerUpdateData {
     title?: string;
-    content_html?: string;
-    banner_type?: 'horizontal' | 'sidebar';
+    contentHtml?: string;
+    bannerType?: 'horizontal' | 'sidebar';
     position?: 'top' | 'bottom' | 'left' | 'right';
-    is_active?: boolean;
+    isActive?: boolean;
     order?: number;
 }
 
@@ -687,19 +680,19 @@ export interface SiteSettingData {
 
 export interface SocialAuthProviderUpdateData {
     key: string;
-    is_enabled?: boolean;
-    client_id?: string;
-    client_secret?: string;
-    clear_client_secret?: boolean;
+    isEnabled?: boolean;
+    clientId?: string;
+    clientSecret?: string;
+    clearClientSecret?: boolean;
 }
 
 export interface SiteSettingUpdateData {
-    site_name?: string;
-    header_script?: string;
-    footer_script?: string;
-    seo_enabled?: boolean;
-    robots_txt_extra_rules?: string;
-    aeo_enabled?: boolean;
+    siteName?: string;
+    headerScript?: string;
+    footerScript?: string;
+    seoEnabled?: boolean;
+    robotsTxtExtraRules?: string;
+    aeoEnabled?: boolean;
 }
 
 export interface LoginSettingData {
@@ -714,14 +707,14 @@ export interface LoginSettingData {
 }
 
 export interface LoginSettingUpdateData {
-    welcome_notification_message?: string;
-    welcome_notification_url?: string;
-    account_deletion_redirect_url?: string;
-    hcaptcha_enabled?: boolean;
-    hcaptcha_site_key?: string;
-    hcaptcha_secret_key?: string;
-    clear_hcaptcha_secret_key?: boolean;
-    social_auth_providers?: SocialAuthProviderUpdateData[];
+    welcomeNotificationMessage?: string;
+    welcomeNotificationUrl?: string;
+    accountDeletionRedirectUrl?: string;
+    hcaptchaEnabled?: boolean;
+    hcaptchaSiteKey?: string;
+    hcaptchaSecretKey?: string;
+    clearHcaptchaSecretKey?: boolean;
+    socialAuthProviders?: SocialAuthProviderUpdateData[];
 }
 
 export type TelegramConnectionState =
@@ -745,10 +738,10 @@ export interface IntegrationSettingData {
 }
 
 export interface IntegrationSettingUpdateData {
-    telegram_enabled?: boolean;
-    telegram_bot_username?: string;
-    telegram_bot_token?: string;
-    clear_telegram_bot_token?: boolean;
+    telegramEnabled?: boolean;
+    telegramBotUsername?: string;
+    telegramBotToken?: string;
+    clearTelegramBotToken?: boolean;
 }
 
 export const getSiteSettings = async () => {
@@ -785,7 +778,7 @@ export const uploadBrandAsset = async (data: FormData) => {
 export const deleteBrandAsset = async (assetType: BrandAssetType, theme: BrandAssetTheme) => {
     return http.delete<Response<SiteSettingData>>('v1/site-settings/brand-assets', {
         data: {
-            asset_type: assetType,
+            assetType,
             theme
         },
         headers: { 'Content-Type': 'application/json' }
@@ -876,8 +869,8 @@ export const getUtilityStats = async () => {
 };
 
 const cleanupConfirmationBody = (dryRun: boolean, confirmationToken?: string) => ({
-    dry_run: dryRun,
-    ...(confirmationToken ? { confirmation_token: confirmationToken } : {})
+    dryRun,
+    ...(confirmationToken ? { confirmationToken } : {})
 });
 
 export const cleanTags = async (dryRun: boolean, confirmationToken?: string) => {
@@ -895,7 +888,7 @@ export const cleanSessions = async (
 ) => {
     return http.post<Response<SessionCleanResult>>('v1/utilities/clean-sessions', {
         ...cleanupConfirmationBody(dryRun, confirmationToken),
-        clean_all: cleanAll
+        cleanAll
     }, { headers: { 'Content-Type': 'application/json' } });
 };
 
@@ -916,14 +909,14 @@ export const cleanImages = async (
     return http.post<Response<ImageCleanResult>>('v1/utilities/clean-images', {
         ...cleanupConfirmationBody(dryRun, confirmationToken),
         target,
-        remove_duplicates: removeDuplicates
+        removeDuplicates
     }, { headers: { 'Content-Type': 'application/json' } });
 };
 
 // Admin User Management API
 export type ManagedUserRole = 'READER' | 'EDITOR';
 export type ManagedUserRoleFilter = 'all' | 'reader' | 'editor' | 'admin';
-export type ManagedUserOrdering = 'username' | '-username' | 'post_count' | '-post_count' | 'date_joined' | '-date_joined';
+export type ManagedUserOrdering = 'username' | '-username' | 'postCount' | '-postCount' | 'dateJoined' | '-dateJoined';
 
 export interface ManagedUser {
     id: number;
@@ -975,7 +968,7 @@ export const getManagedUsers = async (
     if (role !== 'all') params.set('role', role);
     params.set('ordering', ordering);
     params.set('page', String(page));
-    params.set('page_size', String(pageSize));
+    params.set('pageSize', String(pageSize));
 
     return http.get<Response<ManagedUsersResult>>(`v1/admin/users?${params.toString()}`);
 };

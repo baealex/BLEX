@@ -8,8 +8,8 @@ import { updateAccountIdentity } from './account-identity.js';
 import { accountEmailPattern, accountUsernamePattern, describeInvalidPassword, normalizeAccountEmail, signupRegion } from './account-validation.js';
 import { authCookieOptions, csrfCookie, sessionCookie, setSessionCookies } from '../../platform/cookies.js';
 import { csrfPattern, formInput, validCsrf } from '../../platform/csrf.js';
-import { hashDjangoPassword } from './django-password.js';
-import { decryptDjangoSecret } from './django-secret.js';
+import { hashPassword } from './password-hash.js';
+import { decryptSecret } from './encrypted-secret.js';
 import type { AuthConfig } from './http.js';
 import { reserveLoginAttempt } from './login-attempts.js';
 import { publicOAuthProviders, safeReturnPath } from './oauth.js';
@@ -17,7 +17,7 @@ import { createSession, createToken, loginBody, readSession } from './session.js
 import { hasAdministrator, insertAccount } from './setup.js';
 
 interface SignupSettings {
-  captchaEnabled: bigint | number | boolean;
+  captchaEnabled: boolean;
   siteKey: string;
   secretKey: string;
   welcome: string;
@@ -25,17 +25,28 @@ interface SignupSettings {
 }
 
 async function signupSettings(db: PrismaClient) {
-  const [settings] = await db.$queryRaw<SignupSettings[]>`
-    SELECT hcaptcha_enabled AS captchaEnabled, hcaptcha_site_key AS siteKey, hcaptcha_secret_key AS secretKey,
-           welcome_notification_message AS welcome, welcome_notification_url AS welcomeUrl
-      FROM board_loginsetting WHERE id = 1
-  `;
-  return settings;
+  const settings = await db.loginSetting.findUnique({
+    where: { id: 1 },
+    select: {
+      hcaptchaEnabled: true,
+      hcaptchaSiteKey: true,
+      hcaptchaSecretKey: true,
+      welcomeNotificationMessage: true,
+      welcomeNotificationUrl: true,
+    },
+  });
+  return settings ? {
+    captchaEnabled: settings.hcaptchaEnabled,
+    siteKey: settings.hcaptchaSiteKey,
+    secretKey: settings.hcaptchaSecretKey,
+    welcome: settings.welcomeNotificationMessage,
+    welcomeUrl: settings.welcomeNotificationUrl,
+  } : undefined;
 }
 
 /** Like 3.x, a captcha without a usable secret is treated as switched off. */
 function activeCaptcha(settings: SignupSettings | undefined, cipherKey: string) {
-  const secret = settings?.captchaEnabled ? decryptDjangoSecret(settings.secretKey, cipherKey) : null;
+  const secret = settings?.captchaEnabled ? decryptSecret(settings.secretKey, cipherKey) : null;
   return secret ? { secret, siteKey: settings!.siteKey.trim() } : null;
 }
 
@@ -47,15 +58,13 @@ class InvalidSignup extends Error {
   constructor(message: string, readonly code = 'VA') { super(message); }
 }
 
-interface Invite { id: number; active: bigint | number | boolean; owner: number | null }
+const usedInvite = '이미 사용되었거나 비활성화된 초대 코드입니다.';
 
-async function findInvite(db: PrismaClient | Prisma.TransactionClient, code: string): Promise<Invite | undefined> {
+async function findInvite(db: PrismaClient | Prisma.TransactionClient, code: string) {
   if (!code) return;
-  const [invite] = await db.$queryRaw<Invite[]>`
-    SELECT id, is_active AS active, claimed_by_id AS owner FROM board_authorinvite WHERE code = ${code}
-  `;
+  const invite = await db.authorInvite.findUnique({ where: { code }, select: { id: true, isActive: true, claimedById: true } });
   if (!invite) throw new InvalidSignup('유효하지 않은 초대 코드입니다.', 'RJ');
-  if (!invite.active || invite.owner !== null) throw new InvalidSignup('이미 사용되었거나 비활성화된 초대 코드입니다.', 'RJ');
+  if (!invite.isActive || invite.claimedById !== null) throw new InvalidSignup(usedInvite, 'RJ');
   return invite;
 }
 
@@ -83,7 +92,7 @@ async function createPasswordAccount(db: PrismaClient, request: FastifyRequest, 
   const displayName = regularField(input, 'name');
   const email = regularField(input, 'email');
   const password = regularField(input, 'password');
-  const inviteCode = regularField(input, 'invite_code').trim();
+  const inviteCode = regularField(input, 'inviteCode').trim();
   if (await db.user.findUnique({ where: { username }, select: { id: true } })) throw new InvalidSignup('이미 사용중인 아이디입니다.');
   if (!accountUsernamePattern.test(username)) throw new InvalidSignup('사용자 이름은 4~15자 사이의 소문자 영어, 숫자만 가능합니다.');
   if (email.length > 254 || !accountEmailPattern.test(email)) throw new InvalidSignup('올바른 이메일 주소가 아닙니다.');
@@ -103,25 +112,32 @@ async function createPasswordAccount(db: PrismaClient, request: FastifyRequest, 
     }
   }
 
-  const passwordHash = await hashDjangoPassword(password);
-  const { language, timeZone } = signupRegion(request, regularField(input, 'time_zone'));
-  const timestamp = new Date().toISOString().slice(0, -1).replace('T', ' ');
+  const passwordHash = await hashPassword(password);
+  const { language, timeZone } = signupRegion(request, regularField(input, 'timeZone'));
   const userId = await db.$transaction(async (tx) => {
     // Acquire the SQLite write lock before rechecking the username and invitation.
-    await tx.$executeRaw`UPDATE auth_user SET username = username WHERE username = ${username}`;
+    await tx.user.updateMany({ where: { username }, data: { username } });
     if (await tx.user.findUnique({ where: { username }, select: { id: true } })) throw new InvalidSignup('이미 사용중인 아이디입니다.');
     const invite = await findInvite(tx, inviteCode);
     const id = await insertAccount(tx, {
       username, displayName, email: normalizeAccountEmail(email), passwordHash, editor: Boolean(invite), language, timeZone,
     });
-    if (invite) await tx.$executeRaw`
-      UPDATE board_authorinvite SET claimed_by_id = ${id}, claimed_date = ${timestamp}, is_active = 0 WHERE id = ${invite.id}
-    `;
-    if (settings?.welcome) await tx.$executeRaw`
-      INSERT INTO board_notify (key, url, created_date, updated_date, user_id, content, has_read, message_key, message_params)
-      VALUES (${createToken()}, ${settings.welcomeUrl || '/'}, ${timestamp}, ${timestamp}, ${id},
-              ${settings.welcome.replaceAll('{name}', () => displayName)}, 0, '', '{}')
-    `;
+    if (invite) {
+      const { count } = await tx.authorInvite.updateMany({
+        where: { id: invite.id, isActive: true, claimedById: null },
+        data: { claimedById: id, claimedAt: new Date(), isActive: false },
+      });
+      if (count !== 1) throw new InvalidSignup(usedInvite, 'RJ');
+    }
+    if (settings?.welcome) {
+      const createdAt = new Date();
+      await tx.notification.create({
+        data: {
+          key: createToken(), url: settings.welcomeUrl || '/', userId: id,
+          content: settings.welcome.replaceAll('{name}', () => displayName), messageParams: {}, createdAt, updatedAt: createdAt,
+        },
+      });
+    }
     return id;
   });
   return { userId, passwordHash };
@@ -151,9 +167,9 @@ function signupMarkup(csrf: string, next: string, invite: string, siteKey: strin
                 <label className={authField}>표시 이름<input className={authInput} name="name" autoComplete="name" placeholder="표시 이름을 입력하세요" maxLength={150} required /></label>
                 <label className={authField}>이메일<input className={authInput} name="email" type="email" autoComplete="email" placeholder="이메일을 입력하세요" maxLength={254} required /></label>
                 <label className={authField}>비밀번호<input className={authInput} name="password" type="password" placeholder="비밀번호를 입력하세요" minLength={8} autoComplete="new-password" required /></label>
-                <label className={authField}>비밀번호 확인<input className={authInput} name="password_check" type="password" placeholder="비밀번호를 한 번 더 입력하세요" minLength={8} autoComplete="new-password" required /></label>
+                <label className={authField}>비밀번호 확인<input className={authInput} name="passwordCheck" type="password" placeholder="비밀번호를 한 번 더 입력하세요" minLength={8} autoComplete="new-password" required /></label>
                 <details open={Boolean(invite)}><summary className="cursor-pointer text-xs font-semibold text-content-secondary">초대 코드</summary>
-                  <input className={authInput} name="invite_code" aria-label="초대 코드" defaultValue={invite} maxLength={64} /></details>
+                  <input className={authInput} name="inviteCode" aria-label="초대 코드" defaultValue={invite} maxLength={64} /></details>
                 {siteKey && <div className="h-captcha" data-sitekey={siteKey} data-blex-hcaptcha-widget="" />}
                 <button className={authSubmit} type="submit">가입하기</button>
               </form>
@@ -175,7 +191,7 @@ export function registerSignup(app: FastifyInstance, db: PrismaClient, siteUrl: 
   app.get<{ Querystring: { username?: string } }>('/v1/sign', async (request) => {
     const username = request.query.username;
     const exists = typeof username === 'string' && await db.user.findUnique({ where: { username }, select: { id: true } });
-    return { status: 'DONE', body: { is_available: !exists } };
+    return { status: 'DONE', body: { isAvailable: !exists } };
   });
 
   app.get<{ Querystring: { next?: string; invite?: string } }>('/sign', async (request, reply) => {
@@ -195,7 +211,7 @@ export function registerSignup(app: FastifyInstance, db: PrismaClient, siteUrl: 
       const next = safeReturnPath(request.query.next, siteUrl);
       try {
         const input = formInput(request);
-        if (route === '/sign' && Object.hasOwn(input, 'password_check') && regularField(input, 'password_check') !== regularField(input, 'password')) {
+        if (route === '/sign' && Object.hasOwn(input, 'passwordCheck') && regularField(input, 'passwordCheck') !== regularField(input, 'password')) {
           throw new InvalidSignup('두 비밀번호가 일치하지 않습니다.');
         }
         const account = await createPasswordAccount(db, request, config);
@@ -210,7 +226,7 @@ export function registerSignup(app: FastifyInstance, db: PrismaClient, siteUrl: 
         if (route === '/v1/sign') return legacyError(error.code, error.message);
         const [settings, providers, brand] = await Promise.all([signupSettings(db), publicOAuthProviders(db, config.cipherKey), readPublicSiteBrand(db)]);
         return reply.type('text/html; charset=utf-8').send(signupMarkup(request.cookies[csrfCookie] ?? '', next,
-          regularField(formInput(request), 'invite_code'), activeCaptcha(settings, config.cipherKey)?.siteKey ?? '', providers.map((provider) => provider.name), brand, error.message));
+          regularField(formInput(request), 'inviteCode'), activeCaptcha(settings, config.cipherKey)?.siteKey ?? '', providers.map((provider) => provider.name), brand, error.message));
       }
     });
   }

@@ -1,4 +1,3 @@
-import { spawn } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
@@ -23,14 +22,6 @@ if (!process.env.BLEX_V4_DB_PATH) {
     if (!(error instanceof Error) || !('code' in error) || error.code !== 'EEXIST') throw error;
   }
   process.loadEnvFile(secrets);
-  const prisma = fileURLToPath(new URL('../../node_modules/prisma/build/index.js', import.meta.url));
-  await new Promise<void>((complete, fail) => {
-    const child = spawn(process.execPath, [prisma, 'migrate', 'deploy'], {
-      env: { ...process.env, DATABASE_URL: `file:${database}` }, stdio: 'inherit',
-    });
-    child.once('error', fail);
-    child.once('close', (code) => code === 0 ? complete() : fail(new Error('Could not prepare the local SQLite database.')));
-  });
   process.env.BLEX_V4_DB_PATH = database;
   process.env.BLEX_V4_MEDIA_PATH ??= media;
 }

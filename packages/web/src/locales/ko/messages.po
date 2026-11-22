@@ -7062,7 +7062,7 @@ msgstr "인증 코드 생성에 실패했습니다."
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:617
 msgid "settings.users.description"
-msgstr "관리자 권한은 Django 관리자에서만 변경할 수 있습니다."
+msgstr "관리자 권한은 이 화면에서 변경할 수 없습니다."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:231

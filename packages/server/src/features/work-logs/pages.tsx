@@ -1,7 +1,8 @@
 import { SiteIcon } from '../../appearance/icons.js';
 import { renderApplicationDocument } from '../../application/document.js';
 import { SiteFooter, SiteHeader, SiteTheme, type HeaderViewer, type SiteHeaderProps } from '../../appearance/shell.js';
-import { koreanDate, koreanDateTime } from '../../compat/django-format.js';
+import { koreanDate, koreanDateTime } from '../../platform/date-format.js';
+import { pageFields } from './shared.js';
 
 export interface WorkLogView {
   id: number;
@@ -170,10 +171,10 @@ export function renderWorkLogDetail(props: PageChrome & {
   const selectorIds = new Set(props.selector.map((entry) => entry.id));
   const savedSelection = props.selectedIds.filter((id) => !selectorIds.has(id)).sort((a, b) => a - b).join(',');
   const previousSelectionPage = props.selectionLinks.previous
-    ? new URL(props.selectionLinks.previous, 'https://work-log.invalid').searchParams.get('selection_page')
+    ? new URL(props.selectionLinks.previous, 'https://work-log.invalid').searchParams.get(pageFields.selectionPage)
     : null;
   const nextSelectionPage = props.selectionLinks.next
-    ? new URL(props.selectionLinks.next, 'https://work-log.invalid').searchParams.get('selection_page')
+    ? new URL(props.selectionLinks.next, 'https://work-log.invalid').searchParams.get(pageFields.selectionPage)
     : null;
   return shell({
     title: `${props.log.title} · 작업 일지`,
@@ -238,10 +239,10 @@ export function renderWorkLogDetail(props: PageChrome & {
           <div className="mt-4 rounded-2xl border border-line bg-surface p-4 sm:p-5">
             {props.selector.length > 0 ? <form method="post" action={`/work-logs/${props.log.id}/share/#share-heading`}>
               {csrfInput(props.csrfToken)}
-              <input type="hidden" name="selected_entries" value={savedSelection} />
-              <input type="hidden" name="timeline_page" value={String(props.timelinePage)} />
-              <input type="hidden" name="current_selection_page" value={String(props.selectionPage)} />
-              <input type="hidden" name="links_page" value={String(props.linksPage)} />
+              <input type="hidden" name={pageFields.selectedEntries} value={savedSelection} />
+              <input type="hidden" name={pageFields.timelinePage} value={String(props.timelinePage)} />
+              <input type="hidden" name={pageFields.currentSelectionPage} value={String(props.selectionPage)} />
+              <input type="hidden" name={pageFields.linksPage} value={String(props.linksPage)} />
               <label htmlFor="share-headline" className="block text-sm font-medium">무엇이 달라졌나요?</label>
               <input id="share-headline" name="headline" required maxLength={120} defaultValue={props.headline}
                 className="mt-2 min-h-12 w-full rounded-lg border border-line bg-surface px-3" />
@@ -258,8 +259,8 @@ export function renderWorkLogDetail(props: PageChrome & {
               <p className="mt-4 text-sm leading-relaxed text-content-secondary">링크가 있는 사람은 누구나 선택한 기록을 볼 수 있어요.</p>
               <button name="action" value="preview" className="mt-4 min-h-11 w-full rounded-lg border border-line px-4 text-sm font-semibold transition hover:bg-surface-subtle active:scale-95">공유 화면 미리보기</button>
               {(previousSelectionPage || nextSelectionPage) && <div className="mt-2 flex flex-wrap items-center gap-2 text-sm" aria-label="공유할 기록">
-                {previousSelectionPage && <button formNoValidate name="selection_page" value={previousSelectionPage} className={pagerButton}>최근 기록</button>}
-                {nextSelectionPage && <button formNoValidate name="selection_page" value={nextSelectionPage} className={pagerButton}>이전 기록</button>}
+                {previousSelectionPage && <button formNoValidate name={pageFields.selectionPage} value={previousSelectionPage} className={pagerButton}>최근 기록</button>}
+                {nextSelectionPage && <button formNoValidate name={pageFields.selectionPage} value={nextSelectionPage} className={pagerButton}>이전 기록</button>}
                 {props.selectedIds.length > 0 && <span className="text-content-secondary">{`기록 ${props.selectedIds.length}개 선택`}</span>}
               </div>}
             </form> : <p className="text-sm text-content-secondary">기록을 남긴 뒤 공유 링크를 만들 수 있어요.</p>}
@@ -350,10 +351,10 @@ export function renderWorkLogShared(props: PageChrome & {
       <form id="work-log-preview-form" method="post" action={`/work-logs/${props.log.id}/share/`} className="flex flex-wrap gap-2">
         {csrfInput(props.csrfToken)}
         <input type="hidden" name="headline" value={props.headline} />
-        <input type="hidden" name="selected_entries" value={(props.selectedIds ?? []).join(',')} />
-        <input type="hidden" name="timeline_page" value={String(props.timelinePage ?? 1)} />
-        <input type="hidden" name="current_selection_page" value={String(props.selectionPage ?? 1)} />
-        <input type="hidden" name="links_page" value={String(props.linksPage ?? 1)} />
+        <input type="hidden" name={pageFields.selectedEntries} value={(props.selectedIds ?? []).join(',')} />
+        <input type="hidden" name={pageFields.timelinePage} value={String(props.timelinePage ?? 1)} />
+        <input type="hidden" name={pageFields.currentSelectionPage} value={String(props.selectionPage ?? 1)} />
+        <input type="hidden" name={pageFields.linksPage} value={String(props.linksPage ?? 1)} />
         <button name="action" value="edit" className="min-h-11 rounded-lg px-3 text-sm font-semibold text-content-secondary transition hover:bg-surface-subtle active:scale-95">공유 내용 수정</button>
         <button name="action" value="publish" className={primaryButton}>공유 링크 만들기</button>
       </form>
@@ -401,8 +402,8 @@ export function renderWorkLogShared(props: PageChrome & {
         </ol>
         {props.preview
           ? (previousPage || nextPage) && <nav aria-label="페이지 이동" className="mt-4 flex flex-wrap gap-2 text-sm">
-            {previousPage && <button form="work-log-preview-form" name="preview_page" value={previousPage} className={pagerButton}>이전 페이지</button>}
-            {nextPage && <button form="work-log-preview-form" name="preview_page" value={nextPage} className={pagerButton}>다음 페이지</button>}
+            {previousPage && <button form="work-log-preview-form" name={pageFields.previewPage} value={previousPage} className={pagerButton}>이전 페이지</button>}
+            {nextPage && <button form="work-log-preview-form" name={pageFields.previewPage} value={nextPage} className={pagerButton}>다음 페이지</button>}
           </nav>
           : pager({ ...props.timelineLinks, anchor: 'timeline-heading' })}
       </section>

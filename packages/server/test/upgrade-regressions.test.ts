@@ -7,7 +7,6 @@ import { createAuthorPost, publishAuthorDraft, updateAuthorPost } from '../src/f
 import { syncPostPublication } from '../src/features/notifications/model.js';
 import { sanitizePostHtml } from '../src/features/posts/post-html.js';
 import { trustedProxiesFromEnv } from '../src/platform/runtime-config.js';
-import { upgradeProblems } from '../src/compat/upgrade-preflight.js';
 import {
   createMigratedDatabase, insertRow, seedEditor, seedPost, signIn,
   testCipherKey, testSecretKey, testSiteUrl,
@@ -54,14 +53,14 @@ test('keeps a saved draft schedule when the API saves or publishes it again', as
   try {
     const target = new Date(Date.now() + 30 * 86_400_000);
     target.setUTCMilliseconds(0);
-    const draft = await createAuthorPost(db, editor, { title: 'Later', content_html: '<p>Later</p>', reserved_date: target.toISOString() }, true);
+    const draft = await createAuthorPost(db, editor, { title: 'Later', contentHtml: '<p>Later</p>', reservedDate: target.toISOString() }, true);
     await updateAuthorPost(db, editor, draft.id, { title: 'Later again' });
-    const [stored] = await db.$queryRaw<Array<{ value: string }>>`SELECT value FROM board_postconfigmeta WHERE name = 'draft_reserved_date'`;
-    assert.equal(new Date(`${stored.value.replace(' ', 'T')}Z`).toISOString(), target.toISOString());
+    const stored = await db.post.findUniqueOrThrow({ where: { id: draft.id }, select: { draftScheduledAt: true } });
+    assert.equal(stored.draftScheduledAt?.toISOString(), target.toISOString());
 
     await publishAuthorDraft(db, editor, draft.id, {});
-    const [post] = await db.$queryRaw<Array<{ published: string }>>`SELECT CAST(published_date AS TEXT) AS published FROM board_post WHERE id = ${draft.id}`;
-    assert.equal(new Date(`${post.published.replace(' ', 'T')}Z`).toISOString(), target.toISOString());
+    const post = await db.post.findUniqueOrThrow({ where: { id: draft.id }, select: { publishedAt: true } });
+    assert.equal(post.publishedAt?.toISOString(), target.toISOString());
   } finally {
     await db.$disconnect();
     await fixture.close();
@@ -74,11 +73,11 @@ test('keeps a schedule Django stored with a time zone offset', async () => {
   try {
     const target = new Date(Date.now() + 30 * 86_400_000);
     target.setUTCMilliseconds(0);
-    seedPost(fixture.db, 7, 1, 'django-draft', { published_date: null });
-    insertRow(fixture.db, 'board_postconfigmeta', { post_id: 7, name: 'draft_reserved_date', value: target.toISOString().replace('.000Z', '+00:00') });
+    seedPost(fixture.db, 7, 1, 'django-draft', { publishedAt: null });
+    fixture.db.prepare('UPDATE "Post" SET draftScheduledAt = ? WHERE id = 7').run(target.getTime());
     await publishAuthorDraft(db, editor, 7, {});
-    const [post] = await db.$queryRaw<Array<{ published: string }>>`SELECT CAST(published_date AS TEXT) AS published FROM board_post WHERE id = 7`;
-    assert.equal(new Date(`${post.published.replace(' ', 'T')}Z`).toISOString(), target.toISOString());
+    const post = await db.post.findUniqueOrThrow({ where: { id: 7 }, select: { publishedAt: true } });
+    assert.equal(post.publishedAt?.toISOString(), target.toISOString());
   } finally {
     await db.$disconnect();
     await fixture.close();
@@ -134,17 +133,19 @@ test('announces first publication but not hiding, unhiding, or restoring an old 
   const fixture = await migratedApp();
   const db = new PrismaClient({ datasourceUrl: `file:${fixture.path}` });
   try {
-    insertRow(fixture.db, 'board_webhooksubscription', { id: 1, scope: 'global', is_active: 1, name: 'all', webhook_url: 'https://hooks.test/a' });
+    insertRow(fixture.db, 'WebhookChannel', { id: 1, scope: 'global', isActive: 1, name: 'all', url: 'https://hooks.test/a' });
     seedPost(fixture.db, 2, 1, 'old-post');
-    const queued = async () => Number((await db.$queryRaw<Array<{ total: bigint }>>`SELECT COUNT(*) AS total FROM blex_webhook_delivery`)[0].total);
+    const queued = () => db.webhookDelivery.count();
 
     const headers = signIn(fixture.db, 1);
-    assert.equal((await fixture.app.inject({ method: 'POST', url: '/settings/posts/old-post/visibility', headers })).statusCode, 303);
-    assert.equal((await fixture.app.inject({ method: 'POST', url: '/settings/posts/old-post/visibility', headers })).statusCode, 303);
+    for (const isHide of [true, false]) {
+      const toggled = await fixture.app.inject({ method: 'PUT', url: '/v1/users/@writer/posts/old-post?hide=hide', headers });
+      assert.deepEqual(toggled.json().body, { isHide });
+    }
     await db.$transaction((tx) => syncPostPublication(tx, 2));
     assert.equal(await queued(), 0);
 
-    const draft = await createAuthorPost(db, editor, { title: 'New', content_html: '<p>New</p>' }, true);
+    const draft = await createAuthorPost(db, editor, { title: 'New', contentHtml: '<p>New</p>' }, true);
     assert.equal(await queued(), 0);
     await publishAuthorDraft(db, editor, draft.id, {});
     assert.equal(await queued(), 1);
@@ -161,17 +162,3 @@ test('reads the 3.x trusted proxy setting when the BLEX 4 name is absent', () =>
   assert.equal(trustedProxiesFromEnv({ BLEX_TRUSTED_PROXIES: ' , ' }), undefined);
 });
 
-test('stops a Compose upgrade that would miss the 3.x data or port', () => {
-  const clean = { portMapping: '127.0.0.1:20002:8040', containerPort: '8040', legacyDatabase: false, currentDatabase: false };
-  assert.deepEqual(upgradeProblems(clean), []);
-  assert.deepEqual(upgradeProblems({ ...clean, portMapping: '8080:8040/tcp' }), []);
-  assert.deepEqual(upgradeProblems({ ...clean, portMapping: '9000:9000', containerPort: '9000' }), []);
-  assert.deepEqual(upgradeProblems({ ...clean, legacyDatabase: true, currentDatabase: true }), []);
-
-  assert.match(upgradeProblems({ ...clean, unwritableMediaFolders: 3 })[0], /chown -R 1000:1000/);
-
-  const [port] = upgradeProblems({ ...clean, portMapping: '127.0.0.1:20002:80' });
-  assert.match(port, /127\.0\.0\.1:20002:8040/);
-  const [data] = upgradeProblems({ ...clean, legacyDatabase: true });
-  assert.match(data, /BLEX_DATA/);
-});

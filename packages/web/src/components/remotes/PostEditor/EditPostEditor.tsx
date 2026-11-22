@@ -12,6 +12,7 @@ import PostRevisionDialog from './components/PostRevisionDialog';
 import { getSeries } from '~/lib/api/settings';
 import {
     cancelPostSchedule,
+    deletePost,
     getPostForEdit,
     publishScheduledPostNow,
     submitPostEdit
@@ -510,15 +511,15 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             payload.set('title', formData.title);
             payload.set('subtitle', formData.subtitle);
             payload.set('url', formData.url);
-            payload.set('content_html', formData.content);
-            payload.set('meta_description', formData.metaDescription);
+            payload.set('contentHtml', formData.content);
+            payload.set('metaDescription', formData.metaDescription);
             payload.set('hide', formData.hide ? 'true' : 'false');
             payload.set('advertise', formData.advertise ? 'true' : 'false');
-            payload.set('block_comment', formData.allowComments ? 'false' : 'true');
+            payload.set('blockComment', formData.allowComments ? 'false' : 'true');
             payload.set('tag', tags.join(','));
-            payload.set('cover_layout', formData.coverLayout);
-            payload.set('cover_image_position', formData.coverImagePosition);
-            payload.set('cover_image_ratio', formData.coverImageRatio);
+            payload.set('coverLayout', formData.coverLayout);
+            payload.set('coverImagePosition', formData.coverImagePosition);
+            payload.set('coverImageRatio', formData.coverImageRatio);
 
             if (selectedSeries.id) {
                 payload.set('series', selectedSeries.id);
@@ -527,15 +528,15 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             }
 
             if (isScheduledPost && hasReservedDateChanged()) {
-                payload.set('reserved_date', toReservedDateValue(formData.reservedDate));
+                payload.set('reservedDate', toReservedDateValue(formData.reservedDate));
             } else {
-                payload.delete('reserved_date');
+                payload.delete('reservedDate');
             }
 
             if (imageDeleted) {
-                payload.set('image_delete', 'true');
+                payload.set('imageDelete', 'true');
             } else {
-                payload.delete('image_delete');
+                payload.delete('imageDelete');
             }
 
             const { data } = await submitPostEdit(username, postUrl, payload);
@@ -554,7 +555,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 postUrl
             });
             isIntentionalSubmitRef.current = true;
-            window.location.assign(data.body.url);
+            window.location.assign(`/@${encodeURIComponent(username)}/${encodeURIComponent(postUrl)}`);
         } catch {
             isSubmitLockedRef.current = false;
             isIntentionalSubmitRef.current = false;
@@ -591,16 +592,22 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
 
         setIsSubmitting(true);
         try {
-            const form = formRef.current;
-            if (!form) return;
+            const { data } = await deletePost(username, postUrl);
+            if (data.status === 'ERROR') {
+                toast.error(data.errorMessage || t({
+                    id: 'editor.error.move_to_trash',
+                    message: 'Could not move the post to the trash.'
+                }));
+                setIsSubmitting(false);
+                return;
+            }
 
-            const deleteField = document.createElement('input');
-            deleteField.type = 'hidden';
-            deleteField.name = 'delete';
-            deleteField.value = 'true';
-            form.appendChild(deleteField);
-
-            form.submit();
+            clearPostEditRecovery({
+                username,
+                postUrl
+            });
+            isIntentionalSubmitRef.current = true;
+            window.location.assign(`/@${encodeURIComponent(username)}`);
         } catch {
             toast.error(t({
                 id: 'editor.error.move_to_trash',

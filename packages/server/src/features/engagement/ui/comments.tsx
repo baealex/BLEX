@@ -165,10 +165,10 @@ function CommentForm({
   return <form className="space-y-3" method="post" action={nativeForm?.action} onSubmit={handleSubmit}>
     {nativeForm && <>
       <input type="hidden" name="csrfmiddlewaretoken" value={nativeForm.csrfToken} />
-      <input type="hidden" name="return_to" value={nativeForm.returnTo} />
+      <input type="hidden" name="returnTo" value={nativeForm.returnTo} />
     </>}
     <div className="relative">
-      <textarea ref={textarea} name="comment_md" className={fieldClass} value={value} rows={3} maxLength={10000} required
+      <textarea ref={textarea} name="commentMd" className={fieldClass} value={value} rows={3} maxLength={10000} required
         placeholder={placeholder} aria-label={fieldLabel} disabled={isSubmitting}
         onChange={(event) => handleChange(event.target.value, event.target.selectionStart)}
         onKeyDown={handleKeyDown} onBlur={() => setMentionOpen(false)} />
@@ -366,7 +366,7 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
   const handleWrite = async () => {
     setSubmitting(true);
     try {
-      const created = await requestComments<CommentPayload>(model, commentsUrl, 'POST', { comment_md: commentText });
+      const created = await requestComments<CommentPayload>(model, commentsUrl, 'POST', { commentMd: commentText });
       setCommentText('');
       setComments((current) => appendCommentToTree(current, created));
       scrollToLatest();
@@ -399,7 +399,7 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
     if (!editText.trim()) return failure('댓글을 입력해 주세요.');
     setSubmitting(true);
     try {
-      await requestComments(model, `/v1/comments/${id}`, 'PUT', { comment: 'true', comment_md: editText });
+      await requestComments(model, `/v1/comments/${id}`, 'PUT', { comment: 'true', commentMd: editText });
       const latest = await requestComments<{ comments: CommentPayload[]; canComment: boolean }>(
         model, `/v1/posts/${encodeURIComponent(model.slug)}/comments`, 'GET');
       setComments(latest.comments);
@@ -430,7 +430,7 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
     setSubmitting(true);
     try {
       const created = await requestComments<CommentPayload>(model, commentsUrl, 'POST', {
-        comment_md: buildReplySubmissionText(replyText, replyTarget.author), parent_id: String(replyRoot.id),
+        commentMd: buildReplySubmissionText(replyText, replyTarget.author), parentId: String(replyRoot.id),
       });
       cancelReplying();
       setComments((current) => appendCommentToTree(current, created));

@@ -1,8 +1,8 @@
 import { Prisma, type PrismaClient } from '@prisma/client';
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { djangoIso } from '../../compat/django-format.js';
+import { isoWithOffset } from '../../platform/date-format.js';
 import { readAdminAccess, type UserAccess } from './access.js';
-import { type AdminSettingsUser } from './pages.js';
+import { type AdminSettingsUser } from './types.js';
 import { done as success, failure } from '../../platform/response.js';
 
 export interface AdminSettingsOptions {
@@ -30,113 +30,18 @@ export function stringValue(value: unknown): string {
   return '';
 }
 
-export function booleanValue(value: unknown): boolean {
-  return value === true || value === 1 || value === 1n;
-}
-
-export function formBoolean(value: unknown): boolean {
-  return ['true', '1', 'on', 'yes'].includes(stringValue(value).toLowerCase());
-}
-
-export function csrfToken(request: FastifyRequest): string {
-  for (const part of (request.headers.cookie ?? '').split(';')) {
-    const separator = part.indexOf('=');
-    if (separator < 0 || part.slice(0, separator).trim() !== 'csrftoken') continue;
-    try {
-      const value = decodeURIComponent(part.slice(separator + 1).trim());
-      return /^[A-Za-z0-9_-]{43}$/.test(value) ? value : '';
-    } catch {
-      return '';
-    }
-  }
-  return '';
-}
-
-export function djangoTimestamp(date = new Date()): string {
-  return date.toISOString().replace('T', ' ').replace(/Z$/, '000');
-}
-
-export function isoDate(value: string | null): string {
-  return djangoIso(value) ?? '';
-}
-
-export function pageNumber(request: FastifyRequest): URLSearchParams {
-  return new URLSearchParams(request.url.split('?')[1] ?? '');
-}
-
-function loginRedirect(request: FastifyRequest, reply: FastifyReply) {
-  const next = request.url.split('?')[0] || '/admin-settings/';
-  return reply.redirect(`/login?next=${encodeURIComponent(next)}`, 302);
-}
-
-export async function pageAccess(
-  request: FastifyRequest,
-  reply: FastifyReply,
-  db: PrismaClient,
-  options: AdminSettingsOptions,
-): Promise<{ user: AdminSettingsUser; access: UserAccess } | null> {
-  const user = await options.currentUser(request);
-  if (!user) {
-    loginRedirect(request, reply);
-    return null;
-  }
-  const access = await readAdminAccess(db, user.id);
-  if (!access?.active) {
-    loginRedirect(request, reply);
-    return null;
-  }
-  if (!access.staff) {
-    reply.code(404).type('text/plain; charset=utf-8').send('페이지를 찾을 수 없습니다.');
-    return null;
-  }
-  const [profile] = await db.$queryRaw<Array<{ role: string }>>`
-    SELECT role FROM board_profile WHERE user_id = ${user.id} LIMIT 1
-  `;
-  return { user: { ...user, hasEditorRole: profile?.role === 'EDITOR', isStaff: access.staff }, access };
-}
-
-export async function editorPageAccess(
-  request: FastifyRequest,
-  reply: FastifyReply,
-  db: PrismaClient,
-  options: AdminSettingsOptions,
-): Promise<{ user: AdminSettingsUser; access: UserAccess } | null> {
-  const user = await options.currentUser(request);
-  if (!user) {
-    loginRedirect(request, reply);
-    return null;
-  }
-  const access = await readAdminAccess(db, user.id);
-  if (!access?.active) {
-    loginRedirect(request, reply);
-    return null;
-  }
-  const [profile] = await db.$queryRaw<Array<{ role: string }>>`
-    SELECT role FROM board_profile WHERE user_id = ${user.id} LIMIT 1
-  `;
-  if (profile?.role !== 'EDITOR') {
-    reply.code(404).type('text/plain; charset=utf-8').send('페이지를 찾을 수 없습니다.');
-    return null;
-  }
-  return { user: { ...user, hasEditorRole: true, isStaff: access.staff }, access };
+export function isoDate(value: string | Date | null): string {
+  return isoWithOffset(value) ?? '';
 }
 
 export async function recordAudit(
   db: Prisma.TransactionClient,
   userId: number,
-  model: 'sitesetting' | 'loginsetting' | 'integrationsetting',
-  objectRepr: string,
-  changeMessage: string,
+  target: 'sitesetting' | 'loginsetting' | 'integrationsetting',
+  objectName: string,
+  message: string,
 ): Promise<void> {
-  await db.$executeRaw`INSERT OR IGNORE INTO django_content_type (app_label, model) VALUES ('board', ${model})`;
-  const [contentType] = await db.$queryRaw<Array<{ id: number }>>`
-    SELECT id FROM django_content_type WHERE app_label = 'board' AND model = ${model} LIMIT 1
-  `;
-  if (!contentType) return;
-  await db.$executeRaw`
-    INSERT INTO django_admin_log (object_id, object_repr, action_flag, change_message, content_type_id, user_id, action_time)
-    VALUES ('1', ${objectRepr}, 2, ${changeMessage}, ${contentType.id}, ${userId}, ${djangoTimestamp()})
-  `;
+  await db.adminLog.create({ data: { userId, target, objectId: '1', objectName, action: 2, message } });
 }
 
 export function csrfValid(request: FastifyRequest, options: AdminSettingsOptions): boolean {
@@ -192,9 +97,7 @@ export async function editorApiAccess(
   if (!user) return { response: failure('NL') };
   const access = await readAdminAccess(db, user.id);
   if (!access?.active) return { response: failure('NL') };
-  const [profile] = await db.$queryRaw<Array<{ role: string }>>`
-    SELECT role FROM board_profile WHERE user_id = ${user.id} LIMIT 1
-  `;
+  const profile = await db.profile.findUnique({ where: { userId: user.id }, select: { role: true } });
   if (profile?.role !== 'EDITOR') {
     return { response: failure('RJ', 'Author access is required.') };
   }
@@ -211,13 +114,14 @@ export function positiveInteger(value: string | null, fallback: number): number 
   return Number.isSafeInteger(number) ? number : fallback;
 }
 
-export function camelizeValue(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(camelizeValue);
-  if (!isRecord(value)) return value;
-  return Object.fromEntries(Object.entries(value).map(([key, item]) => [
-    key.replace(/_([a-z])/g, (_match, letter: string) => letter.toUpperCase()),
-    camelizeValue(item),
-  ]));
+/** SQLite stores wider numbers, but Prisma then fails every later read of an Int column. */
+export function isDatabaseInteger(value: unknown): value is number {
+  return typeof value === 'number' && Number.isInteger(value) && value >= -2_147_483_648 && value <= 2_147_483_647;
+}
+
+export function orderValue(value: unknown): number {
+  const parsed = typeof value === 'number' ? value : /^-?\d+$/.test(String(value)) ? Number(value) : NaN;
+  return isDatabaseInteger(parsed) ? parsed : 0;
 }
 
 export function validRouteId(value: string): number | null {
@@ -230,6 +134,3 @@ export function apiJsonBody(request: FastifyRequest): Body {
   return isRecord(request.body) ? request.body : {};
 }
 
-export function unauthorizedPage(reply: FastifyReply) {
-  return reply.code(404).type('text/plain; charset=utf-8').send('페이지를 찾을 수 없습니다.');
-}

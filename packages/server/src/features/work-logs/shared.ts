@@ -68,11 +68,11 @@ export function csrfCookieValue(request: FastifyRequest): string {
   return '';
 }
 
-export function djangoTimestamp(date = new Date()): string {
-  return date.toISOString()
-    .replace('T', ' ')
-    .replace(/\.(\d{3})Z$/, (_match, milliseconds: string) => `.${milliseconds}000`);
-}
+/** Names in rendered forms and pager links, which saved URLs depend on. */
+export const pageFields = {
+  selectedEntries: 'selected_entries', timelinePage: 'timeline_page', currentSelectionPage: 'current_selection_page',
+  selectionPage: 'selection_page', linksPage: 'links_page', previewPage: 'preview_page',
+} as const;
 
 export function toIsoDateTime(value: string | null): string {
   if (!value) return '';
@@ -103,14 +103,7 @@ export async function currentUser(
 }
 
 export async function isActiveEditor(db: PrismaClient, userId: number): Promise<boolean> {
-  const [row] = await db.$queryRaw<Array<{ allowed: number | bigint }>>`
-    SELECT EXISTS (
-      SELECT 1 FROM auth_user AS user
-      JOIN board_profile AS profile ON profile.user_id = user.id
-      WHERE user.id = ${userId} AND user.is_active = 1 AND profile.role = 'EDITOR'
-    ) AS allowed
-  `;
-  return Boolean(row?.allowed);
+  return await db.user.count({ where: { id: userId, isActive: true, profile: { is: { role: 'EDITOR' } } } }) > 0;
 }
 
 export function csrfValid(request: FastifyRequest, options: WorkLogOptions): boolean {

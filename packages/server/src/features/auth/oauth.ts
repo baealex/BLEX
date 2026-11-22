@@ -1,10 +1,10 @@
 import { createHash, randomBytes } from 'node:crypto';
-import type { PrismaClient } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { signupRegion } from './account-validation.js';
 import { authCookieOptions, sessionCookie, setSessionCookies } from '../../platform/cookies.js';
 import { formInput, validCsrf } from '../../platform/csrf.js';
-import { decryptDjangoSecret } from './django-secret.js';
+import { decryptSecret } from './encrypted-secret.js';
 import type { AuthConfig } from './http.js';
 import { createSession, createToken, loginBody, readSession, tokenHash } from './session.js';
 import { hasAdministrator, insertAccount } from './setup.js';
@@ -62,17 +62,14 @@ function loginPath(next: string): string {
   return next === '/' ? '/login' : `/login?${new URLSearchParams({ next })}`;
 }
 
-interface ProviderRow { id: number; key: string; clientId: string; secret: string }
-
 async function configuredProviders(db: PrismaClient, cipherKey: string) {
-  const rows = await db.$queryRaw<ProviderRow[]>`
-    SELECT id, key, client_id AS clientId, client_secret AS secret
-      FROM board_socialauthprovider
-     WHERE is_enabled = 1 AND client_id <> '' AND client_secret <> '' AND key IN ('google', 'github')
-     ORDER BY id
-  `;
-  return rows.flatMap(({ id, key, clientId, secret }) => {
-    const clientSecret = decryptDjangoSecret(secret, cipherKey);
+  const rows = await db.socialProvider.findMany({
+    where: { isEnabled: true, clientId: { not: '' }, clientSecret: { not: '' }, key: { in: ['google', 'github'] } },
+    orderBy: { id: 'asc' },
+    select: { id: true, key: true, clientId: true, clientSecret: true },
+  });
+  return rows.flatMap(({ id, key, clientId, clientSecret: stored }) => {
+    const clientSecret = decryptSecret(stored, cipherKey);
     return supportedProvider(key) && clientSecret ? [{ id, key, clientId, clientSecret }] : [];
   });
 }
@@ -83,7 +80,7 @@ export async function publicOAuthProviders(db: PrismaClient, cipherKey: string) 
 }
 
 interface LinkedAccount {
-  socialAuthId: number;
+  socialAccountId: number;
   userId: number;
   username: string;
   passwordHash: string;
@@ -91,7 +88,7 @@ interface LinkedAccount {
   recoveryKey: string | null;
 }
 
-interface OAuthFlowRow { verifier: string; return_path: string; session_hash: string | null; language: string; time_zone: string }
+interface OAuthFlowRow { verifier: string; returnPath: string; language: string; timeZone: string }
 
 interface ProviderIdentity { uid: string; profile: Record<string, unknown> }
 
@@ -143,60 +140,74 @@ async function createSocialAccount(db: PrismaClient, provider: Provider, provide
   const login = provider === 'github' ? identityField(identity.profile, 'login', 64) : email.split('@')[0];
   if (!login) return null;
   const base = login.toLowerCase().replace(/[^a-z0-9_.-]/g, '').slice(0, 64) || 'member';
-  const now = new Date().toISOString().slice(0, -1).replace('T', ' ');
   return db.$transaction(async (tx) => {
-    const status = await tx.$executeRaw`
-      UPDATE board_socialauthprovider SET is_enabled = is_enabled WHERE id = ${providerId} AND is_enabled = 1
-    `;
-    if (!status || !await hasAdministrator(tx)) return null;
-    const [exists] = await tx.$queryRaw<Array<{ id: number }>>`
-      SELECT id FROM board_socialauth WHERE provider_id = ${providerId} AND uid = ${identity.uid}
-    `;
+    // A write, so the checks below run under SQLite's write lock.
+    const { count: enabled } = await tx.socialProvider.updateMany({ where: { id: providerId, isEnabled: true }, data: { isEnabled: true } });
+    if (!enabled || !await hasAdministrator(tx)) return null;
+    const exists = await tx.socialAccount.findUnique({ where: { providerId_uid: { providerId, uid: identity.uid } }, select: { id: true } });
     if (exists) return null;
-    const usernames = await tx.$queryRaw<Array<{ username: string }>>`
-      SELECT username FROM auth_user WHERE substr(username, 1, ${base.length}) = ${base}
-    `;
+    // LIKE may return extra names, which only the exact lookup in `taken` ever reads.
+    const usernames = await tx.user.findMany({ where: { username: { startsWith: base } }, select: { username: true } });
     const taken = new Set(usernames.map((user) => user.username));
     let username = base;
     for (let suffix = 1; taken.has(username); suffix += 1) username = `${base}${suffix}`;
     const passwordHash = `!${createToken()}`;
-    const userId = await insertAccount(tx, { username, displayName: name, email, passwordHash, language: flow.language, timeZone: flow.time_zone });
-    const [link] = await tx.$queryRaw<Array<{ id: number }>>`
-      INSERT INTO board_socialauth (provider_id, uid, user_id, extra_data, created_date)
-      VALUES (${providerId}, ${identity.uid}, ${userId}, ${JSON.stringify(identity.profile)}, ${now}) RETURNING id
-    `;
-    if (provider === 'github' && /^[a-z\d-]+$/i.test(login)) await tx.$executeRaw`
-      INSERT INTO board_userlinkmeta (user_id, name, value, created_date, updated_date, "order")
-      VALUES (${userId}, 'github', ${`https://github.com/${login}`}, ${now}, ${now}, 0)
-    `;
-    return { socialAuthId: link.id, userId, username, passwordHash, totpSecret: null, recoveryKey: null } satisfies LinkedAccount;
+    const userId = await insertAccount(tx, { username, displayName: name, email, passwordHash, language: flow.language, timeZone: flow.timeZone });
+    const link = await tx.socialAccount.create({
+      data: { providerId, uid: identity.uid, userId, extraData: JSON.stringify(identity.profile) },
+      select: { id: true },
+    });
+    if (provider === 'github' && /^[a-z\d-]+$/i.test(login)) {
+      await tx.socialLink.create({ data: { userId, platform: 'github', url: `https://github.com/${login}`, order: 0 }, select: { id: true } });
+    }
+    return { socialAccountId: link.id, userId, username, passwordHash, totpSecret: null, recoveryKey: null } satisfies LinkedAccount;
   });
 }
 
 interface PendingOAuth extends LinkedAccount { returnPath: string }
 
+const linkedAccountSelect = {
+  id: true,
+  user: {
+    select: {
+      id: true, username: true, passwordHash: true, isActive: true,
+      twoFactor: { select: { totpSecret: true, recoveryKey: true } },
+    },
+  },
+} satisfies Prisma.SocialAccountSelect;
+
+function linkedAccount({ id, user }: Prisma.SocialAccountGetPayload<{ select: typeof linkedAccountSelect }>): LinkedAccount {
+  return {
+    socialAccountId: id, userId: user.id, username: user.username, passwordHash: user.passwordHash,
+    totpSecret: user.twoFactor?.totpSecret ?? null, recoveryKey: user.twoFactor?.recoveryKey ?? null,
+  };
+}
+
+/** Takes one OAuth state exactly once, so a replayed or concurrent callback finds nothing. */
+async function claimOAuthFlow(db: PrismaClient, where: Prisma.OAuthFlowWhereInput) {
+  return db.$transaction(async (tx) => {
+    const flow = await tx.oAuthFlow.findFirst({ where, select: { verifier: true, returnPath: true, language: true, timeZone: true } });
+    if (!flow) return null;
+    const { count } = await tx.oAuthFlow.deleteMany({ where });
+    return count === 1 ? flow : null;
+  });
+}
+
 export async function readPendingOAuth(db: PrismaClient, token: string | undefined): Promise<PendingOAuth | null> {
   if (!token || !tokenPattern.test(token)) return null;
-  const [account] = await db.$queryRaw<PendingOAuth[]>`
-    SELECT links.id AS socialAuthId, account.id AS userId, account.username,
-           account.password AS passwordHash, factors.totp_secret AS totpSecret,
-           factors.recovery_key AS recoveryKey, challenge.return_path AS returnPath
-      FROM blex_oauth_challenge AS challenge
-      JOIN board_socialauth AS links ON links.id = challenge.social_auth_id
-      JOIN board_socialauthprovider AS provider ON provider.id = links.provider_id
-      JOIN auth_user AS account ON account.id = links.user_id
-      JOIN board_twofactorauth AS factors ON factors.user_id = account.id
-     WHERE challenge.token_hash = ${hash(token)} AND challenge.expires_at > ${BigInt(Date.now())}
-       AND account.is_active = 1 AND provider.is_enabled = 1
-  `;
-  return account ?? null;
+  const challenge = await db.oAuthChallenge.findFirst({
+    where: {
+      tokenHash: hash(token), expiresAt: { gt: new Date() },
+      socialAccount: { provider: { isEnabled: true }, user: { isActive: true, twoFactor: { isNot: null } } },
+    },
+    select: { returnPath: true, socialAccount: { select: linkedAccountSelect } },
+  });
+  return challenge && { ...linkedAccount(challenge.socialAccount), returnPath: challenge.returnPath };
 }
 
 export async function consumePendingOAuth(db: PrismaClient, token: string | undefined): Promise<boolean> {
   if (!token || !tokenPattern.test(token)) return false;
-  const count = await db.$executeRaw`
-    DELETE FROM blex_oauth_challenge WHERE token_hash = ${hash(token)} AND expires_at > ${BigInt(Date.now())}
-  `;
+  const { count } = await db.oAuthChallenge.deleteMany({ where: { tokenHash: hash(token), expiresAt: { gt: new Date() } } });
   return count === 1;
 }
 
@@ -208,7 +219,7 @@ export function registerOAuthRoutes(app: FastifyInstance, db: PrismaClient, site
     return { status: 'DONE', body: await publicOAuthProviders(db, config.cipherKey) };
   });
 
-  type StartRequest = { Params: { provider: string }; Querystring: { next?: string; time_zone?: string } };
+  type StartRequest = { Params: { provider: string }; Querystring: { next?: string; timeZone?: string } };
   const start = async (request: FastifyRequest<StartRequest>, reply: FastifyReply) => {
     const { provider } = request.params;
     if (!supportedProvider(provider)) return reply.code(404).send('Not found');
@@ -221,10 +232,7 @@ export function registerOAuthRoutes(app: FastifyInstance, db: PrismaClient, site
     if (reauthenticate) {
       if (!user) return reply.redirect(loginPath(verificationPath), 302);
       if (!validCsrf(request, siteUrl)) return reply.code(403).send('Forbidden');
-      const [existing] = await db.$queryRaw<unknown[]>`
-        SELECT 1 FROM board_socialauth AS link JOIN board_socialauthprovider AS provider ON provider.id = link.provider_id
-         WHERE link.user_id = ${user.id} AND provider.key = ${provider}
-      `;
+      const existing = await db.socialAccount.findFirst({ where: { userId: user.id, provider: { key: provider } }, select: { id: true } });
       if (!existing) return reply.code(404).send('Not found');
     } else if (user) return reply.redirect(next, 302);
 
@@ -233,14 +241,19 @@ export function registerOAuthRoutes(app: FastifyInstance, db: PrismaClient, site
     const state = createToken();
     const browser = createToken();
     const verifier = randomBytes(48).toString('base64url');
-    const now = Date.now();
+    const now = new Date();
     const sessionHash = reauthenticate ? tokenHash(session) ?? null : null;
-    const region = signupRegion(request, typeof request.query.time_zone === 'string' ? request.query.time_zone : '');
+    const region = signupRegion(request, typeof request.query.timeZone === 'string' ? request.query.timeZone : '');
     await db.$transaction([
-      db.$executeRaw`DELETE FROM blex_oauth_flow WHERE expires_at <= ${BigInt(now)}`,
-      db.$executeRaw`INSERT INTO blex_oauth_flow (state_hash, browser_hash, provider, verifier, return_path, expires_at, session_hash, language, time_zone)
-                     VALUES (${hash(state)}, ${hash(browser)}, ${provider}, ${verifier}, ${next}, ${BigInt(now + oauthCodeLifetime * 1_000)},
-                             ${sessionHash}, ${region.language}, ${region.timeZone})`,
+      db.oAuthFlow.deleteMany({ where: { expiresAt: { lte: now } } }),
+      db.oAuthFlow.create({
+        data: {
+          stateHash: hash(state), browserHash: hash(browser), provider, verifier, returnPath: next,
+          expiresAt: new Date(now.getTime() + oauthCodeLifetime * 1_000), sessionHash,
+          language: region.language, timeZone: region.timeZone,
+        },
+        select: { stateHash: true },
+      }),
     ]);
     const target = new URL(providers[provider].authorization);
     target.search = new URLSearchParams({
@@ -277,48 +290,48 @@ export function registerOAuthRoutes(app: FastifyInstance, db: PrismaClient, site
     const verified = await readVerificationAccount(db, request, config.secretKey);
     if (isApi && verified) return fail();
     const sessionHash = verified?.sessionHash ?? null;
-    const [flow] = await db.$queryRaw<OAuthFlowRow[]>`
-      DELETE FROM blex_oauth_flow WHERE state_hash = ${hash(state)} AND browser_hash = ${hash(browser)}
-        AND provider = ${provider} AND expires_at > ${BigInt(Date.now())} AND session_hash IS ${sessionHash}
-        RETURNING verifier, return_path, session_hash, language, time_zone
-    `;
+    const flow = await claimOAuthFlow(db, {
+      stateHash: hash(state), browserHash: hash(browser), provider, expiresAt: { gt: new Date() }, sessionHash,
+    });
     if (!flow) return fail();
     reply.clearCookie(`blex_oauth_${provider}`, cookieOptions);
-    const verificationPath = `/reauthenticate?${new URLSearchParams({ next: flow.return_path })}`;
-    const failurePath = verified ? verificationPath : loginPath(flow.return_path);
+    const verificationPath = `/reauthenticate?${new URLSearchParams({ next: flow.returnPath })}`;
+    const failurePath = verified ? verificationPath : loginPath(flow.returnPath);
     const credentials = (await configuredProviders(db, config.cipherKey)).find((entry) => entry.key === provider);
     if (!credentials) return fail(failurePath, '소셜 로그인 설정이 완료되지 않았습니다.');
 
     const identity = await exchangeCode(fetchProvider, provider, credentials, code, flow.verifier, new URL(`/login/callback/${provider}`, siteUrl).href);
     if (!identity) return fail(failurePath);
 
-    const [linked] = await db.$queryRaw<Array<LinkedAccount & { active: number | bigint }>>`
-      SELECT links.id AS socialAuthId, account.id AS userId, account.username, account.password AS passwordHash,
-             account.is_active AS active, factors.totp_secret AS totpSecret, factors.recovery_key AS recoveryKey
-        FROM board_socialauth AS links
-        JOIN board_socialauthprovider AS configured ON configured.id = links.provider_id
-        JOIN auth_user AS account ON account.id = links.user_id
-        LEFT JOIN board_twofactorauth AS factors ON factors.user_id = account.id
-       WHERE configured.id = ${credentials.id} AND configured.is_enabled = 1 AND links.uid = ${identity.uid}
-    `;
+    const link = await db.socialAccount.findFirst({
+      where: { providerId: credentials.id, uid: identity.uid, provider: { isEnabled: true } },
+      select: linkedAccountSelect,
+    });
+    const linked = link && linkedAccount(link);
+    const linkedActive = link?.user.isActive === true;
     if (verified) {
-      if (!linked?.active || linked.userId !== verified.id) return fail(failurePath);
+      if (!linked || !linkedActive || linked.userId !== verified.id) return fail(failurePath);
       const requireMfa = verified.factorId !== null;
       const token = await recordVerification(db, verified, requireMfa);
       if (!token) return fail(failurePath);
-      return setSessionCookies(reply, siteUrl, token).redirect(requireMfa ? verificationPath : flow.return_path, 302);
+      return setSessionCookies(reply, siteUrl, token).redirect(requireMfa ? verificationPath : flow.returnPath, 302);
     }
-    if (linked && !linked.active) return fail(failurePath);
+    if (linked && !linkedActive) return fail(failurePath);
     const account = linked ?? await createSocialAccount(db, provider, credentials.id, identity, flow);
     if (!account) return fail(failurePath);
 
     if (account.totpSecret !== null && account.recoveryKey !== null) {
       const token = createToken();
-      const now = Date.now();
+      const now = new Date();
       await db.$transaction([
-        db.$executeRaw`DELETE FROM blex_oauth_challenge WHERE expires_at <= ${BigInt(now)}`,
-        db.$executeRaw`INSERT INTO blex_oauth_challenge (token_hash, social_auth_id, return_path, expires_at)
-                       VALUES (${hash(token)}, ${account.socialAuthId}, ${flow.return_path}, ${BigInt(now + oauthChallengeLifetime * 1_000)})`,
+        db.oAuthChallenge.deleteMany({ where: { expiresAt: { lte: now } } }),
+        db.oAuthChallenge.create({
+          data: {
+            tokenHash: hash(token), socialAccountId: account.socialAccountId, returnPath: flow.returnPath,
+            expiresAt: new Date(now.getTime() + oauthChallengeLifetime * 1_000),
+          },
+          select: { tokenHash: true },
+        }),
       ]);
       reply.setCookie(oauthChallengeCookie, token, { ...cookieOptions, maxAge: oauthChallengeLifetime });
       return isApi ? { status: 'DONE', body: { username: account.username, security: true, isOauth: true } } : reply.redirect('/login', 302);
@@ -327,7 +340,7 @@ export function registerOAuthRoutes(app: FastifyInstance, db: PrismaClient, site
     const token = await createSession(db, account, config.secretKey, session);
     if (!token) return fail(failurePath);
     setSessionCookies(reply, siteUrl, token);
-    if (!isApi) return reply.redirect(flow.return_path, 302);
+    if (!isApi) return reply.redirect(flow.returnPath, 302);
     const user = await readSession(db, token, config.secretKey);
     if (!user) return fail(failurePath);
     return { status: 'DONE', body: loginBody(user, !linked) };

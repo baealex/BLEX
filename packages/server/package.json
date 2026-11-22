@@ -11,7 +11,6 @@
     "build": "tsc -p tsconfig.json && vite build",
     "dev": "pnpm run build && node dist/src/development.js",
     "type-check": "tsc -p tsconfig.json --noEmit",
-    "db:check-legacy": "node dist/src/compat/database-baseline.js",
     "db:migrate": "prisma migrate deploy",
     "start": "node dist/src/main.js",
     "test": "pnpm run build && node --test dist/test/*.test.js"
@@ -35,12 +34,6 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.2",
-    "@tiptap/core": "^3.35.0",
-    "@tiptap/extension-image": "^3.35.0",
-    "@tiptap/extension-table": "^3.35.0",
-    "@tiptap/pm": "^3.35.0",
-    "@tiptap/react": "^3.35.0",
-    "@tiptap/starter-kit": "^3.35.0",
     "@types/node": "^24.0.0",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19.2.0",

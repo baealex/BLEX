@@ -10,61 +10,80 @@ export interface VerificationAccount {
   username: string;
   name: string;
   email: string;
-  password: string;
+  passwordHash: string;
   sessionHash: string;
   tag: string;
   factorId: number | null;
   totpSecret: string | null;
   recoveryKey: string | null;
-  factorCreated: string | null;
-  verifiedUntil: bigint | null;
+  factorCreated: Date | null;
+  verifiedUntil: Date | null;
   verifiedFactor: number | null;
-  requiresFactor: number;
+  requiresFactor: boolean;
 }
 
 export async function readVerificationAccount(db: PrismaClient, request: FastifyRequest, secretKey: string): Promise<VerificationAccount | null> {
   const token = request.cookies[sessionCookie];
   const hash = tokenHash(token);
   if (!hash || !await readSession(db, token, secretKey)) return null;
-  const [account] = await db.$queryRaw<VerificationAccount[]>`
-    SELECT account.id, account.username, account.email, account.password, account.first_name AS name,
-           session.token_hash AS sessionHash, session.credential_tag AS tag, session.verified_until AS verifiedUntil,
-           session.verified_factor_id AS verifiedFactor, session.requires_factor AS requiresFactor,
-           factor.id AS factorId, factor.totp_secret AS totpSecret, factor.recovery_key AS recoveryKey,
-           CAST(factor.created_date AS TEXT) AS factorCreated
-      FROM blex_session AS session JOIN auth_user AS account ON account.id = session.user_id
-      LEFT JOIN board_twofactorauth AS factor ON factor.user_id = account.id
-     WHERE session.token_hash = ${hash} AND session.expires_at > ${BigInt(Date.now())} AND account.is_active = 1
-  `;
-  return account?.tag === credentialTag(account.password, secretKey) ? account : null;
+  const session = await db.session.findFirst({
+    where: { tokenHash: hash, expiresAt: { gt: new Date() }, user: { isActive: true } },
+    select: {
+      tokenHash: true, credentialTag: true, verifiedUntil: true, verifiedFactorId: true, requiresFactor: true,
+      user: {
+        select: {
+          id: true, username: true, email: true, passwordHash: true, name: true,
+          twoFactor: { select: { id: true, totpSecret: true, recoveryKey: true, createdAt: true } },
+        },
+      },
+    },
+  });
+  if (!session || session.credentialTag !== credentialTag(session.user.passwordHash, secretKey)) return null;
+  const { user } = session;
+  return {
+    id: user.id, username: user.username, name: user.name, email: user.email, passwordHash: user.passwordHash,
+    sessionHash: session.tokenHash, tag: session.credentialTag,
+    factorId: user.twoFactor?.id ?? null, totpSecret: user.twoFactor?.totpSecret ?? null,
+    recoveryKey: user.twoFactor?.recoveryKey ?? null, factorCreated: user.twoFactor?.createdAt ?? null,
+    verifiedUntil: session.verifiedUntil, verifiedFactor: session.verifiedFactorId, requiresFactor: session.requiresFactor,
+  };
 }
 
 export function hasVerification(account: VerificationAccount, pendingFactor = false): boolean {
-  return account.verifiedUntil !== null && account.verifiedUntil > BigInt(Date.now()) &&
-    account.verifiedFactor === account.factorId && Boolean(account.requiresFactor) === pendingFactor;
+  return account.verifiedUntil !== null && account.verifiedUntil.getTime() > Date.now() &&
+    account.verifiedFactor === account.factorId && account.requiresFactor === pendingFactor;
+}
+
+/** The account as this proof saw it. Any change to its password, status, or factor voids the proof. */
+function unchangedAccount(account: VerificationAccount): Prisma.UserWhereInput {
+  return {
+    id: account.id, isActive: true, passwordHash: account.passwordHash,
+    twoFactor: account.factorId === null ? { is: null } : { is: { id: account.factorId } },
+  };
 }
 
 export async function recordVerification(db: PrismaClient, account: VerificationAccount, requireFactor = false) {
   const token = createToken();
-  const now = BigInt(Date.now());
-  const changed = await db.$executeRaw`
-    UPDATE blex_session SET token_hash = ${tokenHash(token)!}, verified_until = ${now + BigInt(verificationLifetime)},
-           verified_factor_id = ${account.factorId}, requires_factor = ${Number(requireFactor)}
-     WHERE token_hash = ${account.sessionHash} AND expires_at > ${now}
-       AND EXISTS(SELECT 1 FROM auth_user WHERE id = ${account.id} AND is_active = 1 AND password = ${account.password})
-       AND (SELECT id FROM board_twofactorauth WHERE user_id = ${account.id}) IS ${account.factorId}
-  `;
-  return changed === 1 ? token : null;
+  const now = new Date();
+  const { count } = await db.session.updateMany({
+    where: { tokenHash: account.sessionHash, expiresAt: { gt: now }, user: unchangedAccount(account) },
+    data: {
+      tokenHash: tokenHash(token)!, verifiedUntil: new Date(now.getTime() + verificationLifetime),
+      verifiedFactorId: account.factorId, requiresFactor: requireFactor,
+    },
+  });
+  return count === 1 ? token : null;
 }
 
 export async function acquireVerification(tx: Prisma.TransactionClient, account: VerificationAccount) {
-  const now = BigInt(Date.now());
-  const available = await tx.$executeRaw`
-    UPDATE blex_session SET token_hash = token_hash
-     WHERE token_hash = ${account.sessionHash} AND expires_at > ${now} AND verified_until > ${now}
-       AND requires_factor = 0 AND verified_factor_id IS ${account.factorId}
-       AND (SELECT id FROM board_twofactorauth WHERE user_id = ${account.id}) IS ${account.factorId}
-       AND EXISTS(SELECT 1 FROM auth_user WHERE id = ${account.id} AND is_active = 1 AND password = ${account.password})
-  `;
-  return available === 1;
+  const now = new Date();
+  // A write, so the transaction holds SQLite's write lock from this check until it commits.
+  const { count } = await tx.session.updateMany({
+    where: {
+      tokenHash: account.sessionHash, expiresAt: { gt: now }, verifiedUntil: { gt: now },
+      requiresFactor: false, verifiedFactorId: account.factorId, user: unchangedAccount(account),
+    },
+    data: { requiresFactor: false },
+  });
+  return count === 1;
 }

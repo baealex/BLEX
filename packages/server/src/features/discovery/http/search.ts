@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { type PrismaClient } from '@prisma/client';
-import { searchCte } from '../services/public-posts.js';
+import { rankPublicSearch, readSearchPage } from '../services/public-posts.js';
 import { PostRow, PublicPageOptions, dateValue, h, makeAbsolute, makePaginationMeta, pageFrom, sendNotFound, totalPages, validPublicPage } from '../shared.js';
 import { PageLayout, getLayoutContext, renderHtml } from '../pages/layout.js';
 import { EmptyState } from '../pages/post-list.js';
@@ -18,21 +18,15 @@ export function registerSearchRoutes(app: FastifyInstance, db: PrismaClient, sit
     const page = Math.max(1, Number(rawPage));
     if (!/^[+-]?\d+$/.test(rawPage) || !Number.isSafeInteger(page)) return invalid('invalid_page', '잘못된 페이지 번호입니다.');
     const started = performance.now();
-    const search = searchCte(query.split(/\s+/), username);
-    const [count] = await db.$queryRawUnsafe<Array<{ count: bigint | number }>>(
-      `${search.sql} SELECT COUNT(*) AS count FROM scored WHERE relevance > 0`, ...search.parameters,
-    );
-    const totalSize = Number(count.count);
+    const ranked = await rankPublicSearch(db, query.split(/\s+/), username);
+    const totalSize = ranked.length;
     const lastPage = totalPages(totalSize, 30);
     if (page > lastPage) return invalid('invalid_page', '잘못된 페이지 번호입니다.');
-    const matches = await db.$queryRawUnsafe<Array<PostRow & { titleScore: number | bigint; descriptionScore: number | bigint; tagScore: number | bigint; contentScore: number | bigint }>>(
-      `${search.sql} SELECT * FROM scored WHERE relevance > 0 ORDER BY relevance DESC, publishedDate DESC, id DESC LIMIT 30 OFFSET ?`,
-      ...search.parameters, (page - 1) * 30,
-    );
+    const matches = await readSearchPage(db, ranked, 30, (page - 1) * 30);
     const fields = [['titleScore', 'title', '제목'], ['descriptionScore', 'description', '설명'],
       ['tagScore', 'tag', '태그'], ['contentScore', 'content', '내용']] as const;
     const results = matches.map((post) => {
-      const scored = fields.filter(([key]) => Number(post[key]) > 0);
+      const scored = fields.filter(([key]) => (post[key] ?? 0) > 0);
       const published = dateValue(post.publishedDate);
       const timeZone = process.env.TZ || 'Asia/Seoul';
       return { url: post.slug, title: post.title, image: post.image, description: post.description, readTime: post.readTime,
@@ -57,27 +51,11 @@ export function registerSearchRoutes(app: FastifyInstance, db: PrismaClient, sit
     let checkedPage = page;
     if (searchText) {
       const keywords = searchText.split(/\s+/).filter(Boolean);
-      const cte = searchCte(keywords, username);
-      const countRows = await db.$queryRawUnsafe<Array<{ count: number }>>(
-        `${cte.sql} SELECT COUNT(*) AS count FROM scored WHERE relevance > 0`,
-        ...cte.parameters,
-      );
-      count = Number(countRows[0]?.count ?? 0);
+      const ranked = await rankPublicSearch(db, keywords, username);
+      count = ranked.length;
       checkedPage = validPublicPage(reply, page, count, 30) ?? 0;
       if (checkedPage === 0) return reply;
-      posts = await db.$queryRawUnsafe<PostRow[]>(
-        `${cte.sql}
-         SELECT id, slug, title, subtitle, image, readTime, description, publishedDate,
-                authorUsername, authorAvatar, seriesUrl, seriesName, relevance,
-                titleScore, descriptionScore, tagScore, contentScore
-           FROM scored
-          WHERE relevance > 0
-          ORDER BY relevance DESC, publishedDate DESC, id DESC
-          LIMIT ? OFFSET ?`,
-        ...cte.parameters,
-        30,
-        (checkedPage - 1) * 30,
-      );
+      posts = await readSearchPage(db, ranked, 30, (checkedPage - 1) * 30);
     }
     const pages = totalPages(count, 30);
     const path = '/search';

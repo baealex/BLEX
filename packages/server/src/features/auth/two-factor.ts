@@ -1,14 +1,14 @@
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { Secret, TOTP } from 'otpauth';
-import { decryptDjangoSecret } from './django-secret.js';
+import { decryptSecret } from './encrypted-secret.js';
 
-export interface DjangoSecondFactor {
+export interface StoredSecondFactor {
   totpSecret: string;
   recoveryKey: string;
 }
 
-export function verifyDjangoSecondFactor(
-  stored: DjangoSecondFactor,
+export function verifySecondFactor(
+  stored: StoredSecondFactor,
   code: string,
   cipherKey: string,
   timestamp = Date.now(),
@@ -25,7 +25,7 @@ export function verifyDjangoSecondFactor(
 
   if (!/^\d{6}$/.test(code)) return false;
   const encoded = stored.totpSecret.trim();
-  const secret = decryptDjangoSecret(encoded, cipherKey) ?? encoded;
+  const secret = decryptSecret(encoded, cipherKey) ?? encoded;
   if (!/^[A-Z2-7]{16,64}=*$/i.test(secret)) return false;
   try {
     const totp = new TOTP({ secret: Secret.fromBase32(secret.toUpperCase()), algorithm: 'SHA1', digits: 6, period: 30 });

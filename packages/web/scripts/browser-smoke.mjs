@@ -31,10 +31,10 @@ const open = (path) => page.goto(`${origin}${path}`, { waitUntil: 'networkidle' 
 const createFirstAdmin = async () => {
     await open(`/setup?token=${encodeURIComponent(setupToken)}`);
     await page.locator('input[name=username]').fill(account.username);
-    await page.locator('input[name=display_name]').fill(account.displayName);
+    await page.locator('input[name=displayName]').fill(account.displayName);
     await page.locator('input[name=email]').fill(account.email);
     await page.locator('input[name=password]').fill(account.password);
-    await page.locator('input[name=password_check]').fill(account.password);
+    await page.locator('input[name=passwordCheck]').fill(account.password);
     await page.getByRole('button', { name: '관리자 만들기' }).click();
     await page.waitForURL((url) => url.pathname !== '/setup');
 };
@@ -72,13 +72,33 @@ const openEditor = async () => {
     await expect(page.getByPlaceholder('제목을 입력하세요')).toBeVisible();
 };
 
+const keepRejectedPublishInEditor = async () => {
+    const body = 'This body must survive a rejected publish.';
+    await open('/write');
+    await page.getByPlaceholder('제목을 입력하세요').fill('Rejected publish');
+    await page.locator('.ProseMirror').click();
+    await page.keyboard.type(body);
+    await page.locator('input[name=image]').setInputFiles({
+        name: 'broken.png',
+        mimeType: 'image/png',
+        buffer: Buffer.from('not an image')
+    });
+    await page.locator('[data-tour=post-publish]').click();
+    await page.getByRole('button', { name: '확인 후 발행' }).click();
+    await expect(page.getByText('이미지 업로드에 실패했습니다.').first()).toBeVisible();
+    await expect(page).toHaveURL(/\/write(?:\?|$)/);
+    await expect(page.getByPlaceholder('제목을 입력하세요')).toHaveValue('Rejected publish');
+    await expect(page.locator('.ProseMirror')).toContainText(body);
+};
+
 try {
     for (const [name, step] of [
         ['first admin', createFirstAdmin],
         ['account menu and logout', logOutFromAccountMenu],
         ['login', logIn],
         ['mobile menu', openMobileMenu],
-        ['editor', openEditor]
+        ['editor', openEditor],
+        ['rejected publish keeps the post', keepRejectedPublishInEditor]
     ]) {
         await step();
         console.log(`ok: ${name}`);

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
+import { readFileSync } from 'node:fs';
 import { mkdtemp, mkdir, readFile, readdir, rm, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
@@ -9,6 +10,7 @@ import sharp from 'sharp';
 import { after, beforeEach, test } from 'node:test';
 import { registerPublicMedia } from '../src/features/media/public-media.js';
 import { registerWorkLogs } from '../src/features/work-logs/index.js';
+import { insertRow } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-work-logs-'));
 const databasePath = join(directory, 'work-logs.sqlite3');
@@ -18,67 +20,32 @@ const privateFilePath = join(mediaRoot, '_work_logs', privateFileName);
 const csrfToken = 'a'.repeat(43);
 const shareToken = '11111111-1111-4111-8111-111111111111';
 
+const day = (date: number, month = 1) => Date.UTC(2025, month - 1, date);
+
 function createDatabaseSchema() {
   const database = new DatabaseSync(databasePath);
-  database.exec(`
-    CREATE TABLE auth_user (
-      id INTEGER PRIMARY KEY, username TEXT NOT NULL, is_active BOOLEAN NOT NULL DEFAULT 1, is_staff BOOLEAN NOT NULL DEFAULT 0
-    );
-    CREATE TABLE board_sitesetting (
-      id INTEGER PRIMARY KEY, site_name TEXT NOT NULL DEFAULT 'BLEX', logo_svg TEXT NOT NULL DEFAULT '',
-      logo_svg_dark TEXT NOT NULL DEFAULT '', icon_manifest TEXT NOT NULL DEFAULT '{}', seo_enabled BOOLEAN NOT NULL DEFAULT 1
-    );
-    CREATE TABLE board_staticpage (
-      id INTEGER PRIMARY KEY, title TEXT NOT NULL, slug TEXT NOT NULL, is_published BOOLEAN NOT NULL DEFAULT 0,
-      show_in_footer BOOLEAN NOT NULL DEFAULT 0, "order" INTEGER NOT NULL DEFAULT 0
-    );
-    CREATE TABLE board_notify (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, has_read BOOLEAN NOT NULL DEFAULT 0);
-    CREATE TABLE board_profile (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, role TEXT NOT NULL);
-    CREATE TABLE board_worklog (
-      id INTEGER PRIMARY KEY, title TEXT NOT NULL, created_at DATETIME NOT NULL, owner_id INTEGER NOT NULL
-    );
-    CREATE TABLE board_worklogentry (
-      id INTEGER PRIMARY KEY, title TEXT NOT NULL, text TEXT NOT NULL, media_type TEXT NOT NULL,
-      attachment TEXT NOT NULL, created_at DATETIME NOT NULL, log_id INTEGER NOT NULL
-    );
-    CREATE TABLE board_worklogshare (
-      id INTEGER PRIMARY KEY, token TEXT NOT NULL UNIQUE, headline TEXT NOT NULL,
-      created_at DATETIME NOT NULL, log_id INTEGER NOT NULL
-    );
-    CREATE TABLE board_worklogshare_entries (
-      id INTEGER PRIMARY KEY, worklogshare_id INTEGER NOT NULL, worklogentry_id INTEGER NOT NULL,
-      UNIQUE(worklogshare_id, worklogentry_id)
-    );
-  `);
+  database.exec(readFileSync(new URL('../../prisma/migrations/0001_init/migration.sql', import.meta.url), 'utf8'));
   database.close();
 }
 
 function seedDatabase() {
   const database = new DatabaseSync(databasePath);
-  database.exec(`
-    DELETE FROM board_worklogshare_entries;
-    DELETE FROM board_worklogshare;
-    DELETE FROM board_worklogentry;
-    DELETE FROM board_worklog;
-    DELETE FROM board_profile;
-    DELETE FROM auth_user;
-    INSERT INTO auth_user (id, username, is_active) VALUES
-      (1, 'writer', 1), (2, 'other', 1), (3, 'reader', 1), (4, 'inactive', 0);
-    INSERT INTO board_profile VALUES
-      (1, 1, 'EDITOR'), (2, 2, 'EDITOR'), (3, 3, 'READER'), (4, 4, 'EDITOR');
-    INSERT INTO board_worklog VALUES
-      (1, 'Private notes', '2025-01-01 00:00:00', 1),
-      (2, 'Second log', '2025-01-02 00:00:00', 1),
-      (3, 'Other notes', '2025-01-03 00:00:00', 2);
-    INSERT INTO board_worklogentry VALUES
-      (1, 'Private planning', 'not public unless selected', '', '', '2025-01-01 00:00:00', 1),
-      (2, 'Selected clip', 'snapshot body', 'video/mp4', '${privateFileName}', '2025-01-02 00:00:00', 1),
-      (3, 'Later note', 'not in the earlier snapshot', '', '', '2025-01-03 00:00:00', 1),
-      (4, 'Other log entry', 'other owner data', '', '', '2025-01-01 00:00:00', 3);
-    INSERT INTO board_worklogshare VALUES
-      (1, '${shareToken.replaceAll('-', '')}', 'Existing snapshot', '2025-01-04 00:00:00', 1);
-    INSERT INTO board_worklogshare_entries VALUES (1, 1, 2);
-  `);
+  database.exec('DELETE FROM WorkLog; DELETE FROM "Profile"; DELETE FROM "User";');
+  for (const [id, username, isActive, role] of [[1, 'writer', 1, 'EDITOR'], [2, 'other', 1, 'EDITOR'], [3, 'reader', 1, 'READER'], [4, 'inactive', 0, 'EDITOR']] as const) {
+    insertRow(database, 'User', { id, username, isActive: isActive });
+    insertRow(database, 'Profile', { userId: id, role });
+  }
+  const log = database.prepare('INSERT INTO WorkLog (id, title, createdAt, ownerId) VALUES (?, ?, ?, ?)');
+  log.run(1, 'Private notes', day(1), 1);
+  log.run(2, 'Second log', day(2), 1);
+  log.run(3, 'Other notes', day(3), 2);
+  const entry = database.prepare('INSERT INTO WorkLogEntry (id, title, text, mediaType, attachment, createdAt, logId) VALUES (?, ?, ?, ?, ?, ?, ?)');
+  entry.run(1, 'Private planning', 'not public unless selected', '', '', day(1), 1);
+  entry.run(2, 'Selected clip', 'snapshot body', 'video/mp4', privateFileName, day(2), 1);
+  entry.run(3, 'Later note', 'not in the earlier snapshot', '', '', day(3), 1);
+  entry.run(4, 'Other log entry', 'other owner data', '', '', day(1), 3);
+  database.prepare('INSERT INTO WorkLogShare (id, token, headline, createdAt, logId) VALUES (1, ?, ?, ?, 1)').run(shareToken.replaceAll('-', ''), 'Existing snapshot', day(4));
+  database.exec('INSERT INTO _WorkLogEntryToWorkLogShare (A, B) VALUES (2, 1)');
   database.close();
 }
 
@@ -95,7 +62,7 @@ registerWorkLogs(app, prisma, {
     const id = Number(request.headers['x-test-user']);
     if (!Number.isSafeInteger(id) || id <= 0) return null;
     const database = new DatabaseSync(databasePath, { readOnly: true });
-    const user = database.prepare('SELECT id, username FROM auth_user WHERE id = ?').get(id) as { id: number; username: string } | undefined;
+    const user = database.prepare('SELECT id, username FROM "User" WHERE id = ?').get(id) as { id: number; username: string } | undefined;
     database.close();
     return user ?? null;
   },
@@ -207,7 +174,7 @@ test('requires CSRF and editor role before creating logs or entries', async () =
   });
   assert.equal(created.statusCode, 302, created.body);
   assert.match(created.headers.location ?? '', /^\/work-logs\/\d+\/$/);
-  const createdTitle = (await prisma.$queryRaw<Array<{ title: string }>>`SELECT title FROM board_worklog WHERE title = 'Created log'`)[0]?.title;
+  const createdTitle = (await prisma.$queryRaw<Array<{ title: string }>>`SELECT title FROM WorkLog WHERE title = 'Created log'`)[0]?.title;
   assert.equal(createdTitle, 'Created log');
 
   const logId = Number(created.headers.location?.match(/\d+/)?.[0]);
@@ -219,7 +186,7 @@ test('requires CSRF and editor role before creating logs or entries', async () =
   });
   assert.equal(entry.statusCode, 302, entry.body);
   const saved = await prisma.$queryRaw<Array<{ title: string; text: string }>>`
-    SELECT title, text FROM board_worklogentry WHERE log_id = ${logId}
+    SELECT title, text FROM WorkLogEntry WHERE logId = ${logId}
   `;
   assert.deepEqual(saved, [{ title: 'Short note', text: 'A useful observation.' }]);
 });
@@ -234,7 +201,7 @@ test('creates immutable entry snapshots, rejects cross-log selections, and revok
   });
   assert.equal(crossLog.statusCode, 200, crossLog.body);
   assert.match(crossLog.body, /이 작업 일지의 기록을 선택해 주세요/);
-  assert.equal(Number((await prisma.$queryRaw<Array<{ total: number | bigint }>>`SELECT COUNT(*) AS total FROM board_worklogshare`)[0]?.total), 1);
+  assert.equal(Number((await prisma.$queryRaw<Array<{ total: number | bigint }>>`SELECT COUNT(*) AS total FROM WorkLogShare`)[0]?.total), 1);
 
   const published = await app.inject({
     method: 'POST', url: '/work-logs/1/share/', headers: formHeaders(1),
@@ -270,7 +237,7 @@ test('creates immutable entry snapshots, rejects cross-log selections, and revok
   assert.equal((await app.inject(`/work-logs/share/${token}/`)).statusCode, 200);
 
   const database = new DatabaseSync(databasePath);
-  database.prepare("UPDATE board_profile SET role = 'READER' WHERE user_id = 1").run();
+  database.prepare("UPDATE \"Profile\" SET role = 'READER' WHERE userId = 1").run();
   database.close();
   const revoked = await app.inject({
     method: 'POST', url: `/work-logs/1/share/${token}/revoke/`, headers: formHeaders(1),
@@ -282,7 +249,7 @@ test('creates immutable entry snapshots, rejects cross-log selections, and revok
 
 test('disables shared pages and media when the log owner becomes inactive', async () => {
   const database = new DatabaseSync(databasePath);
-  database.prepare('UPDATE auth_user SET is_active = 0 WHERE id = 1').run();
+  database.prepare('UPDATE "User" SET isActive = 0 WHERE id = 1').run();
   database.close();
 
   assert.equal((await app.inject(`/work-logs/share/${shareToken}/`)).statusCode, 404);
@@ -292,11 +259,11 @@ test('disables shared pages and media when the log owner becomes inactive', asyn
 test('keeps large share previews paginated through the POST preview flow', async () => {
   const database = new DatabaseSync(databasePath);
   const insert = database.prepare(`
-    INSERT INTO board_worklogentry (id, title, text, media_type, attachment, created_at, log_id)
+    INSERT INTO WorkLogEntry (id, title, text, mediaType, attachment, createdAt, logId)
     VALUES (?, ?, '', '', '', ?, 1)
   `);
   for (let id = 10; id < 31; id += 1) {
-    insert.run(id, `Preview entry ${id}`, `2025-02-${String(id - 9).padStart(2, '0')} 00:00:00`);
+    insert.run(id, `Preview entry ${id}`, day(id - 9, 2));
   }
   database.close();
   const selectedEntries = Array.from({ length: 21 }, (_value, index) => index + 10).join(',');
@@ -361,7 +328,7 @@ test('validates images before storing uploads and rolls back files when database
   });
   assert.equal(rejected.statusCode, 200, rejected.body);
   assert.match(rejected.body, /PNG, JPEG, WebP, MP4, WebM 파일을 선택해 주세요/);
-  assert.equal(Number((await prisma.$queryRaw<Array<{ total: number | bigint }>>`SELECT COUNT(*) AS total FROM board_worklogentry WHERE log_id = 1`)[0]?.total), 3);
+  assert.equal(Number((await prisma.$queryRaw<Array<{ total: number | bigint }>>`SELECT COUNT(*) AS total FROM WorkLogEntry WHERE logId = 1`)[0]?.total), 3);
 
   const image = await sharp({ create: { width: 2, height: 2, channels: 3, background: '#117755' } }).png().toBuffer();
   const validFile = multipart([
@@ -373,8 +340,8 @@ test('validates images before storing uploads and rolls back files when database
   });
   assert.equal(uploaded.statusCode, 302, uploaded.body);
   const [stored] = await prisma.$queryRaw<Array<{ id: number; mediaType: string; attachment: string }>>`
-    SELECT id, media_type AS mediaType, attachment FROM board_worklogentry
-     WHERE log_id = 1 AND title = 'Image proof'
+    SELECT id, mediaType, attachment FROM WorkLogEntry
+     WHERE logId = 1 AND title = 'Image proof'
   `;
   assert.equal(stored.mediaType, 'image/png');
   const savedPath = join(mediaRoot, '_work_logs', stored.attachment);
@@ -384,7 +351,7 @@ test('validates images before storing uploads and rolls back files when database
 
   const database = new DatabaseSync(databasePath);
   database.exec(`
-    CREATE TRIGGER reject_orphan_proof BEFORE INSERT ON board_worklogentry
+    CREATE TRIGGER reject_orphan_proof BEFORE INSERT ON WorkLogEntry
     WHEN NEW.title = 'Orphan proof'
     BEGIN SELECT RAISE(ABORT, 'synthetic insert rejection'); END;
   `);
@@ -397,7 +364,7 @@ test('validates images before storing uploads and rolls back files when database
     payload: failed.payload,
   });
   assert.equal(failedResponse.statusCode, 500);
-  assert.equal(Number((await prisma.$queryRaw<Array<{ total: number | bigint }>>`SELECT COUNT(*) AS total FROM board_worklogentry WHERE title = 'Orphan proof'`)[0]?.total), 0);
+  assert.equal(Number((await prisma.$queryRaw<Array<{ total: number | bigint }>>`SELECT COUNT(*) AS total FROM WorkLogEntry WHERE title = 'Orphan proof'`)[0]?.total), 0);
   const filesAfterFailedInsert = (await listFiles(join(mediaRoot, '_work_logs'))).sort();
   assert.deepEqual(filesAfterFailedInsert, filesBeforeFailedInsert);
   const cleanup = new DatabaseSync(databasePath);

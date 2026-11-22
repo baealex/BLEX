@@ -7062,7 +7062,7 @@ msgstr "Could not generate a verification code."
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:617
 msgid "settings.users.description"
-msgstr "Administrator access can only be changed in Django admin."
+msgstr "Administrator access cannot be changed on this screen."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:231

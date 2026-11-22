@@ -1,13 +1,5 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
 
-async function deleteWorkLogShares(
-  tx: Prisma.TransactionClient,
-  where: Prisma.board_worklogshareWhereInput,
-): Promise<number> {
-  await tx.board_worklogshare_entries.deleteMany({ where: { board_worklogshare: where } });
-  return (await tx.board_worklogshare.deleteMany({ where })).count;
-}
-
 export async function deleteWorkLogEntry(
   db: PrismaClient,
   logId: number,
@@ -15,38 +7,33 @@ export async function deleteWorkLogEntry(
   ownerId: number,
 ): Promise<string | null> {
   return db.$transaction(async (tx) => {
-    const log = { id: logId, owner_id: ownerId };
-    const where = { id: entryId, board_worklog: log };
-    const entry = await tx.board_worklogentry.findFirst({ where, select: { attachment: true } });
+    const log = { id: logId, ownerId };
+    const where = { id: entryId, log };
+    const entry = await tx.workLogEntry.findFirst({ where, select: { attachment: true } });
     if (!entry) return null;
 
-    await tx.board_worklogshare_entries.deleteMany({ where: { worklogentry_id: entryId } });
-    await tx.board_worklogentry.deleteMany({ where });
-    await deleteWorkLogShares(tx, { board_worklog: log, board_worklogshare_entries: { none: {} } });
+    await tx.workLogEntry.deleteMany({ where });
+    await tx.workLogShare.deleteMany({ where: { log, entries: { none: {} } } });
     return entry.attachment;
   });
 }
 
-export async function deleteWorkLogs(tx: Prisma.TransactionClient, where: Prisma.board_worklogWhereInput) {
-  const related = { board_worklog: where };
-  const attachments = await tx.board_worklogentry.findMany({
-    where: { ...related, attachment: { not: '' } },
+/** Entries and share links cascade from the log. Attachment paths are returned for removal after commit. */
+export async function deleteWorkLogs(tx: Prisma.TransactionClient, where: Prisma.WorkLogWhereInput) {
+  const attachments = await tx.workLogEntry.findMany({
+    where: { log: where, attachment: { not: '' } },
     select: { attachment: true },
   });
-  await tx.board_worklogshare_entries.deleteMany({ where: { board_worklogentry: related } });
-  await deleteWorkLogShares(tx, related);
-  await tx.board_worklogentry.deleteMany({ where: related });
-  await tx.board_worklog.deleteMany({ where });
+  await tx.workLog.deleteMany({ where });
   return attachments;
 }
 
 export async function deleteWorkLog(db: PrismaClient, logId: number, ownerId: number): Promise<string[]> {
-  const attachments = await db.$transaction((tx) => deleteWorkLogs(tx, { id: logId, owner_id: ownerId }));
+  const attachments = await db.$transaction((tx) => deleteWorkLogs(tx, { id: logId, ownerId }));
   return attachments.map(({ attachment }) => attachment);
 }
 
-export function revokeWorkLogShare(db: PrismaClient, logId: number, token: string, ownerId: number): Promise<number> {
-  return db.$transaction((tx) => deleteWorkLogShares(tx, {
-    token, board_worklog: { id: logId, owner_id: ownerId },
-  }));
+export async function revokeWorkLogShare(db: PrismaClient, logId: number, token: string, ownerId: number): Promise<number> {
+  const { count } = await db.workLogShare.deleteMany({ where: { token, log: { id: logId, ownerId } } });
+  return count;
 }

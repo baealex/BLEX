@@ -2,6 +2,10 @@ import type { Prisma, PrismaClient } from '@prisma/client';
 import { safeExternalUrl } from './profile.js';
 import { Body, UpdateResult, positiveId, stringValue } from '../shared.js';
 
+const MAX_LINK_ORDER = 2_147_483_647;
+/** A larger client id would push the shared AUTOINCREMENT counter past Prisma's Int range for every account. */
+const MAX_REUSED_LINK_ID = 1_073_741_823;
+
 type SocialLink = { id: number; name: string; value: string; order: number };
 
 interface SocialMutation {
@@ -23,7 +27,7 @@ function validateSocialFields(name: string, value: string, orderValue: string): 
   if (!value.startsWith('https://') || !safeExternalUrl(value)) return null;
   if (!/^-?\d+$/.test(orderValue)) return null;
   const order = Number(orderValue);
-  return Number.isSafeInteger(order) && order >= 0 ? order : null;
+  return Number.isSafeInteger(order) && order >= 0 ? Math.min(order, MAX_LINK_ORDER) : null;
 }
 
 function parseSocialMutation(body: Body, mode: 'legacy' | 'form'): SocialMutation | UpdateResult {
@@ -83,30 +87,25 @@ export async function applySocialMutation(
   try {
     await db.$transaction(async (transaction: Prisma.TransactionClient) => {
       for (const link of mutation.updates) {
-        const result = await transaction.$executeRaw`
-          UPDATE board_userlinkmeta
-             SET name = ${link.name}, value = ${link.value}, "order" = ${link.order}
-           WHERE id = ${link.id} AND user_id = ${userId}
-        `;
-        if (Number(result) === 0) {
-          const [collision] = await transaction.$queryRaw<Array<{ exists: number | bigint }>>`
-            SELECT EXISTS (SELECT 1 FROM board_userlinkmeta WHERE id = ${link.id}) AS "exists"
-          `;
-          if (collision?.exists) throw new Error('social-link-conflict');
-          await transaction.$executeRaw`
-            INSERT INTO board_userlinkmeta (id, name, value, created_date, updated_date, user_id, "order")
-            VALUES (${link.id}, ${link.name}, ${link.value}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ${userId}, ${link.order})
-          `;
+        const fields = { platform: link.name, url: link.value, order: link.order };
+        const { count } = await transaction.socialLink.updateMany({ where: { id: link.id, userId }, data: fields });
+        if (count === 0) {
+          const collision = await transaction.socialLink.findUnique({ where: { id: link.id }, select: { id: true } });
+          if (collision) throw new Error('social-link-conflict');
+          await transaction.socialLink.create({
+            data: { ...(link.id <= MAX_REUSED_LINK_ID ? { id: link.id } : {}), userId, ...fields },
+            select: { id: true },
+          });
         }
       }
       for (const link of mutation.creates) {
-        await transaction.$executeRaw`
-          INSERT INTO board_userlinkmeta (name, value, created_date, updated_date, user_id, "order")
-          VALUES (${link.name}, ${link.value}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ${userId}, ${link.order})
-        `;
+        await transaction.socialLink.create({
+          data: { userId, platform: link.name, url: link.value, order: link.order },
+          select: { id: true },
+        });
       }
       for (const id of mutation.deletes) {
-        await transaction.$executeRaw`DELETE FROM board_userlinkmeta WHERE id = ${id} AND user_id = ${userId}`;
+        await transaction.socialLink.deleteMany({ where: { id, userId } });
       }
     });
   } catch {

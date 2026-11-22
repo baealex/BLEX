@@ -8,8 +8,9 @@ import sharp from 'sharp';
 import Fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import { after, beforeEach, test } from 'node:test';
-import { decryptDjangoSecret, encryptDjangoSecret } from '../src/features/auth/django-secret.js';
+import { decryptSecret, encryptSecret } from '../src/features/auth/encrypted-secret.js';
 import { registerAdminSettings } from '../src/features/site-admin/index.js';
+import { accountTables, createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-admin-settings-'));
 const databasePath = join(directory, 'admin-settings.sqlite3');
@@ -37,95 +38,19 @@ function configureTelegram(responses: Record<string, unknown> = {}) {
 
 function createSchema() {
   const database = new DatabaseSync(databasePath);
+  createMigratedTables(database, 'FormTemplate', 'StaticPage', 'SiteNotice', 'SiteBanner', 'SiteSetting', 'LoginSetting', 'IntegrationSetting', 'AdminLog', 'CleanupConfirmation', 'UploadedImage', 'DeveloperToken', 'DeveloperRequestLog');
   database.exec(`
-    CREATE TABLE auth_user (
-      id INTEGER PRIMARY KEY, username TEXT NOT NULL, first_name TEXT NOT NULL DEFAULT '', email TEXT NOT NULL DEFAULT '',
-      is_active BOOLEAN NOT NULL DEFAULT 1, is_staff BOOLEAN NOT NULL DEFAULT 0,
-      is_superuser BOOLEAN NOT NULL DEFAULT 0, date_joined DATETIME NOT NULL DEFAULT '2025-01-01 00:00:00', last_login DATETIME
-    );
-    CREATE TABLE django_content_type (id INTEGER PRIMARY KEY, app_label TEXT NOT NULL, model TEXT NOT NULL, UNIQUE(app_label, model));
-    CREATE TABLE auth_permission (id INTEGER PRIMARY KEY, content_type_id INTEGER NOT NULL, codename TEXT NOT NULL, name TEXT NOT NULL);
-    CREATE TABLE auth_user_user_permissions (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, permission_id INTEGER NOT NULL);
-    CREATE TABLE auth_group (id INTEGER PRIMARY KEY, name TEXT NOT NULL);
-    CREATE TABLE auth_user_groups (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, group_id INTEGER NOT NULL);
-    CREATE TABLE auth_group_permissions (id INTEGER PRIMARY KEY, group_id INTEGER NOT NULL, permission_id INTEGER NOT NULL);
-    CREATE TABLE board_sitesetting (
-      id INTEGER PRIMARY KEY, header_script TEXT NOT NULL, footer_script TEXT NOT NULL,
-      updated_date DATETIME NOT NULL, aeo_enabled BOOLEAN NOT NULL, seo_enabled BOOLEAN NOT NULL,
-      robots_txt_extra_rules TEXT NOT NULL, site_name TEXT NOT NULL, logo_svg TEXT NOT NULL,
-      logo_svg_dark TEXT NOT NULL, icon_svg TEXT NOT NULL, icon_svg_dark TEXT NOT NULL,
-      icon_manifest TEXT NOT NULL
-    );
-    CREATE TABLE board_loginsetting (
-      id INTEGER PRIMARY KEY, welcome_notification_message TEXT NOT NULL,
-      welcome_notification_url TEXT NOT NULL, account_deletion_redirect_url TEXT NOT NULL,
-      hcaptcha_enabled BOOLEAN NOT NULL, hcaptcha_site_key TEXT NOT NULL,
-      hcaptcha_secret_key TEXT NOT NULL, updated_date DATETIME NOT NULL
-    );
-    CREATE TABLE board_socialauthprovider (
-      id INTEGER PRIMARY KEY, key TEXT NOT NULL UNIQUE, client_id TEXT NOT NULL,
-      client_secret TEXT NOT NULL, is_enabled BOOLEAN NOT NULL
-    );
-    CREATE TABLE board_integrationsetting (
-      id INTEGER PRIMARY KEY, telegram_enabled BOOLEAN NOT NULL DEFAULT 0,
-      telegram_bot_username TEXT NOT NULL DEFAULT '', telegram_bot_token TEXT NOT NULL DEFAULT '',
-      updated_date DATETIME NOT NULL
-    );
-    CREATE TABLE board_authorinvite (
-      id INTEGER PRIMARY KEY, code TEXT NOT NULL UNIQUE, note TEXT NOT NULL, is_active BOOLEAN NOT NULL,
-      created_date DATETIME NOT NULL, claimed_date DATETIME, claimed_by_id INTEGER, created_by_id INTEGER
-    );
-    CREATE TABLE board_staticpage (
-      id INTEGER PRIMARY KEY, title TEXT NOT NULL, slug TEXT NOT NULL UNIQUE, content TEXT NOT NULL DEFAULT '',
-      meta_description TEXT NOT NULL DEFAULT '', is_published BOOLEAN NOT NULL DEFAULT 1,
-      show_in_footer BOOLEAN NOT NULL DEFAULT 0, "order" INTEGER NOT NULL DEFAULT 0,
-      created_date DATETIME NOT NULL, updated_date DATETIME NOT NULL, author_id INTEGER
-    );
-    CREATE TABLE board_sitenotice (
-      id INTEGER PRIMARY KEY, scope TEXT NOT NULL, user_id INTEGER, title TEXT NOT NULL,
-      is_active BOOLEAN NOT NULL DEFAULT 1, "order" INTEGER NOT NULL DEFAULT 0,
-      created_date DATETIME NOT NULL, updated_date DATETIME NOT NULL, url TEXT NOT NULL DEFAULT ''
-    );
-    CREATE TABLE board_sitebanner (
-      id INTEGER PRIMARY KEY, scope TEXT NOT NULL, user_id INTEGER, title TEXT NOT NULL,
-      is_active BOOLEAN NOT NULL DEFAULT 1, "order" INTEGER NOT NULL DEFAULT 0,
-      created_date DATETIME NOT NULL, updated_date DATETIME NOT NULL, content_html TEXT NOT NULL DEFAULT '',
-      banner_type TEXT NOT NULL DEFAULT 'horizontal', position TEXT NOT NULL DEFAULT 'top'
-    );
-    CREATE TABLE board_worklogentry (id INTEGER PRIMARY KEY, text TEXT NOT NULL DEFAULT '');
-    CREATE TABLE board_profile (
-      id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL UNIQUE, role TEXT NOT NULL DEFAULT 'READER',
-      about_md TEXT NOT NULL DEFAULT '', about_html TEXT NOT NULL DEFAULT '', avatar TEXT NOT NULL DEFAULT '', cover TEXT NOT NULL DEFAULT '', bio TEXT NOT NULL DEFAULT '', homepage TEXT NOT NULL DEFAULT '', analytics_share_url TEXT NOT NULL DEFAULT ''
-  );
-    CREATE TABLE board_config (
-      id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL UNIQUE, language TEXT, time_zone TEXT NOT NULL DEFAULT ''
-    );
-    CREATE TABLE board_post (
-      id INTEGER PRIMARY KEY, author_id INTEGER NOT NULL, deleted_date DATETIME,
-      published_date DATETIME, updated_date DATETIME NOT NULL DEFAULT '2025-01-01 00:00:00', image TEXT NOT NULL DEFAULT ''
-    );
-    CREATE TABLE board_postcontent (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL UNIQUE, content_html TEXT NOT NULL DEFAULT '');
-    CREATE TABLE board_edithistory (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, content TEXT NOT NULL DEFAULT '');
-    CREATE TABLE board_editrequest (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, content TEXT NOT NULL DEFAULT '');
-    CREATE TABLE board_postconfig (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL UNIQUE, hide BOOLEAN NOT NULL DEFAULT 0);
-    CREATE TABLE board_comment (id INTEGER PRIMARY KEY, text_md TEXT NOT NULL DEFAULT '', text_html TEXT NOT NULL DEFAULT '');
-    CREATE TABLE board_series (id INTEGER PRIMARY KEY, text_md TEXT NOT NULL DEFAULT '', text_html TEXT NOT NULL DEFAULT '');
-    CREATE TABLE board_form (id INTEGER PRIMARY KEY, content TEXT NOT NULL DEFAULT '');
-    CREATE TABLE board_imagecache (id INTEGER PRIMARY KEY, key TEXT NOT NULL, path TEXT NOT NULL);
-    CREATE TABLE board_tag (id INTEGER PRIMARY KEY, value TEXT NOT NULL UNIQUE);
-    CREATE TABLE board_post_tags (post_id INTEGER NOT NULL, tag_id INTEGER NOT NULL, UNIQUE(post_id, tag_id));
-    CREATE TABLE board_developerrequestlog (id INTEGER PRIMARY KEY, created_date DATETIME NOT NULL);
-    CREATE TABLE blex_session (token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL, expires_at BIGINT NOT NULL);
-    CREATE TABLE django_session (session_key TEXT PRIMARY KEY, session_data TEXT NOT NULL, expire_date TEXT NOT NULL);
-    CREATE TABLE board_utilitycleanupconfirmation (
-      id INTEGER PRIMARY KEY, token_hash TEXT NOT NULL UNIQUE, action TEXT NOT NULL,
-      session_fingerprint TEXT NOT NULL, expires_at DATETIME NOT NULL, consumed_at DATETIME,
-      created_date DATETIME NOT NULL, user_id INTEGER NOT NULL
-    );
-    CREATE TABLE django_admin_log (
-      id INTEGER PRIMARY KEY, object_id TEXT, object_repr TEXT NOT NULL, action_flag INTEGER NOT NULL,
-      change_message TEXT NOT NULL, content_type_id INTEGER, user_id INTEGER NOT NULL, action_time DATETIME NOT NULL
-    );
+  ${migratedTableSql(...accountTables)}
+    CREATE TABLE WorkLogEntry (id INTEGER PRIMARY KEY, text TEXT NOT NULL DEFAULT '');
+${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', 'PostLike', 'PinnedPost', 'PostShareLink', 'PostShareDailyCount', 'ScheduledPublication')}
+
+
+
+
+    ${migratedTableSql('Comment', 'CommentLike')}
+    ${migratedTableSql('Series')}
+
+
   `);
   database.close();
 }
@@ -133,61 +58,58 @@ function createSchema() {
 function seedDatabase() {
   const database = new DatabaseSync(databasePath);
   database.exec(`
-    DELETE FROM django_admin_log;
-    DELETE FROM board_authorinvite;
-    DELETE FROM board_staticpage;
-    DELETE FROM board_sitenotice;
-    DELETE FROM board_sitebanner;
-    DELETE FROM board_worklogentry;
-    DELETE FROM board_profile;
-    DELETE FROM board_config;
-    DELETE FROM board_post;
-    DELETE FROM board_postcontent;
-    DELETE FROM board_edithistory;
-    DELETE FROM board_editrequest;
-    DELETE FROM board_postconfig;
-    DELETE FROM board_comment;
-    DELETE FROM board_series;
-    DELETE FROM board_form;
-    DELETE FROM board_imagecache;
-    DELETE FROM board_tag;
-    DELETE FROM board_post_tags;
-    DELETE FROM board_developerrequestlog;
-    DELETE FROM blex_session;
-    DELETE FROM board_utilitycleanupconfirmation;
-    DELETE FROM board_socialauthprovider;
-    DELETE FROM board_integrationsetting;
-    DELETE FROM board_loginsetting;
-    DELETE FROM board_sitesetting;
-    DELETE FROM auth_user_user_permissions;
-    DELETE FROM auth_group_permissions;
-    DELETE FROM auth_user_groups;
-    DELETE FROM auth_permission;
-    DELETE FROM django_content_type;
-    DELETE FROM auth_group;
-    DELETE FROM auth_user;
-    INSERT INTO auth_user (id, username, first_name, email, is_active, is_staff, is_superuser, date_joined, last_login) VALUES
-      (1, 'site-editor', 'Site Editor', 'editor@example.test', 1, 1, 0, '2025-01-01 00:00:00', '2025-01-02 00:00:00'),
-      (2, 'admin', 'Admin', 'admin@example.test', 1, 1, 1, '2025-01-01 00:00:00', '2025-01-03 00:00:00'),
-      (3, 'reader', 'Reader', 'reader@example.test', 1, 0, 0, '2025-01-02 00:00:00', NULL),
-      (4, 'inactive-admin', 'Inactive', 'inactive@example.test', 0, 1, 1, '2025-01-03 00:00:00', NULL),
-      (5, 'profileless', 'No Profile', 'profileless@example.test', 1, 0, 0, '2025-01-04 00:00:00', NULL);
-    INSERT INTO board_profile (id, user_id, role) VALUES
-      (1, 1, 'EDITOR'), (2, 2, 'EDITOR'), (3, 3, 'READER'), (4, 4, 'EDITOR');
-    INSERT INTO board_post (id, author_id, deleted_date, published_date) VALUES
-      (1, 1, NULL, NULL), (2, 1, NULL, NULL), (3, 1, '2025-01-04 00:00:00', NULL), (4, 3, NULL, '2099-01-01 00:00:00');
-    INSERT INTO django_content_type VALUES (1, 'board', 'sitesetting');
-    INSERT INTO auth_permission VALUES (1, 1, 'change_sitesetting', 'Can change site settings');
-    INSERT INTO auth_user_user_permissions VALUES (1, 1, 1);
-    INSERT INTO board_sitesetting VALUES
-      (1, '<script>hidden from delegated staff</script>', '', '2025-01-01 00:00:00', 0, 1, '', 'Test Blog', '', '', '', '', '{}');
-    INSERT INTO board_loginsetting VALUES
-      (1, 'Welcome {name}', '/welcome', '', 1, 'captcha-site-key', '${encryptDjangoSecret('hs_test_secret_99', cipherKey)}', '2025-01-01 00:00:00');
-    INSERT INTO board_socialauthprovider VALUES
-      (1, 'google', 'google-id', '${encryptDjangoSecret('oauth_test_secret_17', cipherKey)}', 1),
-      (2, 'github', '', '', 0);
-    INSERT INTO board_integrationsetting VALUES
-      (1, 0, '', '', '2025-01-01 00:00:00');
+    DELETE FROM AdminLog;
+    DELETE FROM "AuthorInvite";
+    DELETE FROM StaticPage;
+    DELETE FROM SiteNotice;
+    DELETE FROM SiteBanner;
+    DELETE FROM WorkLogEntry;
+    DELETE FROM "Profile";
+    DELETE FROM "UserPreference";
+    DELETE FROM "Post";
+    DELETE FROM "PostContent";
+    DELETE FROM "PostRevision";
+    
+    
+    DELETE FROM "Comment";
+    DELETE FROM "Series";
+    DELETE FROM FormTemplate;
+    DELETE FROM UploadedImage;
+    DELETE FROM "Tag";
+    DELETE FROM "_PostToTag";
+    DELETE FROM DeveloperRequestLog;
+    DELETE FROM "Session";
+    DELETE FROM CleanupConfirmation;
+    DELETE FROM "SocialProvider";
+    DELETE FROM IntegrationSetting;
+    DELETE FROM LoginSetting;
+    DELETE FROM SiteSetting;
+    DELETE FROM "User";
+    INSERT INTO "User" ("id", "username", "name", "email", "isActive", "isStaff", "isSuperuser", "joinedAt", "lastLoginAt", "passwordHash") VALUES
+    (1, 'site-editor', 'Site Editor', 'editor@example.test', 1, 1, 0, 1735689600000, 1735776000000, ''),
+    (2, 'admin', 'Admin', 'admin@example.test', 1, 1, 1, 1735689600000, 1735862400000, ''),
+    (3, 'reader', 'Reader', 'reader@example.test', 1, 0, 0, 1735776000000, NULL, ''),
+    (4, 'inactive-admin', 'Inactive', 'inactive@example.test', 0, 1, 1, 1735862400000, NULL, ''),
+    (5, 'profileless', 'No Profile', 'profileless@example.test', 1, 0, 0, 1735948800000, NULL, '');
+    INSERT INTO "Profile" ("userId", "role") VALUES
+    (1, 'EDITOR'),
+    (2, 'EDITOR'),
+    (3, 'READER'),
+    (4, 'EDITOR');
+    INSERT INTO "Post" ("id", "authorId", "deletedAt", "publishedAt", "slug", "title", "createdAt", "updatedAt") VALUES
+    (1, 1, NULL, NULL, 'post-1', '', 946684800000, 946684800000),
+    (2, 1, NULL, NULL, 'post-2', '', 946684800000, 946684800000),
+    (3, 1, 1735948800000, NULL, 'post-3', '', 946684800000, 946684800000),
+    (4, 3, NULL, 4070908800000, 'post-4', '', 946684800000, 946684800000);
+    UPDATE "User" SET canManageSiteSettings = 1 WHERE id = 1;
+    INSERT INTO SiteSetting (id, headerScript, siteName, iconManifest, updatedAt)
+      VALUES (1, '<script>hidden from delegated staff</script>', 'Test Blog', '{}', 1735689600000);
+    INSERT INTO LoginSetting (id, welcomeNotificationMessage, welcomeNotificationUrl, hcaptchaEnabled, hcaptchaSiteKey, hcaptchaSecretKey, updatedAt)
+      VALUES (1, 'Welcome {name}', '/welcome', 1, 'captcha-site-key', '${encryptSecret('hs_test_secret_99', cipherKey)}', 1735689600000);
+    INSERT INTO "SocialProvider" ("id", "key", "clientId", "clientSecret", "isEnabled") VALUES
+    (1, 'google', 'google-id', '${encryptSecret('oauth_test_secret_17', cipherKey)}', 1),
+    (2, 'github', '', '', 0);
+    INSERT INTO IntegrationSetting (id, updatedAt) VALUES (1, 1735689600000);
   `);
   database.close();
 }
@@ -206,7 +128,7 @@ registerAdminSettings(app, prisma, {
     const id = Number(request.headers['x-test-user']);
     if (!Number.isSafeInteger(id) || id <= 0) return null;
     const database = new DatabaseSync(databasePath, { readOnly: true });
-    const user = database.prepare('SELECT id, username FROM auth_user WHERE id = ?').get(id) as { id: number; username: string } | undefined;
+    const user = database.prepare('SELECT id, username FROM "User" WHERE id = ?').get(id) as { id: number; username: string } | undefined;
     database.close();
     return user ?? null;
   },
@@ -316,14 +238,11 @@ test('gates site settings by staff and SiteSetting permission and hides global s
   const admin = await app.inject({ url: '/v1/site-settings', headers: headers(2) });
   assert.equal((body(admin).body as Record<string, unknown>).headerScript, '<script>hidden from delegated staff</script>');
 
-  const landing = await app.inject({ url: '/admin-settings/', headers: headers(1) });
-  assert.equal(landing.statusCode, 302);
-  assert.equal(landing.headers.location, '/admin-settings/site-settings');
 });
 
 test('uploads and deletes validated brand SVG assets under the legacy public media paths', async () => {
   const svg = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#123456"/></svg>');
-  const form = multipartPayload({ asset_type: 'logo', theme: 'default' }, {
+  const form = multipartPayload({ assetType: 'logo', theme: 'default' }, {
     svg: { name: 'logo.svg', type: 'image/svg+xml', data: svg },
   });
   const upload = await app.inject({
@@ -335,45 +254,25 @@ test('uploads and deletes validated brand SVG assets under the legacy public med
   const settings = uploaded.body as Record<string, unknown>;
   const logoUrl = String(settings.logoSvgUrl);
   assert.match(logoUrl, /^\/resources\/media\/brand\/logo\/default\/[a-f0-9]{16}\/logo\.svg$/);
-  const setting = await prisma.$queryRaw<Array<{ logoSvg: string }>>`SELECT logo_svg AS logoSvg FROM board_sitesetting WHERE id = 1`;
+  const setting = await prisma.$queryRaw<Array<{ logoSvg: string }>>`SELECT logoSvg FROM SiteSetting WHERE id = 1`;
   assert.equal(logoUrl, `/resources/media/${setting[0]?.logoSvg}`);
   assert.deepEqual(await readFile(join(mediaRoot, setting[0]?.logoSvg ?? '')), svg);
-  const page = await app.inject({ url: '/admin-settings/site-settings', headers: headers(1) });
-  assert.equal(page.statusCode, 200, page.body);
-  assert.match(page.body, /multipart\/form-data/);
-  assert.match(page.body, /brand-logo-default/);
-  assert.match(page.body, /<h1[^>]*>블로그 꾸미기<\/h1>/);
-  assert.doesNotMatch(page.body, />Site identity<|name="png_512"/);
 
   const deleted = await app.inject({
     method: 'DELETE', url: '/v1/site-settings/brand-assets', headers: jsonHeaders(1),
-    payload: JSON.stringify({ asset_type: 'logo', theme: 'default' }),
+    payload: JSON.stringify({ assetType: 'logo', theme: 'default' }),
   });
   assert.equal(body(deleted).status, 'DONE', deleted.body);
   assert.equal((body(deleted).body as Record<string, unknown>).logoSvgUrl, '/resources/logob.svg');
-  assert.equal((await prisma.$queryRaw<Array<{ logoSvg: string }>>`SELECT logo_svg AS logoSvg FROM board_sitesetting WHERE id = 1`)[0]?.logoSvg, '');
+  assert.equal((await prisma.$queryRaw<Array<{ logoSvg: string }>>`SELECT logoSvg FROM SiteSetting WHERE id = 1`)[0]?.logoSvg, '');
   await assert.rejects(readFile(join(mediaRoot, setting[0]?.logoSvg ?? '')));
 });
 
-test('generates icon derivatives for a single SVG uploaded through blog customization', async () => {
+test('rejects an icon upload that omits its PNG and ICO derivatives', async () => {
   const svg = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 32"><rect width="64" height="32" fill="#123456"/></svg>');
-  const form = multipartPayload({ asset_type: 'icon', theme: 'default', csrfmiddlewaretoken: csrfToken }, {
+  const form = multipartPayload({ assetType: 'icon', theme: 'default', csrfmiddlewaretoken: csrfToken }, {
     svg: { name: 'icon.svg', type: 'image/svg+xml', data: svg },
   });
-  const uploaded = await app.inject({
-    method: 'POST', url: '/admin-settings/brand-assets', headers: { ...headers(1), ...form.headers }, payload: form.payload,
-  });
-  assert.equal(uploaded.statusCode, 303, uploaded.body);
-  assert.equal(uploaded.headers.location, '/admin-settings/site-settings?saved=1');
-  const [row] = await prisma.$queryRaw<Array<{ iconManifest: string }>>`SELECT icon_manifest AS iconManifest FROM board_sitesetting WHERE id = 1`;
-  const manifest = JSON.parse(row?.iconManifest ?? '{}') as { png: Record<string, string>; ico: string };
-  assert.equal(Object.keys(manifest.png).length, 14);
-  const icon = await sharp(join(mediaRoot, manifest.png['512'])).metadata();
-  assert.equal(icon.width, 512);
-  assert.equal(icon.height, 512);
-  const ico = await readFile(join(mediaRoot, manifest.ico));
-  assert.equal(ico.readUInt16LE(4), 2);
-
   const missingDerivatives = await app.inject({
     method: 'POST', url: '/v1/site-settings/brand-assets', headers: { ...headers(1), ...form.headers }, payload: form.payload,
   });
@@ -382,7 +281,7 @@ test('generates icon derivatives for a single SVG uploaded through blog customiz
 
 test('requires a default asset for dark variants and validates every default icon derivative', async () => {
   const svg = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#123456"/></svg>');
-  const dark = multipartPayload({ asset_type: 'icon', theme: 'dark' }, {
+  const dark = multipartPayload({ assetType: 'icon', theme: 'dark' }, {
     svg: { name: 'icon.svg', type: 'image/svg+xml', data: svg },
   });
   const rejected = await app.inject({
@@ -392,16 +291,16 @@ test('requires a default asset for dark variants and validates every default ico
   assert.match(String(body(rejected).errorMessage), /default asset first/);
 
   const fields = {
-    asset_type: 'icon',
+    assetType: 'icon',
     theme: 'default',
     manifest: JSON.stringify({ version: 1, pngSizes: [16, 32, 57, 72, 76, 96, 114, 120, 128, 144, 152, 192, 256, 512], ico: true }),
   };
   const files: Record<string, { name: string; type: string; data: Buffer }> = {
     svg: { name: 'icon.svg', type: 'image/svg+xml', data: svg },
-    favicon_ico: { name: 'favicon.ico', type: 'image/x-icon', data: await icoFile() },
+    faviconIco: { name: 'favicon.ico', type: 'image/x-icon', data: await icoFile() },
   };
   for (const size of [16, 32, 57, 72, 76, 96, 114, 120, 128, 144, 152, 192, 256, 512]) {
-    files[`png_${size}`] = { name: `logo${size}.png`, type: 'image/png', data: await pngFile(size) };
+    files[`png${size}`] = { name: `logo${size}.png`, type: 'image/png', data: await pngFile(size) };
   }
   const iconForm = multipartPayload(fields, files);
   const iconUpload = await app.inject({
@@ -414,29 +313,27 @@ test('requires a default asset for dark variants and validates every default ico
   const pngUrls = iconSettings.iconPngUrls as Record<string, string>;
   assert.equal(Object.keys(pngUrls).length, 14);
   assert.match(pngUrls['512'] ?? '', /logo512\.png$/);
-  const rows = await prisma.$queryRaw<Array<{ iconManifest: string; iconSvg: string }>>`
-    SELECT icon_manifest AS iconManifest, icon_svg AS iconSvg FROM board_sitesetting WHERE id = 1
-  `;
-  const manifest = JSON.parse(rows[0]?.iconManifest ?? '{}') as { png: Record<string, string>; ico: string };
+  const stored = await prisma.siteSetting.findUniqueOrThrow({ where: { id: 1 }, select: { iconManifest: true } });
+  const manifest = stored.iconManifest as { png: Record<string, string>; ico: string };
   assert.equal(Object.keys(manifest.png).length, 14);
   assert.ok((await readFile(join(mediaRoot, manifest.png['128'] ?? ''))).length > 0);
   assert.ok((await readFile(join(mediaRoot, manifest.ico))).length > 22);
 
   const invalidSvg = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" onload="alert(1)"><rect/></svg>');
-  const badForm = multipartPayload({ asset_type: 'logo', theme: 'default' }, {
+  const badForm = multipartPayload({ assetType: 'logo', theme: 'default' }, {
     svg: { name: 'unsafe.svg', type: 'image/svg+xml', data: invalidSvg },
   });
   const badUpload = await app.inject({
     method: 'POST', url: '/v1/site-settings/brand-assets', headers: { ...headers(1), ...badForm.headers }, payload: badForm.payload,
   });
   assert.equal(body(badUpload).errorCode, 'error:VA');
-  assert.equal((await prisma.$queryRaw<Array<{ logoSvg: string }>>`SELECT logo_svg AS logoSvg FROM board_sitesetting WHERE id = 1`)[0]?.logoSvg, '');
+  assert.equal((await prisma.$queryRaw<Array<{ logoSvg: string }>>`SELECT logoSvg FROM SiteSetting WHERE id = 1`)[0]?.logoSvg, '');
 });
 
 test('updates site identity and SEO fields, validates names, and requires CSRF', async () => {
   const update = await app.inject({
     method: 'PUT', url: '/v1/site-settings', headers: jsonHeaders(1),
-    payload: JSON.stringify({ site_name: '  BLEX Journal  ', seo_enabled: false, aeo_enabled: true, robots_txt_extra_rules: 'User-agent: DemoBot\nDisallow: /drafts/' }),
+    payload: JSON.stringify({ siteName: '  BLEX Journal  ', seoEnabled: false, aeoEnabled: true, robotsTxtExtraRules: 'User-agent: DemoBot\nDisallow: /drafts/' }),
   });
   assert.equal(body(update).status, 'DONE');
   const settings = body(update).body as Record<string, unknown>;
@@ -449,40 +346,33 @@ test('updates site identity and SEO fields, validates names, and requires CSRF',
 
   const deniedScript = await app.inject({
     method: 'PUT', url: '/v1/site-settings', headers: jsonHeaders(1),
-    payload: JSON.stringify({ site_name: 'Must not save', header_script: '<script>no</script>' }),
+    payload: JSON.stringify({ siteName: 'Must not save', headerScript: '<script>no</script>' }),
   });
   assert.equal(body(deniedScript).errorCode, 'error:RJ');
   const invalid = await app.inject({
     method: 'PUT', url: '/v1/site-settings', headers: jsonHeaders(2),
-    payload: JSON.stringify({ site_name: 'x'.repeat(81) }),
+    payload: JSON.stringify({ siteName: 'x'.repeat(81) }),
   });
   assert.equal(body(invalid).errorCode, 'error:VA');
 
   const noCsrf = await app.inject({
     method: 'PUT', url: '/v1/site-settings', headers: jsonHeaders(2, false),
-    payload: JSON.stringify({ site_name: 'Blocked' }),
+    payload: JSON.stringify({ siteName: 'Blocked' }),
   });
   assert.equal(noCsrf.statusCode, 403);
-  assert.equal(Number((await prisma.$queryRaw<Array<{ total: number | bigint }>>`SELECT COUNT(*) AS total FROM django_admin_log`)[0]?.total), 1);
+  assert.equal(Number((await prisma.$queryRaw<Array<{ total: number | bigint }>>`SELECT COUNT(*) AS total FROM AdminLog`)[0]?.total), 1);
 });
 
-test('renders progressive site and login pages with role checks and private headers', async () => {
-  const sitePage = await app.inject({ url: '/admin-settings/site-settings', headers: headers(1) });
-  assert.equal(sitePage.statusCode, 200, sitePage.body);
-  assert.match(sitePage.headers['cache-control'] ?? '', /no-store/);
-  assert.equal(sitePage.headers['x-robots-tag'], 'noindex, nofollow, noarchive');
-  assert.match(sitePage.body, /name="site_name"/);
-  assert.match(sitePage.body, /action="\/admin-settings\/site-settings"/);
-  assert.doesNotMatch(sitePage.body, /hidden from delegated staff/);
-  assert.equal((await app.inject({ url: '/admin-settings/login', headers: headers(1) })).statusCode, 404);
-
-  const loginPage = await app.inject({ url: '/admin-settings/login', headers: headers(2) });
-  assert.equal(loginPage.statusCode, 200, loginPage.body);
-  assert.match(loginPage.body, /hCaptcha/);
-  assert.match(loginPage.body, /placeholder="기존 키를 유지하려면 비워 두세요."/);
-  assert.doesNotMatch(loginPage.body, /hs_test_secret_99|oauth_test_secret_17/);
-  assert.match(loginPage.body, /name="provider_google_client_secret"/);
-  assert.equal((await app.inject('/admin-settings/site-settings')).statusCode, 302);
+test('keeps admin API responses private and out of search indexes', async () => {
+  const response = await app.inject({ url: '/v1/site-settings', headers: headers(1) });
+  assert.equal(response.statusCode, 200, response.body);
+  assert.match(response.headers['cache-control'] ?? '', /no-store/);
+  assert.equal(response.headers['x-robots-tag'], 'noindex, nofollow, noarchive');
+  assert.doesNotMatch(response.body, /hidden from delegated staff/);
+  assert.equal(body(await app.inject({ url: '/v1/login-settings', headers: headers(1) })).errorCode, 'error:RJ');
+  const login = await app.inject({ url: '/v1/login-settings', headers: headers(2) });
+  assert.equal(body(login).status, 'DONE', login.body);
+  assert.doesNotMatch(login.body, /hs_test_secret_99|oauth_test_secret_17/);
 });
 
 test('restricts login settings to active superusers and never returns stored secrets', async () => {
@@ -505,15 +395,15 @@ test('updates hCaptcha and social provider credentials atomically without echoin
   const update = await app.inject({
     method: 'PUT', url: '/v1/login-settings', headers: jsonHeaders(2),
     payload: JSON.stringify({
-      welcome_notification_message: 'Hello {name}',
-      welcome_notification_url: '/hello',
-      account_deletion_redirect_url: 'https://forms.example/exit',
-      hcaptcha_enabled: true,
-      hcaptcha_site_key: 'new-site-key',
-      hcaptcha_secret_key: 'new-captcha-secret',
-      social_auth_providers: [
-        { key: 'google', is_enabled: true, client_id: 'google-new-id', client_secret: 'google-new-secret' },
-        { key: 'github', is_enabled: true, client_id: 'github-id' },
+      welcomeNotificationMessage: 'Hello {name}',
+      welcomeNotificationUrl: '/hello',
+      accountDeletionRedirectUrl: 'https://forms.example/exit',
+      hcaptchaEnabled: true,
+      hcaptchaSiteKey: 'new-site-key',
+      hcaptchaSecretKey: 'new-captcha-secret',
+      socialAuthProviders: [
+        { key: 'google', isEnabled: true, clientId: 'google-new-id', clientSecret: 'google-new-secret' },
+        { key: 'github', isEnabled: true, clientId: 'github-id' },
       ],
     }),
   });
@@ -523,14 +413,14 @@ test('updates hCaptcha and social provider credentials atomically without echoin
   assert.equal(settings.welcomeNotificationMessage, 'Hello {name}');
   assert.equal(settings.hcaptchaSiteKey, 'new-site-key');
   assert.equal(settings.hcaptchaHasSecretKey, true);
-  const row = await prisma.$queryRaw<Array<{ hcaptchaSecretKey: string }>>`SELECT hcaptcha_secret_key AS hcaptchaSecretKey FROM board_loginsetting WHERE id = 1`;
+  const row = await prisma.$queryRaw<Array<{ hcaptchaSecretKey: string }>>`SELECT hcaptchaSecretKey FROM LoginSetting WHERE id = 1`;
   assert.notEqual(row[0]?.hcaptchaSecretKey, 'new-captcha-secret');
-  assert.equal(decryptDjangoSecret(row[0]?.hcaptchaSecretKey ?? '', cipherKey), 'new-captcha-secret');
-  const social = await prisma.$queryRaw<Array<{ key: string; clientSecret: string; isEnabled: number }>>`SELECT key, client_secret AS clientSecret, is_enabled AS isEnabled FROM board_socialauthprovider ORDER BY id`;
-  assert.equal(decryptDjangoSecret(social.find((item) => item.key === 'google')?.clientSecret ?? '', cipherKey), 'google-new-secret');
+  assert.equal(decryptSecret(row[0]?.hcaptchaSecretKey ?? '', cipherKey), 'new-captcha-secret');
+  const social = await prisma.$queryRaw<Array<{ key: string; clientSecret: string; isEnabled: number }>>`SELECT key, clientSecret, isEnabled FROM "SocialProvider" ORDER BY id`;
+  assert.equal(decryptSecret(social.find((item) => item.key === 'google')?.clientSecret ?? '', cipherKey), 'google-new-secret');
   assert.equal(Boolean(social.find((item) => item.key === 'github')?.isEnabled), true);
-  assert.equal(decryptDjangoSecret(social.find((item) => item.key === 'google')?.clientSecret ?? '', cipherKey), 'google-new-secret');
-  const audit = await prisma.$queryRaw<Array<{ changeMessage: string }>>`SELECT change_message AS changeMessage FROM django_admin_log ORDER BY id DESC LIMIT 1`;
+  assert.equal(decryptSecret(social.find((item) => item.key === 'google')?.clientSecret ?? '', cipherKey), 'google-new-secret');
+  const audit = await prisma.$queryRaw<Array<{ changeMessage: string }>>`SELECT message AS changeMessage FROM AdminLog ORDER BY id DESC LIMIT 1`;
   assert.equal(audit[0]?.changeMessage, 'Updated login and security settings');
   assert.doesNotMatch(audit[0]?.changeMessage ?? '', /secret/);
 });
@@ -538,17 +428,17 @@ test('updates hCaptcha and social provider credentials atomically without echoin
 test('rejects unsafe login URLs and prevents invalid hCaptcha settings from partial writes', async () => {
   const unsafeUrl = await app.inject({
     method: 'PUT', url: '/v1/login-settings', headers: jsonHeaders(2),
-    payload: JSON.stringify({ welcome_notification_message: 'Must not persist', welcome_notification_url: 'javascript:alert(1)' }),
+    payload: JSON.stringify({ welcomeNotificationMessage: 'Must not persist', welcomeNotificationUrl: 'javascript:alert(1)' }),
   });
   assert.equal(body(unsafeUrl).errorCode, 'error:VA');
   const invalidCaptcha = await app.inject({
     method: 'PUT', url: '/v1/login-settings', headers: jsonHeaders(2),
-    payload: JSON.stringify({ welcome_notification_message: 'Must not persist', hcaptcha_enabled: true, hcaptcha_site_key: '' }),
+    payload: JSON.stringify({ welcomeNotificationMessage: 'Must not persist', hcaptchaEnabled: true, hcaptchaSiteKey: '' }),
   });
   assert.equal(body(invalidCaptcha).errorCode, 'error:VA');
-  const message = await prisma.$queryRaw<Array<{ welcomeMessage: string }>>`SELECT welcome_notification_message AS welcomeMessage FROM board_loginsetting WHERE id = 1`;
+  const message = await prisma.$queryRaw<Array<{ welcomeMessage: string }>>`SELECT welcomeNotificationMessage AS welcomeMessage FROM LoginSetting WHERE id = 1`;
   assert.equal(message[0]?.welcomeMessage, 'Welcome {name}');
-  assert.equal(Number((await prisma.$queryRaw<Array<{ total: number | bigint }>>`SELECT COUNT(*) AS total FROM django_admin_log`)[0]?.total), 0);
+  assert.equal(Number((await prisma.$queryRaw<Array<{ total: number | bigint }>>`SELECT COUNT(*) AS total FROM AdminLog`)[0]?.total), 0);
 });
 
 test('provides staff-only author invitation APIs with single-use deletion rules', async () => {
@@ -579,31 +469,18 @@ test('provides staff-only author invitation APIs with single-use deletion rules'
   assert.equal(noCsrf.statusCode, 403);
 });
 
-test('renders progressive staff invitation forms and refuses deletion after claim', async () => {
-  const page = await app.inject({ url: '/admin-settings/users', headers: headers(1) });
-  assert.equal(page.statusCode, 200, page.body);
-  assert.match(page.body, /name="note"/);
-  assert.match(page.body, /작가 초대 만들기/);
-
+test('refuses to delete a staff invitation after it is claimed', async () => {
   const create = await app.inject({
-    method: 'POST', url: '/admin-settings/users', headers: formHeaders(1),
-    payload: new URLSearchParams([['csrfmiddlewaretoken', csrfToken], ['note', 'Release reviewers']]).toString(),
+    method: 'POST', url: '/v1/admin/author-invites', headers: jsonHeaders(1), payload: JSON.stringify({ note: 'Release reviewers' }),
   });
-  assert.equal(create.statusCode, 303, create.body);
-  const [created] = await prisma.$queryRaw<Array<{ id: number; code: string }>>`SELECT id, code FROM board_authorinvite LIMIT 1`;
-  assert.ok(created);
-  assert.equal((await app.inject({ url: '/admin-settings/users', headers: headers(1) })).statusCode, 200);
-
+  assert.equal(body(create).status, 'DONE', create.body);
+  const created = (body(create).body as { invite: { id: number } }).invite;
   const database = new DatabaseSync(databasePath);
-  database.prepare('UPDATE board_authorinvite SET is_active = 0, claimed_by_id = 3, claimed_date = ? WHERE id = ?').run('2025-03-01 00:00:00', created.id);
+  database.prepare('UPDATE "AuthorInvite" SET isActive = 0, claimedById = 3, claimedAt = ? WHERE id = ?').run(Date.UTC(2025, 2, 1), created.id);
   database.close();
-  const deletion = await app.inject({
-    method: 'POST', url: `/admin-settings/users/${created.id}/delete`, headers: formHeaders(1),
-    payload: new URLSearchParams([['csrfmiddlewaretoken', csrfToken]]).toString(),
-  });
-  assert.equal(deletion.statusCode, 200);
-  assert.match(deletion.body, /사용된 초대 링크는 삭제할 수 없습니다/);
-  assert.equal(Number((await prisma.$queryRaw<Array<{ total: number | bigint }>>`SELECT COUNT(*) AS total FROM board_authorinvite WHERE id = ${created.id}`)[0]?.total), 1);
+  const deletion = await app.inject({ method: 'DELETE', url: `/v1/admin/author-invites/${created.id}`, headers: headers(1) });
+  assert.equal(body(deletion).errorCode, 'error:RJ');
+  assert.equal(Number((await prisma.$queryRaw<Array<{ total: number | bigint }>>`SELECT COUNT(*) AS total FROM "AuthorInvite" WHERE id = ${created.id}`)[0]?.total), 1);
 });
 
 test('provides staff-only static page CRUD and sanitizes persisted page HTML', async () => {
@@ -619,14 +496,14 @@ test('provides staff-only static page CRUD and sanitizes persisted page HTML', a
     method: 'POST', url: '/v1/static-pages', headers: jsonHeaders(1),
     payload: JSON.stringify({
       title: 'Privacy', slug: 'privacy', content: '<p onclick="evil()">Safe</p><script>alert(1)</script><a href="javascript:evil()">bad link</a>',
-      meta_description: 'Privacy details', is_published: true, show_in_footer: true, order: 3,
+      metaDescription: 'Privacy details', isPublished: true, showInFooter: true, order: 3,
     }),
   });
   assert.equal(body(created).status, 'DONE', created.body);
   const page = body(created).body as Record<string, unknown>;
   assert.equal(page.slug, 'privacy');
-  assert.equal(page.is_published, true);
-  assert.equal(page.show_in_footer, true);
+  assert.equal(page.isPublished, true);
+  assert.equal(page.showInFooter, true);
   assert.match(String(page.content), /onclick/, 'staff edit the stored page source as in 3.x');
   const pageId = Number(page.id);
 
@@ -636,82 +513,57 @@ test('provides staff-only static page CRUD and sanitizes persisted page HTML', a
   });
   assert.equal(body(duplicate).errorCode, 'error:AE');
   const detail = await app.inject({ url: `/v1/static-pages/${pageId}`, headers: headers(1) });
-  assert.equal((body(detail).body as Record<string, unknown>).meta_description, 'Privacy details');
+  assert.equal((body(detail).body as Record<string, unknown>).metaDescription, 'Privacy details');
   const update = await app.inject({
     method: 'PUT', url: `/v1/static-pages/${pageId}`, headers: jsonHeaders(1),
-    payload: JSON.stringify({ is_published: false, content: '<h2>Updated</h2>' }),
+    payload: JSON.stringify({ isPublished: false, content: '<h2>Updated</h2>' }),
   });
   assert.equal(body(update).status, 'DONE');
-  assert.equal((body(update).body as Record<string, unknown>).is_published, false);
+  assert.equal((body(update).body as Record<string, unknown>).isPublished, false);
   const list = await app.inject({ url: '/v1/static-pages', headers: headers(1) });
   assert.equal(((body(list).body as { pages: Array<Record<string, unknown>> }).pages[0]?.slug), 'privacy');
   const deleted = await app.inject({ method: 'DELETE', url: `/v1/static-pages/${pageId}`, headers: headers(1) });
   assert.equal((body(deleted).body as Record<string, unknown>).message, 'Static page deleted.');
 
-  const form = await app.inject({ url: '/admin-settings/static-pages/create', headers: headers(1) });
-  assert.equal(form.statusCode, 200);
-  assert.match(form.body, /name="content"/);
-  const savedForm = await app.inject({
-    method: 'POST', url: '/admin-settings/static-pages/create', headers: formHeaders(1),
-    payload: new URLSearchParams([
-      ['csrfmiddlewaretoken', csrfToken], ['title', 'About'], ['slug', 'about'], ['content', '<p>About us</p>'],
-      ['meta_description', 'About'], ['is_published', 'true'], ['show_in_footer', 'true'], ['order', '1'],
-    ]).toString(),
-  });
-  assert.equal(savedForm.statusCode, 303, savedForm.body);
-  const pagesPage = await app.inject({ url: '/admin-settings/static-pages', headers: headers(1) });
-  assert.equal(pagesPage.statusCode, 200);
-  assert.match(pagesPage.body, /About/);
-  assert.equal((await app.inject({ url: '/admin-settings/static-pages', headers: headers(3) })).statusCode, 404);
+  assert.equal(body(await app.inject({ url: '/v1/static-pages', headers: headers(3) })).errorCode, 'error:RJ');
 });
 
 test('manages global notices and sanitized banners through APIs and staff forms', async () => {
   const noticeCreate = await app.inject({
     method: 'POST', url: '/v1/global-notices', headers: jsonHeaders(1),
-    payload: JSON.stringify({ title: 'Maintenance', url: 'javascript:alert(1)', is_active: true }),
+    payload: JSON.stringify({ title: 'Maintenance', url: 'javascript:alert(1)', isActive: true }),
   });
   assert.equal(body(noticeCreate).status, 'DONE', noticeCreate.body);
   const notice = body(noticeCreate).body as Record<string, unknown>;
   const noticeId = Number(notice.id);
   assert.equal(notice.url, '');
-  assert.equal(typeof notice.created_date, 'string');
+  assert.equal(typeof notice.createdDate, 'string');
   const noticeGet = await app.inject({ url: `/v1/global-notices/${noticeId}`, headers: headers(1) });
   assert.equal((body(noticeGet).body as Record<string, unknown>).title, 'Maintenance');
   const noticeUpdate = await app.inject({
     method: 'PUT', url: `/v1/global-notices/${noticeId}`, headers: jsonHeaders(1),
-    payload: JSON.stringify({ url: '/status', is_active: false }),
+    payload: JSON.stringify({ url: '/status', isActive: false }),
   });
   assert.equal((body(noticeUpdate).body as Record<string, unknown>).url, '/status');
-  assert.equal((body(noticeUpdate).body as Record<string, unknown>).is_active, false);
+  assert.equal((body(noticeUpdate).body as Record<string, unknown>).isActive, false);
   assert.equal(((body(await app.inject({ url: '/v1/global-notices', headers: headers(1) })).body as { notices: unknown[] }).notices.length), 1);
-  const noticePage = await app.inject({ url: '/admin-settings/global-notices', headers: headers(1) });
-  assert.match(noticePage.body, /Maintenance/);
-  const noticeForm = await app.inject({
-    method: 'POST', url: `/admin-settings/global-notices/${noticeId}/delete`, headers: formHeaders(1),
-    payload: new URLSearchParams([['csrfmiddlewaretoken', csrfToken]]).toString(),
-  });
-  assert.equal(noticeForm.statusCode, 303);
-
   const invalidPosition = await app.inject({
     method: 'POST', url: '/v1/global-banners', headers: jsonHeaders(1),
-    payload: JSON.stringify({ title: 'Invalid', content_html: '<p>Banner</p>', banner_type: 'horizontal', position: 'left' }),
+    payload: JSON.stringify({ title: 'Invalid', contentHtml: '<p>Banner</p>', bannerType: 'horizontal', position: 'left' }),
   });
   assert.equal(body(invalidPosition).errorCode, 'error:VA');
   const bannerCreate = await app.inject({
     method: 'POST', url: '/v1/global-banners', headers: jsonHeaders(1),
     payload: JSON.stringify({
-      title: 'Welcome', content_html: '<p onclick="evil()">Hello</p><script>alert(1)</script>',
-      banner_type: 'horizontal', position: 'top', order: 5,
+      title: 'Welcome', contentHtml: '<p onclick="evil()">Hello</p><script>alert(1)</script>',
+      bannerType: 'horizontal', position: 'top', order: 5,
     }),
   });
   assert.equal(body(bannerCreate).status, 'DONE', bannerCreate.body);
   const banner = body(bannerCreate).body as Record<string, unknown>;
   const bannerId = Number(banner.id);
-  assert.equal(banner.created_by, 'site-editor');
-  assert.match(String(banner.content_html), /onclick/, 'global banners keep their source as in 3.x');
-  const bannerPage = await app.inject({ url: '/admin-settings/global-banners', headers: headers(1) });
-  assert.match(bannerPage.body, /Welcome/);
-  assert.doesNotMatch(bannerPage.body, /<p onclick|<script>alert/);
+  assert.equal(banner.createdBy, 'site-editor');
+  assert.match(String(banner.contentHtml), /onclick/, 'global banners keep their source as in 3.x');
   const order = await app.inject({
     method: 'PUT', url: '/v1/global-banners/order', headers: jsonHeaders(1),
     payload: JSON.stringify({ order: [[bannerId, 0], ['999999', 2], ['broken']] }),
@@ -723,7 +575,7 @@ test('manages global notices and sanitized banners through APIs and staff forms'
   assert.equal(banners[0]?.order, 0);
   const updateBanner = await app.inject({
     method: 'PUT', url: `/v1/global-banners/${bannerId}`, headers: jsonHeaders(1),
-    payload: JSON.stringify({ position: 'bottom', content_html: '<p>Safe update</p>' }),
+    payload: JSON.stringify({ position: 'bottom', contentHtml: '<p>Safe update</p>' }),
   });
   assert.equal((body(updateBanner).body as Record<string, unknown>).position, 'bottom');
   const deletedBanner = await app.inject({ method: 'DELETE', url: `/v1/global-banners/${bannerId}`, headers: headers(1) });
@@ -735,7 +587,7 @@ test('manages global notices and sanitized banners through APIs and staff forms'
 test('author notices and banners are editor-only, sanitized, and scoped to their owner', async () => {
   const noticeCreate = await app.inject({
     method: 'POST', url: '/v1/notices', headers: jsonHeaders(1),
-    payload: JSON.stringify({ title: 'Author notice', url: '/author-status', is_active: true }),
+    payload: JSON.stringify({ title: 'Author notice', url: '/author-status', isActive: true }),
   });
   assert.equal(body(noticeCreate).status, 'DONE', noticeCreate.body);
   const notice = body(noticeCreate).body as Record<string, unknown>;
@@ -770,18 +622,18 @@ test('author notices and banners are editor-only, sanitized, and scoped to their
   const bannerCreate = await app.inject({
     method: 'POST', url: '/v1/banners', headers: jsonHeaders(1),
     payload: JSON.stringify({
-      title: 'Author banner', content_html: '<p onclick="bad()">Hello</p><script>bad()</script>',
-      banner_type: 'horizontal', position: 'top', order: 4,
+      title: 'Author banner', contentHtml: '<p onclick="bad()">Hello</p><script>bad()</script>',
+      bannerType: 'horizontal', position: 'top', order: 4,
     }),
   });
   assert.equal(body(bannerCreate).status, 'DONE', bannerCreate.body);
   const banner = body(bannerCreate).body as Record<string, unknown>;
   const bannerId = Number(banner.id);
-  assert.equal('created_by' in banner, false);
-  assert.doesNotMatch(String(banner.content_html), /script|onclick|bad\(\)/i);
+  assert.equal('createdBy' in banner, false);
+  assert.doesNotMatch(String(banner.contentHtml), /script|onclick|bad\(\)/i);
   const editorTwoBanner = await app.inject({
     method: 'POST', url: '/v1/banners', headers: jsonHeaders(2),
-    payload: JSON.stringify({ title: 'Other author banner', content_html: '<p>Other</p>' }),
+    payload: JSON.stringify({ title: 'Other author banner', contentHtml: '<p>Other</p>' }),
   });
   assert.equal(body(editorTwoBanner).status, 'DONE', editorTwoBanner.body);
   const bannerList = await app.inject({ url: '/v1/banners', headers: headers(1) });
@@ -816,60 +668,59 @@ test('author notices and banners are editor-only, sanitized, and scoped to their
   assert.deepEqual(body(deleted).body, { message: 'Banner deleted.' });
 });
 
-test('renders owner-only author notice and banner forms with reorder controls', async () => {
-  const notice = await app.inject({
-    method: 'POST', url: '/settings/notices', headers: formHeaders(1),
-    payload: new URLSearchParams([
-      ['csrfmiddlewaretoken', csrfToken], ['title', 'SSR author notice'], ['url', '/my-status'], ['is_active', 'true'],
-    ]).toString(),
-  });
-  assert.equal(notice.statusCode, 303, notice.body);
-  const noticePage = await app.inject({ url: '/settings/notices', headers: headers(1) });
-  assert.equal(noticePage.statusCode, 200);
-  assert.match(noticePage.body, /SSR author notice/);
-  assert.match(noticePage.body, /action="\/settings\/notices\/\d+\/delete"/);
-  assert.equal((await app.inject({ url: '/settings/notices', headers: headers(3) })).statusCode, 404);
-  const privateNoticePage = await app.inject({ url: '/settings/notices', headers: headers(2) });
-  assert.equal(privateNoticePage.statusCode, 200);
-  assert.doesNotMatch(privateNoticePage.body, /SSR author notice/);
-
+test('keeps author banners from being deleted by another editor', async () => {
   const banner = await app.inject({
-    method: 'POST', url: '/settings/banners', headers: formHeaders(1),
-    payload: new URLSearchParams([
-      ['csrfmiddlewaretoken', csrfToken], ['title', 'SSR author banner'],
-      ['content_html', '<p onclick="bad()">Safe text</p><script>bad()</script>'],
-      ['banner_type', 'horizontal'], ['position', 'top'], ['order', '7'], ['is_active', 'true'],
-    ]).toString(),
+    method: 'POST', url: '/v1/banners', headers: jsonHeaders(1),
+    payload: JSON.stringify({ title: 'Owned banner', contentHtml: '<p>Safe text</p>', bannerType: 'horizontal', position: 'top', order: 7, isActive: true }),
   });
-  assert.equal(banner.statusCode, 303, banner.body);
-  const bannerRows = await prisma.$queryRaw<Array<{ id: number; contentHtml: string }>>`
-    SELECT id, content_html AS contentHtml FROM board_sitebanner WHERE scope = 'user' AND user_id = 1
-  `;
-  const bannerId = Number(bannerRows[0]?.id);
-  assert.doesNotMatch(String(bannerRows[0]?.contentHtml), /script|onclick|bad\(\)/i);
-  const bannerPage = await app.inject({ url: '/settings/banners', headers: headers(1) });
-  assert.equal(bannerPage.statusCode, 200);
-  assert.match(bannerPage.body, /SSR author banner/);
-  assert.match(bannerPage.body, /action="\/settings\/banners\/order"/);
-  assert.match(bannerPage.body, new RegExp(`name="order_${bannerId}"`));
-  assert.match(bannerPage.body, /배너 순서 저장/);
-  assert.doesNotMatch(bannerPage.body, /onclick|bad\(\)/i);
+  assert.equal(body(banner).status, 'DONE', banner.body);
+  const bannerId = Number((body(banner).body as Record<string, unknown>).id);
+  const crossDelete = await app.inject({ method: 'DELETE', url: `/v1/banners/${bannerId}`, headers: headers(2) });
+  assert.notEqual(crossDelete.statusCode === 200 ? body(crossDelete).status : 'REFUSED', 'DONE');
+  assert.equal(await prisma.siteBanner.count({ where: { id: bannerId, userId: 1 } }), 1);
+});
 
-  const reordered = await app.inject({
-    method: 'POST', url: '/settings/banners/order', headers: formHeaders(1),
-    payload: new URLSearchParams([['csrfmiddlewaretoken', csrfToken], [`order_${bannerId}`, '1']]).toString(),
+test('keeps site content writes readable by the Prisma schema', async () => {
+  const notice = body(await app.inject({
+    method: 'POST', url: '/v1/global-notices', headers: jsonHeaders(1), payload: JSON.stringify({ title: 'Notice', url: '/status' }),
+  })).body as Record<string, unknown>;
+  const page = body(await app.inject({
+    method: 'POST', url: '/v1/static-pages', headers: jsonHeaders(1), payload: JSON.stringify({ title: 'Page', slug: 'page', order: 3_000_000_000 }),
+  })).body as Record<string, unknown>;
+  assert.equal(page.order, 0, 'an order Prisma could not read back is treated as invalid');
+  await prisma.siteNotice.update({ where: { id: Number(notice.id) }, data: { updatedAt: new Date(1000) } });
+  await prisma.staticPage.update({ where: { id: Number(page.id) }, data: { updatedAt: new Date(1000) } });
+
+  for (const url of [`/v1/global-notices/${notice.id}`, `/v1/static-pages/${page.id}`]) {
+    const emptySave = await app.inject({ method: 'PUT', url, headers: jsonHeaders(1), payload: '{}' });
+    assert.equal(body(emptySave).status, 'DONE', emptySave.body);
+    assert.notEqual((body(emptySave).body as Record<string, unknown>).updatedDate, '1970-01-01T00:00:01+00:00');
+  }
+
+  const other = body(await app.inject({
+    method: 'POST', url: '/v1/static-pages', headers: jsonHeaders(1), payload: JSON.stringify({ title: 'Other', slug: 'other' }),
+  })).body as Record<string, unknown>;
+  const conflict = await app.inject({
+    method: 'PUT', url: `/v1/static-pages/${other.id}`, headers: jsonHeaders(1), payload: JSON.stringify({ slug: 'page' }),
   });
-  assert.equal(reordered.statusCode, 303, reordered.body);
-  const storedOrder = await prisma.$queryRaw<Array<{ order: number }>>`
-    SELECT "order" AS "order" FROM board_sitebanner WHERE id = ${bannerId} AND scope = 'user' AND user_id = 1
-  `;
-  assert.equal(storedOrder[0]?.order, 1);
-  const crossDelete = await app.inject({
-    method: 'POST', url: `/settings/banners/${bannerId}/delete`, headers: formHeaders(2),
-    payload: new URLSearchParams([['csrfmiddlewaretoken', csrfToken]]).toString(),
+  assert.equal(body(conflict).errorCode, 'error:AE');
+
+  const unknownType = await app.inject({
+    method: 'POST', url: '/v1/global-banners', headers: jsonHeaders(1),
+    payload: JSON.stringify({ title: 'Bad', contentHtml: '<p>x</p>', bannerType: 'floating', position: 'top' }),
   });
-  assert.equal(crossDelete.statusCode, 200);
-  assert.match(crossDelete.body, /배너를 찾을 수 없습니다/);
+  assert.equal(body(unknownType).errorCode, 'error:VA');
+  const banner = body(await app.inject({
+    method: 'POST', url: '/v1/global-banners', headers: jsonHeaders(1),
+    payload: JSON.stringify({ title: 'Wide', contentHtml: '<p>x</p>', bannerType: 'horizontal', position: 'top', order: 3_000_000_000 }),
+  })).body as Record<string, unknown>;
+  assert.equal(banner.order, 0);
+  await app.inject({
+    method: 'PUT', url: '/v1/global-banners/order', headers: jsonHeaders(1),
+    payload: JSON.stringify({ order: [[banner.id, 3_000_000_000]] }),
+  });
+  const listed = await app.inject({ url: '/v1/global-banners', headers: headers(1) });
+  assert.equal((body(listed).body as { banners: Array<Record<string, unknown>> }).banners[0]?.order, 0);
 });
 
 test('gates Telegram integration settings to active superusers and keeps bot secrets hidden', async () => {
@@ -885,56 +736,41 @@ test('gates Telegram integration settings to active superusers and keeps bot sec
   const get = await app.inject({ url: '/v1/integration-settings', headers: headers(2) });
   assert.equal(body(get).status, 'DONE');
   assert.deepEqual(body(get).body, {
-    telegram_enabled: false,
-    telegram_bot_username: '',
-    telegram_has_bot_token: false,
-    updated_date: '2025-01-01T00:00:00+00:00',
-    telegram_connection: { state: 'disabled', detail: '' },
+    telegramEnabled: false,
+    telegramBotUsername: '',
+    telegramHasBotToken: false,
+    updatedDate: '2025-01-01T00:00:00+00:00',
+    telegramConnection: { state: 'disabled', detail: '' },
   });
   assert.equal(telegramCalls.length, 0);
 
-  const page = await app.inject({ url: '/admin-settings/integrations', headers: headers(2) });
-  assert.equal(page.statusCode, 200, page.body);
-  assert.match(page.body, /name="telegram_bot_token"/);
-  assert.match(page.body, /설정되지 않음/);
-  assert.doesNotMatch(page.body, /telegram-token|botToken/);
-  assert.equal((await app.inject({ url: '/admin-settings/integrations', headers: headers(1) })).statusCode, 404);
+  assert.equal(body(await app.inject({ url: '/v1/integration-settings', headers: headers(1) })).errorCode, 'error:RJ');
   const noCsrf = await app.inject({
     method: 'PUT', url: '/v1/integration-settings', headers: jsonHeaders(2, false),
-    payload: JSON.stringify({ telegram_enabled: true, telegram_bot_token: '123456:valid-token' }),
+    payload: JSON.stringify({ telegramEnabled: true, telegramBotToken: '123456:valid-token' }),
   });
   assert.equal(noCsrf.statusCode, 403);
-  const noCsrfForm = await app.inject({
-    method: 'POST', url: '/admin-settings/integrations',
-    headers: { ...headers(2, false), 'content-type': 'application/x-www-form-urlencoded' },
-    payload: new URLSearchParams([['telegram_enabled', 'true'], ['telegram_bot_token', '123456:blocked-token']]).toString(),
-  });
-  assert.equal(noCsrfForm.statusCode, 403);
 
   configureTelegram({ getMe: { ok: true, result: { username: 'page_bot' } }, setWebhook: { ok: true } });
-  const savedForm = await app.inject({
-    method: 'POST', url: '/admin-settings/integrations', headers: formHeaders(2),
-    payload: new URLSearchParams([
-      ['csrfmiddlewaretoken', csrfToken], ['telegram_enabled', 'true'],
-      ['telegram_bot_username', ''], ['telegram_bot_token', '123456:page-token'],
-    ]).toString(),
+  const saved = await app.inject({
+    method: 'PUT', url: '/v1/integration-settings', headers: jsonHeaders(2),
+    payload: JSON.stringify({ telegramEnabled: true, telegramBotUsername: '', telegramBotToken: '123456:page-token' }),
   });
-  assert.equal(savedForm.statusCode, 303, savedForm.body);
-  const updatedPage = await app.inject({ url: '/admin-settings/integrations', headers: headers(2) });
-  assert.match(updatedPage.body, /page_bot/);
-  assert.match(updatedPage.body, /기존 토큰을 유지하려면 비워 두세요./);
-  assert.doesNotMatch(updatedPage.body, /page-token/);
+  assert.equal(body(saved).status, 'DONE', saved.body);
+  const updated = await app.inject({ url: '/v1/integration-settings', headers: headers(2) });
+  assert.match(updated.body, /page_bot/);
+  assert.doesNotMatch(updated.body, /page-token/);
 });
 
 test('validates and encrypts Telegram tokens, confirms bots, and registers HMAC webhooks after saving', async () => {
   const missingToken = await app.inject({
     method: 'PUT', url: '/v1/integration-settings', headers: jsonHeaders(2),
-    payload: JSON.stringify({ telegram_enabled: true }),
+    payload: JSON.stringify({ telegramEnabled: true }),
   });
   assert.equal(body(missingToken).errorCode, 'error:VA');
   const malformed = await app.inject({
     method: 'PUT', url: '/v1/integration-settings', headers: jsonHeaders(2),
-    payload: JSON.stringify({ telegram_enabled: true, telegram_bot_token: '123/../../getMe' }),
+    payload: JSON.stringify({ telegramEnabled: true, telegramBotToken: '123/../../getMe' }),
   });
   assert.equal(body(malformed).errorCode, 'error:VA');
   assert.equal(telegramCalls.length, 0);
@@ -942,16 +778,16 @@ test('validates and encrypts Telegram tokens, confirms bots, and registers HMAC 
   configureTelegram({ getMe: { ok: false, error_code: 401, description: 'Unauthorized' } });
   const invalidTelegramToken = await app.inject({
     method: 'PUT', url: '/v1/integration-settings', headers: jsonHeaders(2),
-    payload: JSON.stringify({ telegram_enabled: true, telegram_bot_token: '123456:invalid-token' }),
+    payload: JSON.stringify({ telegramEnabled: true, telegramBotToken: '123456:invalid-token' }),
   });
   assert.equal(body(invalidTelegramToken).errorCode, 'error:VA');
   assert.deepEqual(telegramCalls.map((call) => new URL(call.url).pathname.split('/').at(-1)), ['getMe']);
   const [unchanged] = await prisma.$queryRaw<Array<{ token: string; enabled: number }>>`
-    SELECT telegram_bot_token AS token, telegram_enabled AS enabled FROM board_integrationsetting WHERE id = 1
+    SELECT telegramBotToken AS token, telegramEnabled AS enabled FROM IntegrationSetting WHERE id = 1
   `;
   assert.equal(unchanged?.token, '');
   assert.equal(Number(unchanged?.enabled), 0);
-  assert.equal(Number((await prisma.$queryRaw<Array<{ total: number | bigint }>>`SELECT COUNT(*) AS total FROM django_admin_log`)[0]?.total), 0);
+  assert.equal(Number((await prisma.$queryRaw<Array<{ total: number | bigint }>>`SELECT COUNT(*) AS total FROM AdminLog`)[0]?.total), 0);
 
   configureTelegram({
     getMe: { ok: true, result: { username: 'verified_bot' } },
@@ -959,15 +795,15 @@ test('validates and encrypts Telegram tokens, confirms bots, and registers HMAC 
   });
   const update = await app.inject({
     method: 'PUT', url: '/v1/integration-settings', headers: jsonHeaders(2),
-    payload: JSON.stringify({ telegram_enabled: true, telegram_bot_username: '@old_name', telegram_bot_token: '123456:synthetic-token' }),
+    payload: JSON.stringify({ telegramEnabled: true, telegramBotUsername: '@old_name', telegramBotToken: '123456:synthetic-token' }),
   });
   assert.equal(body(update).status, 'DONE', update.body);
   const settings = body(update).body as Record<string, unknown>;
-  assert.equal(settings.telegram_enabled, true);
-  assert.equal(settings.telegram_bot_username, 'verified_bot');
-  assert.equal(settings.telegram_has_bot_token, true);
-  assert.deepEqual(settings.telegram_connection, { state: 'connected', detail: '' });
-  assert.doesNotMatch(update.body, /synthetic-token|telegramToken|telegram_bot_token/);
+  assert.equal(settings.telegramEnabled, true);
+  assert.equal(settings.telegramBotUsername, 'verified_bot');
+  assert.equal(settings.telegramHasBotToken, true);
+  assert.deepEqual(settings.telegramConnection, { state: 'connected', detail: '' });
+  assert.doesNotMatch(update.body, /synthetic-token|telegramBotToken/);
   assert.deepEqual(telegramCalls.map((call) => new URL(call.url).pathname.split('/').at(-1)), ['getMe', 'setWebhook']);
   const webhookCall = telegramCalls[1];
   assert.equal(webhookCall?.init?.method, 'POST');
@@ -977,14 +813,14 @@ test('validates and encrypts Telegram tokens, confirms bots, and registers HMAC 
   assert.deepEqual(webhookBody.allowed_updates, ['message']);
 
   const [saved] = await prisma.$queryRaw<Array<{ token: string; username: string; enabled: number }>>`
-    SELECT telegram_bot_token AS token, telegram_bot_username AS username, telegram_enabled AS enabled
-    FROM board_integrationsetting WHERE id = 1
+    SELECT telegramBotToken AS token, telegramBotUsername AS username, telegramEnabled AS enabled
+    FROM IntegrationSetting WHERE id = 1
   `;
   assert.notEqual(saved?.token, '123456:synthetic-token');
-  assert.equal(decryptDjangoSecret(saved?.token ?? '', cipherKey), '123456:synthetic-token');
+  assert.equal(decryptSecret(saved?.token ?? '', cipherKey), '123456:synthetic-token');
   assert.equal(saved?.username, 'verified_bot');
   assert.equal(Number(saved?.enabled), 1);
-  const audit = await prisma.$queryRaw<Array<{ changeMessage: string }>>`SELECT change_message AS changeMessage FROM django_admin_log ORDER BY id DESC LIMIT 1`;
+  const audit = await prisma.$queryRaw<Array<{ changeMessage: string }>>`SELECT message AS changeMessage FROM AdminLog ORDER BY id DESC LIMIT 1`;
   assert.equal(audit[0]?.changeMessage, 'Updated notification integration settings');
   assert.doesNotMatch(audit[0]?.changeMessage ?? '', /synthetic-token/);
 });
@@ -994,15 +830,15 @@ test('reports Telegram webhook states, saves unreachable settings, and preserves
   telegramUnreachable = true;
   const unreachable = await app.inject({
     method: 'PUT', url: '/v1/integration-settings', headers: jsonHeaders(2),
-    payload: JSON.stringify({ telegram_enabled: true, telegram_bot_username: 'offline_bot', telegram_bot_token: '123456:offline-token' }),
+    payload: JSON.stringify({ telegramEnabled: true, telegramBotUsername: 'offline_bot', telegramBotToken: '123456:offline-token' }),
   });
   assert.equal(body(unreachable).status, 'DONE', unreachable.body);
-  assert.deepEqual((body(unreachable).body as Record<string, unknown>).telegram_connection, { state: 'unreachable', detail: '' });
+  assert.deepEqual((body(unreachable).body as Record<string, unknown>).telegramConnection, { state: 'unreachable', detail: '' });
   assert.equal(telegramCalls.length, 1);
   const [savedToken] = await prisma.$queryRaw<Array<{ token: string }>>`
-    SELECT telegram_bot_token AS token FROM board_integrationsetting WHERE id = 1
+    SELECT telegramBotToken AS token FROM IntegrationSetting WHERE id = 1
   `;
-  assert.equal(decryptDjangoSecret(savedToken?.token ?? '', cipherKey), '123456:offline-token');
+  assert.equal(decryptSecret(savedToken?.token ?? '', cipherKey), '123456:offline-token');
 
   telegramUnreachable = false;
   configureTelegram({
@@ -1011,21 +847,21 @@ test('reports Telegram webhook states, saves unreachable settings, and preserves
     } },
   });
   const deliveryFailed = await app.inject({ url: '/v1/integration-settings', headers: headers(2) });
-  assert.deepEqual((body(deliveryFailed).body as Record<string, unknown>).telegram_connection, {
+  assert.deepEqual((body(deliveryFailed).body as Record<string, unknown>).telegramConnection, {
     state: 'delivery_failed', detail: 'Synthetic delivery failure',
   });
 
   const disable = await app.inject({
     method: 'PUT', url: '/v1/integration-settings', headers: jsonHeaders(2),
-    payload: JSON.stringify({ telegram_enabled: false }),
+    payload: JSON.stringify({ telegramEnabled: false }),
   });
   assert.equal(body(disable).status, 'DONE');
-  assert.deepEqual((body(disable).body as Record<string, unknown>).telegram_connection, { state: 'disabled', detail: '' });
-  assert.equal((body(disable).body as Record<string, unknown>).telegram_has_bot_token, true);
+  assert.deepEqual((body(disable).body as Record<string, unknown>).telegramConnection, { state: 'disabled', detail: '' });
+  assert.equal((body(disable).body as Record<string, unknown>).telegramHasBotToken, true);
   const [stillSaved] = await prisma.$queryRaw<Array<{ token: string; enabled: number }>>`
-    SELECT telegram_bot_token AS token, telegram_enabled AS enabled FROM board_integrationsetting WHERE id = 1
+    SELECT telegramBotToken AS token, telegramEnabled AS enabled FROM IntegrationSetting WHERE id = 1
   `;
-  assert.equal(decryptDjangoSecret(stillSaved?.token ?? '', cipherKey), '123456:offline-token');
+  assert.equal(decryptSecret(stillSaved?.token ?? '', cipherKey), '123456:offline-token');
   assert.equal(Number(stillSaved?.enabled), 0);
 });
 
@@ -1043,17 +879,20 @@ test('limits utility access to superusers and requires session-bound one-time cl
 
   const database = new DatabaseSync(databasePath);
   database.exec(`
-    INSERT INTO board_tag (id, value) VALUES (1, 'kept'), (2, 'unused-before-preview');
-    INSERT INTO board_post_tags (post_id, tag_id) VALUES (1, 1);
+    INSERT INTO "Tag" ("id", "name") VALUES
+    (1, 'kept'),
+    (2, 'unused-before-preview');
+    INSERT INTO "_PostToTag" ("A", "B") VALUES
+    (1, 1);
   `);
   database.prepare(`
-    INSERT INTO auth_user (id, username, first_name, email, is_active, is_staff, is_superuser, date_joined, last_login)
-    VALUES (?, ?, ?, ?, 1, 1, 1, '2025-01-01 00:00:00', NULL)
+    INSERT INTO "User" (id, username, name, email, passwordHash, isActive, isStaff, isSuperuser, joinedAt, lastLoginAt)
+    VALUES (?, ?, ?, ?, '', 1, 1, 1, ${Date.UTC(2025, 0, 1)}, NULL)
   `).run(6, 'second-superuser', 'Second', 'second@example.test');
   database.close();
   const preview = await app.inject({
     method: 'POST', url: '/v1/utilities/clean-tags', headers: jsonHeaders(2),
-    payload: JSON.stringify({ dry_run: true }),
+    payload: JSON.stringify({ dryRun: true }),
   });
   assert.equal(body(preview).status, 'DONE', preview.body);
   const previewBody = body(preview).body as Record<string, unknown>;
@@ -1061,116 +900,146 @@ test('limits utility access to superusers and requires session-bound one-time cl
   assert.equal(previewBody.cleanedCount, 1);
   const confirmation = String(previewBody.confirmationToken);
   assert.ok(confirmation.length > 32);
-  assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM board_tag WHERE value = 'unused-before-preview'`)[0]?.count), 1);
+  assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM "Tag" WHERE name = 'unused-before-preview'`)[0]?.count), 1);
 
   const wrongSession = await app.inject({
     method: 'POST', url: '/v1/utilities/clean-tags', headers: {
       ...jsonHeaders(2), cookie: `csrftoken=${csrfToken}; blexsessionid=${'z'.repeat(43)}`,
     },
-    payload: JSON.stringify({ dry_run: false, confirmation_token: confirmation }),
+    payload: JSON.stringify({ dryRun: false, confirmationToken: confirmation }),
   });
   assert.equal(body(wrongSession).errorCode, 'error:RJ');
-  assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM board_tag WHERE value = 'unused-before-preview'`)[0]?.count), 1);
+  assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM "Tag" WHERE name = 'unused-before-preview'`)[0]?.count), 1);
 
   const otherUser = await app.inject({
     method: 'POST', url: '/v1/utilities/clean-tags', headers: jsonHeaders(6),
-    payload: JSON.stringify({ dry_run: false, confirmation_token: confirmation }),
+    payload: JSON.stringify({ dryRun: false, confirmationToken: confirmation }),
   });
   assert.equal(body(otherUser).errorCode, 'error:RJ');
   const noCsrf = await app.inject({
     method: 'POST', url: '/v1/utilities/clean-tags', headers: jsonHeaders(2, false),
-    payload: JSON.stringify({ dry_run: true }),
+    payload: JSON.stringify({ dryRun: true }),
   });
   assert.equal(noCsrf.statusCode, 403);
 
   const execute = await app.inject({
     method: 'POST', url: '/v1/utilities/clean-tags', headers: jsonHeaders(2),
-    payload: JSON.stringify({ dry_run: false, confirmation_token: confirmation }),
+    payload: JSON.stringify({ dryRun: false, confirmationToken: confirmation }),
   });
   assert.equal(body(execute).status, 'DONE', execute.body);
   assert.equal((body(execute).body as Record<string, unknown>).dryRun, false);
-  assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM board_tag WHERE value = 'unused-before-preview'`)[0]?.count), 0);
+  assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM "Tag" WHERE name = 'unused-before-preview'`)[0]?.count), 0);
   const reuse = await app.inject({
     method: 'POST', url: '/v1/utilities/clean-tags', headers: jsonHeaders(2),
-    payload: JSON.stringify({ dry_run: false, confirmation_token: confirmation }),
+    payload: JSON.stringify({ dryRun: false, confirmationToken: confirmation }),
   });
   assert.equal(body(reuse).errorCode, 'error:RJ');
-  const audit = await prisma.$queryRaw<Array<{ message: string }>>`SELECT change_message AS message FROM django_admin_log ORDER BY id DESC LIMIT 1`;
+  const audit = await prisma.$queryRaw<Array<{ message: string }>>`SELECT message FROM AdminLog ORDER BY id DESC LIMIT 1`;
   assert.equal(audit[0]?.message, 'Executed unused tag cleanup');
 });
 
 test('binds session cleanup confirmation to its scope and deletes only the previewed session set', async () => {
   const now = BigInt(Date.now());
   const database = new DatabaseSync(databasePath);
-  database.prepare('INSERT INTO blex_session (token_hash, user_id, expires_at) VALUES (?, ?, ?)').run('expired', 3, now - 1_000n);
-  database.prepare('INSERT INTO blex_session (token_hash, user_id, expires_at) VALUES (?, ?, ?)').run('active', 3, now + 60_000n);
-  database.prepare('INSERT INTO django_session (session_key, session_data, expire_date) VALUES (?, ?, ?)').run('legacy-expired', 'x', '2020-01-01 00:00:00.000000');
-  database.prepare('INSERT INTO django_session (session_key, session_data, expire_date) VALUES (?, ?, ?)').run('legacy-active', 'x', '2999-01-01 00:00:00.000000');
+  database.prepare('INSERT INTO "Session" (tokenHash, userId, credentialTag, expiresAt) VALUES (?, ?, \'\', ?)').run('expired', 3, now - 1_000n);
+  database.prepare('INSERT INTO "Session" (tokenHash, userId, credentialTag, expiresAt) VALUES (?, ?, \'\', ?)').run('active', 3, now + 60_000n);
   database.close();
 
   const preview = await app.inject({
     method: 'POST', url: '/v1/utilities/clean-sessions', headers: jsonHeaders(2),
-    payload: JSON.stringify({ dry_run: true, clean_all: false }),
+    payload: JSON.stringify({ dryRun: true, cleanAll: false }),
   });
   const previewBody = body(preview).body as Record<string, unknown>;
-  assert.equal(previewBody.expiredSessions, 2);
+  assert.equal(previewBody.expiredSessions, 1);
   const mismatch = await app.inject({
     method: 'POST', url: '/v1/utilities/clean-sessions', headers: jsonHeaders(2),
-    payload: JSON.stringify({ dry_run: false, clean_all: true, confirmation_token: previewBody.confirmationToken }),
+    payload: JSON.stringify({ dryRun: false, cleanAll: true, confirmationToken: previewBody.confirmationToken }),
   });
   assert.equal(body(mismatch).errorCode, 'error:RJ');
   const execute = await app.inject({
     method: 'POST', url: '/v1/utilities/clean-sessions', headers: jsonHeaders(2),
-    payload: JSON.stringify({ dry_run: false, clean_all: false, confirmation_token: previewBody.confirmationToken }),
+    payload: JSON.stringify({ dryRun: false, cleanAll: false, confirmationToken: previewBody.confirmationToken }),
   });
   assert.equal(body(execute).status, 'DONE', execute.body);
-  assert.equal((body(execute).body as Record<string, unknown>).cleanedCount, 2);
-  assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM blex_session WHERE token_hash = 'active'`)[0]?.count), 1);
-  const legacy = await prisma.$queryRaw<Array<{ key: string }>>`SELECT session_key AS key FROM django_session WHERE session_key LIKE 'legacy-%'`;
-  assert.deepEqual(legacy.map((row) => row.key), ['legacy-active']);
+  assert.equal((body(execute).body as Record<string, unknown>).cleanedCount, 1);
+  assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM "Session" WHERE tokenHash = 'active'`)[0]?.count), 1);
 });
 
-test('previews and confirms expired log cleanup, with a progressive superuser utility page', async () => {
-  const page = await app.inject({ url: '/admin-settings/utilities', headers: headers(2) });
-  assert.equal(page.statusCode, 200, page.body);
-  assert.match(page.body, /미사용 태그/);
-  assert.match(page.body, /만료된 세션/);
-  assert.match(page.body, /보존 기간이 지난 로그/);
-  assert.equal((await app.inject({ url: '/admin-settings/utilities', headers: headers(1) })).statusCode, 404);
+test('lets only one of two simultaneous requests spend a cleanup confirmation', async () => {
+  const preview = await app.inject({
+    method: 'POST', url: '/v1/utilities/clean-tags', headers: jsonHeaders(2), payload: JSON.stringify({ dryRun: true }),
+  });
+  const confirmationToken = (body(preview).body as { confirmationToken: string }).confirmationToken;
+  const attempt = () => app.inject({
+    method: 'POST', url: '/v1/utilities/clean-tags', headers: jsonHeaders(2),
+    payload: JSON.stringify({ dryRun: false, confirmationToken }),
+  });
+  const results = (await Promise.all([attempt(), attempt()])).map((response) => body(response).status).sort();
+  assert.deepEqual(results, ['DONE', 'ERROR']);
+  assert.equal(await prisma.adminLog.count(), 1);
+});
+
+test('reading absent singleton settings shows defaults without creating rows, and the first write creates them', async () => {
+  const database = new DatabaseSync(databasePath);
+  database.exec('DELETE FROM SiteSetting; DELETE FROM LoginSetting; DELETE FROM IntegrationSetting;');
+  database.close();
+
+  const site = body(await app.inject({ url: '/v1/site-settings', headers: headers(2) })).body as Record<string, unknown>;
+  assert.equal(site.siteName, 'BLEX');
+  assert.equal(site.seoEnabled, true);
+  assert.equal(site.updatedDate, '');
+  const login = body(await app.inject({ url: '/v1/login-settings', headers: headers(2) })).body as Record<string, unknown>;
+  assert.equal(login.welcomeNotificationUrl, '/');
+  const integration = body(await app.inject({ url: '/v1/integration-settings', headers: headers(2) })).body as Record<string, unknown>;
+  assert.equal(integration.telegramEnabled, false);
+  const rejected = await app.inject({
+    method: 'PUT', url: '/v1/integration-settings', headers: jsonHeaders(2), payload: JSON.stringify({ telegramEnabled: true }),
+  });
+  assert.equal(body(rejected).errorCode, 'error:VA');
+  assert.deepEqual(
+    [await prisma.siteSetting.count(), await prisma.loginSetting.count(), await prisma.integrationSetting.count()],
+    [0, 0, 0],
+  );
+
+  const saved = await app.inject({
+    method: 'PUT', url: '/v1/site-settings', headers: jsonHeaders(2), payload: JSON.stringify({ aeoEnabled: true }),
+  });
+  assert.equal(body(saved).status, 'DONE', saved.body);
+  const row = await prisma.siteSetting.findUniqueOrThrow({ where: { id: 1 } });
+  assert.deepEqual([row.siteName, row.seoEnabled, row.aeoEnabled], ['BLEX', true, true]);
+  await prisma.loginSetting.upsert({ where: { id: 1 }, create: { id: 1 }, update: {} });
+  assert.equal((await prisma.loginSetting.findUniqueOrThrow({ where: { id: 1 } })).welcomeNotificationUrl, '/');
+});
+
+test('previews and confirms expired log cleanup for superusers only', async () => {
+  assert.equal(body(await app.inject({ url: '/v1/utilities/stats', headers: headers(1) })).errorCode, 'error:RJ');
 
   const database = new DatabaseSync(databasePath);
   database.prepare(`
-    INSERT INTO django_admin_log (object_id, object_repr, action_flag, change_message, content_type_id, user_id, action_time)
-    VALUES (NULL, 'old audit', 2, 'old', NULL, 2, '2020-01-01 00:00:00')
+    INSERT INTO AdminLog (objectName, action, message, userId, createdAt)
+    VALUES ('old audit', 2, 'old', 2, 1577836800000)
   `).run();
-  database.prepare('INSERT INTO board_developerrequestlog (id, created_date) VALUES (1, ?)').run('2020-01-01 00:00:00');
+  database.prepare(`INSERT INTO DeveloperRequestLog (id, userId, method, path, statusCode, createdAt) VALUES (1, 2, 'GET', '/api/developer/v1/me', 200, ?)`).run(Date.UTC(2020, 0, 1));
+  database.prepare(`INSERT INTO DeveloperRequestLog (id, userId, method, path, statusCode, createdAt) VALUES (2, 2, 'GET', '/api/developer/v1/me', 200, ?)`).run(Date.now());
   database.close();
 
   const preview = await app.inject({
-    method: 'POST', url: '/admin-settings/utilities', headers: formHeaders(2),
-    payload: new URLSearchParams([['csrfmiddlewaretoken', csrfToken], ['action', 'clean_logs'], ['dry_run', 'true']]).toString(),
+    method: 'POST', url: '/v1/utilities/clean-logs', headers: jsonHeaders(2), payload: JSON.stringify({ dryRun: true }),
   });
-  assert.equal(preview.statusCode, 200, preview.body);
-  assert.match(preview.body, /정리 미리보기/);
-  assert.doesNotMatch(preview.body, /name="confirmationToken"/);
-  const confirmation = preview.body.match(/name="confirmation_token" value="([^"]+)"/)?.[1];
+  assert.equal(body(preview).status, 'DONE', preview.body);
+  const confirmation = (body(preview).body as { confirmationToken?: string }).confirmationToken;
   assert.ok(confirmation);
-  assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM django_admin_log WHERE change_message = 'old'`)[0]?.count), 1);
+  assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM AdminLog WHERE message = 'old'`)[0]?.count), 1);
 
   const execute = await app.inject({
-    method: 'POST', url: '/admin-settings/utilities', headers: formHeaders(2),
-    payload: new URLSearchParams([
-      ['csrfmiddlewaretoken', csrfToken], ['action', 'clean_logs'], ['dry_run', 'false'], ['confirmation_token', confirmation],
-    ]).toString(),
+    method: 'POST', url: '/v1/utilities/clean-logs', headers: jsonHeaders(2),
+    payload: JSON.stringify({ dryRun: false, confirmationToken: confirmation }),
   });
-  assert.equal(execute.statusCode, 200, execute.body);
-  assert.match(execute.body, /정리 결과/);
-  assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM django_admin_log WHERE change_message = 'old'`)[0]?.count), 0);
-  assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM board_developerrequestlog`)[0]?.count), 0);
+  assert.equal(body(execute).status, 'DONE', execute.body);
+  assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM AdminLog WHERE message = 'old'`)[0]?.count), 0);
+  assert.deepEqual((await prisma.developerRequestLog.findMany({ select: { id: true } })).map(({ id }) => id), [2]);
   const noCsrf = await app.inject({
-    method: 'POST', url: '/admin-settings/utilities',
-    headers: { ...headers(2, false), 'content-type': 'application/x-www-form-urlencoded' },
-    payload: new URLSearchParams([['action', 'clean_tags'], ['dry_run', 'true']]).toString(),
+    method: 'POST', url: '/v1/utilities/clean-tags', headers: jsonHeaders(2, false), payload: JSON.stringify({ dryRun: true }),
   });
   assert.equal(noCsrf.statusCode, 403);
 });
@@ -1201,30 +1070,30 @@ test('image cleanup retains every referenced asset and only clears cache rows fo
 
   const database = new DatabaseSync(databasePath);
   database.exec(`
-    UPDATE board_post SET image = '/resources/media/images/title/deleted-post-title.png' WHERE id = 3;
-    UPDATE board_profile SET avatar = '/resources/media/images/avatar/profile-avatar.png' WHERE user_id = 1;
-    INSERT INTO board_postcontent (id, post_id, content_html)
-      VALUES (1, 1, '<img src="/resources/media/images/content/current-content.png">');
-    INSERT INTO board_edithistory (id, post_id, content)
-      VALUES (1, 3, '![](/resources/media/images/content/archived-history.png)');
-    INSERT INTO board_sitenotice (id, scope, user_id, title, is_active, "order", created_date, updated_date, url)
-      VALUES (1, 'global', NULL, 'Inactive notice', 0, 0, '2025-01-01', '2025-01-01', '/resources/media/images/content/notice-content.png');
-    INSERT INTO board_sitebanner (id, scope, user_id, title, is_active, "order", created_date, updated_date, content_html)
-      VALUES (1, 'global', NULL, 'Active banner', 1, 0, '2025-01-01', '2025-01-01',
+    UPDATE "Post" SET image = '/resources/media/images/title/deleted-post-title.png' WHERE id = 3;
+    UPDATE "Profile" SET avatar = '/resources/media/images/avatar/profile-avatar.png' WHERE userId = 1;
+    INSERT INTO "PostContent" ("postId", "html") VALUES
+    (1, '<img src="/resources/media/images/content/current-content.png">');
+    INSERT INTO "PostRevision" (id, postId, type, tags, content)
+      VALUES (1, 3, 'edit', '[]', '![](/resources/media/images/content/archived-history.png)');
+    INSERT INTO SiteNotice (id, scope, userId, title, isActive, "order", createdAt, updatedAt, url)
+      VALUES (1, 'global', NULL, 'Inactive notice', 0, 0, 1735689600000, 1735689600000, '/resources/media/images/content/notice-content.png');
+    INSERT INTO SiteBanner (id, scope, type, position, userId, title, isActive, "order", createdAt, updatedAt, contentHtml)
+      VALUES (1, 'global', 'horizontal', 'top', NULL, 'Active banner', 1, 0, 1735689600000, 1735689600000,
         '<img src="/resources/media/images/content/banner-content.png"><img src="/resources/media/images/title/banner-title.png"><img src="/resources/media/images/avatar/banner-avatar.png">');
-    INSERT INTO board_sitebanner (id, scope, user_id, title, is_active, "order", created_date, updated_date, content_html)
-      VALUES (2, 'global', NULL, 'Inactive banner', 0, 1, '2025-01-01', '2025-01-01',
+    INSERT INTO SiteBanner (id, scope, type, position, userId, title, isActive, "order", createdAt, updatedAt, contentHtml)
+      VALUES (2, 'global', 'horizontal', 'top', NULL, 'Inactive banner', 0, 1, 1735689600000, 1735689600000,
         '<img src="/resources/media/images/content/inactive-banner-content.png">');
-    INSERT INTO board_worklogentry (id, text) VALUES (1, '![](/resources/media/images/content/worklog-content.png)');
-    INSERT INTO board_imagecache (id, key, path) VALUES
-      (1, 'unused-image-cache', 'images/content/unused-content.png'),
-      (2, 'current-image-cache', 'images/content/current-content.png');
+    INSERT INTO WorkLogEntry (id, text) VALUES (1, '![](/resources/media/images/content/worklog-content.png)');
+    INSERT INTO UploadedImage (id, key, path, size) VALUES
+      (1, 'unused-image-cache', 'images/content/unused-content.png', 1),
+      (2, 'current-image-cache', 'images/content/current-content.png', 1);
   `);
   database.close();
 
   const preview = await app.inject({
     method: 'POST', url: '/v1/utilities/clean-images', headers: jsonHeaders(2),
-    payload: JSON.stringify({ dry_run: true, target: 'all', remove_duplicates: true }),
+    payload: JSON.stringify({ dryRun: true, target: 'all', removeDuplicates: true }),
   });
   assert.equal(body(preview).status, 'DONE', preview.body);
   const previewBody = body(preview).body as Record<string, unknown>;
@@ -1245,21 +1114,21 @@ test('image cleanup retains every referenced asset and only clears cache rows fo
   await writeFile(join(mediaRoot, 'images/content/added-after-preview.png'), 'changed candidate set');
   const stale = await app.inject({
     method: 'POST', url: '/v1/utilities/clean-images', headers: jsonHeaders(2),
-    payload: JSON.stringify({ dry_run: false, target: 'all', remove_duplicates: true, confirmation_token: confirmation, preview_hash: previewHash }),
+    payload: JSON.stringify({ dryRun: false, target: 'all', removeDuplicates: true, confirmationToken: confirmation, previewHash: previewHash }),
   });
   assert.equal(body(stale).errorCode, 'error:RJ');
   assert.equal(await readFile(join(mediaRoot, 'images/content/unused-content.png'), 'utf8'), 'images/content/unused-content.png');
 
   const freshPreview = await app.inject({
     method: 'POST', url: '/v1/utilities/clean-images', headers: jsonHeaders(2),
-    payload: JSON.stringify({ dry_run: true, target: 'all', remove_duplicates: true }),
+    payload: JSON.stringify({ dryRun: true, target: 'all', removeDuplicates: true }),
   });
   const freshBody = body(freshPreview).body as Record<string, unknown>;
   const execute = await app.inject({
     method: 'POST', url: '/v1/utilities/clean-images', headers: jsonHeaders(2),
     payload: JSON.stringify({
-      dry_run: false, target: 'all', remove_duplicates: true,
-      confirmation_token: freshBody.confirmationToken,
+      dryRun: false, target: 'all', removeDuplicates: true,
+      confirmationToken: freshBody.confirmationToken,
     }),
   });
   assert.equal(body(execute).status, 'DONE', execute.body);
@@ -1271,16 +1140,16 @@ test('image cleanup retains every referenced asset and only clears cache rows fo
   assert.equal(await readFile(join(mediaRoot, 'images/content/archived-history.png'), 'utf8'), 'images/content/archived-history.png');
   assert.equal(await readFile(join(mediaRoot, 'images/title/deleted-post-title.png'), 'utf8'), 'same-title-image');
   assert.equal(await readFile(join(mediaRoot, 'images/avatar/profile-avatar.png'), 'utf8'), 'images/avatar/profile-avatar.png');
-  assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM board_imagecache`)[0]?.count), 1);
-  assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM board_imagecache WHERE path = 'images/content/current-content.png'`)[0]?.count), 1);
-  const audit = await prisma.$queryRaw<Array<{ message: string }>>`SELECT change_message AS message FROM django_admin_log ORDER BY id DESC LIMIT 1`;
+  assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM UploadedImage`)[0]?.count), 1);
+  assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM UploadedImage WHERE path = 'images/content/current-content.png'`)[0]?.count), 1);
+  const audit = await prisma.$queryRaw<Array<{ message: string }>>`SELECT message FROM AdminLog ORDER BY id DESC LIMIT 1`;
   assert.equal(audit[0]?.message, 'Executed unused image cleanup');
 });
 
 test('lists users with filters and safely updates only reader/editor roles', async () => {
   const denied = await app.inject({ url: '/v1/admin/users', headers: headers(3) });
   assert.equal(body(denied).errorCode, 'error:RJ');
-  const list = await app.inject({ url: '/v1/admin/users?ordering=-post_count&page=1&page_size=2', headers: headers(1) });
+  const list = await app.inject({ url: '/v1/admin/users?ordering=-postCount&page=1&pageSize=2', headers: headers(1) });
   assert.equal(body(list).status, 'DONE');
   const result = body(list).body as {
     users: Array<Record<string, unknown>>;
@@ -1288,33 +1157,28 @@ test('lists users with filters and safely updates only reader/editor roles', asy
     stats: Record<string, unknown>;
   };
   assert.equal(result.users[0]?.username, 'site-editor');
-  assert.equal(result.users[0]?.post_count, 2);
-  assert.equal(result.pagination.page_size, 2);
-  assert.equal(result.pagination.total_pages, 3);
+  assert.equal(result.users[0]?.postCount, 2);
+  assert.equal(result.pagination.pageSize, 2);
+  assert.equal(result.pagination.totalPages, 3);
   assert.equal(result.stats.total, 5);
   assert.equal(result.stats.editors, 3);
   assert.equal(result.stats.readers, 1);
   assert.equal(result.stats.admins, 3);
 
-  const readers = await app.inject({ url: '/v1/admin/users?role=reader&page=50&page_size=200', headers: headers(2) });
+  const readers = await app.inject({ url: '/v1/admin/users?role=reader&page=50&pageSize=200', headers: headers(2) });
   const readerList = (body(readers).body as { users: Array<Record<string, unknown>>; pagination: Record<string, unknown> });
   assert.equal(readerList.users.length, 1);
   assert.equal(readerList.users[0]?.username, 'reader');
   assert.equal(readerList.pagination.page, 1);
-  assert.equal(readerList.pagination.page_size, 100);
+  assert.equal(readerList.pagination.pageSize, 100);
 
-  const rolePage = await app.inject({ url: '/admin-settings/users', headers: headers(1) });
-  assert.match(rolePage.body, /회원 권한/);
-  assert.match(rolePage.body, /운영 권한은 별도로 관리합니다/);
-  assert.match(rolePage.body, /name="role"/);
-  const formRole = await app.inject({
-    method: 'POST', url: '/admin-settings/users/3/role', headers: formHeaders(1),
-    payload: new URLSearchParams([['csrfmiddlewaretoken', csrfToken], ['role', 'EDITOR']]).toString(),
+  const roleUpdate = await app.inject({
+    method: 'PATCH', url: '/v1/admin/users/3/role', headers: jsonHeaders(1), payload: JSON.stringify({ role: 'EDITOR' }),
   });
-  assert.equal(formRole.statusCode, 303, formRole.body);
-  const [profile] = await prisma.$queryRaw<Array<{ role: string }>>`SELECT role FROM board_profile WHERE user_id = 3`;
+  assert.equal(body(roleUpdate).status, 'DONE', roleUpdate.body);
+  const [profile] = await prisma.$queryRaw<Array<{ role: string }>>`SELECT role FROM "Profile" WHERE userId = 3`;
   assert.equal(profile?.role, 'EDITOR');
-  const [config] = await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM board_config WHERE user_id = 3`;
+  const [config] = await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM "UserPreference" WHERE userId = 3`;
   assert.equal(Number(config?.count), 1);
 
   const ownRole = await app.inject({
@@ -1334,7 +1198,7 @@ test('lists users with filters and safely updates only reader/editor roles', asy
   });
   assert.equal(noCsrf.statusCode, 403);
   const [staff] = await prisma.$queryRaw<Array<{ isStaff: number | bigint; isSuperuser: number | bigint }>>`
-    SELECT is_staff AS isStaff, is_superuser AS isSuperuser FROM auth_user WHERE id = 3
+    SELECT isStaff, isSuperuser FROM "User" WHERE id = 3
   `;
   assert.equal(Number(staff?.isStaff), 0);
   assert.equal(Number(staff?.isSuperuser), 0);
@@ -1343,15 +1207,15 @@ test('lists users with filters and safely updates only reader/editor roles', asy
   });
   assert.equal(body(demote).status, 'DONE', demote.body);
   const [scheduledPost] = await prisma.$queryRaw<Array<{ publishedDate: string | null }>>`
-    SELECT CAST(published_date AS TEXT) AS publishedDate FROM board_post WHERE id = 4
+    SELECT CAST(publishedAt AS TEXT) AS publishedDate FROM "Post" WHERE id = 4
   `;
   assert.equal(scheduledPost?.publishedDate, null);
   const profilelessPromotion = await app.inject({
     method: 'PATCH', url: '/v1/admin/users/5/role', headers: jsonHeaders(1), payload: JSON.stringify({ role: 'EDITOR' }),
   });
   assert.equal(body(profilelessPromotion).status, 'DONE', profilelessPromotion.body);
-  const [newProfile] = await prisma.$queryRaw<Array<{ role: string }>>`SELECT role FROM board_profile WHERE user_id = 5`;
+  const [newProfile] = await prisma.$queryRaw<Array<{ role: string }>>`SELECT role FROM "Profile" WHERE userId = 5`;
   assert.equal(newProfile?.role, 'EDITOR');
-  const [newConfig] = await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM board_config WHERE user_id = 5`;
+  const [newConfig] = await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM "UserPreference" WHERE userId = 5`;
   assert.equal(Number(newConfig?.count), 1);
 });

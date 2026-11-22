@@ -60,7 +60,7 @@ interface WebhookChannelManagerProps {
     emptyDescription?: string;
     addButtonLabel?: string;
     fetchChannels: () => Promise<AxiosResponse<ChannelsResponse>>;
-    createChannel: (data: { webhook_url: string; name?: string }) => Promise<AxiosResponse<CreateResponse>>;
+    createChannel: (data: { webhookUrl: string; name?: string }) => Promise<AxiosResponse<CreateResponse>>;
     deleteChannel: (channelId: number) => Promise<AxiosResponse<DeleteResponse>>;
     testChannel: (webhookUrl: string) => Promise<AxiosResponse<TestResponse>>;
     confirmDeleteTitle: string;
@@ -305,7 +305,7 @@ const WebhookChannelManager = ({
         setIsAdding(true);
         try {
             const { data } = await createChannel({
-                webhook_url: webhookUrl,
+                webhookUrl,
                 name: webhookName || undefined
             });
 

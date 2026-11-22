@@ -8,7 +8,7 @@ BLEX renders pages with React on the server and uses a shared React Router appli
 | --- | --- |
 | Shared app document, frame, and navigation | `packages/server/src/application/` |
 | Public layout, theme, and styles | `packages/server/src/appearance/` |
-| Login, editor, and reader interactions | `packages/server/src/features/auth/ui/`, `packages/server/src/features/posts/editor/`, `packages/server/src/features/engagement/ui/` |
+| Login and reader interactions | `packages/server/src/features/auth/ui/`, `packages/server/src/features/engagement/ui/` |
 | Web host and browser configuration | `packages/server/src/application/screen-host/` |
 | Additional screens and their API client | `packages/web/` |
 | Shared UI primitives | `packages/ui/` |

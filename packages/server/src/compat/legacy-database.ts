@@ -1,10 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
-import { pathToFileURL } from 'node:url';
 
 const djangoBaseline = '0070_author_subscription';
-const baselineSql = new URL('../../../prisma/migrations/0000_django_3x/migration.sql', import.meta.url);
+const baselineSql = new URL('../../../prisma/legacy/django-3.14.sql', import.meta.url);
 
 interface SchemaObject {
   type: string;
@@ -51,6 +50,10 @@ export function verifyLegacyDatabase(dbPath: string): number {
   const db = new DatabaseSync(resolve(dbPath), { readOnly: true });
   const baseline = new DatabaseSync(':memory:');
   try {
+    const tables = db.prepare(`SELECT 1 FROM sqlite_schema WHERE type = 'table' AND name = 'django_migrations'`).get();
+    const version = tables && db.prepare('SELECT 1 FROM django_migrations WHERE app = ? AND name = ?').get('board', djangoBaseline);
+    if (!version) throw new Error(`Upgrade this BLEX 3.x database to 3.14 first: start the baealex/blex:3.14 image once so it applies ${djangoBaseline}, then start BLEX 4.`);
+
     baseline.exec(readFileSync(baselineSql, 'utf8'));
     const expected = schemaObjects(baseline);
     const actual = schemaObjects(db);
@@ -59,15 +62,12 @@ export function verifyLegacyDatabase(dbPath: string): number {
       .sort();
     if (differences.length) throw new Error(`SQLite schema differs from the BLEX 3.x baseline: ${differences.join(', ')}`);
 
-    const version = db.prepare('SELECT 1 FROM django_migrations WHERE app = ? AND name = ?').get('board', djangoBaseline);
-    if (!version) throw new Error(`Run the Django migrations through ${djangoBaseline} before adopting this database.`);
-
     const integrity = db.prepare('PRAGMA integrity_check').all();
     if (integrity.length !== 1 || integrity[0].integrity_check !== 'ok') {
-      throw new Error('SQLite integrity check failed. Restore a valid backup before adopting the database.');
+      throw new Error('SQLite integrity check failed. Restore a valid backup before upgrading.');
     }
     if (db.prepare('PRAGMA foreign_key_check').get()) {
-      throw new Error('SQLite contains foreign-key violations. Resolve them before adopting the database.');
+      throw new Error('SQLite contains foreign-key violations. Resolve them before upgrading.');
     }
     return expected.size;
   } finally {
@@ -76,9 +76,3 @@ export function verifyLegacyDatabase(dbPath: string): number {
   }
 }
 
-if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {
-  const dbPath = process.argv[2];
-  if (!dbPath) throw new Error('Pass the existing SQLite database path.');
-  const count = verifyLegacyDatabase(dbPath);
-  console.info(`Verified ${count} SQLite objects, Django migration ${djangoBaseline}, integrity and foreign keys.`);
-}

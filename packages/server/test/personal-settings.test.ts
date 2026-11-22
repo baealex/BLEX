@@ -9,6 +9,7 @@ import { PrismaClient } from '@prisma/client';
 import sharp from 'sharp';
 import { after, beforeEach, test } from 'node:test';
 import { registerPersonalSettings } from '../src/features/account/index.js';
+import { accountTables, createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-personal-settings-'));
 const databasePath = join(directory, 'synthetic-settings.sqlite3');
@@ -17,31 +18,9 @@ const csrfToken = 's'.repeat(43);
 
 function createSchema() {
   const fixture = new DatabaseSync(databasePath);
+  createMigratedTables(fixture, 'LoginSetting');
   fixture.exec(`
-    CREATE TABLE auth_user (
-      id INTEGER PRIMARY KEY, username TEXT NOT NULL UNIQUE, first_name TEXT NOT NULL,
-      email TEXT NOT NULL, date_joined DATETIME NOT NULL, is_active BOOLEAN NOT NULL DEFAULT 1
-    );
-    CREATE TABLE board_profile (
-      id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL UNIQUE, bio TEXT NOT NULL, cover TEXT NOT NULL,
-      avatar TEXT NOT NULL, homepage TEXT NOT NULL, about_md TEXT NOT NULL, about_html TEXT NOT NULL,
-      analytics_share_url TEXT NOT NULL, role TEXT NOT NULL
-    );
-    CREATE TABLE board_config (
-      id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL UNIQUE, language TEXT, time_zone TEXT NOT NULL
-    );
-    CREATE TABLE board_twofactorauth (
-      id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL UNIQUE, recovery_key TEXT NOT NULL,
-      totp_secret TEXT NOT NULL, created_date DATETIME NOT NULL
-    );
-    CREATE TABLE board_loginsetting (
-      id INTEGER PRIMARY KEY, account_deletion_redirect_url TEXT NOT NULL
-    );
-    CREATE TABLE board_userlinkmeta (
-      id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, value TEXT NOT NULL,
-      created_date DATETIME NOT NULL, updated_date DATETIME NOT NULL, user_id INTEGER NOT NULL,
-      "order" INTEGER NOT NULL
-    );
+  ${migratedTableSql(...accountTables)}
   `);
   fixture.close();
 }
@@ -49,24 +28,25 @@ function createSchema() {
 function seed() {
   const fixture = new DatabaseSync(databasePath);
   fixture.exec(`
-    DELETE FROM board_userlinkmeta;
-    DELETE FROM board_twofactorauth;
-    DELETE FROM board_config;
-    DELETE FROM board_profile;
-    DELETE FROM board_loginsetting;
-    DELETE FROM auth_user;
-    INSERT INTO auth_user VALUES
-      (1, 'writer', 'Writer Name', 'writer@example.test', '2024-03-02 20:00:00', 1),
-      (2, 'other', 'Other Name', 'other@example.test', '2023-01-01 00:00:00', 1);
-    INSERT INTO board_profile VALUES
-      (1, 1, 'Writer bio', '', 'writer.png', 'https://writer.example', '', '', '', 'EDITOR'),
-      (2, 2, 'Other bio', '', 'other.png', '', '', '', '', 'READER');
-    INSERT INTO board_config VALUES (1, 1, NULL, '');
-    INSERT INTO board_loginsetting VALUES (1, '');
-    INSERT INTO board_userlinkmeta VALUES
-      (1, 'github', 'https://github.com/writer', '2024-01-01 00:00:00', '2024-01-01 00:00:00', 1, 1),
-      (2, 'other', 'javascript:alert(1)', '2024-01-01 00:00:00', '2024-01-01 00:00:00', 1, 2),
-      (3, 'github', 'https://github.com/other', '2024-01-01 00:00:00', '2024-01-01 00:00:00', 2, 1);
+    DELETE FROM "SocialLink";
+    DELETE FROM "TwoFactorAuth";
+    DELETE FROM "UserPreference";
+    DELETE FROM "Profile";
+    DELETE FROM LoginSetting;
+    DELETE FROM "User";
+    INSERT INTO "User" ("id", "username", "name", "email", "joinedAt", "isActive", "passwordHash") VALUES
+    (1, 'writer', 'Writer Name', 'writer@example.test', 1709409600000, 1, ''),
+    (2, 'other', 'Other Name', 'other@example.test', 1672531200000, 1, '');
+    INSERT INTO "Profile" ("userId", "bio", "cover", "avatar", "homepage", "aboutMarkdown", "aboutHtml", "role") VALUES
+    (1, 'Writer bio', '', 'writer.png', 'https://writer.example', '', '', 'EDITOR'),
+    (2, 'Other bio', '', 'other.png', '', '', '', 'READER');
+    INSERT INTO "UserPreference" ("userId", "language", "timeZone") VALUES
+    (1, NULL, '');
+    INSERT INTO LoginSetting (id, updatedAt) VALUES (1, 946684800000);
+    INSERT INTO "SocialLink" ("id", "platform", "url", "createdAt", "updatedAt", "userId", "order") VALUES
+    (1, 'github', 'https://github.com/writer', 1704067200000, 1704067200000, 1, 1),
+    (2, 'other', 'javascript:alert(1)', 1704067200000, 1704067200000, 1, 2),
+    (3, 'github', 'https://github.com/other', 1704067200000, 1704067200000, 2, 1);
   `);
   fixture.close();
 }
@@ -143,50 +123,13 @@ function legacyImagePath(username: string, kind: 'avatar' | 'cover', filename: s
   return `images/avatar/${prefix}/${username}/${kind === 'avatar' ? 'a' : 'c'}${filename}`;
 }
 
-test('serves only the implemented personal settings pages and protects them by login', async () => {
-  const anonymous = await app.inject('/settings/account');
-  assert.equal(anonymous.statusCode, 302);
-  assert.equal(anonymous.headers.location, '/login?next=%2Fsettings%2Faccount');
-
-  const index = await app.inject({ url: '/settings/', headers: headers(1) });
-  assert.equal(index.statusCode, 302);
-  assert.equal(index.headers.location, '/settings/notify');
-  const staffIndex = await app.inject({ url: '/settings/', headers: headers(2) });
-  assert.equal(staffIndex.statusCode, 302);
-  assert.equal(staffIndex.headers.location, '/settings/notify');
-
-  const accountPage = await app.inject({ url: '/settings/account', headers: headers(1) });
-  assert.equal(accountPage.statusCode, 200);
-  assert.match(accountPage.body, /href="\/settings\/profile"/);
-  assert.match(accountPage.body, /href="\/settings\/social-links"/);
-  assert.match(accountPage.body, /href="\/settings\/security"/);
-  assert.match(accountPage.body, /href="\/settings\/developer-api"/);
-  assert.doesNotMatch(accountPage.body, /href="\/settings\/(?:password|delete|email|mfa)"/);
-  assert.match(accountPage.body, /name="csrfmiddlewaretoken" value="ssss/);
-  assert.match(accountPage.body, /name="language"/);
-  assert.match(accountPage.body, /name="time_zone"/);
-  assert.match(accountPage.body, /Writer Name/);
-  assert.match(accountPage.body, /2024-03-03/);
-
-  const profilePage = await app.inject({ url: '/settings/profile', headers: headers(1) });
-  assert.equal(profilePage.statusCode, 200);
-  assert.match(profilePage.body, /프로필 사진/);
-  assert.doesNotMatch(profilePage.body, /아바타/);
-  assert.match(profilePage.body, /href="\/@writer\/about\/edit"/);
-  assert.match(profilePage.body, /name="bio"/);
-  assert.match(profilePage.body, /name="homepage"/);
-
+test('protects personal settings APIs by login', async () => {
+  for (const url of ['/v1/setting/account', '/v1/setting/profile']) {
+    assert.equal((await app.inject(url)).json().errorCode, 'error:NL');
+  }
   const profileApi = await app.inject({ url: '/v1/setting/profile', headers: headers(1) });
   assert.equal(profileApi.json().body.avatar, 'https://blog.example/resources/media/writer.png');
   assert.equal(profileApi.json().body.cover, null);
-
-  const socialPage = await app.inject({ url: '/settings/social-links', headers: headers(1) });
-  assert.equal(socialPage.statusCode, 200);
-  assert.match(socialPage.body, /name="intent" value="create"/);
-  assert.match(socialPage.body, /name="intent" value="delete"/);
-
-  const staffAccount = await app.inject({ url: '/settings/account', headers: headers(2) });
-  assert.match(staffAccount.body, /href="\/admin-settings\/"/);
 });
 
 test('reads and updates account name and regional preferences using the legacy envelopes', async () => {
@@ -206,8 +149,8 @@ test('reads and updates account name and regional preferences using the legacy e
     payload: form([['name', 'Updated Name']]),
   });
   assert.deepEqual(name.json(), { status: 'DONE', body: {} });
-  const [updatedUser] = await db.$queryRaw<Array<{ first_name: string }>>`SELECT first_name FROM auth_user WHERE id = 1`;
-  assert.equal(updatedUser.first_name, 'Updated Name');
+  const [updatedUser] = await db.$queryRaw<Array<{ name: string }>>`SELECT name FROM "User" WHERE id = 1`;
+  assert.equal(updatedUser.name, 'Updated Name');
 
   const tooLongName = await app.inject({
     method: 'PUT', url: '/v1/setting/account', headers: { ...headers(1), 'content-type': 'application/json' },
@@ -217,7 +160,7 @@ test('reads and updates account name and regional preferences using the legacy e
 
   const regional = await app.inject({
     method: 'PUT', url: '/v1/setting/regional-preferences', headers: { ...headers(1), 'content-type': 'application/json' },
-    payload: { language: 'ko', time_zone: 'UTC' },
+    payload: { language: 'ko', timeZone: 'UTC' },
   });
   assert.deepEqual(regional.json(), { status: 'DONE', body: {} });
   const regionalRead = await app.inject({ url: '/v1/setting/account', headers: headers(1) });
@@ -226,7 +169,7 @@ test('reads and updates account name and regional preferences using the legacy e
 
   const invalidRegional = await app.inject({
     method: 'PUT', url: '/v1/setting/regional-preferences', headers: { ...headers(1), 'content-type': 'application/json' },
-    payload: { language: 'not-supported', time_zone: 'Nowhere/Nozone' },
+    payload: { language: 'not-supported', timeZone: 'Nowhere/Nozone' },
   });
   assert.equal(invalidRegional.json().errorCode, 'error:VA');
   assert.equal(invalidRegional.json().messageKey, 'settings.regional_preferences.invalid_language');
@@ -236,20 +179,13 @@ test('reads and updates account name and regional preferences using the legacy e
   });
   assert.equal(denied.statusCode, 403);
 
-  const formName = await app.inject({
-    method: 'POST', url: '/settings/account', headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
-    payload: form([['csrfmiddlewaretoken', csrfToken], ['intent', 'name'], ['name', 'Form Name']]),
+  const browserLanguage = await app.inject({
+    method: 'PUT', url: '/v1/setting/regional-preferences', headers: { ...headers(1), 'content-type': 'application/json' },
+    payload: { language: null, timeZone: 'Asia/Seoul' },
   });
-  assert.equal(formName.statusCode, 303);
-  assert.equal(formName.headers.location, '/settings/account?saved=1');
-
-  const formRegional = await app.inject({
-    method: 'POST', url: '/settings/account', headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
-    payload: form([['csrfmiddlewaretoken', csrfToken], ['intent', 'regional'], ['language', 'browser'], ['time_zone', 'Asia/Seoul']]),
-  });
-  assert.equal(formRegional.statusCode, 303);
+  assert.deepEqual(browserLanguage.json(), { status: 'DONE', body: {} });
   const pageRegionalRead = await app.inject({ url: '/v1/setting/account', headers: headers(1) });
-  assert.equal(pageRegionalRead.json().body.name, 'Form Name');
+  assert.equal(pageRegionalRead.json().body.name, 'Updated Name');
   assert.equal(pageRegionalRead.json().body.regionalPreferences.language, null);
   assert.equal(pageRegionalRead.json().body.regionalPreferences.timeZone, 'Asia/Seoul');
 });
@@ -261,17 +197,17 @@ test('delegates password-bearing account changes to the injected reauthenticatio
   });
   assert.deepEqual(response.json(), { status: 'DONE', body: { delegated: true } });
   assert.deepEqual(delegatedPayload, { username: 'newname', name: 'New Name', password: 'NewPassword123!' });
-  const [user] = await db.$queryRaw<Array<{ username: string; first_name: string }>>`SELECT username, first_name FROM auth_user WHERE id = 1`;
-  assert.deepEqual(user, { username: 'writer', first_name: 'Writer Name' });
+  const [user] = await db.$queryRaw<Array<{ username: string; name: string }>>`SELECT username, name FROM "User" WHERE id = 1`;
+  assert.deepEqual(user, { username: 'writer', name: 'Writer Name' });
 });
 
-test('updates profile safely through the API and progressive HTML form', async () => {
+test('updates profile safely through the API', async () => {
   const unsafe = await app.inject({
     method: 'PUT', url: '/v1/setting/profile', headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
     payload: form([['bio', 'Should not persist'], ['homepage', 'javascript:alert(1)']]),
   });
   assert.equal(unsafe.json().errorCode, 'error:VA');
-  const [unchanged] = await db.$queryRaw<Array<{ bio: string; homepage: string }>>`SELECT bio, homepage FROM board_profile WHERE user_id = 1`;
+  const [unchanged] = await db.$queryRaw<Array<{ bio: string; homepage: string }>>`SELECT bio, homepage FROM "Profile" WHERE userId = 1`;
   assert.deepEqual(unchanged, { bio: 'Writer bio', homepage: 'https://writer.example' });
 
   const updated = await app.inject({
@@ -280,25 +216,16 @@ test('updates profile safely through the API and progressive HTML form', async (
   });
   assert.deepEqual(updated.json(), { status: 'DONE', body: {} });
 
-  const htmlUpdate = await app.inject({
-    method: 'POST', url: '/settings/profile', headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
-    payload: form([['csrfmiddlewaretoken', csrfToken], ['bio', 'Form bio'], ['homepage', 'https://form.example']]),
-  });
-  assert.equal(htmlUpdate.statusCode, 303);
-  assert.equal(htmlUpdate.headers.location, '/settings/profile?saved=1');
   const read = await app.inject({ url: '/v1/setting/profile', headers: headers(1) });
-  assert.equal(read.json().body.bio, 'Form bio');
-  assert.equal(read.json().body.homepage, 'https://form.example');
-
-  const savedPage = await app.inject({ url: '/settings/profile?saved=1', headers: headers(1) });
-  assert.match(savedPage.body, /변경 사항을 저장했습니다/);
+  assert.equal(read.json().body.bio, 'Updated bio');
+  assert.equal(read.json().body.homepage, 'https://example.test/profile');
 });
 
 test('applies legacy social-link create, update, order and delete without crossing users', async () => {
   const read = await app.inject({ url: '/v1/setting/profile', headers: headers(1) });
   assert.deepEqual(read.json().body.social, [{ id: 1, name: 'github', value: 'https://github.com/writer', order: 1 }]);
 
-  const [linkBefore] = await db.$queryRaw<Array<{ updatedDate: string }>>`SELECT CAST(updated_date AS TEXT) AS updatedDate FROM board_userlinkmeta WHERE id = 1`;
+  const [linkBefore] = await db.$queryRaw<Array<{ updatedDate: string }>>`SELECT CAST(updatedAt AS TEXT) AS updatedDate FROM "SocialLink" WHERE id = 1`;
   const updated = await app.inject({
     method: 'PUT', url: '/v1/setting/social', headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
     payload: form([
@@ -309,11 +236,11 @@ test('applies legacy social-link create, update, order and delete without crossi
   });
   assert.equal(updated.json().status, 'DONE');
   assert.deepEqual(updated.json().body.map((link: { name: string }) => link.name), ['threads', 'github']);
-  const [ownLink] = await db.$queryRaw<Array<{ value: string; order: number }>>`SELECT value, "order" AS "order" FROM board_userlinkmeta WHERE id = 1`;
+  const [ownLink] = await db.$queryRaw<Array<{ value: string; order: number }>>`SELECT url AS value, "order" AS "order" FROM "SocialLink" WHERE id = 1`;
   assert.deepEqual(ownLink, { value: 'https://github.com/updated', order: 3 });
-  const [linkAfter] = await db.$queryRaw<Array<{ updatedDate: string }>>`SELECT CAST(updated_date AS TEXT) AS updatedDate FROM board_userlinkmeta WHERE id = 1`;
+  const [linkAfter] = await db.$queryRaw<Array<{ updatedDate: string }>>`SELECT CAST(updatedAt AS TEXT) AS updatedDate FROM "SocialLink" WHERE id = 1`;
   assert.equal(linkAfter.updatedDate, linkBefore.updatedDate);
-  const [privateLink] = await db.$queryRaw<Array<{ value: string }>>`SELECT value FROM board_userlinkmeta WHERE id = 3`;
+  const [privateLink] = await db.$queryRaw<Array<{ value: string }>>`SELECT url AS value FROM "SocialLink" WHERE id = 3`;
   assert.equal(privateLink.value, 'https://github.com/other');
 
   const crossUserUpdate = await app.inject({
@@ -321,7 +248,7 @@ test('applies legacy social-link create, update, order and delete without crossi
     payload: { update: '3,github,https://attacker.example,1', create: '', delete: '' },
   });
   assert.equal(crossUserUpdate.json().errorCode, 'error:VA');
-  const [stillPrivate] = await db.$queryRaw<Array<{ value: string }>>`SELECT value FROM board_userlinkmeta WHERE id = 3`;
+  const [stillPrivate] = await db.$queryRaw<Array<{ value: string }>>`SELECT url AS value FROM "SocialLink" WHERE id = 3`;
   assert.equal(stillPrivate.value, 'https://github.com/other');
 
   const badSeparator = await app.inject({
@@ -330,11 +257,11 @@ test('applies legacy social-link create, update, order and delete without crossi
   });
   assert.equal(badSeparator.json().errorCode, 'error:VA');
 
-  const formDelete = await app.inject({
-    method: 'POST', url: '/settings/social-links', headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
-    payload: form([['csrfmiddlewaretoken', csrfToken], ['intent', 'delete'], ['id', '1']]),
+  const removed = await app.inject({
+    method: 'PUT', url: '/v1/setting/social', headers: { ...headers(1), 'content-type': 'application/json' },
+    payload: { update: '', create: '', delete: '1' },
   });
-  assert.equal(formDelete.statusCode, 303);
+  assert.equal(removed.json().status, 'DONE', removed.body);
   const afterDelete = await app.inject({ url: '/v1/setting/profile', headers: headers(1) });
   assert.deepEqual(afterDelete.json().body.social, [{ id: 4, name: 'threads', value: 'https://threads.example/writer', order: 1 }]);
 });
@@ -354,7 +281,7 @@ test('stores bounded profile images atomically under the owner media directory',
     assert.deepEqual(response.json().status, 'DONE');
     assert.match(response.json().body.url, new RegExp(`^/resources/media/images/avatar/[a-f0-9]{2}/writer/${kind === 'avatar' ? 'a' : 'c'}[a-f0-9]{32}\\.png$`));
 
-    const [profile] = await db.$queryRaw<Array<{ avatar: string; cover: string }>>`SELECT avatar, cover FROM board_profile WHERE user_id = 1`;
+    const [profile] = await db.$queryRaw<Array<{ avatar: string; cover: string }>>`SELECT avatar, cover FROM "Profile" WHERE userId = 1`;
     const savedPath = kind === 'avatar' ? profile.avatar : profile.cover;
     assert.match(savedPath, new RegExp(`^images/avatar/[a-f0-9]{2}/writer/${kind === 'avatar' ? 'a' : 'c'}[a-f0-9]{32}\\.png$`));
     const bytes = await readFile(join(mediaRoot, ...savedPath.split('/')));
@@ -364,19 +291,8 @@ test('stores bounded profile images atomically under the owner media directory',
     assert.equal(metadata.height, 40);
   }
 
-  const formUpload = multipart([
-    { name: 'csrfmiddlewaretoken', value: csrfToken },
-    { name: 'return_to', value: '/settings/profile?saved=avatar' },
-    { name: 'avatar', filename: 'avatar.png', contentType: 'image/png', value: image },
-  ]);
-  const progressiveForm = await app.inject({
-    method: 'POST', url: '/v1/setting/avatar', headers: { ...headers(1), 'content-type': formUpload.contentType }, payload: formUpload.payload,
-  });
-  assert.equal(progressiveForm.statusCode, 303);
-  assert.equal(progressiveForm.headers.location, '/settings/profile?saved=avatar');
-
   const filesBeforeFailedSave = await readdir(join(mediaRoot, ...legacyImagePath('writer', 'avatar', 'probe.png').split('/').slice(0, -1)));
-  await db.$executeRaw`DELETE FROM board_profile WHERE user_id = 1`;
+  await db.$executeRaw`DELETE FROM "Profile" WHERE userId = 1`;
   const failedUpload = multipart([{ name: 'avatar', filename: 'avatar.png', contentType: 'image/png', value: image }]);
   const failed = await app.inject({
     method: 'POST', url: '/v1/setting/avatar', headers: { ...headers(1), 'content-type': failedUpload.contentType }, payload: failedUpload.payload,
@@ -411,7 +327,7 @@ test('rejects invalid, oversized-dimension, and CSRF-free profile image uploads'
     method: 'POST', url: '/v1/setting/avatar', headers: { ...headers(1, false), 'content-type': noCsrfRequest.contentType }, payload: noCsrfRequest.payload,
   });
   assert.equal(noCsrf.statusCode, 403);
-  const [profile] = await db.$queryRaw<Array<{ avatar: string }>>`SELECT avatar FROM board_profile WHERE user_id = 1`;
+  const [profile] = await db.$queryRaw<Array<{ avatar: string }>>`SELECT avatar FROM "Profile" WHERE userId = 1`;
   assert.equal(profile.avatar, 'writer.png');
   assert.deepEqual(await readdir(mediaRoot), []);
 });
@@ -421,21 +337,17 @@ test('removes only scoped cover files and leaves symlink targets untouched', asy
   const coverFile = join(mediaRoot, ...coverPath.split('/'));
   await mkdir(join(coverFile, '..'), { recursive: true, mode: 0o700 });
   await writeFile(coverFile, 'synthetic cover', { mode: 0o600 });
-  await db.$executeRaw`UPDATE board_profile SET cover = ${coverPath} WHERE user_id = 1`;
+  await db.$executeRaw`UPDATE "Profile" SET cover = ${coverPath} WHERE userId = 1`;
   const removed = await app.inject({ method: 'DELETE', url: '/v1/setting/cover', headers: headers(1) });
   assert.deepEqual(removed.json(), { status: 'DONE', body: { url: null } });
   await assert.rejects(readFile(coverFile), { code: 'ENOENT' });
-  const [cleared] = await db.$queryRaw<Array<{ cover: string }>>`SELECT cover FROM board_profile WHERE user_id = 1`;
+  const [cleared] = await db.$queryRaw<Array<{ cover: string }>>`SELECT cover FROM "Profile" WHERE userId = 1`;
   assert.equal(cleared.cover, '');
 
   await writeFile(coverFile, 'synthetic cover', { mode: 0o600 });
-  await db.$executeRaw`UPDATE board_profile SET cover = ${coverPath} WHERE user_id = 1`;
-  const formDelete = await app.inject({
-    method: 'POST', url: '/settings/profile/cover/delete', headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
-    payload: form([['csrfmiddlewaretoken', csrfToken]]),
-  });
-  assert.equal(formDelete.statusCode, 303);
-  assert.equal(formDelete.headers.location, '/settings/profile?saved=cover');
+  await db.$executeRaw`UPDATE "Profile" SET cover = ${coverPath} WHERE userId = 1`;
+  const removedAgain = await app.inject({ method: 'DELETE', url: '/v1/setting/cover', headers: headers(1) });
+  assert.deepEqual(removedAgain.json(), { status: 'DONE', body: { url: null } });
   await assert.rejects(readFile(coverFile), { code: 'ENOENT' });
 
   const outsideDirectory = join(directory, 'outside-profile-media');
@@ -446,7 +358,7 @@ test('removes only scoped cover files and leaves symlink targets untouched', asy
   await rm(userDirectory, { recursive: true, force: true });
   await mkdir(join(userDirectory, '..'), { recursive: true, mode: 0o700 });
   await symlink(outsideDirectory, userDirectory, 'dir');
-  await db.$executeRaw`UPDATE board_profile SET cover = ${coverPath} WHERE user_id = 1`;
+  await db.$executeRaw`UPDATE "Profile" SET cover = ${coverPath} WHERE userId = 1`;
   const escaped = await app.inject({ method: 'DELETE', url: '/v1/setting/cover', headers: headers(1) });
   assert.equal(escaped.json().status, 'DONE');
   assert.equal(await readFile(outsideFile, 'utf8'), 'must remain');
@@ -458,37 +370,37 @@ test('restricts about editing to the active editor owner and sanitizes stored an
 
   const notOwner = await app.inject({
     method: 'POST', url: '/@other/about/edit', headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
-    payload: form([['csrfmiddlewaretoken', csrfToken], ['about_md', 'Not mine']]),
+    payload: form([['csrfmiddlewaretoken', csrfToken], ['aboutMarkdown', 'Not mine']]),
   });
   assert.equal(notOwner.statusCode, 403);
 
   const saved = await app.inject({
     method: 'POST', url: '/@writer/about/edit', headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
-    payload: form([['csrfmiddlewaretoken', csrfToken], ['about_md', '# Hello\n\n<script>alert(2)</script>\n\n[Safe link](https://example.com)']]),
+    payload: form([['csrfmiddlewaretoken', csrfToken], ['aboutMarkdown', '# Hello\n\n<script>alert(2)</script>\n\n[Safe link](https://example.com)']]),
   });
   assert.equal(saved.json().status, 'success');
   assert.equal(saved.json().message, '소개글을 저장했습니다.');
-  const [savedProfile] = await db.$queryRaw<Array<{ about_md: string; about_html: string }>>`SELECT about_md, about_html FROM board_profile WHERE user_id = 1`;
-  assert.match(savedProfile.about_html, /<h1[^>]*>Hello<\/h1>/);
-  assert.doesNotMatch(savedProfile.about_html, /<script>/);
+  const [savedProfile] = await db.$queryRaw<Array<{ aboutMarkdown: string; aboutHtml: string }>>`SELECT aboutMarkdown, aboutHtml FROM "Profile" WHERE userId = 1`;
+  assert.match(savedProfile.aboutHtml, /<h1[^>]*>Hello<\/h1>/);
+  assert.doesNotMatch(savedProfile.aboutHtml, /<script>/);
 
   const apiSave = await app.inject({
     method: 'PUT', url: '/v1/users/@writer', headers: { ...headers(1), 'content-type': 'application/json' },
-    payload: { about: true, about_md: 'API **save**' },
+    payload: { about: true, aboutMarkdown: 'API **save**' },
   });
   assert.deepEqual(apiSave.json(), { status: 'DONE', body: {} });
   const unauthorizedSave = await app.inject({
     method: 'PUT', url: '/v1/users/@writer', headers: { ...headers(2), 'content-type': 'application/json' },
-    payload: { about: true, about_md: 'Not mine' },
+    payload: { about: true, aboutMarkdown: 'Not mine' },
   });
   assert.equal(unauthorizedSave.json().errorCode, 'error:AT');
   const missingCsrf = await app.inject({
     method: 'PUT', url: '/v1/users/@writer', headers: { ...headers(1, false), 'content-type': 'application/json' },
-    payload: { about: true, about_md: 'No CSRF' },
+    payload: { about: true, aboutMarkdown: 'No CSRF' },
   });
   assert.equal(missingCsrf.statusCode, 403);
   const anonymousSave = await app.inject({
-    method: 'PUT', url: '/v1/users/@writer', headers: { 'content-type': 'application/json' }, payload: { about: true, about_md: 'No login' },
+    method: 'PUT', url: '/v1/users/@writer', headers: { 'content-type': 'application/json' }, payload: { about: true, aboutMarkdown: 'No login' },
   });
   assert.equal(anonymousSave.json().errorCode, 'error:NL');
 });

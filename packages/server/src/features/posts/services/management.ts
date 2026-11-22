@@ -1,10 +1,10 @@
-import { Prisma, type PrismaClient } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
 import { syncPostPublication } from '../../notifications/model.js';
-import { localDate, localDateTimeText } from '../../../compat/django-format.js';
+import { localDate, localDateTimeText } from '../../../platform/date-format.js';
 import { deleteTrashedPost } from './deletions.js';
 import { mediaUrl } from './post-content.js';
 import { PostValidationError, comparableDate } from './post-store.js';
-import { DbDate, ManagedPostRow, TrashedPostRow, UserRow, dateAsIso, field, isTrue, nowString, numberValue } from '../shared.js';
+import { DbDate, TrashedPostRow, UserRow, dateAsIso, field } from '../shared.js';
 
 export class ManagementQueryError extends Error {}
 
@@ -26,6 +26,15 @@ export function managementDate(value: DbDate, scheduled = false): string {
   }).format(date);
 }
 
+const managedSorts: Record<string, (direction: Prisma.SortOrder) => Prisma.PostOrderByWithRelationInput> = {
+  title: (direction) => ({ title: direction }),
+  readTime: (direction) => ({ readTime: direction }),
+  publishedDate: (direction) => ({ publishedAt: direction }),
+  updatedDate: (direction) => ({ updatedAt: direction }),
+  countLikes: (direction) => ({ likes: { _count: direction } }),
+  countComments: (direction) => ({ comments: { _count: direction } }),
+};
+
 export async function getManagedPosts(
   db: PrismaClient,
   author: UserRow,
@@ -34,91 +43,69 @@ export async function getManagedPosts(
   legacyApi = false,
 ): Promise<{ posts: Array<Record<string, unknown>>; username: string; page: number; lastPage: number; totalCount: number }> {
   const page = managementPage(query.page);
-  const filters: Prisma.Sql[] = [
-    Prisma.sql`post.author_id = ${author.id}`,
-    Prisma.sql`post.deleted_date IS NULL`,
-    scheduled
-      ? Prisma.sql`post.published_date > ${nowString()}`
-      : Prisma.sql`post.published_date IS NOT NULL AND post.published_date <= ${nowString()}`,
-  ];
+  const now = new Date();
   const tag = field(query.tag);
   const series = field(query.series);
   const search = field(query.search);
   const visibility = field(query.visibility);
-  const requestedOrder = field(query.order) || '-published_date';
-  if (tag) filters.push(Prisma.sql`EXISTS (
-    SELECT 1 FROM board_post_tags AS filter_link JOIN board_tag AS filter_tag ON filter_tag.id = filter_link.tag_id
-     WHERE filter_link.post_id = post.id AND filter_tag.value = ${tag}
-  )`);
-  if (series) filters.push(Prisma.sql`series.url = ${series}`);
-  if (search) filters.push(Prisma.sql`post.title LIKE ${`%${search}%`}`);
-  if (visibility === 'public') filters.push(Prisma.sql`COALESCE(config.hide, 0) = 0`);
-  else if (visibility === 'hidden') filters.push(Prisma.sql`COALESCE(config.hide, 0) <> 0`);
-
-  const sortField = requestedOrder.startsWith('-') ? requestedOrder.slice(1) : requestedOrder;
-  const sortColumns: Record<string, string> = {
-    title: 'post.title',
-    read_time: 'post.read_time',
-    published_date: 'post.published_date',
-    updated_date: 'post.updated_date',
-    count_likes: 'countLikes',
-    count_comments: 'countComments',
+  const requestedOrder = field(query.order) || '-publishedDate';
+  const where: Prisma.PostWhereInput = {
+    authorId: author.id,
+    deletedAt: null,
+    publishedAt: scheduled ? { gt: now } : { lte: now },
+    ...(tag ? { tags: { some: { name: tag } } } : {}),
+    ...(series ? { series: { slug: series } } : {}),
+    ...(search ? { title: { contains: search } } : {}),
+    ...(visibility === 'public' ? { isHidden: false } : visibility === 'hidden' ? { isHidden: true } : {}),
   };
-  const column = sortColumns[sortField];
-  if (!column) throw new ManagementQueryError('Unsupported post-management order.');
-  const direction = requestedOrder.startsWith('-') ? 'DESC' : 'ASC';
-  const orderBy = Prisma.raw(`${column} ${direction}, post.id DESC`);
-  const where = Prisma.join(filters, ' AND ');
-  const totals = await db.$queryRaw<Array<{ total: number | bigint }>>`
-    SELECT COUNT(*) AS total FROM board_post AS post
-      LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-      LEFT JOIN board_series AS series ON series.id = post.series_id
-     WHERE ${where}
-  `;
-  const totalCount = numberValue(totals[0]?.total);
+  const sort = managedSorts[requestedOrder.startsWith('-') ? requestedOrder.slice(1) : requestedOrder];
+  if (!sort) throw new ManagementQueryError('Unsupported post-management order.');
+  const totalCount = await db.post.count({ where });
   const lastPage = totalCount === 0 ? 1 : Math.ceil(totalCount / 10);
   if (page > lastPage) throw new ManagementQueryError('Check the page.');
-  const rows = await db.$queryRaw<ManagedPostRow[]>`
-    SELECT post.id AS id, post.url AS url, post.title AS title, post.image AS image,
-           CAST(post.published_date AS TEXT) AS publishedDate,
-           CAST(post.updated_date AS TEXT) AS updatedDate,
-           CAST(config.hide AS INTEGER) AS hide,
-           (SELECT COUNT(*) FROM board_post_likes AS likes WHERE likes.post_id = post.id) AS countLikes,
-           (SELECT COUNT(*) FROM board_comment AS comments WHERE comments.post_id = post.id) AS countComments,
-           post.read_time AS readTime,
-           COALESCE((SELECT group_concat(tag_rows.value, ',') FROM (
-             SELECT tag.value AS value FROM board_post_tags AS link
-               JOIN board_tag AS tag ON tag.id = link.tag_id
-              WHERE link.post_id = post.id ORDER BY link.tag_id
-           ) AS tag_rows), '') AS tag,
-           COALESCE(series.url, '') AS series
-      FROM board_post AS post
-      LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-      LEFT JOIN board_series AS series ON series.id = post.series_id
-     WHERE ${where}
-     ORDER BY ${orderBy}
-     LIMIT 10 OFFSET ${(page - 1) * 10}
-  `;
+  const rows = await db.post.findMany({
+    where,
+    orderBy: [sort(requestedOrder.startsWith('-') ? 'desc' : 'asc'), { id: 'desc' }],
+    skip: (page - 1) * 10,
+    take: 10,
+    select: {
+      slug: true, title: true, image: true, publishedAt: true, updatedAt: true, isHidden: true, readTime: true,
+      series: { select: { slug: true } },
+      tags: { orderBy: { id: 'asc' }, select: { name: true } },
+      _count: { select: { likes: true, comments: true } },
+    },
+  });
   return {
     username: author.username,
     page,
     lastPage,
     totalCount,
     posts: rows.map((post) => ({
-      url: post.url,
+      url: post.slug,
       title: post.title,
       image: legacyApi ? post.image || null : mediaUrl(post.image),
       createdDate: legacyApi
-        ? scheduled ? localDateTimeText(post.publishedDate) : localDate(post.publishedDate)
-        : managementDate(post.publishedDate, scheduled),
-      updatedDate: legacyApi ? localDate(post.updatedDate) : managementDate(post.updatedDate),
-      isHide: isTrue(post.hide),
-      countLikes: numberValue(post.countLikes),
-      countComments: numberValue(post.countComments),
+        ? scheduled ? localDateTimeText(post.publishedAt) : localDate(post.publishedAt)
+        : managementDate(post.publishedAt, scheduled),
+      updatedDate: legacyApi ? localDate(post.updatedAt) : managementDate(post.updatedAt),
+      isHide: post.isHidden,
+      countLikes: post._count.likes,
+      countComments: post._count.comments,
       readTime: post.readTime,
-      tag: post.tag,
-      series: post.series,
+      tag: post.tags.map(({ name }) => name).join(','),
+      series: post.series?.slug ?? '',
     })),
+  };
+}
+
+const trashedPostSelect = {
+  id: true, slug: true, title: true, image: true, publishedAt: true, updatedAt: true, deletedAt: true, isHidden: true,
+} satisfies Prisma.PostSelect;
+
+function trashedPost(row: Prisma.PostGetPayload<{ select: typeof trashedPostSelect }>): TrashedPostRow {
+  return {
+    id: row.id, url: row.slug, title: row.title, image: row.image, publishedDate: row.publishedAt,
+    updatedDate: row.updatedAt, deletedDate: row.deletedAt!, hide: row.isHidden,
   };
 }
 
@@ -127,30 +114,24 @@ export async function getTrashRows(
   author: UserRow,
   page: number,
 ): Promise<{ posts: Array<Record<string, unknown>>; pagination: { page: number; totalCount: number; lastPage: number }; retention: { mode: 'manual' } }> {
-  const totals = await db.$queryRaw<Array<{ total: number | bigint }>>`
-    SELECT COUNT(*) AS total FROM board_post WHERE author_id = ${author.id} AND deleted_date IS NOT NULL
-  `;
-  const totalCount = numberValue(totals[0]?.total);
+  const where = { authorId: author.id, deletedAt: { not: null } } satisfies Prisma.PostWhereInput;
+  const totalCount = await db.post.count({ where });
   const lastPage = Math.max(1, Math.ceil(totalCount / 10));
   if (page < 1 || page > lastPage) throw new ManagementQueryError('Check the trash page.');
-  const rows = await db.$queryRaw<TrashedPostRow[]>`
-    SELECT post.id AS id, post.url AS url, post.title AS title, post.image AS image,
-           CAST(post.published_date AS TEXT) AS publishedDate,
-           CAST(post.updated_date AS TEXT) AS updatedDate,
-           CAST(post.deleted_date AS TEXT) AS deletedDate,
-           CAST(config.hide AS INTEGER) AS hide
-      FROM board_post AS post LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-     WHERE post.author_id = ${author.id} AND post.deleted_date IS NOT NULL
-     ORDER BY post.deleted_date DESC, post.id DESC
-     LIMIT 10 OFFSET ${(page - 1) * 10}
-  `;
-  const now = nowString();
+  const rows = await db.post.findMany({
+    where,
+    orderBy: [{ deletedAt: 'desc' }, { id: 'desc' }],
+    skip: (page - 1) * 10,
+    take: 10,
+    select: trashedPostSelect,
+  });
+  const now = new Date();
   return {
-    posts: rows.map((post) => {
+    posts: rows.map(trashedPost).map((post) => {
       const sourceStatus = !post.publishedDate
         ? 'draft'
-        : String(post.publishedDate) > String(post.deletedDate) ? 'scheduled' : 'published';
-      const scheduleElapsed = sourceStatus === 'scheduled' && String(post.publishedDate) <= now;
+        : post.publishedDate > post.deletedDate ? 'scheduled' : 'published';
+      const scheduleElapsed = sourceStatus === 'scheduled' && post.publishedDate! <= now;
       return {
         url: post.url,
         title: post.title,
@@ -160,7 +141,7 @@ export async function getTrashRows(
         updatedDate: dateAsIso(post.updatedDate),
         deletedDate: dateAsIso(post.deletedDate),
         scheduleElapsed,
-        isHide: isTrue(post.hide),
+        isHide: post.hide,
       };
     }),
     pagination: { page, totalCount, lastPage },
@@ -169,22 +150,16 @@ export async function getTrashRows(
 }
 
 export async function loadTrashedPost(db: PrismaClient, author: UserRow, slug: string): Promise<TrashedPostRow | null> {
-  const rows = await db.$queryRaw<TrashedPostRow[]>`
-    SELECT post.id AS id, post.url AS url, post.title AS title, post.image AS image,
-           CAST(post.published_date AS TEXT) AS publishedDate,
-           CAST(post.updated_date AS TEXT) AS updatedDate,
-           CAST(post.deleted_date AS TEXT) AS deletedDate,
-           CAST(config.hide AS INTEGER) AS hide
-      FROM board_post AS post LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-     WHERE post.author_id = ${author.id} AND post.url = ${slug} AND post.deleted_date IS NOT NULL
-     LIMIT 1
-  `;
-  return rows[0] ?? null;
+  const row = await db.post.findFirst({
+    where: { authorId: author.id, slug, deletedAt: { not: null } },
+    select: trashedPostSelect,
+  });
+  return row ? trashedPost(row) : null;
 }
 
 function trashStatus(post: TrashedPostRow): 'draft' | 'scheduled' | 'published' {
   if (!post.publishedDate) return 'draft';
-  return new Date(dateAsIso(post.publishedDate) ?? 0).valueOf() > Date.now() ? 'scheduled' : 'published';
+  return post.publishedDate.valueOf() > Date.now() ? 'scheduled' : 'published';
 }
 
 export async function restoreTrashedPost(
@@ -193,15 +168,15 @@ export async function restoreTrashedPost(
   post: TrashedPostRow,
   expectedDeletedDate: string,
 ): Promise<'draft' | 'scheduled' | 'published'> {
-  if (!post.deletedDate || comparableDate(post.deletedDate) !== comparableDate(expectedDeletedDate)) {
+  if (comparableDate(post.deletedDate) !== comparableDate(expectedDeletedDate)) {
     throw new PostValidationError('RJ', 'The trash state changed. Refresh the list and try again.');
   }
   await db.$transaction(async (tx) => {
-    const changed = await tx.$executeRaw`
-      UPDATE board_post SET deleted_date = NULL
-       WHERE id = ${post.id} AND author_id = ${author.id} AND deleted_date = ${post.deletedDate}
-    `;
-    if (numberValue(changed) === 0) throw new PostValidationError('RJ', 'The trash state changed. Refresh the list and try again.');
+    const { count } = await tx.post.updateMany({
+      where: { id: post.id, authorId: author.id, deletedAt: post.deletedDate },
+      data: { deletedAt: null },
+    });
+    if (count === 0) throw new PostValidationError('RJ', 'The trash state changed. Refresh the list and try again.');
     await syncPostPublication(tx, post.id);
   });
   return trashStatus(post);
@@ -214,7 +189,7 @@ export async function permanentlyDeleteTrashedPost(
   expectedDeletedDate: string,
 ): Promise<number> {
   const { deletedDate } = post;
-  if (!deletedDate || comparableDate(deletedDate) !== comparableDate(expectedDeletedDate)) {
+  if (comparableDate(deletedDate) !== comparableDate(expectedDeletedDate)) {
     throw new PostValidationError('RJ', 'The trash state changed. Refresh the list and try again.');
   }
   await db.$transaction(async (tx) => {

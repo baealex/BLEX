@@ -82,7 +82,7 @@ const PostForm = ({
                 <div className="mb-8">
                     {!isLoading && (
                         <TiptapEditor
-                            name="content_html"
+                            name="contentHtml"
                             content={formData.content}
                             locale={i18n.locale}
                             ariaLabel={t({
@@ -112,10 +112,10 @@ const PostForm = ({
 
             <div className="hidden">
                 <input type="hidden" name="url" value={formData.url} />
-                <input type="hidden" name="meta_description" value={formData.metaDescription} />
+                <input type="hidden" name="metaDescription" value={formData.metaDescription} />
                 <input type="hidden" name="hide" value={formData.hide ? 'true' : 'false'} />
                 <input type="hidden" name="advertise" value={formData.advertise ? 'true' : 'false'} />
-                <input type="hidden" name="block_comment" value={formData.allowComments ? 'false' : 'true'} />
+                <input type="hidden" name="blockComment" value={formData.allowComments ? 'false' : 'true'} />
                 <input type="hidden" name="tag" value={tags.join(',')} />
                 {selectedSeries.id && <input type="hidden" name="series" value={selectedSeries.id} />}
             </div>

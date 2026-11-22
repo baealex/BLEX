@@ -1,5 +1,6 @@
-import { type PrismaClient } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyReply, FastifyRequest } from 'fastify';
+import { publicPostWhere } from '../posts/data/visibility.js';
 
 export interface ReaderActionUser {
   id: number;
@@ -12,14 +13,12 @@ export interface ReaderActionsOptions {
   cipherKey?: string;
 }
 
-export type DbInteger = number | bigint | boolean | null;
-
-export type DbDate = string | Date | null;
+export type DbDate = Date | null;
 
 export interface ActiveUserRow {
   id: number;
   username: string;
-  isActive: DbInteger;
+  isActive: boolean;
 }
 
 interface PostRow {
@@ -28,26 +27,18 @@ interface PostRow {
   authorUsername: string;
   title: string;
   slug: string;
-  blockComment: DbInteger;
+  blockComment: boolean;
 }
 
 export interface AuthorRow {
   id: number;
   username: string;
   firstName: string;
-  isActive: DbInteger;
+  isActive: boolean;
   profileRole: string | null;
 }
 
 export const DEFAULT_AVATAR = '/resources/assets/images/default-avatar.jpg';
-
-export function numberValue(value: DbInteger | number | bigint): number {
-  return Number(value ?? 0);
-}
-
-export function isTrue(value: DbInteger): boolean {
-  return numberValue(value) !== 0;
-}
 
 export function absoluteMediaUrl(path: string | null | undefined): string | null {
   if (!path) return null;
@@ -80,18 +71,9 @@ export function truthyBodyField(body: Record<string, unknown> | null, key: strin
   return Boolean(value);
 }
 
-function parseStoredDate(value: DbDate): Date | null {
-  if (!value) return null;
-  if (value instanceof Date) return value;
-  const normalized = value.includes('T') ? value : value.replace(' ', 'T');
-  const date = new Date(/(?:Z|[+-]\d\d:\d\d)$/i.test(normalized) ? normalized : `${normalized}Z`);
-  return Number.isNaN(date.valueOf()) ? null : date;
-}
-
 export function localDateOnly(value: DbDate): string {
-  const date = parseStoredDate(value);
-  if (!date) return '';
-  return new Date(date.valueOf() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  if (!value) return '';
+  return new Date(value.valueOf() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
 }
 
 export function missing(reply: FastifyReply): null {
@@ -111,68 +93,41 @@ export async function activeUser(
 ): Promise<ActiveUserRow | null> {
   const supplied = await options.currentUser(request);
   if (!supplied || !Number.isSafeInteger(supplied.id) || supplied.id < 1) return null;
-  const rows = await db.$queryRaw<ActiveUserRow[]>`
-    SELECT id, username, CAST(is_active AS INTEGER) AS isActive
-    FROM auth_user
-    WHERE id = ${supplied.id} AND username = ${supplied.username}
-    LIMIT 1
-  `;
-  const user = rows[0];
-  return user && isTrue(user.isActive) ? user : null;
+  return db.user.findFirst({
+    where: { id: supplied.id, username: supplied.username, isActive: true },
+    select: { id: true, username: true, isActive: true },
+  });
+}
+
+const readerPostSelect = {
+  id: true, authorId: true, title: true, slug: true, commentsBlocked: true,
+  author: { select: { username: true } },
+} satisfies Prisma.PostSelect;
+
+function readerPost(row: Prisma.PostGetPayload<{ select: typeof readerPostSelect }>): PostRow {
+  return { id: row.id, authorId: row.authorId, authorUsername: row.author.username, title: row.title, slug: row.slug, blockComment: row.commentsBlocked };
 }
 
 export async function publicPost(db: PrismaClient, slug: string): Promise<PostRow | null> {
-  const rows = await db.$queryRaw<PostRow[]>`
-    SELECT post.id AS id,
-           post.author_id AS authorId,
-           author.username AS authorUsername,
-           post.title AS title,
-           post.url AS slug,
-           CAST(post_config.block_comment AS INTEGER) AS blockComment
-    FROM board_post AS post
-    JOIN auth_user AS author ON author.id = post.author_id
-    JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-    WHERE post.url = ${slug}
-      AND post.deleted_date IS NULL
-      AND post.published_date IS NOT NULL
-      AND CAST(post.published_date AS TEXT) <= ${new Date().toISOString().replace('T', ' ').replace('Z', '')}
-      AND CAST(post_config.hide AS INTEGER) = 0
-    LIMIT 1
-  `;
-  return rows[0] ?? null;
+  const row = await db.post.findFirst({ where: { slug, ...publicPostWhere() }, select: readerPostSelect });
+  return row && readerPost(row);
 }
 
 /** 3.x still shows the owner the reader panel on a hidden or scheduled post. */
 export async function ownedPost(db: PrismaClient, slug: string, ownerId: number): Promise<PostRow | null> {
-  const rows = await db.$queryRaw<PostRow[]>`
-    SELECT post.id AS id,
-           post.author_id AS authorId,
-           author.username AS authorUsername,
-           post.title AS title,
-           post.url AS slug,
-           CAST(post_config.block_comment AS INTEGER) AS blockComment
-    FROM board_post AS post
-    JOIN auth_user AS author ON author.id = post.author_id
-    JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-    WHERE post.url = ${slug} AND post.author_id = ${ownerId} AND post.deleted_date IS NULL
-    LIMIT 1
-  `;
-  return rows[0] ?? null;
+  const row = await db.post.findFirst({ where: { slug, authorId: ownerId, deletedAt: null }, select: readerPostSelect });
+  return row && readerPost(row);
 }
 
 export async function activeEditor(db: PrismaClient, username: string): Promise<AuthorRow | null> {
-  const rows = await db.$queryRaw<AuthorRow[]>`
-    SELECT author.id AS id,
-           author.username AS username,
-           author.first_name AS firstName,
-           CAST(author.is_active AS INTEGER) AS isActive,
-           profile.role AS profileRole
-    FROM auth_user AS author
-    LEFT JOIN board_profile AS profile ON profile.user_id = author.id
-    WHERE author.username = ${username}
-    LIMIT 1
-  `;
-  return rows[0] ?? null;
+  const author = await db.user.findUnique({
+    where: { username },
+    select: { id: true, username: true, name: true, isActive: true, profile: { select: { role: true } } },
+  });
+  return author && {
+    id: author.id, username: author.username, firstName: author.name, isActive: author.isActive,
+    profileRole: author.profile?.role ?? null,
+  };
 }
 
 export function safeHttpUrl(value: string | null): string {

@@ -3,7 +3,7 @@ import { type PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import multipart from '@fastify/multipart';
 import { contentUploadLimit } from '../../media/content-media.js';
-import { editorBodyLimit } from '../pages/editor-page.js';
+import { editorBodyLimit } from '../services/editor-form.js';
 import { AuthoringOptions } from '../shared.js';
 import { registerEditorRoutes } from '../http/editor.js';
 import { registerManagementRoutes } from '../http/management.js';

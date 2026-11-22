@@ -8,7 +8,7 @@ import { readAdminAccess } from '../../features/site-admin/access.js';
 import { SiteFooter, SiteHeader, SiteTheme } from '../../appearance/shell.js';
 import { applicationContentSecurityPolicy, scriptJson } from '../document.js';
 import { authCookieOptions, csrfCookie, requestCookies } from '../../platform/cookies.js';
-import { decryptDjangoSecret } from '../../features/auth/django-secret.js';
+import { decryptSecret } from '../../features/auth/encrypted-secret.js';
 import { safeReturnPath } from '../../features/auth/oauth.js';
 import { createToken } from '../../features/auth/session.js';
 import { hasAdministrator } from '../../features/auth/setup.js';
@@ -20,7 +20,7 @@ type Manifest = Record<string, ManifestEntry>;
 export interface ScreenHostOptions {
   currentUser(request: FastifyRequest): Promise<{ id: number; username: string } | null>;
   siteUrl: URL;
-  webAssetsRoot: string;
+  webAssetsRoot?: string;
   cipherKey: string;
 }
 
@@ -54,26 +54,25 @@ function manifestAsset(manifest: Manifest, entry: string): string {
 
 function decryptsToValue(encrypted: string, cipherKey: string): boolean {
   try {
-    return Boolean(decryptDjangoSecret(encrypted, cipherKey));
+    return Boolean(decryptSecret(encrypted, cipherKey));
   } catch {
     return false;
   }
 }
 
 async function readViewerState(db: PrismaClient, userId: number, cipherKey: string) {
-  const [row] = await db.$queryRaw<Array<{
-    role: string | null; unread: number | bigint; language: string | null; timeZone: string | null;
-    telegramToken: string | null; telegramConnected: number | bigint;
-  }>>`
-    SELECT (SELECT role FROM board_profile WHERE user_id = ${userId} LIMIT 1) AS role,
-           (SELECT COUNT(*) FROM board_notify WHERE user_id = ${userId} AND has_read = 0) AS unread,
-           (SELECT language FROM board_config WHERE user_id = ${userId} LIMIT 1) AS language,
-           (SELECT time_zone FROM board_config WHERE user_id = ${userId} LIMIT 1) AS timeZone,
-           (SELECT telegram_bot_token FROM board_integrationsetting WHERE id = 1 AND telegram_enabled = 1
-              AND TRIM(telegram_bot_username) <> '' LIMIT 1) AS telegramToken,
-           EXISTS(SELECT 1 FROM board_telegramsync WHERE user_id = ${userId} AND tid <> '') AS telegramConnected
-  `;
-  return { ...row, telegramConfigured: Boolean(row.telegramToken && decryptsToValue(row.telegramToken, cipherKey)) };
+  const telegram = await db.integrationSetting.findUnique({
+    where: { id: 1 },
+    select: { telegramEnabled: true, telegramBotUsername: true, telegramBotToken: true },
+  });
+  const telegramToken = telegram?.telegramEnabled && telegram.telegramBotUsername.trim() ? telegram.telegramBotToken : '';
+  const row = await db.user.findUnique({
+    where: { id: userId },
+    select: { profile: { select: { role: true } }, preference: { select: { language: true, timeZone: true } } },
+  });
+  const unread = await db.notification.count({ where: { userId, isRead: false } });
+  const telegramConnected = await db.telegramConnection.count({ where: { userId, telegramId: { not: '' } } });
+  return { role: row?.profile?.role ?? null, language: row?.preference?.language ?? null, timeZone: row?.preference?.timeZone ?? null, unread, telegramConnected, telegramConfigured: Boolean(telegramToken && decryptsToValue(telegramToken, cipherKey)) };
 }
 
 type ViewerState = Awaited<ReturnType<typeof readViewerState>>;
@@ -93,22 +92,25 @@ interface ScreenPage {
 
 /** 3.x only offers the captcha widget when the stored secret can actually verify it. */
 async function readCaptchaSiteKey(db: PrismaClient, cipherKey: string): Promise<string> {
-  const [row] = await db.$queryRaw<Array<{ enabled: number | bigint | boolean; siteKey: string; secret: string }>>`
-    SELECT hcaptcha_enabled AS enabled, hcaptcha_site_key AS siteKey, hcaptcha_secret_key AS secret
-      FROM board_loginsetting WHERE id = 1
-  `;
-  return row?.enabled && decryptsToValue(row.secret, cipherKey) ? row.siteKey.trim() : '';
+  const row = await db.loginSetting.findUnique({
+    where: { id: 1 },
+    select: { hcaptchaEnabled: true, hcaptchaSiteKey: true, hcaptchaSecretKey: true },
+  });
+  return row?.hcaptchaEnabled && decryptsToValue(row.hcaptchaSecretKey, cipherKey) ? row.hcaptchaSiteKey.trim() : '';
 }
 
 export function registerScreenHost(app: FastifyInstance, db: PrismaClient, options: ScreenHostOptions) {
   let manifest: Promise<Manifest> | undefined;
-  const readManifest = () => manifest ??= readFile(`${options.webAssetsRoot}.vite/manifest.json`, 'utf8').then((text) => JSON.parse(text) as Manifest);
+  const { webAssetsRoot } = options;
+  const readManifest = () => manifest ??= readFile(`${webAssetsRoot}.vite/manifest.json`, 'utf8').then((text) => JSON.parse(text) as Manifest);
 
-  app.register(async (routes) => {
-    await routes.register(fastifyStatic, {
-      root: options.webAssetsRoot, prefix: webAssetPrefix, maxAge: '1y', immutable: true, decorateReply: false,
+  if (webAssetsRoot) {
+    app.register(async (routes) => {
+      await routes.register(fastifyStatic, {
+        root: webAssetsRoot, prefix: webAssetPrefix, maxAge: '1y', immutable: true, decorateReply: false,
+      });
     });
-  });
+  }
 
   const sendDocument = async (request: FastifyRequest, reply: FastifyReply, viewer: ScreenViewer | null, page: ScreenPage) => {
     const [brand, assets] = await Promise.all([readPublicSiteBrand(db), readManifest()]);
@@ -163,6 +165,10 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
     request: FastifyRequest, reply: FastifyReply, user: { id: number; username: string }, isStaff: boolean,
     component: string, componentProps: (isEditor: boolean, state: ViewerState) => Record<string, unknown>, pageTitle: string,
   ) => {
+    if (!webAssetsRoot) {
+      return reply.code(503).type('text/plain; charset=utf-8').header('Cache-Control', 'no-store')
+        .send('The web screens are not built. Run `pnpm build:web` and restart the server.');
+    }
     const state = await readViewerState(db, user.id, options.cipherKey);
     return sendDocument(request, reply, { user, isStaff, state }, {
       component, props: componentProps(state.role === 'EDITOR', state), title: (site) => pageTitle.replace('{site}', () => site),
@@ -200,7 +206,7 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
   const sendHost = (request: FastifyRequest, reply: FastifyReply, mode: 'user' | 'admin', basePath: string, user: { id: number; username: string }, isStaff: boolean, isSuperuser: boolean, canManageSiteSettings: boolean) =>
     sendScreen(request, reply, user, isStaff, 'SettingsApp', (isEditor, state) => ({
       isEditor, isStaff, isSuperuser, adminUrl: null, settingsMode: mode, basePath,
-      canUseTelegramIntegration: state.telegramConfigured || Boolean(Number(state.telegramConnected)),
+      canUseTelegramIntegration: state.telegramConfigured || state.telegramConnected > 0,
       adminCapabilities: {
         canManageSiteSettings: isStaff && canManageSiteSettings,
         canManageLoginSettings: isStaff && isSuperuser,
@@ -216,22 +222,22 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
     const user = await options.currentUser(request);
     const account = user ? await readAdminAccess(db, user.id) : null;
     if (!user || !account?.active) return undefined;
-    const [profile] = await db.$queryRaw<Array<{ role: string }>>`SELECT role FROM board_profile WHERE user_id = ${user.id} LIMIT 1`;
+    const profile = await db.profile.findUnique({ where: { userId: user.id }, select: { role: true } });
     if (profile?.role !== 'EDITOR') return undefined;
     if (edit) {
       const [username, slug] = [decodeURIComponent(edit[1]), decodeURIComponent(edit[2])];
       if (username !== user.username) return undefined;
-      const [post] = await db.$queryRaw<Array<{ url: string }>>`SELECT url FROM board_post WHERE author_id = ${user.id} AND url = ${slug} LIMIT 1`;
+      const post = await db.post.findFirst({ where: { authorId: user.id, slug }, select: { slug: true } });
       if (!post) return undefined;
-      return sendScreen(request, reply, user, account.staff, 'PostEditor', () => ({ mode: 'edit', username, postUrl: post.url }), '수정하기 - {site}');
+      return sendScreen(request, reply, user, account.staff, 'PostEditor', () => ({ mode: 'edit', username, postUrl: post.slug }), '수정하기 - {site}');
     }
-    const [published] = await db.$queryRaw<Array<{ id: number }>>`SELECT id FROM board_post WHERE author_id = ${user.id} AND published_date IS NOT NULL LIMIT 1`;
+    const published = await db.post.findFirst({ where: { authorId: user.id, publishedAt: { not: null } }, select: { id: true } });
     const showFirstPublishGuide = !published;
     const draftUrl = new URLSearchParams(query).get('draft');
-    const [draft] = draftUrl
-      ? await db.$queryRaw<Array<{ url: string }>>`SELECT url FROM board_post WHERE author_id = ${user.id} AND url = ${draftUrl} AND published_date IS NULL LIMIT 1`
-      : [];
-    if (draft) return sendScreen(request, reply, user, account.staff, 'PostEditor', () => ({ mode: 'draft', username: user.username, draftUrl: draft.url, showFirstPublishGuide }), '임시저장 - {site}');
+    const draft = draftUrl
+      ? await db.post.findFirst({ where: { authorId: user.id, slug: draftUrl, publishedAt: null }, select: { slug: true } })
+      : null;
+    if (draft) return sendScreen(request, reply, user, account.staff, 'PostEditor', () => ({ mode: 'draft', username: user.username, draftUrl: draft.slug, showFirstPublishGuide }), '임시저장 - {site}');
     return sendScreen(request, reply, user, account.staff, 'PostEditor', () => ({ mode: 'new', username: user.username, showFirstPublishGuide }), '새 포스트 - {site}');
   };
 
@@ -241,8 +247,8 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
     const path = rawPath.replace(/\/{2,}/g, '/');
     const editorResponse = await sendEditor(request, reply, path, query);
     if (editorResponse) return editorResponse;
-    if (path === '/search') return sendSearch(request, reply, new URLSearchParams(query));
-    if (path === '/sign') {
+    if (webAssetsRoot && path === '/search') return sendSearch(request, reply, new URLSearchParams(query));
+    if (webAssetsRoot && path === '/sign') {
       const signup = await sendSignup(request, reply, new URLSearchParams(query));
       if (signup) return signup;
     }
@@ -265,7 +271,7 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
       return reply.redirect(`/admin-settings/${rest}${query ? `?${query}` : ''}`, 302);
     }
     if (hasPrefix(rest, editorPrefixes)) {
-      const [profile] = await db.$queryRaw<Array<{ role: string }>>`SELECT role FROM board_profile WHERE user_id = ${user.id} LIMIT 1`;
+      const profile = await db.profile.findUnique({ where: { userId: user.id }, select: { role: true } });
       if (profile?.role !== 'EDITOR') return reply.callNotFound();
     }
     return sendHost(request, reply, 'user', '/settings', user, account.staff, account.superuser, account.canManageSiteSettings);

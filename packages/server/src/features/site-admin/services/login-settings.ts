@@ -1,50 +1,34 @@
-import { Prisma, type PrismaClient } from '@prisma/client';
-import type { FastifyReply, FastifyRequest } from 'fastify';
+import type { Prisma, PrismaClient } from '@prisma/client';
 import { domainToASCII } from 'node:url';
-import { encryptDjangoSecret, decryptDjangoSecret } from '../../auth/django-secret.js';
-import { adminSettingsCapabilities, type UserAccess } from '../access.js';
-import { renderAdminLoginSettings, type AdminLoginSettings, type AdminSettingsUser } from '../pages.js';
-import { AdminSettingsOptions, ApiResult, Body, booleanValue, csrfToken, djangoTimestamp, formBoolean, isRecord, isoDate, pageNumber, recordAudit, stringValue } from '../shared.js';
+import { encryptSecret, decryptSecret } from '../../auth/encrypted-secret.js';
+import { type AdminLoginSettings } from '../types.js';
+import { ApiResult, Body, isRecord, isoDate, recordAudit, stringValue } from '../shared.js';
 
 const SOCIAL_PROVIDERS = [
   { key: 'google', name: 'Google' },
   { key: 'github', name: 'GitHub' },
 ] as const;
 
-interface LoginRow {
-  welcomeMessage: string | null;
-  welcomeUrl: string | null;
-  deletionRedirectUrl: string | null;
-  hcaptchaEnabled: number | bigint | boolean;
-  hcaptchaSiteKey: string | null;
-  hcaptchaSecretKey: string | null;
-  updatedDate: string | null;
+function readLoginRow(db: PrismaClient) {
+  return db.loginSetting.findUnique({
+    where: { id: 1 },
+    select: {
+      welcomeNotificationMessage: true,
+      welcomeNotificationUrl: true,
+      accountDeletionRedirectUrl: true,
+      hcaptchaEnabled: true,
+      hcaptchaSiteKey: true,
+      hcaptchaSecretKey: true,
+      updatedAt: true,
+    },
+  });
 }
 
-interface ProviderRow {
-  key: string;
-  clientId: string | null;
-  clientSecret: string | null;
-  isEnabled: number | bigint | boolean;
-}
-
-async function readLoginRow(db: PrismaClient): Promise<LoginRow | null> {
-  const [row] = await db.$queryRaw<LoginRow[]>`
-    SELECT welcome_notification_message AS welcomeMessage,
-           welcome_notification_url AS welcomeUrl,
-           account_deletion_redirect_url AS deletionRedirectUrl,
-           hcaptcha_enabled AS hcaptchaEnabled, hcaptcha_site_key AS hcaptchaSiteKey,
-           hcaptcha_secret_key AS hcaptchaSecretKey, CAST(updated_date AS TEXT) AS updatedDate
-      FROM board_loginsetting WHERE id = 1 LIMIT 1
-  `;
-  return row ?? null;
-}
-
-async function readProviders(db: PrismaClient): Promise<ProviderRow[]> {
-  return db.$queryRaw<ProviderRow[]>`
-    SELECT key, client_id AS clientId, client_secret AS clientSecret, is_enabled AS isEnabled
-      FROM board_socialauthprovider WHERE key IN ('google', 'github')
-  `;
+function readProviders(db: PrismaClient) {
+  return db.socialProvider.findMany({
+    where: { key: { in: SOCIAL_PROVIDERS.map(({ key }) => key) } },
+    select: { key: true, clientId: true, clientSecret: true, isEnabled: true },
+  });
 }
 
 export async function serializeLoginSettings(db: PrismaClient, cipherKey: string): Promise<AdminLoginSettings> {
@@ -52,19 +36,19 @@ export async function serializeLoginSettings(db: PrismaClient, cipherKey: string
   const providers = new Map(providerRows.map((provider) => [provider.key, provider]));
   const encryptedCaptchaSecret = row?.hcaptchaSecretKey ?? '';
   return {
-    welcomeNotificationMessage: row?.welcomeMessage ?? '',
-    welcomeNotificationUrl: row?.welcomeUrl || '/',
-    accountDeletionRedirectUrl: row?.deletionRedirectUrl ?? '',
-    hcaptchaEnabled: row ? booleanValue(row.hcaptchaEnabled) : false,
-    hcaptchaSiteKey: row?.hcaptchaSiteKey?.trim() ?? '',
-    hcaptchaHasSecretKey: Boolean(encryptedCaptchaSecret && decryptDjangoSecret(encryptedCaptchaSecret, cipherKey)),
-    updatedDate: isoDate(row?.updatedDate ?? null),
+    welcomeNotificationMessage: row?.welcomeNotificationMessage ?? '',
+    welcomeNotificationUrl: row?.welcomeNotificationUrl || '/',
+    accountDeletionRedirectUrl: row?.accountDeletionRedirectUrl ?? '',
+    hcaptchaEnabled: row?.hcaptchaEnabled ?? false,
+    hcaptchaSiteKey: row?.hcaptchaSiteKey.trim() ?? '',
+    hcaptchaHasSecretKey: Boolean(encryptedCaptchaSecret && decryptSecret(encryptedCaptchaSecret, cipherKey)),
+    updatedDate: isoDate(row?.updatedAt ?? null),
     socialAuthProviders: SOCIAL_PROVIDERS.map(({ key, name }) => {
       const provider = providers.get(key);
       return {
         key,
         name,
-        isEnabled: provider ? booleanValue(provider.isEnabled) : false,
+        isEnabled: provider?.isEnabled ?? false,
         clientId: provider?.clientId ?? '',
         hasClientSecret: Boolean(provider?.clientSecret),
       };
@@ -100,18 +84,9 @@ function validateNotificationUrl(value: unknown): ApiResult<string> {
   }
 }
 
-function encryptSecret(value: string, cipherKey: string): string {
+function encryptUnlessEncrypted(value: string, cipherKey: string): string {
   if (!value) return '';
-  return decryptDjangoSecret(value, cipherKey) !== null ? value : encryptDjangoSecret(value, cipherKey);
-}
-
-async function ensureLoginSetting(db: Prisma.TransactionClient): Promise<void> {
-  await db.$executeRaw`
-    INSERT OR IGNORE INTO board_loginsetting (
-      id, welcome_notification_message, welcome_notification_url, account_deletion_redirect_url,
-      hcaptcha_enabled, hcaptcha_site_key, hcaptcha_secret_key, updated_date
-    ) VALUES (1, '', '/', '', 0, '', '', ${djangoTimestamp()})
-  `;
+  return decryptSecret(value, cipherKey) !== null ? value : encryptSecret(value, cipherKey);
 }
 
 export async function updateLoginSettings(
@@ -121,114 +96,61 @@ export async function updateLoginSettings(
   input: Body,
 ): Promise<ApiResult<AdminLoginSettings>> {
   const current = await readLoginRow(db);
-  const welcomeUrl = 'welcome_notification_url' in input
-    ? validateNotificationUrl(input.welcome_notification_url)
-    : { ok: true as const, body: current?.welcomeUrl || '/' };
+  const welcomeUrl = 'welcomeNotificationUrl' in input
+    ? validateNotificationUrl(input.welcomeNotificationUrl)
+    : { ok: true as const, body: current?.welcomeNotificationUrl || '/' };
   if (!welcomeUrl.ok) return welcomeUrl;
 
-  let hcaptchaEnabled = current ? booleanValue(current.hcaptchaEnabled) : false;
+  let hcaptchaEnabled = current?.hcaptchaEnabled ?? false;
   let hcaptchaSiteKey = current?.hcaptchaSiteKey ?? '';
   let hcaptchaSecretKey = current?.hcaptchaSecretKey ?? '';
-  if ('hcaptcha_enabled' in input) hcaptchaEnabled = input.hcaptcha_enabled === true;
-  if (typeof input.hcaptcha_site_key === 'string') hcaptchaSiteKey = input.hcaptcha_site_key.trim();
-  if (input.clear_hcaptcha_secret_key === true) hcaptchaSecretKey = '';
-  if (typeof input.hcaptcha_secret_key === 'string' && input.hcaptcha_secret_key.trim()) {
-    hcaptchaSecretKey = encryptSecret(input.hcaptcha_secret_key.trim(), cipherKey);
+  if ('hcaptchaEnabled' in input) hcaptchaEnabled = input.hcaptchaEnabled === true;
+  if (typeof input.hcaptchaSiteKey === 'string') hcaptchaSiteKey = input.hcaptchaSiteKey.trim();
+  if (input.clearHcaptchaSecretKey === true) hcaptchaSecretKey = '';
+  if (typeof input.hcaptchaSecretKey === 'string' && input.hcaptchaSecretKey.trim()) {
+    hcaptchaSecretKey = encryptUnlessEncrypted(input.hcaptchaSecretKey.trim(), cipherKey);
   }
   if (hcaptchaEnabled && !hcaptchaSiteKey.trim()) {
     return { ok: false, code: 'VA', message: 'Enter an hCaptcha Site Key.' };
   }
-  if (hcaptchaEnabled && !decryptDjangoSecret(hcaptchaSecretKey, cipherKey)) {
+  if (hcaptchaEnabled && !decryptSecret(hcaptchaSecretKey, cipherKey)) {
     return { ok: false, code: 'VA', message: 'Enter an hCaptcha Secret Key.' };
   }
 
-  const supportedPayload = Array.isArray(input.social_auth_providers) ? input.social_auth_providers.filter(isRecord) : null;
-  try {
-    await db.$transaction(async (transaction) => {
-      await ensureLoginSetting(transaction);
-      const updates: Prisma.Sql[] = [
-        Prisma.sql`updated_date = ${djangoTimestamp()}`,
-        Prisma.sql`hcaptcha_enabled = ${hcaptchaEnabled ? 1 : 0}`,
-        Prisma.sql`hcaptcha_site_key = ${hcaptchaSiteKey}`,
-        Prisma.sql`hcaptcha_secret_key = ${hcaptchaSecretKey}`,
-      ];
-      if (typeof input.welcome_notification_message === 'string') updates.push(Prisma.sql`welcome_notification_message = ${input.welcome_notification_message}`);
-      if ('welcome_notification_url' in input) updates.push(Prisma.sql`welcome_notification_url = ${welcomeUrl.body}`);
-      if (typeof input.account_deletion_redirect_url === 'string') updates.push(Prisma.sql`account_deletion_redirect_url = ${input.account_deletion_redirect_url}`);
-      await transaction.$executeRaw(Prisma.sql`UPDATE board_loginsetting SET ${Prisma.join(updates, ', ')} WHERE id = 1`);
+  const changes: Prisma.LoginSettingCreateInput = { hcaptchaEnabled, hcaptchaSiteKey, hcaptchaSecretKey, updatedAt: new Date() };
+  if (typeof input.welcomeNotificationMessage === 'string') changes.welcomeNotificationMessage = input.welcomeNotificationMessage;
+  if ('welcomeNotificationUrl' in input) changes.welcomeNotificationUrl = welcomeUrl.body;
+  if (typeof input.accountDeletionRedirectUrl === 'string') changes.accountDeletionRedirectUrl = input.accountDeletionRedirectUrl;
 
-      if (supportedPayload !== null) {
-        for (const provider of SOCIAL_PROVIDERS) {
-          await transaction.$executeRaw`
-            INSERT OR IGNORE INTO board_socialauthprovider (key, client_id, client_secret, is_enabled)
-            VALUES (${provider.key}, '', '', 0)
-          `;
-        }
-        for (const item of supportedPayload) {
-          const key = stringValue(item.key);
-          if (!SOCIAL_PROVIDERS.some((provider) => provider.key === key)) continue;
-          const [existing] = await transaction.$queryRaw<ProviderRow[]>`
-            SELECT key, client_id AS clientId, client_secret AS clientSecret, is_enabled AS isEnabled
-              FROM board_socialauthprovider WHERE key = ${key} LIMIT 1
-          `;
-          if (!existing) continue;
-          let clientId = existing.clientId ?? '';
-          let clientSecret = existing.clientSecret ?? '';
-          let isEnabled = booleanValue(existing.isEnabled);
-          if ('is_enabled' in item) isEnabled = item.is_enabled === true;
-          if (typeof item.client_id === 'string') clientId = item.client_id.trim();
-          if (typeof item.client_secret === 'string' && item.client_secret) {
-            const trimmed = item.client_secret.trim();
-            clientSecret = trimmed ? encryptSecret(trimmed, cipherKey) : '';
-          }
-          if (item.clear_client_secret === true) clientSecret = '';
-          await transaction.$executeRaw`
-            UPDATE board_socialauthprovider SET is_enabled = ${isEnabled ? 1 : 0}, client_id = ${clientId}, client_secret = ${clientSecret}
-             WHERE key = ${key}
-          `;
-        }
+  const supportedPayload = Array.isArray(input.socialAuthProviders) ? input.socialAuthProviders.filter(isRecord) : null;
+  await db.$transaction(async (transaction) => {
+    await transaction.loginSetting.upsert({ where: { id: 1 }, create: { id: 1, ...changes }, update: changes, select: { id: true } });
+
+    if (supportedPayload !== null) {
+      for (const provider of SOCIAL_PROVIDERS) {
+        await transaction.socialProvider.upsert({ where: { key: provider.key }, create: { key: provider.key }, update: {}, select: { id: true } });
       }
-      await recordAudit(transaction, userId, 'loginsetting', 'Login settings', 'Updated login and security settings');
-    });
-  } catch (error) {
-    throw error;
-  }
+      for (const item of supportedPayload) {
+        const key = stringValue(item.key);
+        if (!SOCIAL_PROVIDERS.some((provider) => provider.key === key)) continue;
+        const existing = await transaction.socialProvider.findUnique({
+          where: { key },
+          select: { clientId: true, clientSecret: true, isEnabled: true },
+        });
+        if (!existing) continue;
+        let { clientId, clientSecret, isEnabled } = existing;
+        if ('isEnabled' in item) isEnabled = item.isEnabled === true;
+        if (typeof item.clientId === 'string') clientId = item.clientId.trim();
+        if (typeof item.clientSecret === 'string' && item.clientSecret) {
+          const trimmed = item.clientSecret.trim();
+          clientSecret = trimmed ? encryptUnlessEncrypted(trimmed, cipherKey) : '';
+        }
+        if (item.clearClientSecret === true) clientSecret = '';
+        await transaction.socialProvider.update({ where: { key }, data: { isEnabled, clientId, clientSecret }, select: { id: true } });
+      }
+    }
+    await recordAudit(transaction, userId, 'loginsetting', 'Login settings', 'Updated login and security settings');
+  });
   return { ok: true, body: await serializeLoginSettings(db, cipherKey) };
 }
 
-export function pageLoginPayload(body: Body): Body {
-  const providers = SOCIAL_PROVIDERS.map(({ key }) => ({
-    key,
-    is_enabled: formBoolean(body[`provider_${key}_enabled`]),
-    client_id: stringValue(body[`provider_${key}_client_id`]),
-    client_secret: stringValue(body[`provider_${key}_client_secret`]),
-    clear_client_secret: formBoolean(body[`provider_${key}_clear_secret`]),
-  }));
-  return {
-    welcome_notification_message: stringValue(body.welcome_notification_message),
-    welcome_notification_url: stringValue(body.welcome_notification_url),
-    account_deletion_redirect_url: stringValue(body.account_deletion_redirect_url),
-    hcaptcha_enabled: formBoolean(body.hcaptcha_enabled),
-    hcaptcha_site_key: stringValue(body.hcaptcha_site_key),
-    hcaptcha_secret_key: stringValue(body.hcaptcha_secret_key),
-    clear_hcaptcha_secret_key: formBoolean(body.clear_hcaptcha_secret_key),
-    social_auth_providers: providers,
-  };
-}
-
-export async function pageLoginSettings(
-  request: FastifyRequest,
-  reply: FastifyReply,
-  db: PrismaClient,
-  options: AdminSettingsOptions,
-  user: AdminSettingsUser,
-  access: UserAccess,
-  error?: string,
-) {
-  const capabilities = adminSettingsCapabilities(access);
-  const settings = await serializeLoginSettings(db, options.cipherKey);
-  return reply.type('text/html; charset=utf-8').send(renderAdminLoginSettings({
-    user, capabilities, settings, csrfToken: csrfToken(request),
-    saved: !error && pageNumber(request).get('saved') === '1', error,
-  }));
-}

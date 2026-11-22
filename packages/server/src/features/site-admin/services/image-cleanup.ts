@@ -70,28 +70,26 @@ function collectImageReferences(values: Array<string | null>, category: ImageCle
 }
 
 async function readImageReferences(db: PrismaClient | Prisma.TransactionClient): Promise<Record<ImageCleanupFile['category'], Set<string>>> {
-  const [posts, content, history, editRequests, comments, profiles, series, pages, forms, notices, banners, workLogEntries] = await Promise.all([
-    db.$queryRaw<Array<{ image: string | null }>>`SELECT image FROM board_post`,
-    db.$queryRaw<Array<{ content: string | null }>>`SELECT content_html AS content FROM board_postcontent`,
-    db.$queryRaw<Array<{ content: string | null }>>`SELECT content FROM board_edithistory`,
-    db.$queryRaw<Array<{ content: string | null }>>`SELECT content FROM board_editrequest`,
-    db.$queryRaw<Array<{ textMd: string | null; textHtml: string | null }>>`SELECT text_md AS textMd, text_html AS textHtml FROM board_comment`,
-    db.$queryRaw<Array<{ aboutMd: string | null; aboutHtml: string | null }>>`SELECT about_md AS aboutMd, about_html AS aboutHtml FROM board_profile`,
-    db.$queryRaw<Array<{ textMd: string | null; textHtml: string | null }>>`SELECT text_md AS textMd, text_html AS textHtml FROM board_series`,
-    db.$queryRaw<Array<{ content: string | null }>>`SELECT content FROM board_staticpage`,
-    db.$queryRaw<Array<{ content: string | null }>>`SELECT content FROM board_form`,
-    db.$queryRaw<Array<{ url: string | null }>>`SELECT url FROM board_sitenotice`,
-    db.$queryRaw<Array<{ contentHtml: string | null }>>`SELECT content_html AS contentHtml FROM board_sitebanner`,
-    db.$queryRaw<Array<{ text: string | null }>>`SELECT text FROM board_worklogentry`,
+  const [posts, content, history, comments, profiles, series, pages, forms, notices, banners, workLogEntries] = await Promise.all([
+    db.post.findMany({ select: { image: true } }),
+    db.postContent.findMany({ select: { html: true } }),
+    db.postRevision.findMany({ select: { content: true } }),
+    db.comment.findMany({ select: { markdown: true, html: true } }),
+    db.profile.findMany({ select: { aboutMarkdown: true, aboutHtml: true } }),
+    db.series.findMany({ select: { descriptionMarkdown: true, descriptionHtml: true } }),
+    db.staticPage.findMany({ select: { content: true } }),
+    db.formTemplate.findMany({ select: { content: true } }),
+    db.siteNotice.findMany({ select: { url: true } }),
+    db.siteBanner.findMany({ select: { contentHtml: true } }),
+    db.workLogEntry.findMany({ select: { text: true } }),
   ]);
   const values = [
     ...posts.map((row) => row.image),
-    ...content.map((row) => row.content),
+    ...content.map((row) => row.html),
     ...history.map((row) => row.content),
-    ...editRequests.map((row) => row.content),
-    ...comments.flatMap((row) => [row.textMd, row.textHtml]),
-    ...profiles.flatMap((row) => [row.aboutMd, row.aboutHtml]),
-    ...series.flatMap((row) => [row.textMd, row.textHtml]),
+    ...comments.flatMap((row) => [row.markdown, row.html]),
+    ...profiles.flatMap((row) => [row.aboutMarkdown, row.aboutHtml]),
+    ...series.flatMap((row) => [row.descriptionMarkdown, row.descriptionHtml]),
     ...pages.map((row) => row.content),
     ...forms.map((row) => row.content),
     ...notices.map((row) => row.url),
@@ -193,12 +191,14 @@ export async function buildImageCleanupPlan(
   const root = await mediaRootRealPath(mediaRoot);
   const imageReferences = await readImageReferences(db);
   const [posts, profiles, cacheRows] = await Promise.all([
-    db.$queryRaw<Array<{ image: string | null }>>`SELECT image FROM board_post`,
-    db.$queryRaw<Array<{ avatar: string | null; cover: string | null }>>`SELECT avatar, cover FROM board_profile`,
+    db.post.findMany({ select: { image: true } }),
+    db.profile.findMany({ select: { avatar: true, cover: true } }),
     target === 'all' || target === 'content'
-      ? db.$queryRaw<Array<{ id: number; path: string }>>`
-          SELECT id, path FROM board_imagecache WHERE path LIKE 'images/content/%' ORDER BY id
-        `
+      ? db.uploadedImage.findMany({
+          where: { path: { startsWith: 'images/content/' } },
+          orderBy: { id: 'asc' },
+          select: { id: true, path: true },
+        })
       : Promise.resolve([] as Array<{ id: number; path: string }>),
   ]);
   const usedTitle = new Set([
@@ -258,27 +258,27 @@ export function imageCleanupPlanApi(plan: ImageCleanupPlan, dryRun: boolean): Re
   }
   return {
     target: plan.target,
-    remove_duplicates: plan.removeDuplicates,
-    total_unused: plan.unusedFiles.length,
-    total_size_mb: Math.round(plan.totalSize / 1024 / 1024 * 100) / 100,
-    total_duplicates: plan.duplicateFiles.length,
-    total_duplicate_size_mb: Math.round(plan.duplicateSize / 1024 / 1024 * 100) / 100,
-    total_saved_mb: Math.round((plan.totalSize + plan.duplicateSize) / 1024 / 1024 * 100) / 100,
+    removeDuplicates: plan.removeDuplicates,
+    totalUnused: plan.unusedFiles.length,
+    totalSizeMb: Math.round(plan.totalSize / 1024 / 1024 * 100) / 100,
+    totalDuplicates: plan.duplicateFiles.length,
+    totalDuplicateSizeMb: Math.round(plan.duplicateSize / 1024 / 1024 * 100) / 100,
+    totalSavedMb: Math.round((plan.totalSize + plan.duplicateSize) / 1024 / 1024 * 100) / 100,
     messages,
-    has_errors: false,
-    dry_run: dryRun,
+    hasErrors: false,
+    dryRun,
     ...(dryRun ? {
-      preview_hash: plan.previewHash,
-      unused_files: plan.unusedFiles.slice(0, 100).map((file) => ({
+      previewHash: plan.previewHash,
+      unusedFiles: plan.unusedFiles.slice(0, 100).map((file) => ({
         path: file.relativePath.split('/').slice(2).join('/'),
         url: imageMediaUrl(file.relativePath),
-        size_kb: file.sizeKb,
+        sizeKb: file.sizeKb,
       })),
-      ...(plan.duplicateFiles.length ? { duplicate_files: plan.duplicateFiles.slice(0, 100).map(({ duplicate, original }) => ({
-        duplicate_url: imageMediaUrl(duplicate.relativePath),
-        duplicate_size_kb: duplicate.sizeKb,
-        original_url: imageMediaUrl(original.relativePath),
-        original_size_kb: original.sizeKb,
+      ...(plan.duplicateFiles.length ? { duplicateFiles: plan.duplicateFiles.slice(0, 100).map(({ duplicate, original }) => ({
+        duplicateUrl: imageMediaUrl(duplicate.relativePath),
+        duplicateSizeKb: duplicate.sizeKb,
+        originalUrl: imageMediaUrl(original.relativePath),
+        originalSizeKb: original.sizeKb,
         hash: duplicate.contentHash.slice(0, 8),
       })) } : {}),
     } : {}),
@@ -355,9 +355,7 @@ export async function executeImageCleanupPlan(
   let deletedCaches = 0;
   for (const cache of plan.cacheRows) {
     if (!deletedRelativePaths.has(relativeImagePathFromStoredPath(cache.path))) continue;
-    deletedCaches += await db.$executeRaw`
-      DELETE FROM board_imagecache WHERE id = ${cache.id} AND path = ${cache.path}
-    `;
+    deletedCaches += (await db.uploadedImage.deleteMany({ where: { id: cache.id, path: cache.path } })).count;
   }
   const categories: ImageCleanupFile['category'][] = plan.target === 'all' ? ['content', 'title', 'avatar'] : [plan.target as ImageCleanupFile['category']];
   const categoryLabels = { content: '콘텐츠 이미지', title: '타이틀 이미지', avatar: '아바타 이미지' };
@@ -377,9 +375,9 @@ export async function executeImageCleanupPlan(
   if (errors.length) messages.push(...errors.slice(0, 20));
   return {
     ...imageCleanupPlanApi(plan, false),
-    cleaned_count: deletedFiles,
-    image_cache_count: deletedCaches,
+    cleanedCount: deletedFiles,
+    imageCacheCount: deletedCaches,
     messages,
-    has_errors: errors.length > 0,
+    hasErrors: errors.length > 0,
   };
 }

@@ -1,27 +1,15 @@
-import { useState, useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useLingui } from '@lingui/react/macro';
+import { publishPost } from '~/lib/api/posts';
 import { toast } from '~/utils/toast';
 import { hasPublishableContent } from '../utils/publishChecklist';
-import { isFutureScheduleDate, parseScheduleDate, toReservedDateValue } from '../utils/scheduleDate';
-
-interface FormSubmitData {
-    title: string;
-    url: string;
-    content: string;
-    tags: string[];
-    seriesId: string;
-    coverLayout: string;
-    coverImagePosition: string;
-    coverImageRatio: string;
-    imageDeleted?: boolean;
-    reservedDate?: string;
-}
+import { submitPublish, type PublishFields } from '../utils/publishSubmission';
+import { isFutureScheduleDate, parseScheduleDate } from '../utils/scheduleDate';
 
 interface UseFormSubmitOptions {
-    draftUrl?: string;
-    onBeforeSubmit?: () => void;
-    onSubmitSuccess?: () => void;
-    onSubmitError?: (error: Error) => void;
+    settleDraft: () => Promise<string | undefined>;
+    onPublished: (postUrl: string) => void;
+    onRejected: () => void;
 }
 
 const normalizeUrlForSubmit = (value: string) => {
@@ -34,18 +22,17 @@ const normalizeUrlForSubmit = (value: string) => {
         .substring(0, 50);
 };
 
-export const useFormSubmit = (options: UseFormSubmitOptions) => {
+export const useFormSubmit = ({
+    settleDraft,
+    onPublished,
+    onRejected
+}: UseFormSubmitOptions) => {
     const { t } = useLingui();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
-    const {
-        draftUrl,
-        onBeforeSubmit,
-        onSubmitSuccess,
-        onSubmitError
-    } = options;
+    const isSubmitLockedRef = useRef(false);
 
-    const validateForm = (data: FormSubmitData, isEdit = false, isDraft = false) => {
+    const validateForm = (data: PublishFields) => {
         if (!data.title.trim()) {
             toast.error(t({
                 id: 'editor.validation.title_required',
@@ -54,7 +41,7 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
             return false;
         }
 
-        if (!isDraft && !hasPublishableContent(data.content)) {
+        if (!hasPublishableContent(data.content)) {
             toast.error(t({
                 id: 'editor.validation.content_required',
                 message: 'Add some content.'
@@ -62,8 +49,7 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
             return false;
         }
 
-        const sanitizedUrl = normalizeUrlForSubmit(data.url);
-        if (!isEdit && !sanitizedUrl) {
+        if (!normalizeUrlForSubmit(data.url)) {
             toast.error(t({
                 id: 'editor.validation.url_required',
                 message: 'Enter a post URL.'
@@ -71,7 +57,7 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
             return false;
         }
 
-        if (!isDraft && data.reservedDate) {
+        if (data.reservedDate) {
             if (!parseScheduleDate(data.reservedDate)) {
                 toast.error(t({
                     id: 'editor.validation.schedule_invalid',
@@ -92,116 +78,37 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
         return true;
     };
 
-    const addHiddenField = (form: HTMLFormElement, name: string, value: string) => {
-        let field = form.querySelector(`input[name="${name}"]`) as HTMLInputElement;
-        if (!field) {
-            field = document.createElement('input');
-            field.type = 'hidden';
-            field.name = name;
-            form.appendChild(field);
-        }
-        field.value = value;
-    };
+    const submitForm = async (data: PublishFields) => {
+        const form = formRef.current;
+        if (!form || isSubmitLockedRef.current || !validateForm(data)) return;
 
-    const submitForm = async (data: FormSubmitData, isDraft = false, isEdit = false) => {
-        if (!validateForm(data, isEdit, isDraft)) return;
-
+        isSubmitLockedRef.current = true;
         setIsSubmitting(true);
-        try {
-            const form = formRef.current;
-            if (!form) return;
-
-            onBeforeSubmit?.();
-
-            addHiddenField(form, 'url', normalizeUrlForSubmit(data.url));
-            addHiddenField(form, 'tag', data.tags.join(','));
-            addHiddenField(form, 'series', data.seriesId);
-            addHiddenField(form, 'content_html', data.content);
-            addHiddenField(form, 'cover_layout', data.coverLayout);
-            addHiddenField(form, 'cover_image_position', data.coverImagePosition);
-            addHiddenField(form, 'cover_image_ratio', data.coverImageRatio);
-
-            if (isDraft) {
-                addHiddenField(form, 'is_draft', 'true');
-                if (data.reservedDate !== undefined) {
-                    addHiddenField(form, 'reserved_date', data.reservedDate);
-                }
-            } else if (data.reservedDate) {
-                addHiddenField(form, 'reserved_date', toReservedDateValue(data.reservedDate));
+        await submitPublish({
+            readForm: () => new FormData(form),
+            fields: {
+                ...data,
+                url: normalizeUrlForSubmit(data.url)
+            },
+            settleDraft,
+            send: publishPost,
+            fallbackError: t({
+                id: 'editor.error.save',
+                message: 'Could not save the post.'
+            }),
+            onPublished,
+            onRejected: (message) => {
+                isSubmitLockedRef.current = false;
+                setIsSubmitting(false);
+                onRejected();
+                toast.error(message);
             }
-
-            if (data.imageDeleted) {
-                addHiddenField(form, 'image_delete', 'true');
-                addHiddenField(form, 'remove_image', 'true');
-            }
-
-            // Handle draft URL
-            const currentDraftUrl = draftUrl || (() => {
-                const urlParams = new URLSearchParams(window.location.search);
-                return urlParams.get('draft') || '';
-            })();
-
-            if (currentDraftUrl) {
-                addHiddenField(form, 'draft_url', currentDraftUrl);
-
-                // Remove draft param from URL when submitting the post
-                const newUrl = new URL(window.location.href);
-                newUrl.searchParams.delete('draft');
-                window.history.replaceState({}, '', newUrl.toString());
-            }
-
-            form.submit();
-            onSubmitSuccess?.();
-        } catch (error) {
-            const errorMessage = isEdit
-                ? t({
-                    id: 'editor.error.update',
-                    message: 'Could not update the post.'
-                })
-                : t({
-                    id: 'editor.error.save',
-                    message: 'Could not save the post.'
-                });
-            toast.error(errorMessage);
-            onSubmitError?.(error as Error);
-            setIsSubmitting(false);
-        }
-    };
-
-    const deletePost = async () => {
-        if (!confirm(t({
-            id: 'editor.confirm.move_to_trash',
-            message: 'Move this post to the trash? You can restore it from post settings.'
-        }))) {
-            return;
-        }
-
-        setIsSubmitting(true);
-        try {
-            const form = formRef.current;
-            if (!form) return;
-
-            const deleteField = document.createElement('input');
-            deleteField.type = 'hidden';
-            deleteField.name = 'delete';
-            deleteField.value = 'true';
-            form.appendChild(deleteField);
-
-            form.submit();
-        } catch (error) {
-            toast.error(t({
-                id: 'editor.error.move_to_trash',
-                message: 'Could not move the post to the trash.'
-            }));
-            onSubmitError?.(error as Error);
-            setIsSubmitting(false);
-        }
+        });
     };
 
     return {
         formRef,
         isSubmitting,
-        submitForm,
-        deletePost
+        submitForm
     };
 };

@@ -8,7 +8,8 @@ import Fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import { after, beforeEach, test } from 'node:test';
 import { registerNotifications } from '../src/features/notifications/index.js';
-import { registerSubscriptionPage } from '../src/features/engagement/ui/subscriptions.js';
+import { mySubscriptions } from '../src/features/engagement/services/subscriptions.js';
+import { accountTables, createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-settings-pages-'));
 const databasePath = join(directory, 'synthetic-settings.sqlite3');
@@ -17,32 +18,10 @@ const siteUrl = new URL('https://blog.example');
 
 function createSchema() {
   const fixture = new DatabaseSync(databasePath);
+  createMigratedTables(fixture, 'IntegrationSetting', 'Notification', 'TelegramConnection');
   fixture.exec(`
-    CREATE TABLE auth_user (
-      id INTEGER PRIMARY KEY, username TEXT NOT NULL UNIQUE, first_name TEXT NOT NULL DEFAULT '', is_active BOOLEAN NOT NULL DEFAULT 1
-    );
-    CREATE TABLE board_profile (
-      id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL UNIQUE, bio TEXT NOT NULL DEFAULT '', avatar TEXT NOT NULL DEFAULT '',
-      role TEXT NOT NULL DEFAULT 'READER'
-    );
-    CREATE TABLE board_config (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL UNIQUE, language TEXT);
-    CREATE TABLE board_notify (
-      id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, url TEXT NOT NULL DEFAULT '', content TEXT NOT NULL DEFAULT '',
-      message_key TEXT NOT NULL DEFAULT '', message_params TEXT NOT NULL DEFAULT '{}', has_read BOOLEAN NOT NULL DEFAULT 0,
-      created_date DATETIME NOT NULL
-    );
-    CREATE TABLE board_userconfigmeta (
-      id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, value TEXT NOT NULL,
-      created_date DATETIME NOT NULL, updated_date DATETIME NOT NULL, user_id INTEGER NOT NULL
-    );
-    CREATE TABLE board_authorsubscription (
-      id INTEGER PRIMARY KEY, created_date DATETIME NOT NULL, author_id INTEGER NOT NULL, subscriber_id INTEGER NOT NULL
-    );
-    CREATE TABLE board_telegramsync (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, tid TEXT NOT NULL DEFAULT '');
-    CREATE TABLE board_integrationsetting (
-      id INTEGER PRIMARY KEY, telegram_enabled BOOLEAN NOT NULL DEFAULT 0,
-      telegram_bot_username TEXT NOT NULL DEFAULT '', telegram_bot_token TEXT NOT NULL DEFAULT ''
-    );
+  ${migratedTableSql(...accountTables)}
+    ${migratedTableSql('AuthorSubscription')}
   `);
   fixture.close();
 }
@@ -50,22 +29,27 @@ function createSchema() {
 function seed() {
   const fixture = new DatabaseSync(databasePath);
   fixture.exec(`
-    DELETE FROM board_userconfigmeta;
-    DELETE FROM board_notify;
-    DELETE FROM board_authorsubscription;
-    DELETE FROM board_telegramsync;
-    DELETE FROM board_integrationsetting;
-    DELETE FROM board_config;
-    DELETE FROM board_profile;
-    DELETE FROM auth_user;
-    INSERT INTO auth_user VALUES (1, 'reader', 'Reader', 1), (2, 'author', 'Author Name', 1);
-    INSERT INTO board_profile VALUES (1, 1, 'Reader bio', '', 'READER'), (2, 2, '<unsafe bio>', 'author.png', 'EDITOR');
-    INSERT INTO board_config VALUES (1, 1, 'en');
-    INSERT INTO board_notify VALUES
-      (1, 1, '/@author/post-one', 'Author posted a new article.', 'UNKNOWN', '{}', 0, datetime('now')),
-      (2, 1, 'javascript:alert(1)', 'A mention without a safe link.', 'UNKNOWN', '{}', 1, datetime('now'));
-    INSERT INTO board_authorsubscription VALUES (1, '2026-11-20 10:00:00', 2, 1);
-    INSERT INTO board_integrationsetting VALUES (1, 1, 'synthetic_bot', 'synthetic-token');
+    DELETE FROM Notification;
+    DELETE FROM "AuthorSubscription";
+    DELETE FROM TelegramConnection;
+    DELETE FROM IntegrationSetting;
+    DELETE FROM "UserPreference";
+    DELETE FROM "Profile";
+    DELETE FROM "User";
+    INSERT INTO "User" ("id", "username", "name", "isActive", "email", "passwordHash", "joinedAt") VALUES
+    (1, 'reader', 'Reader', 1, '', '', 1577836800000),
+    (2, 'author', 'Author Name', 1, '', '', 1577836800000);
+    INSERT INTO "Profile" ("userId", "bio", "avatar", "role") VALUES
+    (1, 'Reader bio', '', 'READER'),
+    (2, '<unsafe bio>', 'author.png', 'EDITOR');
+    INSERT INTO "UserPreference" ("userId", "language") VALUES
+    (1, 'en');
+    INSERT INTO Notification (id, userId, key, url, content, messageKey, messageParams, isRead, createdAt, updatedAt) VALUES
+      (1, 1, 'first', '/@author/post-one', 'Author posted a new article.', 'UNKNOWN', '{}', 0, ${Date.now()}, ${Date.now()}),
+      (2, 1, 'second', 'javascript:alert(1)', 'A mention without a safe link.', 'UNKNOWN', '{}', 1, ${Date.now()}, ${Date.now()});
+    INSERT INTO "AuthorSubscription" ("id", "createdAt", "authorId", "subscriberId") VALUES
+    (1, 1795168800000, 2, 1);
+    INSERT INTO IntegrationSetting (id, telegramEnabled, telegramBotUsername, telegramBotToken, updatedAt) VALUES (1, 1, 'synthetic_bot', 'synthetic-token', 946684800000);
   `);
   fixture.close();
 }
@@ -86,14 +70,6 @@ registerNotifications(app, db, {
     && request.headers.cookie?.includes(`csrftoken=${csrfToken}`) === true
     && (request.headers['x-csrftoken'] === csrfToken || (request.body as Record<string, unknown> | undefined)?.csrfmiddlewaretoken === csrfToken),
 });
-registerSubscriptionPage(app, db, {
-  siteUrl,
-  currentUser: async (request) => {
-    const value = request.headers['x-test-user'];
-    const id = typeof value === 'string' ? Number(value) : NaN;
-    return id === 1 ? { id, username: 'reader', hasEditorRole: false, isStaff: false } : null;
-  },
-});
 await app.ready();
 
 after(async () => {
@@ -111,70 +87,45 @@ const signedInHeaders = {
   'x-csrftoken': csrfToken,
 };
 
-test('renders the notification inbox in the shared settings shell and keeps its progressive actions', async () => {
-  const anonymous = await app.inject('/settings/notify');
-  assert.equal(anonymous.statusCode, 302);
-  assert.match(anonymous.headers.location ?? '', /next=%2Fsettings%2Fnotify/);
+test('protects the notification API and keeps read and preference changes scoped', async () => {
+  assert.equal((await app.inject('/v1/setting/notify')).json().errorCode, 'error:NL');
+  assert.equal((await app.inject('/v1/setting/notify-config')).json().errorCode, 'error:NL');
 
-  const response = await app.inject({ url: '/settings/notify', headers: signedInHeaders });
-  assert.equal(response.statusCode, 200);
-  assert.equal(response.headers['cache-control'], 'private, no-store');
-  assert.match(response.body, /data-site-header="true"/);
-  assert.match(response.body, /aria-label="설정 메뉴"/);
-  assert.match(response.body, /class="notification-config"/);
-  assert.match(response.body, /href="\/settings\/integration"/);
-  assert.match(response.body, /href="https:\/\/blog\.example\/@author\/post-one"/);
-  assert.match(response.body, /새 알림/);
-  assert.doesNotMatch(response.body, /href="javascript:alert\(1\)"/);
-  assert.match(response.body, /name="NOTIFY_COMMENT_LIKE"/);
-  assert.match(response.body, /name="NOTIFY_MENTION"/);
-  assert.doesNotMatch(response.body, /name="NOTIFY_POSTS_LIKE"/);
+  const inbox = await app.inject({ url: '/v1/setting/notify', headers: signedInHeaders });
+  assert.equal(inbox.statusCode, 200);
+  assert.equal(inbox.headers['cache-control'], 'private, no-store');
+  assert.deepEqual(inbox.json().body.notify.map((item: { id: number; isRead: boolean }) => [item.id, item.isRead]).sort(), [[1, false], [2, true]]);
 
-  const marked = await app.inject({
-    method: 'POST', url: '/settings/notify', headers: { ...signedInHeaders, 'content-type': 'application/x-www-form-urlencoded' },
-    payload: new URLSearchParams([['csrfmiddlewaretoken', csrfToken], ['id', '1']]).toString(),
-  });
-  assert.equal(marked.statusCode, 303);
-  const [row] = await db.$queryRaw<Array<{ hasRead: number }>>`SELECT has_read AS hasRead FROM board_notify WHERE id = 1`;
-  assert.equal(Number(row?.hasRead), 1);
+  const config = await app.inject({ url: '/v1/setting/notify-config', headers: signedInHeaders });
+  assert.deepEqual(config.json().body.config.map((item: { name: string }) => item.name), ['NOTIFY_COMMENT_LIKE', 'NOTIFY_MENTION']);
+
+  const noCsrf = await app.inject({ method: 'PUT', url: '/v1/setting/notify', headers: { 'x-test-user': '1' }, payload: { id: 1 } });
+  assert.equal(noCsrf.statusCode, 403);
+  const marked = await app.inject({ method: 'PUT', url: '/v1/setting/notify', headers: signedInHeaders, payload: { id: 1 } });
+  assert.equal(marked.json().status, 'DONE');
+  assert.equal((await db.notification.findUnique({ where: { id: 1 } }))?.isRead, true);
 
   const saved = await app.inject({
-    method: 'POST', url: '/settings/notify', headers: { ...signedInHeaders, 'content-type': 'application/x-www-form-urlencoded' },
-    payload: new URLSearchParams([
-      ['csrfmiddlewaretoken', csrfToken], ['intent', 'preferences'], ['NOTIFY_MENTION', 'true'],
-    ]).toString(),
+    method: 'PUT', url: '/v1/setting/notify-config', headers: signedInHeaders,
+    payload: { NOTIFY_MENTION: true, NOTIFY_COMMENT_LIKE: false, NOTIFY_POSTS_LIKE: true },
   });
-  assert.equal(saved.statusCode, 303);
-  const prefs = await db.$queryRaw<Array<{ name: string; value: string }>>`
-    SELECT name, value FROM board_userconfigmeta WHERE user_id = 1 ORDER BY name
-  `;
-  assert.deepEqual(prefs, [
-    { name: 'NOTIFY_COMMENT_LIKE', value: 'false' },
-    { name: 'NOTIFY_MENTION', value: 'true' },
-  ]);
+  assert.equal(saved.json().status, 'DONE');
+  const prefs = await db.userPreference.findUnique({
+    where: { userId: 1 },
+    select: { notifyCommentLike: true, notifyMention: true, notifyPostLike: true, notifyPostComment: true },
+  });
+  assert.deepEqual(prefs, { notifyCommentLike: false, notifyMention: true, notifyPostLike: null, notifyPostComment: null });
 });
 
-test('renders subscriptions with shared navigation, publication state, Telegram prompt, and unsubscribe form', async () => {
-  const anonymous = await app.inject('/settings/subscriptions');
-  assert.equal(anonymous.statusCode, 302);
-  assert.match(anonymous.headers.location ?? '', /next=%2Fsettings%2Fsubscriptions/);
-
-  const response = await app.inject({ url: '/settings/subscriptions', headers: signedInHeaders });
-  assert.equal(response.statusCode, 200);
-  assert.equal(response.headers['cache-control'], 'private, no-store');
-  assert.match(response.body, /data-site-header="true"/);
-  assert.match(response.body, /aria-current="page"/);
-  assert.match(response.body, /텔레그램으로 새 글 받기/);
-  assert.match(response.body, /href="\/@author"/);
-  assert.match(response.body, /Author Name/);
-  assert.match(response.body, /&lt;unsafe bio&gt;/);
-  assert.match(response.body, /action="\/v1\/users\/@author\/subscription"/);
-  assert.match(response.body, /name="action" value="unsubscribe"/);
-  assert.match(response.body, /name="return_to" value="\/settings\/subscriptions"/);
+test('reads subscriptions with author details and the Telegram connection state', async () => {
+  const before = await mySubscriptions(db, 1);
+  assert.equal(before.isTelegramConnected, false);
+  assert.equal(before.subscriptions[0]?.username, 'author');
+  assert.equal(before.subscriptions[0]?.name, 'Author Name');
+  assert.equal(before.subscriptions[0]?.bio, '<unsafe bio>');
 
   const fixture = new DatabaseSync(databasePath);
-  fixture.exec("INSERT INTO board_telegramsync VALUES (1, 1, '123456')");
+  fixture.exec("INSERT INTO TelegramConnection (userId, telegramId) VALUES (1, '123456')");
   fixture.close();
-  const connected = await app.inject({ url: '/settings/subscriptions', headers: signedInHeaders });
-  assert.doesNotMatch(connected.body, /텔레그램으로 새 글 받기/);
+  assert.equal((await mySubscriptions(db, 1)).isTelegramConnected, true);
 });

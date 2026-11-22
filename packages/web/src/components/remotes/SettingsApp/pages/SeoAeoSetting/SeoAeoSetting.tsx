@@ -252,7 +252,7 @@ const SeoAeoSetting = () => {
     }, [settingData.robotsTxtDefault]);
 
     const seoMutation = useMutation({
-        mutationFn: (enabled: boolean) => updateSiteSettings({ seo_enabled: enabled }),
+        mutationFn: (enabled: boolean) => updateSiteSettings({ seoEnabled: enabled }),
         onSuccess: ({ data }, enabled) => {
             setSeoEnabled(enabled);
             if (data.status === 'DONE') {
@@ -274,7 +274,7 @@ const SeoAeoSetting = () => {
     });
 
     const aeoMutation = useMutation({
-        mutationFn: (enabled: boolean) => updateSiteSettings({ aeo_enabled: enabled }),
+        mutationFn: (enabled: boolean) => updateSiteSettings({ aeoEnabled: enabled }),
         onSuccess: ({ data }, enabled) => {
             setAeoEnabled(enabled);
             if (data.status === 'DONE') {
@@ -296,7 +296,7 @@ const SeoAeoSetting = () => {
     });
 
     const robotsMutation = useMutation({
-        mutationFn: (rules: string) => updateSiteSettings({ robots_txt_extra_rules: rules }),
+        mutationFn: (rules: string) => updateSiteSettings({ robotsTxtExtraRules: rules }),
         onSuccess: ({ data }, rules) => {
             const savedRules = data.status === 'DONE' ? data.body.robotsTxtExtraRules : rules;
             if (data.status === 'DONE') {

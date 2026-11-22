@@ -93,7 +93,7 @@ const Heatmap = ({ username }: HeatmapProps) => {
         queryFn: async () => {
             const { data: response } = await getAuthorHeatmap(username);
             if (response.status === 'DONE') {
-                // Fix date format: humps.camelize converts '2024-11-21' to '20241121'
+                // The API sends day keys without separators, such as '20241121'.
                 const rawHeatmap = response.body || {};
                 const fixedHeatmap: { [key: string]: number } = {};
 

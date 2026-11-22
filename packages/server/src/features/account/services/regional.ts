@@ -1,5 +1,5 @@
 import type { PrismaClient } from '@prisma/client';
-import { type RegionalPreferences } from '../pages.js';
+import { type RegionalPreferences } from '../types.js';
 import { Body, UpdateResult } from '../shared.js';
 
 type RegionalConfig = { language: string | null; timeZone: string };
@@ -51,13 +51,7 @@ function normalizedTimeZone(value: string | null): string {
   return value && isSupportedTimeZone(value) ? value : '';
 }
 
-export function accountDate(value: string | null, timeZone: string): string {
-  if (!value) return '';
-  const timestamp = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(value)
-    ? value.replace(' ', 'T')
-    : `${value.replace(' ', 'T')}Z`;
-  const date = new Date(timestamp);
-  if (!Number.isFinite(date.getTime())) return '';
+export function accountDate(date: Date, timeZone: string): string {
   try {
     const parts = new Intl.DateTimeFormat('en-CA', {
       timeZone: isSupportedTimeZone(timeZone) ? timeZone : DEFAULT_TIME_ZONE,
@@ -87,28 +81,23 @@ export function regionalPreferences(config: RegionalConfig | null): RegionalPref
   };
 }
 
-function regionalError(field: 'language' | 'time_zone'): UpdateResult {
-  return {
-    ok: false,
-    message: field === 'language' ? '지원하는 언어를 선택하세요.' : '유효한 시간대를 선택하세요.',
-    messageKey: `settings.regional_preferences.invalid_${field}`,
-  };
+function regionalError(field: 'language' | 'timeZone'): UpdateResult {
+  return field === 'language'
+    ? { ok: false, message: '지원하는 언어를 선택하세요.', messageKey: 'settings.regional_preferences.invalid_language' }
+    : { ok: false, message: '유효한 시간대를 선택하세요.', messageKey: 'settings.regional_preferences.invalid_time_zone' };
 }
 
 export async function updateRegionalPreferences(db: PrismaClient, userId: number, body: Body): Promise<UpdateResult> {
   const language = body.language;
-  const timeZone = body.time_zone;
+  const timeZone = body.timeZone;
   const languages = languageChoices();
   if (language !== null && language !== '' && (typeof language !== 'string' || !languages.some(({ code }) => code === language))) {
     return regionalError('language');
   }
   if (typeof timeZone !== 'string' || (timeZone !== '' && !isSupportedTimeZone(timeZone))) {
-    return regionalError('time_zone');
+    return regionalError('timeZone');
   }
-  await db.$executeRaw`
-    INSERT INTO board_config (user_id, language, time_zone)
-    VALUES (${userId}, ${language as string | null}, ${timeZone})
-    ON CONFLICT(user_id) DO UPDATE SET language = excluded.language, time_zone = excluded.time_zone
-  `;
+  const preference = { language: language as string | null, timeZone };
+  await db.userPreference.upsert({ where: { userId }, create: { userId, ...preference }, update: preference, select: { userId: true } });
   return { ok: true };
 }

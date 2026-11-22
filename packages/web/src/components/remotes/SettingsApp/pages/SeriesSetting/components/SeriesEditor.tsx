@@ -188,7 +188,7 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
             name: formData.name,
             url: normalizeSeriesUrlForSubmit(formData.customUrl ?? ''),
             description: formData.description,
-            post_ids: formData.postIds
+            postIds: formData.postIds
         }),
         onSuccess: ({ data }) => {
             if (data.status === 'ERROR') {
@@ -227,7 +227,7 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
             return updateSeries(seriesId, {
                 name: formData.name,
                 description: formData.description,
-                post_ids: formData.postIds
+                postIds: formData.postIds
             });
         },
         onSuccess: ({ data }) => {

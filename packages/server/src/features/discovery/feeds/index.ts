@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { htmlToMarkdown } from './markdown.js';
+import { publicPostWhere } from '../../posts/data/visibility.js';
 import { sanitizePostHtml } from '../../posts/post-html.js';
 
 const sitemapSections = ['site', 'user', 'posts', 'series', 'staticpages'] as const;
@@ -15,13 +16,13 @@ const defaultRobotsRules = [
   'Disallow: /v1/',
 ];
 
-type DbDate = Date | string | null;
+type DbDate = Date | null;
 
 type SiteSetting = {
-  seoEnabled: number | bigint | boolean;
-  aeoEnabled: number | bigint | boolean;
-  robotsTxtExtraRules: string | null;
-  siteName: string | null;
+  seoEnabled: boolean;
+  aeoEnabled: boolean;
+  robotsTxtExtraRules: string;
+  siteName: string;
 };
 
 type PublicPostRow = {
@@ -45,13 +46,6 @@ type SeriesRow = {
   updatedDate: DbDate;
 };
 
-type StaticPageRow = {
-  title: string;
-  slug: string;
-  content: string;
-  updatedDate: DbDate;
-};
-
 type UserRow = { id: number; username: string; firstName: string };
 
 type FeedPostRow = {
@@ -62,27 +56,25 @@ type FeedPostRow = {
   contentHtml: string;
 };
 
-type SitemapMetadata = { itemCount: number | bigint; latestLastmod: DbDate };
+type SitemapMetadata = { itemCount: number; latestLastmod: DbDate };
 type SitemapUrl = { location: string; lastmod?: DbDate; changefreq: string; priority: string };
 
 async function rssOrigin(db: PrismaClient, siteUrl: URL): Promise<URL> {
-  const [site] = await db.$queryRaw<Array<{ domain: string }>>`SELECT domain FROM django_site WHERE id = 1`;
+  const site = await db.siteSetting.findUnique({ where: { id: 1 }, select: { domain: true } });
   const origin = site?.domain ? URL.parse(`${siteUrl.protocol}//${site.domain}`) : null;
   return origin && origin.host && origin.pathname === '/' && !origin.username && !origin.password &&
     !origin.search && !origin.hash ? origin : siteUrl;
 }
 
 export async function searchIndexingEnabled(db: PrismaClient): Promise<boolean> {
-  const [setting] = await db.$queryRaw<Array<{ seoEnabled: number | bigint | boolean }>>`
-    SELECT seo_enabled AS seoEnabled FROM board_sitesetting WHERE id = 1
-  `;
-  return setting ? isEnabled(setting.seoEnabled) : true;
+  const setting = await db.siteSetting.findUnique({ where: { id: 1 }, select: { seoEnabled: true } });
+  return setting?.seoEnabled ?? true;
 }
 
 export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, siteUrl: URL): void {
   app.get('/llms.txt', async (_request, reply) => {
     const setting = await readSiteSetting(db);
-    if (!isEnabled(setting.aeoEnabled)) return notFound(reply);
+    if (!setting.aeoEnabled) return notFound(reply);
     const content = buildLlmsTxt(siteUrl, setting);
     return reply.type('text/plain; charset=utf-8')
       .header('X-Estimated-Tokens', String(estimateTokens(content)))
@@ -92,12 +84,12 @@ export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, 
   app.get('/robots.txt', async (_request, reply) => {
     const setting = await readSiteSetting(db);
     const lines = ['User-agent: *', ...defaultRobotsRules];
-    if (isEnabled(setting.aeoEnabled)) {
+    if (setting.aeoEnabled) {
       lines.push('', `# AI agent entry point: ${absoluteUrl(siteUrl, '/llms.txt')}`);
     } else {
       lines.push('Disallow: /llms.txt', 'Disallow: /*.md');
     }
-    if (isEnabled(setting.seoEnabled)) {
+    if (setting.seoEnabled) {
       lines.push(`Sitemap: ${absoluteUrl(siteUrl, '/sitemap.xml')}`);
     } else {
       lines.push('', '# Search indexing is disabled at runtime.', '# Page responses include X-Robots-Tag and HTML robots meta noindex signals.');
@@ -116,7 +108,7 @@ export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, 
       const sectionMetadata = metadata[section];
       if (!sectionMetadata.latestLastmod) allIndexesHaveLastmod = false;
       else latestLastmod = latestDate(latestLastmod, sectionMetadata.latestLastmod);
-      const pageCount = Math.max(1, Math.ceil(Number(sectionMetadata.itemCount) / sitemapLimit));
+      const pageCount = Math.max(1, Math.ceil(sectionMetadata.itemCount / sitemapLimit));
       const sectionPath = `/${section}/sitemap.xml`;
       entries.push({ location: absoluteUrl(siteUrl, sectionPath), lastmod: sectionMetadata.latestLastmod });
       for (let page = 2; page <= pageCount; page += 1) {
@@ -127,7 +119,7 @@ export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, 
       `<sitemap><loc>${xmlEscape(entry.location)}</loc>${entry.lastmod ? `<lastmod>${xmlEscape(formatIsoDate(entry.lastmod))}</lastmod>` : ''}</sitemap>`,
     ).join('')}</sitemapindex>`;
     const response = reply.type('application/xml; charset=utf-8').header('X-Robots-Tag', 'noindex, nofollow');
-    if (allIndexesHaveLastmod && latestLastmod) response.header('Last-Modified', toDate(latestLastmod).toUTCString());
+    if (allIndexesHaveLastmod && latestLastmod) response.header('Last-Modified', latestLastmod.toUTCString());
     return response.send(xml);
   });
 
@@ -136,14 +128,14 @@ export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, 
     if (!sitemapSections.includes(section as (typeof sitemapSections)[number])) return notFound(reply);
     const metadata = await readSitemapMetadata(db, section as (typeof sitemapSections)[number]);
     const page = parsePage(request.query.p);
-    const pageCount = Math.max(1, Math.ceil(Number(metadata.itemCount) / sitemapLimit));
+    const pageCount = Math.max(1, Math.ceil(metadata.itemCount / sitemapLimit));
     if (!page || page > pageCount) return notFound(reply);
     const urls = await readSitemapPage(db, siteUrl, section as (typeof sitemapSections)[number], page);
     const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="${sitemapNamespace}">${urls.map((item) =>
       `<url><loc>${xmlEscape(item.location)}</loc>${item.lastmod ? `<lastmod>${xmlEscape(formatIsoDate(item.lastmod))}</lastmod>` : ''}<changefreq>${item.changefreq}</changefreq><priority>${item.priority}</priority></url>`,
     ).join('')}</urlset>`;
     const response = reply.type('application/xml; charset=utf-8').header('X-Robots-Tag', 'noindex, nofollow');
-    if (metadata.latestLastmod) response.header('Last-Modified', toDate(metadata.latestLastmod).toUTCString());
+    if (metadata.latestLastmod) response.header('Last-Modified', metadata.latestLastmod.toUTCString());
     return response.send(xml);
   });
 
@@ -166,9 +158,7 @@ export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, 
       if (renamedUsername) return redirect(reply, request, `/rss/@${encodeURIComponent(renamedUsername)}`);
       return notFound(reply);
     }
-    const [profile] = await db.$queryRaw<Array<{ bio: string | null; avatar: string | null }>>`
-      SELECT bio, avatar FROM board_profile WHERE user_id = ${user.id} LIMIT 1
-    `;
+    const profile = await db.profile.findUnique({ where: { userId: user.id }, select: { bio: true, avatar: true } });
     const posts = await readFeedPosts(db, user.id);
     const origin = await rssOrigin(db, siteUrl);
     const imagePath = profile?.avatar
@@ -184,7 +174,7 @@ export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, 
 
   app.get<{ Params: { username: string; postUrl: string } }>('/@:username/:postUrl.md', async (request, reply) => {
     const setting = await readSiteSetting(db);
-    if (!isEnabled(setting.aeoEnabled)) return notFound(reply);
+    if (!setting.aeoEnabled) return notFound(reply);
     const post = await readPublicPost(db, request.params.username, request.params.postUrl);
     if (!post) return notFound(reply);
     if (post.username !== request.params.username) {
@@ -211,7 +201,7 @@ export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, 
 
   app.get<{ Params: { username: string; seriesUrl: string } }>('/@:username/series/:seriesUrl.md', async (request, reply) => {
     const setting = await readSiteSetting(db);
-    if (!isEnabled(setting.aeoEnabled)) return notFound(reply);
+    if (!setting.aeoEnabled) return notFound(reply);
     const series = await readPublicSeries(db, request.params.username, request.params.seriesUrl);
     if (!series) return notFound(reply);
     if (series.username !== request.params.username) {
@@ -243,19 +233,17 @@ export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, 
 
   app.get<{ Params: { slug: string } }>('/static/:slug.md', async (request, reply) => {
     const setting = await readSiteSetting(db);
-    if (!isEnabled(setting.aeoEnabled)) return notFound(reply);
-    const [page] = await db.$queryRaw<StaticPageRow[]>`
-      SELECT title, slug, content, CAST(updated_date AS TEXT) AS updatedDate
-        FROM board_staticpage
-       WHERE slug = ${request.params.slug} AND is_published = 1
-       LIMIT 1
-    `;
+    if (!setting.aeoEnabled) return notFound(reply);
+    const page = await db.staticPage.findFirst({
+      where: { slug: request.params.slug, isPublished: true },
+      select: { title: true, slug: true, content: true, updatedAt: true },
+    });
     if (!page) return notFound(reply);
     const sourceUrl = absoluteUrl(siteUrl, `/static/${encodeURIComponent(page.slug)}`);
     const lines = [
       `# ${page.title}`,
       '',
-      `- Updated: ${formatDateOnly(page.updatedDate)}`,
+      `- Updated: ${formatDateOnly(page.updatedAt)}`,
       `- Source: ${sourceUrl}`,
       '',
       '---',
@@ -267,14 +255,11 @@ export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, 
 }
 
 async function readSiteSetting(db: PrismaClient): Promise<SiteSetting> {
-  const [setting] = await db.$queryRaw<SiteSetting[]>`
-    SELECT seo_enabled AS seoEnabled, aeo_enabled AS aeoEnabled,
-           robots_txt_extra_rules AS robotsTxtExtraRules, site_name AS siteName
-      FROM board_sitesetting
-     WHERE id = 1
-     LIMIT 1
-  `;
-  return setting ?? { seoEnabled: 1, aeoEnabled: 0, robotsTxtExtraRules: '', siteName: 'BLEX' };
+  const setting = await db.siteSetting.findUnique({
+    where: { id: 1 },
+    select: { seoEnabled: true, aeoEnabled: true, robotsTxtExtraRules: true, siteName: true },
+  });
+  return setting ?? { seoEnabled: true, aeoEnabled: false, robotsTxtExtraRules: '', siteName: 'BLEX' };
 }
 
 function buildLlmsTxt(siteUrl: URL, setting: SiteSetting): string {
@@ -300,137 +285,80 @@ function buildLlmsTxt(siteUrl: URL, setting: SiteSetting): string {
 }
 
 async function readPublicPost(db: PrismaClient, username: string, slug: string): Promise<PublicPostRow | null> {
-  const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
-  const [post] = await db.$queryRaw<PublicPostRow[]>`
-    SELECT post.id, author.username, post.title, post.subtitle, post.url AS slug,
-           CAST(post.published_date AS TEXT) AS publishedDate, CAST(post.updated_date AS TEXT) AS updatedDate,
-           COALESCE(content.content_html, '') AS contentHtml
-      FROM board_post AS post
-      JOIN auth_user AS author ON author.id = post.author_id
-      LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-      LEFT JOIN board_postcontent AS content ON content.post_id = post.id
-     WHERE post.url = ${slug}
-       AND COALESCE(config.hide, 0) = 0
-       AND post.deleted_date IS NULL
-       AND post.published_date <= ${now}
-       AND (
-         author.username = ${username}
-         OR EXISTS (
-           SELECT 1 FROM board_usernamechangelog AS previous
-            WHERE previous.user_id = author.id AND previous.username = ${username}
-         )
-       )
-     LIMIT 1
-  `;
-  return post ?? null;
+  const post = await db.post.findFirst({
+    where: {
+      slug,
+      ...publicPostWhere(),
+      author: { OR: [{ username }, { usernameChanges: { some: { username } } }] },
+    },
+    select: {
+      id: true, title: true, subtitle: true, slug: true, publishedAt: true, updatedAt: true,
+      author: { select: { username: true } },
+      content: { select: { html: true } },
+    },
+  });
+  if (!post) return null;
+  return {
+    id: post.id, username: post.author.username, title: post.title, subtitle: post.subtitle, slug: post.slug,
+    publishedDate: post.publishedAt, updatedDate: post.updatedAt, contentHtml: post.content?.html ?? '',
+  };
 }
 
 async function readPostTags(db: PrismaClient, postId: number): Promise<string[]> {
-  const rows = await db.$queryRaw<Array<{ value: string }>>`
-    SELECT tag.value
-      FROM board_post_tags AS post_tag
-      JOIN board_tag AS tag ON tag.id = post_tag.tag_id
-     WHERE post_tag.post_id = ${postId}
-     ORDER BY tag.id
-  `;
-  return rows.map((row) => row.value);
+  const tags = await db.tag.findMany({ where: { posts: { some: { id: postId } } }, orderBy: { id: 'asc' }, select: { name: true } });
+  return tags.map(({ name }) => name);
 }
 
 async function readPublicSeries(db: PrismaClient, username: string, slug: string): Promise<SeriesRow | null> {
-  const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
-  const [series] = await db.$queryRaw<SeriesRow[]>`
-    SELECT series.id, owner.username, series.name, series.url AS slug,
-           series.text_md AS textMd, series.text_html AS textHtml,
-           CAST(series.updated_date AS TEXT) AS updatedDate
-      FROM board_series AS series
-      JOIN auth_user AS owner ON owner.id = series.owner_id
-     WHERE series.url = ${slug}
-       AND series.hide = 0
-       AND (
-         owner.username = ${username}
-         OR EXISTS (
-           SELECT 1 FROM board_usernamechangelog AS previous
-            WHERE previous.user_id = owner.id AND previous.username = ${username}
-         )
-       )
-       AND EXISTS (
-         SELECT 1 FROM board_post AS post
-         LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-          WHERE post.series_id = series.id
-            AND COALESCE(config.hide, 0) = 0
-            AND post.deleted_date IS NULL
-            AND post.published_date <= ${now}
-       )
-     LIMIT 1
-  `;
-  return series ?? null;
+  const series = await db.series.findFirst({
+    where: {
+      slug,
+      isHidden: false,
+      owner: { OR: [{ username }, { usernameChanges: { some: { username } } }] },
+      posts: { some: publicPostWhere() },
+    },
+    select: { id: true, name: true, slug: true, descriptionMarkdown: true, descriptionHtml: true, updatedAt: true, owner: { select: { username: true } } },
+  });
+  if (!series) return null;
+  return {
+    id: series.id, username: series.owner.username, name: series.name, slug: series.slug,
+    textMd: series.descriptionMarkdown, textHtml: series.descriptionHtml, updatedDate: series.updatedAt,
+  };
 }
 
 async function readPublicSeriesPosts(db: PrismaClient, seriesId: number): Promise<Array<Pick<PublicPostRow, 'username' | 'title' | 'slug' | 'publishedDate'>>> {
-  const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
-  return db.$queryRaw<Array<Pick<PublicPostRow, 'username' | 'title' | 'slug' | 'publishedDate'>>>`
-    SELECT author.username, post.title, post.url AS slug, CAST(post.published_date AS TEXT) AS publishedDate
-      FROM board_post AS post
-      JOIN auth_user AS author ON author.id = post.author_id
-      LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-     WHERE post.series_id = ${seriesId}
-       AND COALESCE(config.hide, 0) = 0
-       AND post.deleted_date IS NULL
-       AND post.published_date <= ${now}
-     ORDER BY post.published_date DESC
-  `;
+  const posts = await db.post.findMany({
+    where: { seriesId, ...publicPostWhere() },
+    orderBy: { publishedAt: 'desc' },
+    select: { title: true, slug: true, publishedAt: true, author: { select: { username: true } } },
+  });
+  return posts.map((post) => ({ username: post.author.username, title: post.title, slug: post.slug, publishedDate: post.publishedAt }));
 }
 
 async function findUser(db: PrismaClient, username: string): Promise<UserRow | null> {
-  const [user] = await db.$queryRaw<UserRow[]>`
-    SELECT id, username, first_name AS firstName FROM auth_user WHERE username = ${username} LIMIT 1
-  `;
-  return user ?? null;
+  const user = await db.user.findUnique({ where: { username }, select: { id: true, username: true, name: true } });
+  return user && { id: user.id, username: user.username, firstName: user.name };
 }
 
 async function findRenamedUsername(db: PrismaClient, username: string): Promise<string | null> {
-  const [renamed] = await db.$queryRaw<Array<{ username: string }>>`
-    SELECT author.username
-      FROM board_usernamechangelog AS previous
-      JOIN auth_user AS author ON author.id = previous.user_id
-     WHERE previous.username = ${username}
-     ORDER BY previous.created_date DESC, previous.id DESC
-     LIMIT 1
-  `;
-  return renamed?.username ?? null;
+  const renamed = await db.usernameChange.findFirst({
+    where: { username },
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    select: { user: { select: { username: true } } },
+  });
+  return renamed?.user.username ?? null;
 }
 
 async function readFeedPosts(db: PrismaClient, authorId: number | null): Promise<FeedPostRow[]> {
-  const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
-  if (authorId === null) {
-    return db.$queryRaw<FeedPostRow[]>`
-      SELECT author.username, post.title, post.url AS slug,
-             CAST(post.published_date AS TEXT) AS publishedDate, COALESCE(content.content_html, '') AS contentHtml
-        FROM board_post AS post
-        JOIN auth_user AS author ON author.id = post.author_id
-        LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-        LEFT JOIN board_postcontent AS content ON content.post_id = post.id
-       WHERE COALESCE(config.hide, 0) = 0
-         AND post.deleted_date IS NULL
-         AND post.published_date <= ${now}
-       ORDER BY post.published_date DESC
-       LIMIT 20
-    `;
-  }
-  return db.$queryRaw<FeedPostRow[]>`
-    SELECT author.username, post.title, post.url AS slug,
-           CAST(post.published_date AS TEXT) AS publishedDate, COALESCE(content.content_html, '') AS contentHtml
-      FROM board_post AS post
-      JOIN auth_user AS author ON author.id = post.author_id
-      LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-      LEFT JOIN board_postcontent AS content ON content.post_id = post.id
-     WHERE post.author_id = ${authorId}
-       AND COALESCE(config.hide, 0) = 0
-       AND post.deleted_date IS NULL
-       AND post.published_date <= ${now}
-     ORDER BY post.published_date DESC
-     LIMIT 20
-  `;
+  const posts = await db.post.findMany({
+    where: { ...publicPostWhere(), ...(authorId === null ? {} : { authorId }) },
+    orderBy: { publishedAt: 'desc' },
+    take: 20,
+    select: { title: true, slug: true, publishedAt: true, author: { select: { username: true } }, content: { select: { html: true } } },
+  });
+  return posts.map((post) => ({
+    username: post.author.username, title: post.title, slug: post.slug, publishedDate: post.publishedAt, contentHtml: post.content?.html ?? '',
+  }));
 }
 
 async function readAllSitemapMetadata(db: PrismaClient): Promise<Record<(typeof sitemapSections)[number], SitemapMetadata>> {
@@ -440,53 +368,30 @@ async function readAllSitemapMetadata(db: PrismaClient): Promise<Record<(typeof 
 }
 
 async function readSitemapMetadata(db: PrismaClient, section: (typeof sitemapSections)[number]): Promise<SitemapMetadata> {
-  const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
   if (section === 'site') return { itemCount: 2, latestLastmod: null };
+  const publicPost = publicPostWhere();
   if (section === 'user') {
-    const [metadata] = await db.$queryRaw<Array<{ itemCount: number | bigint }>>`
-      SELECT COUNT(DISTINCT post.author_id) AS itemCount
-        FROM board_post AS post
-        JOIN board_profile AS profile ON profile.user_id = post.author_id AND profile.role = 'EDITOR'
-        LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-       WHERE COALESCE(config.hide, 0) = 0
-         AND post.deleted_date IS NULL
-         AND post.published_date <= ${now}
-    `;
-    return { itemCount: metadata?.itemCount ?? 0, latestLastmod: null };
+    const itemCount = await db.user.count({ where: { profile: { role: 'EDITOR' }, posts: { some: publicPost } } });
+    return { itemCount, latestLastmod: null };
   }
   if (section === 'posts') {
-    const [metadata] = await db.$queryRaw<SitemapMetadata[]>`
-      SELECT COUNT(post.id) AS itemCount, CAST(MAX(post.updated_date) AS TEXT) AS latestLastmod
-        FROM board_post AS post
-        LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-       WHERE COALESCE(config.hide, 0) = 0
-         AND post.deleted_date IS NULL
-         AND post.published_date <= ${now}
-    `;
-    return metadata ?? { itemCount: 0, latestLastmod: null };
+    const { _count, _max } = await db.post.aggregate({ where: publicPost, _count: { id: true }, _max: { updatedAt: true } });
+    return { itemCount: _count.id, latestLastmod: _max.updatedAt };
   }
   if (section === 'series') {
-    const [metadata] = await db.$queryRaw<SitemapMetadata[]>`
-      SELECT COUNT(series.id) AS itemCount, CAST(MAX(series.updated_date) AS TEXT) AS latestLastmod
-        FROM board_series AS series
-       WHERE series.hide = 0
-         AND EXISTS (
-           SELECT 1 FROM board_post AS post
-           LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-            WHERE post.series_id = series.id
-              AND COALESCE(config.hide, 0) = 0
-              AND post.deleted_date IS NULL
-              AND post.published_date <= ${now}
-         )
-    `;
-    return metadata ?? { itemCount: 0, latestLastmod: null };
+    const { _count, _max } = await db.series.aggregate({
+      where: { isHidden: false, posts: { some: publicPost } },
+      _count: { id: true },
+      _max: { updatedAt: true },
+    });
+    return { itemCount: _count.id, latestLastmod: _max.updatedAt };
   }
-  const [metadata] = await db.$queryRaw<SitemapMetadata[]>`
-    SELECT COUNT(id) AS itemCount, CAST(MAX(updated_date) AS TEXT) AS latestLastmod
-      FROM board_staticpage
-     WHERE is_published = 1
-  `;
-  return metadata ?? { itemCount: 0, latestLastmod: null };
+  const { _count, _max } = await db.staticPage.aggregate({
+    where: { isPublished: true },
+    _count: { id: true },
+    _max: { updatedAt: true },
+  });
+  return { itemCount: _count.id, latestLastmod: _max.updatedAt };
 }
 
 async function readSitemapPage(
@@ -496,7 +401,7 @@ async function readSitemapPage(
   page: number,
 ): Promise<SitemapUrl[]> {
   const offset = (page - 1) * sitemapLimit;
-  const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
+  const publicPost = publicPostWhere();
   if (section === 'site') {
     return [
       { location: siteUrl.origin, changefreq: 'weekly', priority: '1.0' },
@@ -504,71 +409,53 @@ async function readSitemapPage(
     ];
   }
   if (section === 'user') {
-    const users = await db.$queryRaw<Array<{ username: string }>>`
-      SELECT DISTINCT author.username
-        FROM board_post AS post
-        JOIN auth_user AS author ON author.id = post.author_id
-        JOIN board_profile AS profile ON profile.user_id = author.id AND profile.role = 'EDITOR'
-        LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-       WHERE COALESCE(config.hide, 0) = 0
-         AND post.deleted_date IS NULL
-         AND post.published_date <= ${now}
-       ORDER BY author.username
-       LIMIT ${sitemapLimit} OFFSET ${offset}
-    `;
+    const users = await db.user.findMany({
+      where: { profile: { role: 'EDITOR' }, posts: { some: publicPost } },
+      orderBy: { username: 'asc' },
+      take: sitemapLimit,
+      skip: offset,
+      select: { username: true },
+    });
     return users.map(({ username }) => ({
       location: absoluteUrl(siteUrl, `/@${encodeURIComponent(username)}`), changefreq: 'monthly', priority: '0.6',
     }));
   }
   if (section === 'posts') {
-    const posts = await db.$queryRaw<Array<{ username: string; slug: string; updatedDate: DbDate }>>`
-      SELECT author.username, post.url AS slug, CAST(post.updated_date AS TEXT) AS updatedDate
-        FROM board_post AS post
-        JOIN auth_user AS author ON author.id = post.author_id
-        LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-       WHERE COALESCE(config.hide, 0) = 0
-         AND post.deleted_date IS NULL
-         AND post.published_date <= ${now}
-       ORDER BY post.updated_date DESC
-       LIMIT ${sitemapLimit} OFFSET ${offset}
-    `;
+    const posts = await db.post.findMany({
+      where: publicPost,
+      orderBy: { updatedAt: 'desc' },
+      take: sitemapLimit,
+      skip: offset,
+      select: { slug: true, updatedAt: true, author: { select: { username: true } } },
+    });
     return posts.map((post) => ({
-      location: absoluteUrl(siteUrl, `/@${encodeURIComponent(post.username)}/${encodeURIComponent(post.slug)}`),
-      lastmod: post.updatedDate, changefreq: 'weekly', priority: '0.9',
+      location: absoluteUrl(siteUrl, `/@${encodeURIComponent(post.author.username)}/${encodeURIComponent(post.slug)}`),
+      lastmod: post.updatedAt, changefreq: 'weekly', priority: '0.9',
     }));
   }
   if (section === 'series') {
-    const series = await db.$queryRaw<Array<{ username: string; slug: string; updatedDate: DbDate }>>`
-      SELECT owner.username, series.url AS slug, CAST(series.updated_date AS TEXT) AS updatedDate
-        FROM board_series AS series
-        JOIN auth_user AS owner ON owner.id = series.owner_id
-       WHERE series.hide = 0
-         AND EXISTS (
-           SELECT 1 FROM board_post AS post
-           LEFT JOIN board_postconfig AS config ON config.post_id = post.id
-            WHERE post.series_id = series.id
-              AND COALESCE(config.hide, 0) = 0
-              AND post.deleted_date IS NULL
-              AND post.published_date <= ${now}
-         )
-       ORDER BY series.updated_date DESC
-       LIMIT ${sitemapLimit} OFFSET ${offset}
-    `;
+    const series = await db.series.findMany({
+      where: { isHidden: false, posts: { some: publicPost } },
+      orderBy: { updatedAt: 'desc' },
+      take: sitemapLimit,
+      skip: offset,
+      select: { slug: true, updatedAt: true, owner: { select: { username: true } } },
+    });
     return series.map((item) => ({
-      location: absoluteUrl(siteUrl, `/@${encodeURIComponent(item.username)}/series/${encodeURIComponent(item.slug)}`),
-      lastmod: item.updatedDate, changefreq: 'weekly', priority: '0.7',
+      location: absoluteUrl(siteUrl, `/@${encodeURIComponent(item.owner.username)}/series/${encodeURIComponent(item.slug)}`),
+      lastmod: item.updatedAt, changefreq: 'weekly', priority: '0.7',
     }));
   }
-  const pages = await db.$queryRaw<Array<{ slug: string; updatedDate: DbDate }>>`
-    SELECT slug, CAST(updated_date AS TEXT) AS updatedDate
-      FROM board_staticpage
-     WHERE is_published = 1
-     ORDER BY updated_date DESC
-     LIMIT ${sitemapLimit} OFFSET ${offset}
-  `;
+  const pages = await db.staticPage.findMany({
+    where: { isPublished: true },
+    orderBy: { updatedAt: 'desc' },
+    take: sitemapLimit,
+    skip: offset,
+    select: { slug: true, updatedAt: true },
+  });
   return pages.map((item) => ({
     location: absoluteUrl(siteUrl, `/static/${encodeURIComponent(item.slug)}`),
-    lastmod: item.updatedDate, changefreq: 'monthly', priority: '0.8',
+    lastmod: item.updatedAt, changefreq: 'monthly', priority: '0.8',
   }));
 }
 
@@ -582,7 +469,7 @@ function buildRss(siteUrl: URL, posts: FeedPostRow[], channel: {
   const items = posts.map((post) => {
     const description = stripControlCharacters(sanitizePostHtml(post.contentHtml));
     const link = absoluteUrl(siteUrl, `/@${encodeURIComponent(post.username)}/${encodeURIComponent(post.slug)}`);
-    return `<item><title>${xmlEscape(post.title)}</title><link>${xmlEscape(link)}</link><description>${xmlEscape(description)}</description><guid isPermaLink="true">${xmlEscape(link)}</guid><pubDate>${xmlEscape(toDate(post.publishedDate).toUTCString())}</pubDate></item>`;
+    return `<item><title>${xmlEscape(post.title)}</title><link>${xmlEscape(link)}</link><description>${xmlEscape(description)}</description><guid isPermaLink="true">${xmlEscape(link)}</guid><pubDate>${xmlEscape((post.publishedDate ?? new Date(0)).toUTCString())}</pubDate></item>`;
   }).join('');
   return `<?xml version="1.0" encoding="utf-8"?>\n<rss version="2.0"><channel><title>${xmlEscape(channel.title)}</title><link>${xmlEscape(channel.link)}</link><description>${xmlEscape(channel.description)}</description><language>ko</language>${image}${items}</channel></rss>`;
 }
@@ -598,10 +485,6 @@ function siteDescription(setting: SiteSetting): string {
 
 function absoluteUrl(siteUrl: URL, path: string): string {
   return new URL(path, `${siteUrl.origin}/`).toString();
-}
-
-function isEnabled(value: number | bigint | boolean): boolean {
-  return value === true || value === 1 || value === 1n;
 }
 
 function sendMarkdown(reply: FastifyReply, content: string): FastifyReply {
@@ -632,26 +515,15 @@ function parsePage(value: string | undefined): number | null {
 }
 
 function formatDateOnly(value: DbDate): string {
-  if (value instanceof Date) return value.toISOString().slice(0, 10);
-  return String(value ?? '').slice(0, 10);
+  return value ? value.toISOString().slice(0, 10) : '';
 }
 
 function formatIsoDate(value: DbDate): string {
-  return toDate(value).toISOString();
-}
-
-function toDate(value: DbDate): Date {
-  if (value instanceof Date) return value;
-  if (!value) return new Date(0);
-  const raw = value.trim();
-  const normalized = raw.includes('T') ? raw : raw.replace(' ', 'T');
-  const withMilliseconds = normalized.replace(/\.(\d{3})\d+(?=Z|[+-]\d{2}:?\d{2}$|$)/, '.$1');
-  const hasZone = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(withMilliseconds);
-  return new Date(hasZone ? withMilliseconds : `${withMilliseconds}Z`);
+  return (value ?? new Date(0)).toISOString();
 }
 
 function latestDate(current: DbDate, candidate: DbDate): DbDate {
-  if (!current || (candidate && toDate(candidate) > toDate(current))) return candidate;
+  if (!current || (candidate && candidate > current)) return candidate;
   return current;
 }
 

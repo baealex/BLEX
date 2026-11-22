@@ -129,7 +129,7 @@ const Login = () => {
             const { data } = await login({
                 username: state.username,
                 password: state.password,
-                captcha_token: state.captchaToken || undefined
+                captchaToken: state.captchaToken || undefined
             });
 
             if (data.status === 'DONE') {
@@ -202,14 +202,14 @@ const Login = () => {
         try {
             const loginData = state.oauthPending
                 ? {
-                    oauth_2fa: true,
+                    oauth2fa: true,
                     code: code
                 }
                 : {
                     username: state.username,
                     password: state.password,
                     code: code,
-                    captcha_token: state.captchaToken || undefined
+                    captchaToken: state.captchaToken || undefined
                 };
 
             const { data } = await login(loginData);

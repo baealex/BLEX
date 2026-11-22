@@ -1,11 +1,11 @@
-import { Prisma, type PrismaClient } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
 import sharp from 'sharp';
 import { createHash } from 'node:crypto';
 import { lstat, mkdir, readFile, realpath, stat, unlink, writeFile } from 'node:fs/promises';
 import { isAbsolute, relative, resolve, sep } from 'node:path';
-import { type AdminSiteSettings } from '../pages.js';
-import { SiteRow, ensureSiteSetting, parseManifest, readSiteRow, serializeSiteSettings } from './site-settings.js';
-import { AdminSettingsOptions, ApiResult, djangoTimestamp, isRecord, recordAudit } from '../shared.js';
+import { type AdminSiteSettings } from '../types.js';
+import { SiteRow, parseManifest, readSiteRow, serializeSiteSettings, writeSiteSetting } from './site-settings.js';
+import { AdminSettingsOptions, ApiResult, isRecord, recordAudit } from '../shared.js';
 
 export const ICON_PNG_SIZES = [16, 32, 57, 72, 76, 96, 114, 120, 128, 144, 152, 192, 256, 512] as const;
 
@@ -195,32 +195,6 @@ async function validateBrandPng(content: Buffer | undefined, size: number): Prom
   return content;
 }
 
-async function generateIconDerivatives(svg: Buffer) {
-  const master = await sharp(svg, { limitInputPixels: 16_777_216, failOn: 'error' })
-    .resize(512, 512, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toBuffer();
-  const pngs = new Map<number, Buffer>();
-  for (const size of REQUIRED_ICON_PNG_SIZES) {
-    pngs.set(size, size === 512 ? master : await sharp(master).resize(size, size).png().toBuffer());
-  }
-  const faviconSizes = [16, 32];
-  const directory = Buffer.alloc(6 + faviconSizes.length * 16);
-  directory.writeUInt16LE(1, 2);
-  directory.writeUInt16LE(faviconSizes.length, 4);
-  let offset = directory.length;
-  const images = faviconSizes.map((size, index) => {
-    const png = pngs.get(size)!;
-    const entry = 6 + index * 16;
-    directory[entry] = directory[entry + 1] = size;
-    directory.writeUInt16LE(1, entry + 4);
-    directory.writeUInt16LE(32, entry + 6);
-    directory.writeUInt32LE(png.length, entry + 8);
-    directory.writeUInt32LE(offset, entry + 12);
-    offset += png.length;
-    return png;
-  });
-  return { pngs, ico: Buffer.concat([directory, ...images]) };
-}
-
 async function validateBrandIco(content: Buffer | undefined): Promise<Buffer> {
   if (!content?.length) throw new BrandAssetValidationError('favicon.ico file is required.');
   if (content.length > BRAND_ICO_MAX_BYTES) throw new BrandAssetValidationError('favicon.ico file is too large.');
@@ -266,9 +240,9 @@ async function validateBrandIco(content: Buffer | undefined): Promise<Buffer> {
   return content;
 }
 
-function brandAssetField(assetType: BrandAssetType, theme: BrandAssetTheme): string {
-  if (assetType === 'logo') return theme === 'default' ? 'logo_svg' : 'logo_svg_dark';
-  return theme === 'default' ? 'icon_svg' : 'icon_svg_dark';
+function brandAssetField(assetType: BrandAssetType, theme: BrandAssetTheme): 'logoSvg' | 'logoSvgDark' | 'iconSvg' | 'iconSvgDark' {
+  if (assetType === 'logo') return theme === 'default' ? 'logoSvg' : 'logoSvgDark';
+  return theme === 'default' ? 'iconSvg' : 'iconSvgDark';
 }
 
 function siteRowBrandAsset(row: SiteRow | null, assetType: BrandAssetType, theme: BrandAssetTheme): string | null {
@@ -377,16 +351,16 @@ async function removeBrandAssetFiles(mediaRoot: string, paths: string[]): Promis
 
 export function validateBrandTarget(value: unknown): { assetType: BrandAssetType; theme: BrandAssetTheme } {
   const input = isRecord(value) ? value : {};
-  if (input.asset_type !== 'logo' && input.asset_type !== 'icon') throw new BrandAssetValidationError('Check the brand asset type.');
+  if (input.assetType !== 'logo' && input.assetType !== 'icon') throw new BrandAssetValidationError('Check the brand asset type.');
   if (input.theme !== 'default' && input.theme !== 'dark') throw new BrandAssetValidationError('Check the brand asset theme.');
-  return { assetType: input.asset_type, theme: input.theme };
+  return { assetType: input.assetType, theme: input.theme };
 }
 
 export async function uploadBrandAsset(
   db: PrismaClient,
   userId: number,
   canManageScripts: boolean,
-  input: { assetType: BrandAssetType; theme: BrandAssetTheme; svg?: Buffer; files: Map<string, Buffer>; manifest: string; generateDerivatives?: boolean },
+  input: { assetType: BrandAssetType; theme: BrandAssetTheme; svg?: Buffer; files: Map<string, Buffer>; manifest: string },
   options: AdminSettingsOptions,
 ): Promise<ApiResult<AdminSiteSettings>> {
   if (!options.mediaRoot) return { ok: false, code: 'RJ', message: 'Brand asset storage is unavailable.' };
@@ -401,24 +375,14 @@ export async function uploadBrandAsset(
       if (!siteRowBrandAsset(current, input.assetType, 'default')) throw new BrandAssetValidationError('Upload the default asset first.');
     }
     if (input.assetType === 'icon' && input.theme === 'default') {
-      if (input.generateDerivatives) {
-        const generated = await generateIconDerivatives(svg).catch(() => {
-          throw new BrandAssetValidationError('Could not generate icon files from the SVG.');
-        });
-        pngContent = generated.pngs;
-        ico = generated.ico;
-        manifestSource = { version: 1, pngSizes: REQUIRED_ICON_PNG_SIZES, ico: true };
-      } else {
-        manifestSource = parseBrandIconManifest(input.manifest);
-        for (const size of REQUIRED_ICON_PNG_SIZES) pngContent.set(size, await validateBrandPng(input.files.get(`png_${size}`), size));
-        ico = await validateBrandIco(input.files.get('favicon_ico'));
-      }
+      manifestSource = parseBrandIconManifest(input.manifest);
+      for (const size of REQUIRED_ICON_PNG_SIZES) pngContent.set(size, await validateBrandPng(input.files.get(`png${size}`), size));
+      ico = await validateBrandIco(input.files.get('faviconIco'));
     }
   } catch (error) {
     return { ok: false, code: 'VA', message: error instanceof Error ? error.message : 'Check the uploaded brand asset.' };
   }
 
-  await db.$transaction((transaction) => ensureSiteSetting(transaction));
   const current = await readSiteRow(db);
   const digest = createHash('sha256');
   const hashParts = [svg, ...REQUIRED_ICON_PNG_SIZES.map((size) => pngContent.get(size)).filter((content): content is Buffer => Boolean(content)), ico ?? Buffer.alloc(0)];
@@ -447,13 +411,10 @@ export async function uploadBrandAsset(
   try {
     createdPaths = await writeBrandAssetFiles(options.mediaRoot, files);
     await db.$transaction(async (transaction) => {
-      await ensureSiteSetting(transaction);
-      const field = brandAssetField(input.assetType, input.theme);
-      const updates: Prisma.Sql[] = [Prisma.sql`${Prisma.raw(field)} = ${files[0]?.path ?? ''}`, Prisma.sql`updated_date = ${djangoTimestamp()}`];
-      if (manifest) {
-        updates.push(Prisma.sql`icon_manifest = ${JSON.stringify({ ...manifest, source: manifestSource })}`);
-      }
-      await transaction.$executeRaw(Prisma.sql`UPDATE board_sitesetting SET ${Prisma.join(updates, ', ')} WHERE id = 1`);
+      await writeSiteSetting(transaction, {
+        [brandAssetField(input.assetType, input.theme)]: files[0]?.path ?? '',
+        ...(manifest ? { iconManifest: { ...manifest, source: manifestSource } as Prisma.InputJsonObject } : {}),
+      });
       await recordAudit(transaction, userId, 'sitesetting', 'Site settings', 'Uploaded a brand asset');
     });
   } catch (error) {
@@ -475,19 +436,15 @@ export async function deleteBrandAsset(
   options: AdminSettingsOptions,
 ): Promise<ApiResult<AdminSiteSettings>> {
   if (!options.mediaRoot) return { ok: false, code: 'RJ', message: 'Brand asset storage is unavailable.' };
-  await db.$transaction((transaction) => ensureSiteSetting(transaction));
   const current = await readSiteRow(db);
   const oldPaths = brandAssetPaths(current, target.assetType, target.theme);
-  const updates: Prisma.Sql[] = [Prisma.sql`updated_date = ${djangoTimestamp()}`];
-  if (target.assetType === 'logo' && target.theme === 'default') {
-    updates.push(Prisma.sql`logo_svg = ''`, Prisma.sql`logo_svg_dark = ''`);
-  } else if (target.assetType === 'icon' && target.theme === 'default') {
-    updates.push(Prisma.sql`icon_svg = ''`, Prisma.sql`icon_svg_dark = ''`, Prisma.sql`icon_manifest = '{}'`);
-  } else {
-    updates.push(Prisma.sql`${Prisma.raw(brandAssetField(target.assetType, target.theme))} = ''`);
-  }
+  const cleared: Prisma.SiteSettingCreateInput = target.theme !== 'default'
+    ? { [brandAssetField(target.assetType, target.theme)]: '' }
+    : target.assetType === 'logo'
+      ? { logoSvg: '', logoSvgDark: '' }
+      : { iconSvg: '', iconSvgDark: '', iconManifest: {} };
   await db.$transaction(async (transaction) => {
-    await transaction.$executeRaw(Prisma.sql`UPDATE board_sitesetting SET ${Prisma.join(updates, ', ')} WHERE id = 1`);
+    await writeSiteSetting(transaction, cleared);
     await recordAudit(transaction, userId, 'sitesetting', 'Site settings', 'Deleted a brand asset');
   });
   const updated = await readSiteRow(db);

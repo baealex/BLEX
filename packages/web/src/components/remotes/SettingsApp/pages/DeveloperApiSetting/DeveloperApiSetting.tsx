@@ -255,7 +255,7 @@ const DeveloperApiSetting = () => {
             const { data } = await createDeveloperToken({
                 name: tokenName.trim(),
                 scopes: selectedScopes,
-                expires_in_days: parsedExpiresInDays
+                expiresInDays: parsedExpiresInDays
             });
             return data;
         },

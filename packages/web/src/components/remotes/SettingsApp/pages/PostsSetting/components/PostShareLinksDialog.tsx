@@ -52,7 +52,7 @@ export const PostShareLinksDialog = ({ username, postUrl, postTitle, onClose }: 
                 ? await createPostShareLink(username, postUrl, change.label)
                 : await updatePostShareLink(username, postUrl, change.linkId, change.type === 'rename'
                     ? { label: change.label }
-                    : { is_paused: change.isPaused });
+                    : { isPaused: change.isPaused });
             return data;
         },
         onSuccess: async (data, change) => {

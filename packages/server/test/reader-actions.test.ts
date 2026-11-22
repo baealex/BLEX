@@ -6,134 +6,65 @@ import { DatabaseSync } from 'node:sqlite';
 import { PrismaClient } from '@prisma/client';
 import Fastify from 'fastify';
 import test from 'node:test';
-import { encryptDjangoSecret } from '../src/features/auth/django-secret.js';
+import { encryptSecret } from '../src/features/auth/encrypted-secret.js';
 import { registerReaderActions } from '../src/features/engagement/index.js';
+import { accountTables, createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
 import { installNotificationTables } from './fixtures/notifications.js';
 
 const readerCipherKey = '0123456789abcdef0123456789abcdef';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-reader-actions-'));
-const databasePath = join(directory, 'Django reader actions.sqlite3');
+const databasePath = join(directory, 'synthetic reader actions.sqlite3');
 const database = new DatabaseSync(databasePath);
+createMigratedTables(database, 'IntegrationSetting');
 database.exec(`
-  CREATE TABLE auth_user (
-    id INTEGER PRIMARY KEY,
-    username TEXT NOT NULL UNIQUE,
-    first_name TEXT NOT NULL DEFAULT '',
-    is_active BOOLEAN NOT NULL DEFAULT 1
-  );
-  CREATE TABLE board_profile (
-    id INTEGER PRIMARY KEY,
-    user_id INTEGER NOT NULL UNIQUE,
-    bio TEXT NOT NULL DEFAULT '',
-    avatar TEXT NOT NULL DEFAULT '',
-    role TEXT NOT NULL DEFAULT 'READER'
-  );
-  CREATE TABLE board_post (
-    id INTEGER PRIMARY KEY,
-    title TEXT NOT NULL,
-    url TEXT NOT NULL UNIQUE,
-    author_id INTEGER NOT NULL,
-    published_date DATETIME,
-    deleted_date DATETIME
-  );
-  CREATE TABLE board_postconfig (
-    id INTEGER PRIMARY KEY,
-    post_id INTEGER NOT NULL UNIQUE,
-    hide BOOLEAN NOT NULL DEFAULT 0,
-    block_comment BOOLEAN NOT NULL DEFAULT 0
-  );
-  CREATE TABLE board_post_likes (
-    id INTEGER PRIMARY KEY,
-    created_date DATETIME NOT NULL,
-    post_id INTEGER NOT NULL,
-    user_id INTEGER NOT NULL,
-    UNIQUE(post_id, user_id)
-  );
-  CREATE TABLE board_comment (
-    id INTEGER PRIMARY KEY,
-    text_md TEXT NOT NULL,
-    text_html TEXT NOT NULL,
-    edited BOOLEAN NOT NULL DEFAULT 0,
-    heart BOOLEAN NOT NULL DEFAULT 0,
-    created_date DATETIME NOT NULL,
-    author_id INTEGER,
-    post_id INTEGER NOT NULL,
-    parent_id INTEGER
-  );
-  CREATE TABLE board_comment_likes (
-    id INTEGER PRIMARY KEY,
-    comment_id INTEGER NOT NULL,
-    user_id INTEGER NOT NULL,
-    UNIQUE(comment_id, user_id)
-  );
-  CREATE TABLE board_authorsubscription (
-    id INTEGER PRIMARY KEY,
-    created_date DATETIME NOT NULL,
-    author_id INTEGER NOT NULL,
-    subscriber_id INTEGER NOT NULL,
-    UNIQUE(subscriber_id, author_id)
-  );
-  CREATE TABLE board_authorsubscriptionlog (
-    id INTEGER PRIMARY KEY,
-    action TEXT NOT NULL,
-    created_date DATETIME NOT NULL,
-    author_id INTEGER NOT NULL,
-    subscriber_id INTEGER NOT NULL
-  );
-  CREATE TABLE board_integrationsetting (
-    id INTEGER PRIMARY KEY,
-    telegram_enabled BOOLEAN NOT NULL DEFAULT 0,
-    telegram_bot_username TEXT NOT NULL DEFAULT '',
-    telegram_bot_token TEXT NOT NULL DEFAULT '',
-    updated_date DATETIME NOT NULL
-  );
-  CREATE TABLE board_telegramsync (
-    id INTEGER PRIMARY KEY,
-    auth_token TEXT NOT NULL DEFAULT '',
-    auth_token_exp DATETIME NOT NULL DEFAULT '2026-01-01 00:00:00',
-    created_date DATETIME NOT NULL DEFAULT '2026-01-01 00:00:00',
-    user_id INTEGER NOT NULL UNIQUE,
-    tid TEXT NOT NULL DEFAULT ''
-  );
+  ${migratedTableSql(...accountTables)}
+${migratedTableSql('Series', 'Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', 'PostLike', 'PinnedPost', 'PostShareLink', 'PostShareDailyCount')}
 
-  INSERT INTO auth_user VALUES
-    (1, 'writer', 'Writer Name', 1),
-    (2, 'reader', 'Reader Name', 1),
-    (3, 'inactive', 'Inactive', 0),
-    (4, 'second-writer', 'Second Writer', 1),
-    (5, 'other-reader', 'Other Reader', 1);
-  INSERT INTO board_profile VALUES
-    (1, 1, 'Writer bio', 'avatars/writer.png', 'EDITOR'),
-    (2, 2, 'Reader bio', '', 'READER'),
-    (3, 3, '', '', 'EDITOR'),
-    (4, 4, 'Second bio', 'https://images.example/second.png', 'EDITOR'),
-    (5, 5, 'Other reader bio', '', 'READER');
-  INSERT INTO board_post VALUES
-    (1, 'Public post', 'public-post', 1, '2026-01-01 00:00:00.123456', NULL),
-    (2, 'Hidden post', 'hidden-post', 1, '2026-01-01 00:00:00.123456', NULL),
-    (3, 'Draft post', 'draft-post', 1, NULL, NULL),
-    (4, 'Blocked comments', 'blocked-comments', 1, '2026-01-01 00:00:00.123456', NULL),
-    (5, 'Deleted post', 'deleted-post', 1, '2026-01-01 00:00:00.123456', '2026-01-02 00:00:00');
-  INSERT INTO board_postconfig VALUES
-    (1, 1, 0, 0), (2, 2, 1, 0), (3, 3, 0, 0), (4, 4, 0, 1), (5, 5, 0, 0);
-  INSERT INTO board_comment VALUES
-    (10, 'Writer parent', '<p>Writer parent</p><script>window.bad = true</script>', 0, 0, '2026-01-01 00:00:00.123456', 1, 1, NULL),
-    (11, 'Reader reply', '<p>Reader reply</p>', 1, 0, '2026-01-02 00:00:00.654321', 2, 1, 10),
-    (12, 'Deleted note', '<p>ignored after delete</p>', 0, 0, '2026-01-03 00:00:00', NULL, 1, NULL),
-    (13, 'Hidden comment', '<p>private</p>', 0, 0, '2026-01-04 00:00:00', 2, 2, NULL),
-    (14, 'Blocked comment', '<p>kept visible</p>', 0, 0, '2026-01-05 00:00:00', 2, 4, NULL);
-  INSERT INTO board_comment_likes VALUES (1, 11, 1);
-  INSERT INTO board_integrationsetting VALUES (1, 1, 'test_bot', '${encryptDjangoSecret('bot-token', readerCipherKey)}', '2026-01-01 00:00:00.123456');
-  INSERT INTO board_authorsubscription VALUES (1, '2020-05-01 15:00:00.654321', 4, 2);
-  INSERT INTO board_telegramsync VALUES (1, '', '2026-01-01 00:00:00', '2026-01-01 00:00:00', 2, 'telegram-id');
+
+  ${migratedTableSql('Comment', 'CommentLike')}
+    ${migratedTableSql('AuthorSubscription')}
+  ${migratedTableSql('AuthorSubscriptionLog')}
+
+  INSERT INTO "User" ("id", "username", "name", "isActive", "email", "passwordHash", "joinedAt") VALUES
+    (1, 'writer', 'Writer Name', 1, '', '', 1577836800000),
+    (2, 'reader', 'Reader Name', 1, '', '', 1577836800000),
+    (3, 'inactive', 'Inactive', 0, '', '', 1577836800000),
+    (4, 'second-writer', 'Second Writer', 1, '', '', 1577836800000),
+    (5, 'other-reader', 'Other Reader', 1, '', '', 1577836800000);
+  INSERT INTO "Profile" ("userId", "bio", "avatar", "role") VALUES
+    (1, 'Writer bio', 'avatars/writer.png', 'EDITOR'),
+    (2, 'Reader bio', '', 'READER'),
+    (3, '', '', 'EDITOR'),
+    (4, 'Second bio', 'https://images.example/second.png', 'EDITOR'),
+    (5, 'Other reader bio', '', 'READER');
+  INSERT INTO "Post" ("id", "title", "slug", "authorId", "publishedAt", "deletedAt", "createdAt", "updatedAt") VALUES
+    (1, 'Public post', 'public-post', 1, 1767225600123, NULL, 946684800000, 946684800000),
+    (2, 'Hidden post', 'hidden-post', 1, 1767225600123, NULL, 946684800000, 946684800000),
+    (3, 'Draft post', 'draft-post', 1, NULL, NULL, 946684800000, 946684800000),
+    (4, 'Blocked comments', 'blocked-comments', 1, 1767225600123, NULL, 946684800000, 946684800000),
+    (5, 'Deleted post', 'deleted-post', 1, 1767225600123, 1767312000000, 946684800000, 946684800000);
+  UPDATE "Post" SET isHidden = 0, commentsBlocked = 0 WHERE id = 1;
+    UPDATE "Post" SET isHidden = 1, commentsBlocked = 0 WHERE id = 2;
+    UPDATE "Post" SET isHidden = 0, commentsBlocked = 0 WHERE id = 3;
+    UPDATE "Post" SET isHidden = 0, commentsBlocked = 1 WHERE id = 4;
+    UPDATE "Post" SET isHidden = 0, commentsBlocked = 0 WHERE id = 5;
+  INSERT INTO "Comment" ("id", "markdown", "html", "isEdited", "isHearted", "createdAt", "authorId", "postId", "parentId") VALUES
+    (10, 'Writer parent', '<p>Writer parent</p><script>window.bad = true</script>', 0, 0, 1767225600123, 1, 1, NULL),
+    (11, 'Reader reply', '<p>Reader reply</p>', 1, 0, 1767312000654, 2, 1, 10),
+    (12, 'Deleted note', '<p>ignored after delete</p>', 0, 0, 1767398400000, NULL, 1, NULL),
+    (13, 'Hidden comment', '<p>private</p>', 0, 0, 1767484800000, 2, 2, NULL),
+    (14, 'Blocked comment', '<p>kept visible</p>', 0, 0, 1767571200000, 2, 4, NULL);
+  INSERT INTO "CommentLike" ("commentId", "userId") VALUES
+    (11, 1);
+  INSERT INTO IntegrationSetting (id, telegramEnabled, telegramBotUsername, telegramBotToken, updatedAt) VALUES (1, 1, 'test_bot', '${encryptSecret('bot-token', readerCipherKey)}', 1767225600123);
+  INSERT INTO "AuthorSubscription" ("id", "createdAt", "authorId", "subscriberId") VALUES
+    (1, 1588345200654, 4, 2);
 `);
 installNotificationTables(database);
 database.exec(`
-  INSERT INTO board_userconfigmeta (user_id, name, value, created_date, updated_date) VALUES
-    (1, 'NOTIFY_POSTS_LIKE', 'true', '2000-01-01', '2000-01-01'),
-    (1, 'NOTIFY_POSTS_COMMENT', 'true', '2000-01-01', '2000-01-01'),
-    (1, 'NOTIFY_MENTION', 'true', '2000-01-01', '2000-01-01');
+  INSERT INTO TelegramConnection (userId, telegramId, createdAt) VALUES (2, 'telegram-id', 1767225600000);
+  INSERT INTO "UserPreference" (userId, notifyPostLike, notifyPostComment, notifyMention) VALUES (1, 1, 1, 1);
 `);
 database.close();
 
@@ -146,7 +77,7 @@ registerReaderActions(app, db, {
     const id = Number(Array.isArray(rawId) ? rawId[0] : rawId);
     if (!Number.isSafeInteger(id) || id < 1) return null;
     const rows = await db.$queryRaw<Array<{ username: string }>>`
-      SELECT username FROM auth_user WHERE id = ${id} LIMIT 1
+      SELECT username FROM "User" WHERE id = ${id} LIMIT 1
     `;
     return rows[0] ? { id, username: rows[0].username } : null;
   },
@@ -168,17 +99,17 @@ test('returns the legacy raw post-like envelope and serializes concurrent toggle
   assert.deepEqual(anonymous.json(), { status: 'error', message: 'Authentication required' });
 
   const first = await app.inject({ method: 'POST', url: '/like/public-post', headers: signedIn });
-  assert.deepEqual(first.json(), { status: 'done', count_likes: 1, has_liked: true });
+  assert.deepEqual(first.json(), { status: 'done', countLikes: 1, hasLiked: true });
   const toggles = await Promise.all([
     app.inject({ method: 'POST', url: '/like/public-post', headers: signedIn }),
     app.inject({ method: 'POST', url: '/like/public-post', headers: signedIn }),
   ]);
-  assert.deepEqual(toggles.map((response) => response.json()).sort((left, right) => left.count_likes - right.count_likes), [
-    { status: 'done', count_likes: 0, has_liked: false },
-    { status: 'done', count_likes: 1, has_liked: true },
+  assert.deepEqual(toggles.map((response) => response.json()).sort((left, right) => left.countLikes - right.countLikes), [
+    { status: 'done', countLikes: 0, hasLiked: false },
+    { status: 'done', countLikes: 1, hasLiked: true },
   ]);
   const rows = await db.$queryRaw<Array<{ count: number | bigint }>>`
-    SELECT COUNT(*) AS count FROM board_post_likes WHERE post_id = 1 AND user_id = 2
+    SELECT COUNT(*) AS count FROM "PostLike" WHERE postId = 1 AND userId = 2
   `;
   assert.equal(Number(rows[0]?.count), 1);
 
@@ -235,7 +166,7 @@ test('creates and replies to comments through form and JSON bodies with plain-te
     method: 'POST',
     url: '/v1/comments?url=public-post',
     headers: { ...signedIn, 'content-type': 'application/x-www-form-urlencoded' },
-    payload: 'comment_md=Hello%0A%3Cscript%3Ebad()%3C%2Fscript%3E&parent_id=10',
+    payload: 'commentMd=Hello%0A%3Cscript%3Ebad()%3C%2Fscript%3E&parentId=10',
   });
   assert.equal(response.statusCode, 200, response.body);
   assert.equal(response.json().status, 'DONE');
@@ -243,8 +174,8 @@ test('creates and replies to comments through form and JSON bodies with plain-te
   assert.match(response.json().body.renderedContent, /&lt;script&gt;bad\(\)&lt;\/script&gt;/);
   assert.doesNotMatch(response.json().body.renderedContent, /<script/);
   const rows = await db.$queryRaw<Array<{ textMd: string; textHtml: string; parentId: number | null }>>`
-    SELECT text_md AS textMd, text_html AS textHtml, parent_id AS parentId
-    FROM board_comment WHERE author_id = 2 ORDER BY id DESC LIMIT 1
+    SELECT markdown AS textMd, html AS textHtml, parentId
+    FROM "Comment" WHERE authorId = 2 ORDER BY id DESC LIMIT 1
   `;
   assert.equal(rows[0]?.textMd, 'Hello\n<script>bad()</script>');
   assert.equal(rows[0]?.textHtml, '<p>Hello<br>&lt;script&gt;bad()&lt;/script&gt;</p>');
@@ -254,32 +185,32 @@ test('creates and replies to comments through form and JSON bodies with plain-te
     method: 'POST',
     url: '/v1/comments?url=public-post',
     headers: { ...signedIn, 'content-type': 'application/json' },
-    payload: { comment_md: '<em>plain text</em>' },
+    payload: { commentMd: '<em>plain text</em>' },
   });
   assert.match(json.json().body.renderedContent, /&lt;em&gt;plain text&lt;\/em&gt;/);
 
   const anonymous = await app.inject({
     method: 'POST', url: '/v1/comments?url=public-post',
-    headers: { 'x-test-csrf': 'valid', 'content-type': 'application/json' }, payload: { comment_md: 'No user' },
+    headers: { 'x-test-csrf': 'valid', 'content-type': 'application/json' }, payload: { commentMd: 'No user' },
   });
   assert.equal(anonymous.json().errorCode, 'error:AT');
   const crossPostReply = await app.inject({
     method: 'POST', url: '/v1/comments?url=public-post',
-    headers: { ...signedIn, 'content-type': 'application/json' }, payload: { comment_md: 'wrong parent', parent_id: '14' },
+    headers: { ...signedIn, 'content-type': 'application/json' }, payload: { commentMd: 'wrong parent', parentId: '14' },
   });
   assert.equal(crossPostReply.json().errorCode, 'error:RJ');
   const blocked = await app.inject({
     method: 'POST', url: '/v1/comments?url=blocked-comments',
-    headers: { ...signedIn, 'content-type': 'application/json' }, payload: { comment_md: 'blocked' },
+    headers: { ...signedIn, 'content-type': 'application/json' }, payload: { commentMd: 'blocked' },
   });
   assert.equal(blocked.json().errorCode, 'error:RJ');
   assert.equal((await app.inject({
     method: 'POST', url: '/v1/comments?url=hidden-post',
-    headers: { ...signedIn, 'content-type': 'application/json' }, payload: { comment_md: 'private' },
+    headers: { ...signedIn, 'content-type': 'application/json' }, payload: { commentMd: 'private' },
   })).statusCode, 404);
   assert.equal((await app.inject({
     method: 'POST', url: '/v1/comments?url=public-post',
-    headers: { 'x-user-id': '2', 'content-type': 'application/json' }, payload: { comment_md: 'missing CSRF' },
+    headers: { 'x-user-id': '2', 'content-type': 'application/json' }, payload: { commentMd: 'missing CSRF' },
   })).statusCode, 403);
 });
 
@@ -294,19 +225,19 @@ test('gets, edits, likes and soft-deletes comments with owner checks', async () 
   const edit = await app.inject({
     method: 'PUT', url: '/v1/comments/11',
     headers: { ...signedIn, 'content-type': 'application/x-www-form-urlencoded' },
-    payload: 'comment=comment&comment_md=first%0A%3Cscript%3Ebad()%3C%2Fscript%3E',
+    payload: 'comment=comment&commentMd=first%0A%3Cscript%3Ebad()%3C%2Fscript%3E',
   });
   assert.deepEqual(edit.json(), { status: 'DONE', body: {} });
   const changed = await db.$queryRaw<Array<{ textMd: string; textHtml: string; edited: number | bigint }>>`
-    SELECT text_md AS textMd, text_html AS textHtml, CAST(edited AS INTEGER) AS edited
-    FROM board_comment WHERE id = 11
+    SELECT markdown AS textMd, html AS textHtml, CAST(isEdited AS INTEGER) AS edited
+    FROM "Comment" WHERE id = 11
   `;
   assert.equal(changed[0]?.textMd, 'first\n<script>bad()</script>');
   assert.equal(changed[0]?.textHtml, '<p>first<br>&lt;script&gt;bad()&lt;/script&gt;</p>');
   assert.equal(Number(changed[0]?.edited), 1);
   const formEdit = await app.inject({ method: 'POST', url: '/v1/comments/11',
     headers: { ...signedIn, 'content-type': 'application/x-www-form-urlencoded' },
-    payload: 'action=edit&comment_md=Edited+from+the+article&return_to=%2F%40editor%2Fpublic',
+    payload: 'action=edit&commentMd=Edited+from+the+article&returnTo=%2F%40editor%2Fpublic',
   });
   assert.equal(formEdit.statusCode, 303);
   assert.equal(formEdit.headers.location, '/@editor/public#comment-11');
@@ -334,7 +265,7 @@ test('gets, edits, likes and soft-deletes comments with owner checks', async () 
   ]);
   assert.deepEqual(concurrentLikes.map((response) => response.json().body.countLikes).sort(), [0, 1]);
   const finalLikes = await db.$queryRaw<Array<{ count: number | bigint }>>`
-    SELECT COUNT(*) AS count FROM board_comment_likes WHERE comment_id = 10 AND user_id = 2
+    SELECT COUNT(*) AS count FROM "CommentLike" WHERE commentId = 10 AND userId = 2
   `;
   assert.equal(Number(finalLikes[0]?.count), 0);
   const selfLike = await app.inject({
@@ -355,7 +286,7 @@ test('gets, edits, likes and soft-deletes comments with owner checks', async () 
     canEdit: false, canDelete: false, canLike: false, canReply: false,
   });
   const persisted = await db.$queryRaw<Array<{ authorId: number | null }>>`
-    SELECT author_id AS authorId FROM board_comment WHERE id = 11
+    SELECT authorId FROM "Comment" WHERE id = 11
   `;
   assert.equal(persisted[0]?.authorId, null);
   const wrongOwnerDelete = await app.inject({ method: 'DELETE', url: '/v1/comments/10', headers: signedIn });
@@ -388,8 +319,8 @@ test('keeps subscriptions idempotent, logs only state changes, and reports accou
   assert.deepEqual(state.json().body, { canSubscribe: true, isSubscribed: true });
 
   const counts = await db.$queryRaw<Array<{ subscriptions: number | bigint; logs: number | bigint }>>`
-    SELECT (SELECT COUNT(*) FROM board_authorsubscription WHERE subscriber_id = 2 AND author_id = 1) AS subscriptions,
-           (SELECT COUNT(*) FROM board_authorsubscriptionlog WHERE subscriber_id = 2 AND author_id = 1) AS logs
+    SELECT (SELECT COUNT(*) FROM "AuthorSubscription" WHERE subscriberId = 2 AND authorId = 1) AS subscriptions,
+           (SELECT COUNT(*) FROM "AuthorSubscriptionLog" WHERE subscriberId = 2 AND authorId = 1) AS logs
   `;
   assert.equal(Number(counts[0]?.subscriptions), 1);
   assert.equal(Number(counts[0]?.logs), 1);
@@ -410,7 +341,7 @@ test('keeps subscriptions idempotent, logs only state changes, and reports accou
   assert.deepEqual(removed.json().body, { canSubscribe: true, isSubscribed: false });
   await app.inject({ method: 'DELETE', url: '/v1/users/@writer/subscription', headers: signedIn });
   const logRows = await db.$queryRaw<Array<{ action: string }>>`
-    SELECT action FROM board_authorsubscriptionlog WHERE subscriber_id = 2 AND author_id = 1 ORDER BY id
+    SELECT action FROM "AuthorSubscriptionLog" WHERE subscriberId = 2 AND authorId = 1 ORDER BY id
   `;
   assert.deepEqual(logRows.map((row) => row.action), ['subscribe', 'unsubscribe']);
   assert.equal((await app.inject('/v1/subscriptions')).json().errorCode, 'error:NL');

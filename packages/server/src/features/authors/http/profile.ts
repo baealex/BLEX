@@ -1,13 +1,15 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { FastifyInstance } from 'fastify';
-import { type PrismaClient } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
 import { SiteIcon } from '../../../appearance/icons.js';
+import { storedDateText } from '../../../platform/date-format.js';
 import { sanitizePostHtml } from '../../posts/post-html.js';
 import { AuthorActivitySection, readAuthorActivity } from '../public-activity.js';
 import { AboutSection, authorTabs, featuredPostsSection, profileHeader } from '../pages/profile.js';
 import { authorPath, isEditor, readAuthor, readAuthorSocialLinks, subscriptionState } from '../services/profile.js';
-import { PUBLIC_POST_WHERE, rawPublicPostWhere, readCardLikes, readFeaturedPosts, readPublicPostCount, readPublicPosts } from '../../discovery/services/public-posts.js';
-import { PAGE_SIZE, PageMeta, PublicPageOptions, SeriesDetailRow, SeriesRow, SqlValue, SubscriptionState, avatarUrl, canonicalPageUrl, databaseNow, dateLabel, dateValue, description, formatPostDate, h, hasUnexpected, makeAbsolute, makePaginationMeta, pageFrom, sendNotFound, sendRedirect, totalPages, validPublicPage } from '../../discovery/shared.js';
+import { publicPostWhere } from '../../posts/data/visibility.js';
+import { readCardLikes, readFeaturedPosts, readPublicPostCount, readPublicPosts } from '../../discovery/services/public-posts.js';
+import { PAGE_SIZE, PageMeta, PublicPageOptions, SeriesDetailRow, SeriesRow, SubscriptionState, avatarUrl, canonicalPageUrl, dateLabel, dateValue, description, formatPostDate, h, hasUnexpected, makeAbsolute, makePaginationMeta, pageFrom, sendNotFound, sendRedirect, totalPages, validPublicPage } from '../../discovery/shared.js';
 import { NoticeSection, PageLayout, advertiseMarkdown, authorFeed, csrfCookie, getLayoutContext, readNotices, readPublicSiteBrand, readViewer, renderHtml } from '../../discovery/pages/layout.js';
 import { EmptyState, Pagination, PostGrid, postPath } from '../../discovery/pages/post-list.js';
 import { DropdownFilter, QueryFilter, ReactFragment } from '../../discovery/pages/search.js';
@@ -139,39 +141,24 @@ export function registerProfileRoutes(app: FastifyInstance, db: PrismaClient, si
     if (page === null) return sendNotFound(reply);
     const searchText = (query.get('q') ?? '').trim();
     const tagFilter = (query.get('tag') ?? '').trim();
-    const conditions = ['post.author_id = ?'];
-    const parameters: SqlValue[] = [author.id];
-    if (searchText) {
-      conditions.push(`(post.title LIKE ? OR EXISTS (SELECT 1 FROM board_postcontent AS content
-        WHERE content.post_id = post.id AND content.content_html LIKE ?))`);
-      parameters.push(`%${searchText}%`, `%${searchText}%`);
-    }
-    if (tagFilter) {
-      conditions.push(`EXISTS (SELECT 1 FROM board_post_tags AS post_tag
-        JOIN board_tag AS tag ON tag.id = post_tag.tag_id
-       WHERE post_tag.post_id = post.id AND tag.value = ?)`);
-      parameters.push(tagFilter);
-    }
-    const count = await readPublicPostCount(db, conditions, parameters);
+    const where: Prisma.PostWhereInput = {
+      authorId: author.id,
+      ...(searchText ? { OR: [{ title: { contains: searchText } }, { content: { html: { contains: searchText } } }] } : {}),
+      ...(tagFilter ? { tags: { some: { name: tagFilter } } } : {}),
+    };
+    const count = await readPublicPostCount(db, where);
     const checkedPage = validPublicPage(reply, page, count, PAGE_SIZE);
     if (checkedPage === null) return reply;
     const posts = await readPublicPosts(db, {
-      conditions,
-      parameters,
+      where,
       limit: PAGE_SIZE,
       offset: (checkedPage - 1) * PAGE_SIZE,
     });
-    const tagOptions = await db.$queryRaw< Array<{ value: string }> >`
-      SELECT DISTINCT tag.value AS value
-        FROM board_tag AS tag
-        JOIN board_post_tags AS post_tag ON post_tag.tag_id = tag.id
-        JOIN board_post AS post ON post.id = post_tag.post_id
-        LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-       WHERE post.author_id = ${author.id}
-         AND post.deleted_date IS NULL AND post.published_date IS NOT NULL
-         AND post.published_date <= ${databaseNow()} AND COALESCE(post_config.hide, 0) = 0
-       ORDER BY tag.value ASC
-    `;
+    const tagOptions = await db.tag.findMany({
+      where: { posts: { some: { authorId: author.id, ...publicPostWhere() } } },
+      orderBy: { name: 'asc' },
+      select: { name: true },
+    });
     const { brand, siteName, viewer } = await getLayoutContext(request, reply, db, options);
     const [socialLinks, subscription] = await Promise.all([readAuthorSocialLinks(db, author.id), subscriptionState(db, author, viewer)]);
     const pages = totalPages(count, PAGE_SIZE);
@@ -205,7 +192,7 @@ export function registerProfileRoutes(app: FastifyInstance, db: PrismaClient, si
               h('div', { className: 'w-full lg:w-44' },
                 h('p', { className: 'mb-2 ml-1 block text-xs font-semibold text-content-secondary' }, '태그'),
                 DropdownFilter({ path, search: query, param: 'tag', current: tagFilter,
-                  options: [{ value: '', label: '전체 태그' }, ...tagOptions.map((tag) => ({ value: tag.value, label: tag.value }))] }),
+                  options: [{ value: '', label: '전체 태그' }, ...tagOptions.map((tag) => ({ value: tag.name, label: tag.name }))] }),
               ),
             ),
           ),
@@ -238,46 +225,34 @@ export function registerProfileRoutes(app: FastifyInstance, db: PrismaClient, si
     const searchText = (query.get('q') ?? '').trim();
     const requestedSort = query.get('sort') ?? 'custom';
     const sort = ['custom', 'newest', 'oldest', 'posts'].includes(requestedSort) ? requestedSort : 'custom';
-    const searchClause = searchText ? 'AND (series.name LIKE ? OR series.text_md LIKE ?)' : '';
-    const seriesCountRows = await db.$queryRawUnsafe<Array<{ count: number }>>(`
-      SELECT COUNT(*) AS count FROM (
-        SELECT series.id
-          FROM board_series AS series
-         WHERE COALESCE(series.hide, 0) = 0 AND series.owner_id = ? ${searchClause}
-           AND EXISTS (SELECT 1 FROM board_post AS post
-             LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-            WHERE post.series_id = series.id AND ${PUBLIC_POST_WHERE})
-      ) AS public_series
-    `, author.id, ...(searchText ? [`%${searchText}%`, `%${searchText}%`] : []), databaseNow());
-    const count = Number(seriesCountRows[0]?.count ?? 0);
+    const publicPost = publicPostWhere();
+    const seriesWhere: Prisma.SeriesWhereInput = {
+      ownerId: author.id,
+      isHidden: false,
+      posts: { some: publicPost },
+      ...(searchText ? { OR: [{ name: { contains: searchText } }, { descriptionMarkdown: { contains: searchText } }] } : {}),
+    };
+    const count = await db.series.count({ where: seriesWhere });
     const checkedPage = validPublicPage(reply, page, count, 12);
     if (checkedPage === null) return reply;
-    const orderBy = sort === 'newest' ? 'series.created_date DESC, series.id DESC'
-      : sort === 'oldest' ? 'series.created_date ASC, series.id ASC'
-        : sort === 'posts' ? 'postCount DESC, series."order" ASC'
-          : 'series."order" ASC, series.id ASC';
-    const seriesRows = await db.$queryRawUnsafe<SeriesRow[]>(`
-      SELECT series.id AS id,
-             series.url AS url,
-             series.name AS name,
-             series.text_md AS textMarkdown,
-             series.text_html AS textHtml,
-             CAST(series.created_date AS TEXT) AS createdDate,
-             CAST(series.updated_date AS TEXT) AS updatedDate,
-             COUNT(DISTINCT post.id) AS postCount,
-             (SELECT thumb.image FROM board_post AS thumb
-               LEFT JOIN board_postconfig AS thumb_config ON thumb_config.post_id = thumb.id
-              WHERE thumb.series_id = series.id AND ${rawPublicPostWhere('thumb', 'thumb_config')}
-              ORDER BY thumb.id ASC LIMIT 1) AS thumbnail
-        FROM board_series AS series
-        JOIN board_post AS post ON post.series_id = series.id
-        LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-       WHERE COALESCE(series.hide, 0) = 0 AND series.owner_id = ?
-         AND ${PUBLIC_POST_WHERE} ${searchClause}
-       GROUP BY series.id
-       ORDER BY ${orderBy}
-       LIMIT ? OFFSET ?
-    `, author.id, databaseNow(), ...(searchText ? [`%${searchText}%`, `%${searchText}%`] : []), 12, (checkedPage - 1) * 12);
+    // One author's series are few, and "most posts" counts only public posts, which Prisma cannot sort by.
+    const authorSeries = await db.series.findMany({
+      where: seriesWhere,
+      select: {
+        id: true, slug: true, name: true, descriptionMarkdown: true, descriptionHtml: true, order: true, createdAt: true, updatedAt: true,
+        _count: { select: { posts: { where: publicPost } } },
+      },
+    });
+    const seriesOrder: Record<string, (left: typeof authorSeries[number], right: typeof authorSeries[number]) => number> = {
+      newest: (left, right) => right.createdAt.valueOf() - left.createdAt.valueOf() || right.id - left.id,
+      oldest: (left, right) => left.createdAt.valueOf() - right.createdAt.valueOf() || left.id - right.id,
+      posts: (left, right) => right._count.posts - left._count.posts || left.order - right.order || left.id - right.id,
+      custom: (left, right) => left.order - right.order || left.id - right.id,
+    };
+    const seriesRows: SeriesRow[] = authorSeries.sort(seriesOrder[sort]).slice((checkedPage - 1) * 12, checkedPage * 12).map((row) => ({
+      id: row.id, url: row.slug, name: row.name, textMarkdown: row.descriptionMarkdown, textHtml: row.descriptionHtml,
+      createdDate: storedDateText(row.createdAt), updatedDate: storedDateText(row.updatedAt), postCount: row._count.posts,
+    }));
     const { brand, siteName, viewer } = await getLayoutContext(request, reply, db, options);
     const [socialLinks, subscription] = await Promise.all([readAuthorSocialLinks(db, author.id), subscriptionState(db, author, viewer)]);
     const pages = totalPages(count, 12);
@@ -351,54 +326,30 @@ export function registerProfileRoutes(app: FastifyInstance, db: PrismaClient, si
     const page = pageFrom(query);
     if (page === null) return sendNotFound(reply);
     const sortOrder = query.get('sort') === 'asc' ? 'asc' : 'desc';
-    const now = databaseNow();
-    const seriesRows = await db.$queryRaw<SeriesDetailRow[]>`
-      SELECT series.id AS id,
-             series.url AS url,
-             series.name AS name,
-             series.text_md AS textMarkdown,
-             series.text_html AS textHtml,
-             CAST(series.created_date AS TEXT) AS createdDate,
-             CAST(series.updated_date AS TEXT) AS updatedDate,
-             series.owner_id AS authorId,
-             author.username AS authorUsername,
-             profile.avatar AS authorAvatar,
-             (SELECT COUNT(*) FROM board_post AS post
-               LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-              WHERE post.series_id = series.id
-                AND post.deleted_date IS NULL AND post.published_date IS NOT NULL
-                AND post.published_date <= ${now} AND COALESCE(post_config.hide, 0) = 0) AS postCount,
-             (SELECT thumb.image FROM board_post AS thumb
-               LEFT JOIN board_postconfig AS thumb_config ON thumb_config.post_id = thumb.id
-              WHERE thumb.series_id = series.id
-                AND thumb.deleted_date IS NULL AND thumb.published_date IS NOT NULL
-                AND thumb.published_date <= ${now} AND COALESCE(thumb_config.hide, 0) = 0
-              ORDER BY thumb.id ASC LIMIT 1) AS thumbnail
-        FROM board_series AS series
-        JOIN auth_user AS author ON author.id = series.owner_id
-        LEFT JOIN board_profile AS profile ON profile.user_id = author.id
-       WHERE series.owner_id = ${author.id}
-         AND series.url = ${request.params.seriesUrl}
-         AND COALESCE(series.hide, 0) = 0
-         AND EXISTS (SELECT 1 FROM board_post AS post
-           LEFT JOIN board_postconfig AS post_config ON post_config.post_id = post.id
-          WHERE post.series_id = series.id
-            AND post.deleted_date IS NULL AND post.published_date IS NOT NULL
-            AND post.published_date <= ${now} AND COALESCE(post_config.hide, 0) = 0)
-       LIMIT 1
-    `;
-    const series = seriesRows[0];
-    if (!series) return sendNotFound(reply);
+    const publicPost = publicPostWhere();
+    const storedSeries = await db.series.findFirst({
+      where: { ownerId: author.id, slug: request.params.seriesUrl, isHidden: false, posts: { some: publicPost } },
+      select: {
+        id: true, slug: true, name: true, descriptionMarkdown: true, descriptionHtml: true, createdAt: true, updatedAt: true, ownerId: true,
+        owner: { select: { username: true, profile: { select: { avatar: true } } } },
+        _count: { select: { posts: { where: publicPost } } },
+      },
+    });
+    if (!storedSeries) return sendNotFound(reply);
+    const series: SeriesDetailRow = {
+      id: storedSeries.id, url: storedSeries.slug, name: storedSeries.name, textMarkdown: storedSeries.descriptionMarkdown,
+      textHtml: storedSeries.descriptionHtml, createdDate: storedDateText(storedSeries.createdAt), updatedDate: storedDateText(storedSeries.updatedAt),
+      authorId: storedSeries.ownerId, authorUsername: storedSeries.owner.username,
+      authorAvatar: storedSeries.owner.profile?.avatar ?? null, postCount: storedSeries._count.posts,
+    };
     const seriesPath = `${authorPath(author.username, '/series')}/${encodeURIComponent(series.url)}`;
     if (author.username !== requestedUsername) return sendRedirect(reply, seriesPath);
-    const count = Number(series.postCount);
+    const count = series.postCount;
     const checkedPage = validPublicPage(reply, page, count, 10);
     if (checkedPage === null) return reply;
-    const orderBy = sortOrder === 'asc' ? 'post.published_date ASC, post.id ASC' : 'post.published_date DESC, post.id DESC';
     const posts = await readPublicPosts(db, {
-      conditions: ['post.series_id = ?'],
-      parameters: [series.id],
-      orderBy,
+      where: { seriesId: series.id },
+      orderBy: [{ publishedAt: sortOrder }, { id: sortOrder }],
       limit: 10,
       offset: (checkedPage - 1) * 10,
     });
@@ -495,8 +446,8 @@ export function registerProfileRoutes(app: FastifyInstance, db: PrismaClient, si
                   h('span', { className: 'flex items-center gap-1.5' }, h(SiteIcon, { name: 'calendar' }), formatPostDate(post)),
                   h('span', { className: 'flex items-center gap-1.5' }, h(SiteIcon, { name: 'clock' }), `${post.readTime}분`),
                   h('span', { className: 'ml-auto flex items-center gap-3' },
-                    h('span', { className: 'flex items-center gap-1.5 transition-colors hover:text-danger' }, h(SiteIcon, { name: 'heart' }), String(Number(post.likeCount ?? 0))),
-                    h('span', { className: 'flex items-center gap-1.5 transition-colors hover:text-content' }, h(SiteIcon, { name: 'message-circle' }), String(Number(post.commentCount ?? 0))),
+                    h('span', { className: 'flex items-center gap-1.5 transition-colors hover:text-danger' }, h(SiteIcon, { name: 'heart' }), String(post.likeCount ?? 0)),
+                    h('span', { className: 'flex items-center gap-1.5 transition-colors hover:text-content' }, h(SiteIcon, { name: 'message-circle' }), String(post.commentCount ?? 0)),
                   ),
                 ),
               ),

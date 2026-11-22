@@ -1,7 +1,7 @@
 import { createElement as h } from 'react';
 import { type PrismaClient } from '@prisma/client';
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { djangoIso } from '../../compat/django-format.js';
+import { isoWithOffset } from '../../platform/date-format.js';
 import { failure as failed } from '../../platform/response.js';
 
 export interface AuthoringUser {
@@ -17,28 +17,13 @@ export interface AuthoringOptions {
   validateCsrf: (req: FastifyRequest) => boolean;
   siteUrl: URL;
   mediaRoot?: string;
-  editorAssets?: { script: string; css: string[] };
 }
-
-export type DbBoolean = number | bigint | boolean | null;
 
 export type DbDate = string | Date | null;
 
 export interface UserRow extends AuthoringUser {
-  isActive: DbBoolean;
+  isActive: boolean;
   role: string | null;
-}
-
-export interface SeriesOption {
-  id: number;
-  name: string;
-  url: string;
-}
-
-export interface FormTemplate {
-  id: number;
-  title: string;
-  content: string;
 }
 
 export interface StoredPost {
@@ -48,10 +33,10 @@ export interface StoredPost {
   url: string;
   image: string;
   description: string;
-  createdDate: DbDate;
-  updatedDate: DbDate;
-  publishedDate: DbDate;
-  deletedDate: DbDate;
+  createdDate: Date;
+  updatedDate: Date;
+  publishedDate: Date | null;
+  deletedDate: Date | null;
   authorId: number;
   authorUsername: string;
   authorAvatar: string | null;
@@ -59,37 +44,14 @@ export interface StoredPost {
   seriesId: number | null;
   seriesName: string | null;
   seriesUrl: string | null;
-  seriesHidden: DbBoolean;
+  seriesHidden: boolean;
   contentHtml: string;
-  hide: DbBoolean;
-  advertise: DbBoolean;
-  blockComment: DbBoolean;
+  hide: boolean;
+  advertise: boolean;
+  blockComment: boolean;
   coverLayout: string;
   coverImagePosition: string;
   coverImageRatio: string;
-}
-
-export interface StoredDraftSummary {
-  url: string;
-  title: string;
-  image: string;
-  createdDate: DbDate;
-  updatedDate: DbDate;
-}
-
-export interface ManagedPostRow {
-  id: number;
-  url: string;
-  title: string;
-  image: string;
-  publishedDate: DbDate;
-  updatedDate: DbDate;
-  hide: DbBoolean;
-  countLikes: number | bigint;
-  countComments: number | bigint;
-  readTime: number;
-  tag: string;
-  series: string;
 }
 
 export interface TrashedPostRow {
@@ -97,10 +59,10 @@ export interface TrashedPostRow {
   url: string;
   title: string;
   image: string;
-  publishedDate: DbDate;
-  updatedDate: DbDate;
-  deletedDate: DbDate;
-  hide: DbBoolean;
+  publishedDate: Date | null;
+  updatedDate: Date;
+  deletedDate: Date;
+  hide: boolean;
 }
 
 export interface AuthoringPostInput {
@@ -123,35 +85,6 @@ export interface AuthoringPostInput {
   reservedDate: string;
 }
 
-export interface EditorModel {
-  action: string;
-  csrfToken: string;
-  content: string;
-  contentType: 'markdown' | 'html';
-  description: string;
-  errorMessage: string;
-  successMessage: string;
-  savedDraft: boolean;
-  isDraft: boolean;
-  isEdit: boolean;
-  postUrl: string;
-  series: string;
-  seriesOptions: SeriesOption[];
-  tags: string;
-  title: string;
-  username: string;
-  subtitle: string;
-  hide: boolean;
-  blockComment: boolean;
-  coverLayout: string;
-  coverImagePosition: string;
-  coverImageRatio: string;
-  reservedDate: string;
-  showSchedule: boolean;
-  formTitle: string;
-  coverImageUrl: string;
-}
-
 export const h1 = h;
 
 export const POST_TITLE_MAX = 65;
@@ -171,14 +104,6 @@ export const COVER_LAYOUTS = new Set(['default', 'split', 'overlay', 'none']);
 export const COVER_POSITIONS = new Set(['left', 'right']);
 
 export const COVER_RATIOS = new Set(['auto', '16:9', '4:3', '1:1', '3:4']);
-
-export function numberValue(value: number | bigint | boolean | null | undefined): number {
-  return Number(value ?? 0);
-}
-
-export function isTrue(value: DbBoolean): boolean {
-  return numberValue(value) !== 0;
-}
 
 export function field(value: unknown): string {
   if (Array.isArray(value)) return field(value.at(-1));
@@ -216,12 +141,8 @@ export function queryObject(request: FastifyRequest): Record<string, unknown> {
     : {};
 }
 
-export function nowString(): string {
-  return new Date().toISOString().replace('T', ' ').replace('Z', '');
-}
-
 export function dateAsIso(value: DbDate): string | null {
-  return djangoIso(value);
+  return isoWithOffset(value);
 }
 
 export function localDateTime(value: DbDate): string {
@@ -233,17 +154,6 @@ export function localDateTime(value: DbDate): string {
     year: 'numeric', month: '2-digit', day: '2-digit',
     hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
   }).format(date).replace(' ', 'T');
-}
-
-export function dateTimeLocalValue(value: string | DbDate): string {
-  if (!value) return '';
-  if (value instanceof Date) return localDateTime(value);
-  const normalized = value.includes('T') ? value : value.replace(' ', 'T');
-  // Django stores datetime columns as UTC-naive text in SQLite. Draft schedule
-  // metadata is normalized to the same representation before it is saved.
-  const withTimezone = /(?:Z|[+-]\d\d:\d\d)$/i.test(normalized) ? normalized : `${normalized}Z`;
-  const date = new Date(withTimezone);
-  return Number.isNaN(date.valueOf()) ? normalized.slice(0, 16) : localDateTime(date);
 }
 
 export function cookieValue(request: FastifyRequest, name: string): string {
@@ -272,15 +182,7 @@ export function forbidden(reply: FastifyReply): null {
   return null;
 }
 
-export function managementNotFound(reply: FastifyReply, message = '페이지를 찾을 수 없습니다.') {
-  return reply.code(404).type('text/plain; charset=utf-8').send(message);
-}
-
-export function managementForbidden(reply: FastifyReply) {
-  return reply.code(403).type('text/plain; charset=utf-8').send('요청 권한을 확인할 수 없습니다.');
-}
-
-export function editorRedirect(reply: FastifyReply, loggedIn: boolean): null {
+function editorRedirect(reply: FastifyReply, loggedIn: boolean): null {
   reply.redirect(loggedIn ? '/' : '/login', 302);
   return null;
 }
@@ -292,19 +194,15 @@ export async function currentAccount(
 ): Promise<UserRow | null> {
   const user = await options.currentUser(request);
   if (!user || !Number.isSafeInteger(user.id) || user.id < 1) return null;
-  const rows = await db.$queryRaw<UserRow[]>`
-    SELECT author.id AS id,
-           author.username AS username,
-           CAST(author.is_active AS INTEGER) AS isActive,
-           profile.role AS role
-    FROM auth_user AS author
-    LEFT JOIN board_profile AS profile ON profile.user_id = author.id
-    WHERE author.id = ${user.id} AND author.username = ${user.username}
-    LIMIT 1
-  `;
-  const account = rows[0];
-  return account && numberValue(account.isActive) === 1
-    ? { ...account, isStaff: user.isStaff, notifyCount: user.notifyCount, hasConnectedTelegram: user.hasConnectedTelegram }
+  const account = await db.user.findFirst({
+    where: { id: user.id, username: user.username },
+    select: { id: true, username: true, isActive: true, profile: { select: { role: true } } },
+  });
+  return account?.isActive
+    ? {
+      id: account.id, username: account.username, isActive: true, role: account.profile?.role ?? null,
+      isStaff: user.isStaff, notifyCount: user.notifyCount, hasConnectedTelegram: user.hasConnectedTelegram,
+    }
     : null;
 }
 

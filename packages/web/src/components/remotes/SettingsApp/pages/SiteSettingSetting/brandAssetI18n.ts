@@ -6,71 +6,71 @@ import type {
 } from './brandAssetGenerator';
 
 const brandAssetGenerationErrorMessages: Record<BrandAssetGenerationErrorCode, MessageDescriptor> = {
-    svg_processing_instruction: msg({
+    svgProcessingInstruction: msg({
         id: 'settings.site.brand.error.svg_processing_instruction',
         message: 'SVG processing instructions are not allowed.'
     }),
-    svg_doctype: msg({
+    svgDoctype: msg({
         id: 'settings.site.brand.error.svg_doctype',
         message: 'SVG DOCTYPE declarations are not allowed.'
     }),
-    svg_invalid: msg({
+    svgInvalid: msg({
         id: 'settings.site.brand.error.svg_invalid',
         message: 'This is not a valid SVG file.'
     }),
-    svg_only: msg({
+    svgOnly: msg({
         id: 'settings.site.brand.error.svg_only',
         message: 'Only SVG files can be uploaded.'
     }),
-    svg_too_complex: msg({
+    svgTooComplex: msg({
         id: 'settings.site.brand.error.svg_too_complex',
         message: 'The SVG structure is too complex.'
     }),
-    svg_unsupported_element: msg({
+    svgUnsupportedElement: msg({
         id: 'settings.site.brand.error.svg_unsupported_element',
         message: 'Unsupported SVG element: {detail}'
     }),
-    svg_invalid_namespace: msg({
+    svgInvalidNamespace: msg({
         id: 'settings.site.brand.error.svg_invalid_namespace',
         message: 'Check the SVG namespace value.'
     }),
-    svg_event_attribute: msg({
+    svgEventAttribute: msg({
         id: 'settings.site.brand.error.svg_event_attribute',
         message: 'The SVG contains an event handler attribute.'
     }),
-    svg_unsupported_attribute: msg({
+    svgUnsupportedAttribute: msg({
         id: 'settings.site.brand.error.svg_unsupported_attribute',
         message: 'Unsupported SVG attribute: {detail}'
     }),
-    svg_unsafe_value: msg({
+    svgUnsafeValue: msg({
         id: 'settings.site.brand.error.svg_unsafe_value',
         message: 'The SVG contains an external reference or unsafe value.'
     }),
-    svg_unsafe_text: msg({
+    svgUnsafeText: msg({
         id: 'settings.site.brand.error.svg_unsafe_text',
         message: 'The SVG text contains an unsafe value.'
     }),
-    svg_invalid_viewbox: msg({
+    svgInvalidViewbox: msg({
         id: 'settings.site.brand.error.svg_invalid_viewbox',
         message: 'The SVG must have a valid viewBox.'
     }),
-    svg_invalid_viewbox_size: msg({
+    svgInvalidViewboxSize: msg({
         id: 'settings.site.brand.error.svg_invalid_viewbox_size',
         message: 'Check the SVG viewBox dimensions.'
     }),
-    svg_preview_failed: msg({
+    svgPreviewFailed: msg({
         id: 'settings.site.brand.error.svg_preview_failed',
         message: 'Could not generate the SVG preview image.'
     }),
-    icon_generation_failed: msg({
+    iconGenerationFailed: msg({
         id: 'settings.site.brand.error.icon_generation_failed',
         message: 'Could not generate the icon image.'
     }),
-    png_generation_failed: msg({
+    pngGenerationFailed: msg({
         id: 'settings.site.brand.error.png_generation_failed',
         message: 'Could not generate the PNG image.'
     }),
-    favicon_png_missing: msg({
+    faviconPngMissing: msg({
         id: 'settings.site.brand.error.favicon_png_missing',
         message: 'No PNG image is available to create favicon.ico.'
     })

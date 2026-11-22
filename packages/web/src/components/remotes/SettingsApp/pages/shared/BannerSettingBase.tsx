@@ -156,7 +156,7 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
     const handleToggleActive = (banner: BannerItem) => {
         updateMutation.mutate({
             id: banner.id,
-            data: { is_active: !banner.isActive }
+            data: { isActive: !banner.isActive }
         });
     };
 

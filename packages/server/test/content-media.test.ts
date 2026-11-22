@@ -8,12 +8,15 @@ import { PrismaClient } from '@prisma/client';
 import Fastify from 'fastify';
 import sharp from 'sharp';
 import { registerContentMedia } from '../src/features/media/content-media.js';
+import { accountTables, createMigratedTables, insertRow } from './fixtures/migrated-database.js';
 
 test('validates photo uploads, creates a preview, and deduplicates the same bytes', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'blex-content-media-'));
   const dbPath = join(directory, 'test.sqlite3');
   const fixture = new DatabaseSync(dbPath);
-  fixture.exec(`CREATE TABLE board_imagecache (id INTEGER PRIMARY KEY, key TEXT UNIQUE, path TEXT UNIQUE, size INTEGER, user_id INTEGER)`);
+  createMigratedTables(fixture, 'UploadedImage');
+  createMigratedTables(fixture, ...accountTables);
+  insertRow(fixture, 'User', { id: 7, username: 'writer' });
   fixture.close();
   const db = new PrismaClient({ datasourceUrl: `file:${dbPath}` });
   const app = Fastify();
@@ -40,8 +43,7 @@ test('validates photo uploads, creates a preview, and deduplicates the same byte
     assert.equal((await stat(output)).isFile(), true);
     assert.equal((await sharp(`${output}.preview.jpg`).metadata()).format, 'jpeg');
     assert.equal((await upload(png, 'same-file.png')).json().body.url, url);
-    const [count] = await db.$queryRaw<Array<{ total: number | bigint }>>`SELECT COUNT(*) AS total FROM board_imagecache`;
-    assert.equal(Number(count.total), 1);
+    assert.equal(await db.uploadedImage.count(), 1);
   } finally {
     await app.close();
     await db.$disconnect();

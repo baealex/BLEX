@@ -102,28 +102,28 @@ const orderingItems: Array<{
         })
     },
     {
-        value: '-post_count',
+        value: '-postCount',
         label: msg({
             id: 'settings.users.order.posts_desc',
             message: 'Most posts'
         })
     },
     {
-        value: 'post_count',
+        value: 'postCount',
         label: msg({
             id: 'settings.users.order.posts_asc',
             message: 'Fewest posts'
         })
     },
     {
-        value: '-date_joined',
+        value: '-dateJoined',
         label: msg({
             id: 'settings.users.order.joined_desc',
             message: 'Newest members'
         })
     },
     {
-        value: 'date_joined',
+        value: 'dateJoined',
         label: msg({
             id: 'settings.users.order.joined_asc',
             message: 'Oldest members'
@@ -616,7 +616,7 @@ const UserManagementSetting = () => {
                 })}
                 description={t({
                     id: 'settings.users.description',
-                    message: 'Administrator access can only be changed in Django admin.'
+                    message: 'Administrator access cannot be changed on this screen.'
                 })}
             />
 

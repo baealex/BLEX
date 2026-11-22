@@ -35,19 +35,9 @@ COPY packages/server/src ./packages/server/src
 COPY packages/server/scripts ./packages/server/scripts
 RUN pnpm --filter @blex/server run build
 
-FROM build AS migration
-WORKDIR /app/packages/server
-RUN install -d -o node -g node /var/lib/blex /var/lib/blex/media \
-    && rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/pnpm /usr/local/lib/node_modules/corepack \
-              /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/pnpm /usr/local/bin/pnpx /usr/local/bin/corepack /opt/yarn-*
-ENV DATABASE_URL=file:/var/lib/blex/db.sqlite3
-USER node
-CMD ["node", "node_modules/prisma/build/index.js", "migrate", "deploy"]
-
 FROM build AS traced-files
 WORKDIR /app/packages/server
-RUN node scripts/trace-runtime.mjs /traced dist/src/main.js dist/src/compat/upgrade-preflight.js \
-       dist/src/compat/database-baseline.js node_modules/prisma/build/index.js \
+RUN node scripts/trace-runtime.mjs /traced dist/src/main.js node_modules/prisma/build/index.js \
     && for engine in /app/node_modules/.pnpm/@prisma+engines@*/node_modules/@prisma/engines/*engine*-linux-*; do \
          install -D "$engine" "/traced${engine#/app}"; \
        done \

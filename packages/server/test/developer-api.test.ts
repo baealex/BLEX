@@ -8,97 +8,95 @@ import Fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import test from 'node:test';
 import { registerDeveloperApi } from '../src/features/developer-api/index.js';
+import { accountTables, createMigratedTables, insertRow, migratedTableSql } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-developer-api-'));
 const databasePath = join(directory, 'developer-api.sqlite3');
 const database = new DatabaseSync(databasePath);
 database.exec(`
-  CREATE TABLE auth_user (
-    id INTEGER PRIMARY KEY, username TEXT NOT NULL, first_name TEXT NOT NULL DEFAULT '',
-    email TEXT NOT NULL DEFAULT '', is_active BOOLEAN NOT NULL DEFAULT 1
-  );
-  CREATE TABLE board_profile (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, role TEXT NOT NULL);
-  CREATE TABLE board_developertoken (
-    id INTEGER PRIMARY KEY, name TEXT NOT NULL, token_prefix TEXT NOT NULL,
-    token_hash TEXT NOT NULL, scopes TEXT NOT NULL, expires_at DATETIME, revoked_at DATETIME,
-    user_id INTEGER NOT NULL
-  );
-  CREATE TABLE board_series (
-    id INTEGER PRIMARY KEY, owner_id INTEGER NOT NULL, name TEXT NOT NULL, url TEXT NOT NULL,
-    text_md TEXT NOT NULL DEFAULT '', hide BOOLEAN NOT NULL DEFAULT 0, "order" INTEGER NOT NULL DEFAULT 0,
-    created_date DATETIME NOT NULL, updated_date DATETIME NOT NULL
-  );
-  CREATE TABLE board_post (
-    id INTEGER PRIMARY KEY, author_id INTEGER NOT NULL, series_id INTEGER, url TEXT NOT NULL,
-    title TEXT NOT NULL, subtitle TEXT NOT NULL DEFAULT '', meta_description TEXT NOT NULL DEFAULT '',
-    published_date DATETIME, deleted_date DATETIME, created_date DATETIME NOT NULL,
-    updated_date DATETIME NOT NULL, read_time INTEGER NOT NULL DEFAULT 1
-  );
-  CREATE TABLE board_postconfig (
-    id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, hide BOOLEAN NOT NULL DEFAULT 0,
-    advertise BOOLEAN NOT NULL DEFAULT 0, cover_layout TEXT NOT NULL DEFAULT 'default',
-    cover_image_position TEXT NOT NULL DEFAULT 'right', cover_image_ratio TEXT NOT NULL DEFAULT 'auto'
-  );
-  CREATE TABLE board_postcontent (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, content_html TEXT NOT NULL DEFAULT '');
-  CREATE TABLE board_tag (id INTEGER PRIMARY KEY, value TEXT NOT NULL);
-  CREATE TABLE board_post_tags (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, tag_id INTEGER NOT NULL);
+  ${migratedTableSql(...accountTables)}
+  ${migratedTableSql('Series')}
+${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', 'PostLike', 'PinnedPost', 'PostShareLink', 'PostShareDailyCount', 'ScheduledPublication')}
 
-  INSERT INTO auth_user VALUES
-    (1, 'writer', 'Writer', 'writer@example.test', 1),
-    (2, 'other', 'Other', 'other@example.test', 1),
-    (3, 'reader', 'Reader', 'reader@example.test', 1),
-    (4, 'inactive', 'Inactive', 'inactive@example.test', 0);
-  INSERT INTO board_profile VALUES (1, 1, 'EDITOR'), (2, 2, 'EDITOR'), (3, 3, 'READER'), (4, 4, 'EDITOR');
+
+
+
+
+  INSERT INTO "User" ("id", "username", "name", "email", "isActive", "passwordHash", "joinedAt") VALUES
+    (1, 'writer', 'Writer', 'writer@example.test', 1, '', 1577836800000),
+    (2, 'other', 'Other', 'other@example.test', 1, '', 1577836800000),
+    (3, 'reader', 'Reader', 'reader@example.test', 1, '', 1577836800000),
+    (4, 'inactive', 'Inactive', 'inactive@example.test', 0, '', 1577836800000);
+  INSERT INTO "Profile" ("userId", "role") VALUES
+    (1, 'EDITOR'),
+    (2, 'EDITOR'),
+    (3, 'READER'),
+    (4, 'EDITOR');
 `);
+createMigratedTables(database, 'DeveloperToken');
 
 function insertToken(id: number, prefix: string, userId: number, scopes: string[], options: {
-  revokedAt?: string | null;
-  expiresAt?: string | null;
+  revokedAt?: number;
+  expiresAt?: number;
 } = {}) {
   const rawToken = `blex_pat_${prefix}_test-secret`;
   const tokenHash = createHash('sha256').update(rawToken, 'utf8').digest('hex');
-  database.prepare(`
-    INSERT INTO board_developertoken
-      (id, name, token_prefix, token_hash, scopes, expires_at, revoked_at, user_id)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(id, `Token ${id}`, prefix, tokenHash, JSON.stringify(scopes), options.expiresAt ?? null, options.revokedAt ?? null, userId);
+  insertRow(database, 'DeveloperToken', {
+    id, name: `Token ${id}`, tokenPrefix: prefix, tokenHash, scopes: JSON.stringify(scopes),
+    expiresAt: options.expiresAt ?? null, revokedAt: options.revokedAt ?? null, userId,
+  });
   return rawToken;
 }
 
 const readToken = insertToken(1, 'abcdef123456', 1, ['posts:read']);
 const noScopeToken = insertToken(2, 'scope00000001', 1, []);
-const revokedToken = insertToken(3, 'revoked000001', 1, ['posts:read'], { revokedAt: '2025-01-01 00:00:00' });
-const expiredToken = insertToken(4, 'expired000001', 1, ['posts:read'], { expiresAt: '2025-01-01 00:00:00' });
+const revokedToken = insertToken(3, 'revoked000001', 1, ['posts:read'], { revokedAt: Date.UTC(2025, 0, 1) });
+const expiredToken = insertToken(4, 'expired000001', 1, ['posts:read'], { expiresAt: Date.UTC(2025, 0, 1) });
 const readerToken = insertToken(5, 'reader0000001', 3, ['posts:read']);
 const inactiveToken = insertToken(6, 'inactive00001', 4, ['posts:read']);
 const otherToken = insertToken(7, 'other00000001', 2, ['posts:read']);
 
 database.exec(`
-  INSERT INTO board_series VALUES
-    (10, 1, 'Writer Series', 'writer-series', 'A series description', 1, 2, '2020-01-02 03:04:05', '2020-02-03 04:05:06'),
-    (20, 2, 'Other Series', 'other-series', '', 0, 1, '2020-01-02 03:04:05', '2020-02-03 04:05:06');
-  INSERT INTO board_post VALUES
-    (1, 1, 10, 'draft-needle', 'Draft Needle', 'A draft', 'description', NULL, NULL, '2020-01-01 00:00:00', '2025-01-01 00:00:09.123456', 3),
-    (2, 2, 20, 'other-draft', 'Other Draft', '', '', NULL, NULL, '2020-01-01 00:00:00', '2025-01-01 00:00:08', 1),
-    (3, 1, 10, 'public', 'Public article', '', 'public description', '2020-01-01 00:00:00', NULL, '2020-01-01 00:00:00', '2025-01-01 00:00:07', 5),
-    (4, 1, NULL, 'hidden', 'Hidden article', '', '', '2020-01-01 00:00:00', NULL, '2020-01-01 00:00:00', '2025-01-01 00:00:06', 2),
-    (5, 1, NULL, 'scheduled', 'Scheduled article', '', '', '2099-01-01 00:00:00', NULL, '2020-01-01 00:00:00', '2025-01-01 00:00:05', 1),
-    (6, 1, 10, 'trashed', 'Trashed article', '', '', '2020-01-01 00:00:00', '2025-01-01 00:00:00', '2020-01-01 00:00:00', '2025-01-01 00:00:04', 1),
-    (7, 1, 10, 'trashed-draft', 'Trashed draft', '', '', NULL, '2025-01-01 00:00:00', '2020-01-01 00:00:00', '2025-01-01 00:00:03', 1),
-    (8, 1, NULL, 'no-config', 'No config article', '', '', '2020-01-01 00:00:00', NULL, '2020-01-01 00:00:00', '2025-01-01 00:00:02', 1),
-    (9, 1, NULL, 'hidden-trashed', 'Hidden trashed article', '', '', '2020-01-01 00:00:00', '2025-01-01 00:00:00', '2020-01-01 00:00:00', '2025-01-01 00:00:01', 1),
-    (10, 1, NULL, 'another-draft', 'Another draft', '', '', NULL, NULL, '2020-01-01 00:00:00', '2025-01-02 00:00:00', 1);
-  INSERT INTO board_postconfig VALUES
-    (1, 1, 0, 1, 'split', 'left', '16:9'), (2, 2, 0, 0, 'default', 'right', 'auto'),
-    (3, 3, 0, 0, 'default', 'right', 'auto'), (4, 4, 1, 0, 'overlay', 'right', '4:3'),
-    (5, 5, 0, 0, 'default', 'right', 'auto'), (6, 6, 0, 0, 'default', 'right', 'auto'),
-    (7, 7, 0, 0, 'default', 'right', 'auto'), (9, 9, 1, 0, 'default', 'right', 'auto');
-  INSERT INTO board_postcontent VALUES
-    (1, 1, '<p>needle in the content</p>'), (2, 2, '<p>other content</p>'),
-    (3, 3, '<p>public content</p>'), (4, 4, '<p>hidden content</p>');
-  INSERT INTO board_tag VALUES (1, 'api'), (2, 'shared'), (3, 'other-only'), (4, 'trashed-only');
-  INSERT INTO board_post_tags VALUES
-    (1, 1, 1), (2, 1, 2), (3, 2, 3), (4, 3, 1), (5, 3, 2), (6, 6, 4), (7, 7, 4);
+  INSERT INTO "Series" ("id", "ownerId", "name", "slug", "descriptionMarkdown", "isHidden", "order", "createdAt", "updatedAt") VALUES
+    (10, 1, 'Writer Series', 'writer-series', 'A series description', 1, 2, 1577934245000, 1580702706000),
+    (20, 2, 'Other Series', 'other-series', '', 0, 1, 1577934245000, 1580702706000);
+  INSERT INTO "Post" ("id", "authorId", "seriesId", "slug", "title", "subtitle", "description", "publishedAt", "deletedAt", "createdAt", "updatedAt", "readTime") VALUES
+    (1, 1, 10, 'draft-needle', 'Draft Needle', 'A draft', 'description', NULL, NULL, 1577836800000, 1735689609123, 3),
+    (2, 2, 20, 'other-draft', 'Other Draft', '', '', NULL, NULL, 1577836800000, 1735689608000, 1),
+    (3, 1, 10, 'public', 'Public article', '', 'public description', 1577836800000, NULL, 1577836800000, 1735689607000, 5),
+    (4, 1, NULL, 'hidden', 'Hidden article', '', '', 1577836800000, NULL, 1577836800000, 1735689606000, 2),
+    (5, 1, NULL, 'scheduled', 'Scheduled article', '', '', 4070908800000, NULL, 1577836800000, 1735689605000, 1),
+    (6, 1, 10, 'trashed', 'Trashed article', '', '', 1577836800000, 1735689600000, 1577836800000, 1735689604000, 1),
+    (7, 1, 10, 'trashed-draft', 'Trashed draft', '', '', NULL, 1735689600000, 1577836800000, 1735689603000, 1),
+    (8, 1, NULL, 'no-config', 'No config article', '', '', 1577836800000, NULL, 1577836800000, 1735689602000, 1),
+    (9, 1, NULL, 'hidden-trashed', 'Hidden trashed article', '', '', 1577836800000, 1735689600000, 1577836800000, 1735689601000, 1),
+    (10, 1, NULL, 'another-draft', 'Another draft', '', '', NULL, NULL, 1577836800000, 1735776000000, 1);
+  UPDATE "Post" SET isHidden = 0, isAdvertised = 1, coverLayout = 'split', coverImagePosition = 'left', coverImageRatio = '16:9' WHERE id = 1;
+    UPDATE "Post" SET isHidden = 0, isAdvertised = 0, coverLayout = 'default', coverImagePosition = 'right', coverImageRatio = 'auto' WHERE id = 2;
+    UPDATE "Post" SET isHidden = 0, isAdvertised = 0, coverLayout = 'default', coverImagePosition = 'right', coverImageRatio = 'auto' WHERE id = 3;
+    UPDATE "Post" SET isHidden = 1, isAdvertised = 0, coverLayout = 'overlay', coverImagePosition = 'right', coverImageRatio = '4:3' WHERE id = 4;
+    UPDATE "Post" SET isHidden = 0, isAdvertised = 0, coverLayout = 'default', coverImagePosition = 'right', coverImageRatio = 'auto' WHERE id = 5;
+    UPDATE "Post" SET isHidden = 0, isAdvertised = 0, coverLayout = 'default', coverImagePosition = 'right', coverImageRatio = 'auto' WHERE id = 6;
+    UPDATE "Post" SET isHidden = 0, isAdvertised = 0, coverLayout = 'default', coverImagePosition = 'right', coverImageRatio = 'auto' WHERE id = 7;
+    UPDATE "Post" SET isHidden = 1, isAdvertised = 0, coverLayout = 'default', coverImagePosition = 'right', coverImageRatio = 'auto' WHERE id = 9;
+  INSERT INTO "PostContent" ("postId", "html") VALUES
+    (1, '<p>needle in the content</p>'),
+    (2, '<p>other content</p>'),
+    (3, '<p>public content</p>'),
+    (4, '<p>hidden content</p>');
+  INSERT INTO "Tag" ("id", "name") VALUES
+    (1, 'api'),
+    (2, 'shared'),
+    (3, 'other-only'),
+    (4, 'trashed-only');
+  INSERT INTO "_PostToTag" ("A", "B") VALUES
+    (1, 1),
+    (1, 2),
+    (2, 3),
+    (3, 1),
+    (3, 2),
+    (6, 4),
+    (7, 4);
 `);
 database.close();
 
@@ -167,7 +165,8 @@ test('rejects missing, malformed, unknown, revoked, expired, inactive, and non-e
 test('lists only the token owner’s posts with legacy fields, ordering, pagination, and status rules', async () => {
   const response = await get('/api/developer/v1/posts?status=published', readToken);
   assert.equal(response.statusCode, 200, response.body);
-  assert.deepEqual(response.json().data.pagination, { page: 1, limit: 20, total: 1 });
+  assert.deepEqual(response.json().data.pagination, { page: 1, limit: 20, total: 2 });
+  assert.deepEqual(response.json().data.posts.map((item: { id: number }) => item.id), [3, 8]);
   const [post] = response.json().data.posts;
   assert.equal(post.id, 3);
   assert.equal(post.status, 'published');
@@ -232,7 +231,7 @@ test('returns post details to the owner, including draft content, and hides cros
     cover_image_position: 'left',
     cover_image_ratio: '16:9',
     created_at: '2020-01-01T00:00:00+00:00',
-    updated_at: '2025-01-01T00:00:09.123456+00:00',
+    updated_at: '2025-01-01T00:00:09.123000+00:00',
     published_at: null,
     description: 'description',
     content: '<p>needle in the content</p>',

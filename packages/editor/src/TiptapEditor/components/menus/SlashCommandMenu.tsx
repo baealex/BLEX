@@ -43,7 +43,7 @@ interface CommandItem {
 interface Form {
     id: number;
     title: string;
-    created_date: string;
+    createdDate: string;
 }
 
 const getCsrfToken = () => {

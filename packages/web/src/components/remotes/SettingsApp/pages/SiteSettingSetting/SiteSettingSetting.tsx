@@ -429,11 +429,11 @@ const SiteSettingSetting = () => {
     const handleSave = (event?: FormEvent<HTMLFormElement>) => {
         event?.preventDefault();
         updateMutation.mutate({
-            site_name: siteName,
+            siteName,
             ...(settingData.canManageScripts
                 ? {
-                    header_script: headerScript,
-                    footer_script: footerScript
+                    headerScript,
+                    footerScript
                 }
                 : {})
         });

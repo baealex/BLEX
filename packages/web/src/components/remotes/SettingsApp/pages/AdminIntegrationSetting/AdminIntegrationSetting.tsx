@@ -152,16 +152,16 @@ const AdminIntegrationSetting = () => {
     const handleSave = (event?: FormEvent<HTMLFormElement>) => {
         event?.preventDefault();
         updateMutation.mutate({
-            telegram_enabled: integrationSettings.telegramEnabled,
+            telegramEnabled: integrationSettings.telegramEnabled,
             ...(integrationSettings.telegramBotToken.trim()
-                ? { telegram_bot_token: integrationSettings.telegramBotToken }
+                ? { telegramBotToken: integrationSettings.telegramBotToken }
                 : {}),
-            ...(integrationSettings.clearTelegramBotToken ? { clear_telegram_bot_token: true } : {})
+            ...(integrationSettings.clearTelegramBotToken ? { clearTelegramBotToken: true } : {})
         });
     };
 
     const reconnectTelegram = () => {
-        updateMutation.mutate({ telegram_enabled: true });
+        updateMutation.mutate({ telegramEnabled: true });
     };
 
     const isDirty = hasIntegrationSettingsChanged(integrationSettings, savedIntegrationSettingsRef.current);

@@ -1,22 +1,11 @@
 import { createHash } from 'node:crypto';
 import { createElement, type ReactNode } from 'react';
+import type { Prisma } from '@prisma/client';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { sanitizePostHtml } from '../posts/post-html.js';
 import { authorPath } from '../authors/services/profile.js';
 
-export type SqlValue = string | number | null;
-
 type StoredDate = string | Date;
-
-export type DatabaseInteger = number | bigint;
-
-export interface SiteSettingRow {
-  siteName: string | null;
-  logo: string | null;
-  darkLogo: string | null;
-  iconManifest: unknown;
-  seoEnabled: DatabaseInteger | boolean | null;
-}
 
 export interface SiteBrand {
   siteName: string;
@@ -52,19 +41,19 @@ export interface PostRow {
   seriesUrl: string | null;
   seriesName: string | null;
   relevance?: number;
-  likeCount?: DatabaseInteger;
-  commentCount?: DatabaseInteger;
-  titleScore?: DatabaseInteger;
-  descriptionScore?: DatabaseInteger;
-  tagScore?: DatabaseInteger;
-  contentScore?: DatabaseInteger;
+  likeCount?: number;
+  commentCount?: number;
+  titleScore?: number;
+  descriptionScore?: number;
+  tagScore?: number;
+  contentScore?: number;
 }
 
 export interface AuthorRow {
   id: number;
   username: string;
   firstName: string;
-  isActive: DatabaseInteger | boolean;
+  isActive: boolean;
   bio: string;
   avatar: string;
   cover: string;
@@ -72,15 +61,14 @@ export interface AuthorRow {
   aboutHtml: string;
   aboutMarkdown: string;
   role: string;
-  publicPostCount: DatabaseInteger;
-  publicSeriesCount: DatabaseInteger;
+  publicPostCount: number;
+  publicSeriesCount: number;
 }
 
 export interface TagRow {
   id: number;
   name: string;
-  count: DatabaseInteger;
-  image: string | null;
+  count: number;
 }
 
 export interface SeriesRow {
@@ -91,23 +79,13 @@ export interface SeriesRow {
   textHtml: string;
   createdDate: StoredDate;
   updatedDate: StoredDate;
-  postCount: DatabaseInteger;
-  thumbnail: string;
+  postCount: number;
 }
 
 export interface SeriesDetailRow extends SeriesRow {
   authorId: number;
   authorUsername: string;
   authorAvatar: string | null;
-}
-
-export interface StaticPageRow {
-  title: string;
-  content: string;
-  metaDescription: string;
-  createdDate: StoredDate;
-  updatedDate: StoredDate;
-  authorUsername: string | null;
 }
 
 export interface AuthorSocialLink {
@@ -142,10 +120,8 @@ export interface PublicPageViewer {
 }
 
 export interface PostQueryOptions {
-  conditions?: string[];
-  parameters?: SqlValue[];
-  orderBy?: string;
-  orderParameters?: SqlValue[];
+  where?: Prisma.PostWhereInput;
+  orderBy?: Prisma.PostOrderByWithRelationInput[];
   limit?: number;
   offset?: number;
 }
@@ -153,10 +129,6 @@ export interface PostQueryOptions {
 export const h = createElement;
 
 export const PAGE_SIZE = 24;
-
-export function databaseNow(): string {
-  return new Date().toISOString().replace('T', ' ').replace('Z', '');
-}
 
 export function makeAbsolute(siteUrl: URL, path: string): string {
   return new URL(path, siteUrl).href;
@@ -305,8 +277,8 @@ export function safeStructuredPageData(
   canonical: string,
   title: string,
   descriptionText: string,
-  createdDate: StoredDate,
-  updatedDate: StoredDate,
+  createdDate: StoredDate | null,
+  updatedDate: StoredDate | null,
   authorUsername: string | null,
   siteUrl: URL,
 ): Record<string, unknown> {

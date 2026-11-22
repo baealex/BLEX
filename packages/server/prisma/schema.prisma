@@ -7,925 +7,787 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model OAuthFlow {
-  stateHash   String @id @map("state_hash")
-  browserHash String @map("browser_hash")
-  provider    String
-  verifier    String
-  returnPath  String @map("return_path")
-  expiresAt   BigInt @map("expires_at")
-  sessionHash String? @map("session_hash")
-  language    String @default("")
-  timeZone    String @default("") @map("time_zone")
-
-  @@index([expiresAt], map: "blex_oauth_flow_expires_at_idx")
-  @@map("blex_oauth_flow")
+enum UserRole {
+  READER
+  EDITOR
 }
 
-model OAuthChallenge {
-  tokenHash    String           @id @map("token_hash")
-  socialAuthId Int              @map("social_auth_id")
-  returnPath   String           @map("return_path")
-  expiresAt    BigInt           @map("expires_at")
-  socialAuth   board_socialauth @relation(fields: [socialAuthId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@index([socialAuthId], map: "blex_oauth_challenge_social_auth_id_idx")
-  @@index([expiresAt], map: "blex_oauth_challenge_expires_at_idx")
-  @@map("blex_oauth_challenge")
+enum ContentScope {
+  user
+  global
 }
 
-/// Existing Django account table and relationships.
+enum SubscriptionAction {
+  subscribe
+  unsubscribe
+}
+
+enum CoverLayout {
+  default
+  split
+  overlay
+  none
+}
+
+enum CoverImagePosition {
+  right
+  left
+}
+
+enum RevisionType {
+  edit
+  restore
+  legacy
+  draft
+}
+
+enum BannerType {
+  horizontal
+  sidebar
+}
+
+enum BannerPosition {
+  top
+  bottom
+  left
+  right
+}
+
+// Accounts
+
 model User {
-  id                                                                               Int                                @id @default(autoincrement())
-  password                                                                         String
-  last_login                                                                       DateTime?
-  is_superuser                                                                     Unsupported("bool")
-  username                                                                         String                             @unique(map: "sqlite_autoindex_auth_user_1")
-  last_name                                                                        String
-  email                                                                            String
-  is_staff                                                                         Unsupported("bool")
-  is_active                                                                        Unsupported("bool")
-  date_joined                                                                      DateTime
-  first_name                                                                       String
-  auth_user_groups                                                                 auth_user_groups[]
-  auth_user_user_permissions                                                       auth_user_user_permissions[]
-  board_authorinvite_board_authorinvite_created_by_idToauth_user                   board_authorinvite[]               @relation("board_authorinvite_created_by_idToauth_user")
-  board_authorinvite_board_authorinvite_claimed_by_idToauth_user                   board_authorinvite[]               @relation("board_authorinvite_claimed_by_idToauth_user")
-  board_authorsubscription_board_authorsubscription_subscriber_idToauth_user       board_authorsubscription[]         @relation("board_authorsubscription_subscriber_idToauth_user")
-  board_authorsubscription_board_authorsubscription_author_idToauth_user           board_authorsubscription[]         @relation("board_authorsubscription_author_idToauth_user")
-  board_authorsubscriptionlog_board_authorsubscriptionlog_subscriber_idToauth_user board_authorsubscriptionlog[]      @relation("board_authorsubscriptionlog_subscriber_idToauth_user")
-  board_authorsubscriptionlog_board_authorsubscriptionlog_author_idToauth_user     board_authorsubscriptionlog[]      @relation("board_authorsubscriptionlog_author_idToauth_user")
-  board_comment                                                                    board_comment[]
-  board_comment_likes                                                              board_comment_likes[]
-  board_config                                                                     board_config?
-  board_developerrequestlog                                                        board_developerrequestlog[]
-  board_developertoken                                                             board_developertoken[]
-  board_edithistory                                                                board_edithistory[]
-  board_editrequest                                                                board_editrequest[]
-  board_emailchange                                                                board_emailchange?
-  board_form                                                                       board_form[]
-  board_imagecache                                                                 board_imagecache[]
-  board_notify                                                                     board_notify[]
-  board_pinnedpost                                                                 board_pinnedpost[]
-  posts                                                                            Post[]
-  board_post_likes                                                                 board_post_likes[]
-  board_profile                                                                    board_profile?
-  board_series                                                                     board_series[]
-  board_sitebanner                                                                 board_sitebanner[]
-  board_sitenotice                                                                 board_sitenotice[]
-  board_socialauth                                                                 board_socialauth[]
-  board_staticpage                                                                 board_staticpage[]
-  board_telegramsync                                                               board_telegramsync?
-  board_twofactorauth                                                              board_twofactorauth?
-  board_userconfigmeta                                                             board_userconfigmeta[]
-  board_userlinkmeta                                                               board_userlinkmeta[]
-  usernameChanges                                                                  UsernameChange[]
-  board_utilitycleanupconfirmation                                                 board_utilitycleanupconfirmation[]
-  board_worklog                                                                    board_worklog[]
-  django_admin_log                                                                 django_admin_log[]
-  sessions                                                                         Session[]
+  id                    Int       @id @default(autoincrement())
+  username              String    @unique
+  email                 String
+  passwordHash          String
+  name                  String    @default("")
+  isActive              Boolean   @default(true)
+  isStaff               Boolean   @default(false)
+  isSuperuser           Boolean   @default(false)
+  canManageSiteSettings Boolean   @default(false)
+  lastLoginAt           DateTime?
+  joinedAt              DateTime  @default(now())
 
-  @@map("auth_user")
+  profile              Profile?
+  preference           UserPreference?
+  twoFactor            TwoFactorAuth?
+  telegram             TelegramConnection?
+  socialLinks          SocialLink[]
+  socialAccounts       SocialAccount[]
+  usernameChanges      UsernameChange[]
+  sessions             Session[]
+  createdInvites       AuthorInvite[]          @relation("InviteCreator")
+  claimedInvites       AuthorInvite[]          @relation("InviteClaimer")
+  subscriptions        AuthorSubscription[]    @relation("Subscriber")
+  subscribers          AuthorSubscription[]    @relation("SubscribedAuthor")
+  subscriptionLogs     AuthorSubscriptionLog[] @relation("LogSubscriber")
+  subscriberLogs       AuthorSubscriptionLog[] @relation("LogAuthor")
+  posts                Post[]
+  postRevisions        PostRevision[]
+  postLikes            PostLike[]
+  pinnedPosts          PinnedPost[]
+  series               Series[]
+  comments             Comment[]
+  commentLikes         CommentLike[]
+  formTemplates        FormTemplate[]
+  uploadedImages       UploadedImage[]
+  staticPages          StaticPage[]
+  notices              SiteNotice[]
+  banners              SiteBanner[]
+  adminLogs            AdminLog[]
+  notifications        Notification[]
+  webhookChannels      WebhookChannel[]
+  developerTokens      DeveloperToken[]
+  developerRequests    DeveloperRequestLog[]
+  workLogs             WorkLog[]
+  cleanupConfirmations CleanupConfirmation[]
 }
 
-model Session {
-  tokenHash        String       @id @map("token_hash")
-  userId           Int          @map("user_id")
-  credentialTag    String       @map("credential_tag")
-  expiresAt        BigInt       @map("expires_at")
-  verifiedUntil    BigInt?      @map("verified_until")
-  verifiedFactorId Int?         @map("verified_factor_id")
-  requiresFactor   Int          @default(0) @map("requires_factor")
-  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  factorSetup      FactorSetup?
+model Profile {
+  userId        Int      @id
+  role          UserRole @default(READER)
+  bio           String   @default("")
+  avatar        String   @default("")
+  cover         String   @default("")
+  homepage      String   @default("")
+  aboutMarkdown String   @default("")
+  aboutHtml     String   @default("")
 
-  @@index([userId], map: "blex_session_user_id_idx")
-  @@index([expiresAt], map: "blex_session_expires_at_idx")
-  @@map("blex_session")
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model FactorSetup {
-  sessionHash  String  @id @map("session_hash")
-  secret       String
-  recoveryHash String  @map("recovery_hash")
-  expiresAt    BigInt  @map("expires_at")
-  session      Session @relation(fields: [sessionHash], references: [tokenHash], onDelete: Cascade, onUpdate: Cascade)
+model UserPreference {
+  userId            Int      @id
+  language          String?
+  timeZone          String   @default("")
+  notifyPostLike    Boolean?
+  notifyPostComment Boolean?
+  notifyCommentLike Boolean?
+  notifyMention     Boolean?
 
-  @@map("blex_factor_setup")
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model NotificationDelivery {
-  notificationId Int          @id @map("notification_id")
-  attempts       Int          @default(0)
-  availableAt    BigInt       @map("available_at")
-  notification   board_notify @relation(fields: [notificationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+model SocialLink {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  platform  String
+  url       String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 
-  @@index([availableAt], map: "blex_notification_delivery_available_at_idx")
-  @@map("blex_notification_delivery")
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, order])
 }
 
-model ScheduledPublication {
-  postId    Int        @id @map("post_id")
-  publishAt String     @map("publish_at")
-  post      Post @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+model SocialProvider {
+  id           Int     @id @default(autoincrement())
+  key          String  @unique
+  clientId     String  @default("")
+  clientSecret String  @default("")
+  isEnabled    Boolean @default(false)
 
-  @@index([publishAt], map: "blex_scheduled_publication_publish_at_idx")
-  @@map("blex_scheduled_publication")
+  accounts SocialAccount[]
 }
 
-model WebhookDelivery {
-  postId      Int                       @map("post_id")
-  channelId   Int                       @map("channel_id")
-  availableAt BigInt                    @map("available_at")
-  done        Int                       @default(0)
-  post        Post                      @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  channel     board_webhooksubscription @relation(fields: [channelId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+model SocialAccount {
+  id         Int      @id @default(autoincrement())
+  providerId Int
+  uid        String
+  userId     Int
+  extraData  String   @default("")
+  createdAt  DateTime @default(now())
 
-  @@id([postId, channelId])
-  @@index([done, availableAt], map: "blex_webhook_delivery_pending_idx")
-  @@map("blex_webhook_delivery")
+  provider   SocialProvider   @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenges OAuthChallenge[]
+
+  @@unique([providerId, uid])
+  @@index([userId])
+}
+
+model TwoFactorAuth {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @unique
+  totpSecret  String
+  recoveryKey String
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model TelegramConnection {
+  userId             Int       @id
+  telegramId         String    @default("")
+  authToken          String    @default("")
+  authTokenExpiresAt DateTime?
+  createdAt          DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model UsernameChange {
-  id           Int      @id @default(autoincrement())
-  username     String
-  created_date DateTime
-  userId       Int      @map("user_id")
-  user         User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  username  String
+  createdAt DateTime @default(now())
 
-  @@index([username], map: "board_usern_usernam_873004_idx")
-  @@index([userId], map: "board_usernamechangelog_user_id_42630b04")
-  @@map("board_usernamechangelog")
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([username])
+  @@index([userId])
 }
 
-model Post {
-  id                   Int                    @id @default(autoincrement())
-  title                String
-  slug                 String                 @unique(map: "sqlite_autoindex_board_post_1") @map("url")
-  image                String
-  read_time            Int
-  created_date         DateTime
-  updated_date         DateTime
-  authorId             Int                    @map("author_id")
-  series_id            Int?
-  metaDescription      String                 @map("meta_description")
-  subtitle             String
-  publishedDate        DateTime?              @map("published_date")
-  image_hash           String
-  deletedDate          DateTime?              @map("deleted_date")
-  board_comment        board_comment[]
-  board_edithistory    board_edithistory[]
-  board_editrequest    board_editrequest[]
-  board_pinnedpost     board_pinnedpost[]
-  board_series         board_series?          @relation(fields: [series_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  author               User                   @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_post_likes     board_post_likes[]
-  board_post_tags      board_post_tags[]
-  config               PostConfig?
-  board_postconfigmeta board_postconfigmeta[]
-  content              PostContent?
-  board_postsharelink  board_postsharelink[]
-  scheduledPublication ScheduledPublication?
-  webhookDeliveries   WebhookDelivery[]
+model AuthorInvite {
+  id          Int       @id @default(autoincrement())
+  code        String    @unique
+  note        String    @default("")
+  isActive    Boolean   @default(true)
+  createdById Int?
+  claimedById Int?
+  createdAt   DateTime  @default(now())
+  claimedAt   DateTime?
 
-  @@index([deletedDate], map: "board_post_deleted_date_e66a3ffc")
-  @@index([authorId, publishedDate], map: "board_post_author__54dd01_idx")
-  @@index([publishedDate], map: "board_post_publish_950f79_idx")
-  @@index([slug], map: "board_post_url_7e049a_idx")
-  @@index([created_date], map: "board_post_created_69fd60_idx")
-  @@index([authorId, created_date], map: "board_post_author__effd83_idx")
-  @@index([image_hash], map: "board_post_image_hash_4631962a")
-  @@index([series_id], map: "board_post_series_id_05abc0fb")
-  @@index([authorId], map: "board_post_author_id_1d40598b")
-  @@map("board_post")
+  createdBy User? @relation("InviteCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  claimedBy User? @relation("InviteClaimer", fields: [claimedById], references: [id], onDelete: SetNull)
+
+  @@index([createdById])
+  @@index([claimedById])
+}
+
+model LoginAttempt {
+  key    String @id
+  window BigInt
+  count  Int
+
+  @@index([window])
+}
+
+model Session {
+  tokenHash        String    @id
+  userId           Int
+  credentialTag    String
+  expiresAt        DateTime
+  verifiedUntil    DateTime?
+  verifiedFactorId Int?
+  requiresFactor   Boolean   @default(false)
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  factorSetup FactorSetup?
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model FactorSetup {
+  sessionHash  String   @id
+  secret       String
+  recoveryHash String
+  expiresAt    DateTime
+
+  session Session @relation(fields: [sessionHash], references: [tokenHash], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model OAuthFlow {
+  stateHash   String   @id
+  browserHash String
+  provider    String
+  verifier    String
+  returnPath  String
+  sessionHash String?
+  language    String   @default("")
+  timeZone    String   @default("")
+  expiresAt   DateTime
+
+  @@index([expiresAt])
+}
+
+model OAuthChallenge {
+  tokenHash       String   @id
+  socialAccountId Int
+  returnPath      String
+  expiresAt       DateTime
+
+  socialAccount SocialAccount @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
+
+  @@index([socialAccountId])
+  @@index([expiresAt])
+}
+
+model AuthorSubscription {
+  id           Int      @id @default(autoincrement())
+  subscriberId Int
+  authorId     Int
+  createdAt    DateTime @default(now())
+
+  subscriber User @relation("Subscriber", fields: [subscriberId], references: [id], onDelete: Cascade)
+  author     User @relation("SubscribedAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@unique([subscriberId, authorId])
+  @@index([authorId, createdAt])
+}
+
+model AuthorSubscriptionLog {
+  id           Int                @id @default(autoincrement())
+  subscriberId Int
+  authorId     Int
+  action       SubscriptionAction
+  createdAt    DateTime           @default(now())
+
+  subscriber User @relation("LogSubscriber", fields: [subscriberId], references: [id], onDelete: Cascade)
+  author     User @relation("LogAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([authorId, createdAt])
+  @@index([subscriberId])
+}
+
+// Posts
+
+model Post {
+  id                 Int                @id @default(autoincrement())
+  authorId           Int
+  seriesId           Int?
+  slug               String             @unique
+  title              String
+  subtitle           String             @default("")
+  description        String             @default("")
+  image              String             @default("")
+  imageHash          String             @default("")
+  readTime           Int                @default(1)
+  isHidden           Boolean            @default(false)
+  isAdvertised       Boolean            @default(false)
+  commentsBlocked    Boolean            @default(false)
+  coverLayout        CoverLayout        @default(default)
+  coverImagePosition CoverImagePosition @default(right)
+  /// One of auto, 16:9, 4:3, 1:1, or 3:4.
+  coverImageRatio    String             @default("auto")
+  createdAt          DateTime           @default(now())
+  /// Set by the editor. Hiding, pinning, or moving a post must not change it.
+  updatedAt          DateTime           @default(now())
+  publishedAt        DateTime?
+  deletedAt          DateTime?
+  draftScheduledAt   DateTime?
+
+  author               User                  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  series               Series?               @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  content              PostContent?
+  tags                 Tag[]
+  comments             Comment[]
+  revisions            PostRevision[]
+  likes                PostLike[]
+  pins                 PinnedPost[]
+  shareLinks           PostShareLink[]
+  scheduledPublication ScheduledPublication?
+  webhookDeliveries    WebhookDelivery[]
+
+  @@index([authorId, publishedAt])
+  @@index([authorId, createdAt])
+  @@index([publishedAt])
+  @@index([createdAt])
+  @@index([deletedAt])
+  @@index([seriesId])
+  @@index([imageHash])
 }
 
 model PostContent {
+  postId Int    @id
+  html   String
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+model Tag {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  posts Post[]
+}
+
+model PostRevision {
+  id              Int          @id @default(autoincrement())
+  postId          Int
+  actorId         Int?
+  restoredFromId  Int?
+  type            RevisionType
+  title           String       @default("")
+  subtitle        String       @default("")
+  description     String       @default("")
+  content         String       @default("")
+  contentExcerpt  String?
+  tags            Json
+  sourceUpdatedAt DateTime?
+  createdAt       DateTime     @default(now())
+
+  post         Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
+  actor        User?          @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  restoredFrom PostRevision?  @relation("RevisionRestore", fields: [restoredFromId], references: [id], onDelete: SetNull)
+  restores     PostRevision[] @relation("RevisionRestore")
+
+  @@index([postId, createdAt])
+  @@index([restoredFromId])
+  @@index([actorId])
+}
+
+model PostLike {
+  postId    Int
+  userId    Int
+  createdAt DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([postId, userId])
+  @@index([userId, createdAt])
+}
+
+model PinnedPost {
+  userId    Int
+  postId    Int
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([userId, postId])
+  @@index([postId])
+}
+
+model PostShareLink {
+  id        Int      @id @default(autoincrement())
+  postId    Int
+  token     String   @unique
+  label     String   @default("")
+  isPaused  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  post        Post                  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  dailyCounts PostShareDailyCount[]
+
+  @@index([postId])
+}
+
+model PostShareDailyCount {
+  linkId Int
+  day    DateTime
+  clicks Int      @default(0)
+
+  link PostShareLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
+
+  @@id([linkId, day])
+}
+
+model ScheduledPublication {
+  postId    Int      @id
+  publishAt DateTime
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([publishAt])
+}
+
+model Series {
+  id                  Int      @id @default(autoincrement())
+  ownerId             Int
+  slug                String   @unique
+  name                String
+  descriptionMarkdown String   @default("")
+  descriptionHtml     String   @default("")
+  isHidden            Boolean  @default(false)
+  layout              String   @default("")
+  order               Int      @default(0)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @default(now())
+
+  owner User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  posts Post[]
+
+  @@index([ownerId])
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  postId    Int
+  authorId  Int?
+  parentId  Int?
+  markdown  String   @default("")
+  html      String   @default("")
+  isEdited  Boolean  @default(false)
+  isHearted Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  post    Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author  User?         @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  parent  Comment?      @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies Comment[]     @relation("CommentReplies")
+  likes   CommentLike[]
+
+  @@index([authorId, createdAt])
+  @@index([postId, parentId, createdAt])
+  @@index([parentId])
+}
+
+model CommentLike {
+  commentId Int
+  userId    Int
+
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([commentId, userId])
+  @@index([userId])
+}
+
+model FormTemplate {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  title     String
+  content   String   @default("")
+  isPublic  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model UploadedImage {
   id     Int    @id @default(autoincrement())
-  html   String @map("content_html")
-  postId Int    @unique(map: "sqlite_autoindex_board_postcontent_1") @map("post_id")
-  post   Post   @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  key    String @unique
+  path   String @unique
+  size   Int
+  userId Int?
 
-  @@map("board_postcontent")
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
 }
 
-model PostConfig {
-  id                   Int                 @id @default(autoincrement())
-  hide                 Unsupported("bool")
-  advertise            Unsupported("bool")
-  block_comment        Unsupported("bool")
-  postId               Int                 @unique(map: "sqlite_autoindex_board_postconfig_1") @map("post_id")
-  cover_image_position String
-  cover_image_ratio    String
-  cover_layout         String
-  post                 Post                @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+// Site
 
-  @@map("board_postconfig")
+model SiteSetting {
+  id                  Int      @id @default(1)
+  siteName            String   @default("BLEX")
+  /// Host used for RSS links when it differs from SITE_URL.
+  domain              String   @default("")
+  headerScript        String   @default("")
+  footerScript        String   @default("")
+  seoEnabled          Boolean  @default(true)
+  aeoEnabled          Boolean  @default(false)
+  robotsTxtExtraRules String   @default("")
+  logoSvg             String   @default("")
+  logoSvgDark         String   @default("")
+  iconSvg             String   @default("")
+  iconSvgDark         String   @default("")
+  iconManifest        Json?
+  updatedAt           DateTime @updatedAt
 }
 
-model auth_group {
-  id                     Int                      @id @default(autoincrement())
-  name                   String                   @unique(map: "sqlite_autoindex_auth_group_1")
-  auth_group_permissions auth_group_permissions[]
-  auth_user_groups       auth_user_groups[]
+model LoginSetting {
+  id                         Int      @id @default(1)
+  welcomeNotificationMessage String   @default("")
+  welcomeNotificationUrl     String   @default("/")
+  accountDeletionRedirectUrl String   @default("")
+  hcaptchaEnabled            Boolean  @default(false)
+  hcaptchaSiteKey            String   @default("")
+  hcaptchaSecretKey          String   @default("")
+  updatedAt                  DateTime @updatedAt
 }
 
-model auth_group_permissions {
-  id              Int             @id @default(autoincrement())
-  group_id        Int
-  permission_id   Int
-  auth_permission auth_permission @relation(fields: [permission_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  auth_group      auth_group      @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([group_id, permission_id], map: "auth_group_permissions_group_id_permission_id_0cd325b0_uniq")
-  @@index([permission_id], map: "auth_group_permissions_permission_id_84c5c92e")
-  @@index([group_id], map: "auth_group_permissions_group_id_b120cbf9")
+model IntegrationSetting {
+  id                  Int      @id @default(1)
+  telegramEnabled     Boolean  @default(false)
+  telegramBotUsername String   @default("")
+  telegramBotToken    String   @default("")
+  updatedAt           DateTime @updatedAt
 }
 
-model auth_permission {
-  id                         Int                          @id @default(autoincrement())
-  content_type_id            Int
-  codename                   String
-  name                       String
-  auth_group_permissions     auth_group_permissions[]
-  django_content_type        django_content_type          @relation(fields: [content_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  auth_user_user_permissions auth_user_user_permissions[]
-
-  @@unique([content_type_id, codename], map: "auth_permission_content_type_id_codename_01ab375a_uniq")
-  @@index([content_type_id], map: "auth_permission_content_type_id_2f476e4b")
-}
-
-model auth_user_groups {
-  id         Int        @id @default(autoincrement())
-  user_id    Int
-  group_id   Int
-  auth_group auth_group @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  auth_user  User       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([user_id, group_id], map: "auth_user_groups_user_id_group_id_94350c0c_uniq")
-  @@index([group_id], map: "auth_user_groups_group_id_97559544")
-  @@index([user_id], map: "auth_user_groups_user_id_6a12ed8b")
-}
-
-model auth_user_user_permissions {
-  id              Int             @id @default(autoincrement())
-  user_id         Int
-  permission_id   Int
-  auth_permission auth_permission @relation(fields: [permission_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  auth_user       User            @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([user_id, permission_id], map: "auth_user_user_permissions_user_id_permission_id_14a6b632_uniq")
-  @@index([permission_id], map: "auth_user_user_permissions_permission_id_1fbb5f2c")
-  @@index([user_id], map: "auth_user_user_permissions_user_id_a95ead1b")
-}
-
-model board_authorinvite {
-  id                                                    Int                 @id @default(autoincrement())
-  code                                                  String              @unique(map: "sqlite_autoindex_board_authorinvite_1")
-  note                                                  String
-  is_active                                             Unsupported("bool")
-  created_date                                          DateTime
-  claimed_date                                          DateTime?
-  claimed_by_id                                         Int?
-  created_by_id                                         Int?
-  auth_user_board_authorinvite_created_by_idToauth_user User?               @relation("board_authorinvite_created_by_idToauth_user", fields: [created_by_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  auth_user_board_authorinvite_claimed_by_idToauth_user User?               @relation("board_authorinvite_claimed_by_idToauth_user", fields: [claimed_by_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([claimed_by_id], map: "board_autho_claimed_0188bf_idx")
-  @@index([code, is_active], map: "board_autho_code_e7ed63_idx")
-  @@index([created_by_id], map: "board_authorinvite_created_by_id_0cd57a38")
-  @@index([claimed_by_id], map: "board_authorinvite_claimed_by_id_7a8026eb")
-}
-
-model board_authorsubscription {
-  id                                                          Int      @id @default(autoincrement())
-  created_date                                                DateTime
-  author_id                                                   Int
-  subscriber_id                                               Int
-  auth_user_board_authorsubscription_subscriber_idToauth_user User     @relation("board_authorsubscription_subscriber_idToauth_user", fields: [subscriber_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  auth_user_board_authorsubscription_author_idToauth_user     User     @relation("board_authorsubscription_author_idToauth_user", fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([subscriber_id, author_id], map: "sqlite_autoindex_board_authorsubscription_1")
-  @@index([author_id, created_date], map: "board_authorsub_author_idx")
-  @@index([subscriber_id], map: "board_authorsubscription_subscriber_id_27e581a7")
-  @@index([author_id], map: "board_authorsubscription_author_id_8b00b85d")
-}
-
-model board_authorsubscriptionlog {
-  id                                                             Int      @id @default(autoincrement())
-  action                                                         String
-  created_date                                                   DateTime
-  author_id                                                      Int
-  subscriber_id                                                  Int
-  auth_user_board_authorsubscriptionlog_subscriber_idToauth_user User     @relation("board_authorsubscriptionlog_subscriber_idToauth_user", fields: [subscriber_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  auth_user_board_authorsubscriptionlog_author_idToauth_user     User     @relation("board_authorsubscriptionlog_author_idToauth_user", fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([author_id, created_date], map: "board_authorsublog_author_idx")
-  @@index([subscriber_id], map: "board_authorsubscriptionlog_subscriber_id_55114cf2")
-  @@index([author_id], map: "board_authorsubscriptionlog_author_id_9430554d")
-}
-
-model board_comment {
-  id                  Int                   @id @default(autoincrement())
-  text_md             String
-  text_html           String
-  edited              Unsupported("bool")
-  heart               Unsupported("bool")
-  created_date        DateTime
-  author_id           Int?
-  post_id             Int
-  parent_id           Int?
-  board_comment       board_comment?        @relation("board_commentToboard_comment", fields: [parent_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  other_board_comment board_comment[]       @relation("board_commentToboard_comment")
-  board_post          Post                  @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  auth_user           User?                 @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_comment_likes board_comment_likes[]
-
-  @@index([author_id, created_date], map: "board_comme_author__e4042f_idx")
-  @@index([post_id, parent_id, created_date], map: "board_comme_post_id_260f64_idx")
-  @@index([parent_id], map: "board_comment_parent_id_511c6974")
-  @@index([post_id], map: "board_comment_post_id_0a1699af")
-  @@index([author_id], map: "board_comment_author_id_08705ab7")
-}
-
-model board_comment_likes {
-  id            Int           @id @default(autoincrement())
-  comment_id    Int
-  user_id       Int
-  auth_user     User          @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_comment board_comment @relation(fields: [comment_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([comment_id, user_id], map: "board_comment_likes_comment_id_user_id_c6d811be_uniq")
-  @@index([user_id], map: "board_comment_likes_user_id_4c484ae1")
-  @@index([comment_id], map: "board_comment_likes_comment_id_3ab8c714")
-}
-
-model board_config {
-  id        Int     @id @default(autoincrement())
-  user_id   Int     @unique(map: "sqlite_autoindex_board_config_1")
-  language  String?
-  time_zone String
-  auth_user User    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-model board_developerrequestlog {
-  id                   Int                              @id @default(autoincrement())
-  method               String
-  path                 String
-  status_code          Unsupported("smallint unsigned")
-  ip_address           String?
-  user_agent           String
-  created_date         DateTime
-  token_id             Int?
-  user_id              Int
-  auth_user            User                             @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_developertoken board_developertoken?            @relation(fields: [token_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([token_id, created_date], map: "board_devel_token_i_fbbd82_idx")
-  @@index([user_id, created_date], map: "board_devel_user_id_e88d8c_idx")
-  @@index([user_id], map: "board_developerrequestlog_user_id_123587fb")
-  @@index([token_id], map: "board_developerrequestlog_token_id_ea1cc060")
-}
-
-model board_developertoken {
-  id                        Int                         @id @default(autoincrement())
-  name                      String
-  token_prefix              String                      @unique(map: "sqlite_autoindex_board_developertoken_1")
-  token_hash                String                      @unique(map: "sqlite_autoindex_board_developertoken_2")
-  scopes                    String
-  expires_at                DateTime?
-  revoked_at                DateTime?
-  last_used_at              DateTime?
-  last_used_ip              String?
-  created_date              DateTime
-  updated_date              DateTime
-  user_id                   Int
-  board_developerrequestlog board_developerrequestlog[]
-  auth_user                 User                        @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([token_prefix], map: "board_devel_token_p_7a12b4_idx")
-  @@index([user_id, revoked_at], map: "board_devel_user_id_bf372b_idx")
-  @@index([user_id], map: "board_developertoken_user_id_24b231ab")
-}
-
-model board_edithistory {
-  id                      Int                 @id @default(autoincrement())
-  content                 String
-  created_date            DateTime
-  post_id                 Int
-  actor_id                Int?
-  change_type             String
-  description             String
-  source_updated_date     DateTime?
-  subtitle                String
-  tags                    String
-  title                   String
-  restored_from_id        Int?
-  content_excerpt         String?
-  board_edithistory       board_edithistory?  @relation("board_edithistoryToboard_edithistory", fields: [restored_from_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  other_board_edithistory board_edithistory[] @relation("board_edithistoryToboard_edithistory")
-  auth_user               User?               @relation(fields: [actor_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_post              Post                @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([post_id, created_date], map: "board_edith_post_id_50a332_idx")
-  @@index([restored_from_id], map: "board_edithistory_restored_from_id_fdd2f281")
-  @@index([actor_id], map: "board_edithistory_actor_id_13dc7485")
-  @@index([post_id], map: "board_edithistory_post_id_7ac2da0d")
-}
-
-model board_editrequest {
-  id           Int                 @id @default(autoincrement())
+model StaticPage {
+  id           Int      @id @default(autoincrement())
+  authorId     Int?
+  slug         String   @unique
   title        String
-  content      String
-  is_merged    Unsupported("bool")
-  created_date DateTime
-  updated_date DateTime
-  user_id      Int
-  post_id      Int
-  board_post   Post                @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  auth_user    User                @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  content      String   @default("")
+  description  String   @default("")
+  isPublished  Boolean  @default(false)
+  showInFooter Boolean  @default(false)
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  @@index([post_id], map: "board_editrequest_post_id_77346467")
-  @@index([user_id], map: "board_editrequest_user_id_0deec073")
+  author User? @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([authorId])
 }
 
-model board_emailchange {
-  id           Int      @id @default(autoincrement())
-  email        String
-  auth_token   String
-  created_date DateTime
-  user_id      Int      @unique(map: "sqlite_autoindex_board_emailchange_1")
-  auth_user    User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model SiteNotice {
+  id        Int          @id @default(autoincrement())
+  userId    Int?
+  scope     ContentScope
+  title     String
+  url       String       @default("")
+  isActive  Boolean      @default(true)
+  order     Int          @default(0)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isActive])
+  @@index([scope, isActive])
 }
 
-model board_form {
-  id           Int                 @id @default(autoincrement())
-  title        String
-  content      String
-  is_public    Unsupported("bool")
-  created_date DateTime
-  updated_date DateTime
-  user_id      Int
-  auth_user    User                @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model SiteBanner {
+  id          Int            @id @default(autoincrement())
+  userId      Int?
+  scope       ContentScope
+  type        BannerType
+  position    BannerPosition
+  title       String         @default("")
+  contentHtml String         @default("")
+  isActive    Boolean        @default(true)
+  order       Int            @default(0)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 
-  @@index([user_id], map: "board_form_user_id_1f43b269")
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isActive])
+  @@index([scope, isActive, type, position])
 }
 
-model board_imagecache {
-  id        Int    @id @default(autoincrement())
-  key       String @unique(map: "sqlite_autoindex_board_imagecache_1")
-  path      String @unique(map: "sqlite_autoindex_board_imagecache_2")
-  size      Int
-  user_id   Int?
-  auth_user User?  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model AdminLog {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  target     String   @default("")
+  objectId   String?
+  objectName String   @default("")
+  action     Int
+  message    String   @default("")
+  createdAt  DateTime @default(now())
 
-  @@index([user_id], map: "board_imagecache_user_id_a52aef7a")
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
 }
 
-model board_integrationsetting {
-  id                    Int                 @id @default(autoincrement())
-  telegram_enabled      Unsupported("bool")
-  telegram_bot_username String
-  telegram_bot_token    String
-  updated_date          DateTime
+model CleanupConfirmation {
+  id                 Int       @id @default(autoincrement())
+  userId             Int
+  tokenHash          String    @unique
+  action             String
+  sessionFingerprint String
+  expiresAt          DateTime
+  consumedAt         DateTime?
+  createdAt          DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([expiresAt])
+  @@index([userId])
 }
 
-model board_loginattempt {
-  key    String                           @id
-  window Unsupported("bigint unsigned")
-  count  Unsupported("smallint unsigned")
+// Notifications and integrations
 
-  @@index([window], map: "board_loginattempt_window_a08cc5bd")
+model Notification {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  key           String   @unique
+  url           String   @default("")
+  content       String   @default("")
+  messageKey    String   @default("")
+  messageParams Json
+  isRead        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
+
+  user     User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  delivery NotificationDelivery?
+
+  @@index([userId])
 }
 
-model board_loginsetting {
-  id                            Int                 @id @default(autoincrement())
-  welcome_notification_message  String
-  welcome_notification_url      String
-  account_deletion_redirect_url String
-  hcaptcha_enabled              Unsupported("bool")
-  hcaptcha_site_key             String
-  hcaptcha_secret_key           String
-  updated_date                  DateTime
+model NotificationDelivery {
+  notificationId Int      @id
+  attempts       Int      @default(0)
+  availableAt    DateTime
+
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@index([availableAt])
 }
 
-model board_notify {
-  id             Int                 @id @default(autoincrement())
-  key            String              @unique(map: "sqlite_autoindex_board_notify_1")
-  url            String
-  created_date   DateTime
-  updated_date   DateTime
-  user_id        Int
-  content        String
-  has_read       Unsupported("bool")
-  message_key    String
-  message_params String
-  auth_user      User                @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  delivery       NotificationDelivery?
+model WebhookChannel {
+  id            Int          @id @default(autoincrement())
+  ownerId       Int?
+  scope         ContentScope
+  name          String       @default("")
+  url           String
+  isActive      Boolean      @default(true)
+  failureCount  Int          @default(0)
+  lastSuccessAt DateTime?
+  createdAt     DateTime     @default(now())
 
-  @@index([user_id], map: "board_notify_user_id_b069f0b5")
+  owner      User?             @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  deliveries WebhookDelivery[]
+
+  @@unique([scope, ownerId, url])
+  @@index([ownerId])
 }
 
-model board_oauthauthorization {
-  state_hash String   @id
-  expires_at DateTime
+model WebhookDelivery {
+  postId      Int
+  channelId   Int
+  availableAt DateTime
+  isDone      Boolean  @default(false)
 
-  @@index([expires_at], map: "board_oauthauthorization_expires_at_1587f3fa")
+  post    Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
+  channel WebhookChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@id([postId, channelId])
+  @@index([isDone, availableAt])
 }
 
-model board_pinnedpost {
-  id           Int      @id @default(autoincrement())
-  order        Int
-  created_date DateTime
-  post_id      Int
-  user_id      Int
-  auth_user    User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_post   Post     @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model DeveloperToken {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  name        String
+  tokenPrefix String    @unique
+  tokenHash   String    @unique
+  scopes      Json
+  expiresAt   DateTime?
+  revokedAt   DateTime?
+  lastUsedAt  DateTime?
+  lastUsedIp  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  @@unique([user_id, post_id], map: "sqlite_autoindex_board_pinnedpost_1")
-  @@index([user_id], map: "board_pinnedpost_user_id_162d6fde")
-  @@index([post_id], map: "board_pinnedpost_post_id_5c30f851")
+  user     User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  requests DeveloperRequestLog[]
+
+  @@index([userId, revokedAt])
 }
 
-model board_post_likes {
-  id           Int      @id @default(autoincrement())
-  created_date DateTime
-  post_id      Int
-  user_id      Int
-  auth_user    User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_post   Post     @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model DeveloperRequestLog {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  tokenId    Int?
+  method     String
+  path       String
+  statusCode Int
+  ipAddress  String?
+  userAgent  String   @default("")
+  createdAt  DateTime @default(now())
 
-  @@unique([post_id, user_id], map: "sqlite_autoindex_board_post_likes_1")
-  @@index([user_id, created_date], map: "board_post__user_id_44c70b_idx")
-  @@index([post_id, user_id], map: "board_post__post_id_ce5821_idx")
-  @@index([user_id], map: "board_post_likes_user_id_ec7f0988")
-  @@index([post_id], map: "board_post_likes_post_id_d498fb9b")
+  user  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token DeveloperToken? @relation(fields: [tokenId], references: [id], onDelete: SetNull)
+
+  @@index([tokenId, createdAt])
+  @@index([userId, createdAt])
 }
 
-model board_post_share_link_daily_counts {
-  id                  Int                            @id @default(autoincrement())
-  day                 DateTime
-  clicks              Unsupported("bigint unsigned")
-  link_id             Int
-  board_postsharelink board_postsharelink            @relation(fields: [link_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+// Work logs
 
-  @@unique([link_id, day], map: "sqlite_autoindex_board_post_share_link_daily_counts_1")
-  @@index([link_id], map: "board_post_share_link_daily_counts_link_id_2f58d048")
+model WorkLog {
+  id        Int      @id @default(autoincrement())
+  ownerId   Int
+  title     String
+  createdAt DateTime @default(now())
+
+  owner   User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  entries WorkLogEntry[]
+  shares  WorkLogShare[]
+
+  @@index([ownerId])
 }
 
-model board_post_tags {
-  id         Int       @id @default(autoincrement())
-  post_id    Int
-  tag_id     Int
-  board_tag  board_tag @relation(fields: [tag_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_post Post      @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model WorkLogEntry {
+  id         Int      @id @default(autoincrement())
+  logId      Int
+  title      String   @default("")
+  text       String   @default("")
+  mediaType  String   @default("")
+  attachment String   @default("")
+  createdAt  DateTime @default(now())
 
-  @@unique([post_id, tag_id], map: "board_post_tags_post_id_tag_id_b584ff2b_uniq")
-  @@index([tag_id], map: "board_post_tags_tag_id_7972a030")
-  @@index([post_id], map: "board_post_tags_post_id_b46f227b")
+  log    WorkLog        @relation(fields: [logId], references: [id], onDelete: Cascade)
+  shares WorkLogShare[]
+
+  @@index([logId, createdAt(sort: Desc), id(sort: Desc)])
 }
 
-model board_postconfigmeta {
-  id           Int      @id @default(autoincrement())
-  name         String
-  value        String
-  created_date DateTime
-  updated_date DateTime
-  post_id      Int
-  board_post   Post     @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model WorkLogShare {
+  id        Int      @id @default(autoincrement())
+  logId     Int
+  token     String   @unique
+  headline  String   @default("")
+  createdAt DateTime @default(now())
 
-  @@index([post_id], map: "board_postconfigmeta_post_id_6e39a197")
-}
+  log     WorkLog        @relation(fields: [logId], references: [id], onDelete: Cascade)
+  entries WorkLogEntry[]
 
-model board_postsharelink {
-  id                                 Int                                  @id @default(autoincrement())
-  token                              String                               @unique(map: "sqlite_autoindex_board_postsharelink_1")
-  label                              String
-  is_paused                          Unsupported("bool")
-  created_date                       DateTime
-  post_id                            Int
-  board_post_share_link_daily_counts board_post_share_link_daily_counts[]
-  board_post                         Post                                 @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([post_id], map: "board_postsharelink_post_id_4819c9d6")
-}
-
-model board_profile {
-  id                        Int                         @id @default(autoincrement())
-  bio                       String
-  cover                     String
-  avatar                    String
-  homepage                  String
-  about_md                  String
-  about_html                String
-  user_id                   Int                         @unique(map: "sqlite_autoindex_board_profile_1")
-  analytics_share_url       String
-  role                      String
-  auth_user                 User                        @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_webhooksubscription board_webhooksubscription[]
-}
-
-model board_series {
-  id                     Int                      @id @default(autoincrement())
-  order                  Int
-  text_md                String
-  text_html              String
-  hide                   Unsupported("bool")
-  url                    String                   @unique(map: "sqlite_autoindex_board_series_1")
-  layout                 String
-  created_date           DateTime
-  updated_date           DateTime
-  owner_id               Int
-  name                   String
-  board_post             Post[]
-  auth_user              User                     @relation(fields: [owner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_seriesconfigmeta board_seriesconfigmeta[]
-
-  @@index([owner_id], map: "board_series_owner_id_68a37f76")
-}
-
-model board_seriesconfigmeta {
-  id           Int          @id @default(autoincrement())
-  name         String
-  value        String
-  created_date DateTime
-  updated_date DateTime
-  post_id      Int
-  board_series board_series @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([post_id], map: "board_seriesconfigmeta_post_id_06b5e8ce")
-}
-
-model board_sitebanner {
-  id           Int                 @id @default(autoincrement())
-  scope        String
-  title        String
-  is_active    Unsupported("bool")
-  order        Int
-  created_date DateTime
-  updated_date DateTime
-  content_html String
-  banner_type  String
-  position     String
-  user_id      Int?
-  auth_user    User?               @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([user_id, is_active], map: "board_siteb_user_id_7efe4d_idx")
-  @@index([scope, is_active, banner_type, position], map: "board_siteb_scope_774e20_idx")
-  @@index([user_id], map: "board_sitebanner_user_id_efebe8f0")
-}
-
-model board_sitenotice {
-  id           Int                 @id @default(autoincrement())
-  scope        String
-  title        String
-  is_active    Unsupported("bool")
-  order        Int
-  created_date DateTime
-  updated_date DateTime
-  url          String
-  user_id      Int?
-  auth_user    User?               @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([user_id, is_active], map: "board_siten_user_id_2b60d0_idx")
-  @@index([scope, is_active], map: "board_siten_scope_0b3bc6_idx")
-  @@index([user_id], map: "board_sitenotice_user_id_354320c1")
-}
-
-model board_sitesetting {
-  id                     Int                 @id @default(autoincrement())
-  header_script          String
-  footer_script          String
-  updated_date           DateTime
-  aeo_enabled            Unsupported("bool")
-  seo_enabled            Unsupported("bool")
-  robots_txt_extra_rules String
-  site_name              String
-  logo_svg               String
-  logo_svg_dark          String
-  icon_svg               String
-  icon_svg_dark          String
-  icon_manifest          String
-}
-
-model board_socialauth {
-  challenges               OAuthChallenge[]
-  id                       Int                      @id @default(autoincrement())
-  uid                      String
-  extra_data               String
-  created_date             DateTime
-  provider_id              Int
-  user_id                  Int
-  auth_user                User                     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_socialauthprovider board_socialauthprovider @relation(fields: [provider_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([provider_id, uid], map: "sqlite_autoindex_board_socialauth_1")
-  @@index([user_id], map: "board_socialauth_user_id_92dc0ec9")
-  @@index([provider_id], map: "board_socialauth_provider_id_6d0024d4")
-}
-
-model board_socialauthprovider {
-  id               Int                 @id @default(autoincrement())
-  key              String              @unique(map: "sqlite_autoindex_board_socialauthprovider_1")
-  client_id        String
-  client_secret    String
-  is_enabled       Unsupported("bool")
-  board_socialauth board_socialauth[]
-}
-
-model board_staticpage {
-  id               Int                 @id @default(autoincrement())
-  title            String
-  content          String
-  meta_description String
-  is_published     Unsupported("bool")
-  show_in_footer   Unsupported("bool")
-  order            Int
-  created_date     DateTime
-  updated_date     DateTime
-  author_id        Int?
-  slug             String              @unique(map: "sqlite_autoindex_board_staticpage_1")
-  auth_user        User?               @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([author_id], map: "board_staticpage_author_id_fecbd454")
-}
-
-model board_tag {
-  id              Int               @id @default(autoincrement())
-  value           String            @unique(map: "sqlite_autoindex_board_tag_1")
-  board_post_tags board_post_tags[]
-}
-
-model board_telegramsync {
-  id             Int      @id @default(autoincrement())
-  auth_token     String
-  auth_token_exp DateTime
-  created_date   DateTime
-  user_id        Int      @unique(map: "sqlite_autoindex_board_telegramsync_1")
-  tid            String
-  auth_user      User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-model board_twofactorauth {
-  id           Int      @id @default(autoincrement())
-  recovery_key String
-  created_date DateTime
-  user_id      Int      @unique(map: "sqlite_autoindex_board_twofactorauth_1")
-  totp_secret  String
-  auth_user    User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-model board_userconfigmeta {
-  id           Int      @id @default(autoincrement())
-  name         String
-  value        String
-  created_date DateTime
-  updated_date DateTime
-  user_id      Int
-  auth_user    User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([user_id], map: "board_userconfigmeta_user_id_da67eecd")
-}
-
-model board_userlinkmeta {
-  id           Int      @id @default(autoincrement())
-  name         String
-  value        String
-  created_date DateTime
-  updated_date DateTime
-  user_id      Int
-  order        Int
-  auth_user    User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([user_id], map: "board_userlinkmeta_user_id_ba3f4047")
-}
-
-model board_utilitycleanupconfirmation {
-  id                  Int       @id @default(autoincrement())
-  token_hash          String    @unique(map: "sqlite_autoindex_board_utilitycleanupconfirmation_1")
-  action              String
-  session_fingerprint String
-  expires_at          DateTime
-  consumed_at         DateTime?
-  created_date        DateTime
-  user_id             Int
-  auth_user           User      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([expires_at], map: "board_utilconfirm_exp_idx")
-  @@index([user_id], map: "board_utilitycleanupconfirmation_user_id_1a58a3ed")
-}
-
-model board_webhooksubscription {
-  id                Int                              @id @default(autoincrement())
-  webhook_url       String
-  name              String
-  is_active         Unsupported("bool")
-  failure_count     Unsupported("smallint unsigned")
-  last_success_date DateTime?
-  created_date      DateTime
-  scope             String
-  author_id         Int?
-  board_profile     board_profile?                   @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  deliveries        WebhookDelivery[]
-
-  @@unique([scope, author_id, webhook_url], map: "board_webhooksubscription_scope_author_id_webhook_url_77edf147_uniq")
-  @@index([author_id], map: "board_webhooksubscription_author_id_8548ecb1")
-}
-
-model board_worklog {
-  id                 Int                  @id @default(autoincrement())
-  title              String
-  created_at         DateTime
-  owner_id           Int
-  auth_user          User                 @relation(fields: [owner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_worklogentry board_worklogentry[]
-  board_worklogshare board_worklogshare[]
-
-  @@index([owner_id], map: "board_worklog_owner_id_1954a244")
-}
-
-model board_worklogentry {
-  id                         Int                          @id @default(autoincrement())
-  title                      String
-  text                       String
-  media_type                 String
-  attachment                 String
-  created_at                 DateTime
-  log_id                     Int
-  board_worklog              board_worklog                @relation(fields: [log_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_worklogshare_entries board_worklogshare_entries[]
-
-  @@index([log_id], map: "board_worklogentry_log_id_13a54976")
-  @@index([log_id, created_at(sort: Desc), id(sort: Desc)], map: "worklog_entry_timeline")
-}
-
-model board_worklogshare {
-  id                         Int                          @id @default(autoincrement())
-  token                      String                       @unique(map: "sqlite_autoindex_board_worklogshare_1")
-  headline                   String
-  created_at                 DateTime
-  log_id                     Int
-  board_worklog              board_worklog                @relation(fields: [log_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_worklogshare_entries board_worklogshare_entries[]
-
-  @@index([log_id], map: "board_worklogshare_log_id_6da80181")
-}
-
-model board_worklogshare_entries {
-  id                 Int                @id @default(autoincrement())
-  worklogshare_id    Int
-  worklogentry_id    Int
-  board_worklogentry board_worklogentry @relation(fields: [worklogentry_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_worklogshare board_worklogshare @relation(fields: [worklogshare_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([worklogshare_id, worklogentry_id], map: "board_worklogshare_entries_worklogshare_id_worklogentry_id_8cf8f20c_uniq")
-  @@index([worklogentry_id], map: "board_worklogshare_entries_worklogentry_id_191c47f5")
-  @@index([worklogshare_id], map: "board_worklogshare_entries_worklogshare_id_4d45de92")
-}
-
-model django_admin_log {
-  id                  Int                              @id @default(autoincrement())
-  object_id           String?
-  object_repr         String
-  action_flag         Unsupported("smallint unsigned")
-  change_message      String
-  content_type_id     Int?
-  user_id             Int
-  action_time         DateTime
-  auth_user           User                             @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  django_content_type django_content_type?             @relation(fields: [content_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([user_id], map: "django_admin_log_user_id_c564eba6")
-  @@index([content_type_id], map: "django_admin_log_content_type_id_c4bce8eb")
-}
-
-model django_content_type {
-  id               Int                @id @default(autoincrement())
-  app_label        String
-  model            String
-  auth_permission  auth_permission[]
-  django_admin_log django_admin_log[]
-
-  @@unique([app_label, model], map: "django_content_type_app_label_model_76bd3d3b_uniq")
-}
-
-model django_migrations {
-  id      Int      @id @default(autoincrement())
-  app     String
-  name    String
-  applied DateTime
-}
-
-model django_session {
-  session_key  String   @id
-  session_data String
-  expire_date  DateTime
-
-  @@index([expire_date], map: "django_session_expire_date_a5c62663")
-}
-
-model django_site {
-  id     Int    @id @default(autoincrement())
-  name   String
-  domain String @unique(map: "sqlite_autoindex_django_site_1")
+  @@index([logId])
 }

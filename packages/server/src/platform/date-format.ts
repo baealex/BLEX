@@ -23,24 +23,32 @@ function localParts(date: Date) {
   return { year: field('year'), month: field('month'), day: field('day'), hour: field('hour'), minute: field('minute'), second: field('second') };
 }
 
-/** Python `datetime.isoformat()` for a UTC value. */
-export function djangoIso(value: StoredDate): string | null {
+/** Rebuilds the naive UTC text 3.x stored, so a date read from a Prisma column keeps every existing output format. */
+export function storedDateText(value: Date | number | bigint): string {
+  const date = value instanceof Date ? value : new Date(Number(value));
+  const milliseconds = date.getUTCMilliseconds();
+  const seconds = date.toISOString().slice(0, 19).replace('T', ' ');
+  return milliseconds === 0 ? seconds : `${seconds}.${String(milliseconds).padStart(3, '0')}000`;
+}
+
+/** ISO 8601 in UTC with a `+00:00` offset, keeping microseconds when present. */
+export function isoWithOffset(value: StoredDate): string | null {
   const instant = parseInstant(value);
   if (!instant) return null;
   const fraction = instant.microseconds === '000000' ? '' : `.${instant.microseconds}`;
   return `${instant.date.toISOString().slice(0, 19)}${fraction}+00:00`;
 }
 
-/** DjangoJSONEncoder output for a UTC value. */
-export function djangoJsonUtc(value: StoredDate): string | null {
+/** ISO 8601 in UTC with millisecond precision and a `Z` suffix. */
+export function isoUtcMillis(value: StoredDate): string | null {
   const instant = parseInstant(value);
   if (!instant) return null;
   const fraction = instant.microseconds === '000000' ? '' : `.${instant.microseconds.slice(0, 3)}`;
   return `${instant.date.toISOString().slice(0, 19)}${fraction}Z`;
 }
 
-/** DjangoJSONEncoder output for a value converted to the display time zone. */
-export function djangoJsonLocal(value: StoredDate): string | null {
+/** ISO 8601 in the display time zone with millisecond precision. */
+export function isoLocalMillis(value: StoredDate): string | null {
   const instant = parseInstant(value);
   if (!instant) return null;
   const local = localParts(instant.date);
@@ -68,7 +76,7 @@ export function localDateTimeText(value: StoredDate): string {
   return `${year}-${month}-${day} ${hour}:${minute}`;
 }
 
-/** Django's Korean DATE_FORMAT, "Y년 n월 j일". */
+/** Korean calendar date, "Y년 n월 j일". */
 export function koreanDate(value: StoredDate): string {
   const instant = parseInstant(value);
   if (!instant) return '';
@@ -76,7 +84,7 @@ export function koreanDate(value: StoredDate): string {
   return `${year}년 ${Number(month)}월 ${Number(day)}일`;
 }
 
-/** Django's Korean DATETIME_FORMAT, "Y년 n월 j일 g:i A". */
+/** Korean date and 12-hour time, "Y년 n월 j일 g:i A". */
 export function koreanDateTime(value: StoredDate): string {
   const instant = parseInstant(value);
   if (!instant) return '';

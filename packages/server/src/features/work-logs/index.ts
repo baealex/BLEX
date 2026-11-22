@@ -1,14 +1,14 @@
 import formBody from '@fastify/formbody';
 import multipart from '@fastify/multipart';
-import { Prisma, type PrismaClient } from '@prisma/client';
+import { type PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import { renderWorkLogDelete, renderWorkLogIndex, renderWorkLogShared } from './pages.js';
 import { displayPage, pageChrome, pageLinks, renderDetailPage } from './detail-page.js';
 import { MAX_ATTACHMENT_SIZE, mediaResponse, removeAttachment, saveAttachment, validateAttachment } from './services/attachments.js';
 import { deleteWorkLog, deleteWorkLogEntry, revokeWorkLogShare } from './services/deletions.js';
-import { EntryRow, WorkLogRow, insertEntry, insertWorkLog, readEntryInput, readOwnedLog } from './services/logs.js';
-import { createShare, entryCountForShare, pageEntryForShareMedia, readShare, readSnapshotEntries, selectedEntries, selectedEntryIds, sharePath, storedShareToken } from './services/shares.js';
-import { MAX_REQUEST_SIZE, PAGE_SIZE, WorkLogOptions, bodyRecord, csrfCookieValue, csrfValid, currentUser, html, isActiveEditor, notAllowed, notFound, parseId, scalar, toIsoDateTime } from './shared.js';
+import { countEntriesByLog, countOwnedLogs, insertEntry, insertWorkLog, readEntry, readEntryInput, readOwnedLog, readOwnedLogs } from './services/logs.js';
+import { createShare, entryCountForShare, latestSharedEntry, pageEntryForShareMedia, readShare, readSnapshotEntries, selectedEntries, selectedEntryIds, sharePath, storedShareToken } from './services/shares.js';
+import { MAX_REQUEST_SIZE, PAGE_SIZE, WorkLogOptions, bodyRecord, csrfCookieValue, csrfValid, currentUser, html, isActiveEditor, pageFields, notAllowed, notFound, parseId, scalar, toIsoDateTime } from './shared.js';
 
 export { removeAttachment } from './services/attachments.js';
 export { WorkLogUser, WorkLogOptions } from './shared.js';
@@ -31,34 +31,14 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       const user = await currentUser(request, reply, options);
       if (!user) return reply;
       const [total, canWrite] = await Promise.all([
-        db.$queryRaw<Array<{ total: number | bigint }>>`
-          SELECT COUNT(*) AS total FROM board_worklog AS log
-          JOIN auth_user AS owner ON owner.id = log.owner_id
-          WHERE log.owner_id = ${user.id} AND owner.is_active = 1
-        `.then(([row]) => Number(row?.total ?? 0)),
+        countOwnedLogs(db, user.id),
         isActiveEditor(db, user.id),
       ]);
       const query = request.query as Record<string, string | string[] | undefined>;
       const page = displayPage(typeof query.page === 'string' ? query.page : undefined, total);
       const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-      const logs = await db.$queryRaw<WorkLogRow[]>`
-        SELECT log.id, log.title, CAST(log.created_at AS TEXT) AS createdAt
-          FROM board_worklog AS log
-          JOIN auth_user AS owner ON owner.id = log.owner_id
-         WHERE log.owner_id = ${user.id} AND owner.is_active = 1
-         ORDER BY log.created_at DESC, log.id DESC
-         LIMIT ${PAGE_SIZE} OFFSET ${(page - 1) * PAGE_SIZE}
-      `;
-      let entryCounts = new Map<number, number>();
-      if (logs.length > 0) {
-        const counts = await db.$queryRaw<Array<{ logId: number; total: number | bigint }>>`
-          SELECT entry.log_id AS logId, COUNT(*) AS total
-            FROM board_worklogentry AS entry
-           WHERE entry.log_id IN (${Prisma.join(logs.map((log) => log.id))})
-           GROUP BY entry.log_id
-        `;
-        entryCounts = new Map(counts.map((row) => [row.logId, Number(row.total)]));
-      }
+      const logs = await readOwnedLogs(db, user.id, page);
+      const entryCounts = await countEntriesByLog(db, logs.map((log) => log.id));
       const path = '/work-logs/';
       const content = renderWorkLogIndex({
         logs: logs.map((log) => ({ ...log, createdAt: toIsoDateTime(log.createdAt), entryCount: entryCounts.get(log.id) ?? 0 })),
@@ -77,13 +57,9 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       if (!await isActiveEditor(db, user.id)) return notAllowed(reply);
       const title = scalar(bodyRecord(request.body).title).trim();
       if (!title || title.length > 100) {
-        const logs = await db.$queryRaw<WorkLogRow[]>`
-          SELECT log.id, log.title, CAST(log.created_at AS TEXT) AS createdAt
-            FROM board_worklog AS log WHERE log.owner_id = ${user.id}
-           ORDER BY log.created_at DESC, log.id DESC LIMIT ${PAGE_SIZE}
-        `;
+        const logs = await readOwnedLogs(db, user.id, 1);
         return html(reply, renderWorkLogIndex({
-          logs,
+          logs: logs.map((log) => ({ ...log, createdAt: toIsoDateTime(log.createdAt) })),
           canWrite: true,
           csrfToken: csrfCookieValue(request),
           ...await pageChrome(db, request, user),
@@ -158,7 +134,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
 
       const fields = bodyRecord(request.body);
       const action = scalar(fields.action) || 'preview';
-      const browsing = 'selection_page' in fields || action === 'edit';
+      const browsing = pageFields.selectionPage in fields || action === 'edit';
       const selection = selectedEntryIds(fields, browsing);
       const headline = scalar(fields.headline).trim();
       if (!selection.error && headline.length > 120) selection.error = '공유 제목은 120자 이내로 입력해 주세요.';
@@ -168,9 +144,9 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
 
       if (browsing || selection.error) {
         return renderDetailPage(request, reply, db, options, user, log, {
-          timelinePage: scalar(fields.timeline_page),
-          selectionPage: scalar(fields.selection_page) || scalar(fields.current_selection_page),
-          linksPage: scalar(fields.links_page),
+          timelinePage: scalar(fields[pageFields.timelinePage]),
+          selectionPage: scalar(fields[pageFields.selectionPage]) || scalar(fields[pageFields.currentSelectionPage]),
+          linksPage: scalar(fields[pageFields.linksPage]),
           selectedIds: selected.map((entry) => entry.id),
           shareError: selection.error,
           headline,
@@ -178,7 +154,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       }
 
       if (action === 'preview') {
-        const page = displayPage(scalar(fields.preview_page), selected.length);
+        const page = displayPage(scalar(fields[pageFields.previewPage]), selected.length);
         const start = (page - 1) * PAGE_SIZE;
         const entries = selected.slice(start, start + PAGE_SIZE);
         return html(reply, renderWorkLogShared({
@@ -195,9 +171,9 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
           preview: true,
           selectedIds: selected.map((entry) => entry.id),
           csrfToken: csrfCookieValue(request),
-          timelinePage: Number(scalar(fields.timeline_page)) || 1,
-          selectionPage: Number(scalar(fields.current_selection_page)) || 1,
-          linksPage: Number(scalar(fields.links_page)) || 1,
+          timelinePage: Number(scalar(fields[pageFields.timelinePage])) || 1,
+          selectionPage: Number(scalar(fields[pageFields.currentSelectionPage])) || 1,
+          linksPage: Number(scalar(fields[pageFields.linksPage])) || 1,
           mediaUrl: (entry) => `/work-logs/${logId}/media/${entry.id}/`,
         }));
       }
@@ -244,20 +220,15 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       return reply.redirect('/work-logs/', 302);
     });
 
-    routes.get<{ Params: { pk: string; entry_id: string } }>('/work-logs/:pk/entry/:entry_id/delete/', async (request, reply) => {
+    routes.get<{ Params: { pk: string; entryId: string } }>('/work-logs/:pk/entry/:entryId/delete/', async (request, reply) => {
       const user = await currentUser(request, reply, options);
       if (!user) return reply;
       const logId = parseId(request.params.pk);
-      const entryId = parseId(request.params.entry_id);
+      const entryId = parseId(request.params.entryId);
       if (logId === null || entryId === null) return notFound(reply);
       const log = await readOwnedLog(db, logId, user.id);
       if (!log) return notFound(reply);
-      const [entry] = await db.$queryRaw<EntryRow[]>`
-        SELECT id, log_id AS logId, title, text, media_type AS mediaType, attachment,
-               CAST(created_at AS TEXT) AS createdAt
-          FROM board_worklogentry WHERE log_id = ${logId} AND id = ${entryId}
-        LIMIT 1
-      `;
+      const entry = await readEntry(db, logId, entryId);
       if (!entry) return notFound(reply);
       return html(reply, renderWorkLogDelete({
         ...await pageChrome(db, request, user),
@@ -267,12 +238,12 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       }));
     });
 
-    routes.post<{ Params: { pk: string; entry_id: string } }>('/work-logs/:pk/entry/:entry_id/delete/', { bodyLimit: 8 * 1024 }, async (request, reply) => {
+    routes.post<{ Params: { pk: string; entryId: string } }>('/work-logs/:pk/entry/:entryId/delete/', { bodyLimit: 8 * 1024 }, async (request, reply) => {
       if (!csrfValid(request, options)) return notAllowed(reply);
       const user = await currentUser(request, reply, options);
       if (!user) return reply;
       const logId = parseId(request.params.pk);
-      const entryId = parseId(request.params.entry_id);
+      const entryId = parseId(request.params.entryId);
       if (logId === null || entryId === null) return notFound(reply);
       const log = await readOwnedLog(db, logId, user.id);
       if (!log) return notFound(reply);
@@ -282,20 +253,14 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       return reply.redirect(`/work-logs/${logId}/`, 302);
     });
 
-    routes.get<{ Params: { pk: string; entry_id: string } }>('/work-logs/:pk/media/:entry_id/', async (request, reply) => {
+    routes.get<{ Params: { pk: string; entryId: string } }>('/work-logs/:pk/media/:entryId/', async (request, reply) => {
       const user = await currentUser(request, reply, options);
       if (!user) return reply;
       const logId = parseId(request.params.pk);
-      const entryId = parseId(request.params.entry_id);
+      const entryId = parseId(request.params.entryId);
       if (logId === null || entryId === null) return notFound(reply);
       if (!await readOwnedLog(db, logId, user.id)) return notFound(reply);
-      const [entry] = await db.$queryRaw<EntryRow[]>`
-        SELECT id, log_id AS logId, title, text, media_type AS mediaType, attachment,
-               CAST(created_at AS TEXT) AS createdAt
-          FROM board_worklogentry
-         WHERE log_id = ${logId} AND id = ${entryId} AND attachment <> ''
-         LIMIT 1
-      `;
+      const entry = await readEntry(db, logId, entryId, true);
       if (!entry) return notFound(reply);
       return mediaResponse(request, reply, options.mediaRoot, entry);
     });
@@ -309,27 +274,10 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       if (total === 0) return notFound(reply);
       const query = request.query as Record<string, string | string[] | undefined>;
       const page = displayPage(typeof query.page === 'string' ? query.page : undefined, total);
-      const [entries, [cover], [image]] = await Promise.all([
+      const [entries, cover, image] = await Promise.all([
         readSnapshotEntries(db, share.id, page),
-        db.$queryRaw<EntryRow[]>`
-          SELECT entry.id, entry.log_id AS logId, entry.title, entry.text,
-                 entry.media_type AS mediaType, entry.attachment,
-                 CAST(entry.created_at AS TEXT) AS createdAt
-            FROM board_worklogshare_entries AS selection
-            JOIN board_worklogentry AS entry ON entry.id = selection.worklogentry_id
-           WHERE selection.worklogshare_id = ${share.id} AND entry.attachment <> ''
-           ORDER BY entry.created_at DESC, entry.id DESC LIMIT 1
-        `,
-        db.$queryRaw<EntryRow[]>`
-          SELECT entry.id, entry.log_id AS logId, entry.title, entry.text,
-                 entry.media_type AS mediaType, entry.attachment,
-                 CAST(entry.created_at AS TEXT) AS createdAt
-            FROM board_worklogshare_entries AS selection
-            JOIN board_worklogentry AS entry ON entry.id = selection.worklogentry_id
-           WHERE selection.worklogshare_id = ${share.id} AND entry.media_type LIKE 'image/%'
-             AND entry.attachment <> ''
-           ORDER BY entry.created_at DESC, entry.id DESC LIMIT 1
-        `,
+        latestSharedEntry(db, share.id),
+        latestSharedEntry(db, share.id, true),
       ]);
       const path = sharePath(share.token);
       const shareUrl = new URL(path, options.siteUrl).href;
@@ -352,11 +300,11 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       }));
     });
 
-    routes.get<{ Params: { token: string; entry_id: string } }>('/work-logs/share/:token/media/:entry_id/', async (request, reply) => {
+    routes.get<{ Params: { token: string; entryId: string } }>('/work-logs/share/:token/media/:entryId/', async (request, reply) => {
       const shareToken = storedShareToken(request.params.token);
       if (!shareToken) return notFound(reply);
       const share = await readShare(db, shareToken);
-      const entryId = parseId(request.params.entry_id);
+      const entryId = parseId(request.params.entryId);
       if (!share || entryId === null) return notFound(reply);
       const entry = await pageEntryForShareMedia(db, share.id, share.logId, entryId);
       if (!entry) return notFound(reply);

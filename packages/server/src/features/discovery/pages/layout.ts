@@ -4,7 +4,7 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 import { type PrismaClient } from '@prisma/client';
 import { SiteIcon } from '../../../appearance/icons.js';
 import { SiteFooter, SiteHeader, SiteTheme } from '../../../appearance/shell.js';
-import { DatabaseInteger, NoticeRow, PageMeta, PublicPageOptions, PublicPageViewer, SiteBrand, SiteSettingRow, h, makeAbsolute } from '../shared.js';
+import { NoticeRow, PageMeta, PublicPageOptions, PublicPageViewer, SiteBrand, h, makeAbsolute } from '../shared.js';
 
 export function PublicSiteMark({ brand, siteName, imageClass }: { brand?: SiteBrand; siteName: string; imageClass?: string }): ReactNode {
   const customLogo = brand?.logoUrl ?? brand?.darkLogoUrl;
@@ -74,10 +74,8 @@ export function authorFeed(siteUrl: URL, username: string) {
 
 /** Sends the agent discovery headers and returns the Markdown URL when AEO is enabled. */
 export async function advertiseMarkdown(reply: FastifyReply, db: PrismaClient, siteUrl: URL, path: string): Promise<string | undefined> {
-  const [site] = await db.$queryRaw<Array<{ enabled: DatabaseInteger | boolean | null }>>`
-    SELECT aeo_enabled AS enabled FROM board_sitesetting WHERE id = 1
-  `;
-  if (!site || !Number(site.enabled)) return undefined;
+  const site = await db.siteSetting.findUnique({ where: { id: 1 }, select: { aeoEnabled: true } });
+  if (!site?.aeoEnabled) return undefined;
   const markdown = makeAbsolute(siteUrl, `${path}.md`);
   const llms = makeAbsolute(siteUrl, '/llms.txt');
   reply.header('Link', `<${markdown}>; rel="alternate"; type="text/markdown", <${llms}>; rel="llms-txt"`).header('X-Llms-Txt', llms);
@@ -104,15 +102,7 @@ export async function getLayoutContext(
   return { brand, siteName: brand.siteName, viewer };
 }
 
-function manifestFaviconPath(value: unknown): string | null {
-  let manifest = value;
-  if (typeof manifest === 'string') {
-    try {
-      manifest = JSON.parse(manifest) as unknown;
-    } catch {
-      return null;
-    }
-  }
+function manifestFaviconPath(manifest: unknown): string | null {
   if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) return null;
   const ico = (manifest as { ico?: unknown }).ico;
   return typeof ico === 'string' ? ico : null;
@@ -127,25 +117,23 @@ function safeStoredMediaUrl(path: string | null): string | null {
 }
 
 export async function readPublicSiteBrand(db: PrismaClient): Promise<SiteBrand> {
-  const [[setting], footerPages] = await Promise.all([
-    db.$queryRaw<SiteSettingRow[]>`
-      SELECT site_name AS siteName, logo_svg AS logo, logo_svg_dark AS darkLogo,
-             icon_manifest AS iconManifest, seo_enabled AS seoEnabled
-        FROM board_sitesetting ORDER BY id LIMIT 1
-    `,
-    db.$queryRaw<Array<{ title: string; slug: string }>>`
-      SELECT title, slug FROM board_staticpage
-       WHERE is_published = 1 AND show_in_footer = 1 ORDER BY "order", slug
-    `,
+  const [setting, footerPages] = await Promise.all([
+    db.siteSetting.findUnique({
+      where: { id: 1 },
+      select: { siteName: true, logoSvg: true, logoSvgDark: true, iconManifest: true, seoEnabled: true },
+    }),
+    db.staticPage.findMany({
+      where: { isPublished: true, showInFooter: true },
+      orderBy: [{ order: 'asc' }, { slug: 'asc' }],
+      select: { title: true, slug: true },
+    }),
   ]);
   return {
-    siteName: setting?.siteName?.trim() || 'BLEX',
-    logoUrl: safeStoredMediaUrl(setting?.logo ?? null),
-    darkLogoUrl: safeStoredMediaUrl(setting?.darkLogo ?? null),
+    siteName: setting?.siteName.trim() || 'BLEX',
+    logoUrl: safeStoredMediaUrl(setting?.logoSvg ?? null),
+    darkLogoUrl: safeStoredMediaUrl(setting?.logoSvgDark ?? null),
     faviconUrl: safeStoredMediaUrl(manifestFaviconPath(setting?.iconManifest)) ?? '/favicon.ico',
-    seoEnabled: setting?.seoEnabled === null || setting?.seoEnabled === undefined
-      ? true
-      : Number(setting.seoEnabled) !== 0,
+    seoEnabled: setting?.seoEnabled ?? true,
     footerPages,
   };
 }
@@ -153,17 +141,17 @@ export async function readPublicSiteBrand(db: PrismaClient): Promise<SiteBrand> 
 export async function readNotices(db: PrismaClient, scope: 'global' | 'user', userId?: number): Promise<NoticeRow[]> {
   if (scope === 'user') {
     if (!userId) return [];
-    return db.$queryRaw<NoticeRow[]>`
-      SELECT id, title, url FROM board_sitenotice
-       WHERE scope = 'user' AND user_id = ${userId} AND is_active = 1
-       ORDER BY "order" ASC, created_date DESC
-    `;
+    return db.siteNotice.findMany({
+      where: { scope: 'user', userId, isActive: true },
+      orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
+      select: { id: true, title: true, url: true },
+    });
   }
-  return db.$queryRaw<NoticeRow[]>`
-    SELECT id, title, url FROM board_sitenotice
-     WHERE scope = 'global' AND is_active = 1
-     ORDER BY created_date DESC
-  `;
+  return db.siteNotice.findMany({
+    where: { scope: 'global', isActive: true },
+    orderBy: { createdAt: 'desc' },
+    select: { id: true, title: true, url: true },
+  });
 }
 
 function noticeLink(value: string): string | null {

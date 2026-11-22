@@ -42,17 +42,17 @@ const buildDraftPayload = (
         formData.append('tags', data.tags);
         if (data.subtitle) formData.append('subtitle', data.subtitle);
         if (data.description) formData.append('description', data.description);
-        if (data.seriesUrl) formData.append('series_url', data.seriesUrl);
-        if (data.customUrl) formData.append('custom_url', data.customUrl);
-        if (data.coverLayout) formData.append('cover_layout', data.coverLayout);
-        if (data.coverImagePosition) formData.append('cover_image_position', data.coverImagePosition);
-        if (data.coverImageRatio) formData.append('cover_image_ratio', data.coverImageRatio);
-        formData.append('is_hide', String(data.hide));
-        formData.append('is_advertise', String(data.advertise));
-        formData.append('block_comment', String(data.blockComment));
-        if (data.reservedDate !== undefined) formData.append('reserved_date', data.reservedDate);
+        if (data.seriesUrl) formData.append('seriesUrl', data.seriesUrl);
+        if (data.customUrl) formData.append('customUrl', data.customUrl);
+        if (data.coverLayout) formData.append('coverLayout', data.coverLayout);
+        if (data.coverImagePosition) formData.append('coverImagePosition', data.coverImagePosition);
+        if (data.coverImageRatio) formData.append('coverImageRatio', data.coverImageRatio);
+        formData.append('isHide', String(data.hide));
+        formData.append('isAdvertise', String(data.advertise));
+        formData.append('blockComment', String(data.blockComment));
+        if (data.reservedDate !== undefined) formData.append('reservedDate', data.reservedDate);
         if (data.imageFile) formData.append('image', data.imageFile);
-        if (data.imageDeleted) formData.append('image_delete', 'true');
+        if (data.imageDeleted) formData.append('imageDelete', 'true');
         return formData;
     }
 
@@ -62,15 +62,15 @@ const buildDraftPayload = (
         tags: data.tags,
         subtitle: data.subtitle,
         description: data.description,
-        series_url: data.seriesUrl,
-        custom_url: data.customUrl,
-        cover_layout: data.coverLayout,
-        cover_image_position: data.coverImagePosition,
-        cover_image_ratio: data.coverImageRatio,
-        is_hide: data.hide,
-        is_advertise: data.advertise,
-        block_comment: data.blockComment,
-        reserved_date: data.reservedDate
+        seriesUrl: data.seriesUrl,
+        customUrl: data.customUrl,
+        coverLayout: data.coverLayout,
+        coverImagePosition: data.coverImagePosition,
+        coverImageRatio: data.coverImageRatio,
+        isHide: data.hide,
+        isAdvertise: data.advertise,
+        blockComment: data.blockComment,
+        reservedDate: data.reservedDate
     };
 };
 
@@ -98,6 +98,11 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
     const dataRef = useRef(data);
     const optionsRef = useRef(options);
     const draftUrlRef = useRef<string | undefined>(options.draftUrl);
+    const pausedRef = useRef(false);
+    const activeSavesRef = useRef(new Set<Promise<string | null>>());
+    // A timer cancelled by a pause or a finishing save still owes the author a save.
+    const hasUnsavedEditsRef = useRef(false);
+    const [resumeCount, setResumeCount] = useState(0);
     const getContentSignature = useCallback((value: AutoSaveData) => JSON.stringify({
         title: value.title,
         content: value.content,
@@ -145,12 +150,13 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
     const currentDataString = getDataSignature(data);
     const currentContentString = getContentSignature(data);
 
-    // Manual save - returns the persisted draft URL on success
-    const manualSave = useCallback(async (): Promise<string | null> => {
+    const runSave = useCallback(async (): Promise<string | null> => {
         const currentData = dataRef.current;
         const currentOptions = optionsRef.current;
 
-        if (isSaving || !currentOptions.enabled) return null;
+        if (isSaving || !currentOptions.enabled || pausedRef.current) return null;
+
+        hasUnsavedEditsRef.current = false;
 
         // Clear existing timer and countdown when manually saving
         if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
@@ -178,7 +184,7 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
             if (draftUrlRef.current) {
                 const response = await updateDraft(draftUrlRef.current, payload);
                 const body = ensureDraftSaved(response.data, fallbackErrorMessage);
-                // Update draftUrlRef if URL changed (e.g. custom_url was applied)
+                // Update draftUrlRef if URL changed (e.g. customUrl was applied)
                 if (body.url) {
                     const newUrl = body.url;
                     if (newUrl !== draftUrlRef.current) {
@@ -214,9 +220,32 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         }
     }, [isSaving, getDataSignature, getContentSignature, t]);
 
+    // Manual save - returns the persisted draft URL on success
+    const manualSave = useCallback(() => {
+        const save = runSave();
+        activeSavesRef.current.add(save);
+        void save.finally(() => activeSavesRef.current.delete(save));
+        return save;
+    }, [runSave]);
+
+    /** Stops new saves and waits for running ones, so publishing cannot race a draft write. */
+    const pauseAutoSave = useCallback(async () => {
+        pausedRef.current = true;
+        if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
+        if (countdownRef.current) clearInterval(countdownRef.current);
+        setAutoSaveCountdown(null);
+        await Promise.all(activeSavesRef.current);
+        return draftUrlRef.current;
+    }, []);
+
+    const resumeAutoSave = useCallback(() => {
+        pausedRef.current = false;
+        setResumeCount(count => count + 1);
+    }, []);
+
     // Auto-save effect
     useEffect(() => {
-        if (!options.enabled) return;
+        if (!options.enabled || pausedRef.current) return;
 
         // Capture the hydrated editor state once autosave becomes available.
         // This separates initial draft loading from the user's first change.
@@ -228,9 +257,10 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         }
 
         // Check if data has actually changed
-        if (prevDataStringRef.current === currentDataString) return;
+        const hasNewChanges = prevDataStringRef.current !== currentDataString;
+        if (!hasNewChanges && !hasUnsavedEditsRef.current) return;
 
-        if (skipNextImageResetRef.current && prevContentStringRef.current === currentContentString) {
+        if (hasNewChanges && skipNextImageResetRef.current && prevContentStringRef.current === currentContentString) {
             skipNextImageResetRef.current = false;
             prevDataStringRef.current = currentDataString;
             return;
@@ -240,6 +270,7 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
 
         prevDataStringRef.current = currentDataString;
         prevContentStringRef.current = currentContentString;
+        hasUnsavedEditsRef.current = true;
         setHasPendingChanges(true);
 
         if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
@@ -262,6 +293,8 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
             const currentData = dataRef.current;
             if (currentData.title || currentData.content) {
                 manualSave();
+            } else {
+                hasUnsavedEditsRef.current = false;
             }
         }, intervalMs);
 
@@ -269,7 +302,7 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
             if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
             if (countdownRef.current) clearInterval(countdownRef.current);
         };
-    }, [currentDataString, currentContentString, options.enabled, intervalMs, manualSave]);
+    }, [currentDataString, currentContentString, options.enabled, intervalMs, manualSave, resumeCount]);
 
     return {
         lastSaved,
@@ -277,6 +310,8 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         hasSaveError,
         hasPendingChanges,
         autoSaveCountdown,
-        manualSave
+        manualSave,
+        pauseAutoSave,
+        resumeAutoSave
     };
 };

@@ -46,23 +46,23 @@ interface GeneratedPng {
 }
 
 export type BrandAssetGenerationErrorCode =
-    | 'svg_processing_instruction'
-    | 'svg_doctype'
-    | 'svg_invalid'
-    | 'svg_only'
-    | 'svg_too_complex'
-    | 'svg_unsupported_element'
-    | 'svg_invalid_namespace'
-    | 'svg_event_attribute'
-    | 'svg_unsupported_attribute'
-    | 'svg_unsafe_value'
-    | 'svg_unsafe_text'
-    | 'svg_invalid_viewbox'
-    | 'svg_invalid_viewbox_size'
-    | 'svg_preview_failed'
-    | 'icon_generation_failed'
-    | 'png_generation_failed'
-    | 'favicon_png_missing';
+    | 'svgProcessingInstruction'
+    | 'svgDoctype'
+    | 'svgInvalid'
+    | 'svgOnly'
+    | 'svgTooComplex'
+    | 'svgUnsupportedElement'
+    | 'svgInvalidNamespace'
+    | 'svgEventAttribute'
+    | 'svgUnsupportedAttribute'
+    | 'svgUnsafeValue'
+    | 'svgUnsafeText'
+    | 'svgInvalidViewbox'
+    | 'svgInvalidViewboxSize'
+    | 'svgPreviewFailed'
+    | 'iconGenerationFailed'
+    | 'pngGenerationFailed'
+    | 'faviconPngMissing';
 
 export class BrandAssetGenerationError extends Error {
     readonly code: BrandAssetGenerationErrorCode;
@@ -82,7 +82,7 @@ export const createSvgBrandAssetFormData = (
     svgFile: File
 ) => {
     const formData = new FormData();
-    formData.append('asset_type', assetType);
+    formData.append('assetType', assetType);
     formData.append('theme', theme);
     formData.append('svg', svgFile, svgFile.name || `${assetType}.svg`);
     return formData;
@@ -103,29 +103,29 @@ export const createIconBrandAssetFormData = async (svgFile: File) => {
     }));
 
     pngFiles.forEach(({ size, blob }) => {
-        formData.append(`png_${size}`, new File([blob], `logo${size}.png`, { type: 'image/png' }));
+        formData.append(`png${size}`, new File([blob], `logo${size}.png`, { type: 'image/png' }));
     });
-    formData.append('favicon_ico', new File([faviconIco], 'favicon.ico', { type: ICO_MIME_TYPE }));
+    formData.append('faviconIco', new File([faviconIco], 'favicon.ico', { type: ICO_MIME_TYPE }));
     return formData;
 };
 
 const normalizeSvgForRendering = (svgText: string) => {
     if (PROCESSING_INSTRUCTION_PATTERN.test(svgText)) {
-        throw new BrandAssetGenerationError('svg_processing_instruction');
+        throw new BrandAssetGenerationError('svgProcessingInstruction');
     }
     if (DOCTYPE_PATTERN.test(svgText)) {
-        throw new BrandAssetGenerationError('svg_doctype');
+        throw new BrandAssetGenerationError('svgDoctype');
     }
 
     const document = new DOMParser().parseFromString(svgText, SVG_MIME_TYPE);
     const parserError = document.querySelector('parsererror');
     if (parserError) {
-        throw new BrandAssetGenerationError('svg_invalid');
+        throw new BrandAssetGenerationError('svgInvalid');
     }
 
     const root = document.documentElement;
     if (root.localName !== 'svg') {
-        throw new BrandAssetGenerationError('svg_only');
+        throw new BrandAssetGenerationError('svgOnly');
     }
 
     validateSvgForRendering(root);
@@ -146,31 +146,31 @@ const validateSvgForRendering = (root: Element) => {
     ];
 
     if (elements.length > SVG_MAX_NODES) {
-        throw new BrandAssetGenerationError('svg_too_complex');
+        throw new BrandAssetGenerationError('svgTooComplex');
     }
 
     elements.forEach((element) => {
         if (!SVG_ALLOWED_TAGS.has(element.localName)) {
-            throw new BrandAssetGenerationError('svg_unsupported_element', element.localName);
+            throw new BrandAssetGenerationError('svgUnsupportedElement', element.localName);
         }
 
         Array.from(element.attributes).forEach((attribute) => {
             const attributeName = attribute.name;
             if (attributeName === 'xmlns' || attributeName.startsWith('xmlns:')) {
                 if (!ALLOWED_NAMESPACE_VALUES.has(attribute.value)) {
-                    throw new BrandAssetGenerationError('svg_invalid_namespace');
+                    throw new BrandAssetGenerationError('svgInvalidNamespace');
                 }
                 return;
             }
 
             if (attributeName.toLowerCase().startsWith('on')) {
-                throw new BrandAssetGenerationError('svg_event_attribute');
+                throw new BrandAssetGenerationError('svgEventAttribute');
             }
             if (!SVG_ALLOWED_ATTRIBUTES.has(attributeName) && !isSafeMetadataAttribute(attributeName)) {
-                throw new BrandAssetGenerationError('svg_unsupported_attribute', attributeName);
+                throw new BrandAssetGenerationError('svgUnsupportedAttribute', attributeName);
             }
             if (hasDangerousValue(attribute.value)) {
-                throw new BrandAssetGenerationError('svg_unsafe_value');
+                throw new BrandAssetGenerationError('svgUnsafeValue');
             }
         });
 
@@ -179,7 +179,7 @@ const validateSvgForRendering = (root: Element) => {
             && hasDangerousValue(node.textContent || '')
         ));
         if (hasDangerousText) {
-            throw new BrandAssetGenerationError('svg_unsafe_text');
+            throw new BrandAssetGenerationError('svgUnsafeText');
         }
     });
 };
@@ -195,12 +195,12 @@ const isSafeMetadataAttribute = (attributeName: string) => {
 const parseViewBox = (rawValue: string): SvgViewBox => {
     const values = rawValue.trim().split(/[\s,]+/).map(Number);
     if (values.length !== 4 || values.some((value) => !Number.isFinite(value))) {
-        throw new BrandAssetGenerationError('svg_invalid_viewbox');
+        throw new BrandAssetGenerationError('svgInvalidViewbox');
     }
 
     const [minX, minY, width, height] = values;
     if (width <= 0 || height <= 0) {
-        throw new BrandAssetGenerationError('svg_invalid_viewbox_size');
+        throw new BrandAssetGenerationError('svgInvalidViewboxSize');
     }
     return {
         minX,
@@ -230,7 +230,7 @@ const generatePngFiles = async (normalizedSvgText: string): Promise<GeneratedPng
 const loadImage = (url: string) => new Promise<HTMLImageElement>((resolve, reject) => {
     const image = new Image();
     image.onload = () => resolve(image);
-    image.onerror = () => reject(new BrandAssetGenerationError('svg_preview_failed'));
+    image.onerror = () => reject(new BrandAssetGenerationError('svgPreviewFailed'));
     image.src = url;
 });
 
@@ -241,7 +241,7 @@ const drawImageToPng = (image: HTMLImageElement, size: number) => new Promise<Bl
 
     const context = canvas.getContext('2d');
     if (!context) {
-        reject(new BrandAssetGenerationError('icon_generation_failed'));
+        reject(new BrandAssetGenerationError('iconGenerationFailed'));
         return;
     }
 
@@ -257,7 +257,7 @@ const drawImageToPng = (image: HTMLImageElement, size: number) => new Promise<Bl
     context.drawImage(image, drawX, drawY, drawWidth, drawHeight);
     canvas.toBlob((blob) => {
         if (!blob) {
-            reject(new BrandAssetGenerationError('png_generation_failed'));
+            reject(new BrandAssetGenerationError('pngGenerationFailed'));
             return;
         }
         resolve(blob);
@@ -266,7 +266,7 @@ const drawImageToPng = (image: HTMLImageElement, size: number) => new Promise<Bl
 
 const createIcoBlob = async (entries: GeneratedPng[]) => {
     if (entries.length === 0) {
-        throw new BrandAssetGenerationError('favicon_png_missing');
+        throw new BrandAssetGenerationError('faviconPngMissing');
     }
 
     const buffers = await Promise.all(entries.map((entry) => entry.blob.arrayBuffer()));

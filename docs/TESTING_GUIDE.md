@@ -29,6 +29,7 @@ node --test --test-name-pattern='sitemap' packages/server/dist/test/public-disco
 - Small schema fixtures are useful for focused read-only tests, but must not replace migration-backed coverage for writes.
 - Close the Fastify app and database connections before removing temporary files. Never point tests at a developer's data or media directory.
 - Assert status codes, bodies, headers, and persisted state. Cover unauthenticated access, another user's resources, and invalid input where relevant.
+- `application-screens.test.ts` walks representative `/v1` responses and fails on any snake_case key. Add a new endpoint family there, and list a key in its allowlist only when an external service defines it.
 - Keep tests independent of execution order. Avoid assertions about private calls, incidental markup, visual spacing, or CSS classes.
 
 See [Backend Compatibility](BACKEND_COMPATIBILITY.md) for the test files covering each public contract. Visibility changes must cover HTML, Markdown, discovery endpoints, and RSS together.
@@ -55,10 +56,10 @@ pnpm --filter @blex/web exec playwright install --only-shell chromium
 BLEX_SETUP_TOKEN=your-setup-token pnpm test:smoke
 ```
 
-The test creates the first administrator account, then checks signing out, signing back in, opening the mobile menu, and loading the editor. `BLEX_SMOKE_URL` overrides the default `http://127.0.0.1:8040` target.
+The test creates the first administrator account, then checks signing out, signing back in, opening the mobile menu, loading the editor, and keeping the author's text when the server rejects a publish. `BLEX_SMOKE_URL` overrides the default `http://127.0.0.1:8040` target.
 
 ## Migrations and CI
 
-Verify schema changes on an empty SQLite database and a copy prepared with the [upgrade guide](UPGRADE_FROM_3.md). Cover constraint changes with representative data, including invalid duplicates where relevant.
+Verify schema changes on an empty SQLite database and a copy prepared with the [upgrade guide](UPGRADE_FROM_3.md). Cover constraint changes with representative data, including invalid duplicates where relevant. Until 4.0 ships, `0001_init` must match the output of the regeneration command in the [Backend Guide](BACKEND_GUIDE.md#database-changes).
 
 [CI](../.github/workflows/CI.yml) runs the server build and tests, Prisma validation, web checks, and container verification. The container job launches a new instance with a 512 MiB memory limit and runs the browser smoke test.

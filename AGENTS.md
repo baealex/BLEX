@@ -7,8 +7,8 @@ AI Agents must read `docs/DEV_CONVENTION.md` before starting any development.
 - Server entry and route registration: `packages/server/src/app.ts`, `packages/server/src/routes`
 - Server features: `packages/server/src/features/<domain>` (`http`, `services`, `pages`)
 - Shared server helpers: `packages/server/src/platform`
-- Persisted formats, API contracts, and upgrade checks: `packages/server/src/compat`
-- SQLite schema and migrations: `packages/server/prisma`
+- One-time BLEX 3.14 import and verification: `packages/server/src/compat`, `packages/server/prisma/legacy`
+- SQLite schema and the `0001_init` migration: `packages/server/prisma`
 - Tests and fixtures: `packages/server/test`
 - React screens and browser runtime: `packages/web`
 - Shared UI and editor: `packages/ui`, `packages/editor`
