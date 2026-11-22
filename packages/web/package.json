@@ -12,6 +12,7 @@
         "i18n:compile": "lingui compile --strict",
         "i18n:check": "node scripts/check-i18n.mjs",
         "test": "node --test test/*.test.mjs",
+        "test:smoke": "node scripts/browser-smoke.mjs",
         "lint": "eslint src test",
         "type-check": "tsc --noEmit"
     },

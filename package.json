@@ -14,6 +14,7 @@
         "start": "pnpm --filter @blex/server start",
         "test": "pnpm --filter @blex/server test",
         "test:web": "pnpm --filter @blex/editor --filter @blex/web run test",
+        "test:smoke": "pnpm --filter @blex/web run test:smoke",
         "lint": "turbo run lint",
         "type-check": "turbo run type-check",
         "i18n:check": "pnpm --filter @blex/web run i18n:check",
