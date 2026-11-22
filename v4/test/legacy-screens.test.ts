@@ -141,7 +141,9 @@ test('serves the 3.x introduction editor only to its owner', async () => {
     const anonymous = await fixture.app.inject('/@writer/about/edit');
     assert.equal(anonymous.statusCode, 302);
     assert.match(String(anonymous.headers.location), /^\/login\?next=/);
-    assert.equal((await fixture.app.inject({ url: '/@writer/about/edit', headers: signIn(fixture.db, 2) })).statusCode, 403);
+    const denied = await fixture.app.inject({ url: '/@writer/about/edit', headers: { ...signIn(fixture.db, 2), accept: 'text/html' } });
+    assert.equal(denied.statusCode, 403);
+    assert.match(denied.body, /이 페이지에 접근할 권한이 없습니다/);
     const owner = await fixture.app.inject({ url: '/@writer/about/edit', headers: signIn(fixture.db, 1) });
     assert.equal(owner.statusCode, 200);
     assert.match(owner.body, /자신을 소개해 보세요/);

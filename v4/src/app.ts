@@ -25,7 +25,7 @@ import { registerNotifications } from './notifications/index.js';
 import { registerPersonalSettings } from './personal-settings/index.js';
 import { youtubeFrameSources } from './post-html.js';
 import { registerPostShare } from './post-share.js';
-import { renderNotFoundPage, wantsNotFoundPage } from './public-pages/not-found.js';
+import { renderForbiddenPage, renderNotFoundPage, wantsNotFoundPage } from './public-pages/not-found.js';
 import { publicPostPath, readPostPresentation, readPublicPost } from './posts.js';
 import { registerPublicActivity, relatedPosts } from './public-activity.js';
 import { registerPublicDiscovery, searchIndexingEnabled } from './public-discovery/index.js';
@@ -62,9 +62,10 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
   const app = Fastify({ bodyLimit: 8 * 1024, requestTimeout: 300_000, routerOptions: { ignoreDuplicateSlashes: true, maxParamLength: 150 }, trustProxy: auth?.trustedProxies ?? false });
   app.addHook('onSend', async (request, reply, payload) => {
     const contentType = String(reply.getHeader('Content-Type') ?? '');
-    if (reply.statusCode === 404 && !contentType.startsWith('text/html') && wantsNotFoundPage(request)) {
+    if ((reply.statusCode === 404 || reply.statusCode === 403) && !contentType.startsWith('text/html') && wantsNotFoundPage(request)) {
       try {
-        const page = await renderNotFoundPage(db, await currentUser(request), requestCookies(request)[csrfCookie] ?? '');
+        const render = reply.statusCode === 403 ? renderForbiddenPage : renderNotFoundPage;
+        const page = await render(db, await currentUser(request), requestCookies(request)[csrfCookie] ?? '');
         reply.type('text/html; charset=utf-8').header('Content-Security-Policy', applicationContentSecurityPolicy).removeHeader('Content-Length');
         return page;
       } catch (error) {
