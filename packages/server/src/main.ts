@@ -18,7 +18,7 @@ const trustedProxies = trustedProxiesFromEnv(process.env);
 if (!readOnly && siteUrl.protocol === 'https:' && !trustedProxies) {
   console.warn('BLEX_TRUSTED_PROXIES is not set. Behind an HTTPS proxy, every visitor shares one login rate limit.');
 }
-const webAssetsRoot = await resolveWebAssetsRoot(process.env.BLEX_WEB_ASSETS_PATH);
+const webAssetsRoot = await resolveWebAssetsRoot();
 const auth = !readOnly && secretKey && cipherKey ? { secretKey, cipherKey, setupToken, trustedProxies, deliverNotifications: true, webAssetsRoot } : undefined;
 const app = await buildApp(dbPath, siteUrl, auth, process.env.BLEX_V4_MEDIA_PATH);
 

@@ -36,18 +36,14 @@ const hasPrefix = (path: string, prefixes: string[]) => {
 };
 
 /** Finds the built 3.x screens next to the compiled server. */
-export async function resolveWebAssetsRoot(configured?: string): Promise<string | undefined> {
-  const candidates = [
-    configured,
-    fileURLToPath(new URL('../../../web/', import.meta.url)),
-  ].filter((value): value is string => Boolean(value));
-  for (const candidate of candidates) {
-    try {
-      await access(new URL('.vite/manifest.json', `file://${candidate.endsWith('/') ? candidate : `${candidate}/`}`));
-      return candidate.endsWith('/') ? candidate : `${candidate}/`;
-    } catch { /* Try the next location. */ }
+export async function resolveWebAssetsRoot(): Promise<string | undefined> {
+  const root = new URL('../../../web/', import.meta.url);
+  try {
+    await access(new URL('.vite/manifest.json', root));
+    return fileURLToPath(root);
+  } catch {
+    return undefined;
   }
-  return undefined;
 }
 
 function manifestAsset(manifest: Manifest, entry: string): string {
