@@ -193,10 +193,10 @@ export function registerTelegram(app: FastifyInstance, db: PrismaClient, options
         if (!options.validateCsrf(request)) return reply.code(403).send(failure('RJ'));
         if (action === 'unsync') {
           const changed = await db.$executeRaw`DELETE FROM board_telegramsync WHERE user_id = ${user.id} AND tid <> ''`;
-          return changed ? done() : failure('AU', '텔레그램 연결이 이미 해제되었습니다.');
+          return changed ? done() : failure('AU', '이미 연동이 해제되었습니다.');
         }
         const config = await telegramConfig(db, options.cipherKey);
-        return config.configured ? done(await issueConnection(db, user.id, config.username)) : failure('NT', '텔레그램 봇이 설정되어 있지 않습니다.');
+        return config.configured ? done(await issueConnection(db, user.id, config.username)) : failure('NT', '텔레그램 봇이 설정되지 않았습니다.');
       });
     }
 

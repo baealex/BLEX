@@ -95,7 +95,7 @@ async function savePreferences(db: PrismaClient, user: NotificationUser, input: 
       if (!page && (value === null || value === undefined || value === '')) continue;
       const normalized = value === true || value === 'true' ? 'true' : 'false';
       const updated = await tx.$executeRaw`
-        UPDATE board_userconfigmeta SET value = ${normalized}, updated_date = ${timestamp} WHERE user_id = ${user.id} AND name = ${name}
+        UPDATE board_userconfigmeta SET value = ${normalized} WHERE user_id = ${user.id} AND name = ${name}
       `;
       if (!updated) await tx.$executeRaw`
         INSERT INTO board_userconfigmeta (user_id, name, value, created_date, updated_date)

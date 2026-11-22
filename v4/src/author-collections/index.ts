@@ -2,7 +2,7 @@ import formBody from '@fastify/formbody';
 import { Prisma, type PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { randomBytes } from 'node:crypto';
-import { markdownToHtml } from '../authoring/markdown.js';
+import { sanitizePostHtml } from '../post-html.js';
 import {
   renderPinnedPostsPage,
   renderSeriesEditorPage,
@@ -317,10 +317,10 @@ async function saveSeries(
     let id = seriesId;
     let url: string;
     let finalName = name;
-    let finalDescription = description ?? '';
+    let finalDescription = (description ?? '').trim();
     if (id === undefined) {
       url = await createUniqueSeriesUrl(tx, requestedUrl!);
-      const safeDescription = markdownToHtml(finalDescription);
+      const safeDescription = sanitizePostHtml(finalDescription);
       const inserted = await tx.$queryRaw<Array<{ id: number }>>`
         INSERT INTO board_series
           ("order", text_md, text_html, hide, url, layout, created_date, updated_date, owner_id, name)
@@ -343,8 +343,8 @@ async function saveSeries(
         if (conflict) throw { code: 'AE', message: 'This URL already exists.' };
       }
       finalName = input.name === undefined ? existing.name : name;
-      finalDescription = description ?? existing.description;
-      const safeDescription = markdownToHtml(finalDescription);
+      finalDescription = description === undefined ? existing.description : description.trim();
+      const safeDescription = sanitizePostHtml(finalDescription);
       await tx.$executeRaw`
         UPDATE board_series SET name = ${finalName}, url = ${url}, text_md = ${finalDescription},
           text_html = ${safeDescription}, updated_date = CURRENT_TIMESTAMP
@@ -356,7 +356,7 @@ async function saveSeries(
       await tx.$executeRaw`UPDATE board_post SET series_id = NULL WHERE series_id = ${id}`;
       for (const postId of input.postIds) {
         await tx.$executeRaw`
-          UPDATE board_post SET series_id = ${id}, updated_date = CURRENT_TIMESTAMP
+          UPDATE board_post SET series_id = ${id}
            WHERE id = ${postId} AND author_id = ${ownerId}
         `;
       }

@@ -136,6 +136,17 @@ export function sanitizePostHtml(html: string): string {
   return sanitizeHtml(html, postHtmlOptions);
 }
 
+/** Author banners keep the declaration spacing 3.x wrote when it cleaned their inline styles. */
+export function sanitizeBannerHtml(html: string): string {
+  return sanitizePostHtml(html).replace(/\bstyle="([^"]*)"/g, (_match, css: string) => {
+    const declarations = css.split(';').map((part) => part.trim()).filter(Boolean).map((part) => {
+      const colon = part.indexOf(':');
+      return colon < 0 ? part : `${part.slice(0, colon).trim()}: ${part.slice(colon + 1).trim()}`;
+    });
+    return `style="${declarations.join('; ')}"`;
+  });
+}
+
 const commentHtmlOptions: sanitizeHtml.IOptions = {
   ...postHtmlOptions,
   allowedTags: [

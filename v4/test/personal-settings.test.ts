@@ -349,7 +349,7 @@ test('stores bounded profile images atomically under the owner media directory',
       payload: request.payload,
     });
     assert.deepEqual(response.json().status, 'DONE');
-    assert.match(response.json().body.url, new RegExp(`^https://blog\\.example/resources/media/images/avatar/[a-f0-9]{2}/writer/${kind === 'avatar' ? 'a' : 'c'}[a-f0-9]{32}\\.png$`));
+    assert.match(response.json().body.url, new RegExp(`^/resources/media/images/avatar/[a-f0-9]{2}/writer/${kind === 'avatar' ? 'a' : 'c'}[a-f0-9]{32}\\.png$`));
 
     const [profile] = await db.$queryRaw<Array<{ avatar: string; cover: string }>>`SELECT avatar, cover FROM board_profile WHERE user_id = 1`;
     const savedPath = kind === 'avatar' ? profile.avatar : profile.cover;

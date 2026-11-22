@@ -137,7 +137,7 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
   registerPublicPages(app, db, siteUrl, { currentUser, requiresSetup: auth?.setupToken ? async () => !await hasAdministrator(db) : undefined });
   registerPublicActivity(app, db, routeOptions);
   registerPostShare(app, db, { ...routeOptions, writable: Boolean(auth) });
-  registerReaderActions(app, db, routeOptions);
+  registerReaderActions(app, db, { ...routeOptions, cipherKey: auth?.cipherKey });
   registerWorkLogs(app, db, routeOptions);
   app.post('/v1/report/error', { bodyLimit: 64 * 1024 }, async (request, reply) => {
     if (!routeOptions.validateCsrf(request)) return reply.code(403).send();

@@ -2,6 +2,7 @@ import formBody from '@fastify/formbody';
 import { Prisma, type PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { createNotification } from '../notifications/model.js';
+import { decryptDjangoSecret } from '../auth/django-secret.js';
 import { timeSince } from '../django-format.js';
 import { sanitizeCommentHtml } from '../post-html.js';
 import { publicPostPath } from '../posts.js';
@@ -14,6 +15,7 @@ export interface ReaderActionUser {
 export interface ReaderActionsOptions {
   currentUser: (req: FastifyRequest) => Promise<ReaderActionUser | null>;
   validateCsrf: (req: FastifyRequest) => boolean;
+  cipherKey?: string;
 }
 
 type DbInteger = number | bigint | boolean | null;
@@ -75,6 +77,7 @@ interface SubscriptionRow {
 interface TelegramRow {
   telegramEnabled: DbInteger;
   botUsername: string;
+  botToken: string;
 }
 
 export interface CommentPayload {
@@ -865,7 +868,8 @@ export function registerReaderActions(
           });
           const telegram = await db.$queryRaw<TelegramRow[]>`
             SELECT CAST(telegram_enabled AS INTEGER) AS telegramEnabled,
-                   telegram_bot_username AS botUsername
+                   telegram_bot_username AS botUsername,
+                   telegram_bot_token AS botToken
             FROM board_integrationsetting
             WHERE id = 1
             LIMIT 1
@@ -879,6 +883,7 @@ export function registerReaderActions(
           const setting = telegram[0];
           const suggestTelegramConnection = Boolean(setting && isTrue(setting.telegramEnabled) &&
             setting.botUsername.trim() !== '' &&
+            Boolean(options.cipherKey && decryptDjangoSecret(setting.botToken, options.cipherKey)) &&
             !isTrue(connected[0]?.connected ?? 0));
           const result = {
             canSubscribe: true,

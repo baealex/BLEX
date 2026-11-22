@@ -9,6 +9,7 @@ import { syncPostPublication } from '../notifications/model.js';
 import multipart from '@fastify/multipart';
 import { ContentUploadError, contentUploadLimit, saveContentFile } from '../content-media.js';
 import { djangoIso, localDate, localDateTimeText, timeSince } from '../django-format.js';
+import { Parser } from 'htmlparser2';
 import { sanitizePostHtml } from '../post-html.js';
 import { renderSettingsShell } from '../settings-shell.js';
 import { markdownToHtml, htmlToMarkdown } from './markdown.js';
@@ -559,8 +560,14 @@ function plainText(html: string): string {
     .trim();
 }
 
+/** Django's strip_tags followed by truncatewords(50). */
 function descriptionFromHtml(html: string): string {
-  return Array.from(plainText(html)).slice(0, POST_DESCRIPTION_MAX).join('');
+  let text = '';
+  const parser = new Parser({ ontext: (chunk) => { text += chunk; } }, { decodeEntities: false });
+  parser.write(html);
+  parser.end();
+  const words = text.split(/\s+/u).filter(Boolean);
+  return words.length > 50 ? `${words.slice(0, 50).join(' ')}…` : words.join(' ');
 }
 
 function readingTime(html: string): number {
@@ -1161,6 +1168,7 @@ async function updatePost(
         )
       `;
     }
+    if (input.hide && !isTrue(post.hide)) await tx.$executeRaw`DELETE FROM board_pinnedpost WHERE post_id = ${post.id}`;
     if (!options.preserveTags) await syncTags(tx, post.id, input.tags);
     if (options.updateDraft && input.reservedDate) await syncDraftReservation(tx, post.id, input.reservedDate);
     if (options.updateDraft && !input.reservedDate) await syncDraftReservation(tx, post.id, '');
@@ -1828,7 +1836,9 @@ async function preservePostOmissions(
     title: Object.hasOwn(body, 'title') ? input.title : post.title,
     subtitle: Object.hasOwn(body, 'subtitle') ? input.subtitle : post.subtitle,
     text: hasText ? input.text : '',
-    description: Object.hasOwn(body, 'description') || Object.hasOwn(body, 'meta_description') ? input.description : post.description,
+    description: Object.hasOwn(body, 'description') || Object.hasOwn(body, 'meta_description')
+      ? input.description
+      : hasText ? descriptionFromHtml(resolveContent(input)) : post.description,
     url: Object.hasOwn(body, 'custom_url') || Object.hasOwn(body, 'url') ? input.url : post.url,
     tags: Object.hasOwn(body, 'tags') || Object.hasOwn(body, 'tag') ? input.tags : tags.join(','),
     series: Object.hasOwn(body, 'series_url') || Object.hasOwn(body, 'series') ? input.series : post.seriesUrl ?? '',
@@ -1861,12 +1871,20 @@ async function updatePostSettings(
       await tx.$executeRaw`
         UPDATE board_postconfig SET hide = ${hide ? 1 : 0} WHERE post_id = ${post.id}
       `;
+      if (hide) await tx.$executeRaw`DELETE FROM board_pinnedpost WHERE post_id = ${post.id}`;
+      await tx.$executeRaw`UPDATE board_post SET updated_date = ${now} WHERE id = ${post.id}`;
       await syncPostPublication(tx, post.id);
     });
     return { isHide: hide };
   }
   if (field(query.tag)) {
-    await db.$transaction(async (tx) => syncTags(tx, post.id, field(body.tag)));
+    await db.$transaction(async (tx) => {
+      const previous = await captureEditorialSnapshot(tx, post.id);
+      await syncTags(tx, post.id, field(body.tag));
+      if (sameEditorialSnapshot(previous, await captureEditorialSnapshot(tx, post.id))) return;
+      await tx.$executeRaw`UPDATE board_post SET updated_date = ${now} WHERE id = ${post.id}`;
+      if (post.publishedDate !== null) await insertRevision(tx, post.id, previous, author.id, 'edit', post.updatedDate);
+    });
     return { tag: normalizedTags(field(body.tag)).join(',') };
   }
   if (field(query.series)) {

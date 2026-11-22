@@ -10,7 +10,7 @@ import { isAbsolute, relative, resolve, sep } from 'node:path';
 import { domainToASCII } from 'node:url';
 import { encryptDjangoSecret, decryptDjangoSecret } from '../auth/django-secret.js';
 import { djangoIso } from '../django-format.js';
-import { sanitizePostHtml } from '../post-html.js';
+import { sanitizeBannerHtml } from '../post-html.js';
 import { adminSettingsCapabilities, readAdminAccess, type UserAccess } from './access.js';
 import {
   renderAdminBanners,
@@ -1712,7 +1712,7 @@ function serializeBanner(row: BannerRow, scope: 'global' | 'user'): AdminBanner 
   return {
     id: row.id,
     title: row.title,
-    contentHtml: scope === 'global' ? row.contentHtml : sanitizePostHtml(row.contentHtml),
+    contentHtml: scope === 'global' ? row.contentHtml : sanitizeBannerHtml(row.contentHtml),
     bannerType: row.bannerType,
     position: row.position,
     isActive: booleanValue(row.isActive),
@@ -2041,7 +2041,7 @@ async function saveBanner(
   const current = id === undefined ? null : await readBanner(db, id, scope, scope === 'user' ? userId : null);
   if (id !== undefined && !current) return { ok: false, code: 'NF', message: 'Banner not found.' };
   const title = 'title' in input ? stringValue(input.title) : current?.title ?? '';
-  const contentHtml = 'content_html' in input ? (scope === 'global' ? stringValue(input.content_html) : sanitizePostHtml(stringValue(input.content_html))) : current?.contentHtml ?? '';
+  const contentHtml = 'content_html' in input ? (scope === 'global' ? stringValue(input.content_html) : sanitizeBannerHtml(stringValue(input.content_html))) : current?.contentHtml ?? '';
   const bannerType = 'banner_type' in input ? stringValue(input.banner_type) : current?.bannerType ?? 'horizontal';
   const position = 'position' in input ? stringValue(input.position) : current?.position ?? 'top';
   if (id === undefined && !title) return { ok: false, code: 'VA', message: 'Enter a banner name.' };
@@ -2534,11 +2534,11 @@ async function buildImageCleanupPlan(
 
 function imageCleanupPlanApi(plan: ImageCleanupPlan, dryRun: boolean): Record<string, unknown> {
   const messages: string[] = [];
-  if (plan.cacheRows.length) messages.push(`Image caches ready for deletion: ${plan.cacheRows.length}.`);
+  if (plan.cacheRows.length) messages.push(`이미지 캐시 ${plan.cacheRows.length}개가 삭제 대상입니다.`);
   if (plan.duplicateFiles.length) {
     messages.push(dryRun
-      ? `Duplicate title images ready for deletion: ${plan.duplicateFiles.length} (${Math.round(plan.duplicateSize / 1024 / 1024 * 100) / 100} MB).`
-      : `Deleted duplicate title images: ${plan.duplicateFiles.length} (${Math.round(plan.duplicateSize / 1024 / 1024 * 100) / 100} MB).`);
+      ? `중복 타이틀 이미지 ${plan.duplicateFiles.length}개(${Math.round(plan.duplicateSize / 1024 / 1024 * 100) / 100}MB)가 삭제 대상입니다.`
+      : `중복 타이틀 이미지 ${plan.duplicateFiles.length}개(${Math.round(plan.duplicateSize / 1024 / 1024 * 100) / 100}MB)를 삭제했습니다.`);
   }
   return {
     target: plan.target,
@@ -2621,8 +2621,8 @@ async function executeImageCleanupPlan(
       DELETE FROM board_imagecache WHERE id = ${cache.id} AND path = ${cache.path}
     `;
   }
-  if (deletedFiles) messages.push(`Deleted unused image files: ${deletedFiles}.`);
-  if (deletedCaches) messages.push(`Deleted image caches: ${deletedCaches}.`);
+  if (deletedFiles) messages.push(`미사용 이미지 ${deletedFiles}개를 삭제했습니다.`);
+  if (deletedCaches) messages.push(`이미지 캐시 ${deletedCaches}개를 삭제했습니다.`);
   if (errors.length) messages.push(...errors.slice(0, 20));
   return {
     ...imageCleanupPlanApi(plan, false),

@@ -237,6 +237,11 @@ function mediaUrl(siteUrl: URL, path: string): string {
   return new URL(`media/${path.replace(/^\/+/, '')}`, resourceBase).href;
 }
 
+/** 3.x answered profile uploads with a site-relative path unless a resource host was configured. */
+function uploadedMediaUrl(url: string): string {
+  return process.env.RESOURCE_URL?.trim() ? url : new URL(url).pathname;
+}
+
 function defaultAvatarUrl(siteUrl: URL): string {
   const configuredResourceUrl = process.env.RESOURCE_URL?.trim().replace(/\/$/, '') ?? '';
   const resourceBase = new URL(`${configuredResourceUrl}/resources/`, siteUrl);
@@ -825,7 +830,7 @@ export function registerPersonalSettings(app: FastifyInstance, db: PrismaClient,
           return reply.send(failure('VA', 'Upload a valid profile image.'));
         }
         if (isHtmlForm) return reply.redirect(expectedReturnTo, 303);
-        return success({ url });
+        return success({ url: uploadedMediaUrl(url) });
       });
     };
 

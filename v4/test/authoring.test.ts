@@ -185,6 +185,7 @@ database.exec(`
     created_date DATETIME NOT NULL,
     user_id INTEGER NOT NULL
   );
+  CREATE TABLE board_pinnedpost (id INTEGER PRIMARY KEY AUTOINCREMENT, "order" INTEGER NOT NULL DEFAULT 0, created_date TEXT, post_id INTEGER NOT NULL, user_id INTEGER NOT NULL);
   CREATE TABLE board_edithistory (
     id INTEGER PRIMARY KEY,
     post_id INTEGER NOT NULL,

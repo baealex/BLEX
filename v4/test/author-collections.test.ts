@@ -186,7 +186,7 @@ test('series APIs preserve ownership, counts, markdown, post selection, and orde
   assert.match(created.json().body.url, /^writer-series-[0-9a-f]{8}$/);
   const newId = Number(created.json().body.id);
   const [stored] = await db.$queryRaw<Array<{ text_html: string }>>`SELECT text_html FROM board_series WHERE id = ${newId}`;
-  assert.equal(stored.text_html, '<p><strong>welcome</strong></p>');
+  assert.equal(stored.text_html, '**welcome**');
   const [movedPost] = await db.$queryRaw<Array<{ series_id: number | null }>>`SELECT series_id FROM board_post WHERE id = 2`;
   assert.equal(movedPost.series_id, newId);
   const [foreignPost] = await db.$queryRaw<Array<{ series_id: number | null }>>`SELECT series_id FROM board_post WHERE id = 10`;
@@ -284,7 +284,7 @@ test('native collection forms save series, reorder pins, and remove pinned rows'
   assert.equal(created.headers.location, '/settings/series?saved=1');
 
   const [formSeries] = await db.$queryRaw<Array<{ id: number; text_html: string }>>`SELECT id, text_html FROM board_series WHERE url = 'form-series'`;
-  assert.equal(formSeries.text_html, '<p>A <strong>form</strong> series</p>');
+  assert.equal(formSeries.text_html, 'A **form** series');
   const updated = await app.inject({
     method: 'POST', url: `/series/edit/${formSeries.id}`, headers: csrfFormHeaders,
     payload: new URLSearchParams([

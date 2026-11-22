@@ -52,6 +52,11 @@ export function registerLegacyApiContract(app: FastifyInstance, db: PrismaClient
       && !await prefersEnglish(request, db, options.currentUser)) {
       body.errorMessage = koreanMessages[body.errorMessage];
     }
+    const result = body.body as { message?: unknown } | undefined;
+    if (status === 'DONE' && typeof result?.message === 'string' && koreanMessages[result.message]
+      && !await prefersEnglish(request, db, options.currentUser)) {
+      result.message = koreanMessages[result.message];
+    }
     return body;
   });
 }
