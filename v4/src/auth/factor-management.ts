@@ -34,15 +34,17 @@ export async function beginFactorSetup(db: PrismaClient, account: VerificationAc
 export async function activateFactor(db: PrismaClient, account: VerificationAccount, cipherKey: string, code: unknown) {
   if (!hasVerification(account)) return 'RE';
   if (account.factorId !== null) return 'AC';
-  if (typeof code !== 'string' || !/^\d{6}$/.test(code.trim())) return 'IP';
   return db.$transaction(async (tx) => {
     if (!await acquireVerification(tx, account)) return 'RE';
     const [pending] = await tx.$queryRaw<Array<{ secret: string; recovery_hash: string }>>`
       SELECT secret, recovery_hash FROM blex_factor_setup WHERE session_hash = ${account.sessionHash} AND expires_at > ${BigInt(Date.now())}
     `;
     if (!pending) return 'EP';
+    const entered = typeof code === 'string' ? code.trim() : '';
+    if (!entered) return 'IP';
+    if (!/^\d{6}$/.test(entered)) return 'RJ';
     if (!decryptDjangoSecret(pending.secret, cipherKey) ||
-        !verifyDjangoSecondFactor({ totpSecret: pending.secret, recoveryKey: '' }, code.trim(), cipherKey)) return 'RJ';
+        !verifyDjangoSecondFactor({ totpSecret: pending.secret, recoveryKey: '' }, entered, cipherKey)) return 'RJ';
     const timestamp = new Date().toISOString().slice(0, -1).replace('T', ' ');
     await tx.$executeRaw`
       INSERT INTO board_twofactorauth (user_id, created_date, totp_secret, recovery_key)

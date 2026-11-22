@@ -197,7 +197,7 @@ export function registerWebhooks(app: FastifyInstance, db: PrismaClient, options
       if (!options.validateCsrf(request)) return reply.code(403).send(failure('RJ'));
       const url = parseWebhookUrl(formInput(request).webhook_url);
       if (!url) return failure('VA', 'Webhook URL을 확인해 주세요.');
-      return await test(url) ? done({ success: true }) : failure('RJ', '테스트 메시지를 보내지 못했습니다.');
+      return done({ success: await test(url) });
     });
   });
 }

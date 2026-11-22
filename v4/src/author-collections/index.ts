@@ -921,7 +921,7 @@ export function registerAuthorCollections(app: FastifyInstance, db: PrismaClient
         SELECT id FROM board_series WHERE owner_id = ${owner.id} AND url = ${request.params.url} LIMIT 1
       `;
       if (!series || !(await deleteSeries(db, user.id, Number(series.id)))) return reply.code(404).send('Not found');
-      return apiDone({ success: true });
+      return apiDone({});
     });
 
     routes.get('/v1/setting/pinned-posts', async (request, reply) => {

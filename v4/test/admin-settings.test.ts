@@ -116,6 +116,7 @@ function createSchema() {
     CREATE TABLE board_post_tags (post_id INTEGER NOT NULL, tag_id INTEGER NOT NULL, UNIQUE(post_id, tag_id));
     CREATE TABLE board_developerrequestlog (id INTEGER PRIMARY KEY, created_date DATETIME NOT NULL);
     CREATE TABLE blex_session (token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL, expires_at BIGINT NOT NULL);
+    CREATE TABLE django_session (session_key TEXT PRIMARY KEY, session_data TEXT NOT NULL, expire_date TEXT NOT NULL);
     CREATE TABLE board_utilitycleanupconfirmation (
       id INTEGER PRIMARY KEY, token_hash TEXT NOT NULL UNIQUE, action TEXT NOT NULL,
       session_fingerprint TEXT NOT NULL, expires_at DATETIME NOT NULL, consumed_at DATETIME,
@@ -1103,6 +1104,8 @@ test('binds session cleanup confirmation to its scope and deletes only the previ
   const database = new DatabaseSync(databasePath);
   database.prepare('INSERT INTO blex_session (token_hash, user_id, expires_at) VALUES (?, ?, ?)').run('expired', 3, now - 1_000n);
   database.prepare('INSERT INTO blex_session (token_hash, user_id, expires_at) VALUES (?, ?, ?)').run('active', 3, now + 60_000n);
+  database.prepare('INSERT INTO django_session (session_key, session_data, expire_date) VALUES (?, ?, ?)').run('legacy-expired', 'x', '2020-01-01 00:00:00.000000');
+  database.prepare('INSERT INTO django_session (session_key, session_data, expire_date) VALUES (?, ?, ?)').run('legacy-active', 'x', '2999-01-01 00:00:00.000000');
   database.close();
 
   const preview = await app.inject({
@@ -1110,7 +1113,7 @@ test('binds session cleanup confirmation to its scope and deletes only the previ
     payload: JSON.stringify({ dry_run: true, clean_all: false }),
   });
   const previewBody = body(preview).body as Record<string, unknown>;
-  assert.equal(previewBody.expiredSessions, 1);
+  assert.equal(previewBody.expiredSessions, 2);
   const mismatch = await app.inject({
     method: 'POST', url: '/v1/utilities/clean-sessions', headers: jsonHeaders(2),
     payload: JSON.stringify({ dry_run: false, clean_all: true, confirmation_token: previewBody.confirmationToken }),
@@ -1121,8 +1124,10 @@ test('binds session cleanup confirmation to its scope and deletes only the previ
     payload: JSON.stringify({ dry_run: false, clean_all: false, confirmation_token: previewBody.confirmationToken }),
   });
   assert.equal(body(execute).status, 'DONE', execute.body);
-  assert.equal((body(execute).body as Record<string, unknown>).cleanedCount, 1);
+  assert.equal((body(execute).body as Record<string, unknown>).cleanedCount, 2);
   assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM blex_session WHERE token_hash = 'active'`)[0]?.count), 1);
+  const legacy = await prisma.$queryRaw<Array<{ key: string }>>`SELECT session_key AS key FROM django_session WHERE session_key LIKE 'legacy-%'`;
+  assert.deepEqual(legacy.map((row) => row.key), ['legacy-active']);
 });
 
 test('previews and confirms expired log cleanup, with a progressive superuser utility page', async () => {
@@ -1254,12 +1259,13 @@ test('image cleanup retains every referenced asset and only clears cache rows fo
     method: 'POST', url: '/v1/utilities/clean-images', headers: jsonHeaders(2),
     payload: JSON.stringify({
       dry_run: false, target: 'all', remove_duplicates: true,
-      confirmation_token: freshBody.confirmationToken, preview_hash: freshBody.previewHash,
+      confirmation_token: freshBody.confirmationToken,
     }),
   });
   assert.equal(body(execute).status, 'DONE', execute.body);
   const result = body(execute).body as Record<string, unknown>;
   assert.equal(result.hasErrors, false);
+  assert.ok((result.messages as string[]).some((message) => /^콘텐츠 이미지 \d+개를 삭제했습니다\.$/.test(message)), String(result.messages));
   assert.equal(await readFile(join(mediaRoot, 'images/content/unused-content.png'), 'utf8').catch(() => null), null);
   assert.equal(await readFile(join(mediaRoot, 'images/content/current-content.png'), 'utf8'), 'images/content/current-content.png');
   assert.equal(await readFile(join(mediaRoot, 'images/content/archived-history.png'), 'utf8'), 'images/content/archived-history.png');

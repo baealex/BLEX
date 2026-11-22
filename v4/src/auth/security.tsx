@@ -27,7 +27,7 @@ export function securityError(code: string, errorMessage = '') {
 }
 
 export const verificationRequired = {
-  ...securityError('RE', '계속하려면 본인 확인이 필요합니다.'),
+  ...securityError('RE', '계속하려면 본인 확인을 해주세요.'),
   messageKey: 'auth.reauthentication_required',
   messageParams: {},
 };
@@ -42,12 +42,12 @@ function deletionRedirect(value: string, siteUrl: URL) {
   return target && ['https:', 'http:'].includes(target.protocol) && !target.username && !target.password ? target.href : '/';
 }
 
-function factorError(code: string | null) {
+function factorError(code: string | null, action?: string) {
   if (!code) return success;
   if (code === 'RE') return verificationRequired;
   const messages: Record<string, string> = {
-    AU: '2단계 인증을 이미 해제했습니다.', AC: '2단계 인증을 이미 연결했습니다.', EP: '설정 시간이 만료되었습니다. 다시 시도해 주세요.',
-    IP: '인증 앱의 6자리 코드를 입력해 주세요.', RJ: '인증 코드 또는 2단계 인증 설정 시간을 확인해 주세요.',
+    AU: '2단계 인증을 이미 해제했습니다.', AC: '2단계 인증을 이미 연결했습니다.', EP: '2FA 설정 세션이 만료되었습니다. 다시 시도해주세요.',
+    IP: '인증 코드를 입력해주세요.', RJ: action === 'disable' ? '24시간 동안 해제할 수 없습니다.' : '잘못된 인증 코드입니다.',
   };
   return securityError(code, messages[code]);
 }
@@ -335,9 +335,9 @@ export function registerAccountSecurity(app: FastifyInstance, db: PrismaClient, 
         error = action === 'activate' ? await activateFactor(db, account, config.cipherKey, formInput(request).code) :
           await disableFactor(db, account);
         if (!error && html) return reply.redirect(`${securityPath}?factor=${action === 'activate' ? 1 : 0}`, 302);
-        if (!error && action === 'activate') return { status: 'DONE', body: { message: '2단계 인증을 설정했습니다.' } };
+        if (!error && action === 'activate') return { status: 'DONE', body: { message: '2차 인증이 활성화되었습니다.' } };
       }
-      const result = factorError(error);
+      const result = factorError(error, action);
       if (!html) return result;
       if (error === 'RE') return reply.redirect(reauthenticationPath(securityPath), 302);
       return reply.type('text/html; charset=utf-8').send(await securityMarkup(db, account, '2단계 인증', <section className="panel">

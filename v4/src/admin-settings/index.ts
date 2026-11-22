@@ -2157,7 +2157,7 @@ function utilityParameters(action: UtilityAction, body: Body): UtilityParameters
   if (action === 'clean_images') {
     const target = body.target ?? 'all';
     if (typeof target !== 'string' || !['all', 'content', 'title', 'avatar'].includes(target)) {
-      throw new Error('Select a valid cleanup target.');
+      throw new Error('유효한 정리 대상을 선택해주세요.');
     }
     return { target, removeDuplicates: body.remove_duplicates === true };
   }
@@ -2166,6 +2166,18 @@ function utilityParameters(action: UtilityAction, body: Body): UtilityParameters
 
 function utilityTokenSignature(value: string, secretKey: string): Buffer {
   return createHmac('sha256', secretKey).update('blex.utility-cleanup\0').update(value).digest();
+}
+
+/** The 3.x screen returns only the token, so the signed preview hash is read back from it. */
+function signedPreviewHash(token: unknown): string {
+  if (typeof token !== 'string') return '';
+  try {
+    const payload = JSON.parse(Buffer.from(token.split('.')[0] ?? '', 'base64url').toString('utf8')) as unknown;
+    const hash = isRecord(payload) && isRecord(payload.parameters) ? payload.parameters.previewHash : '';
+    return typeof hash === 'string' ? hash : '';
+  } catch {
+    return '';
+  }
 }
 
 async function issueUtilityConfirmation(
@@ -2594,6 +2606,26 @@ async function verifyImageCandidate(root: string, file: ImageCleanupFile): Promi
   }
 }
 
+async function removeEmptyDirectories(directory: string): Promise<number> {
+  let entries;
+  try {
+    entries = await readdir(directory, { withFileTypes: true });
+  } catch {
+    return 0;
+  }
+  let removed = 0;
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    const child = resolve(directory, entry.name);
+    removed += await removeEmptyDirectories(child);
+    try {
+      await rmdir(child);
+      removed += 1;
+    } catch { /* It still holds files. */ }
+  }
+  return removed;
+}
+
 async function executeImageCleanupPlan(
   db: Prisma.TransactionClient,
   mediaRoot: string,
@@ -2603,6 +2635,7 @@ async function executeImageCleanupPlan(
   const messages: string[] = [];
   const errors: string[] = [];
   let deletedFiles = 0;
+  const deletedByCategory: Record<ImageCleanupFile['category'], number> = { content: 0, title: 0, avatar: 0 };
   const deletedRelativePaths = new Set<string>();
   for (const file of plan.unusedFiles) {
     if (!(await verifyImageCandidate(root, file))) {
@@ -2612,6 +2645,7 @@ async function executeImageCleanupPlan(
     try {
       await unlink(file.path);
       deletedFiles += 1;
+      deletedByCategory[file.category] += 1;
       deletedRelativePaths.add(file.relativePath);
     } catch {
       errors.push(`Could not delete: ${file.relativePath}`);
@@ -2624,8 +2658,21 @@ async function executeImageCleanupPlan(
       DELETE FROM board_imagecache WHERE id = ${cache.id} AND path = ${cache.path}
     `;
   }
-  if (deletedFiles) messages.push(`미사용 이미지 ${deletedFiles}개를 삭제했습니다.`);
+  const categories: ImageCleanupFile['category'][] = plan.target === 'all' ? ['content', 'title', 'avatar'] : [plan.target as ImageCleanupFile['category']];
+  const categoryLabels = { content: '콘텐츠 이미지', title: '타이틀 이미지', avatar: '아바타 이미지' };
+  for (const category of categories) {
+    messages.push(`${categoryLabels[category]} ${deletedByCategory[category]}개를 삭제했습니다.`);
+    if (category === 'title' && plan.duplicateFiles.length) {
+      messages.push(`중복 타이틀 이미지 ${plan.duplicateFiles.length}개(${Math.round(plan.duplicateSize / 1024 / 1024 * 100) / 100}MB)를 삭제했습니다.`);
+    }
+  }
   if (deletedCaches) messages.push(`이미지 캐시 ${deletedCaches}개를 삭제했습니다.`);
+  let emptyDirectories = 0;
+  for (const category of categories) {
+    const directory = await safeImageCategoryDirectory(root, category);
+    if (directory) emptyDirectories += await removeEmptyDirectories(directory);
+  }
+  if (emptyDirectories) messages.push(`빈 디렉터리 ${emptyDirectories}개를 삭제했습니다.`);
   if (errors.length) messages.push(...errors.slice(0, 20));
   return {
     ...imageCleanupPlanApi(plan, false),
@@ -2656,7 +2703,7 @@ async function runUtilityCleanup(
     const unusedRows = await db.$queryRaw<Array<{ value: string }>>`
       SELECT tag.value FROM board_tag AS tag
       WHERE NOT EXISTS (SELECT 1 FROM board_post_tags AS relation WHERE relation.tag_id = tag.id)
-      ORDER BY tag.value
+      ORDER BY tag.id
     `;
     const topTags = await db.$queryRaw<Array<{ name: string; count: number | bigint }>>`
       SELECT tag.value AS name, COUNT(relation.post_id) AS count
@@ -2681,14 +2728,21 @@ async function runUtilityCleanup(
     };
   }
   if (action === 'clean_sessions') {
+    const now = BigInt(Date.now());
+    const legacyNow = djangoTimestamp();
     const [counts] = await db.$queryRaw<Array<{ total: number | bigint; expired: number | bigint }>>`
-      SELECT COUNT(*) AS total, SUM(CASE WHEN expires_at < ${BigInt(Date.now())} THEN 1 ELSE 0 END) AS expired
-      FROM blex_session
+      SELECT (SELECT COUNT(*) FROM blex_session) + (SELECT COUNT(*) FROM django_session) AS total,
+        (SELECT COUNT(*) FROM blex_session WHERE expires_at < ${now})
+          + (SELECT COUNT(*) FROM django_session WHERE expire_date < ${legacyNow}) AS expired
     `;
     const cleanAll = parameters.cleanAll === true;
-    const deleted = dryRun ? 0 : cleanAll
-      ? await db.$executeRaw`DELETE FROM blex_session`
-      : await db.$executeRaw`DELETE FROM blex_session WHERE expires_at < ${BigInt(Date.now())}`;
+    let deleted = 0;
+    if (!dryRun) {
+      deleted = cleanAll
+        ? Number(await db.$executeRaw`DELETE FROM blex_session`) + Number(await db.$executeRaw`DELETE FROM django_session`)
+        : Number(await db.$executeRaw`DELETE FROM blex_session WHERE expires_at < ${now}`)
+          + Number(await db.$executeRaw`DELETE FROM django_session WHERE expire_date < ${legacyNow}`);
+    }
     return {
       total_sessions: Number(counts?.total ?? 0),
       expired_sessions: Number(counts?.expired ?? 0),
@@ -2787,9 +2841,9 @@ async function runUtilityAction(
         return { ok: false, code: 'VA', message: error instanceof Error ? error.message : 'Could not preview image cleanup.' };
       }
     }
-    const previewHash = typeof body.preview_hash === 'string' ? body.preview_hash : '';
+    const previewHash = typeof body.preview_hash === 'string' ? body.preview_hash : signedPreviewHash(body.confirmation_token);
     if (!/^[a-f0-9]{64}$/.test(previewHash)) {
-      return { ok: false, code: 'RJ', message: 'The cleanup preview has expired or is invalid.' };
+      return { ok: false, code: 'RJ', message: '미리보기 확인이 만료되었거나 유효하지 않습니다.' };
     }
     const boundParameters = { ...parameters, previewHash };
     let auditId: number;
@@ -2810,7 +2864,7 @@ async function runUtilityAction(
       });
     } catch (error) {
       if (String(error).includes('invalid utility confirmation')) {
-        return { ok: false, code: 'RJ', message: 'The cleanup preview has expired or is invalid.' };
+        return { ok: false, code: 'RJ', message: '미리보기 확인이 만료되었거나 유효하지 않습니다.' };
       }
       throw error;
     }
@@ -2828,7 +2882,7 @@ async function runUtilityAction(
       return { ok: true, body: result };
     } catch (error) {
       if (String(error).includes('image cleanup preview changed')) {
-        return { ok: false, code: 'RJ', message: 'The cleanup preview has expired or is invalid.' };
+        return { ok: false, code: 'RJ', message: '미리보기 확인이 만료되었거나 유효하지 않습니다.' };
       }
       return { ok: false, code: 'VA', message: 'Image cleanup stopped safely; review the utility audit log.' };
     }
@@ -2856,7 +2910,7 @@ async function runUtilityAction(
     return { ok: true, body: result };
   } catch (error) {
     if (String(error).includes('invalid utility confirmation')) {
-      return { ok: false, code: 'RJ', message: 'The cleanup preview has expired or is invalid.' };
+      return { ok: false, code: 'RJ', message: '미리보기 확인이 만료되었거나 유효하지 않습니다.' };
     }
     throw error;
   }

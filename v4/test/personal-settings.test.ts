@@ -298,6 +298,7 @@ test('applies legacy social-link create, update, order and delete without crossi
   const read = await app.inject({ url: '/v1/setting/profile', headers: headers(1) });
   assert.deepEqual(read.json().body.social, [{ id: 1, name: 'github', value: 'https://github.com/writer', order: 1 }]);
 
+  const [linkBefore] = await db.$queryRaw<Array<{ updatedDate: string }>>`SELECT CAST(updated_date AS TEXT) AS updatedDate FROM board_userlinkmeta WHERE id = 1`;
   const updated = await app.inject({
     method: 'PUT', url: '/v1/setting/social', headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
     payload: form([
@@ -310,6 +311,8 @@ test('applies legacy social-link create, update, order and delete without crossi
   assert.deepEqual(updated.json().body.map((link: { name: string }) => link.name), ['threads', 'github']);
   const [ownLink] = await db.$queryRaw<Array<{ value: string; order: number }>>`SELECT value, "order" AS "order" FROM board_userlinkmeta WHERE id = 1`;
   assert.deepEqual(ownLink, { value: 'https://github.com/updated', order: 3 });
+  const [linkAfter] = await db.$queryRaw<Array<{ updatedDate: string }>>`SELECT CAST(updated_date AS TEXT) AS updatedDate FROM board_userlinkmeta WHERE id = 1`;
+  assert.equal(linkAfter.updatedDate, linkBefore.updatedDate);
   const [privateLink] = await db.$queryRaw<Array<{ value: string }>>`SELECT value FROM board_userlinkmeta WHERE id = 3`;
   assert.equal(privateLink.value, 'https://github.com/other');
 

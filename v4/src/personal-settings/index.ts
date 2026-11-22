@@ -674,7 +674,7 @@ async function applySocialMutation(
       for (const link of mutation.updates) {
         const result = await transaction.$executeRaw`
           UPDATE board_userlinkmeta
-             SET name = ${link.name}, value = ${link.value}, "order" = ${link.order}, updated_date = CURRENT_TIMESTAMP
+             SET name = ${link.name}, value = ${link.value}, "order" = ${link.order}
            WHERE id = ${link.id} AND user_id = ${userId}
         `;
         if (Number(result) === 0) {
