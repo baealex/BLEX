@@ -328,6 +328,43 @@ test('never returns a token secret or hash from token management', async () => {
   }
 });
 
+test('revoking a token keeps the first timestamp, even under concurrency', async () => {
+  const fixture = await createMigratedDatabase();
+  const app = await buildApp(fixture.path, testSiteUrl, { secretKey: testSecretKey, cipherKey: testCipherKey }, fixture.mediaRoot);
+  const prisma = new PrismaClient({ datasourceUrl: `file:${fixture.path}` });
+  try {
+    seedEditor(fixture.db, 1, 'writer');
+    seedEditor(fixture.db, 2, 'other');
+    const session = signIn(fixture.db, 1);
+    const firstRevocation = Date.UTC(2025, 0, 2, 3, 4, 5);
+    insertRow(fixture.db, 'DeveloperToken', { id: 1, userId: 1, name: 'Revoked', tokenPrefix: 'revokedonce1', tokenHash: 'hash-1', scopes: '[]', revokedAt: firstRevocation, updatedAt: firstRevocation });
+    insertRow(fixture.db, 'DeveloperToken', { id: 2, userId: 1, name: 'Active', tokenPrefix: 'activetoken1', tokenHash: 'hash-2', scopes: '[]' });
+    insertRow(fixture.db, 'DeveloperToken', { id: 3, userId: 2, name: 'Other', tokenPrefix: 'othertoken01', tokenHash: 'hash-3', scopes: '[]' });
+    const revoke = (id: number) => app.inject({ method: 'DELETE', url: `/v1/developer-tokens/${id}`, headers: session });
+
+    const repeated = await revoke(1);
+    assert.equal(repeated.json().status, 'DONE');
+    assert.equal(repeated.json().body.revokedAt, '2025-01-02T03:04:05+00:00');
+    const unchanged = await prisma.developerToken.findUniqueOrThrow({ where: { id: 1 } });
+    assert.equal(unchanged.revokedAt?.getTime(), firstRevocation);
+    assert.equal(unchanged.updatedAt.getTime(), firstRevocation);
+
+    const concurrent = await Promise.all(Array.from({ length: 5 }, () => revoke(2)));
+    const stored = await prisma.developerToken.findUniqueOrThrow({ where: { id: 2 } });
+    assert.ok(stored.revokedAt);
+    for (const response of concurrent) {
+      assert.equal(response.json().status, 'DONE');
+      assert.equal(Date.parse(response.json().body.revokedAt), stored.revokedAt.getTime());
+    }
+    assert.equal((await revoke(3)).statusCode, 404);
+    assert.equal((await prisma.developerToken.findUniqueOrThrow({ where: { id: 3 } })).revokedAt, null);
+  } finally {
+    await prisma.$disconnect();
+    await app.close();
+    await fixture.cleanup();
+  }
+});
+
 test('deleting an account removes its tokens and logs and detaches logs written by others', async () => {
   const fixture = await createMigratedDatabase();
   const prisma = new PrismaClient({ datasourceUrl: `file:${fixture.path}` });
