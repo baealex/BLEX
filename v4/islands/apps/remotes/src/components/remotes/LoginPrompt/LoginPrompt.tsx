@@ -7,6 +7,9 @@ import {
     type LoginPromptAction,
     type LoginPromptRequest
 } from '~/utils/loginPrompt';
+import {
+    UserRound
+} from '@blex/ui/icons';
 
 interface LoginPromptProps {
     isOpen?: boolean;
@@ -87,19 +90,7 @@ const LoginPrompt = ({
             <Modal.Body className="p-8 text-center">
                 {/* Icon */}
                 <div className="mx-auto w-16 h-16 bg-gradient-to-br from-surface-subtle to-surface-subtle rounded-full flex items-center justify-center mb-6 ring-4 ring-line-light">
-                    <svg
-                        className="w-8 h-8 text-content"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        aria-hidden="true">
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                        />
-                    </svg>
+                    <UserRound aria-hidden="true" className="w-8 h-8 text-content" />
                 </div>
 
                 {/* Title */}

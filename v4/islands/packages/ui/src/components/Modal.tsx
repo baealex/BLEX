@@ -4,7 +4,7 @@ import type {
     HTMLAttributes,
     ReactNode
 } from 'react';
-import { X } from 'lucide-react';
+import { X } from './icons';
 import { Dialog } from './Dialog';
 import { Button } from './Button';
 import { cx } from '../lib/classnames';

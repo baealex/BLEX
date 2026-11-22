@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyRequest } from 'fastify';
 import { readPageChrome } from '../appearance/page-chrome.js';
+import { SiteIcon } from '../appearance/icons.js';
 import { SiteHeader, SiteTheme } from '../appearance/shell.js';
 import { renderApplicationDocument } from '../application/document.js';
 
@@ -42,7 +43,7 @@ export async function renderNotFoundPage(
               <h1 className="select-none text-[10rem] font-bold leading-none text-content/10 sm:text-[12rem]">404</h1>
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="flex size-24 rotate-12 items-center justify-center rounded-3xl bg-surface-elevated shadow-floating ring-1 ring-line/60 transition-transform duration-300 hover:rotate-0">
-                  <i className="fas fa-exclamation text-4xl text-content" aria-hidden="true" />
+                  <SiteIcon name="exclamation-mark" className="text-4xl text-content" />
                 </div>
               </div>
             </div>
@@ -50,7 +51,7 @@ export async function renderNotFoundPage(
             <p className="mx-auto mb-12 max-w-md text-lg leading-relaxed text-content-secondary">요청하신 페이지가 삭제되었거나, 주소가 변경되었거나, 일시적으로 사용할 수 없는 상태입니다.</p>
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
               <button type="button" data-history-back="" className={pageButton}>뒤로 가기</button>
-              <a href="/search" className={pageButton}><i className="fas fa-search mr-2 text-sm" aria-hidden="true" />검색</a>
+              <a href="/search" className={pageButton}><SiteIcon name="search" className="mr-2 text-sm" />검색</a>
               <a href="/" className="rounded-full bg-action px-8 py-3.5 font-semibold text-content-inverted transition-all duration-150 hover:-translate-y-0.5 hover:bg-action-hover hover:shadow-lg">홈으로 돌아가기</a>
             </div>
           </div>

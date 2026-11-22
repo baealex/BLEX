@@ -1,6 +1,7 @@
 import { renderApplicationDocument, scriptJson } from './application/document.js';
 import type { ReactNode } from 'react';
-import { SiteFooter, SiteHeader, SiteIcon, SiteTheme, type HeaderViewer } from './appearance/shell.js';
+import { SiteIcon, type SiteIconName } from './appearance/icons.js';
+import { SiteFooter, SiteHeader, SiteTheme, type HeaderViewer } from './appearance/shell.js';
 import { postOutline, youtubeFrameSources } from './post-html.js';
 import { publicPostPath, type PostPresentation, type PostSeriesEntry, type PostSeriesNavigation, type PublicPost } from './posts.js';
 import type { RelatedPost } from './public-activity.js';
@@ -46,7 +47,7 @@ function PostCover({ post, presentation, cover, image, authorPath, published, up
   const heading = <>
     {seriesLink && <div className="mb-6 flex items-center gap-2"><a href={seriesLink}
       className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${inverted ? 'bg-white/90 text-neutral-950 hover:bg-white' : 'bg-action text-content-inverted hover:bg-action-hover'}`}>
-      <SiteIcon name="layers" className="size-3 opacity-70" />{presentation.seriesName}
+      <SiteIcon name="stack-2" className="size-3 opacity-70" />{presentation.seriesName}
     </a></div>}
     <h1 itemProp="headline" className={`${large ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl lg:text-4xl'} ${inverted ? 'text-white' : 'text-content'} ${post.subtitle ? (large ? 'mb-4' : 'mb-3') : (inverted ? 'mb-6' : 'mb-8')} font-bold leading-tight break-words`}>{post.title}</h1>
     {post.subtitle && <p className={`text-lg font-medium leading-relaxed sm:text-xl ${inverted ? 'mb-6 text-white/85' : 'mb-8 text-content-secondary'}`}>{post.subtitle}</p>}
@@ -161,10 +162,10 @@ const dockButton = 'inline-flex h-11 min-w-11 items-center justify-center gap-1 
 
 function RelatedPosts({ posts, username }: { posts: RelatedPost[]; username: string }) {
   if (!posts.length) return <div className="py-12 text-center">
-    <div className="mb-4 inline-flex size-16 items-center justify-center rounded-full bg-surface-subtle"><i className="fas fa-compass text-2xl text-content-hint" aria-hidden="true" /></div>
+    <div className="mb-4 inline-flex size-16 items-center justify-center rounded-full bg-surface-subtle"><SiteIcon name="compass" className="text-2xl text-content-hint" /></div>
     <h3 className="mb-2 text-lg font-semibold">{username}의 다른 포스트 둘러보기</h3>
     <p className="mb-6 text-sm text-content-secondary">프로필에서 더 많은 포스트를 확인할 수 있습니다.</p>
-    <a href={`/@${encodeURIComponent(username)}`} className="inline-flex items-center gap-2 rounded-full bg-action px-5 py-2.5 text-sm font-medium text-content-inverted hover:bg-action-hover"><span>프로필 보기</span><i className="fas fa-arrow-right text-xs opacity-70" aria-hidden="true" /></a>
+    <a href={`/@${encodeURIComponent(username)}`} className="inline-flex items-center gap-2 rounded-full bg-action px-5 py-2.5 text-sm font-medium text-content-inverted hover:bg-action-hover"><span>프로필 보기</span><SiteIcon name="arrow-right" className="text-xs opacity-70" /></a>
   </div>;
   return <section aria-labelledby="related-post-heading">
     <div className="mb-8 flex items-center gap-3"><span className="h-6 w-1.5 rounded-full bg-action" /><h3 id="related-post-heading" className="text-xl font-bold sm:text-2xl">관련 포스트</h3></div>
@@ -186,9 +187,9 @@ function RelatedPosts({ posts, username }: { posts: RelatedPost[]; username: str
   </section>;
 }
 
-function ShareItem({ icon, label, hint }: { icon: string; label: string; hint: string }) {
+function ShareItem({ icon, label, hint }: { icon: SiteIconName; label: string; hint: string }) {
   return <>
-    <span className="flex size-8 items-center justify-center rounded-lg bg-surface-subtle text-xs"><i className={icon} aria-hidden="true" /></span>
+    <span className="flex size-8 items-center justify-center rounded-lg bg-surface-subtle text-xs"><SiteIcon name={icon} /></span>
     <span className="flex flex-col"><span className="font-semibold">{label}</span><span className="text-xs text-content-hint">{hint}</span></span>
   </>;
 }
@@ -216,12 +217,12 @@ function PostStatusNotice({ visibility, editPath }: { visibility: string; editPa
 function PostDock({ reader, post, postPath, canonical, markdown, headings, csrfToken, canManage }: {
   reader: ReaderPostView | null; post: PublicPost; postPath: string; canonical: string; markdown?: string; headings: Outline; csrfToken: string; canManage: boolean;
 }) {
-  const share = [
-    ['X에 공유', '새 창에서 공유 포스트 작성', 'fa-x-twitter', `https://twitter.com/intent/tweet?${new URLSearchParams({ text: post.title, url: canonical })}`],
-    ['Threads에 공유', 'Threads 팔로워에게 공유', 'fa-threads', `https://www.threads.com/intent/post?${new URLSearchParams({ text: post.title, url: canonical })}`],
-    ['Bluesky에 공유', 'Bluesky 팔로워에게 공유', 'fa-bluesky', `https://bsky.app/intent/compose?${new URLSearchParams({ text: `${post.title} ${canonical}` })}`],
-    ['LinkedIn에 공유', '전문 네트워크에 공유', 'fa-linkedin-in', `https://www.linkedin.com/sharing/share-offsite/?${new URLSearchParams({ url: canonical })}`],
-    ['Facebook에 공유', '피드 또는 메시지로 공유', 'fa-facebook-f', `https://www.facebook.com/sharer/sharer.php?${new URLSearchParams({ u: canonical })}`],
+  const share: Array<[string, string, SiteIconName, string]> = [
+    ['X에 공유', '새 창에서 공유 포스트 작성', 'brand-x', `https://twitter.com/intent/tweet?${new URLSearchParams({ text: post.title, url: canonical })}`],
+    ['Threads에 공유', 'Threads 팔로워에게 공유', 'brand-threads', `https://www.threads.com/intent/post?${new URLSearchParams({ text: post.title, url: canonical })}`],
+    ['Bluesky에 공유', 'Bluesky 팔로워에게 공유', 'brand-bluesky', `https://bsky.app/intent/compose?${new URLSearchParams({ text: `${post.title} ${canonical}` })}`],
+    ['LinkedIn에 공유', '전문 네트워크에 공유', 'brand-linkedin', `https://www.linkedin.com/sharing/share-offsite/?${new URLSearchParams({ url: canonical })}`],
+    ['Facebook에 공유', '피드 또는 메시지로 공유', 'brand-facebook', `https://www.facebook.com/sharer/sharer.php?${new URLSearchParams({ u: canonical })}`],
   ];
   return <>
     <div className="post-action-dock pointer-events-none fixed inset-x-0 z-30 flex justify-center">
@@ -230,38 +231,38 @@ function PostDock({ reader, post, postPath, canonical, markdown, headings, csrfT
           {reader?.postLike.canLike ? <form method="post" action={`/like/${encodeURIComponent(post.slug)}`}>
             <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} /><input type="hidden" name="return_to" value={postPath} />
             <button type="submit" className={`${dockButton} px-2 text-sm font-medium`} aria-label={`${reader.postLike.isLiked ? '좋아요 취소' : '좋아요'} (${reader.postLike.countLikes})`} aria-pressed={reader.postLike.isLiked}>
-              <SiteIcon name="heart" className={reader.postLike.isLiked ? 'fill-current text-danger' : undefined} />{reader.postLike.countLikes}</button>
+              <SiteIcon name="heart" className={reader.postLike.isLiked ? 'size-4 fill-current text-danger' : 'size-4'} />{reader.postLike.countLikes}</button>
           </form> : <a {...loginPromptProps(postPath, 'like')} className={`${dockButton} px-2 text-sm font-medium`} aria-label={`좋아요 (${reader?.postLike.countLikes ?? 0})`}>
-            <SiteIcon name="heart" />{reader?.postLike.countLikes ?? 0}</a>}
+            <SiteIcon name="heart" className="size-4" />{reader?.postLike.countLikes ?? 0}</a>}
           <div className="post-action-divider" />
         </>}
-        {headings.length > 0 && <button type="button" className={`${dockButton} xl:hidden`} data-open-dialog="post-toc" aria-label="목차 보기"><SiteIcon name="list" /></button>}
+        {headings.length > 0 && <button type="button" className={`${dockButton} xl:hidden`} data-open-dialog="post-toc" aria-label="목차 보기"><SiteIcon name="list" className="size-4" /></button>}
         {post.visibility === 'public' && <>
           <details className="blex-user-menu relative" data-account-menu>
-            <summary className={`${dockButton} cursor-pointer`} aria-label="포스트 공유 또는 링크 복사"><SiteIcon name="share" /></summary>
+            <summary className={`${dockButton} cursor-pointer`} aria-label="포스트 공유 또는 링크 복사"><SiteIcon name="share" className="size-4" /></summary>
             <div className="absolute bottom-full left-1/2 z-40 mb-3 w-72 -translate-x-1/2 rounded-xl border border-line bg-surface-elevated p-2 text-left shadow-floating">
               <div className="px-2 pb-1 text-[11px] font-bold uppercase tracking-wider text-content-hint">공유</div>
               <button type="button" data-copy-link={canonical} className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content active:scale-[0.98]">
-                <ShareItem icon="fas fa-link" label="일반 링크" hint="브라우저에서 여는 주소" />
+                <ShareItem icon="link" label="일반 링크" hint="브라우저에서 여는 주소" />
               </button>
               {share.map(([label, hint, icon, href]) => <a key={label} href={href} target="_blank" rel="noopener noreferrer" className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content active:scale-[0.98]">
-                <ShareItem icon={`fab ${icon}`} label={label} hint={hint} />
+                <ShareItem icon={icon} label={label} hint={hint} />
               </a>)}
               {markdown && <>
                 <div className="my-1 h-px bg-line-light" />
                 <button type="button" data-copy-link={markdown} data-copy-message="에이전트용 링크가 복사되었습니다." className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content active:scale-[0.98]">
-                  <ShareItem icon="fas fa-code" label="에이전트용 링크" hint="*.md 참조 주소" />
+                  <ShareItem icon="code" label="에이전트용 링크" hint="*.md 참조 주소" />
                 </button>
               </>}
               <p className="px-3 text-xs text-content-hint" data-copy-status role="status" />
             </div>
           </details>
         </>}
-        {canManage && <a href={`${postPath}/edit`} className={dockButton} aria-label="수정하기"><SiteIcon name="pen" /></a>}
+        {canManage && <a href={`${postPath}/edit`} className={dockButton} aria-label="수정하기"><SiteIcon name="pencil" className="size-4" /></a>}
       </div>
     </div>
     {headings.length > 0 && <dialog id="post-toc" className="blex-toc-sheet fixed inset-x-0 top-auto bottom-0 m-0 max-h-[70vh] w-full max-w-none overflow-y-auto rounded-t-3xl bg-surface-elevated p-0 text-content shadow-xl">
-      <div className="flex items-center justify-between border-b border-line-light px-6 py-3"><h2 className="text-lg font-bold">목차</h2><form method="dialog"><button className={dockButton} aria-label="목차 닫기"><SiteIcon name="close" /></button></form></div>
+      <div className="flex items-center justify-between border-b border-line-light px-6 py-3"><h2 className="text-lg font-bold">목차</h2><form method="dialog"><button className={dockButton} aria-label="목차 닫기"><SiteIcon name="x" className="size-4" /></button></form></div>
       <OutlineLinks headings={headings} mobile />
     </dialog>}
   </>;

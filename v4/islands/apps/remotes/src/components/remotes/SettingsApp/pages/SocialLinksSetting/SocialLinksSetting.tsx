@@ -25,7 +25,18 @@ import {
     Plus,
     Save,
     Share2,
-    X
+    X,
+    BrandGithub,
+    BrandX,
+    BrandThreads,
+    BrandFacebook,
+    BrandTelegram,
+    BrandInstagram,
+    BrandLinkedin,
+    BrandYoutube,
+    Link as LinkIcon,
+    InlineIcon,
+    type IconComponent
 } from '@blex/ui/icons';
 import { toast } from '~/utils/toast';
 import { useSuspenseQuery } from '@tanstack/react-query';
@@ -45,20 +56,18 @@ interface SocialLinkItemProps {
     onChange: (index: number, field: 'name' | 'value', value: string) => void;
 }
 
-const PLATFORM_ICON_CLASSES: Record<string, string> = {
-    github: 'fab fa-github',
-    twitter: 'fab fa-x-twitter',
-    threads: 'fab fa-threads',
-    facebook: 'fab fa-facebook-f',
-    telegram: 'fab fa-telegram',
-    instagram: 'fab fa-instagram',
-    linkedin: 'fab fa-linkedin-in',
-    youtube: 'fab fa-youtube'
+const PLATFORM_ICONS: Record<string, IconComponent> = {
+    github: BrandGithub,
+    twitter: BrandX,
+    threads: BrandThreads,
+    facebook: BrandFacebook,
+    telegram: BrandTelegram,
+    instagram: BrandInstagram,
+    linkedin: BrandLinkedin,
+    youtube: BrandYoutube
 };
 
-const DEFAULT_PLATFORM_ICON_CLASS = 'fas fa-link';
-
-const getPlatformIconClass = (name: string) => PLATFORM_ICON_CLASSES[name] ?? DEFAULT_PLATFORM_ICON_CLASS;
+const getPlatformIcon = (name: string) => PLATFORM_ICONS[name] ?? LinkIcon;
 
 const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemProps) => {
     const { i18n, t } = useLingui();
@@ -164,7 +173,7 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
         message: 'Remove {platform}',
         values: { platform: currentPlatformLabel }
     });
-    const platformIconClass = getPlatformIconClass(social.name);
+    const platformIcon = getPlatformIcon(social.name);
     const platformInputId = `social-platform-${social.id}`;
     const linkInputId = `social-link-${social.id}`;
 
@@ -183,7 +192,7 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                             <GripVertical aria-hidden="true" className="h-4 w-4" />
                         </div>
                         <div className="w-8 h-8 flex items-center justify-center bg-surface rounded-lg shadow-sm">
-                            <i aria-hidden="true" className={`${platformIconClass} text-base text-content-secondary`} />
+                            <InlineIcon icon={platformIcon} className="text-base text-content-secondary" />
                         </div>
                         <span className="text-sm font-medium text-content">
                             <Trans id="settings.social_links.item.label">Social link</Trans>
@@ -212,10 +221,7 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
 
                     {/* Desktop platform icon */}
                     <div className="hidden sm:flex w-10 h-10 items-center justify-center bg-gradient-to-br from-surface-subtle to-surface-subtle rounded-lg shadow-sm group-hover:from-surface-subtle group-hover:to-surface-subtle transition-all duration-200 flex-shrink-0">
-                        <i
-                            aria-hidden="true"
-                            className={`${platformIconClass} text-lg text-content-secondary transition-colors group-hover:text-content-secondary`}
-                        />
+                        <InlineIcon icon={platformIcon} className="text-lg text-content-secondary transition-colors group-hover:text-content-secondary" />
                     </div>
 
                     {/* Platform selector */}

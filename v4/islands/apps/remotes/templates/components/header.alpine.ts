@@ -87,7 +87,7 @@ const updateBodyOverflow = (state: HeaderState) => {
 };
 
 const header = (): Alpine.AlpineComponent<State & Actions> => {
-    let debounceTimer: ReturnType<typeof window.setTimeout> | null = null;
+    let debounceTimer: number | null = null;
     let activeRequestId = 0;
 
     return {

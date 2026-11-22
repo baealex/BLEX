@@ -1,3 +1,4 @@
+import { SiteIcon } from '../appearance/icons.js';
 import { renderApplicationDocument } from '../application/document.js';
 import { SiteFooter, SiteHeader, SiteTheme, type HeaderViewer, type SiteHeaderProps } from '../appearance/shell.js';
 import { koreanDate, koreanDateTime } from '../django-format.js';
@@ -128,7 +129,7 @@ export function renderWorkLogIndex(props: PageChrome & {
               <p className="break-words font-semibold">{log.title}</p>
               <p className="mt-1 text-sm text-content-secondary">{`기록 ${log.entryCount ?? 0}개`}</p>
             </div>
-            <i className="fas fa-arrow-right text-xs text-content-hint transition group-hover:translate-x-1" aria-hidden="true" />
+            <SiteIcon name="arrow-right" className="text-xs text-content-hint transition group-hover:translate-x-1" />
           </a>
         </li>)}
       </ul>
@@ -181,13 +182,13 @@ export function renderWorkLogDetail(props: PageChrome & {
     viewer: props.viewer,
   }, <>
     <a href="/work-logs/" className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-content-secondary hover:text-content">
-      <i className="fas fa-arrow-left text-xs" aria-hidden="true" /> 작업 일지
+      <SiteIcon name="arrow-left" className="text-xs" /> 작업 일지
     </a>
     <header className="mt-2 flex flex-wrap items-end justify-between gap-3 border-b border-line pb-6">
       <h1 className="max-w-full break-words text-4xl font-bold tracking-tight sm:text-5xl">{props.log.title}</h1>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
         <p className="inline-flex items-center gap-2 text-content-secondary">
-          <i className="fas fa-lock text-xs" aria-hidden="true" /> 나만 보는 작업 일지
+          <SiteIcon name="lock" className="text-xs" /> 나만 보는 작업 일지
         </p>
         <a className="inline-flex min-h-11 items-center text-danger hover:underline" href={`/work-logs/${props.log.id}/delete/`}>작업 일지 삭제</a>
       </div>

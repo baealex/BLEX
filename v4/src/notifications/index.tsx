@@ -171,7 +171,7 @@ export function registerNotifications(app: FastifyInstance, db: PrismaClient, op
           <span className="settings-card-mark"><SiteIcon name="settings" className="h-5 w-5" /></span>
           <span><strong>{user.hasConnectedTelegram ? '텔레그램 알림 관리' : '텔레그램 연결'}</strong>
             <span>새 글과 중요한 알림을 텔레그램에서도 받아보세요.</span></span>
-          <SiteIcon name="chevron" className="h-4 w-4 shrink-0 text-content-hint" />
+          <SiteIcon name="chevron-down" className="h-4 w-4 shrink-0 text-content-hint" />
         </a>}
         {items.length ? <ul className="notification-list" aria-label="받은 알림">
           {items.slice(0, pageSize).map((item) => {

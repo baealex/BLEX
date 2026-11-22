@@ -42,7 +42,7 @@ const notice_carousel = (options: NoticeCarouselOptions = {}): NoticeCarouselSta
     },
 
     startAutoPlay() {
-        this.interval = setInterval(() => {
+        this.interval = window.setInterval(() => {
             this.currentIndex = (this.currentIndex + 1) % this.totalBanners;
         }, 5000);
     },

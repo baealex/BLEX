@@ -287,7 +287,7 @@ function BrandAssetSlot({ type, theme, url, custom, uploadEnabled, csrfToken }: 
           aria-label={`${label} ${type === 'logo' ? '로고' : '아이콘'} SVG 업로드`} required disabled={!uploadEnabled} />
         <label htmlFor={id}
           className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-line bg-surface px-3 text-sm font-semibold text-content hover:bg-surface-subtle peer-focus-visible:outline-2 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 [@media(pointer:fine)]:min-h-9">
-          <i className="fas fa-upload text-xs" aria-hidden="true" /> 업로드
+          <SiteIcon name="upload" className="text-xs" /> 업로드
         </label>
         <noscript><button type="submit" disabled={!uploadEnabled}>업로드 저장</button></noscript>
       </form>
@@ -340,7 +340,7 @@ export function renderAdminSiteSettings(props: {
         {assets.map((asset) => <div key={asset.type} className="space-y-4 rounded-2xl bg-surface p-6 ring-1 ring-line/60">
           <div className="flex items-start gap-3">
             <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-surface-subtle text-content-secondary">
-              <i className={asset.type === 'logo' ? 'far fa-image' : 'fas fa-palette'} aria-hidden="true" />
+              <SiteIcon name={asset.type === 'logo' ? 'photo' : 'palette'} />
             </span>
             <div className="space-y-1">
               <h3 className="text-base font-semibold text-content">{asset.title}</h3>
@@ -360,14 +360,14 @@ export function renderAdminSiteSettings(props: {
       <h2 id="global-code-heading" className="text-base font-semibold text-content">고급 설정</h2>
       <details className="group overflow-hidden rounded-2xl bg-surface ring-1 ring-line/60">
         <summary className="flex min-h-20 cursor-pointer list-none items-center gap-4 px-6 py-5 md:px-8 [&::-webkit-details-marker]:hidden">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-warning-surface text-warning"><i className="fas fa-code" aria-hidden="true" /></span>
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-warning-surface text-warning"><SiteIcon name="code" /></span>
           <span className="min-w-0 flex-1">
             <span className="block text-base font-semibold text-content">전역 코드</span>
             <span className="mt-1 block text-sm text-content-secondary">
               {settings.headerScript || settings.footerScript ? '현재 모든 공개 페이지에 적용 중입니다.' : '현재 설정된 코드가 없습니다.'}
             </span>
           </span>
-          <SiteIcon name="chevron" className="size-5 shrink-0 text-content-hint transition-transform group-open:rotate-180" />
+          <SiteIcon name="chevron-down" className="size-5 shrink-0 text-content-hint transition-transform group-open:rotate-180" />
         </summary>
         <div className="space-y-6 border-t border-line px-6 py-6 md:px-8 md:py-8">
           <p className="rounded-xl border border-warning-line bg-warning-surface p-4 text-xs leading-relaxed text-warning">

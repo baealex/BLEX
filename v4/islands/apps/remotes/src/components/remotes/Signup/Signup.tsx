@@ -3,6 +3,13 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import SocialLogin from '~/components/remotes/SocialLogin';
 import { useResolvedTheme } from '~/hooks/useResolvedTheme';
 import { getBrowserTimeZone } from '~/i18n/locale';
+import {
+    InlineIcon,
+    AlertCircle,
+    AlertTriangle,
+    UserPlus,
+    Loader2
+} from '@blex/ui/icons';
 
 declare global {
     interface Window {
@@ -301,14 +308,7 @@ const Signup = () => {
             {/* Logo & Title */}
             <div className="text-center mb-8">
                 <div className="mx-auto h-16 w-16 bg-action rounded-2xl flex items-center justify-center mb-6 shadow-floating ring-1 ring-line/20">
-                    <svg
-                        aria-hidden="true"
-                        className="w-8 h-8 text-content-inverted"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                    </svg>
+                    <UserPlus aria-hidden="true" className="w-8 h-8 text-content-inverted" />
                 </div>
                 <h1 className="text-3xl font-bold text-content mb-3 tracking-tight">
                     {isInviteSignup ? (
@@ -373,7 +373,7 @@ const Signup = () => {
                                         message: '4–15 lowercase letters or numbers'
                                     })}
                                 />
-                                {usernameError && <p id="signup-username-help" role="alert" className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><i aria-hidden="true" className="fas fa-exclamation-circle" /> {usernameError}</p>}
+                                {usernameError && <p id="signup-username-help" role="alert" className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><InlineIcon icon={AlertCircle} /> {usernameError}</p>}
                                 {!usernameError && (
                                     <p id="signup-username-help" className="text-content-hint text-xs mt-1.5 font-medium">
                                         <Trans id="auth.fields.username_hint">4–15 lowercase letters or numbers</Trans>
@@ -401,7 +401,7 @@ const Signup = () => {
                                         message: 'Enter your display name'
                                     })}
                                 />
-                                {nameError && <p id="signup-name-error" role="alert" className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><i aria-hidden="true" className="fas fa-exclamation-circle" /> {nameError}</p>}
+                                {nameError && <p id="signup-name-error" role="alert" className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><InlineIcon icon={AlertCircle} /> {nameError}</p>}
                             </div>
 
                             <div>
@@ -424,7 +424,7 @@ const Signup = () => {
                                         message: 'Enter your email address'
                                     })}
                                 />
-                                {emailError && <p id="signup-email-error" role="alert" className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><i aria-hidden="true" className="fas fa-exclamation-circle" /> {emailError}</p>}
+                                {emailError && <p id="signup-email-error" role="alert" className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><InlineIcon icon={AlertCircle} /> {emailError}</p>}
                             </div>
 
                             <div>
@@ -459,7 +459,7 @@ const Signup = () => {
                                         message: 'Enter a secure password'
                                     })}
                                 />
-                                {passwordError && <p id="signup-password-help" role="alert" className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><i aria-hidden="true" className="fas fa-exclamation-circle" /> {passwordError}</p>}
+                                {passwordError && <p id="signup-password-help" role="alert" className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><InlineIcon icon={AlertCircle} /> {passwordError}</p>}
                                 {!passwordError && passwordStrength && (
                                     <p id="signup-password-help" aria-live="polite" className={`text-xs mt-1.5 font-medium ${passwordStrength.color}`}>
                                         <Trans id="auth.signup.password_strength">
@@ -500,7 +500,7 @@ const Signup = () => {
                                         message: 'Enter your password again'
                                     })}
                                 />
-                                {confirmPasswordError && <p id="signup-confirm-password-error" role="alert" className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><i aria-hidden="true" className="fas fa-exclamation-circle" /> {confirmPasswordError}</p>}
+                                {confirmPasswordError && <p id="signup-confirm-password-error" role="alert" className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><InlineIcon icon={AlertCircle} /> {confirmPasswordError}</p>}
                             </div>
                         </div>
 
@@ -513,7 +513,7 @@ const Signup = () => {
 
                         {signupError && (
                             <div role="alert" className="bg-danger-surface border border-danger-line rounded-xl p-4 flex items-center gap-3">
-                                <i aria-hidden="true" className="fas fa-exclamation-triangle text-danger" />
+                                <InlineIcon icon={AlertTriangle} className="text-danger" />
                                 <p className="text-danger text-sm font-medium">{signupError}</p>
                             </div>
                         )}
@@ -524,22 +524,7 @@ const Signup = () => {
                             className="w-full flex items-center justify-center py-3.5 px-6 bg-action hover:bg-action-hover text-content-inverted font-semibold rounded-lg shadow-floating hover:shadow-floating hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm">
                             {isLoading ? (
                                 <>
-                                    <svg
-                                        aria-hidden="true"
-                                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-content-inverted"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24">
-                                        <circle
-                                            className="opacity-25"
-                                            cx="12"
-                                            cy="12"
-                                            r="10"
-                                            stroke="currentColor"
-                                            strokeWidth="4"
-                                        />
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                    </svg>
+                                    <Loader2 aria-hidden="true" className="animate-spin -ml-1 mr-2 h-4 w-4 text-content-inverted" />
                                     <span><Trans id="common.processing">Processing...</Trans></span>
                                 </>
                             ) : (

@@ -5,7 +5,7 @@ import {
     FileText,
     Save,
     Trash2,
-    type LucideIcon
+    type IconComponent
 } from '@blex/ui/icons';
 import { Button, LoadingState, Tabs } from '~/components/shared';
 import { SettingsHeader } from '../../components';
@@ -84,7 +84,7 @@ const PostsSetting = () => {
     const postStatusTabs: {
         value: PostStatusTab;
         label: string;
-        icon: LucideIcon;
+        icon: IconComponent;
     }[] = [
         {
             value: 'published',

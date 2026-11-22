@@ -40,7 +40,7 @@ export function registerSubscriptionPage(app: FastifyInstance, db: PrismaClient,
         <span className="settings-card-mark"><SiteIcon name="settings" className="h-5 w-5" /></span>
         <span><strong>텔레그램으로 새 글 받기</strong>
           <span>텔레그램을 연결하면 새 글 알림을 텔레그램으로도 받을 수 있습니다.</span></span>
-        <SiteIcon name="chevron" className="h-4 w-4 shrink-0 text-content-hint" />
+        <SiteIcon name="chevron-down" className="h-4 w-4 shrink-0 text-content-hint" />
       </a>}
       {subscriptions.length ? <ul className="subscription-list" aria-label="구독한 작가">
         {subscriptions.map((author) => <li className="subscription-item" key={author.username}>

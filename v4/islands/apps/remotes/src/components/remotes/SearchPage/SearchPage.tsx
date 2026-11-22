@@ -5,6 +5,13 @@ import { normalizeLocale } from '~/i18n/locale';
 import { searchPosts, type SearchMatchedField, type SearchResult } from '~/lib/api';
 import { getMediaPath, userResource } from '~/modules/static.module';
 import { logger } from '~/utils/logger';
+import {
+    InlineIcon,
+    Search as SearchIcon,
+    X,
+    AlertCircle,
+    Image
+} from '@blex/ui/icons';
 
 interface SearchPageProps {
     username?: string;
@@ -373,7 +380,7 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                 className="animate-spin rounded-full h-4 w-4 border-2 border-line border-t-content-secondary"
                             />
                         ) : (
-                            <i className="fas fa-search text-sm text-content-hint" aria-hidden="true" />
+                            <InlineIcon icon={SearchIcon} className="text-sm text-content-hint" />
                         )}
                         <input
                             type="text"
@@ -400,7 +407,7 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                     id: 'search.input.clear',
                                     message: 'Clear search term'
                                 })}>
-                                <i className="fas fa-times text-xs" aria-hidden="true" />
+                                <InlineIcon icon={X} className="text-xs" />
                             </button>
                         )}
                     </div>
@@ -438,7 +445,7 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                             id: 'search.recent.remove',
                                             message: `Remove “${{ query: recentSearch }}” from recent searches`
                                         })}>
-                                        <i className="fas fa-times text-[10px]" aria-hidden="true" />
+                                        <InlineIcon icon={X} className="text-[10px]" />
                                     </button>
                                 </div>
                             ))}
@@ -450,7 +457,7 @@ const SearchPage = ({ username }: SearchPageProps) => {
             {!isLoading && errorMessage && (
                 <section className="bg-danger-surface border border-danger-line rounded-2xl p-5 animate-in fade-in-0 slide-in-from-top-2 duration-150">
                     <div className="flex items-start gap-3">
-                        <i className="fas fa-circle-exclamation text-danger mt-0.5" aria-hidden="true" />
+                        <InlineIcon icon={AlertCircle} className="text-danger mt-0.5" />
                         <div>
                             <h2 className="text-sm font-semibold text-danger">
                                 <Trans id="search.error.heading">Unable to complete search</Trans>
@@ -500,7 +507,7 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                                         />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center text-content-hint">
-                                                            <i className="fas fa-image text-xl" aria-hidden="true" />
+                                                            <InlineIcon icon={Image} className="text-xl" />
                                                         </div>
                                                     )}
                                                 </div>
@@ -566,7 +573,7 @@ const SearchPage = ({ username }: SearchPageProps) => {
                     ) : (
                         <div className="bg-surface border border-line-light rounded-2xl p-8 text-center">
                             <div className="w-12 h-12 bg-surface-subtle rounded-xl flex items-center justify-center mx-auto mb-3">
-                                <i className="fas fa-search text-lg text-content-hint" aria-hidden="true" />
+                                <InlineIcon icon={SearchIcon} className="text-lg text-content-hint" />
                             </div>
                             <h3 className="text-base font-semibold text-content mb-1">
                                 <Trans id="search.empty.title">No results found</Trans>

@@ -1,4 +1,6 @@
-import type { ReactNode } from 'react';
+import { SiteIcon, type SiteIconName } from './icons.js';
+
+export { SiteIcon };
 
 export const siteStyleHref = '/assets/blex/theme.css';
 
@@ -15,31 +17,6 @@ export interface HeaderViewer {
   isStaff?: boolean;
   csrfToken?: string;
   unreadCount?: number;
-}
-
-const iconPaths: Record<string, ReactNode> = {
-  search: <><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></>,
-  moon: <path d="M20.9 13.34A9 9 0 0 1 10.66 3.1 9 9 0 1 0 20.9 13.34Z" />,
-  sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4m0-14.2-1.4 1.4M6.3 17.7l-1.4 1.4" /></>,
-  pen: <><path d="m13.5 6.5 4 4M4 20l5-1 11-11a2.83 2.83 0 0 0-4-4L5 15l-1 5Z" /></>,
-  chevron: <path d="m6 9 6 6 6-6" />,
-  menu: <path d="M4 6h16M4 12h16M4 18h16" />,
-  close: <path d="m6 6 12 12M18 6 6 18" />,
-  bell: <><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4" /></>,
-  book: <path d="M6 3h13v18H6a3 3 0 0 1 0-6h13M6 3a3 3 0 0 0-3 3v12" />,
-  user: <><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v2" /></>,
-  settings: <><circle cx="12" cy="12" r="3" /><path d="m19.4 15 .1 1.2 1.2 1.2-3 3-1.2-1.2-1.2-.1-.7 1.7h-4.2L9.7 19l-1.2.1-1.2 1.2-3-3 1.2-1.2.1-1.2-1.7-.7V10l1.7-.7-.1-1.2-1.2-1.2 3-3 1.2 1.2 1.2.1.7-1.7h4.2l.7 1.7 1.2-.1 1.2-1.2 3 3-1.2 1.2-.1 1.2 1.7.7v4.2Z" /></>,
-  logout: <path d="M10 17l5-5-5-5m5 5H3m10-8h7v16h-7" />,
-  heart: <path d="M20.8 8.7c0 4.5-8.8 9.7-8.8 9.7S3.2 13.2 3.2 8.7A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 8.8 1.7Z" />,
-  share: <><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><path d="m8.7 10.5 6.6-4m-6.6 7 6.6 4" /></>,
-  comment: <path d="M21 11.5a8.4 8.4 0 0 1-8.8 8.2 9 9 0 0 1-3.5-.7L4 21l1.5-4a7.8 7.8 0 0 1-2.3-5.5A8.6 8.6 0 0 1 12 3.2a8.6 8.6 0 0 1 9 8.3Z" />,
-  list: <path d="M9 6h12M9 12h12M9 18h12M4 6h.01M4 12h.01M4 18h.01" />,
-  layers: <path d="m12 3 9 5-9 5-9-5 9-5Zm-9 9 9 5 9-5M3 16l9 5 9-5" />,
-};
-
-export function SiteIcon({ name, className }: { name: keyof typeof iconPaths; className?: string }) {
-  return <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-    strokeWidth="1.85" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{iconPaths[name]}</svg>;
 }
 
 export function SiteTheme() {
@@ -62,7 +39,7 @@ const authLink = 'inline-flex min-h-9 shrink-0 items-center rounded-full px-4 py
 
 function ThemeButton({ bordered }: { bordered?: boolean }) {
   return <button type="button" data-site-theme-toggle className={`${iconButton} ${bordered ? 'border border-line-light' : ''}`} aria-label="다크 모드로 전환">
-    <SiteIcon name="sun" className="blex-theme-sun" /><SiteIcon name="moon" className="blex-theme-moon" />
+    <SiteIcon name="sun" className="blex-theme-sun size-4" /><SiteIcon name="moon" className="blex-theme-moon size-4" />
   </button>;
 }
 
@@ -82,7 +59,7 @@ function QuickSearch() {
 }
 
 function AccountLinks({ viewer }: { viewer: HeaderViewer }) {
-  const links: Array<[string, string, string]> = [
+  const links: Array<[string, string, SiteIconName]> = [
     ['/work-logs/', '작업 일지', 'book'],
     [viewer.username ? `/@${encodeURIComponent(viewer.username)}` : '/settings/profile', '프로필', 'user'],
     ['/settings/notify', '설정', 'settings'],
@@ -118,13 +95,13 @@ export function SiteHeader({ brand, viewer, searchPage, editorPage, hideAuthLink
           <ThemeButton bordered />
           {viewer ? <>
             {viewer.hasEditorRole && !editorPage && <a href="/write" className={`${authLink} gap-1.5 bg-action text-content-inverted hover:bg-action-hover`}>
-              <SiteIcon name="pen" className="size-3" /> 새 포스트
+              <SiteIcon name="pencil" className="size-3" /> 새 포스트
             </a>}
             <details className="blex-user-menu relative" data-account-menu>
               <summary className="relative flex cursor-pointer items-center gap-1.5 rounded-full py-1.5 pr-2 pl-1.5 transition-all duration-150 hover:bg-surface-subtle active:scale-95" aria-label="사용자 메뉴">
                 <span className="flex size-8 items-center justify-center rounded-full bg-action text-xs font-semibold text-content-inverted">{viewer.username?.slice(0, 1).toUpperCase() || 'B'}</span>
                 {Boolean(viewer.unreadCount) && <span className="absolute top-0 left-6 size-3.5 rounded-full bg-danger ring-2 ring-surface" />}
-                <SiteIcon name="chevron" className="size-3 text-content-hint" />
+                <SiteIcon name="chevron-down" className="size-3 text-content-hint" />
               </summary>
               <div className="absolute right-0 z-50 mt-2 w-52 rounded-xl bg-surface-elevated py-1 shadow-lg ring-1 ring-line/50">
                 <div className="border-b border-line-light px-4 py-3.5"><p className="text-xs text-content-secondary">로그인 계정</p><p className="mt-0.5 truncate text-sm font-semibold">{viewer.username}</p></div>
@@ -137,16 +114,16 @@ export function SiteHeader({ brand, viewer, searchPage, editorPage, hideAuthLink
           </>}
         </nav>
         <nav className="flex shrink-0 items-center gap-1 md:hidden" aria-label="모바일 메뉴">
-          {!searchPage && <a href="/search" className={iconButton} aria-label="검색"><SiteIcon name="search" /></a>}
-          {viewer && <a href="/settings/notify" className={iconButton} aria-label="알림"><SiteIcon name="bell" /></a>}
+          {!searchPage && <a href="/search" className={iconButton} aria-label="검색"><SiteIcon name="search" className="size-4" /></a>}
+          {viewer && <a href="/settings/notify" className={iconButton} aria-label="알림"><SiteIcon name="bell" className="size-4" /></a>}
           <ThemeButton />
-          <button type="button" className={iconButton} data-site-menu-open aria-label="메뉴" aria-controls="blex-mobile-menu" aria-expanded="false"><SiteIcon name="menu" /></button>
+          <button type="button" className={iconButton} data-site-menu-open aria-label="메뉴" aria-controls="blex-mobile-menu" aria-expanded="false"><SiteIcon name="menu-2" className="size-4" /></button>
         </nav>
       </div>
     </div>
     <dialog id="blex-mobile-menu" className="blex-menu fixed inset-y-0 right-0 left-auto m-0 w-72 max-w-[90vw] bg-surface-elevated p-0 text-content shadow-xl">
       <div className="flex h-14 items-center justify-between border-b border-line-light px-4"><SiteLogo brand={brand} small />
-        <form method="dialog"><button type="submit" className={iconButton} aria-label="메뉴 닫기"><SiteIcon name="close" /></button></form>
+        <form method="dialog"><button type="submit" className={iconButton} aria-label="메뉴 닫기"><SiteIcon name="x" className="size-4" /></button></form>
       </div>
       <nav className="py-2" aria-label="사이트 메뉴">
         <a href="/" className="block px-4 py-3 text-sm hover:bg-surface-subtle">최신 포스트</a>

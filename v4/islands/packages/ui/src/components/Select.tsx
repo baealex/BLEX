@@ -1,5 +1,5 @@
 import * as RadixSelect from '@radix-ui/react-select';
-import { ChevronDown, Check, AlertCircle } from 'lucide-react';
+import { ChevronDown, Check, AlertCircle } from './icons';
 
 const EMPTY_VALUE = '__select_none__';
 

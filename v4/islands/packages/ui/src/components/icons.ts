@@ -1,94 +1,125 @@
-export {
-    Ad,
-    AlignLeft,
-    AlertCircle,
-    AlertTriangle,
-    ArrowLeft,
-    ArrowRight,
-    Ban,
-    BadgeInfo,
-    Bell,
-    BellOff,
-    BellRing,
-    Bookmark,
-    Bot,
-    BookOpen,
-    BriefcaseBusiness,
-    Building2,
-    Calendar,
-    CalendarDays,
-    Camera,
-    Check,
-    ChevronDown,
-    ChevronLeft,
-    ChevronRight,
-    ChevronsLeft,
-    ChevronsRight,
-    ChevronUp,
-    CircleDollarSign,
-    CirclePause,
-    Clock,
-    Code,
-    Code2,
-    Copy,
-    Database,
-    Eye,
-    EyeOff,
-    ExternalLink,
-    FileImage,
-    FileText,
-    GripVertical,
-    Hash,
-    Heart,
-    History,
-    Image,
-    ImagePlus,
-    Info,
-    KeyRound,
-    Layers3,
-    Link,
-    Loader2,
-    Lock,
-    LogIn,
-    Megaphone,
-    MessageCircle,
-    Palette,
-    Pause,
-    Pencil,
-    Pin,
-    Play,
-    Plug,
-    Power,
-    Plus,
-    Reply,
-    RotateCw,
-    RotateCcw,
-    Route,
-    Save,
-    Search,
-    Send,
-    Settings2,
-    Share2,
-    Shield,
-    ShieldCheck,
-    SlidersHorizontal,
-    ScrollText,
-    Signpost,
-    Tag,
-    Tags,
-    ThumbsUp,
-    Trash2,
-    Ticket,
-    Unlink,
-    Upload,
-    UserCog,
-    UserRound,
-    Users,
-    Wrench,
-    X,
-    XCircle,
-    Zap,
-    CheckCircle
-} from 'lucide-react';
+export { default as Ad } from '@tabler/icons-react/icons/IconAd';
+export { default as AlertCircle } from '@tabler/icons-react/icons/IconAlertCircle';
+export { default as AlertTriangle } from '@tabler/icons-react/icons/IconAlertTriangle';
+export { default as AlignCenter } from '@tabler/icons-react/icons/IconAlignCenter';
+export { default as AlignLeft } from '@tabler/icons-react/icons/IconAlignLeft';
+export { default as AlignRight } from '@tabler/icons-react/icons/IconAlignRight';
+export { default as ArrowDown } from '@tabler/icons-react/icons/IconArrowDown';
+export { default as ArrowLeft } from '@tabler/icons-react/icons/IconArrowLeft';
+export { default as ArrowRight } from '@tabler/icons-react/icons/IconArrowRight';
+export { default as ArrowUp } from '@tabler/icons-react/icons/IconArrowUp';
+export { default as BadgeInfo } from '@tabler/icons-react/icons/IconInfoOctagon';
+export { default as Ban } from '@tabler/icons-react/icons/IconBan';
+export { default as Bell } from '@tabler/icons-react/icons/IconBell';
+export { default as BellOff } from '@tabler/icons-react/icons/IconBellOff';
+export { default as BellRing } from '@tabler/icons-react/icons/IconBellRinging';
+export { default as Bold } from '@tabler/icons-react/icons/IconBold';
+export { default as BookOpen } from '@tabler/icons-react/icons/IconBook';
+export { default as Bookmark } from '@tabler/icons-react/icons/IconBookmark';
+export { default as BorderAll } from '@tabler/icons-react/icons/IconBorderAll';
+export { default as Bot } from '@tabler/icons-react/icons/IconRobot';
+export { default as BrandFacebook } from '@tabler/icons-react/icons/IconBrandFacebook';
+export { default as BrandGithub } from '@tabler/icons-react/icons/IconBrandGithub';
+export { default as BrandInstagram } from '@tabler/icons-react/icons/IconBrandInstagram';
+export { default as BrandLinkedin } from '@tabler/icons-react/icons/IconBrandLinkedin';
+export { default as BrandTelegram } from '@tabler/icons-react/icons/IconBrandTelegram';
+export { default as BrandThreads } from '@tabler/icons-react/icons/IconBrandThreads';
+export { default as BrandX } from '@tabler/icons-react/icons/IconBrandX';
+export { default as BrandYoutube } from '@tabler/icons-react/icons/IconBrandYoutube';
+export { default as BriefcaseBusiness } from '@tabler/icons-react/icons/IconBriefcase';
+export { default as Building2 } from '@tabler/icons-react/icons/IconBuilding';
+export { default as Calendar } from '@tabler/icons-react/icons/IconCalendar';
+export { default as CalendarDays } from '@tabler/icons-react/icons/IconCalendarWeek';
+export { default as Camera } from '@tabler/icons-react/icons/IconCamera';
+export { default as Check } from '@tabler/icons-react/icons/IconCheck';
+export { default as CheckCircle } from '@tabler/icons-react/icons/IconCircleCheck';
+export { default as ChevronDown } from '@tabler/icons-react/icons/IconChevronDown';
+export { default as ChevronLeft } from '@tabler/icons-react/icons/IconChevronLeft';
+export { default as ChevronRight } from '@tabler/icons-react/icons/IconChevronRight';
+export { default as ChevronUp } from '@tabler/icons-react/icons/IconChevronUp';
+export { default as ChevronsLeft } from '@tabler/icons-react/icons/IconChevronsLeft';
+export { default as ChevronsRight } from '@tabler/icons-react/icons/IconChevronsRight';
+export { default as CircleDollarSign } from '@tabler/icons-react/icons/IconCoin';
+export { default as CirclePause } from '@tabler/icons-react/icons/IconPlayerPause';
+export { default as Clock } from '@tabler/icons-react/icons/IconClock';
+export { default as Code } from '@tabler/icons-react/icons/IconCode';
+export { default as Code2 } from '@tabler/icons-react/icons/IconCode';
+export { default as Columns2 } from '@tabler/icons-react/icons/IconColumns2';
+export { default as Compass } from '@tabler/icons-react/icons/IconCompass';
+export { default as Copy } from '@tabler/icons-react/icons/IconCopy';
+export { default as Database } from '@tabler/icons-react/icons/IconDatabase';
+export { default as EllipsisVertical } from '@tabler/icons-react/icons/IconDotsVertical';
+export { default as ExternalLink } from '@tabler/icons-react/icons/IconExternalLink';
+export { default as Eye } from '@tabler/icons-react/icons/IconEye';
+export { default as EyeOff } from '@tabler/icons-react/icons/IconEyeOff';
+export { default as FileImage } from '@tabler/icons-react/icons/IconPhoto';
+export { default as FileText } from '@tabler/icons-react/icons/IconFileText';
+export { default as GripVertical } from '@tabler/icons-react/icons/IconGripVertical';
+export { default as Hash } from '@tabler/icons-react/icons/IconHash';
+export { default as Heading } from '@tabler/icons-react/icons/IconHeading';
+export { default as Heart } from '@tabler/icons-react/icons/IconHeart';
+export { default as Highlighter } from '@tabler/icons-react/icons/IconHighlight';
+export { default as History } from '@tabler/icons-react/icons/IconHistory';
+export { default as Image } from '@tabler/icons-react/icons/IconPhoto';
+export { default as ImagePlus } from '@tabler/icons-react/icons/IconPhotoPlus';
+export { default as Info } from '@tabler/icons-react/icons/IconInfoCircle';
+export { default as Italic } from '@tabler/icons-react/icons/IconItalic';
+export { default as KeyRound } from '@tabler/icons-react/icons/IconKey';
+export { default as Layers3 } from '@tabler/icons-react/icons/IconStack2';
+export { default as Link } from '@tabler/icons-react/icons/IconLink';
+export { default as List } from '@tabler/icons-react/icons/IconList';
+export { default as ListOrdered } from '@tabler/icons-react/icons/IconListNumbers';
+export { default as Loader2 } from '@tabler/icons-react/icons/IconLoader2';
+export { default as Lock } from '@tabler/icons-react/icons/IconLock';
+export { default as LogIn } from '@tabler/icons-react/icons/IconLogin2';
+export { default as Megaphone } from '@tabler/icons-react/icons/IconSpeakerphone';
+export { default as MessageCircle } from '@tabler/icons-react/icons/IconMessageCircle';
+export { default as MessageDots } from '@tabler/icons-react/icons/IconMessageDots';
+export { default as Minus } from '@tabler/icons-react/icons/IconMinus';
+export { default as MousePointer } from '@tabler/icons-react/icons/IconPointer';
+export { default as Palette } from '@tabler/icons-react/icons/IconPalette';
+export { default as Pause } from '@tabler/icons-react/icons/IconPlayerPause';
+export { default as Pencil } from '@tabler/icons-react/icons/IconPencil';
+export { default as Pin } from '@tabler/icons-react/icons/IconPin';
+export { default as Play } from '@tabler/icons-react/icons/IconPlayerPlay';
+export { default as Plug } from '@tabler/icons-react/icons/IconPlug';
+export { default as Plus } from '@tabler/icons-react/icons/IconPlus';
+export { default as Power } from '@tabler/icons-react/icons/IconPower';
+export { default as Quote } from '@tabler/icons-react/icons/IconQuote';
+export { default as Reply } from '@tabler/icons-react/icons/IconArrowBackUp';
+export { default as RotateCcw } from '@tabler/icons-react/icons/IconRotate';
+export { default as RotateCw } from '@tabler/icons-react/icons/IconRotateClockwise';
+export { default as Route } from '@tabler/icons-react/icons/IconRoute';
+export { default as Save } from '@tabler/icons-react/icons/IconDeviceFloppy';
+export { default as ScrollText } from '@tabler/icons-react/icons/IconNotes';
+export { default as Search } from '@tabler/icons-react/icons/IconSearch';
+export { default as Send } from '@tabler/icons-react/icons/IconSend';
+export { default as Settings2 } from '@tabler/icons-react/icons/IconSettings';
+export { default as Share2 } from '@tabler/icons-react/icons/IconShare';
+export { default as Shield } from '@tabler/icons-react/icons/IconShield';
+export { default as ShieldCheck } from '@tabler/icons-react/icons/IconShieldCheck';
+export { default as Signpost } from '@tabler/icons-react/icons/IconDirections';
+export { default as SlidersHorizontal } from '@tabler/icons-react/icons/IconAdjustmentsHorizontal';
+export { default as Strikethrough } from '@tabler/icons-react/icons/IconStrikethrough';
+export { default as Table } from '@tabler/icons-react/icons/IconTable';
+export { default as Tag } from '@tabler/icons-react/icons/IconTag';
+export { default as Tags } from '@tabler/icons-react/icons/IconTags';
+export { default as ThumbsUp } from '@tabler/icons-react/icons/IconThumbUp';
+export { default as Ticket } from '@tabler/icons-react/icons/IconTicket';
+export { default as Trash2 } from '@tabler/icons-react/icons/IconTrash';
+export { default as Underline } from '@tabler/icons-react/icons/IconUnderline';
+export { default as Unlink } from '@tabler/icons-react/icons/IconUnlink';
+export { default as Upload } from '@tabler/icons-react/icons/IconUpload';
+export { default as UserCog } from '@tabler/icons-react/icons/IconUserCog';
+export { default as UserPlus } from '@tabler/icons-react/icons/IconUserPlus';
+export { default as UserRound } from '@tabler/icons-react/icons/IconUser';
+export { default as Users } from '@tabler/icons-react/icons/IconUsers';
+export { default as Video } from '@tabler/icons-react/icons/IconVideo';
+export { default as Wand } from '@tabler/icons-react/icons/IconWand';
+export { default as Wrench } from '@tabler/icons-react/icons/IconTool';
+export { default as X } from '@tabler/icons-react/icons/IconX';
+export { default as XCircle } from '@tabler/icons-react/icons/IconCircleX';
+export { default as Zap } from '@tabler/icons-react/icons/IconBolt';
 
-export type { LucideIcon } from 'lucide-react';
+export type { TablerIcon as IconComponent } from '@tabler/icons-react';
+export { InlineIcon } from './Icon';

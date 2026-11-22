@@ -1,6 +1,6 @@
 import { forwardRef, useId } from 'react';
 import type { InputHTMLAttributes, ReactNode, ForwardedRef } from 'react';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle } from './icons';
 import { cx } from '../lib/classnames';
 import { INTERACTION_DURATION } from '../lib/designTokens';
 

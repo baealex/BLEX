@@ -30,7 +30,7 @@ import {
     Wrench,
     X,
     Zap,
-    type LucideIcon
+    type IconComponent
 } from '@blex/ui/icons';
 import {
     DIM_OVERLAY_SOFT,
@@ -42,7 +42,7 @@ import type { AdminCapabilities } from '../SettingsApp';
 interface NavigationItem {
     name: MessageDescriptor;
     path: string;
-    icon: LucideIcon;
+    icon: IconComponent;
     requiresEditor?: boolean;
     requiresStaff?: boolean;
     requiresTelegramIntegration?: boolean;

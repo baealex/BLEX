@@ -4,6 +4,12 @@ import { Fragment } from '@tiptap/pm/model';
 import * as Popover from '@radix-ui/react-popover';
 import type { ColumnLayout } from '../../extensions/ColumnsNode';
 import { useEditorI18n } from '../../i18n';
+import {
+    InlineIcon,
+    ArrowUp,
+    ArrowDown,
+    Trash2
+} from '@blex/ui/icons';
 
 interface ColumnsFloatingMenuProps {
     editor: Editor | null;
@@ -275,7 +281,7 @@ const ColumnsFloatingMenu = ({ editor }: ColumnsFloatingMenuProps) => {
                                     : 'text-gray-600 hover:bg-gray-100 active:scale-95'}
                             `}
                             title={t('columns.move_up')}>
-                            <i className="fas fa-arrow-up text-xs" />
+                            <InlineIcon icon={ArrowUp} className="text-xs" />
                         </button>
                         <button
                             type="button"
@@ -288,14 +294,14 @@ const ColumnsFloatingMenu = ({ editor }: ColumnsFloatingMenuProps) => {
                                     : 'text-gray-600 hover:bg-gray-100 active:scale-95'}
                             `}
                             title={t('columns.move_down')}>
-                            <i className="fas fa-arrow-down text-xs" />
+                            <InlineIcon icon={ArrowDown} className="text-xs" />
                         </button>
                         <button
                             type="button"
                             onClick={handleDeleteColumns}
                             className="w-7 h-7 rounded-md flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
                             title={t('columns.delete')}>
-                            <i className="fas fa-trash-alt text-xs" />
+                            <InlineIcon icon={Trash2} className="text-xs" />
                         </button>
                     </div>
                 </Popover.Content>

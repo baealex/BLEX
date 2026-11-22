@@ -20,7 +20,7 @@ import {
     Signpost,
     SlidersHorizontal
 } from '@blex/ui/icons';
-import type { LucideIcon } from '@blex/ui/icons';
+import type { IconComponent } from '@blex/ui/icons';
 import { Button, Card } from '~/components/shared';
 import { CodeEditor } from '~/components/CodeEditor';
 import { toast } from '~/utils/toast';
@@ -28,7 +28,7 @@ import { getSiteSettings, updateSiteSettings } from '~/lib/api/settings';
 import { SettingsHeader } from '../../components';
 
 interface ExposureItem {
-    icon: LucideIcon;
+    icon: IconComponent;
     name: MessageDescriptor;
     path: string;
     description: MessageDescriptor;

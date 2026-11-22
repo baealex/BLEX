@@ -1,5 +1,13 @@
 import { useId, useState } from 'react';
 import { useEditorI18n } from '../../i18n';
+import {
+    InlineIcon,
+    Wand,
+    MousePointer,
+    Upload,
+    ChevronUp,
+    ChevronDown
+} from '@blex/ui/icons';
 
 interface EditorHelpTextProps {
     showPostLinkHelp?: boolean;
@@ -22,13 +30,13 @@ const EditorHelpText = ({ showPostLinkHelp = false }: EditorHelpTextProps) => {
                 className="w-full px-6 py-4 flex items-center justify-between hover:bg-line-light transition-colors">
                 <div className="flex items-center gap-3">
                     <div className="flex-shrink-0 w-8 h-8 bg-surface rounded-full flex items-center justify-center border border-line-light">
-                        <i aria-hidden="true" className="fa fa-magic text-content-secondary text-sm" />
+                        <InlineIcon icon={Wand} className="text-content-secondary text-sm" />
                     </div>
                     <span className="text-sm font-semibold text-content flex items-center gap-2">
                         {t('help.title')}
                     </span>
                 </div>
-                <i aria-hidden="true" className={`fas fa-chevron-${isExpanded ? 'up' : 'down'} text-content-hint text-sm transition-transform`} />
+                <InlineIcon icon={isExpanded ? ChevronUp : ChevronDown} className="text-content-hint text-sm transition-transform" />
             </button>
 
             {isExpanded && (
@@ -62,7 +70,7 @@ const EditorHelpText = ({ showPostLinkHelp = false }: EditorHelpTextProps) => {
                         )}
                         <div className="flex items-center gap-3 text-sm text-content-secondary">
                             <div className="flex items-center gap-2">
-                                <i aria-hidden="true" className="fa fa-mouse-pointer text-content-hint w-4" />
+                                <InlineIcon icon={MousePointer} className="text-content-hint w-4" />
                                 <span className="font-medium text-content">
                                     {t('help.selection.title')}
                                 </span>
@@ -72,7 +80,7 @@ const EditorHelpText = ({ showPostLinkHelp = false }: EditorHelpTextProps) => {
                         </div>
                         <div className="flex items-center gap-3 text-sm text-content-secondary">
                             <div className="flex items-center gap-2">
-                                <i aria-hidden="true" className="fa fa-upload text-content-hint w-4" />
+                                <InlineIcon icon={Upload} className="text-content-hint w-4" />
                                 <span className="font-medium text-content">
                                     {t('help.drop.title')}
                                 </span>

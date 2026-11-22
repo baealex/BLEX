@@ -1,4 +1,5 @@
-import type { LucideIcon } from 'lucide-react';
+import type { ComponentProps } from 'react';
+import type { TablerIcon } from '@tabler/icons-react';
 import { cx } from '../lib/classnames';
 
 const sizeMap = {
@@ -20,16 +21,16 @@ const sizeClassMap = {
 type IconSize = keyof typeof sizeMap;
 
 interface IconProps {
-    icon: LucideIcon;
+    icon: TablerIcon;
     size?: IconSize;
     className?: string;
 }
 
-const Icon = ({ icon: LucideIcon, size = 'md', className }: IconProps) => {
+const Icon = ({ icon: Glyph, size = 'md', className }: IconProps) => {
     const px = sizeMap[size];
 
     return (
-        <LucideIcon
+        <Glyph
             className={cx(sizeClassMap[size], 'shrink-0', className)}
             width={px}
             height={px}
@@ -37,5 +38,17 @@ const Icon = ({ icon: LucideIcon, size = 'md', className }: IconProps) => {
     );
 };
 
-export { Icon };
-export type { IconProps, IconSize };
+type InlineIconProps = Omit<ComponentProps<TablerIcon>, 'size'> & { icon: TablerIcon };
+
+/** Follows the surrounding font size, so `text-*` classes size it. */
+const InlineIcon = ({ icon: Glyph, className, ...props }: InlineIconProps) => (
+    <Glyph
+        aria-hidden="true"
+        {...props}
+        size="1em"
+        className={cx('inline-block shrink-0 align-[-0.125em]', className)}
+    />
+);
+
+export { Icon, InlineIcon };
+export type { IconProps, IconSize, InlineIconProps };

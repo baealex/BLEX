@@ -3,6 +3,12 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import SocialLogin from '~/components/remotes/SocialLogin';
 import { useResolvedTheme } from '~/hooks/useResolvedTheme';
 import { logger } from '~/utils/logger';
+import {
+    InlineIcon,
+    AlertCircle,
+    AlertTriangle,
+    Loader2
+} from '@blex/ui/icons';
 
 interface LoginFormProps {
     username: string;
@@ -122,7 +128,7 @@ const LoginForm = ({
                         />
                         {usernameError && (
                             <p id="login-username-error" role="alert" className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1">
-                                <i aria-hidden="true" className="fas fa-exclamation-circle" /> {usernameError}
+                                <InlineIcon icon={AlertCircle} /> {usernameError}
                             </p>
                         )}
                     </div>
@@ -149,7 +155,7 @@ const LoginForm = ({
                         />
                         {passwordError && (
                             <p id="login-password-error" role="alert" className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1">
-                                <i aria-hidden="true" className="fas fa-exclamation-circle" /> {passwordError}
+                                <InlineIcon icon={AlertCircle} /> {passwordError}
                             </p>
                         )}
                     </div>
@@ -165,7 +171,7 @@ const LoginForm = ({
                 {/* Error Message */}
                 {loginError && (
                     <div role="alert" className="bg-danger-surface border border-danger-line rounded-xl p-4 flex items-center gap-3">
-                        <i aria-hidden="true" className="fas fa-exclamation-triangle text-danger" />
+                        <InlineIcon icon={AlertTriangle} className="text-danger" />
                         <p className="text-danger text-sm font-medium">{loginError}</p>
                     </div>
                 )}
@@ -176,22 +182,7 @@ const LoginForm = ({
                     disabled={isLoading}
                     className="w-full flex items-center justify-center py-3.5 px-6 bg-action hover:bg-action-hover text-content-inverted font-semibold rounded-lg shadow-floating hover:shadow-floating hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm">
                     {isLoading && (
-                        <svg
-                            aria-hidden="true"
-                            className="animate-spin -ml-1 mr-2 h-4 w-4 text-content-inverted"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24">
-                            <circle
-                                className="opacity-25"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                            />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                        </svg>
+                        <Loader2 aria-hidden="true" className="animate-spin -ml-1 mr-2 h-4 w-4 text-content-inverted" />
                     )}
                     <span>
                         {isLoading ? (

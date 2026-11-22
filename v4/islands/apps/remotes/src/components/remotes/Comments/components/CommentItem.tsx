@@ -1,6 +1,12 @@
 import { useLingui } from '@lingui/react/macro';
 import { Dropdown } from '@blex/ui/dropdown';
-import { Reply } from '@blex/ui/icons';
+import {
+    Reply,
+    InlineIcon,
+    EllipsisVertical,
+    Pencil,
+    Trash2
+} from '@blex/ui/icons';
 import { CommentHeader } from './CommentHeader';
 import { CommentContent } from './CommentContent';
 import { CommentActions } from './CommentActions';
@@ -71,7 +77,7 @@ export const CommentItem = ({
                 id: 'common.edit',
                 message: 'Edit'
             }),
-            icon: 'fas fa-pen',
+            icon: <Pencil />,
             onClick: () => onEdit(comment.id)
         }] : []),
         ...(permissions.canDelete ? [{
@@ -79,7 +85,7 @@ export const CommentItem = ({
                 id: 'common.delete',
                 message: 'Delete'
             }),
-            icon: 'fas fa-trash',
+            icon: <Trash2 />,
             onClick: () => onDelete(comment.id),
             variant: 'danger' as const
         }] : [])
@@ -119,7 +125,7 @@ export const CommentItem = ({
                                         id: 'comments.options.open',
                                         message: 'Open comment options'
                                     })}>
-                                    <i className="fas fa-ellipsis-v text-sm" />
+                                    <InlineIcon icon={EllipsisVertical} className="text-sm" />
                                 </button>
                             )}
                             items={menuItems}

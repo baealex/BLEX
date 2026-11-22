@@ -3,6 +3,22 @@ import type { Editor } from '@tiptap/react';
 import * as Popover from '@radix-ui/react-popover';
 import { useEditorI18n } from '../../i18n';
 import type { EditorMessageKey } from '../../i18n';
+import {
+    Heading,
+    List,
+    ListOrdered,
+    Quote,
+    Code,
+    Table,
+    Minus,
+    Image,
+    Video,
+    Columns2,
+    FileText,
+    BrandYoutube,
+    InlineIcon,
+    type IconComponent
+} from '@blex/ui/icons';
 
 interface SlashCommandMenuProps {
     editor: Editor | null;
@@ -18,7 +34,7 @@ interface CommandItem {
     id: string;
     title: string;
     description: string;
-    icon: string;
+    icon: IconComponent;
     keywords: string[];
     category: string;
     action: (editor: Editor) => void;
@@ -131,7 +147,7 @@ const SlashCommandMenu = ({
             id: 'heading2',
             title: t('slash.heading2.title'),
             description: t('slash.heading2.description'),
-            icon: 'fa fa-heading',
+            icon: Heading,
             keywords: getKeywords('slash.heading2.keywords'),
             category: t('slash.category.text'),
             action: (editor) => editor.chain().focus().toggleHeading({ level: 2 }).run()
@@ -140,7 +156,7 @@ const SlashCommandMenu = ({
             id: 'heading3',
             title: t('slash.heading3.title'),
             description: t('slash.heading3.description'),
-            icon: 'fa fa-heading',
+            icon: Heading,
             keywords: getKeywords('slash.heading3.keywords'),
             category: t('slash.category.text'),
             action: (editor) => editor.chain().focus().toggleHeading({ level: 3 }).run()
@@ -149,7 +165,7 @@ const SlashCommandMenu = ({
             id: 'heading4',
             title: t('slash.heading4.title'),
             description: t('slash.heading4.description'),
-            icon: 'fa fa-heading',
+            icon: Heading,
             keywords: getKeywords('slash.heading4.keywords'),
             category: t('slash.category.text'),
             action: (editor) => editor.chain().focus().toggleHeading({ level: 4 }).run()
@@ -158,7 +174,7 @@ const SlashCommandMenu = ({
             id: 'bulletList',
             title: t('slash.bullet_list.title'),
             description: t('slash.bullet_list.description'),
-            icon: 'fa fa-list-ul',
+            icon: List,
             keywords: getKeywords('slash.bullet_list.keywords'),
             category: t('slash.category.text'),
             action: (editor) => editor.chain().focus().toggleBulletList().run()
@@ -167,7 +183,7 @@ const SlashCommandMenu = ({
             id: 'orderedList',
             title: t('slash.ordered_list.title'),
             description: t('slash.ordered_list.description'),
-            icon: 'fa fa-list-ol',
+            icon: ListOrdered,
             keywords: getKeywords('slash.ordered_list.keywords'),
             category: t('slash.category.text'),
             action: (editor) => editor.chain().focus().toggleOrderedList().run()
@@ -176,7 +192,7 @@ const SlashCommandMenu = ({
             id: 'blockquote',
             title: t('slash.blockquote.title'),
             description: t('slash.blockquote.description'),
-            icon: 'fa fa-quote-left',
+            icon: Quote,
             keywords: getKeywords('slash.blockquote.keywords'),
             category: t('slash.category.block'),
             action: (editor) => editor.chain().focus().toggleBlockquote().run()
@@ -185,7 +201,7 @@ const SlashCommandMenu = ({
             id: 'codeBlock',
             title: t('slash.code_block.title'),
             description: t('slash.code_block.description'),
-            icon: 'fa fa-code',
+            icon: Code,
             keywords: getKeywords('slash.code_block.keywords'),
             category: t('slash.category.block'),
             action: (editor) => editor.chain().focus().toggleCodeBlock().run()
@@ -194,7 +210,7 @@ const SlashCommandMenu = ({
             id: 'table',
             title: t('slash.table.title'),
             description: t('slash.table.description'),
-            icon: 'fa fa-table',
+            icon: Table,
             keywords: getKeywords('slash.table.keywords'),
             category: t('slash.category.block'),
             action: (editor) => editor.chain().focus().insertTable({
@@ -207,7 +223,7 @@ const SlashCommandMenu = ({
             id: 'divider',
             title: t('slash.divider.title'),
             description: t('slash.divider.description'),
-            icon: 'fa fa-minus',
+            icon: Minus,
             keywords: getKeywords('slash.divider.keywords'),
             category: t('slash.category.block'),
             action: (editor) => editor.chain().focus().setHorizontalRule().run()
@@ -216,7 +232,7 @@ const SlashCommandMenu = ({
             id: 'image',
             title: t('slash.image.title'),
             description: t('slash.image.description'),
-            icon: 'fa fa-image',
+            icon: Image,
             keywords: getKeywords('slash.image.keywords'),
             category: t('slash.category.media'),
             action: () => onImageUpload()
@@ -225,7 +241,7 @@ const SlashCommandMenu = ({
             id: 'video',
             title: t('slash.video.title'),
             description: t('slash.video.description'),
-            icon: 'fa fa-video',
+            icon: Video,
             keywords: getKeywords('slash.video.keywords'),
             category: t('slash.category.media'),
             action: () => onVideoUpload()
@@ -234,7 +250,7 @@ const SlashCommandMenu = ({
             id: 'youtube',
             title: t('slash.youtube.title'),
             description: t('slash.youtube.description'),
-            icon: 'fab fa-youtube',
+            icon: BrandYoutube,
             keywords: getKeywords('slash.youtube.keywords'),
             category: t('slash.category.media'),
             action: () => onYoutubeUpload()
@@ -243,7 +259,7 @@ const SlashCommandMenu = ({
             id: 'columns2',
             title: t('slash.columns2.title'),
             description: t('slash.columns2.description'),
-            icon: 'fa fa-columns',
+            icon: Columns2,
             keywords: getKeywords('slash.columns2.keywords'),
             category: t('slash.category.layout'),
             action: (editor) => editor.chain().focus().setColumns('1:1').run()
@@ -252,7 +268,7 @@ const SlashCommandMenu = ({
             id: 'columns3',
             title: t('slash.columns3.title'),
             description: t('slash.columns3.description'),
-            icon: 'fa fa-columns',
+            icon: Columns2,
             keywords: getKeywords('slash.columns3.keywords'),
             category: t('slash.category.layout'),
             action: (editor) => editor.chain().focus().setColumns('1:1:1').run()
@@ -264,7 +280,7 @@ const SlashCommandMenu = ({
         id: `form-${form.id}`,
         title: form.title,
         description: t('slash.template.description'),
-        icon: 'fa fa-file-alt',
+        icon: FileText,
         keywords: [
             ...getKeywords('slash.template.keywords'),
             form.title.toLowerCase()
@@ -430,7 +446,7 @@ const SlashCommandMenu = ({
                                                 }`}
                                             onClick={() => handleCommandClick(item)}>
                                             <div className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded">
-                                                <i className={`${item.icon} text-sm text-gray-600`} />
+                                                <InlineIcon icon={item.icon} className="text-sm text-gray-600" />
                                             </div>
                                             <div>
                                                 <div className="text-sm font-medium text-gray-900">

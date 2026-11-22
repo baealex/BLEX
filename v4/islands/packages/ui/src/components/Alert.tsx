@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Info, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { Info, AlertTriangle, CheckCircle, XCircle } from './icons';
 
 interface AlertProps {
     variant?: 'info' | 'warning' | 'success' | 'error';

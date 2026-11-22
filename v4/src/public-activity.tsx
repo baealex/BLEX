@@ -1,3 +1,4 @@
+import { SiteIcon, type SiteIconName } from './appearance/icons.js';
 import { renderApplicationDocument } from './application/document.js';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
@@ -73,11 +74,11 @@ interface RecentActivity {
 
 const RECENT_ACTIVITY_DAYS = 30;
 const RECENT_ACTIVITY_LIMIT = 10;
-const activityLabels: Record<RecentActivity['type'], { label: string; icon: string }> = {
-  post: { label: '새 포스트를 작성했어요', icon: 'fa-pen-nib' },
-  series: { label: '시리즈를 만들었어요', icon: 'fa-layer-group' },
-  comment: { label: '댓글을 남겼어요', icon: 'fa-comment-alt' },
-  like: { label: '좋아요를 눌렀어요', icon: 'fa-heart' },
+const activityLabels: Record<RecentActivity['type'], { label: string; icon: SiteIconName }> = {
+  post: { label: '새 포스트를 작성했어요', icon: 'writing' },
+  series: { label: '시리즈를 만들었어요', icon: 'stack-2' },
+  comment: { label: '댓글을 남겼어요', icon: 'message' },
+  like: { label: '좋아요를 눌렀어요', icon: 'heart' },
 };
 
 async function recentActivities(db: PrismaClient, userId: number): Promise<RecentActivity[]> {
@@ -173,7 +174,7 @@ export function AuthorActivitySection({ days, recent }: Awaited<ReturnType<typeo
           {recent.map((activity) => <a key={`${activity.type}:${activity.url}:${activity.sortDate}`} href={activity.url}
             className="flex items-center gap-4 rounded-xl bg-surface px-3 py-3 ring-1 ring-line/60 hover:ring-line-strong">
             <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-surface-subtle text-content-secondary">
-              <i className={`fas ${activityLabels[activity.type].icon} text-sm`} aria-hidden="true" />
+              <SiteIcon name={activityLabels[activity.type].icon} className="text-sm" />
             </span>
             <span className="min-w-0 flex-1">
               <span className="mb-1 flex items-center justify-between gap-2 text-xs text-content-secondary">

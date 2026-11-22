@@ -4,6 +4,12 @@ import { selectVisibleRelatedPosts } from './selection';
 import { formatPublishedDate } from '~/i18n/formatters';
 import { normalizeLocale } from '~/i18n/locale';
 import { getRelatedPosts, type RelatedPost } from '~/lib/api/posts';
+import {
+    InlineIcon,
+    UserRound,
+    Compass,
+    ArrowRight
+} from '@blex/ui/icons';
 
 interface RelatedPostsProps {
     postUrl: string;
@@ -103,7 +109,7 @@ const PostCard = ({ relatedPost }: { relatedPost: RelatedPost }) => {
                             />
                         ) : (
                             <div className="w-6 h-6 rounded-full bg-surface-subtle flex items-center justify-center flex-shrink-0">
-                                <i className="far fa-user text-[10px] text-content-hint" />
+                                <InlineIcon icon={UserRound} className="text-[10px] text-content-hint" />
                             </div>
                         )}
                         <span className="text-xs font-semibold text-content hover:text-content transition-colors truncate">
@@ -163,7 +169,7 @@ const RelatedPosts = ({ postUrl, username }: RelatedPostsProps) => {
         return (
             <div className="text-center py-12">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-surface-subtle rounded-full mb-4">
-                    <i className="fas fa-compass text-2xl text-content-hint" />
+                    <InlineIcon icon={Compass} className="text-2xl text-content-hint" />
                 </div>
                 <h3 className="text-lg font-semibold text-content mb-2">
                     <Trans id="related_posts.empty.title">Explore more posts by {username}</Trans>
@@ -175,7 +181,7 @@ const RelatedPosts = ({ postUrl, username }: RelatedPostsProps) => {
                     href={`/@${username}`}
                     className="inline-flex items-center gap-2 px-5 py-2.5 bg-action text-content-inverted rounded-full text-sm font-medium hover:bg-action-hover transition-colors active:scale-95">
                     <span><Trans id="related_posts.profile">View profile</Trans></span>
-                    <i className="fas fa-arrow-right text-xs opacity-70" />
+                    <InlineIcon icon={ArrowRight} className="text-xs opacity-70" />
                 </a>
             </div>
         );

@@ -1,3 +1,4 @@
+import { __iconNode as userIcon } from '@tabler/icons-react/icons/IconUser';
 import type { LoginPromptAction } from '../reader-ui/login-prompt.js';
 
 interface SocialProvider { key: string; name: string }
@@ -38,6 +39,21 @@ function nativeLink(href: string, text: string, className: string): HTMLAnchorEl
   return link;
 }
 
+function userGlyph(): SVGSVGElement {
+  const namespace = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(namespace, 'svg');
+  for (const [name, value] of Object.entries({
+    viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
+    class: 'size-5 text-content', 'aria-hidden': 'true',
+  })) svg.setAttribute(name, value);
+  for (const [tag, attributes] of userIcon) {
+    const part = document.createElementNS(namespace, tag);
+    for (const [name, value] of Object.entries(attributes)) if (name !== 'key') part.setAttribute(name, String(value));
+    svg.append(part);
+  }
+  return svg;
+}
+
 function ensureDialog(): HTMLDialogElement {
   if (dialog?.isConnected) return dialog;
   const modal = element('dialog', 'fixed inset-0 m-auto h-fit w-[calc(100%-2rem)] max-w-sm rounded-2xl border border-line bg-surface p-8 text-center text-content shadow-xl backdrop:bg-black/50');
@@ -45,8 +61,7 @@ function ensureDialog(): HTMLDialogElement {
   modal.setAttribute('aria-labelledby', 'blex-login-prompt-title');
   modal.setAttribute('aria-describedby', 'blex-login-prompt-description');
   const icon = element('div', 'mx-auto mb-6 flex size-16 items-center justify-center rounded-full bg-surface-subtle ring-4 ring-line-light');
-  icon.append(element('i', 'fas fa-user text-xl text-content'));
-  icon.firstElementChild?.setAttribute('aria-hidden', 'true');
+  icon.append(userGlyph());
   const title = element('h2', 'mb-2 text-xl font-semibold text-content', '로그인이 필요해요');
   title.id = 'blex-login-prompt-title';
   const description = element('p', 'mb-5 text-sm text-content-secondary');

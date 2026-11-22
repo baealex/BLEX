@@ -75,9 +75,6 @@ importers:
       '@dnd-kit/utilities':
         specifier: ^3.2.2
         version: 3.2.2(react@19.2.7)
-      '@fortawesome/fontawesome-free':
-        specifier: ^7.3.0
-        version: 7.3.0
       '@hookform/resolvers':
         specifier: ^5.4.0
         version: 5.4.0(react-hook-form@7.81.0(react@19.2.7))
@@ -380,12 +377,12 @@ importers:
       '@radix-ui/react-tooltip':
         specifier: ^1.2.12
         version: 1.2.12(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@tabler/icons-react':
+        specifier: ^3.52.0
+        version: 3.52.0(react@19.2.7)
       frappe-charts:
         specifier: ^1.6.2
         version: 1.6.2
-      lucide-react:
-        specifier: ^1.24.0
-        version: 1.24.0(react@19.2.7)
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -738,10 +735,6 @@ packages:
 
   '@floating-ui/utils@0.2.11':
     resolution: {integrity: sha512-RiB/yIh78pcIxl6lLMG0CgBXAZ2Y0eVHqMPYugu+9U0AeT6YBeiJpf7lbdJNIugFP5SIjwNRgo4DhR1Qxi26Gg==}
-
-  '@fortawesome/fontawesome-free@7.3.0':
-    resolution: {integrity: sha512-Yw4Qa43P6e4Xwh0TwEUkHQNRJInWaqIBo73VJmns3j2AIlZPAvUcR4yGIxCPqPRCgyJ5KIVIalF/I1GxhZ/Kgw==}
-    engines: {node: '>=6'}
 
   '@hookform/resolvers@5.4.0':
     resolution: {integrity: sha512-EIsqr/t/qbinPIhGjMdtvutIN1Kk4uwbROE9/UQ93CAVGR7GkA7Y92+fX80OzXi/OB67jVFYwKGO1WzkxmkFZw==}
@@ -1617,6 +1610,14 @@ packages:
 
   '@standard-schema/utils@0.3.0':
     resolution: {integrity: sha512-e7Mew686owMaPJVNNLs55PUvgz371nKgwsc4vxE49zsODpJEnxgxRo2y/OKrqueavXgZNMDVj3DdHFlaSAeU8g==}
+
+  '@tabler/icons-react@3.52.0':
+    resolution: {integrity: sha512-tN22mz4KLVpR+psqu9bAsT4b1IdhKcPGA1fDhyQerIv+8azyowdWzf8e0hWxQSsIxDTfkipGfiL0/uHNmpbvgw==}
+    peerDependencies:
+      react: '>= 16'
+
+  '@tabler/icons@3.52.0':
+    resolution: {integrity: sha512-dldKlJNfO/gZnGLcIY0X2EFFKIMGwL/rEvTqglvBgAPFiwj9pZOCN5V3Sf0Gyjq6foX4VQmLdOmsS4w5FdWKAw==}
 
   '@tailwindcss/node@4.3.2':
     resolution: {integrity: sha512-yWP/sqEcBLaD8JuA6zNwxoYKr75qxTioYwlRwekj5Jr/I5GXnoJfjetH/psLUIv74cYTH2lBUEzBkinthoYcBg==}
@@ -3202,11 +3203,6 @@ packages:
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
-  lucide-react@1.24.0:
-    resolution: {integrity: sha512-YT6mBD8lGKkg4nM39enlm94/sfJIiW0YKUT60fBy4YK8tai31ylg1VhGNWxkpSKHo9UagfnZqwIff3HTDQwXeA==}
-    peerDependencies:
-      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
-
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
 
@@ -4364,8 +4360,6 @@ snapshots:
 
   '@floating-ui/utils@0.2.11': {}
 
-  '@fortawesome/fontawesome-free@7.3.0': {}
-
   '@hookform/resolvers@5.4.0(react-hook-form@7.81.0(react@19.2.7))':
     dependencies:
       '@standard-schema/utils': 0.3.0
@@ -5120,6 +5114,13 @@ snapshots:
   '@sinclair/typebox@0.27.12': {}
 
   '@standard-schema/utils@0.3.0': {}
+
+  '@tabler/icons-react@3.52.0(react@19.2.7)':
+    dependencies:
+      '@tabler/icons': 3.52.0
+      react: 19.2.7
+
+  '@tabler/icons@3.52.0': {}
 
   '@tailwindcss/node@4.3.2':
     dependencies:
@@ -6754,10 +6755,6 @@ snapshots:
   lru-cache@5.1.1:
     dependencies:
       yallist: 3.1.1
-
-  lucide-react@1.24.0(react@19.2.7):
-    dependencies:
-      react: 19.2.7
 
   magic-string@0.30.21:
     dependencies:

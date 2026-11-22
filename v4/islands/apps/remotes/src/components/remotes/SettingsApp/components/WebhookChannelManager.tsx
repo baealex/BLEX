@@ -15,7 +15,7 @@ import {
     Trash2,
     Zap
 } from '@blex/ui/icons';
-import type { LucideIcon } from '@blex/ui/icons';
+import type { IconComponent } from '@blex/ui/icons';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from '~/utils/toast';
@@ -47,7 +47,7 @@ interface WebhookProviderInfo {
     badge: MessageDescriptor;
     description: MessageDescriptor;
     payload: string | MessageDescriptor;
-    icon: LucideIcon;
+    icon: IconComponent;
     statusClassName: string;
 }
 

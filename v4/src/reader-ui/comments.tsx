@@ -1,3 +1,4 @@
+import { SiteIcon, type SiteIconName } from '../appearance/icons.js';
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type RefObject } from 'react';
 import type { CommentPayload } from '../reader-actions/index.js';
 import {
@@ -44,16 +45,11 @@ const actionButton = 'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 
 const quietAction = 'text-content-secondary hover:bg-surface-subtle hover:text-content';
 
 const icons = {
-  heart: 'M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z',
-  reply: 'M20 18v-2a4 4 0 0 0-4-4H4M9 17l-5-5 5-5',
-  lock: 'M5 11h14a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2ZM7 11V7a5 5 0 0 1 10 0v4',
-  more: 'M12 5h.01M12 12h.01M12 19h.01',
-  comment: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z',
-} as const;
+  heart: 'heart', reply: 'arrow-back-up', lock: 'lock', more: 'dots-vertical', comment: 'message-dots',
+} as const satisfies Record<string, SiteIconName>;
 
 function Icon({ name, className }: { name: keyof typeof icons; className: string }) {
-  return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={name === 'more' ? 3 : 2}
-    strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={icons[name]} /></svg>;
+  return <SiteIcon name={icons[name]} className={className} />;
 }
 
 function readCsrfToken(fallback: string): string {

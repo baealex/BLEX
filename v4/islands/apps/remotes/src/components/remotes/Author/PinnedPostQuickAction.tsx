@@ -11,6 +11,11 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { Modal } from '~/components/shared';
 import { getPinnedPosts } from '~/lib/api/settings';
 import { refreshPartialElement } from '~/utils/partialRefresh';
+import {
+    InlineIcon,
+    Pin,
+    Loader2
+} from '@blex/ui/icons';
 
 const loadPinnedPostsPanel = () =>
     import('~/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel')
@@ -95,7 +100,7 @@ const PinnedPostQuickAction = ({ partialUrl }: PinnedPostQuickActionProps) => {
                 onFocus={preloadPinnedPostsPanel}
                 onPointerEnter={preloadPinnedPostsPanel}
                 className="inline-flex w-fit items-center justify-center rounded-lg bg-surface-subtle px-4 py-2 text-sm font-semibold text-content-secondary transition-colors hover:bg-surface-subtle/80 hover:text-content">
-                <i className="fas fa-thumbtack mr-2 text-xs" />
+                <InlineIcon icon={Pin} className="mr-2 text-xs" />
                 <Trans id="author.pinned_posts.action">Manage pinned posts</Trans>
             </button>
 
@@ -111,7 +116,7 @@ const PinnedPostQuickAction = ({ partialUrl }: PinnedPostQuickActionProps) => {
                     <Suspense
                         fallback={
                             <div className="flex h-full min-h-48 items-center justify-center text-content-secondary">
-                                <i className="fas fa-spinner fa-spin mr-2" />
+                                <InlineIcon icon={Loader2} className="animate-spin mr-2" />
                                 <Trans id="author.pinned_posts.loading">Loading pinned posts...</Trans>
                             </div>
                         }>

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { Check, EllipsisVertical } from 'lucide-react';
+import { Check, EllipsisVertical } from './icons';
 
 interface DropdownItem {
     label: string;
@@ -57,9 +57,7 @@ const Dropdown = ({
 
     const renderItemContent = (item: DropdownItem) => (
         <>
-            {typeof item.icon === 'string' ? (
-                <i aria-hidden="true" className={`${item.icon} w-4 text-center`} />
-            ) : item.icon ? (
+            {item.icon ? (
                 <span
                     aria-hidden="true"
                     className="inline-flex w-4 shrink-0 items-center justify-center [&>svg]:h-4 [&>svg]:w-4">

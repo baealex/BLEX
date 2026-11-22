@@ -46,7 +46,6 @@ interface PostCardProps {
     isSeriesSaving?: boolean;
     dateDisplay?: string;
     dateIcon?: ReactNode;
-    dateIconClass?: string;
     statusLabel?: string;
     showUpdatedBadge?: boolean;
     isScheduled?: boolean;
@@ -66,7 +65,6 @@ const PostCard = ({
     isSeriesSaving = false,
     dateDisplay,
     dateIcon,
-    dateIconClass,
     statusLabel,
     showUpdatedBadge = true,
     isScheduled = false
@@ -180,11 +178,7 @@ const PostCard = ({
                         </h3>
                         <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-content-secondary">
                             <span className="inline-flex items-center gap-1.5">
-                                {dateIcon ?? (
-                                    dateIconClass
-                                        ? <i aria-hidden className={`${dateIconClass} text-content-hint`} />
-                                        : <Calendar aria-hidden className="h-3.5 w-3.5 text-content-hint" />
-                                )}
+                                {dateIcon ?? <Calendar aria-hidden className="h-3.5 w-3.5 text-content-hint" />}
                                 {dateDisplay || formatDateOnly(
                                     post.createdDate,
                                     normalizeLocale(i18n.locale),

@@ -2,6 +2,16 @@ import React, { useState, useEffect, useId, useRef } from 'react';
 import type { Editor } from '@tiptap/react';
 import * as Popover from '@radix-ui/react-popover';
 import { useEditorI18n } from '../../i18n';
+import {
+    InlineIcon,
+    Settings2,
+    AlignLeft,
+    AlignCenter,
+    AlignRight,
+    BorderAll,
+    Copy,
+    type IconComponent
+} from '@blex/ui/icons';
 
 interface MediaFloatingMenuProps {
     editor: Editor | null;
@@ -139,7 +149,7 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
         onClick,
         title
     }: {
-        icon: string;
+        icon: IconComponent;
         active?: boolean;
         onClick: (e: React.MouseEvent) => void;
         title: string;
@@ -156,7 +166,7 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
             `}
             title={title}
             aria-label={title}>
-            <i aria-hidden className={`${icon} text-sm`} />
+            <InlineIcon icon={icon} className="text-sm" />
         </button>
     );
 
@@ -181,7 +191,7 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                                 className="w-7 h-7 rounded-full floating-glass-surface flex items-center justify-center text-content-secondary hover:text-content transition-all"
                                 title={t('media.settings')}
                                 aria-label={t('media.settings')}>
-                                <i className="fas fa-cog text-xs" />
+                                <InlineIcon icon={Settings2} className="text-xs" />
                             </button>
                         </Popover.Content>
                     </Popover.Portal>
@@ -210,9 +220,9 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                             {/* 정렬 (image, video) */}
                             {(selectedNode.type === 'image' || selectedNode.type === 'video') && (
                                 <div className="flex gap-0.5 bg-surface-subtle rounded-lg p-0.5">
-                                    <IconButton icon="fas fa-align-left" active={selectedNode.attrs.align === 'left'} onClick={(e) => handleAlignChange(e, 'left')} title={t('media.align.left')} />
-                                    <IconButton icon="fas fa-align-center" active={selectedNode.attrs.align === 'center'} onClick={(e) => handleAlignChange(e, 'center')} title={t('media.align.center')} />
-                                    <IconButton icon="fas fa-align-right" active={selectedNode.attrs.align === 'right'} onClick={(e) => handleAlignChange(e, 'right')} title={t('media.align.right')} />
+                                    <IconButton icon={AlignLeft} active={selectedNode.attrs.align === 'left'} onClick={(e) => handleAlignChange(e, 'left')} title={t('media.align.left')} />
+                                    <IconButton icon={AlignCenter} active={selectedNode.attrs.align === 'center'} onClick={(e) => handleAlignChange(e, 'center')} title={t('media.align.center')} />
+                                    <IconButton icon={AlignRight} active={selectedNode.attrs.align === 'right'} onClick={(e) => handleAlignChange(e, 'right')} title={t('media.align.right')} />
                                 </div>
                             )}
 
@@ -292,8 +302,8 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
 
                                 <div className={dividerClassName} />
                                 <div className="flex gap-0.5 bg-surface-subtle rounded-lg p-0.5">
-                                    <IconButton icon="fas fa-border-all" active={!!selectedNode.attrs.border} onClick={(e) => handleToggle(e, 'border')} title={t('media.border')} />
-                                    <IconButton icon="fas fa-clone" active={!!selectedNode.attrs.shadow} onClick={(e) => handleToggle(e, 'shadow')} title={t('media.shadow')} />
+                                    <IconButton icon={BorderAll} active={!!selectedNode.attrs.border} onClick={(e) => handleToggle(e, 'border')} title={t('media.border')} />
+                                    <IconButton icon={Copy} active={!!selectedNode.attrs.shadow} onClick={(e) => handleToggle(e, 'shadow')} title={t('media.shadow')} />
                                 </div>
 
                                 <div className={dividerClassName} />

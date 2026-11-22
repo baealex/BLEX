@@ -1,5 +1,5 @@
 import type { ReactNode, ButtonHTMLAttributes } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from './icons';
 import { cx } from '../lib/classnames';
 import { INTERACTION_DURATION } from '../lib/designTokens';
 

@@ -1,5 +1,5 @@
 import * as RadixCheckbox from '@radix-ui/react-checkbox';
-import { Check } from 'lucide-react';
+import { Check } from './icons';
 import { cx } from '../lib/classnames';
 
 interface CheckboxProps {

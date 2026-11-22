@@ -1,5 +1,4 @@
 import './tailwind.css';
-import '@fortawesome/fontawesome-free/css/all.min.css';
 import './site.scss';
 
 const root = document.documentElement;

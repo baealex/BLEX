@@ -3,6 +3,15 @@ import type { Editor } from '@tiptap/react';
 import { Popover } from '@blex/ui/popover';
 import ToolbarButton from '../ui/ToolbarButton';
 import { useEditorI18n } from '../../i18n';
+import {
+    InlineIcon,
+    Bold,
+    Italic,
+    Underline,
+    Strikethrough,
+    Highlighter,
+    Link
+} from '@blex/ui/icons';
 
 interface FloatingMenuBarProps {
     editor: Editor | null;
@@ -91,31 +100,31 @@ const FloatingMenuBar = ({ editor }: FloatingMenuBarProps) => {
                             onClick={() => editor.chain().focus().toggleBold().run()}
                             isActive={editor.isActive('bold')}
                             title={t('toolbar.bold')}>
-                            <i className="fa fa-bold text-sm" />
+                            <InlineIcon icon={Bold} className="text-sm" />
                         </ToolbarButton>
                         <ToolbarButton
                             onClick={() => editor.chain().focus().toggleItalic().run()}
                             isActive={editor.isActive('italic')}
                             title={t('toolbar.italic')}>
-                            <i className="fa fa-italic text-sm" />
+                            <InlineIcon icon={Italic} className="text-sm" />
                         </ToolbarButton>
                         <ToolbarButton
                             onClick={() => editor.chain().focus().toggleUnderline().run()}
                             isActive={editor.isActive('underline')}
                             title={t('toolbar.underline')}>
-                            <i className="fa fa-underline text-sm" />
+                            <InlineIcon icon={Underline} className="text-sm" />
                         </ToolbarButton>
                         <ToolbarButton
                             onClick={() => editor.chain().focus().toggleStrike().run()}
                             isActive={editor.isActive('strike')}
                             title={t('toolbar.strike')}>
-                            <i className="fa fa-strikethrough text-sm" />
+                            <InlineIcon icon={Strikethrough} className="text-sm" />
                         </ToolbarButton>
                         <ToolbarButton
                             onClick={() => editor.chain().focus().toggleHighlight().run()}
                             isActive={editor.isActive('highlight')}
                             title={t('toolbar.highlight')}>
-                            <i className="fa fa-marker text-sm" />
+                            <InlineIcon icon={Highlighter} className="text-sm" />
                         </ToolbarButton>
 
                         <div className="w-px bg-gray-300 mx-1" />
@@ -129,7 +138,7 @@ const FloatingMenuBar = ({ editor }: FloatingMenuBarProps) => {
                             }}
                             isActive={editor.isActive('link')}
                             title={t('toolbar.link')}>
-                            <i className="fa fa-link text-sm" />
+                            <InlineIcon icon={Link} className="text-sm" />
                         </ToolbarButton>
                     </div>
                 </Popover.Content>

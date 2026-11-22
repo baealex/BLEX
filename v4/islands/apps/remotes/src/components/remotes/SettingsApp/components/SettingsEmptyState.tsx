@@ -1,10 +1,7 @@
 import type { ReactNode } from 'react';
 
-type SettingsEmptyStateIconProps =
-    | { icon: ReactNode; iconClassName?: string }
-    | { icon?: never; iconClassName: string };
-
-type SettingsEmptyStateProps = SettingsEmptyStateIconProps & {
+type SettingsEmptyStateProps = {
+    icon: ReactNode;
     title: string;
     description?: string;
     action?: ReactNode;
@@ -13,7 +10,6 @@ type SettingsEmptyStateProps = SettingsEmptyStateIconProps & {
 
 const SettingsEmptyState = ({
     icon,
-    iconClassName,
     title,
     description,
     action,
@@ -28,7 +24,7 @@ const SettingsEmptyState = ({
             <div
                 aria-hidden="true"
                 className="mb-2.5 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-surface-subtle text-content-hint [&>svg]:h-4 [&>svg]:w-4">
-                {icon ?? <i className={`${iconClassName} text-lg`} />}
+                {icon}
             </div>
             <h3 className={`text-base font-semibold text-content ${action && !description ? 'mb-5' : description ? 'mb-1' : ''}`}>
                 {title}

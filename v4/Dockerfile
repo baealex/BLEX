@@ -30,7 +30,8 @@ USER node
 CMD ["node", "node_modules/prisma/build/index.js", "migrate", "deploy"]
 
 FROM build AS runtime-dependencies
-RUN npm prune --omit=dev --ignore-scripts --no-audit --no-fund
+RUN npm prune --omit=dev --ignore-scripts --no-audit --no-fund \
+    && rm -rf node_modules/@tabler/icons node_modules/@tabler/icons-react/dist/cjs
 
 FROM node-base AS runtime
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=8040 \
