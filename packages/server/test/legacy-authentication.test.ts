@@ -376,6 +376,12 @@ test('account deletion checks recent proof, preserves other members, and protect
   insertRow(fixture, 'board_comment', { id: 2, post_id: 2, author_id: 1 });
   insertRow(fixture, 'board_comment_likes', { comment_id: 1, user_id: 2 });
   insertRow(fixture, 'board_edithistory', { id: 1, post_id: 1, actor_id: 2, change_type: 'edit' });
+  insertRow(fixture, 'FormTemplate', { id: 1, userId: 2, title: 'Deleted form' });
+  insertRow(fixture, 'SiteNotice', { id: 1, userId: 2, scope: 'user', title: 'Deleted notice' });
+  insertRow(fixture, 'SiteNotice', { id: 2, scope: 'global', title: 'Kept notice' });
+  insertRow(fixture, 'SiteBanner', { id: 1, userId: 2, scope: 'user', type: 'horizontal', position: 'top' });
+  insertRow(fixture, 'SiteBanner', { id: 2, userId: 1, scope: 'global', type: 'sidebar', position: 'left' });
+  insertRow(fixture, 'StaticPage', { id: 1, authorId: 2, slug: 'kept-page', title: 'Kept page' });
   fixture.close();
   const siteUrl = new URL('https://blex.example');
   const app = await buildApp(path, siteUrl, { secretKey: 'deletion-test-secret', cipherKey });
@@ -402,6 +408,10 @@ test('account deletion checks recent proof, preserves other members, and protect
     assert.equal(check.prepare('SELECT COUNT(*) AS rows FROM board_comment').get()?.rows, 1);
     assert.equal(check.prepare('SELECT COUNT(*) AS rows FROM board_comment_likes').get()?.rows, 0);
     assert.equal(check.prepare('SELECT actor_id FROM board_edithistory WHERE id = 1').get()?.actor_id, null);
+    assert.equal(check.prepare('SELECT COUNT(*) AS rows FROM FormTemplate').get()?.rows, 0);
+    assert.deepEqual(check.prepare('SELECT id FROM SiteNotice').all().map((row) => row.id), [2]);
+    assert.deepEqual(check.prepare('SELECT id FROM SiteBanner').all().map((row) => row.id), [2]);
+    assert.equal(check.prepare('SELECT authorId FROM StaticPage WHERE id = 1').get()?.authorId, null);
     assert.deepEqual(check.prepare('PRAGMA foreign_key_check').all(), []);
     check.close();
   } finally {

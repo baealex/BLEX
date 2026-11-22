@@ -8,22 +8,17 @@ import cookie from '@fastify/cookie';
 import { PrismaClient } from '@prisma/client';
 import { after, test } from 'node:test';
 import { registerAuthorForms } from '../src/features/posts/author-forms.js';
+import { createMigratedTables } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-author-forms-'));
 const databasePath = join(directory, 'synthetic-author-forms.sqlite3');
 const database = new DatabaseSync(databasePath);
+createMigratedTables(database, 'FormTemplate');
 database.exec(`
-  CREATE TABLE board_form (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL,
-    content TEXT NOT NULL,
-    is_public BOOLEAN NOT NULL,
-    user_id INTEGER NOT NULL,
-    created_date DATETIME NOT NULL,
-    updated_date DATETIME NOT NULL
-  );
-  INSERT INTO board_form (id, title, content, is_public, user_id, created_date, updated_date)
-  VALUES (1, '첫 서식', '첫 번째 문단', 0, 1, '2024-02-01 00:30:00', '2024-02-01 00:30:00');
+  CREATE TABLE auth_user (id INTEGER PRIMARY KEY);
+  INSERT INTO auth_user VALUES (1), (2);
+  INSERT INTO FormTemplate (id, title, content, isPublic, userId, createdAt, updatedAt)
+  VALUES (1, '첫 서식', '첫 번째 문단', 0, 1, ${Date.UTC(2024, 1, 1, 0, 30)}, ${Date.UTC(2024, 1, 1, 0, 30)});
 `);
 database.close();
 
@@ -74,7 +69,7 @@ test('preserves legacy form API envelopes and owner checks', async () => {
   const list = await app.inject({ url: '/v1/forms', headers: writerHeaders });
   assert.equal(list.json().status, 'DONE');
   assert.equal(list.json().body.forms[0].title, '첫 서식');
-  assert.equal(typeof list.json().body.forms[0].createdDate, 'string');
+  assert.equal(list.json().body.forms[0].createdDate, '2024-02-01T09:30:00+09:00');
 
   const created = await app.inject({
     method: 'POST', url: '/v1/forms', headers: apiHeaders,

@@ -8,7 +8,7 @@ const discardedTables = new Set(['django_migrations', 'django_session']);
 
 const quote = (name: string) => `"${name.replaceAll('"', '""')}"`;
 
-type ColumnMapping = string | { to: string; convert(value: SQLInputValue): SQLInputValue };
+type ColumnMapping = string | { to: string; convert(value: SQLInputValue, source: string, id: SQLInputValue): SQLInputValue };
 
 /** 3.x stored naive UTC text, sometimes with an offset. Prisma stores SQLite dates as epoch milliseconds. */
 export function legacyDate(value: SQLInputValue): SQLInputValue {
@@ -22,6 +22,30 @@ export function legacyDate(value: SQLInputValue): SQLInputValue {
 
 const date = (to: string): ColumnMapping => ({ to, convert: legacyDate });
 
+function rejectedValue(source: string, id: SQLInputValue, value: SQLInputValue, accepted: string) {
+  return new Error(`${source} in row ${String(id)} is "${String(value)}", but BLEX 4 only accepts ${accepted}. Correct that row in the 3.14 database and start again.`);
+}
+
+/** Prisma fails every later read of a value outside its enum, so a hand-edited row stops the import here. */
+const choice = (to: string, allowed: readonly string[]): ColumnMapping => ({
+  to,
+  convert(value, source, id) {
+    if (typeof value === 'string' && allowed.includes(value)) return value;
+    throw rejectedValue(source, id, value, allowed.join(', '));
+  },
+});
+
+/** Prisma also fails every later read of an Int column holding a wider number. */
+const int32 = (to: string): ColumnMapping => ({
+  to,
+  convert(value, source, id) {
+    if (typeof value === 'bigint' && value >= -2147483648n && value <= 2147483647n) return value;
+    throw rejectedValue(source, id, value, 'a 32-bit integer');
+  },
+});
+
+const contentScope = choice('scope', ['user', 'global']);
+
 const tableMappings: Record<string, { to: string; columns: Record<string, ColumnMapping> }> = {
   board_worklog: { to: 'WorkLog', columns: { id: 'id', owner_id: 'ownerId', title: 'title', created_at: date('createdAt') } },
   board_worklogentry: {
@@ -30,6 +54,32 @@ const tableMappings: Record<string, { to: string; columns: Record<string, Column
   },
   board_worklogshare: { to: 'WorkLogShare', columns: { id: 'id', log_id: 'logId', token: 'token', headline: 'headline', created_at: date('createdAt') } },
   board_worklogshare_entries: { to: '_WorkLogEntryToWorkLogShare', columns: { worklogentry_id: 'A', worklogshare_id: 'B' } },
+  board_form: {
+    to: 'FormTemplate',
+    columns: { id: 'id', user_id: 'userId', title: 'title', content: 'content', is_public: 'isPublic', created_date: date('createdAt'), updated_date: date('updatedAt') },
+  },
+  board_staticpage: {
+    to: 'StaticPage',
+    columns: {
+      id: 'id', author_id: 'authorId', slug: 'slug', title: 'title', content: 'content', meta_description: 'description',
+      is_published: 'isPublished', show_in_footer: 'showInFooter', order: int32('order'), created_date: date('createdAt'), updated_date: date('updatedAt'),
+    },
+  },
+  board_sitenotice: {
+    to: 'SiteNotice',
+    columns: {
+      id: 'id', user_id: 'userId', scope: contentScope, title: 'title', url: 'url', is_active: 'isActive',
+      order: int32('order'), created_date: date('createdAt'), updated_date: date('updatedAt'),
+    },
+  },
+  board_sitebanner: {
+    to: 'SiteBanner',
+    columns: {
+      id: 'id', user_id: 'userId', scope: contentScope, banner_type: choice('type', ['horizontal', 'sidebar']),
+      position: choice('position', ['top', 'bottom', 'left', 'right']), title: 'title', content_html: 'contentHtml', is_active: 'isActive',
+      order: int32('order'), created_date: date('createdAt'), updated_date: date('updatedAt'),
+    },
+  },
 };
 
 function tableNames(db: DatabaseSync) {
@@ -62,7 +112,7 @@ function copyTable(source: DatabaseSync, target: DatabaseSync, table: string) {
   for (const row of read.iterate() as Iterable<Record<string, SQLInputValue>>) {
     write.run(...columns.map((column, index) => {
       const output = outputs[index];
-      return typeof output === 'string' ? row[column] : output.convert(row[column]);
+      return typeof output === 'string' ? row[column] : output.convert(row[column], `${table}.${column}`, row.id ?? null);
     }));
     copied += 1;
   }

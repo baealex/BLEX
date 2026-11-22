@@ -5,11 +5,13 @@ import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
 import { buildApp } from '../src/app.js';
+import { createMigratedTables } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-test-'));
 const databasePath = join(directory, 'Django posts.sqlite3');
 const legacySlug = 'a'.repeat(69);
 const database = new DatabaseSync(databasePath);
+createMigratedTables(database, 'StaticPage', 'SiteBanner');
 database.exec(`
   CREATE TABLE auth_user (id INTEGER PRIMARY KEY, username TEXT, password TEXT);
   CREATE TABLE board_profile (user_id INTEGER PRIMARY KEY, avatar TEXT);
@@ -27,10 +29,7 @@ database.exec(`
   CREATE TABLE board_series (id INTEGER PRIMARY KEY, name TEXT, url TEXT, hide BOOLEAN, owner_id INTEGER);
   CREATE TABLE board_post_tags (post_id INTEGER, tag_id INTEGER);
   CREATE TABLE board_tag (id INTEGER PRIMARY KEY, value TEXT);
-  CREATE TABLE board_staticpage (id INTEGER PRIMARY KEY, title TEXT, slug TEXT, is_published BOOLEAN, show_in_footer BOOLEAN, "order" INTEGER);
-  CREATE TABLE board_sitebanner (id INTEGER PRIMARY KEY, user_id INTEGER, is_active BOOLEAN, position TEXT,
-    content_html TEXT, scope TEXT, "order" INTEGER, created_date DATETIME);
-  INSERT INTO auth_user VALUES (7, 'writer', 'test-only-password');
+  INSERT INTO auth_user VALUES (7, 'writer', 'test-only-password'), (8, 'other-writer', 'test-only-password');
   INSERT INTO board_usernamechangelog VALUES (1, 7, 'old-writer');
   INSERT INTO board_post (id, author_id, url, title, meta_description, published_date, deleted_date) VALUES
     (1, 7, 'public', 'Public article', 'Public description', '2000-01-01 10:04:02.123456', NULL),
@@ -42,13 +41,14 @@ database.exec(`
     (7, 7, '${legacySlug}', 'Long legacy URL', '', '2000-01-01 10:04:02', NULL);
   INSERT INTO board_postconfig (id, post_id, hide) VALUES (1, 1, 0), (2, 2, 1), (3, 3, 0), (4, 4, 0), (5, 5, 0), (7, 7, 0);
   INSERT INTO board_sitesetting VALUES (1, 'Synthetic Site', 1, 0, 'brand/logo/default/hash/logo.svg', '', '{"ico":"brand/icon/default/hash/favicon.ico"}');
-  INSERT INTO board_sitebanner VALUES
-    (1, NULL, 1, 'top', '<p>Global banner</p>', 'global', 0, '2000-01-01'),
-    (2, 7, 1, 'right', '<p>Author banner</p>', 'user', 0, '2000-01-01'),
-    (3, 8, 1, 'right', '<p>Other banner</p>', 'user', 1, '2000-01-01'),
-    (4, NULL, 0, 'left', '<p>Inactive banner</p>', 'global', 1, '2000-01-01');
+  INSERT INTO SiteBanner (id, userId, isActive, type, position, contentHtml, scope, "order", createdAt, updatedAt) VALUES
+    (1, NULL, 1, 'horizontal', 'top', '<p>Global banner</p>', 'global', 0, 946684800000, 946684800000),
+    (2, 7, 1, 'sidebar', 'right', '<p>Author banner</p>', 'user', 0, 946684800000, 946684800000),
+    (3, 8, 1, 'sidebar', 'right', '<p>Other banner</p>', 'user', 1, 946684800000, 946684800000),
+    (4, NULL, 0, 'sidebar', 'left', '<p>Inactive banner</p>', 'global', 1, 946684800000, 946684800000);
   INSERT INTO board_tag VALUES (1, 'example-tag');
-  INSERT INTO board_staticpage VALUES (1, 'Footer link', 'in-footer', 1, 1, 0), (2, 'Private footer link', 'not-in-footer', 0, 1, 1);
+  INSERT INTO StaticPage (id, title, slug, isPublished, showInFooter, "order", updatedAt) VALUES
+    (1, 'Footer link', 'in-footer', 1, 1, 0, 946684800000), (2, 'Private footer link', 'not-in-footer', 0, 1, 1, 946684800000);
   INSERT INTO board_post_tags VALUES (1, 1);
   UPDATE board_post SET subtitle = 'About the article', image = 'images/cover.png' WHERE id = 1;
   UPDATE board_postconfig SET cover_layout = 'split', cover_image_ratio = '4:3', cover_image_position = 'left' WHERE post_id = 1;

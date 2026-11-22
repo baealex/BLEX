@@ -10,6 +10,7 @@ import { PrismaClient } from '@prisma/client';
 import { after, beforeEach, test } from 'node:test';
 import { decryptDjangoSecret, encryptDjangoSecret } from '../src/features/auth/django-secret.js';
 import { registerAdminSettings } from '../src/features/site-admin/index.js';
+import { createMigratedTables } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-admin-settings-'));
 const databasePath = join(directory, 'admin-settings.sqlite3');
@@ -37,6 +38,7 @@ function configureTelegram(responses: Record<string, unknown> = {}) {
 
 function createSchema() {
   const database = new DatabaseSync(databasePath);
+  createMigratedTables(database, 'FormTemplate', 'StaticPage', 'SiteNotice', 'SiteBanner');
   database.exec(`
     CREATE TABLE auth_user (
       id INTEGER PRIMARY KEY, username TEXT NOT NULL, first_name TEXT NOT NULL DEFAULT '', email TEXT NOT NULL DEFAULT '',
@@ -75,23 +77,6 @@ function createSchema() {
       id INTEGER PRIMARY KEY, code TEXT NOT NULL UNIQUE, note TEXT NOT NULL, is_active BOOLEAN NOT NULL,
       created_date DATETIME NOT NULL, claimed_date DATETIME, claimed_by_id INTEGER, created_by_id INTEGER
     );
-    CREATE TABLE board_staticpage (
-      id INTEGER PRIMARY KEY, title TEXT NOT NULL, slug TEXT NOT NULL UNIQUE, content TEXT NOT NULL DEFAULT '',
-      meta_description TEXT NOT NULL DEFAULT '', is_published BOOLEAN NOT NULL DEFAULT 1,
-      show_in_footer BOOLEAN NOT NULL DEFAULT 0, "order" INTEGER NOT NULL DEFAULT 0,
-      created_date DATETIME NOT NULL, updated_date DATETIME NOT NULL, author_id INTEGER
-    );
-    CREATE TABLE board_sitenotice (
-      id INTEGER PRIMARY KEY, scope TEXT NOT NULL, user_id INTEGER, title TEXT NOT NULL,
-      is_active BOOLEAN NOT NULL DEFAULT 1, "order" INTEGER NOT NULL DEFAULT 0,
-      created_date DATETIME NOT NULL, updated_date DATETIME NOT NULL, url TEXT NOT NULL DEFAULT ''
-    );
-    CREATE TABLE board_sitebanner (
-      id INTEGER PRIMARY KEY, scope TEXT NOT NULL, user_id INTEGER, title TEXT NOT NULL,
-      is_active BOOLEAN NOT NULL DEFAULT 1, "order" INTEGER NOT NULL DEFAULT 0,
-      created_date DATETIME NOT NULL, updated_date DATETIME NOT NULL, content_html TEXT NOT NULL DEFAULT '',
-      banner_type TEXT NOT NULL DEFAULT 'horizontal', position TEXT NOT NULL DEFAULT 'top'
-    );
     CREATE TABLE WorkLogEntry (id INTEGER PRIMARY KEY, text TEXT NOT NULL DEFAULT '');
     CREATE TABLE board_profile (
       id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL UNIQUE, role TEXT NOT NULL DEFAULT 'READER',
@@ -110,7 +95,6 @@ function createSchema() {
     CREATE TABLE board_postconfig (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL UNIQUE, hide BOOLEAN NOT NULL DEFAULT 0);
     CREATE TABLE board_comment (id INTEGER PRIMARY KEY, text_md TEXT NOT NULL DEFAULT '', text_html TEXT NOT NULL DEFAULT '');
     CREATE TABLE board_series (id INTEGER PRIMARY KEY, text_md TEXT NOT NULL DEFAULT '', text_html TEXT NOT NULL DEFAULT '');
-    CREATE TABLE board_form (id INTEGER PRIMARY KEY, content TEXT NOT NULL DEFAULT '');
     CREATE TABLE board_imagecache (id INTEGER PRIMARY KEY, key TEXT NOT NULL, path TEXT NOT NULL);
     CREATE TABLE board_tag (id INTEGER PRIMARY KEY, value TEXT NOT NULL UNIQUE);
     CREATE TABLE board_post_tags (post_id INTEGER NOT NULL, tag_id INTEGER NOT NULL, UNIQUE(post_id, tag_id));
@@ -135,9 +119,9 @@ function seedDatabase() {
   database.exec(`
     DELETE FROM django_admin_log;
     DELETE FROM board_authorinvite;
-    DELETE FROM board_staticpage;
-    DELETE FROM board_sitenotice;
-    DELETE FROM board_sitebanner;
+    DELETE FROM StaticPage;
+    DELETE FROM SiteNotice;
+    DELETE FROM SiteBanner;
     DELETE FROM WorkLogEntry;
     DELETE FROM board_profile;
     DELETE FROM board_config;
@@ -148,7 +132,7 @@ function seedDatabase() {
     DELETE FROM board_postconfig;
     DELETE FROM board_comment;
     DELETE FROM board_series;
-    DELETE FROM board_form;
+    DELETE FROM FormTemplate;
     DELETE FROM board_imagecache;
     DELETE FROM board_tag;
     DELETE FROM board_post_tags;
@@ -576,14 +560,14 @@ test('provides staff-only static page CRUD and sanitizes persisted page HTML', a
     method: 'POST', url: '/v1/static-pages', headers: jsonHeaders(1),
     payload: JSON.stringify({
       title: 'Privacy', slug: 'privacy', content: '<p onclick="evil()">Safe</p><script>alert(1)</script><a href="javascript:evil()">bad link</a>',
-      meta_description: 'Privacy details', is_published: true, show_in_footer: true, order: 3,
+      metaDescription: 'Privacy details', isPublished: true, showInFooter: true, order: 3,
     }),
   });
   assert.equal(body(created).status, 'DONE', created.body);
   const page = body(created).body as Record<string, unknown>;
   assert.equal(page.slug, 'privacy');
-  assert.equal(page.is_published, true);
-  assert.equal(page.show_in_footer, true);
+  assert.equal(page.isPublished, true);
+  assert.equal(page.showInFooter, true);
   assert.match(String(page.content), /onclick/, 'staff edit the stored page source as in 3.x');
   const pageId = Number(page.id);
 
@@ -593,13 +577,13 @@ test('provides staff-only static page CRUD and sanitizes persisted page HTML', a
   });
   assert.equal(body(duplicate).errorCode, 'error:AE');
   const detail = await app.inject({ url: `/v1/static-pages/${pageId}`, headers: headers(1) });
-  assert.equal((body(detail).body as Record<string, unknown>).meta_description, 'Privacy details');
+  assert.equal((body(detail).body as Record<string, unknown>).metaDescription, 'Privacy details');
   const update = await app.inject({
     method: 'PUT', url: `/v1/static-pages/${pageId}`, headers: jsonHeaders(1),
-    payload: JSON.stringify({ is_published: false, content: '<h2>Updated</h2>' }),
+    payload: JSON.stringify({ isPublished: false, content: '<h2>Updated</h2>' }),
   });
   assert.equal(body(update).status, 'DONE');
-  assert.equal((body(update).body as Record<string, unknown>).is_published, false);
+  assert.equal((body(update).body as Record<string, unknown>).isPublished, false);
   const list = await app.inject({ url: '/v1/static-pages', headers: headers(1) });
   assert.equal(((body(list).body as { pages: Array<Record<string, unknown>> }).pages[0]?.slug), 'privacy');
   const deleted = await app.inject({ method: 'DELETE', url: `/v1/static-pages/${pageId}`, headers: headers(1) });
@@ -611,39 +595,39 @@ test('provides staff-only static page CRUD and sanitizes persisted page HTML', a
 test('manages global notices and sanitized banners through APIs and staff forms', async () => {
   const noticeCreate = await app.inject({
     method: 'POST', url: '/v1/global-notices', headers: jsonHeaders(1),
-    payload: JSON.stringify({ title: 'Maintenance', url: 'javascript:alert(1)', is_active: true }),
+    payload: JSON.stringify({ title: 'Maintenance', url: 'javascript:alert(1)', isActive: true }),
   });
   assert.equal(body(noticeCreate).status, 'DONE', noticeCreate.body);
   const notice = body(noticeCreate).body as Record<string, unknown>;
   const noticeId = Number(notice.id);
   assert.equal(notice.url, '');
-  assert.equal(typeof notice.created_date, 'string');
+  assert.equal(typeof notice.createdDate, 'string');
   const noticeGet = await app.inject({ url: `/v1/global-notices/${noticeId}`, headers: headers(1) });
   assert.equal((body(noticeGet).body as Record<string, unknown>).title, 'Maintenance');
   const noticeUpdate = await app.inject({
     method: 'PUT', url: `/v1/global-notices/${noticeId}`, headers: jsonHeaders(1),
-    payload: JSON.stringify({ url: '/status', is_active: false }),
+    payload: JSON.stringify({ url: '/status', isActive: false }),
   });
   assert.equal((body(noticeUpdate).body as Record<string, unknown>).url, '/status');
-  assert.equal((body(noticeUpdate).body as Record<string, unknown>).is_active, false);
+  assert.equal((body(noticeUpdate).body as Record<string, unknown>).isActive, false);
   assert.equal(((body(await app.inject({ url: '/v1/global-notices', headers: headers(1) })).body as { notices: unknown[] }).notices.length), 1);
   const invalidPosition = await app.inject({
     method: 'POST', url: '/v1/global-banners', headers: jsonHeaders(1),
-    payload: JSON.stringify({ title: 'Invalid', content_html: '<p>Banner</p>', banner_type: 'horizontal', position: 'left' }),
+    payload: JSON.stringify({ title: 'Invalid', contentHtml: '<p>Banner</p>', bannerType: 'horizontal', position: 'left' }),
   });
   assert.equal(body(invalidPosition).errorCode, 'error:VA');
   const bannerCreate = await app.inject({
     method: 'POST', url: '/v1/global-banners', headers: jsonHeaders(1),
     payload: JSON.stringify({
-      title: 'Welcome', content_html: '<p onclick="evil()">Hello</p><script>alert(1)</script>',
-      banner_type: 'horizontal', position: 'top', order: 5,
+      title: 'Welcome', contentHtml: '<p onclick="evil()">Hello</p><script>alert(1)</script>',
+      bannerType: 'horizontal', position: 'top', order: 5,
     }),
   });
   assert.equal(body(bannerCreate).status, 'DONE', bannerCreate.body);
   const banner = body(bannerCreate).body as Record<string, unknown>;
   const bannerId = Number(banner.id);
-  assert.equal(banner.created_by, 'site-editor');
-  assert.match(String(banner.content_html), /onclick/, 'global banners keep their source as in 3.x');
+  assert.equal(banner.createdBy, 'site-editor');
+  assert.match(String(banner.contentHtml), /onclick/, 'global banners keep their source as in 3.x');
   const order = await app.inject({
     method: 'PUT', url: '/v1/global-banners/order', headers: jsonHeaders(1),
     payload: JSON.stringify({ order: [[bannerId, 0], ['999999', 2], ['broken']] }),
@@ -655,7 +639,7 @@ test('manages global notices and sanitized banners through APIs and staff forms'
   assert.equal(banners[0]?.order, 0);
   const updateBanner = await app.inject({
     method: 'PUT', url: `/v1/global-banners/${bannerId}`, headers: jsonHeaders(1),
-    payload: JSON.stringify({ position: 'bottom', content_html: '<p>Safe update</p>' }),
+    payload: JSON.stringify({ position: 'bottom', contentHtml: '<p>Safe update</p>' }),
   });
   assert.equal((body(updateBanner).body as Record<string, unknown>).position, 'bottom');
   const deletedBanner = await app.inject({ method: 'DELETE', url: `/v1/global-banners/${bannerId}`, headers: headers(1) });
@@ -667,7 +651,7 @@ test('manages global notices and sanitized banners through APIs and staff forms'
 test('author notices and banners are editor-only, sanitized, and scoped to their owner', async () => {
   const noticeCreate = await app.inject({
     method: 'POST', url: '/v1/notices', headers: jsonHeaders(1),
-    payload: JSON.stringify({ title: 'Author notice', url: '/author-status', is_active: true }),
+    payload: JSON.stringify({ title: 'Author notice', url: '/author-status', isActive: true }),
   });
   assert.equal(body(noticeCreate).status, 'DONE', noticeCreate.body);
   const notice = body(noticeCreate).body as Record<string, unknown>;
@@ -702,18 +686,18 @@ test('author notices and banners are editor-only, sanitized, and scoped to their
   const bannerCreate = await app.inject({
     method: 'POST', url: '/v1/banners', headers: jsonHeaders(1),
     payload: JSON.stringify({
-      title: 'Author banner', content_html: '<p onclick="bad()">Hello</p><script>bad()</script>',
-      banner_type: 'horizontal', position: 'top', order: 4,
+      title: 'Author banner', contentHtml: '<p onclick="bad()">Hello</p><script>bad()</script>',
+      bannerType: 'horizontal', position: 'top', order: 4,
     }),
   });
   assert.equal(body(bannerCreate).status, 'DONE', bannerCreate.body);
   const banner = body(bannerCreate).body as Record<string, unknown>;
   const bannerId = Number(banner.id);
-  assert.equal('created_by' in banner, false);
-  assert.doesNotMatch(String(banner.content_html), /script|onclick|bad\(\)/i);
+  assert.equal('createdBy' in banner, false);
+  assert.doesNotMatch(String(banner.contentHtml), /script|onclick|bad\(\)/i);
   const editorTwoBanner = await app.inject({
     method: 'POST', url: '/v1/banners', headers: jsonHeaders(2),
-    payload: JSON.stringify({ title: 'Other author banner', content_html: '<p>Other</p>' }),
+    payload: JSON.stringify({ title: 'Other author banner', contentHtml: '<p>Other</p>' }),
   });
   assert.equal(body(editorTwoBanner).status, 'DONE', editorTwoBanner.body);
   const bannerList = await app.inject({ url: '/v1/banners', headers: headers(1) });
@@ -751,14 +735,56 @@ test('author notices and banners are editor-only, sanitized, and scoped to their
 test('keeps author banners from being deleted by another editor', async () => {
   const banner = await app.inject({
     method: 'POST', url: '/v1/banners', headers: jsonHeaders(1),
-    payload: JSON.stringify({ title: 'Owned banner', content_html: '<p>Safe text</p>', banner_type: 'horizontal', position: 'top', order: 7, is_active: true }),
+    payload: JSON.stringify({ title: 'Owned banner', contentHtml: '<p>Safe text</p>', bannerType: 'horizontal', position: 'top', order: 7, isActive: true }),
   });
   assert.equal(body(banner).status, 'DONE', banner.body);
   const bannerId = Number((body(banner).body as Record<string, unknown>).id);
   const crossDelete = await app.inject({ method: 'DELETE', url: `/v1/banners/${bannerId}`, headers: headers(2) });
   assert.notEqual(crossDelete.statusCode === 200 ? body(crossDelete).status : 'REFUSED', 'DONE');
-  const [stored] = await prisma.$queryRaw<Array<{ total: number | bigint }>>`SELECT COUNT(*) AS total FROM board_sitebanner WHERE id = ${bannerId} AND user_id = 1`;
-  assert.equal(Number(stored?.total), 1);
+  assert.equal(await prisma.siteBanner.count({ where: { id: bannerId, userId: 1 } }), 1);
+});
+
+test('keeps site content writes readable by the Prisma schema', async () => {
+  const notice = body(await app.inject({
+    method: 'POST', url: '/v1/global-notices', headers: jsonHeaders(1), payload: JSON.stringify({ title: 'Notice', url: '/status' }),
+  })).body as Record<string, unknown>;
+  const page = body(await app.inject({
+    method: 'POST', url: '/v1/static-pages', headers: jsonHeaders(1), payload: JSON.stringify({ title: 'Page', slug: 'page', order: 3_000_000_000 }),
+  })).body as Record<string, unknown>;
+  assert.equal(page.order, 0, 'an order Prisma could not read back is treated as invalid');
+  await prisma.siteNotice.update({ where: { id: Number(notice.id) }, data: { updatedAt: new Date(1000) } });
+  await prisma.staticPage.update({ where: { id: Number(page.id) }, data: { updatedAt: new Date(1000) } });
+
+  for (const url of [`/v1/global-notices/${notice.id}`, `/v1/static-pages/${page.id}`]) {
+    const emptySave = await app.inject({ method: 'PUT', url, headers: jsonHeaders(1), payload: '{}' });
+    assert.equal(body(emptySave).status, 'DONE', emptySave.body);
+    assert.notEqual((body(emptySave).body as Record<string, unknown>).updatedDate, '1970-01-01T00:00:01+00:00');
+  }
+
+  const other = body(await app.inject({
+    method: 'POST', url: '/v1/static-pages', headers: jsonHeaders(1), payload: JSON.stringify({ title: 'Other', slug: 'other' }),
+  })).body as Record<string, unknown>;
+  const conflict = await app.inject({
+    method: 'PUT', url: `/v1/static-pages/${other.id}`, headers: jsonHeaders(1), payload: JSON.stringify({ slug: 'page' }),
+  });
+  assert.equal(body(conflict).errorCode, 'error:AE');
+
+  const unknownType = await app.inject({
+    method: 'POST', url: '/v1/global-banners', headers: jsonHeaders(1),
+    payload: JSON.stringify({ title: 'Bad', contentHtml: '<p>x</p>', bannerType: 'floating', position: 'top' }),
+  });
+  assert.equal(body(unknownType).errorCode, 'error:VA');
+  const banner = body(await app.inject({
+    method: 'POST', url: '/v1/global-banners', headers: jsonHeaders(1),
+    payload: JSON.stringify({ title: 'Wide', contentHtml: '<p>x</p>', bannerType: 'horizontal', position: 'top', order: 3_000_000_000 }),
+  })).body as Record<string, unknown>;
+  assert.equal(banner.order, 0);
+  await app.inject({
+    method: 'PUT', url: '/v1/global-banners/order', headers: jsonHeaders(1),
+    payload: JSON.stringify({ order: [[banner.id, 3_000_000_000]] }),
+  });
+  const listed = await app.inject({ url: '/v1/global-banners', headers: headers(1) });
+  assert.equal((body(listed).body as { banners: Array<Record<string, unknown>> }).banners[0]?.order, 0);
 });
 
 test('gates Telegram integration settings to active superusers and keeps bot secrets hidden', async () => {
@@ -1068,13 +1094,13 @@ test('image cleanup retains every referenced asset and only clears cache rows fo
       VALUES (1, 1, '<img src="/resources/media/images/content/current-content.png">');
     INSERT INTO board_edithistory (id, post_id, content)
       VALUES (1, 3, '![](/resources/media/images/content/archived-history.png)');
-    INSERT INTO board_sitenotice (id, scope, user_id, title, is_active, "order", created_date, updated_date, url)
-      VALUES (1, 'global', NULL, 'Inactive notice', 0, 0, '2025-01-01', '2025-01-01', '/resources/media/images/content/notice-content.png');
-    INSERT INTO board_sitebanner (id, scope, user_id, title, is_active, "order", created_date, updated_date, content_html)
-      VALUES (1, 'global', NULL, 'Active banner', 1, 0, '2025-01-01', '2025-01-01',
+    INSERT INTO SiteNotice (id, scope, userId, title, isActive, "order", createdAt, updatedAt, url)
+      VALUES (1, 'global', NULL, 'Inactive notice', 0, 0, 1735689600000, 1735689600000, '/resources/media/images/content/notice-content.png');
+    INSERT INTO SiteBanner (id, scope, type, position, userId, title, isActive, "order", createdAt, updatedAt, contentHtml)
+      VALUES (1, 'global', 'horizontal', 'top', NULL, 'Active banner', 1, 0, 1735689600000, 1735689600000,
         '<img src="/resources/media/images/content/banner-content.png"><img src="/resources/media/images/title/banner-title.png"><img src="/resources/media/images/avatar/banner-avatar.png">');
-    INSERT INTO board_sitebanner (id, scope, user_id, title, is_active, "order", created_date, updated_date, content_html)
-      VALUES (2, 'global', NULL, 'Inactive banner', 0, 1, '2025-01-01', '2025-01-01',
+    INSERT INTO SiteBanner (id, scope, type, position, userId, title, isActive, "order", createdAt, updatedAt, contentHtml)
+      VALUES (2, 'global', 'horizontal', 'top', NULL, 'Inactive banner', 0, 1, 1735689600000, 1735689600000,
         '<img src="/resources/media/images/content/inactive-banner-content.png">');
     INSERT INTO WorkLogEntry (id, text) VALUES (1, '![](/resources/media/images/content/worklog-content.png)');
     INSERT INTO board_imagecache (id, key, path) VALUES

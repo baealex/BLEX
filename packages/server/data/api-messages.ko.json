@@ -67,6 +67,7 @@
  "Permission to change site settings is required.": "사이트 설정 변경 권한이 필요합니다.",
  "Post not found.": "포스트를 찾을 수 없습니다.",
  "published_at is required when status is scheduled.": "scheduled 상태에는 published_at이 필요합니다.",
+ "Select a valid banner type.": "올바른 배너 유형을 선택해주세요.",
  "Select a valid cleanup target.": "유효한 정리 대상을 선택해주세요.",
  "Series deleted.": "시리즈가 삭제되었습니다.",
  "Series not found.": "시리즈를 찾을 수 없습니다.",

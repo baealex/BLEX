@@ -12,10 +12,12 @@ import {
   updateAuthorPost,
 } from '../src/features/posts/authoring/index.js';
 import { markdownToHtml } from '../src/features/posts/authoring/markdown.js';
+import { createMigratedTables } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-authoring-'));
 const databasePath = join(directory, 'Django authoring.sqlite3');
 const database = new DatabaseSync(databasePath);
+createMigratedTables(database, 'FormTemplate', 'StaticPage', 'SiteBanner');
 const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
 const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString().replace('T', ' ').replace('Z', '');
 const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString().replace('T', ' ').replace('Z', '');
@@ -47,15 +49,6 @@ database.exec(`
     updated_date DATETIME NOT NULL,
     owner_id INTEGER NOT NULL,
     name TEXT NOT NULL
-  );
-  CREATE TABLE board_form (
-    id INTEGER PRIMARY KEY,
-    title TEXT NOT NULL DEFAULT '',
-    content TEXT NOT NULL DEFAULT '',
-    is_public BOOLEAN NOT NULL DEFAULT 0,
-    created_date DATETIME NOT NULL,
-    updated_date DATETIME NOT NULL,
-    user_id INTEGER NOT NULL
   );
   CREATE TABLE board_imagecache (
     id INTEGER PRIMARY KEY,
@@ -184,10 +177,6 @@ database.exec(`
   );
   CREATE TABLE board_sitesetting (id INTEGER PRIMARY KEY, site_name TEXT NOT NULL DEFAULT 'BLEX', logo_svg TEXT NOT NULL DEFAULT '',
     logo_svg_dark TEXT NOT NULL DEFAULT '', icon_manifest TEXT NOT NULL DEFAULT '{}', seo_enabled BOOLEAN NOT NULL DEFAULT 1, aeo_enabled BOOLEAN NOT NULL DEFAULT 0);
-  CREATE TABLE board_staticpage (id INTEGER PRIMARY KEY, title TEXT NOT NULL, slug TEXT NOT NULL, is_published BOOLEAN NOT NULL DEFAULT 0,
-    show_in_footer BOOLEAN NOT NULL DEFAULT 0, "order" INTEGER NOT NULL DEFAULT 0);
-  CREATE TABLE board_sitebanner (id INTEGER PRIMARY KEY, position TEXT NOT NULL, content_html TEXT NOT NULL, is_active BOOLEAN NOT NULL DEFAULT 1,
-    scope TEXT NOT NULL DEFAULT 'global', user_id INTEGER, "order" INTEGER NOT NULL DEFAULT 0, created_date TEXT);
   CREATE TABLE board_usernamechangelog (
     id INTEGER PRIMARY KEY,
     username TEXT NOT NULL,
@@ -218,9 +207,9 @@ database.exec(`
   INSERT INTO board_series VALUES
     (1, 1, '', '', 0, 'learning', '', '${now}', '${now}', 1, 'Learning'),
     (2, 1, '', '', 0, 'other-series', '', '${now}', '${now}', 2, 'Other series');
-  INSERT INTO board_form VALUES
-    (1, 'Short form', '# Template body', 0, '${now}', '${now}', 1),
-    (2, 'Another writer form', 'Private form body', 0, '${now}', '${now}', 2);
+  INSERT INTO FormTemplate (id, title, content, isPublic, createdAt, updatedAt, userId) VALUES
+    (1, 'Short form', '# Template body', 0, ${Date.now()}, ${Date.now()}, 1),
+    (2, 'Another writer form', 'Private form body', 0, ${Date.now()}, ${Date.now()}, 2);
   INSERT INTO board_imagecache VALUES
     (1, 'cover-hash', 'images/content/2026/11/21/cover-test.jpg', 12, 1);
   INSERT INTO board_post VALUES

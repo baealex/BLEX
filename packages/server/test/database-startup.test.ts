@@ -83,7 +83,12 @@ test('imports a 3.14 installation once and leaves the original unchanged', async
     insertRow(legacy, 'board_worklogentry', { id: 4, log_id: 3, title: 'Imported entry', created_at: '2024-02-03 04:05:07+09:00' });
     insertRow(legacy, 'board_worklogshare', { id: 5, log_id: 3, token: 'a'.repeat(32), headline: 'Shared', created_at: '2024-02-03 04:05:08' });
     insertRow(legacy, 'board_worklogshare_entries', { worklogshare_id: 5, worklogentry_id: 4 });
+    insertRow(legacy, 'board_form', { id: 2, user_id: 7, title: 'Template', content: 'Body', is_public: 1, created_date: '2024-03-01 01:02:03.456789', updated_date: '2024-03-02 01:02:03' });
+    insertRow(legacy, 'board_staticpage', { id: 3, author_id: 7, slug: 'about', title: 'About', content: '<p>About</p>', meta_description: 'Summary', is_published: 1, show_in_footer: 1, order: 4, created_date: '2024-03-03 00:00:00', updated_date: '2024-03-04 00:00:00' });
+    insertRow(legacy, 'board_sitenotice', { id: 4, user_id: 7, scope: 'user', title: 'Notice', url: '/notice', is_active: 0, order: 2, created_date: '2024-03-05 00:00:00', updated_date: '2024-03-06 00:00:00' });
+    insertRow(legacy, 'board_sitebanner', { id: 5, scope: 'global', banner_type: 'sidebar', position: 'right', title: 'Banner', content_html: '<script>trusted()</script>', is_active: 1, order: 3, created_date: '2024-03-07 00:00:00', updated_date: '2024-03-08 00:00:00' });
     legacy.exec(`UPDATE sqlite_sequence SET seq = 40 WHERE name = 'board_post'`);
+    legacy.exec(`UPDATE sqlite_sequence SET seq = 90 WHERE name = 'board_sitebanner'`);
     legacy.close();
     await writeFile(join(space.legacyRoot, 'resources', 'media', 'images', 'cover.png'), 'image');
     const before = await fileHash(source);
@@ -106,6 +111,19 @@ test('imports a 3.14 installation once and leaves the original unchanged', async
     assert.equal(Number((imported.prepare('SELECT createdAt FROM WorkLog WHERE id = 3').get() as { createdAt: number }).createdAt), Date.UTC(2024, 1, 3, 4, 5, 6, 789));
     assert.equal(Number((imported.prepare('SELECT createdAt FROM WorkLogEntry WHERE id = 4').get() as { createdAt: number }).createdAt), Date.UTC(2024, 1, 2, 19, 5, 7));
     assert.deepEqual({ ...imported.prepare('SELECT A, B FROM _WorkLogEntryToWorkLogShare').get() }, { A: 4, B: 5 });
+    assert.deepEqual({ ...imported.prepare('SELECT userId, title, content, isPublic, createdAt, updatedAt FROM FormTemplate WHERE id = 2').get() }, {
+      userId: 7, title: 'Template', content: 'Body', isPublic: 1, createdAt: Date.UTC(2024, 2, 1, 1, 2, 3, 456), updatedAt: Date.UTC(2024, 2, 2, 1, 2, 3),
+    });
+    assert.deepEqual({ ...imported.prepare('SELECT authorId, slug, description, isPublished, showInFooter, "order", updatedAt FROM StaticPage WHERE id = 3').get() }, {
+      authorId: 7, slug: 'about', description: 'Summary', isPublished: 1, showInFooter: 1, order: 4, updatedAt: Date.UTC(2024, 2, 4),
+    });
+    assert.deepEqual({ ...imported.prepare('SELECT userId, scope, url, isActive, "order", createdAt FROM SiteNotice WHERE id = 4').get() }, {
+      userId: 7, scope: 'user', url: '/notice', isActive: 0, order: 2, createdAt: Date.UTC(2024, 2, 5),
+    });
+    assert.deepEqual({ ...imported.prepare('SELECT userId, scope, type, position, contentHtml, "order" FROM SiteBanner WHERE id = 5').get() }, {
+      userId: null, scope: 'global', type: 'sidebar', position: 'right', contentHtml: '<script>trusted()</script>', order: 3,
+    });
+    assert.equal(Number((imported.prepare(`SELECT seq FROM sqlite_sequence WHERE name = 'SiteBanner'`).get() as { seq: number }).seq), 90);
     imported.close();
 
     const changed = new DatabaseSync(source);
@@ -155,6 +173,33 @@ test('stops without changing data for a 3.x Compose file or an unrecognized data
     await assert.rejects(prepareDatabase(space.options), /not a BLEX database/);
   } finally {
     await space.cleanup();
+  }
+});
+
+test('names the row when a 3.14 site content value cannot be imported', async () => {
+  const cases: Array<[string, Record<string, string | number>, RegExp]> = [
+    ['board_sitebanner', { scope: 'global', banner_type: 'floating', position: 'top' }, /board_sitebanner\.banner_type in row 9 is "floating".*horizontal, sidebar/],
+    ['board_sitebanner', { scope: 'global', banner_type: 'horizontal', position: 'center' }, /board_sitebanner\.position in row 9 is "center".*top, bottom, left, right/],
+    ['board_sitenotice', { scope: 'team' }, /board_sitenotice\.scope in row 9 is "team".*user, global/],
+    ['board_sitenotice', { scope: 'global', order: 3_000_000_000 }, /board_sitenotice\.order in row 9 is "3000000000".*32-bit/],
+  ];
+  for (const [table, values, message] of cases) {
+    const space = await workspace();
+    try {
+      const legacy = await createLegacyDatabase(join(space.legacyRoot, 'db.sqlite3'));
+      insertRow(legacy, table, { id: 9, created_date: '2024-01-01 00:00:00', updated_date: '2024-01-01 00:00:00', ...values });
+      legacy.close();
+      await assert.rejects(prepareDatabase(space.options), (error: Error) => {
+        assert.ok(error instanceof DatabaseSetupError);
+        assert.match(error.message, message);
+        assert.match(error.message, /The original was not changed/);
+        return true;
+      });
+      assert.equal(existsSync(space.databasePath), false);
+      assert.equal(existsSync(`${space.databasePath}.importing`), false);
+    } finally {
+      await space.cleanup();
+    }
   }
 });
 

@@ -3,18 +3,7 @@ import { http, type Response } from '../http.module';
 export interface Form {
     id: number;
     title: string;
-    description: string;
-    fields: FormField[];
-    created_date: string;
-    updated_date: string;
-}
-
-export interface FormField {
-    name: string;
-    type: string;
-    label: string;
-    required: boolean;
-    options?: string[];
+    createdDate: string;
 }
 
 export interface CreateFormData {

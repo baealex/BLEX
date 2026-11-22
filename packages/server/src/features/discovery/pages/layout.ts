@@ -133,10 +133,11 @@ export async function readPublicSiteBrand(db: PrismaClient): Promise<SiteBrand> 
              icon_manifest AS iconManifest, seo_enabled AS seoEnabled
         FROM board_sitesetting ORDER BY id LIMIT 1
     `,
-    db.$queryRaw<Array<{ title: string; slug: string }>>`
-      SELECT title, slug FROM board_staticpage
-       WHERE is_published = 1 AND show_in_footer = 1 ORDER BY "order", slug
-    `,
+    db.staticPage.findMany({
+      where: { isPublished: true, showInFooter: true },
+      orderBy: [{ order: 'asc' }, { slug: 'asc' }],
+      select: { title: true, slug: true },
+    }),
   ]);
   return {
     siteName: setting?.siteName?.trim() || 'BLEX',
@@ -153,17 +154,17 @@ export async function readPublicSiteBrand(db: PrismaClient): Promise<SiteBrand> 
 export async function readNotices(db: PrismaClient, scope: 'global' | 'user', userId?: number): Promise<NoticeRow[]> {
   if (scope === 'user') {
     if (!userId) return [];
-    return db.$queryRaw<NoticeRow[]>`
-      SELECT id, title, url FROM board_sitenotice
-       WHERE scope = 'user' AND user_id = ${userId} AND is_active = 1
-       ORDER BY "order" ASC, created_date DESC
-    `;
+    return db.siteNotice.findMany({
+      where: { scope: 'user', userId, isActive: true },
+      orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
+      select: { id: true, title: true, url: true },
+    });
   }
-  return db.$queryRaw<NoticeRow[]>`
-    SELECT id, title, url FROM board_sitenotice
-     WHERE scope = 'global' AND is_active = 1
-     ORDER BY created_date DESC
-  `;
+  return db.siteNotice.findMany({
+    where: { scope: 'global', isActive: true },
+    orderBy: { createdAt: 'desc' },
+    select: { id: true, title: true, url: true },
+  });
 }
 
 function noticeLink(value: string): string | null {

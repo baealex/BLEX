@@ -1,8 +1,8 @@
 import { type PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import { done as success, failure } from '../../../platform/response.js';
-import { bannerApi, bannerPayload, readBanner, readBanners, saveBanner } from '../services/banners.js';
-import { AdminSettingsOptions, apiAccess, apiJsonBody, csrfValid, djangoTimestamp, editorApiAccess, validRouteId } from '../shared.js';
+import { bannerApi, bannerPayload, readBanner, readBanners, saveBanner, saveBannerOrder } from '../services/banners.js';
+import { AdminSettingsOptions, apiAccess, apiJsonBody, csrfValid, editorApiAccess, validRouteId } from '../shared.js';
 
 export function registerBannersRoutes(routes: FastifyInstance, db: PrismaClient, options: AdminSettingsOptions) {
     routes.get('/v1/banners', async (request, reply) => {
@@ -15,23 +15,7 @@ export function registerBannersRoutes(routes: FastifyInstance, db: PrismaClient,
       if (!csrfValid(request, options)) return reply.code(403).type('text/plain; charset=utf-8').send('Forbidden');
       const permission = await editorApiAccess(request, db, options);
       if ('response' in permission) return reply.send(permission.response);
-      const order = apiJsonBody(request).order;
-      if (Array.isArray(order)) {
-        const timestamp = djangoTimestamp();
-        await db.$transaction(async (transaction) => {
-          for (const item of order) {
-            if (!Array.isArray(item) || item.length !== 2) continue;
-            const [rawId, rawOrder] = item;
-            const bannerId = typeof rawId === 'number' ? rawId : /^\d+$/.test(String(rawId)) ? Number(rawId) : NaN;
-            const bannerOrder = typeof rawOrder === 'number' ? rawOrder : /^-?\d+$/.test(String(rawOrder)) ? Number(rawOrder) : NaN;
-            if (!Number.isSafeInteger(bannerId) || !Number.isSafeInteger(bannerOrder)) continue;
-            await transaction.$executeRaw`
-              UPDATE board_sitebanner SET "order" = ${bannerOrder}, updated_date = ${timestamp}
-              WHERE scope = 'user' AND user_id = ${permission.user.id} AND id = ${bannerId}
-            `;
-          }
-        });
-      }
+      await saveBannerOrder(db, apiJsonBody(request).order, 'user', permission.user.id);
       return reply.send(success({ message: 'Banner order updated.' }));
     });
 
@@ -70,10 +54,8 @@ export function registerBannersRoutes(routes: FastifyInstance, db: PrismaClient,
       if ('response' in permission) return reply.send(permission.response);
       const bannerId = validRouteId(request.params.bannerId);
       if (!bannerId) return reply.code(404).type('text/plain; charset=utf-8').send('Not found');
-      const deleted = await db.$executeRaw`
-        DELETE FROM board_sitebanner WHERE scope = 'user' AND user_id = ${permission.user.id} AND id = ${bannerId}
-      `;
-      if (!deleted) return reply.code(404).type('text/plain; charset=utf-8').send('Not found');
+      const { count } = await db.siteBanner.deleteMany({ where: { scope: 'user', userId: permission.user.id, id: bannerId } });
+      if (!count) return reply.code(404).type('text/plain; charset=utf-8').send('Not found');
       return reply.send(success({ message: 'Banner deleted.' }));
     });
 
@@ -116,8 +98,8 @@ export function registerBannersRoutes(routes: FastifyInstance, db: PrismaClient,
       if ('response' in permission) return reply.send(permission.response);
       const bannerId = validRouteId(request.params.bannerId);
       if (!bannerId) return reply.code(404).type('text/plain; charset=utf-8').send('Not found');
-      const deleted = await db.$executeRaw`DELETE FROM board_sitebanner WHERE scope = 'global' AND id = ${bannerId}`;
-      if (!deleted) return reply.code(404).type('text/plain; charset=utf-8').send('Not found');
+      const { count } = await db.siteBanner.deleteMany({ where: { scope: 'global', id: bannerId } });
+      if (!count) return reply.code(404).type('text/plain; charset=utf-8').send('Not found');
       return reply.send(success({ message: 'Global banner deleted.' }));
     });
 
@@ -125,23 +107,7 @@ export function registerBannersRoutes(routes: FastifyInstance, db: PrismaClient,
       if (!csrfValid(request, options)) return reply.code(403).type('text/plain; charset=utf-8').send('Forbidden');
       const permission = await apiAccess(request, db, options);
       if ('response' in permission) return reply.send(permission.response);
-      const order = apiJsonBody(request).order;
-      if (Array.isArray(order)) {
-        const timestamp = djangoTimestamp();
-        await db.$transaction(async (transaction) => {
-          for (const item of order) {
-            if (!Array.isArray(item) || item.length !== 2) continue;
-            const [rawId, rawOrder] = item;
-            const bannerId = typeof rawId === 'number' ? rawId : /^\d+$/.test(String(rawId)) ? Number(rawId) : NaN;
-            const bannerOrder = typeof rawOrder === 'number' ? rawOrder : /^-?\d+$/.test(String(rawOrder)) ? Number(rawOrder) : NaN;
-            if (!Number.isSafeInteger(bannerId) || !Number.isSafeInteger(bannerOrder)) continue;
-            await transaction.$executeRaw`
-              UPDATE board_sitebanner SET "order" = ${bannerOrder}, updated_date = ${timestamp}
-              WHERE scope = 'global' AND id = ${bannerId}
-            `;
-          }
-        });
-      }
+      await saveBannerOrder(db, apiJsonBody(request).order, 'global');
       return reply.send(success({ message: 'Global banner order updated.' }));
     });
 }

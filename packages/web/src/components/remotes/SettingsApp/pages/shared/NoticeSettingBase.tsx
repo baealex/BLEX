@@ -201,7 +201,7 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
         const payload = {
             title: formData.title,
             url: formData.url,
-            is_active: formData.isActive
+            isActive: formData.isActive
         };
 
         if (editingNotice) {
@@ -250,7 +250,7 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
     const handleToggleActive = (notice: NoticeItem) => {
         updateMutation.mutate({
             id: notice.id,
-            data: { is_active: !notice.isActive }
+            data: { isActive: !notice.isActive }
         });
     };
 

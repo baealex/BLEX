@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { mkdir, mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -60,6 +61,15 @@ export function signIn(db: DatabaseSync, userId: number) {
     expires_at: BigInt(Date.now() + 3_600_000),
   });
   return { cookie: `blexsessionid=${session}; csrftoken=${csrf}`, 'x-csrftoken': csrf, origin: testSiteUrl.origin };
+}
+
+/** Adds real migrated tables and indexes to a fixture that still hand-writes other domains. */
+export function createMigratedTables(db: DatabaseSync, ...tables: string[]) {
+  const migration = readFileSync(new URL('0001_init/migration.sql', migrationsRoot), 'utf8');
+  for (const statement of migration.split(/;\s*\n/)) {
+    const table = /CREATE TABLE "(\w+)"/.exec(statement)?.[1] ?? /CREATE (?:UNIQUE )?INDEX "\w+" ON "(\w+)"/.exec(statement)?.[1];
+    if (table && tables.includes(table)) db.exec(statement);
+  }
 }
 
 /** Applies the shipped migrations, so tests see Django's real foreign keys and NOT NULL columns. */

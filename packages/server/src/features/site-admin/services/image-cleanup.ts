@@ -78,10 +78,10 @@ async function readImageReferences(db: PrismaClient | Prisma.TransactionClient):
     db.$queryRaw<Array<{ textMd: string | null; textHtml: string | null }>>`SELECT text_md AS textMd, text_html AS textHtml FROM board_comment`,
     db.$queryRaw<Array<{ aboutMd: string | null; aboutHtml: string | null }>>`SELECT about_md AS aboutMd, about_html AS aboutHtml FROM board_profile`,
     db.$queryRaw<Array<{ textMd: string | null; textHtml: string | null }>>`SELECT text_md AS textMd, text_html AS textHtml FROM board_series`,
-    db.$queryRaw<Array<{ content: string | null }>>`SELECT content FROM board_staticpage`,
-    db.$queryRaw<Array<{ content: string | null }>>`SELECT content FROM board_form`,
-    db.$queryRaw<Array<{ url: string | null }>>`SELECT url FROM board_sitenotice`,
-    db.$queryRaw<Array<{ contentHtml: string | null }>>`SELECT content_html AS contentHtml FROM board_sitebanner`,
+    db.staticPage.findMany({ select: { content: true } }),
+    db.formTemplate.findMany({ select: { content: true } }),
+    db.siteNotice.findMany({ select: { url: true } }),
+    db.siteBanner.findMany({ select: { contentHtml: true } }),
     db.workLogEntry.findMany({ select: { text: true } }),
   ]);
   const values = [

@@ -7,10 +7,12 @@ import Fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import test from 'node:test';
 import { registerPublicDiscovery } from '../src/features/discovery/feeds/index.js';
+import { createMigratedTables } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-discovery-'));
 const databasePath = join(directory, 'synthetic legacy.sqlite3');
 const fixture = new DatabaseSync(databasePath);
+createMigratedTables(fixture, 'StaticPage');
 fixture.exec(`
   CREATE TABLE auth_user (id INTEGER PRIMARY KEY, username TEXT, first_name TEXT);
   CREATE TABLE django_site (id INTEGER PRIMARY KEY, domain TEXT);
@@ -32,10 +34,6 @@ fixture.exec(`
     id INTEGER PRIMARY KEY, owner_id INTEGER, name TEXT, url TEXT,
     text_md TEXT, text_html TEXT, hide BOOLEAN, updated_date DATETIME
   );
-  CREATE TABLE board_staticpage (
-    id INTEGER PRIMARY KEY, slug TEXT, title TEXT, content TEXT,
-    is_published BOOLEAN, updated_date DATETIME
-  );
 
   INSERT INTO auth_user VALUES (1, 'writer', 'Alex');
   INSERT INTO board_usernamechangelog VALUES (1, 1, 'old-writer', '1999-01-01 00:00:00');
@@ -43,8 +41,8 @@ fixture.exec(`
   INSERT INTO board_sitesetting VALUES (1, 1, 1, 'User-agent: ExampleBot\nDisallow: /private/  \n', 'Custom Blog');
   INSERT INTO board_series VALUES (1, 1, 'Public Series', 'public-series', 'Series summary.', '', 0, '2000-01-02 00:00:00');
   INSERT INTO board_series VALUES (2, 1, 'Hidden Series', 'hidden-series', '', '', 1, '2000-01-02 00:00:00');
-  INSERT INTO board_staticpage VALUES (1, 'about-ai', 'About AI', '<h2>About BLEX</h2><p>Static <strong>page</strong>.</p>', 1, '2000-01-03 00:00:00');
-  INSERT INTO board_staticpage VALUES (2, 'private', 'Private page', '<p>Do not expose</p>', 0, '2000-01-04 00:00:00');
+  INSERT INTO StaticPage (id, slug, title, content, isPublished, updatedAt) VALUES (1, 'about-ai', 'About AI', '<h2>About BLEX</h2><p>Static <strong>page</strong>.</p>', 1, ${Date.UTC(2000, 0, 3)});
+  INSERT INTO StaticPage (id, slug, title, content, isPublished, updatedAt) VALUES (2, 'private', 'Private page', '<p>Do not expose</p>', 0, ${Date.UTC(2000, 0, 4)});
 
   INSERT INTO board_post VALUES
     (1, 1, 'public', 'Public Post', 'An optional subtitle', '2000-01-01 12:00:00', '2000-01-05 12:30:00', NULL, 1),
@@ -124,6 +122,7 @@ test('publishes sitemap sections and excludes non-public content everywhere', as
   assert.match(series.body, /@writer\/series\/public-series/);
   assert.doesNotMatch(series.body, /hidden-series/);
   const staticPages = await app.inject('/staticpages/sitemap.xml');
+  assert.match(staticPages.body, /<lastmod>2000-01-03T00:00:00\.000Z<\/lastmod>/);
   assert.match(staticPages.body, /\/static\/about-ai/);
   assert.doesNotMatch(staticPages.body, /\/static\/private/);
   assert.equal((await app.inject('/unknown/sitemap.xml')).statusCode, 404);
@@ -180,6 +179,7 @@ test('serves public Markdown exports, converts HTML, and hides private content',
   assert.equal((await app.inject('/@writer/series/hidden-series.md')).statusCode, 404);
 
   const staticPage = await app.inject('/static/about-ai.md');
+  assert.match(staticPage.body, /^- Updated: 2000-01-03$/m);
   assert.equal(staticPage.statusCode, 200);
   assert.match(staticPage.body, /# About AI/);
   assert.match(staticPage.body, /## About BLEX/);

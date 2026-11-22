@@ -173,12 +173,11 @@ export async function readPostPresentation(db: PrismaClient, post: Pick<PublicPo
       SELECT tag.value FROM board_post_tags AS attached JOIN board_tag AS tag ON tag.id = attached.tag_id
        WHERE attached.post_id = ${post.id} ORDER BY tag.id
     `,
-    db.$queryRaw<PostBanner[]>`
-      SELECT id, position, content_html AS contentHtml FROM board_sitebanner
-       WHERE is_active = 1 AND position IN ('top', 'bottom', 'left', 'right')
-         AND (scope = 'global' OR (scope = 'user' AND user_id = ${post.authorId}))
-       ORDER BY "order", created_date DESC, id DESC
-    `,
+    db.siteBanner.findMany({
+      where: { isActive: true, OR: [{ scope: 'global' }, { scope: 'user', userId: post.authorId }] },
+      orderBy: [{ order: 'asc' }, { createdAt: 'desc' }, { id: 'desc' }],
+      select: { id: true, position: true, contentHtml: true },
+    }),
   ]);
   const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
   const seriesPosts = metadata?.seriesId === null || metadata?.seriesId === undefined ? [] : await db.$queryRaw<Array<{ id: number; url: string; title: string }>>`

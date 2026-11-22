@@ -101,15 +101,6 @@ export interface SeriesDetailRow extends SeriesRow {
   authorAvatar: string | null;
 }
 
-export interface StaticPageRow {
-  title: string;
-  content: string;
-  metaDescription: string;
-  createdDate: StoredDate;
-  updatedDate: StoredDate;
-  authorUsername: string | null;
-}
-
 export interface AuthorSocialLink {
   id: number;
   name: string;
@@ -305,8 +296,8 @@ export function safeStructuredPageData(
   canonical: string,
   title: string,
   descriptionText: string,
-  createdDate: StoredDate,
-  updatedDate: StoredDate,
+  createdDate: StoredDate | null,
+  updatedDate: StoredDate | null,
   authorUsername: string | null,
   siteUrl: URL,
 ): Record<string, unknown> {

@@ -321,18 +321,6 @@ CREATE TABLE "board_emailchange" (
 );
 
 -- CreateTable
-CREATE TABLE "board_form" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "title" TEXT NOT NULL,
-    "content" TEXT NOT NULL,
-    "is_public" BOOLEAN NOT NULL,
-    "created_date" DATETIME NOT NULL,
-    "updated_date" DATETIME NOT NULL,
-    "user_id" INTEGER NOT NULL,
-    CONSTRAINT "board_form_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- CreateTable
 CREATE TABLE "board_imagecache" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "key" TEXT NOT NULL,
@@ -495,36 +483,6 @@ CREATE TABLE "board_seriesconfigmeta" (
 );
 
 -- CreateTable
-CREATE TABLE "board_sitebanner" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "scope" TEXT NOT NULL,
-    "title" TEXT NOT NULL,
-    "is_active" BOOLEAN NOT NULL,
-    "order" INTEGER NOT NULL,
-    "created_date" DATETIME NOT NULL,
-    "updated_date" DATETIME NOT NULL,
-    "content_html" TEXT NOT NULL,
-    "banner_type" TEXT NOT NULL,
-    "position" TEXT NOT NULL,
-    "user_id" INTEGER,
-    CONSTRAINT "board_sitebanner_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- CreateTable
-CREATE TABLE "board_sitenotice" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "scope" TEXT NOT NULL,
-    "title" TEXT NOT NULL,
-    "is_active" BOOLEAN NOT NULL,
-    "order" INTEGER NOT NULL,
-    "created_date" DATETIME NOT NULL,
-    "updated_date" DATETIME NOT NULL,
-    "url" TEXT NOT NULL,
-    "user_id" INTEGER,
-    CONSTRAINT "board_sitenotice_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- CreateTable
 CREATE TABLE "board_sitesetting" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "header_script" TEXT NOT NULL,
@@ -560,22 +518,6 @@ CREATE TABLE "board_socialauthprovider" (
     "client_id" TEXT NOT NULL,
     "client_secret" TEXT NOT NULL,
     "is_enabled" BOOLEAN NOT NULL
-);
-
--- CreateTable
-CREATE TABLE "board_staticpage" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "title" TEXT NOT NULL,
-    "content" TEXT NOT NULL,
-    "meta_description" TEXT NOT NULL,
-    "is_published" BOOLEAN NOT NULL,
-    "show_in_footer" BOOLEAN NOT NULL,
-    "order" INTEGER NOT NULL,
-    "created_date" DATETIME NOT NULL,
-    "updated_date" DATETIME NOT NULL,
-    "author_id" INTEGER,
-    "slug" TEXT NOT NULL,
-    CONSTRAINT "board_staticpage_author_id_fkey" FOREIGN KEY ("author_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 -- CreateTable
@@ -719,6 +661,64 @@ CREATE TABLE "WorkLogShare" (
     "headline" TEXT NOT NULL DEFAULT '',
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "WorkLogShare_logId_fkey" FOREIGN KEY ("logId") REFERENCES "WorkLog" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "FormTemplate" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "userId" INTEGER NOT NULL,
+    "title" TEXT NOT NULL,
+    "content" TEXT NOT NULL DEFAULT '',
+    "isPublic" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "FormTemplate_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "StaticPage" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "authorId" INTEGER,
+    "slug" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "content" TEXT NOT NULL DEFAULT '',
+    "description" TEXT NOT NULL DEFAULT '',
+    "isPublished" BOOLEAN NOT NULL DEFAULT false,
+    "showInFooter" BOOLEAN NOT NULL DEFAULT false,
+    "order" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "StaticPage_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "auth_user" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "SiteNotice" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "userId" INTEGER,
+    "scope" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "url" TEXT NOT NULL DEFAULT '',
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "order" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "SiteNotice_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "SiteBanner" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "userId" INTEGER,
+    "scope" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "position" TEXT NOT NULL,
+    "title" TEXT NOT NULL DEFAULT '',
+    "contentHtml" TEXT NOT NULL DEFAULT '',
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "order" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "SiteBanner_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -946,9 +946,6 @@ CREATE INDEX "board_editrequest_user_id_0deec073" ON "board_editrequest"("user_i
 CREATE UNIQUE INDEX "board_emailchange_user_id_key" ON "board_emailchange"("user_id");
 
 -- CreateIndex
-CREATE INDEX "board_form_user_id_1f43b269" ON "board_form"("user_id");
-
--- CreateIndex
 CREATE UNIQUE INDEX "board_imagecache_key_key" ON "board_imagecache"("key");
 
 -- CreateIndex
@@ -1030,24 +1027,6 @@ CREATE INDEX "board_series_owner_id_68a37f76" ON "board_series"("owner_id");
 CREATE INDEX "board_seriesconfigmeta_post_id_06b5e8ce" ON "board_seriesconfigmeta"("post_id");
 
 -- CreateIndex
-CREATE INDEX "board_siteb_user_id_7efe4d_idx" ON "board_sitebanner"("user_id", "is_active");
-
--- CreateIndex
-CREATE INDEX "board_siteb_scope_774e20_idx" ON "board_sitebanner"("scope", "is_active", "banner_type", "position");
-
--- CreateIndex
-CREATE INDEX "board_sitebanner_user_id_efebe8f0" ON "board_sitebanner"("user_id");
-
--- CreateIndex
-CREATE INDEX "board_siten_user_id_2b60d0_idx" ON "board_sitenotice"("user_id", "is_active");
-
--- CreateIndex
-CREATE INDEX "board_siten_scope_0b3bc6_idx" ON "board_sitenotice"("scope", "is_active");
-
--- CreateIndex
-CREATE INDEX "board_sitenotice_user_id_354320c1" ON "board_sitenotice"("user_id");
-
--- CreateIndex
 CREATE INDEX "board_socialauth_user_id_92dc0ec9" ON "board_socialauth"("user_id");
 
 -- CreateIndex
@@ -1058,12 +1037,6 @@ CREATE UNIQUE INDEX "board_socialauth_provider_id_uid_key" ON "board_socialauth"
 
 -- CreateIndex
 CREATE UNIQUE INDEX "board_socialauthprovider_key_key" ON "board_socialauthprovider"("key");
-
--- CreateIndex
-CREATE UNIQUE INDEX "board_staticpage_slug_key" ON "board_staticpage"("slug");
-
--- CreateIndex
-CREATE INDEX "board_staticpage_author_id_fecbd454" ON "board_staticpage"("author_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "board_tag_value_key" ON "board_tag"("value");
@@ -1121,6 +1094,27 @@ CREATE UNIQUE INDEX "WorkLogShare_token_key" ON "WorkLogShare"("token");
 
 -- CreateIndex
 CREATE INDEX "WorkLogShare_logId_idx" ON "WorkLogShare"("logId");
+
+-- CreateIndex
+CREATE INDEX "FormTemplate_userId_idx" ON "FormTemplate"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "StaticPage_slug_key" ON "StaticPage"("slug");
+
+-- CreateIndex
+CREATE INDEX "StaticPage_authorId_idx" ON "StaticPage"("authorId");
+
+-- CreateIndex
+CREATE INDEX "SiteNotice_userId_isActive_idx" ON "SiteNotice"("userId", "isActive");
+
+-- CreateIndex
+CREATE INDEX "SiteNotice_scope_isActive_idx" ON "SiteNotice"("scope", "isActive");
+
+-- CreateIndex
+CREATE INDEX "SiteBanner_userId_isActive_idx" ON "SiteBanner"("userId", "isActive");
+
+-- CreateIndex
+CREATE INDEX "SiteBanner_scope_isActive_type_position_idx" ON "SiteBanner"("scope", "isActive", "type", "position");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_WorkLogEntryToWorkLogShare_AB_unique" ON "_WorkLogEntryToWorkLogShare"("A", "B");

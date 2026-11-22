@@ -45,13 +45,6 @@ type SeriesRow = {
   updatedDate: DbDate;
 };
 
-type StaticPageRow = {
-  title: string;
-  slug: string;
-  content: string;
-  updatedDate: DbDate;
-};
-
 type UserRow = { id: number; username: string; firstName: string };
 
 type FeedPostRow = {
@@ -244,18 +237,16 @@ export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, 
   app.get<{ Params: { slug: string } }>('/static/:slug.md', async (request, reply) => {
     const setting = await readSiteSetting(db);
     if (!isEnabled(setting.aeoEnabled)) return notFound(reply);
-    const [page] = await db.$queryRaw<StaticPageRow[]>`
-      SELECT title, slug, content, CAST(updated_date AS TEXT) AS updatedDate
-        FROM board_staticpage
-       WHERE slug = ${request.params.slug} AND is_published = 1
-       LIMIT 1
-    `;
+    const page = await db.staticPage.findFirst({
+      where: { slug: request.params.slug, isPublished: true },
+      select: { title: true, slug: true, content: true, updatedAt: true },
+    });
     if (!page) return notFound(reply);
     const sourceUrl = absoluteUrl(siteUrl, `/static/${encodeURIComponent(page.slug)}`);
     const lines = [
       `# ${page.title}`,
       '',
-      `- Updated: ${formatDateOnly(page.updatedDate)}`,
+      `- Updated: ${formatDateOnly(page.updatedAt)}`,
       `- Source: ${sourceUrl}`,
       '',
       '---',
@@ -481,12 +472,12 @@ async function readSitemapMetadata(db: PrismaClient, section: (typeof sitemapSec
     `;
     return metadata ?? { itemCount: 0, latestLastmod: null };
   }
-  const [metadata] = await db.$queryRaw<SitemapMetadata[]>`
-    SELECT COUNT(id) AS itemCount, CAST(MAX(updated_date) AS TEXT) AS latestLastmod
-      FROM board_staticpage
-     WHERE is_published = 1
-  `;
-  return metadata ?? { itemCount: 0, latestLastmod: null };
+  const { _count, _max } = await db.staticPage.aggregate({
+    where: { isPublished: true },
+    _count: { id: true },
+    _max: { updatedAt: true },
+  });
+  return { itemCount: _count.id, latestLastmod: _max.updatedAt };
 }
 
 async function readSitemapPage(
@@ -559,16 +550,16 @@ async function readSitemapPage(
       lastmod: item.updatedDate, changefreq: 'weekly', priority: '0.7',
     }));
   }
-  const pages = await db.$queryRaw<Array<{ slug: string; updatedDate: DbDate }>>`
-    SELECT slug, CAST(updated_date AS TEXT) AS updatedDate
-      FROM board_staticpage
-     WHERE is_published = 1
-     ORDER BY updated_date DESC
-     LIMIT ${sitemapLimit} OFFSET ${offset}
-  `;
+  const pages = await db.staticPage.findMany({
+    where: { isPublished: true },
+    orderBy: { updatedAt: 'desc' },
+    take: sitemapLimit,
+    skip: offset,
+    select: { slug: true, updatedAt: true },
+  });
   return pages.map((item) => ({
     location: absoluteUrl(siteUrl, `/static/${encodeURIComponent(item.slug)}`),
-    lastmod: item.updatedDate, changefreq: 'monthly', priority: '0.8',
+    lastmod: item.updatedAt, changefreq: 'monthly', priority: '0.8',
   }));
 }
 

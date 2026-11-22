@@ -280,19 +280,19 @@ export interface BannerData {
 
 export interface BannerCreateData {
     title: string;
-    content_html: string;
-    banner_type: 'horizontal' | 'sidebar';
+    contentHtml: string;
+    bannerType: 'horizontal' | 'sidebar';
     position: 'top' | 'bottom' | 'left' | 'right';
-    is_active?: boolean;
+    isActive?: boolean;
     order?: number;
 }
 
 export interface BannerUpdateData {
     title?: string;
-    content_html?: string;
-    banner_type?: 'horizontal' | 'sidebar';
+    contentHtml?: string;
+    bannerType?: 'horizontal' | 'sidebar';
     position?: 'top' | 'bottom' | 'left' | 'right';
-    is_active?: boolean;
+    isActive?: boolean;
     order?: number;
 }
 
@@ -485,9 +485,9 @@ export interface StaticPageCreateData {
     title: string;
     slug: string;
     content: string;
-    meta_description?: string;
-    is_published?: boolean;
-    show_in_footer?: boolean;
+    metaDescription?: string;
+    isPublished?: boolean;
+    showInFooter?: boolean;
     order?: number;
 }
 
@@ -495,9 +495,9 @@ export interface StaticPageUpdateData {
     title?: string;
     slug?: string;
     content?: string;
-    meta_description?: string;
-    is_published?: boolean;
-    show_in_footer?: boolean;
+    metaDescription?: string;
+    isPublished?: boolean;
+    showInFooter?: boolean;
     order?: number;
 }
 
@@ -534,13 +534,13 @@ export interface NoticeData {
 export interface NoticeCreateData {
     title: string;
     url: string;
-    is_active?: boolean;
+    isActive?: boolean;
 }
 
 export interface NoticeUpdateData {
     title?: string;
     url?: string;
-    is_active?: boolean;
+    isActive?: boolean;
 }
 
 export const getNotices = async () => {
@@ -572,13 +572,13 @@ export interface GlobalNoticeData {
 export interface GlobalNoticeCreateData {
     title: string;
     url: string;
-    is_active?: boolean;
+    isActive?: boolean;
 }
 
 export interface GlobalNoticeUpdateData {
     title?: string;
     url?: string;
-    is_active?: boolean;
+    isActive?: boolean;
 }
 
 export const getGlobalNotices = async () => {
@@ -613,19 +613,19 @@ export interface GlobalBannerData {
 
 export interface GlobalBannerCreateData {
     title: string;
-    content_html: string;
-    banner_type: 'horizontal' | 'sidebar';
+    contentHtml: string;
+    bannerType: 'horizontal' | 'sidebar';
     position: 'top' | 'bottom' | 'left' | 'right';
-    is_active?: boolean;
+    isActive?: boolean;
     order?: number;
 }
 
 export interface GlobalBannerUpdateData {
     title?: string;
-    content_html?: string;
-    banner_type?: 'horizontal' | 'sidebar';
+    contentHtml?: string;
+    bannerType?: 'horizontal' | 'sidebar';
     position?: 'top' | 'bottom' | 'left' | 'right';
-    is_active?: boolean;
+    isActive?: boolean;
     order?: number;
 }
 

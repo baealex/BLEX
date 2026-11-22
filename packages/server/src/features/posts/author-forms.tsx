@@ -22,7 +22,6 @@ interface FormOptions {
   siteUrl: URL;
 }
 
-interface AuthorForm { id: number; title: string; content: string; createdDate: string }
 const bodyLimit = 1024 * 1024;
 
 export function registerAuthorForms(app: FastifyInstance, db: PrismaClient, options: FormOptions) {
@@ -37,38 +36,31 @@ export function registerAuthorForms(app: FastifyInstance, db: PrismaClient, opti
       const rawId = request.params?.id;
       const id = typeof rawId === 'string' && /^\d+$/.test(rawId) ? Number(rawId) : undefined;
       if (rawId !== undefined && (!id || !Number.isSafeInteger(id))) return reply.code(404).send('Not found');
-      const [selected] = id ? await db.$queryRaw<AuthorForm[]>`
-        SELECT id, title, content, CAST(created_date AS TEXT) AS createdDate FROM board_form WHERE id = ${id} AND user_id = ${editor.id}
-      ` : [];
+      const selected = id
+        ? await db.formTemplate.findFirst({ where: { id, userId: editor.id }, select: { id: true, title: true, content: true } })
+        : null;
       if (id && !selected) return reply.code(404).send('Not found');
-      const forms = () => db.$queryRaw<AuthorForm[]>`
-        SELECT id, title, CAST(created_date AS TEXT) AS createdDate FROM board_form WHERE user_id = ${editor.id} ORDER BY id
-      `;
+      const forms = () => db.formTemplate.findMany({
+        where: { userId: editor.id },
+        orderBy: { id: 'asc' },
+        select: { id: true, title: true, createdAt: true },
+      });
       if (request.method === 'GET') {
-        if (selected) return done({ id: selected.id, title: selected.title, content: selected.content });
-        return done({ forms: (await forms()).map((row) => ({ ...row, createdDate: djangoJsonLocal(row.createdDate) })) });
+        if (selected) return done(selected);
+        return done({ forms: (await forms()).map(({ id, title, createdAt }) => ({ id, title, createdDate: djangoJsonLocal(createdAt) })) });
       }
       if (!options.validateCsrf(request)) return reply.code(403).send(failure('RJ'));
       if (request.method === 'DELETE' || input.action === 'delete') {
         if (!id) return reply.code(404).send('Not found');
-        await db.$executeRaw`DELETE FROM board_form WHERE id = ${id} AND user_id = ${editor.id}`;
+        await db.formTemplate.deleteMany({ where: { id, userId: editor.id } });
       } else {
         const title = input.title ?? '';
         const content = input.content ?? '';
         if (typeof title !== 'string' || title.length > 50 || typeof content !== 'string') {
           return failure('IP', '글 양식을 확인해 주세요.');
         }
-        if (id) await db.$executeRaw`
-          UPDATE board_form SET title = ${title}, content = ${content} WHERE id = ${id} AND user_id = ${editor.id}
-        `;
-        else {
-          const timestamp = new Date().toISOString().slice(0, -1).replace('T', ' ');
-          const [created] = await db.$queryRaw<Array<{ id: number }>>`
-            INSERT INTO board_form (title, content, is_public, user_id, created_date, updated_date)
-            VALUES (${title}, ${content}, 0, ${editor.id}, ${timestamp}, ${timestamp}) RETURNING id
-          `;
-          return done({ id: created.id });
-        }
+        if (id) await db.formTemplate.updateMany({ where: { id, userId: editor.id }, data: { title, content } });
+        else return done(await db.formTemplate.create({ data: { title, content, userId: editor.id }, select: { id: true } }));
       }
       return done();
     };

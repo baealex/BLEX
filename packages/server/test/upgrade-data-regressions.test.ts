@@ -151,7 +151,7 @@ test('creates a writing form on the real schema', async () => {
       method: 'POST', url: '/v1/forms', headers: fixture.headers, payload: { title: 'Template', content: 'Body' },
     });
     assert.equal(response.json().status, 'DONE', response.body);
-    assert.equal(fixture.count('board_form', `title = 'Template' AND user_id = 1 AND is_public = 0 AND updated_date IS NOT NULL`), 1);
+    assert.equal(fixture.count('FormTemplate', `title = 'Template' AND userId = 1 AND isPublic = 0 AND updatedAt IS NOT NULL`), 1);
   } finally {
     await fixture.close();
   }

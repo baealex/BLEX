@@ -9,7 +9,7 @@ export async function isLastAdministrator(tx: Prisma.TransactionClient, userId: 
   return Boolean(last);
 }
 
-/** Remove owned records and anonymize records that survive the account. */
+/** Remove owned records and anonymize records that survive the account. Schema cascades cover the rest. */
 export async function deleteAccountRows(tx: Prisma.TransactionClient, userId: number) {
   const owned = { user_id: userId };
   const subscription = { OR: [{ subscriber_id: userId }, { author_id: userId }] };
@@ -31,9 +31,7 @@ export async function deleteAccountRows(tx: Prisma.TransactionClient, userId: nu
   await tx.board_developertoken.deleteMany({ where: owned });
   await tx.board_authorinvite.updateMany({ where: { created_by_id: userId }, data: { created_by_id: null } });
   await tx.board_authorinvite.updateMany({ where: { claimed_by_id: userId }, data: { claimed_by_id: null } });
-  await tx.board_staticpage.updateMany({ where: { author_id: userId }, data: { author_id: null } });
   await tx.board_imagecache.updateMany({ where: owned, data: { user_id: null } });
-  await tx.board_form.deleteMany({ where: owned });
   await tx.board_emailchange.deleteMany({ where: owned });
   await tx.board_userconfigmeta.deleteMany({ where: owned });
   await tx.board_config.deleteMany({ where: owned });
@@ -44,8 +42,6 @@ export async function deleteAccountRows(tx: Prisma.TransactionClient, userId: nu
   await tx.board_notify.deleteMany({ where: owned });
   await tx.board_telegramsync.deleteMany({ where: owned });
   await tx.board_utilitycleanupconfirmation.deleteMany({ where: owned });
-  await tx.board_sitenotice.deleteMany({ where: owned });
-  await tx.board_sitebanner.deleteMany({ where: owned });
   await tx.django_admin_log.deleteMany({ where: owned });
   await tx.auth_user_groups.deleteMany({ where: owned });
   await tx.auth_user_user_permissions.deleteMany({ where: owned });

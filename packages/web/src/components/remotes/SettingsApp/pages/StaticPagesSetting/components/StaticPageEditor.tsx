@@ -247,9 +247,9 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
             title: title.trim(),
             slug: toSlug(slug, true),
             content,
-            meta_description: metaDescription.trim(),
-            is_published: isPublished,
-            show_in_footer: showInFooter,
+            metaDescription: metaDescription.trim(),
+            isPublished,
+            showInFooter,
             order
         };
 

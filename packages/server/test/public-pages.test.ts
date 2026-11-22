@@ -7,10 +7,12 @@ import { PrismaClient } from '@prisma/client';
 import Fastify from 'fastify';
 import test from 'node:test';
 import { registerPublicPages } from '../src/features/discovery/pages/index.js';
+import { createMigratedTables } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-public-pages-'));
 const databasePath = join(directory, 'Django public pages.sqlite3');
 const database = new DatabaseSync(databasePath);
+createMigratedTables(database, 'StaticPage', 'SiteNotice');
 database.exec(`
   CREATE TABLE auth_user (
     id INTEGER PRIMARY KEY,
@@ -79,19 +81,6 @@ database.exec(`
   CREATE TABLE board_tag (id INTEGER PRIMARY KEY, value TEXT NOT NULL);
   CREATE TABLE board_post_tags (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, tag_id INTEGER NOT NULL);
   CREATE TABLE board_pinnedpost (id INTEGER PRIMARY KEY, "order" INTEGER NOT NULL, created_date DATETIME NOT NULL, post_id INTEGER NOT NULL, user_id INTEGER NOT NULL);
-  CREATE TABLE board_staticpage (
-    id INTEGER PRIMARY KEY,
-    title TEXT NOT NULL,
-    content TEXT NOT NULL,
-    meta_description TEXT NOT NULL DEFAULT '',
-    is_published BOOLEAN NOT NULL DEFAULT 0,
-    show_in_footer BOOLEAN NOT NULL DEFAULT 0,
-    "order" INTEGER NOT NULL DEFAULT 0,
-    created_date DATETIME NOT NULL,
-    updated_date DATETIME NOT NULL,
-    author_id INTEGER,
-    slug TEXT NOT NULL
-  );
   CREATE TABLE board_sitesetting (
     id INTEGER PRIMARY KEY,
     site_name TEXT NOT NULL,
@@ -100,17 +89,6 @@ database.exec(`
     icon_manifest TEXT NOT NULL DEFAULT '{}',
     seo_enabled BOOLEAN NOT NULL DEFAULT 1,
     aeo_enabled BOOLEAN NOT NULL DEFAULT 0
-  );
-  CREATE TABLE board_sitenotice (
-    id INTEGER PRIMARY KEY,
-    scope TEXT NOT NULL,
-    user_id INTEGER,
-    title TEXT NOT NULL,
-    is_active BOOLEAN NOT NULL DEFAULT 1,
-    "order" INTEGER NOT NULL DEFAULT 0,
-    created_date DATETIME NOT NULL,
-    updated_date DATETIME NOT NULL,
-    url TEXT NOT NULL DEFAULT ''
   );
   CREATE TABLE board_authorsubscription (
     id INTEGER PRIMARY KEY,
@@ -160,22 +138,22 @@ database.exec(`
     (4, 4, '<p>Private Orion content</p>');
   INSERT INTO board_tag VALUES (1, 'python'), (2, 'private-only'), (3, 'javascript'), (4, 'zebra');
   INSERT INTO board_post_tags VALUES (1, 1, 1), (2, 3, 1), (3, 4, 2), (4, 2, 3), (5, 1, 4);
-  INSERT INTO board_staticpage VALUES
+  INSERT INTO StaticPage (id, title, content, description, isPublished, showInFooter, "order", createdAt, updatedAt, authorId, slug) VALUES
     (1, 'Getting started', '<h1>Guide</h1><script>window.bad = true</script><p>Read more.</p>',
-     'A short guide', 1, 1, 1, '2020-01-01 00:00:00', '2020-01-02 00:00:00', 1, 'guide'),
-    (2, 'Internal page', '<p>Not public</p>', '', 0, 0, 2, '2020-01-01 00:00:00', '2020-01-02 00:00:00', NULL, 'internal');
+     'A short guide', 1, 1, 1, 1577836800000, 1577923200000, 1, 'guide'),
+    (2, 'Internal page', '<p>Not public</p>', '', 0, 0, 2, 1577836800000, 1577923200000, NULL, 'internal');
   INSERT INTO board_pinnedpost VALUES
     (1, 1, '2020-02-02 00:00:00', 1, 1),
     (2, 2, '2020-02-03 00:00:00', 4, 1),
     (3, 3, '2020-02-04 00:00:00', 5, 1);
-  INSERT INTO board_sitenotice VALUES
-    (1, 'global', NULL, 'Older site notice', 1, 0, '2020-01-01 00:00:00', '2020-01-01 00:00:00', '/news/older'),
-    (2, 'global', NULL, 'Newest site notice', 1, 0, '2020-01-02 00:00:00', '2020-01-02 00:00:00', 'https://notice.example/new'),
-    (3, 'global', NULL, 'Inactive site notice', 0, 0, '2020-01-03 00:00:00', '2020-01-03 00:00:00', '/news/inactive'),
-    (4, 'user', 1, 'First author notice', 1, 1, '2020-01-04 00:00:00', '2020-01-04 00:00:00', '/@writer/about'),
-    (5, 'user', 1, 'Second author notice', 1, 2, '2020-01-05 00:00:00', '2020-01-05 00:00:00', '/@writer/posts'),
-    (6, 'user', 1, 'Unsafe author notice', 1, 3, '2020-01-06 00:00:00', '2020-01-06 00:00:00', 'javascript:alert(1)'),
-    (7, 'user', 2, 'Reader-only notice', 1, 1, '2020-01-07 00:00:00', '2020-01-07 00:00:00', '/@reader');
+  INSERT INTO SiteNotice (id, scope, userId, title, isActive, "order", createdAt, updatedAt, url) VALUES
+    (1, 'global', NULL, 'Older site notice', 1, 0, 1577836800000, 1577836800000, '/news/older'),
+    (2, 'global', NULL, 'Newest site notice', 1, 0, 1577923200000, 1577923200000, 'https://notice.example/new'),
+    (3, 'global', NULL, 'Inactive site notice', 0, 0, 1578009600000, 1578009600000, '/news/inactive'),
+    (4, 'user', 1, 'First author notice', 1, 1, 1578096000000, 1578096000000, '/@writer/about'),
+    (5, 'user', 1, 'Second author notice', 1, 2, 1578182400000, 1578182400000, '/@writer/posts'),
+    (6, 'user', 1, 'Unsafe author notice', 1, 3, 1578268800000, 1578268800000, 'javascript:alert(1)'),
+    (7, 'user', 2, 'Reader-only notice', 1, 1, 1578355200000, 1578355200000, '/@reader');
   INSERT INTO board_authorsubscription VALUES (1, '2020-02-01 00:00:00', 1, 2);
   INSERT INTO board_sitesetting (id, site_name, logo_svg, logo_svg_dark, icon_manifest, seo_enabled)
     VALUES (1, 'BLEX Docs', 'brand/logo/default/synthetic.svg', 'brand/logo/dark/synthetic-dark.svg', '{}', 1);
@@ -432,6 +410,7 @@ test('lists only public series and renders public series detail in the selected 
 
 test('renders published static pages with safe content and canonical metadata', async () => {
   const response = await app.inject('/static/guide');
+  assert.match(response.body, /"datePublished":"2020-01-01T00:00:00Z","dateModified":"2020-01-02T00:00:00Z"/);
   assert.equal(response.statusCode, 200, response.body);
   assert.match(response.body, /<h1>Guide<\/h1>/);
   assert.match(response.body, /A short guide/);

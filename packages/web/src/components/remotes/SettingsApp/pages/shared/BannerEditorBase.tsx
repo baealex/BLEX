@@ -349,10 +349,10 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
 
         const payload: BannerCreatePayload = {
             title: formData.title,
-            content_html: formData.contentHtml,
-            banner_type: formData.bannerType,
+            contentHtml: formData.contentHtml,
+            bannerType: formData.bannerType,
             position: formData.position,
-            is_active: formData.isActive,
+            isActive: formData.isActive,
             order: formData.order
         };
 

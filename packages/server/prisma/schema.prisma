@@ -7,6 +7,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ContentScope {
+  user
+  global
+}
+
+enum BannerType {
+  horizontal
+  sidebar
+}
+
+enum BannerPosition {
+  top
+  bottom
+  left
+  right
+}
+
 model OAuthFlow {
   stateHash   String  @id @map("state_hash")
   browserHash String  @map("browser_hash")
@@ -63,7 +80,7 @@ model User {
   board_edithistory                                                                board_edithistory[]
   board_editrequest                                                                board_editrequest[]
   board_emailchange                                                                board_emailchange?
-  board_form                                                                       board_form[]
+  formTemplates                                                                    FormTemplate[]
   board_imagecache                                                                 board_imagecache[]
   board_notify                                                                     board_notify[]
   board_pinnedpost                                                                 board_pinnedpost[]
@@ -71,10 +88,10 @@ model User {
   board_post_likes                                                                 board_post_likes[]
   board_profile                                                                    board_profile?
   board_series                                                                     board_series[]
-  board_sitebanner                                                                 board_sitebanner[]
-  board_sitenotice                                                                 board_sitenotice[]
+  banners                                                                          SiteBanner[]
+  notices                                                                          SiteNotice[]
   board_socialauth                                                                 board_socialauth[]
-  board_staticpage                                                                 board_staticpage[]
+  staticPages                                                                      StaticPage[]
   board_telegramsync                                                               board_telegramsync?
   board_twofactorauth                                                              board_twofactorauth?
   board_userconfigmeta                                                             board_userconfigmeta[]
@@ -458,19 +475,6 @@ model board_emailchange {
   auth_user    User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model board_form {
-  id           Int      @id @default(autoincrement())
-  title        String
-  content      String
-  is_public    Boolean
-  created_date DateTime
-  updated_date DateTime
-  user_id      Int
-  auth_user    User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([user_id], map: "board_form_user_id_1f43b269")
-}
-
 model board_imagecache {
   id        Int    @id @default(autoincrement())
   key       String @unique
@@ -656,42 +660,6 @@ model board_seriesconfigmeta {
   @@index([post_id], map: "board_seriesconfigmeta_post_id_06b5e8ce")
 }
 
-model board_sitebanner {
-  id           Int      @id @default(autoincrement())
-  scope        String
-  title        String
-  is_active    Boolean
-  order        Int
-  created_date DateTime
-  updated_date DateTime
-  content_html String
-  banner_type  String
-  position     String
-  user_id      Int?
-  auth_user    User?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([user_id, is_active], map: "board_siteb_user_id_7efe4d_idx")
-  @@index([scope, is_active, banner_type, position], map: "board_siteb_scope_774e20_idx")
-  @@index([user_id], map: "board_sitebanner_user_id_efebe8f0")
-}
-
-model board_sitenotice {
-  id           Int      @id @default(autoincrement())
-  scope        String
-  title        String
-  is_active    Boolean
-  order        Int
-  created_date DateTime
-  updated_date DateTime
-  url          String
-  user_id      Int?
-  auth_user    User?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([user_id, is_active], map: "board_siten_user_id_2b60d0_idx")
-  @@index([scope, is_active], map: "board_siten_scope_0b3bc6_idx")
-  @@index([user_id], map: "board_sitenotice_user_id_354320c1")
-}
-
 model board_sitesetting {
   id                     Int      @id @default(autoincrement())
   header_script          String
@@ -731,23 +699,6 @@ model board_socialauthprovider {
   client_secret    String
   is_enabled       Boolean
   board_socialauth board_socialauth[]
-}
-
-model board_staticpage {
-  id               Int      @id @default(autoincrement())
-  title            String
-  content          String
-  meta_description String
-  is_published     Boolean
-  show_in_footer   Boolean
-  order            Int
-  created_date     DateTime
-  updated_date     DateTime
-  author_id        Int?
-  slug             String   @unique
-  auth_user        User?    @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([author_id], map: "board_staticpage_author_id_fecbd454")
 }
 
 model board_tag {
@@ -911,4 +862,72 @@ model WorkLogShare {
   entries WorkLogEntry[]
 
   @@index([logId])
+}
+
+model FormTemplate {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  title     String
+  content   String   @default("")
+  isPublic  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model StaticPage {
+  id           Int      @id @default(autoincrement())
+  authorId     Int?
+  slug         String   @unique
+  title        String
+  content      String   @default("")
+  description  String   @default("")
+  isPublished  Boolean  @default(false)
+  showInFooter Boolean  @default(false)
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  author User? @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([authorId])
+}
+
+model SiteNotice {
+  id        Int          @id @default(autoincrement())
+  userId    Int?
+  scope     ContentScope
+  title     String
+  url       String       @default("")
+  isActive  Boolean      @default(true)
+  order     Int          @default(0)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isActive])
+  @@index([scope, isActive])
+}
+
+model SiteBanner {
+  id          Int            @id @default(autoincrement())
+  userId      Int?
+  scope       ContentScope
+  type        BannerType
+  position    BannerPosition
+  title       String         @default("")
+  contentHtml String         @default("")
+  isActive    Boolean        @default(true)
+  order       Int            @default(0)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isActive])
+  @@index([scope, isActive, type, position])
 }

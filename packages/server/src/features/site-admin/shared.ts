@@ -38,7 +38,7 @@ export function djangoTimestamp(date = new Date()): string {
   return date.toISOString().replace('T', ' ').replace(/Z$/, '000');
 }
 
-export function isoDate(value: string | null): string {
+export function isoDate(value: string | Date | null): string {
   return djangoIso(value) ?? '';
 }
 
@@ -139,6 +139,16 @@ export function camelizeValue(value: unknown): unknown {
     key.replace(/_([a-z])/g, (_match, letter: string) => letter.toUpperCase()),
     camelizeValue(item),
   ]));
+}
+
+/** SQLite stores wider numbers, but Prisma then fails every later read of an Int column. */
+export function isDatabaseInteger(value: unknown): value is number {
+  return typeof value === 'number' && Number.isInteger(value) && value >= -2_147_483_648 && value <= 2_147_483_647;
+}
+
+export function orderValue(value: unknown): number {
+  const parsed = typeof value === 'number' ? value : /^-?\d+$/.test(String(value)) ? Number(value) : NaN;
+  return isDatabaseInteger(parsed) ? parsed : 0;
 }
 
 export function validRouteId(value: string): number | null {

@@ -1,9 +1,10 @@
 import type { FastifyInstance } from 'fastify';
 import { type PrismaClient } from '@prisma/client';
+import { djangoJsonUtc } from '../../../compat/django-format.js';
 import { SiteIcon } from '../../../appearance/icons.js';
 import { sanitizePostHtml } from '../../posts/post-html.js';
 import { readCardLikes, readPublicPostCount, readPublicPosts } from '../services/public-posts.js';
-import { PAGE_SIZE, PageMeta, PublicPageOptions, StaticPageRow, canonicalPageUrl, description, h, hasUnexpected, makeAbsolute, makePaginationMeta, pageFrom, safeStructuredPageData, sendNotFound, staticPageStyles, totalPages, validPublicPage } from '../shared.js';
+import { PAGE_SIZE, PageMeta, PublicPageOptions, canonicalPageUrl, description, h, hasUnexpected, makeAbsolute, makePaginationMeta, pageFrom, safeStructuredPageData, sendNotFound, staticPageStyles, totalPages, validPublicPage } from '../shared.js';
 import { NoticeSection, PageLayout, advertiseMarkdown, csrfCookie, getLayoutContext, readNotices, readPublicSiteBrand, readViewer, renderHtml } from '../pages/layout.js';
 import { EmptyState, Pagination, PostGrid } from '../pages/post-list.js';
 import { ReactFragment } from '../pages/search.js';
@@ -113,31 +114,26 @@ export function registerHomeRoutes(app: FastifyInstance, db: PrismaClient, siteU
   app.get<{ Params: { slug: string } }>('/static/:slug', async (request, reply) => {
     const slug = request.params.slug;
     if (slug.endsWith('.md')) return sendNotFound(reply);
-    const [page] = await db.$queryRaw<StaticPageRow[]>`
-      SELECT page.title AS title,
-             page.content AS content,
-             page.meta_description AS metaDescription,
-             CAST(page.created_date AS TEXT) AS createdDate,
-             CAST(page.updated_date AS TEXT) AS updatedDate,
-             author.username AS authorUsername
-        FROM board_staticpage AS page
-        LEFT JOIN auth_user AS author ON author.id = page.author_id
-       WHERE page.slug = ${slug} AND COALESCE(page.is_published, 0) = 1
-       LIMIT 1
-    `;
+    const page = await db.staticPage.findFirst({
+      where: { slug, isPublished: true },
+      select: {
+        title: true, content: true, description: true, createdAt: true, updatedAt: true,
+        author: { select: { username: true } },
+      },
+    });
     if (!page) return sendNotFound(reply);
     const { brand, siteName, viewer } = await getLayoutContext(request, reply, db, options);
     const path = `/static/${encodeURIComponent(slug)}`;
     const canonical = makeAbsolute(siteUrl, path);
-    const metaDescription = description(page.metaDescription || page.content, page.title);
+    const metaDescription = description(page.description || page.content, page.title);
     const structuredData = safeStructuredPageData(
       siteName,
       canonical,
       page.title,
       metaDescription,
-      page.createdDate,
-      page.updatedDate,
-      page.authorUsername,
+      djangoJsonUtc(page.createdAt),
+      djangoJsonUtc(page.updatedAt),
+      page.author?.username ?? null,
       siteUrl,
     );
     const pageMarkdown = await advertiseMarkdown(reply, db, siteUrl, path);
