@@ -410,11 +410,11 @@ test('account deletion checks recent proof, preserves other members, and protect
   fixture.exec(`
     INSERT INTO board_authorinvite (code, note, is_active, created_by_id, claimed_by_id, created_date, claimed_date)
     VALUES ('test-claimed', '', 0, 1, 2, '2000-01-01', '2000-01-01');
-    INSERT INTO board_worklog (id, title, created_at, owner_id) VALUES (3, 'Synthetic log', '2000-01-01', 2);
-    INSERT INTO board_worklogentry (id, title, text, media_type, attachment, created_at, log_id)
-    VALUES (4, 'Synthetic entry', '', '', '', '2000-01-01', 3);
-    INSERT INTO board_worklogshare (id, token, headline, created_at, log_id) VALUES (5, '123', 'Snapshot', '2000-01-01', 3);
-    INSERT INTO board_worklogshare_entries (worklogshare_id, worklogentry_id) VALUES (5, 4);
+    INSERT INTO WorkLog (id, title, createdAt, ownerId) VALUES (3, 'Synthetic log', 946684800000, 2);
+    INSERT INTO WorkLogEntry (id, title, text, mediaType, attachment, createdAt, logId)
+    VALUES (4, 'Synthetic entry', '', '', '', 946684800000, 3);
+    INSERT INTO WorkLogShare (id, token, headline, createdAt, logId) VALUES (5, '123', 'Snapshot', 946684800000, 3);
+    INSERT INTO _WorkLogEntryToWorkLogShare (A, B) VALUES (4, 5);
   `);
   insertRow(fixture, 'board_series', { id: 2, owner_id: 2, url: 'deleted-series' });
   insertRow(fixture, 'board_seriesconfigmeta', { post_id: 2 });
@@ -442,7 +442,7 @@ test('account deletion checks recent proof, preserves other members, and protect
     }
     const check = new DatabaseSync(path, { readOnly: true });
     assert.deepEqual(check.prepare('SELECT username FROM auth_user').all().map((row) => row.username), ['administrator']);
-    assert.equal(check.prepare('SELECT COUNT(*) AS rows FROM board_worklogshare_entries').get()?.rows, 0);
+    assert.equal(check.prepare('SELECT COUNT(*) AS rows FROM _WorkLogEntryToWorkLogShare').get()?.rows, 0);
     assert.equal(check.prepare('SELECT claimed_by_id FROM board_authorinvite').get()?.claimed_by_id, null);
     assert.deepEqual(check.prepare('SELECT url FROM board_post WHERE series_id IS NULL').all().map((row) => row.url), ['kept-post']);
     assert.deepEqual(check.prepare('SELECT text_md FROM board_comment WHERE author_id IS NULL').all().map((row) => row.text_md), ['kept']);

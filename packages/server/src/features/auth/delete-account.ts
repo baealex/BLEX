@@ -16,7 +16,7 @@ export async function deleteAccount(db: PrismaClient, account: VerificationAccou
       where: { id: 1 },
       select: { account_deletion_redirect_url: true },
     });
-    const attachments = await deleteWorkLogs(tx, { owner_id: account.id });
+    const attachments = await deleteWorkLogs(tx, { ownerId: account.id });
     await deletePosts(tx, { authorId: account.id });
     await deleteSeriesRows(tx, { owner_id: account.id });
     await anonymizeComments(tx, account.id);

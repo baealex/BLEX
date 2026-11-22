@@ -161,10 +161,10 @@ test('keeps Django work log share links working and revocable', async () => {
   const fixture = await migratedApp();
   try {
     const { db } = fixture;
-    insertRow(db, 'board_worklog', { id: 1, title: 'Log', owner_id: 1 });
-    insertRow(db, 'board_worklogentry', { id: 1, log_id: 1, title: 'Entry', text: 'Shared entry', media_type: 'text' });
-    insertRow(db, 'board_worklogshare', { id: 1, token: legacyShareToken, headline: 'Shared', log_id: 1 });
-    insertRow(db, 'board_worklogshare_entries', { worklogshare_id: 1, worklogentry_id: 1 });
+    insertRow(db, 'WorkLog', { id: 1, title: 'Log', ownerId: 1 });
+    insertRow(db, 'WorkLogEntry', { id: 1, logId: 1, title: 'Entry', text: 'Shared entry', mediaType: 'text' });
+    insertRow(db, 'WorkLogShare', { id: 1, token: legacyShareToken, headline: 'Shared', logId: 1 });
+    insertRow(db, '_WorkLogEntryToWorkLogShare', { A: 1, B: 1 });
 
     const shared = await fixture.app.inject(`/work-logs/share/${publicShareToken}/`);
     assert.equal(shared.statusCode, 200, shared.body);
@@ -177,7 +177,7 @@ test('keeps Django work log share links working and revocable', async () => {
       method: 'POST', url: `/work-logs/1/share/${publicShareToken}/revoke/`, headers: fixture.headers,
     });
     assert.ok(revoked.statusCode < 400, revoked.body);
-    assert.equal(fixture.count('board_worklogshare', 'id = 1'), 0);
+    assert.equal(fixture.count('WorkLogShare', 'id = 1'), 0);
     assert.equal((await fixture.app.inject(`/work-logs/share/${publicShareToken}/`)).statusCode, 404);
   } finally {
     await fixture.close();
@@ -187,15 +187,15 @@ test('keeps Django work log share links working and revocable', async () => {
 test('stores new work log share tokens in the Django column format', async () => {
   const fixture = await migratedApp();
   try {
-    insertRow(fixture.db, 'board_worklog', { id: 1, title: 'Log', owner_id: 1 });
-    insertRow(fixture.db, 'board_worklogentry', { id: 1, log_id: 1, title: 'Entry', text: 'Shared entry', media_type: 'text' });
+    insertRow(fixture.db, 'WorkLog', { id: 1, title: 'Log', ownerId: 1 });
+    insertRow(fixture.db, 'WorkLogEntry', { id: 1, logId: 1, title: 'Entry', text: 'Shared entry', mediaType: 'text' });
     const created = await fixture.app.inject({
       method: 'POST', url: '/work-logs/1/share/',
       headers: { ...fixture.headers, 'content-type': 'application/x-www-form-urlencoded' },
       payload: new URLSearchParams({ action: 'publish', headline: 'New link', entries: '1', selected_entries: '1', entry_ids: '1' }).toString(),
     });
     assert.equal(created.statusCode, 302, created.body);
-    const { token } = fixture.db.prepare('SELECT token FROM board_worklogshare').get() as { token: string };
+    const { token } = fixture.db.prepare('SELECT token FROM WorkLogShare').get() as { token: string };
     assert.match(token, /^[0-9a-f]{32}$/);
     const location = String(created.headers.location);
     assert.match(location, /^\/work-logs\/share\/[0-9a-f]{8}-[0-9a-f]{4}-/);

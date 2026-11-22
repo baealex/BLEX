@@ -3,7 +3,7 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 import { readPageChrome } from '../../appearance/page-chrome.js';
 import { renderWorkLogDetail } from './pages.js';
 import { WorkLogRow, countEntries, readEntries } from './services/logs.js';
-import { readShares } from './services/shares.js';
+import { countShares, readShares } from './services/shares.js';
 import { PAGE_SIZE, WorkLogOptions, WorkLogUser, csrfCookieValue, html, isActiveEditor, toIsoDateTime } from './shared.js';
 
 export function pageChrome(db: PrismaClient, request: FastifyRequest, user: { id: number; username: string } | null) {
@@ -52,9 +52,7 @@ export async function renderDetailPage(
 ) {
   const [totalEntries, totalShares, canWrite] = await Promise.all([
     countEntries(db, log.id),
-    db.$queryRaw<Array<{ total: number | bigint }>>`
-      SELECT COUNT(*) AS total FROM board_worklogshare WHERE log_id = ${log.id}
-    `.then(([row]) => Number(row?.total ?? 0)),
+    countShares(db, log.id),
     isActiveEditor(db, user.id),
   ]);
   const timelinePage = displayPage(state.timelinePage ?? (request.query as Record<string, string | undefined>).page, totalEntries);

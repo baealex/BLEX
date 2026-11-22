@@ -82,7 +82,7 @@ async function readImageReferences(db: PrismaClient | Prisma.TransactionClient):
     db.$queryRaw<Array<{ content: string | null }>>`SELECT content FROM board_form`,
     db.$queryRaw<Array<{ url: string | null }>>`SELECT url FROM board_sitenotice`,
     db.$queryRaw<Array<{ contentHtml: string | null }>>`SELECT content_html AS contentHtml FROM board_sitebanner`,
-    db.$queryRaw<Array<{ text: string | null }>>`SELECT text FROM board_worklogentry`,
+    db.workLogEntry.findMany({ select: { text: true } }),
   ]);
   const values = [
     ...posts.map((row) => row.image),

@@ -92,7 +92,7 @@ function createSchema() {
       created_date DATETIME NOT NULL, updated_date DATETIME NOT NULL, content_html TEXT NOT NULL DEFAULT '',
       banner_type TEXT NOT NULL DEFAULT 'horizontal', position TEXT NOT NULL DEFAULT 'top'
     );
-    CREATE TABLE board_worklogentry (id INTEGER PRIMARY KEY, text TEXT NOT NULL DEFAULT '');
+    CREATE TABLE WorkLogEntry (id INTEGER PRIMARY KEY, text TEXT NOT NULL DEFAULT '');
     CREATE TABLE board_profile (
       id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL UNIQUE, role TEXT NOT NULL DEFAULT 'READER',
       about_md TEXT NOT NULL DEFAULT '', about_html TEXT NOT NULL DEFAULT '', avatar TEXT NOT NULL DEFAULT '', cover TEXT NOT NULL DEFAULT '', bio TEXT NOT NULL DEFAULT '', homepage TEXT NOT NULL DEFAULT '', analytics_share_url TEXT NOT NULL DEFAULT ''
@@ -138,7 +138,7 @@ function seedDatabase() {
     DELETE FROM board_staticpage;
     DELETE FROM board_sitenotice;
     DELETE FROM board_sitebanner;
-    DELETE FROM board_worklogentry;
+    DELETE FROM WorkLogEntry;
     DELETE FROM board_profile;
     DELETE FROM board_config;
     DELETE FROM board_post;
@@ -1215,7 +1215,7 @@ test('image cleanup retains every referenced asset and only clears cache rows fo
     INSERT INTO board_sitebanner (id, scope, user_id, title, is_active, "order", created_date, updated_date, content_html)
       VALUES (2, 'global', NULL, 'Inactive banner', 0, 1, '2025-01-01', '2025-01-01',
         '<img src="/resources/media/images/content/inactive-banner-content.png">');
-    INSERT INTO board_worklogentry (id, text) VALUES (1, '![](/resources/media/images/content/worklog-content.png)');
+    INSERT INTO WorkLogEntry (id, text) VALUES (1, '![](/resources/media/images/content/worklog-content.png)');
     INSERT INTO board_imagecache (id, key, path) VALUES
       (1, 'unused-image-cache', 'images/content/unused-content.png'),
       (2, 'current-image-cache', 'images/content/current-content.png');

@@ -81,7 +81,7 @@ model User {
   board_userlinkmeta                                                               board_userlinkmeta[]
   usernameChanges                                                                  UsernameChange[]
   board_utilitycleanupconfirmation                                                 board_utilitycleanupconfirmation[]
-  board_worklog                                                                    board_worklog[]
+  workLogs                                                                         WorkLog[]
   django_admin_log                                                                 django_admin_log[]
   sessions                                                                         Session[]
 
@@ -832,57 +832,6 @@ model board_webhooksubscription {
   @@index([author_id], map: "board_webhooksubscription_author_id_8548ecb1")
 }
 
-model board_worklog {
-  id                 Int                  @id @default(autoincrement())
-  title              String
-  created_at         DateTime
-  owner_id           Int
-  auth_user          User                 @relation(fields: [owner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_worklogentry board_worklogentry[]
-  board_worklogshare board_worklogshare[]
-
-  @@index([owner_id], map: "board_worklog_owner_id_1954a244")
-}
-
-model board_worklogentry {
-  id                         Int                          @id @default(autoincrement())
-  title                      String
-  text                       String
-  media_type                 String
-  attachment                 String
-  created_at                 DateTime
-  log_id                     Int
-  board_worklog              board_worklog                @relation(fields: [log_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_worklogshare_entries board_worklogshare_entries[]
-
-  @@index([log_id], map: "board_worklogentry_log_id_13a54976")
-  @@index([log_id, created_at(sort: Desc), id(sort: Desc)], map: "worklog_entry_timeline")
-}
-
-model board_worklogshare {
-  id                         Int                          @id @default(autoincrement())
-  token                      String                       @unique
-  headline                   String
-  created_at                 DateTime
-  log_id                     Int
-  board_worklog              board_worklog                @relation(fields: [log_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_worklogshare_entries board_worklogshare_entries[]
-
-  @@index([log_id], map: "board_worklogshare_log_id_6da80181")
-}
-
-model board_worklogshare_entries {
-  id                 Int                @id @default(autoincrement())
-  worklogshare_id    Int
-  worklogentry_id    Int
-  board_worklogentry board_worklogentry @relation(fields: [worklogentry_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_worklogshare board_worklogshare @relation(fields: [worklogshare_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([worklogshare_id, worklogentry_id], map: "board_worklogshare_entries_worklogshare_id_worklogentry_id_8cf8f20c_uniq")
-  @@index([worklogentry_id], map: "board_worklogshare_entries_worklogentry_id_191c47f5")
-  @@index([worklogshare_id], map: "board_worklogshare_entries_worklogshare_id_4d45de92")
-}
-
 model django_admin_log {
   id                  Int                  @id @default(autoincrement())
   object_id           String?
@@ -921,4 +870,45 @@ model django_site {
   id     Int    @id @default(autoincrement())
   name   String
   domain String @unique
+}
+
+model WorkLog {
+  id        Int      @id @default(autoincrement())
+  ownerId   Int
+  title     String
+  createdAt DateTime @default(now())
+
+  owner   User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  entries WorkLogEntry[]
+  shares  WorkLogShare[]
+
+  @@index([ownerId])
+}
+
+model WorkLogEntry {
+  id         Int      @id @default(autoincrement())
+  logId      Int
+  title      String   @default("")
+  text       String   @default("")
+  mediaType  String   @default("")
+  attachment String   @default("")
+  createdAt  DateTime @default(now())
+
+  log    WorkLog        @relation(fields: [logId], references: [id], onDelete: Cascade)
+  shares WorkLogShare[]
+
+  @@index([logId, createdAt(sort: Desc), id(sort: Desc)])
+}
+
+model WorkLogShare {
+  id        Int      @id @default(autoincrement())
+  logId     Int
+  token     String   @unique
+  headline  String   @default("")
+  createdAt DateTime @default(now())
+
+  log     WorkLog        @relation(fields: [logId], references: [id], onDelete: Cascade)
+  entries WorkLogEntry[]
+
+  @@index([logId])
 }

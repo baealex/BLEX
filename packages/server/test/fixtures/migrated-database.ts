@@ -6,6 +6,7 @@ import { createToken, credentialTag, tokenHash } from '../../src/features/auth/s
 
 const migrationsRoot = new URL('../../../prisma/migrations/', import.meta.url);
 const legacyTimestamp = '2020-01-02 03:04:05.123456';
+const prismaTimestamp = Date.UTC(2020, 0, 2, 3, 4, 5, 123);
 
 export const testSecretKey = 'migrated-database-secret';
 export const testCipherKey = '0123456789abcdef0123456789abcdef';
@@ -20,8 +21,13 @@ export function insertRow(db: DatabaseSync, table: string, values: Row) {
   const { sql } = db.prepare(`SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?`).get(table) as { sql: string };
   const row: Row = { ...values };
   for (const column of columns) {
-    if (column.name in row || column.pk || !column.notnull || column.dflt_value !== null) continue;
+    if (column.name in row || column.pk || !column.notnull) continue;
     const type = column.type.toLowerCase();
+    if (/date/.test(type) && /[A-Z]/.test(column.name)) {
+      row[column.name] = prismaTimestamp;
+      continue;
+    }
+    if (column.dflt_value !== null) continue;
     if (/int|bool|decimal/.test(type)) row[column.name] = 0;
     else if (/date/.test(type)) row[column.name] = legacyTimestamp;
     else if (sql.includes(`JSON_VALID("${column.name}")`)) row[column.name] = column.name === 'tags' ? '[]' : '{}';

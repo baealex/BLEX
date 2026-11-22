@@ -656,46 +656,6 @@ CREATE TABLE "board_webhooksubscription" (
 );
 
 -- CreateTable
-CREATE TABLE "board_worklog" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "title" TEXT NOT NULL,
-    "created_at" DATETIME NOT NULL,
-    "owner_id" INTEGER NOT NULL,
-    CONSTRAINT "board_worklog_owner_id_fkey" FOREIGN KEY ("owner_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- CreateTable
-CREATE TABLE "board_worklogentry" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "title" TEXT NOT NULL,
-    "text" TEXT NOT NULL,
-    "media_type" TEXT NOT NULL,
-    "attachment" TEXT NOT NULL,
-    "created_at" DATETIME NOT NULL,
-    "log_id" INTEGER NOT NULL,
-    CONSTRAINT "board_worklogentry_log_id_fkey" FOREIGN KEY ("log_id") REFERENCES "board_worklog" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- CreateTable
-CREATE TABLE "board_worklogshare" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "token" TEXT NOT NULL,
-    "headline" TEXT NOT NULL,
-    "created_at" DATETIME NOT NULL,
-    "log_id" INTEGER NOT NULL,
-    CONSTRAINT "board_worklogshare_log_id_fkey" FOREIGN KEY ("log_id") REFERENCES "board_worklog" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- CreateTable
-CREATE TABLE "board_worklogshare_entries" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "worklogshare_id" INTEGER NOT NULL,
-    "worklogentry_id" INTEGER NOT NULL,
-    CONSTRAINT "board_worklogshare_entries_worklogentry_id_fkey" FOREIGN KEY ("worklogentry_id") REFERENCES "board_worklogentry" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT "board_worklogshare_entries_worklogshare_id_fkey" FOREIGN KEY ("worklogshare_id") REFERENCES "board_worklogshare" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- CreateTable
 CREATE TABLE "django_admin_log" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "object_id" TEXT,
@@ -728,6 +688,45 @@ CREATE TABLE "django_site" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "name" TEXT NOT NULL,
     "domain" TEXT NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "WorkLog" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "ownerId" INTEGER NOT NULL,
+    "title" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "WorkLog_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "WorkLogEntry" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "logId" INTEGER NOT NULL,
+    "title" TEXT NOT NULL DEFAULT '',
+    "text" TEXT NOT NULL DEFAULT '',
+    "mediaType" TEXT NOT NULL DEFAULT '',
+    "attachment" TEXT NOT NULL DEFAULT '',
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "WorkLogEntry_logId_fkey" FOREIGN KEY ("logId") REFERENCES "WorkLog" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "WorkLogShare" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "logId" INTEGER NOT NULL,
+    "token" TEXT NOT NULL,
+    "headline" TEXT NOT NULL DEFAULT '',
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "WorkLogShare_logId_fkey" FOREIGN KEY ("logId") REFERENCES "WorkLog" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "_WorkLogEntryToWorkLogShare" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL,
+    CONSTRAINT "_WorkLogEntryToWorkLogShare_A_fkey" FOREIGN KEY ("A") REFERENCES "WorkLogEntry" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "_WorkLogEntryToWorkLogShare_B_fkey" FOREIGN KEY ("B") REFERENCES "WorkLogShare" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateIndex
@@ -1097,30 +1096,6 @@ CREATE INDEX "board_webhooksubscription_author_id_8548ecb1" ON "board_webhooksub
 CREATE UNIQUE INDEX "board_webhooksubscription_scope_author_id_webhook_url_77edf147_uniq" ON "board_webhooksubscription"("scope", "author_id", "webhook_url");
 
 -- CreateIndex
-CREATE INDEX "board_worklog_owner_id_1954a244" ON "board_worklog"("owner_id");
-
--- CreateIndex
-CREATE INDEX "board_worklogentry_log_id_13a54976" ON "board_worklogentry"("log_id");
-
--- CreateIndex
-CREATE INDEX "worklog_entry_timeline" ON "board_worklogentry"("log_id", "created_at" DESC, "id" DESC);
-
--- CreateIndex
-CREATE UNIQUE INDEX "board_worklogshare_token_key" ON "board_worklogshare"("token");
-
--- CreateIndex
-CREATE INDEX "board_worklogshare_log_id_6da80181" ON "board_worklogshare"("log_id");
-
--- CreateIndex
-CREATE INDEX "board_worklogshare_entries_worklogentry_id_191c47f5" ON "board_worklogshare_entries"("worklogentry_id");
-
--- CreateIndex
-CREATE INDEX "board_worklogshare_entries_worklogshare_id_4d45de92" ON "board_worklogshare_entries"("worklogshare_id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "board_worklogshare_entries_worklogshare_id_worklogentry_id_8cf8f20c_uniq" ON "board_worklogshare_entries"("worklogshare_id", "worklogentry_id");
-
--- CreateIndex
 CREATE INDEX "django_admin_log_user_id_c564eba6" ON "django_admin_log"("user_id");
 
 -- CreateIndex
@@ -1134,4 +1109,22 @@ CREATE INDEX "django_session_expire_date_a5c62663" ON "django_session"("expire_d
 
 -- CreateIndex
 CREATE UNIQUE INDEX "django_site_domain_key" ON "django_site"("domain");
+
+-- CreateIndex
+CREATE INDEX "WorkLog_ownerId_idx" ON "WorkLog"("ownerId");
+
+-- CreateIndex
+CREATE INDEX "WorkLogEntry_logId_createdAt_id_idx" ON "WorkLogEntry"("logId", "createdAt" DESC, "id" DESC);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "WorkLogShare_token_key" ON "WorkLogShare"("token");
+
+-- CreateIndex
+CREATE INDEX "WorkLogShare_logId_idx" ON "WorkLogShare"("logId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_WorkLogEntryToWorkLogShare_AB_unique" ON "_WorkLogEntryToWorkLogShare"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_WorkLogEntryToWorkLogShare_B_index" ON "_WorkLogEntryToWorkLogShare"("B");
 
