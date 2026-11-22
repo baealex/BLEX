@@ -52,6 +52,8 @@
 ## BLEX 4
 
 - Fastify routes, React SSR, and the Vite client entries live in `packages/server/src/`. Use `renderApplicationDocument` for app pages so direct visits receive SSR and internal links use the shared React router. Keep initial page data in the route's SSR response. Mount and clean up browser-only features with their route.
+- Put server code in `packages/server/src/features/<domain>`: `http` for routes, `services` for rules and storage, and `pages` for SSR screens. Register feature routes only from `packages/server/src/routes/index.ts`.
+- Keep shared response, CSRF, cookie, and header helpers in `platform`, and 3.x formats, contracts, and upgrade checks in `compat`.
 - Keep authorization, data validation, and ownership checks in shared server services used by the routes that perform the same operation.
 - Add regression tests in `packages/server/test/` and run them with `pnpm test`. Verify migration changes on an empty SQLite database and a 3.x copy using the [upgrade guide](../packages/server/README.md).
 - Apply the design and UI change guides below to new React pages.

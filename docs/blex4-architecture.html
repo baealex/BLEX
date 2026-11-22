@@ -275,7 +275,7 @@ GET /assets/blex/app.js
 GET /assets/ui/assets/…
   ← Vite가 빌드한 앱 JavaScript</pre>
             <p>검색엔진도 첫 HTML에서 본문과 메타데이터를 읽을 수 있습니다. 글 주소에는 본문과 공개 글의 <code>BlogPosting</code> JSON-LD도 들어갑니다.</p>
-            <p class="source">관련 코드 <a href="../packages/server/src/features/discovery/pages/index.ts">홈 라우트</a> · <a href="../packages/server/src/application/document.tsx">SSR 문서</a></p>
+            <p class="source">관련 코드 <a href="../packages/server/src/features/discovery/http/home.ts">홈 라우트</a> · <a href="../packages/server/src/application/document.tsx">SSR 문서</a></p>
           </aside>
         </article>
 
@@ -350,8 +350,8 @@ GET /settings/account?saved=1
       <div class="section-heading"><h2>코드 위치</h2></div>
       <div class="table card">
         <dl>
-          <div class="row"><dt><a href="../packages/server/src/main.ts">packages/server/src/main.ts</a> · <a href="../packages/server/src/app.ts">app.ts</a></dt><dd>서버 시작, Prisma 연결, 페이지·API·미디어 라우트 등록</dd></div>
-          <div class="row"><dt><a href="../packages/server/src/features/discovery/pages/index.ts">packages/server/src/features/discovery/pages/index.ts</a></dt><dd>홈, 검색, 태그, 프로필 페이지 조회와 SSR</dd></div>
+          <div class="row"><dt><a href="../packages/server/src/main.ts">packages/server/src/main.ts</a> · <a href="../packages/server/src/app.ts">app.ts</a> · <a href="../packages/server/src/routes/index.ts">routes</a></dt><dd>서버 시작, Prisma 연결, 페이지·API·미디어 라우트 등록</dd></div>
+          <div class="row"><dt><a href="../packages/server/src/features/discovery">packages/server/src/features/discovery</a> · <a href="../packages/server/src/features/authors">authors</a></dt><dd>홈, 검색, 태그, 프로필 페이지 조회와 SSR</dd></div>
           <div class="row"><dt><a href="../packages/server/src/application/document.tsx">packages/server/src/application/document.tsx</a> · <a href="../packages/server/src/application/client.tsx">client.tsx</a></dt><dd>공통 HTML 문서 생성, 브라우저 진입점, 내부 이동과 폼 처리</dd></div>
           <div class="row"><dt><a href="../packages/server/src/features/auth/http.ts">packages/server/src/features/auth/http.ts</a> · <a href="../packages/server/src/features/account/index.ts">personal-settings/index.ts</a></dt><dd>로그인 API, 사용자 세션, 계정과 프로필 설정</dd></div>
           <div class="row"><dt><a href="../packages/server/prisma/schema.prisma">packages/server/prisma/schema.prisma</a></dt><dd>모델과 DB 스키마</dd></div>

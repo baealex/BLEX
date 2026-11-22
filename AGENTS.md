@@ -4,10 +4,14 @@ AI Agents must read `docs/DEV_CONVENTION.md` before starting any development.
 
 ## Project Map
 
-- BLEX 4 Fastify routes and React SSR: `packages/server/src`
+- Server entry and route registration: `packages/server/src/app.ts`, `packages/server/src/routes`
+- Server features: `packages/server/src/features/<domain>` (`http`, `services`, `pages`)
+- Shared server helpers: `packages/server/src/platform`
+- BLEX 3.x compatibility code: `packages/server/src/compat`
 - SQLite schema and migrations: `packages/server/prisma`
 - Tests and fixtures: `packages/server/test`
 - BLEX 3.14 React screens used by BLEX 4: `packages/web`
+- Shared UI and editor: `packages/ui`, `packages/editor`
 - BLEX 3.x compatibility reference: git tag `v3.14`
 - Project docs: `docs`
 
