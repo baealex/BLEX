@@ -22,7 +22,7 @@ export interface RegionalPreferences {
 export const updateRegionalPreferences = (language: string | null, timeZone: string) => (
     http.put<Response<Record<string, never>>>('v1/setting/regional-preferences', {
         language,
-        time_zone: timeZone
+        timeZone
     })
 );
 
@@ -30,7 +30,7 @@ export interface AccountUpdateData {
     username?: string;
     name?: string;
     password?: string;
-    revoke_tokens?: boolean;
+    revokeTokens?: boolean;
 }
 
 export interface ProfileData {
@@ -43,13 +43,6 @@ export interface ProfileData {
 export interface ProfileUpdateData {
     bio?: string;
     homepage?: string;
-}
-
-export interface NotifyConfig {
-    notify_posts_liked?: boolean;
-    notify_posts_commented?: boolean;
-    notify_comment_liked?: boolean;
-    notify_new_follower?: boolean;
 }
 
 export interface Tag {
@@ -923,7 +916,7 @@ export const cleanImages = async (
 // Admin User Management API
 export type ManagedUserRole = 'READER' | 'EDITOR';
 export type ManagedUserRoleFilter = 'all' | 'reader' | 'editor' | 'admin';
-export type ManagedUserOrdering = 'username' | '-username' | 'post_count' | '-post_count' | 'date_joined' | '-date_joined';
+export type ManagedUserOrdering = 'username' | '-username' | 'postCount' | '-postCount' | 'dateJoined' | '-dateJoined';
 
 export interface ManagedUser {
     id: number;
@@ -975,7 +968,7 @@ export const getManagedUsers = async (
     if (role !== 'all') params.set('role', role);
     params.set('ordering', ordering);
     params.set('page', String(page));
-    params.set('page_size', String(pageSize));
+    params.set('pageSize', String(pageSize));
 
     return http.get<Response<ManagedUsersResult>>(`v1/admin/users?${params.toString()}`);
 };

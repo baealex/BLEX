@@ -1149,7 +1149,7 @@ test('image cleanup retains every referenced asset and only clears cache rows fo
 test('lists users with filters and safely updates only reader/editor roles', async () => {
   const denied = await app.inject({ url: '/v1/admin/users', headers: headers(3) });
   assert.equal(body(denied).errorCode, 'error:RJ');
-  const list = await app.inject({ url: '/v1/admin/users?ordering=-post_count&page=1&page_size=2', headers: headers(1) });
+  const list = await app.inject({ url: '/v1/admin/users?ordering=-postCount&page=1&pageSize=2', headers: headers(1) });
   assert.equal(body(list).status, 'DONE');
   const result = body(list).body as {
     users: Array<Record<string, unknown>>;
@@ -1157,20 +1157,20 @@ test('lists users with filters and safely updates only reader/editor roles', asy
     stats: Record<string, unknown>;
   };
   assert.equal(result.users[0]?.username, 'site-editor');
-  assert.equal(result.users[0]?.post_count, 2);
-  assert.equal(result.pagination.page_size, 2);
-  assert.equal(result.pagination.total_pages, 3);
+  assert.equal(result.users[0]?.postCount, 2);
+  assert.equal(result.pagination.pageSize, 2);
+  assert.equal(result.pagination.totalPages, 3);
   assert.equal(result.stats.total, 5);
   assert.equal(result.stats.editors, 3);
   assert.equal(result.stats.readers, 1);
   assert.equal(result.stats.admins, 3);
 
-  const readers = await app.inject({ url: '/v1/admin/users?role=reader&page=50&page_size=200', headers: headers(2) });
+  const readers = await app.inject({ url: '/v1/admin/users?role=reader&page=50&pageSize=200', headers: headers(2) });
   const readerList = (body(readers).body as { users: Array<Record<string, unknown>>; pagination: Record<string, unknown> });
   assert.equal(readerList.users.length, 1);
   assert.equal(readerList.users[0]?.username, 'reader');
   assert.equal(readerList.pagination.page, 1);
-  assert.equal(readerList.pagination.page_size, 100);
+  assert.equal(readerList.pagination.pageSize, 100);
 
   const roleUpdate = await app.inject({
     method: 'PATCH', url: '/v1/admin/users/3/role', headers: jsonHeaders(1), payload: JSON.stringify({ role: 'EDITOR' }),

@@ -139,7 +139,7 @@ test('a reused invite signs up exactly one editor under concurrency', () => with
   const anonymous = browser(await app.inject('/sign'));
   const responses = await Promise.all(['inviteone', 'invitetwo', 'invitethree', 'invitefour'].map((username, index) => app.inject({
     method: 'POST', url: '/v1/sign', headers: anonymous, remoteAddress: `198.51.100.${index + 1}`,
-    payload: { username, name: 'Invited', email: `${username}@example.test`, password: newPassword, invite_code: 'single-use' },
+    payload: { username, name: 'Invited', email: `${username}@example.test`, password: newPassword, inviteCode: 'single-use' },
   })));
   assert.equal(responses.filter((response) => response.json().status === 'DONE').length, 1);
   assert.ok(responses.filter((response) => response.json().status !== 'DONE').every((response) => response.json().errorCode === 'error:RJ'));

@@ -219,7 +219,7 @@ export function registerOAuthRoutes(app: FastifyInstance, db: PrismaClient, site
     return { status: 'DONE', body: await publicOAuthProviders(db, config.cipherKey) };
   });
 
-  type StartRequest = { Params: { provider: string }; Querystring: { next?: string; time_zone?: string } };
+  type StartRequest = { Params: { provider: string }; Querystring: { next?: string; timeZone?: string } };
   const start = async (request: FastifyRequest<StartRequest>, reply: FastifyReply) => {
     const { provider } = request.params;
     if (!supportedProvider(provider)) return reply.code(404).send('Not found');
@@ -243,7 +243,7 @@ export function registerOAuthRoutes(app: FastifyInstance, db: PrismaClient, site
     const verifier = randomBytes(48).toString('base64url');
     const now = new Date();
     const sessionHash = reauthenticate ? tokenHash(session) ?? null : null;
-    const region = signupRegion(request, typeof request.query.time_zone === 'string' ? request.query.time_zone : '');
+    const region = signupRegion(request, typeof request.query.timeZone === 'string' ? request.query.timeZone : '');
     await db.$transaction([
       db.oAuthFlow.deleteMany({ where: { expiresAt: { lte: now } } }),
       db.oAuthFlow.create({

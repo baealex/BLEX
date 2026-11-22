@@ -65,13 +65,13 @@ function setupMarkup(csrf: string, token: string, error = ''): string {
             {error && <p role="alert" className="mb-4 rounded-xl border border-danger-line bg-danger-surface p-3 text-sm text-danger">{error}</p>}
             <form action="/setup" method="post" className="space-y-4">
               <input type="hidden" name="csrfmiddlewaretoken" value={csrf} />
-              {token ? <input type="hidden" name="setup_token" value={token} /> :
-                <label className={authField}>설정 토큰<input className={authInput} type="password" name="setup_token" autoComplete="off" required /></label>}
+              {token ? <input type="hidden" name="setupToken" value={token} /> :
+                <label className={authField}>설정 토큰<input className={authInput} type="password" name="setupToken" autoComplete="off" required /></label>}
               <label className={authField}>아이디<input className={authInput} name="username" autoComplete="username" maxLength={15} required /></label>
-              <label className={authField}>표시 이름<input className={authInput} name="display_name" autoComplete="name" maxLength={150} required /></label>
+              <label className={authField}>표시 이름<input className={authInput} name="displayName" autoComplete="name" maxLength={150} required /></label>
               <label className={authField}>이메일<input className={authInput} type="email" name="email" autoComplete="email" maxLength={254} required /></label>
               <label className={authField}>비밀번호<input className={authInput} type="password" name="password" autoComplete="new-password" required /></label>
-              <label className={authField}>비밀번호 확인<input className={authInput} type="password" name="password_check" autoComplete="new-password" required /></label>
+              <label className={authField}>비밀번호 확인<input className={authInput} type="password" name="passwordCheck" autoComplete="new-password" required /></label>
               <button className={authSubmit} type="submit">관리자 만들기</button>
             </form>
           </AuthPanel></div>
@@ -97,10 +97,10 @@ export function registerSetup(app: FastifyInstance, db: PrismaClient, siteUrl: U
     const fields = formInput(request);
     const get = (name: string) => typeof fields[name] === 'string' ? fields[name].trim() : '';
     const username = get('username').toLowerCase();
-    const displayName = get('display_name');
+    const displayName = get('displayName');
     const email = get('email');
     const password = typeof fields?.password === 'string' ? fields.password : '';
-    const provided = get('setup_token');
+    const provided = get('setupToken');
     const validToken = matchesToken(token, provided);
     const csrf = request.cookies[csrfCookie] ?? '';
     const fail = (message: string) => reply.type('text/html; charset=utf-8').header('Referrer-Policy', 'strict-origin')
@@ -111,7 +111,7 @@ export function registerSetup(app: FastifyInstance, db: PrismaClient, siteUrl: U
     if (!accountUsernamePattern.test(username)) return fail('사용자 이름은 4~15자 사이의 소문자 영어, 숫자만 가능합니다.');
     if (!displayName || displayName.length > 150) return fail('표시 이름을 확인해 주세요.');
     if (email.length > 254 || !accountEmailPattern.test(email)) return fail('올바른 이메일 주소가 아닙니다.');
-    if (password !== fields.password_check) return fail('비밀번호가 일치하지 않습니다.');
+    if (password !== fields.passwordCheck) return fail('비밀번호가 일치하지 않습니다.');
     const passwordError = describeInvalidPassword(password, [username, displayName, email]);
     if (passwordError) return fail(passwordError);
     if (await db.user.findUnique({ where: { username }, select: { id: true } })) return fail('이미 사용중인 아이디입니다.');

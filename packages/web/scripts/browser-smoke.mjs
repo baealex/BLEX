@@ -31,10 +31,10 @@ const open = (path) => page.goto(`${origin}${path}`, { waitUntil: 'networkidle' 
 const createFirstAdmin = async () => {
     await open(`/setup?token=${encodeURIComponent(setupToken)}`);
     await page.locator('input[name=username]').fill(account.username);
-    await page.locator('input[name=display_name]').fill(account.displayName);
+    await page.locator('input[name=displayName]').fill(account.displayName);
     await page.locator('input[name=email]').fill(account.email);
     await page.locator('input[name=password]').fill(account.password);
-    await page.locator('input[name=password_check]').fill(account.password);
+    await page.locator('input[name=passwordCheck]').fill(account.password);
     await page.getByRole('button', { name: '관리자 만들기' }).click();
     await page.waitForURL((url) => url.pathname !== '/setup');
 };

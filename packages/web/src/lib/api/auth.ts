@@ -4,8 +4,8 @@ export interface LoginRequest {
     username?: string;
     password?: string;
     code?: string;
-    captcha_token?: string;
-    oauth_2fa?: boolean;
+    captchaToken?: string;
+    oauth2fa?: boolean;
 }
 
 export interface LoginResponseBody {

@@ -160,7 +160,7 @@ test('reads and updates account name and regional preferences using the legacy e
 
   const regional = await app.inject({
     method: 'PUT', url: '/v1/setting/regional-preferences', headers: { ...headers(1), 'content-type': 'application/json' },
-    payload: { language: 'ko', time_zone: 'UTC' },
+    payload: { language: 'ko', timeZone: 'UTC' },
   });
   assert.deepEqual(regional.json(), { status: 'DONE', body: {} });
   const regionalRead = await app.inject({ url: '/v1/setting/account', headers: headers(1) });
@@ -169,7 +169,7 @@ test('reads and updates account name and regional preferences using the legacy e
 
   const invalidRegional = await app.inject({
     method: 'PUT', url: '/v1/setting/regional-preferences', headers: { ...headers(1), 'content-type': 'application/json' },
-    payload: { language: 'not-supported', time_zone: 'Nowhere/Nozone' },
+    payload: { language: 'not-supported', timeZone: 'Nowhere/Nozone' },
   });
   assert.equal(invalidRegional.json().errorCode, 'error:VA');
   assert.equal(invalidRegional.json().messageKey, 'settings.regional_preferences.invalid_language');
@@ -181,7 +181,7 @@ test('reads and updates account name and regional preferences using the legacy e
 
   const browserLanguage = await app.inject({
     method: 'PUT', url: '/v1/setting/regional-preferences', headers: { ...headers(1), 'content-type': 'application/json' },
-    payload: { language: null, time_zone: 'Asia/Seoul' },
+    payload: { language: null, timeZone: 'Asia/Seoul' },
   });
   assert.deepEqual(browserLanguage.json(), { status: 'DONE', body: {} });
   const pageRegionalRead = await app.inject({ url: '/v1/setting/account', headers: headers(1) });
@@ -370,13 +370,13 @@ test('restricts about editing to the active editor owner and sanitizes stored an
 
   const notOwner = await app.inject({
     method: 'POST', url: '/@other/about/edit', headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
-    payload: form([['csrfmiddlewaretoken', csrfToken], ['about_md', 'Not mine']]),
+    payload: form([['csrfmiddlewaretoken', csrfToken], ['aboutMarkdown', 'Not mine']]),
   });
   assert.equal(notOwner.statusCode, 403);
 
   const saved = await app.inject({
     method: 'POST', url: '/@writer/about/edit', headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
-    payload: form([['csrfmiddlewaretoken', csrfToken], ['about_md', '# Hello\n\n<script>alert(2)</script>\n\n[Safe link](https://example.com)']]),
+    payload: form([['csrfmiddlewaretoken', csrfToken], ['aboutMarkdown', '# Hello\n\n<script>alert(2)</script>\n\n[Safe link](https://example.com)']]),
   });
   assert.equal(saved.json().status, 'success');
   assert.equal(saved.json().message, '소개글을 저장했습니다.');
@@ -386,21 +386,21 @@ test('restricts about editing to the active editor owner and sanitizes stored an
 
   const apiSave = await app.inject({
     method: 'PUT', url: '/v1/users/@writer', headers: { ...headers(1), 'content-type': 'application/json' },
-    payload: { about: true, about_md: 'API **save**' },
+    payload: { about: true, aboutMarkdown: 'API **save**' },
   });
   assert.deepEqual(apiSave.json(), { status: 'DONE', body: {} });
   const unauthorizedSave = await app.inject({
     method: 'PUT', url: '/v1/users/@writer', headers: { ...headers(2), 'content-type': 'application/json' },
-    payload: { about: true, about_md: 'Not mine' },
+    payload: { about: true, aboutMarkdown: 'Not mine' },
   });
   assert.equal(unauthorizedSave.json().errorCode, 'error:AT');
   const missingCsrf = await app.inject({
     method: 'PUT', url: '/v1/users/@writer', headers: { ...headers(1, false), 'content-type': 'application/json' },
-    payload: { about: true, about_md: 'No CSRF' },
+    payload: { about: true, aboutMarkdown: 'No CSRF' },
   });
   assert.equal(missingCsrf.statusCode, 403);
   const anonymousSave = await app.inject({
-    method: 'PUT', url: '/v1/users/@writer', headers: { 'content-type': 'application/json' }, payload: { about: true, about_md: 'No login' },
+    method: 'PUT', url: '/v1/users/@writer', headers: { 'content-type': 'application/json' }, payload: { about: true, aboutMarkdown: 'No login' },
   });
   assert.equal(anonymousSave.json().errorCode, 'error:NL');
 });

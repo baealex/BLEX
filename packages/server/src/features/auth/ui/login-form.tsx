@@ -53,7 +53,7 @@ export function LoginForm({ model }: LoginFormProps) {
     requestController.current = controller;
 
     const payload = isOAuthChallenge
-      ? { oauth_2fa: true, code }
+      ? { oauth2fa: true, code }
       : { username, password, ...(showCode ? { code } : {}) };
 
     try {

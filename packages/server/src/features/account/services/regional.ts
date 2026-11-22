@@ -81,23 +81,21 @@ export function regionalPreferences(config: RegionalConfig | null): RegionalPref
   };
 }
 
-function regionalError(field: 'language' | 'time_zone'): UpdateResult {
-  return {
-    ok: false,
-    message: field === 'language' ? '지원하는 언어를 선택하세요.' : '유효한 시간대를 선택하세요.',
-    messageKey: `settings.regional_preferences.invalid_${field}`,
-  };
+function regionalError(field: 'language' | 'timeZone'): UpdateResult {
+  return field === 'language'
+    ? { ok: false, message: '지원하는 언어를 선택하세요.', messageKey: 'settings.regional_preferences.invalid_language' }
+    : { ok: false, message: '유효한 시간대를 선택하세요.', messageKey: 'settings.regional_preferences.invalid_time_zone' };
 }
 
 export async function updateRegionalPreferences(db: PrismaClient, userId: number, body: Body): Promise<UpdateResult> {
   const language = body.language;
-  const timeZone = body.time_zone;
+  const timeZone = body.timeZone;
   const languages = languageChoices();
   if (language !== null && language !== '' && (typeof language !== 'string' || !languages.some(({ code }) => code === language))) {
     return regionalError('language');
   }
   if (typeof timeZone !== 'string' || (timeZone !== '' && !isSupportedTimeZone(timeZone))) {
-    return regionalError('time_zone');
+    return regionalError('timeZone');
   }
   const preference = { language: language as string | null, timeZone };
   await db.userPreference.upsert({ where: { userId }, create: { userId, ...preference }, update: preference, select: { userId: true } });

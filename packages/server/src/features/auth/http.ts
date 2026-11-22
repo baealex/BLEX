@@ -59,7 +59,7 @@ export function registerAuthentication(app: FastifyInstance, db: PrismaClient, s
 
     routes.post('/v1/login', async (request, reply) => {
       if (!validCsrf(request, siteUrl)) return reply.code(403).send(failure('RJ'));
-      const { username = '', password = '', code = '', oauth_2fa: oauthTwoFactor, oauth_token: oauthToken } = formInput(request);
+      const { username = '', password = '', code = '', oauth2fa: oauthTwoFactor, oauthToken } = formInput(request);
       const oauthRequest = oauthTwoFactor === true || oauthTwoFactor === 'true' || Boolean(oauthToken);
       const challengeToken = request.cookies[oauthChallengeCookie];
       const pending = oauthRequest || (!password && code) ? await readPendingOAuth(db, challengeToken) : null;

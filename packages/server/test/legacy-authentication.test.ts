@@ -77,7 +77,7 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     resetCaptchaDb.prepare('UPDATE LoginSetting SET hcaptchaEnabled = 0, hcaptchaSiteKey = ? WHERE id = 1').run('');
     resetCaptchaDb.close();
     const headers = headersFor(page, siteUrl);
-    const fields = { username: 'neweditor', name: 'Test Author', password, time_zone: 'Asia/Seoul', email: 'editor@Example.invalid' };
+    const fields = { username: 'neweditor', name: 'Test Author', password, timeZone: 'Asia/Seoul', email: 'editor@Example.invalid' };
     const noCsrf = await app.inject({ method: 'POST', url: '/v1/sign', payload: fields });
     assert.equal(noCsrf.statusCode, 403);
     const reader = await app.inject({ method: 'POST', url: '/v1/sign', headers,
@@ -86,7 +86,7 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     assert.equal(reader.json().body.isFirstLogin, true);
     assert.equal(reader.json().body.notifyCount, 1);
     const editor = await app.inject({ method: 'POST', url: '/v1/sign', headers,
-      payload: { ...fields, invite_code: 'synthetic-invite' } });
+      payload: { ...fields, inviteCode: 'synthetic-invite' } });
     assert.equal(editor.json().body.hasEditorRole, true);
     assert.equal(editor.json().body.email, 'editor@example.invalid');
     assert.match(headersFor(editor, siteUrl).cookie, /blexsessionid=/);
@@ -163,7 +163,7 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     assert.equal(revoked.json().body.id, issued.id);
     assert.equal((await app.inject(apiRequest)).statusCode, 401);
     const reused = await app.inject({ method: 'POST', url: '/v1/sign', headers,
-      payload: { ...fields, username: 'anothereditor', invite_code: 'synthetic-invite' } });
+      payload: { ...fields, username: 'anothereditor', inviteCode: 'synthetic-invite' } });
     assert.equal(reused.json().errorCode, 'error:RJ');
     assert.equal((await app.inject('/v1/sign?username=neweditor')).json().body.isAvailable, false);
     assert.equal((await app.inject('/v1/sign?username=anothereditor')).json().body.isAvailable, true);
@@ -474,10 +474,10 @@ test('binds OAuth callbacks to the initiating browser and reuses an existing soc
     const csrfResponse = await app.inject('/v1/login');
     const [csrf] = cookiesFrom(csrfResponse.headers['set-cookie']);
     const headers = { origin: siteUrl.origin, cookie: `${challenge}; ${csrf}`, 'x-csrftoken': csrf.slice('csrftoken='.length) };
-    const result = await app.inject({ method: 'POST', url: '/v1/login', headers, payload: { oauth_2fa: true, code: recoveryCode } });
+    const result = await app.inject({ method: 'POST', url: '/v1/login', headers, payload: { oauth2fa: true, code: recoveryCode } });
     assert.equal(result.json().body.username, 'social-reader');
     assert.ok(cookiesFrom(result.headers['set-cookie']).some((item) => item.startsWith('blexsessionid=')));
-    const replay = await app.inject({ method: 'POST', url: '/v1/login', headers, payload: { oauth_2fa: true, code: recoveryCode } });
+    const replay = await app.inject({ method: 'POST', url: '/v1/login', headers, payload: { oauth2fa: true, code: recoveryCode } });
     assert.equal(replay.json().errorCode, 'error:RJ');
 
     const next = '/settings/security';
@@ -506,7 +506,7 @@ test('binds OAuth callbacks to the initiating browser and reuses an existing soc
     assert.equal(proofCompleted.headers.location, next);
 
     nextIdentity = { id: 'brand-new-social-uid', email: 'new-social@example.invalid' };
-    const newSignup = await app.inject('/login/start/google?time_zone=Asia%2FSeoul');
+    const newSignup = await app.inject('/login/start/google?timeZone=Asia%2FSeoul');
     const newAccount = await followAuthorization({ origin: siteUrl.origin, cookie: '', 'x-csrftoken': '' }, newSignup);
     assert.equal(newAccount.headers.location, '/');
     const newHeaders = headersFor(newAccount, siteUrl);
@@ -583,17 +583,17 @@ test('creates a first administrator against an empty Prisma database once', asyn
     assert.equal(form.headers['referrer-policy'], 'strict-origin');
     const [csrf] = cookiesFrom(form.headers['set-cookie']);
     const headers = { origin: siteUrl.origin, cookie: csrf, 'x-csrftoken': csrf.slice('csrftoken='.length) };
-    const account = { username: 'FIRSTADMIN', display_name: 'Test Admin', email: 'owner@Example.invalid' };
-    const badToken = await app.inject({ method: 'POST', url: '/setup', headers, payload: { ...account, setup_token: 'invalid' } });
+    const account = { username: 'FIRSTADMIN', displayName: 'Test Admin', email: 'owner@Example.invalid' };
+    const badToken = await app.inject({ method: 'POST', url: '/setup', headers, payload: { ...account, setupToken: 'invalid' } });
     assert.match(badToken.body, /설정 토큰을 확인/);
     const weak = await app.inject({
       method: 'POST', url: '/setup', headers,
-      payload: { ...account, setup_token: setupToken, password: 'password123', password_check: 'password123' },
+      payload: { ...account, setupToken: setupToken, password: 'password123', passwordCheck: 'password123' },
     });
     assert.match(weak.body, /흔히 사용되는 비밀번호/);
     const created = await app.inject({
       method: 'POST', url: '/setup', headers,
-      payload: { ...account, setup_token: setupToken, password, password_check: password },
+      payload: { ...account, setupToken: setupToken, password, passwordCheck: password },
     });
     assert.equal(created.statusCode, 302, created.body);
     assert.equal(created.headers.location, '/admin-settings/site-settings');

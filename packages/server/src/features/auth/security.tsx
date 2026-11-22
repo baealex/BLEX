@@ -78,7 +78,7 @@ export function passwordUpdater(db: PrismaClient, siteUrl: URL, config: AuthConf
     if (!account || user.id !== account.id) return securityError('NL');
     if (!validCsrf(request, siteUrl)) return reply.code(403).send(securityError('RJ'));
     if (!hasVerification(account)) return verificationRequired;
-    const { password, username, name, revoke_tokens: revokeTokens } = input;
+    const { password, username, name, revokeTokens } = input;
     if (typeof password !== 'string' || !password ||
         (username !== undefined && typeof username !== 'string') || (name !== undefined && typeof name !== 'string')) return securityError('VA');
     const newUsername = username || account.username;

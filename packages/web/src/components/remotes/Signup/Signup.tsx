@@ -261,11 +261,11 @@ const Signup = () => {
                 'name': name,
                 'email': email,
                 'password': password,
-                'time_zone': getBrowserTimeZone() || ''
+                'timeZone': getBrowserTimeZone() || ''
             });
 
             if (window.INVITE_CODE) {
-                formData.append('invite_code', window.INVITE_CODE);
+                formData.append('inviteCode', window.INVITE_CODE);
             }
 
             if (captchaToken) {

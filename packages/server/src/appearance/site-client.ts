@@ -291,11 +291,11 @@ async function saveAbout(url: string, content: string) {
   const token = /(?:^|; )csrftoken=([^;]+)/.exec(document.cookie)?.[1] ?? '';
   try {
     const response = await fetch(url, {
-      method: 'POST', body: new URLSearchParams({ about_md: content }),
+      method: 'POST', body: new URLSearchParams({ aboutMarkdown: content }),
       headers: { 'X-CSRFToken': token, Accept: 'application/json' },
     });
-    const data = await response.json().catch(() => ({})) as { status?: string; message?: string; about_md?: string; about_html?: string };
-    if (response.ok && data.status === 'success') return { ok: true as const, message: data.message ?? '소개글을 저장했습니다.', markdown: data.about_md ?? '', html: data.about_html ?? '' };
+    const data = await response.json().catch(() => ({})) as { status?: string; message?: string; aboutMarkdown?: string; aboutHtml?: string };
+    if (response.ok && data.status === 'success') return { ok: true as const, message: data.message ?? '소개글을 저장했습니다.', markdown: data.aboutMarkdown ?? '', html: data.aboutHtml ?? '' };
     return { ok: false as const, message: data.message ?? '소개글을 저장하지 못했습니다.' };
   } catch {
     return { ok: false as const, message: '네트워크 오류로 저장하지 못했습니다.' };

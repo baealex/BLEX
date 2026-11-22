@@ -61,10 +61,10 @@ function userRoleFilter(value: string | null): string {
 function userOrdering(value: string | null): UserOrdering {
   switch (value) {
     case '-username': return { field: 'username', direction: 'desc' };
-    case 'post_count': return { field: 'postCount', direction: 'asc' };
-    case '-post_count': return { field: 'postCount', direction: 'desc' };
-    case 'date_joined': return { field: 'joinedAt', direction: 'asc' };
-    case '-date_joined': return { field: 'joinedAt', direction: 'desc' };
+    case 'postCount': return { field: 'postCount', direction: 'asc' };
+    case '-postCount': return { field: 'postCount', direction: 'desc' };
+    case 'dateJoined': return { field: 'joinedAt', direction: 'asc' };
+    case '-dateJoined': return { field: 'joinedAt', direction: 'desc' };
     default: return { field: 'username', direction: 'asc' };
   }
 }
@@ -125,7 +125,7 @@ export async function readManagedUsers(db: PrismaClient, request: FastifyRequest
   const params = userListQuery(request);
   const query = (params.get('q') ?? '').trim();
   const role = userRoleFilter(params.get('role'));
-  const pageSizeValue = positiveInteger(params.get('page_size'), 20);
+  const pageSizeValue = positiveInteger(params.get('pageSize'), 20);
   const pageSize = pageSizeValue < 1 ? 20 : Math.min(pageSizeValue, 100);
   const requestedPage = positiveInteger(params.get('page'), 1);
   const { users, stats, page, totalPages } = await managedUserPage(
@@ -155,38 +155,6 @@ export async function readManagedUsers(db: PrismaClient, request: FastifyRequest
       hasPrevious: page > 1,
     },
     stats,
-  };
-}
-
-export function managedUserApi(user: AdminManagedUser): Record<string, unknown> {
-  return {
-    id: user.id,
-    username: user.username,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    is_active: user.isActive,
-    is_staff: user.isStaff,
-    is_superuser: user.isSuperuser,
-    can_change_role: user.canChangeRole,
-    post_count: user.postCount,
-    date_joined: user.dateJoined,
-    last_login: user.lastLogin,
-  };
-}
-
-export function managedUserListApi(list: AdminUserList): Record<string, unknown> {
-  return {
-    users: list.users.map(managedUserApi),
-    pagination: {
-      page: list.pagination.page,
-      page_size: list.pagination.pageSize,
-      total: list.pagination.total,
-      total_pages: list.pagination.totalPages,
-      has_next: list.pagination.hasNext,
-      has_previous: list.pagination.hasPrevious,
-    },
-    stats: list.stats,
   };
 }
 

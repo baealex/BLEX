@@ -1,14 +1,14 @@
 import { type PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import { done as success, failure } from '../../../platform/response.js';
-import { createInvite, deleteInvite, managedUserApi, managedUserListApi, readInvites, readManagedUsers, updateManagedUserRole } from '../services/users.js';
+import { createInvite, deleteInvite, readInvites, readManagedUsers, updateManagedUserRole } from '../services/users.js';
 import { AdminSettingsOptions, apiAccess, apiJsonBody, csrfValid, validRouteId } from '../shared.js';
 
 export function registerUsersRoutes(routes: FastifyInstance, db: PrismaClient, options: AdminSettingsOptions) {
     routes.get('/v1/admin/users', async (request, reply) => {
       const permission = await apiAccess(request, db, options);
       if ('response' in permission) return reply.send(permission.response);
-      return reply.send(success(managedUserListApi(await readManagedUsers(db, request))));
+      return reply.send(success(await readManagedUsers(db, request)));
     });
 
     routes.patch<{ Params: { userId: string }; Body: unknown }>('/v1/admin/users/:userId/role', { bodyLimit: 64 * 1024 }, async (request, reply) => {
@@ -20,7 +20,7 @@ export function registerUsersRoutes(routes: FastifyInstance, db: PrismaClient, o
       const body = apiJsonBody(request);
       const updated = await updateManagedUserRole(db, permission.user.id, targetId, body.role);
       return updated.ok
-        ? reply.send(success({ user: managedUserApi(updated.body) }))
+        ? reply.send(success({ user: updated.body }))
         : reply.send(failure(updated.code, updated.message));
     });
 

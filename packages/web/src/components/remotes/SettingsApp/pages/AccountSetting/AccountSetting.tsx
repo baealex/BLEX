@@ -150,7 +150,7 @@ const AccountSettings = () => {
         try {
             const { data } = await updateAccountSettings({
                 password,
-                revoke_tokens: revokeTokens
+                revokeTokens
             });
 
             if (data.status === 'DONE') {
