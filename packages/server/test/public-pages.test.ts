@@ -10,7 +10,7 @@ import { registerPublicPages } from '../src/features/discovery/pages/index.js';
 import { accountTables, createMigratedTables, migratedTableSql, prismaDate } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-public-pages-'));
-const databasePath = join(directory, 'Django public pages.sqlite3');
+const databasePath = join(directory, 'synthetic public pages.sqlite3');
 const database = new DatabaseSync(databasePath);
 createMigratedTables(database, 'StaticPage', 'SiteNotice', 'SiteSetting');
 database.exec(`

@@ -14,7 +14,7 @@ import { installNotificationTables } from './fixtures/notifications.js';
 const readerCipherKey = '0123456789abcdef0123456789abcdef';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-reader-actions-'));
-const databasePath = join(directory, 'Django reader actions.sqlite3');
+const databasePath = join(directory, 'synthetic reader actions.sqlite3');
 const database = new DatabaseSync(databasePath);
 createMigratedTables(database, 'IntegrationSetting');
 database.exec(`

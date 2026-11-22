@@ -23,7 +23,7 @@ export const accountTables = [
 type Row = Record<string, SQLInputValue>;
 interface ColumnInfo { name: string; type: string; notnull: number; dflt_value: unknown; pk: number }
 
-/** Fills the NOT NULL columns Django populated in the ORM so fixtures keep the real constraints. */
+/** Fills required columns the application normally populates, so fixtures keep the real constraints. */
 export function insertRow(db: DatabaseSync, table: string, values: Row) {
   const columns = db.prepare(`PRAGMA table_info("${table}")`).all() as unknown as ColumnInfo[];
   const { sql } = db.prepare(`SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?`).get(table) as { sql: string };
@@ -91,7 +91,7 @@ export function createMigratedTables(db: DatabaseSync, ...tables: string[]) {
   db.exec(migratedTableSql(...tables));
 }
 
-/** Applies the shipped migrations, so tests see Django's real foreign keys and NOT NULL columns. */
+/** Applies the shipped migrations, so tests see the real foreign keys and NOT NULL columns. */
 export async function createMigratedDatabase() {
   const directory = await mkdtemp(join(tmpdir(), 'blex-v4-migrated-'));
   const path = join(directory, 'db.sqlite3');

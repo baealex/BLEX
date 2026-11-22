@@ -15,7 +15,7 @@ import { markdownToHtml } from '../src/features/posts/authoring/markdown.js';
 import { accountTables, createMigratedTables, migratedTableSql, prismaDate } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-authoring-'));
-const databasePath = join(directory, 'Django authoring.sqlite3');
+const databasePath = join(directory, 'synthetic authoring.sqlite3');
 const database = new DatabaseSync(databasePath);
 createMigratedTables(database, 'FormTemplate', 'StaticPage', 'SiteBanner', 'UploadedImage', 'IntegrationSetting', 'SiteSetting',
   'Notification', 'NotificationDelivery', 'TelegramConnection', 'WebhookChannel', 'WebhookDelivery');

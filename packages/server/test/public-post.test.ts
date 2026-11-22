@@ -8,7 +8,7 @@ import { buildApp } from '../src/app.js';
 import { accountTables, createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-test-'));
-const databasePath = join(directory, 'Django posts.sqlite3');
+const databasePath = join(directory, 'synthetic posts.sqlite3');
 const legacySlug = 'a'.repeat(69);
 const database = new DatabaseSync(databasePath);
 createMigratedTables(database, 'StaticPage', 'SiteBanner', 'SiteSetting');
