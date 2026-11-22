@@ -43,10 +43,17 @@ function convertKeys(root: unknown, rename: (key: string) => string | null): unk
 
 /**
  * The API has always ignored keys it does not document. Dropping non-snake keys keeps a caller's
- * `isHidden` or `dryRun` from suddenly meaning `is_hidden` or `dry_run` once handlers read camelCase.
+ * `isHidden` from suddenly meaning `is_hidden` once handlers read camelCase.
  */
 export function keysFromWire(value: unknown): unknown {
   return convertKeys(value, (key) => (documentedName.test(key) ? snakeToCamel(key) : null));
+}
+
+/** `dryRun` is the one undocumented spelling kept, because a caller who wrote it asked not to delete. */
+function queryFromWire(query: unknown): unknown {
+  const converted = keysFromWire(query);
+  if (isPlainObject(query) && isPlainObject(converted)) converted.dryRunCamelCase = query.dryRun;
+  return converted;
 }
 
 /** `error.fields` is keyed by the request field names callers sent, so it is written in wire format and left alone. */
@@ -62,7 +69,7 @@ export function keysToWire(payload: unknown): unknown {
 /** Fastify skips preSerialization for strings, buffers, and streams, so non-JSON replies never reach the converter. */
 export function registerWireFormat(routes: FastifyInstance) {
   routes.addHook('preValidation', async (request) => {
-    request.query = keysFromWire(request.query);
+    request.query = queryFromWire(request.query);
     request.body = keysFromWire(request.body);
   });
   routes.addHook('preSerialization', async (_request, _reply, payload) => keysToWire(payload));

@@ -5,7 +5,7 @@ import { ContentUploadError, contentUploadLimit, registerContentMultipart, saveC
 import { DeveloperMutationInputError, developerPostInput } from './mutation-input.js';
 import { PaginationQuery, SearchQuery, listPosts, postDetail, postNotFound, postVersionIssue, readOwnedPost, summarizePost } from './services/posts.js';
 import { AuthenticatedToken, authenticate, requireScope } from './services/token-auth.js';
-import { API_PREFIX, DeveloperApiOptions, Editor, QueryValue, errorReply, formatError, parsePostId, parseValidationError, readScalar, sameVersion, toIsoDateTime } from './shared.js';
+import { API_PREFIX, DeveloperApiOptions, Editor, QueryValue, errorReply, formatError, parseDryRun, parsePostId, parseValidationError, sameVersion, toIsoDateTime } from './shared.js';
 import { registerWireFormat } from './wire-format.js';
 
 export { toIsoDateTime } from './shared.js';
@@ -155,11 +155,11 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
       if (!token) return reply;
       const id = parsePostId(request.params.postId);
       if (id === null) return parseValidationError(reply, 'post_id', request.params.postId);
-      const dryRun = readScalar(request.query.dryRun);
-      if (dryRun && !/^(true|on|yes|1|y|t|false|off|no|0|n|f)$/i.test(dryRun)) return parseValidationError(reply, 'dry_run', dryRun);
+      const { dryRun, invalid } = parseDryRun(request.query);
+      if (invalid) return parseValidationError(reply, invalid.field, invalid.value);
       const original = await readOwnedPost(db, token.user.id, id);
       if (!original) return postNotFound(reply);
-      if (dryRun && /^(true|on|yes|1|y|t)$/i.test(dryRun)) {
+      if (dryRun) {
         return reply.send({ data: { canDelete: true, post: await summarizePost(db, original) } });
       }
       try {

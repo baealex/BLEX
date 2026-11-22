@@ -1631,7 +1631,7 @@
    "body": "{\"error\":{\"code\":\"post.not_found\",\"message\":\"포스트를 찾을 수 없습니다.\",\"fields\":null}}"
   },
   {
-   "name": "camelCase dry run is not a dry run",
+   "name": "camelCase dry run is a dry run",
    "method": "DELETE",
    "url": "/api/developer/v1/posts/9?dryRun=true",
    "status": 200,
@@ -1642,13 +1642,13 @@
     "referrer-policy": "same-origin",
     "cross-origin-opener-policy": "same-origin"
    },
-   "body": "{\"data\":{\"deleted\":true,\"trashed\":true,\"id\":9,\"deleted_at\":\"<now>\"}}"
+   "body": "{\"data\":{\"can_delete\":true,\"post\":{\"id\":9,\"title\":\"Title camel-delete-target\",\"subtitle\":\"sub_title\",\"url\":\"camel-delete-target\",\"public_url\":\"/@writer/camel-delete-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:01+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"}}}"
   },
   {
-   "name": "camelCase dry run removed the post",
+   "name": "post survives camelCase dry run",
    "method": "GET",
    "url": "/api/developer/v1/posts/9",
-   "status": 404,
+   "status": 200,
    "headers": {
     "content-type": "application/json; charset=utf-8",
     "x-frame-options": "DENY",
@@ -1656,7 +1656,7 @@
     "referrer-policy": "same-origin",
     "cross-origin-opener-policy": "same-origin"
    },
-   "body": "{\"error\":{\"code\":\"post.not_found\",\"message\":\"포스트를 찾을 수 없습니다.\",\"fields\":null}}"
+   "body": "{\"data\":{\"id\":9,\"title\":\"Title camel-delete-target\",\"subtitle\":\"sub_title\",\"url\":\"camel-delete-target\",\"public_url\":\"/@writer/camel-delete-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:01+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\",\"description\":\"meta_description text\",\"content\":\"<p>Body</p>\",\"content_html\":\"<p>Body</p>\",\"rendered_html\":\"<p>Body</p>\",\"read_time\":9}}"
   },
   {
    "name": "delete other owner",
@@ -2810,7 +2810,7 @@
    "id": 103,
    "method": "GET",
    "path": "/api/developer/v1/posts/9",
-   "statusCode": 404,
+   "statusCode": 200,
    "ipAddress": "127.0.0.1",
    "userAgent": "contract-client/1.0",
    "tokenId": 1,

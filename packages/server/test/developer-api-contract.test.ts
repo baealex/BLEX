@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { PrismaClient } from '@prisma/client';
 import { buildApp } from '../src/app.js';
 import { camelToSnake, keysFromWire, keysToWire, snakeToCamel } from '../src/features/developer-api/wire-format.js';
 import { type ContractExchange, type ContractRecording, type ContractTokenStore, recordDeveloperApiContract } from './fixtures/developer-api-contract.js';
-import { createMigratedDatabase, insertRow, seedEditor, signIn, testCipherKey, testSecretKey, testSiteUrl } from './fixtures/migrated-database.js';
+import { createMigratedDatabase, insertRow, seedEditor, seedPost, signIn, testCipherKey, testSecretKey, testSiteUrl } from './fixtures/migrated-database.js';
 
 interface Schema {
   $ref?: string;
@@ -191,6 +192,42 @@ test('real responses use exactly the documented key names', () => {
   }
   for (const [path, operations] of Object.entries(spec.paths)) {
     for (const method of Object.keys(operations)) assert.ok(covered.has(`${method.toUpperCase()} ${path}`), `${method} ${path} was not exercised`);
+  }
+});
+
+test('a dry run under either name never deletes, and an unreadable flag is refused', async () => {
+  const fixture = await createMigratedDatabase();
+  const app = await buildApp(fixture.path, testSiteUrl, { secretKey: testSecretKey, cipherKey: testCipherKey }, fixture.mediaRoot);
+  const prisma = new PrismaClient({ datasourceUrl: `file:${fixture.path}` });
+  try {
+    seedEditor(fixture.db, 1, 'writer');
+    seedPost(fixture.db, 1, 1, 'kept-post');
+    const raw = 'blex_pat_dryruntoken1_contract-secret';
+    insertRow(fixture.db, 'DeveloperToken', {
+      id: 1, userId: 1, name: 'Writer', tokenPrefix: 'dryruntoken1', tokenHash: createHash('sha256').update(raw, 'utf8').digest('hex'),
+      scopes: '["posts:read","posts:write"]',
+    });
+    const remove = (query: string) => app.inject({ method: 'DELETE', url: `/api/developer/v1/posts/1?${query}`, headers: { authorization: `Bearer ${raw}` } });
+
+    for (const query of ['dry_run=true', 'dryRun=true', 'dryRun=YES', 'dryRun=1', 'dry_run=false&dryRun=true', 'dryRun=false&dry_run=true', 'dry_run=true&dry_run=false', 'dryRun=true&dryRun=false']) {
+      const response = await remove(query);
+      assert.equal(response.statusCode, 200, query);
+      assert.equal(response.json().data.can_delete, true, query);
+    }
+    for (const [query, field] of [['dry_run=maybe', 'dry_run'], ['dryRun=maybe', 'dryRun'], ['dry_run=', 'dry_run'], ['dryRun=', 'dryRun'], ['dry_run=false&dryRun=maybe', 'dryRun'], ['dry_run=maybe&dry_run=false', 'dry_run']]) {
+      const response = await remove(query);
+      assert.equal(response.statusCode, 422, query);
+      assert.equal(response.json().error.code, 'request.invalid_payload', query);
+      assert.deepEqual(response.json().error.fields.errors[0].loc, ['query', field], query);
+    }
+    assert.equal((await prisma.post.findUniqueOrThrow({ where: { id: 1 } })).deletedAt, null);
+
+    assert.equal((await remove('dryRun=false')).json().data.deleted, true);
+    assert.ok((await prisma.post.findUniqueOrThrow({ where: { id: 1 } })).deletedAt);
+  } finally {
+    await prisma.$disconnect();
+    await app.close();
+    await fixture.cleanup();
   }
 });
 

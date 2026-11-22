@@ -62,6 +62,21 @@ export function parsePostId(value: string): number | null {
   return Number.isSafeInteger(parsed) ? parsed : null;
 }
 
+const dryRunEnabled = /^(true|on|yes|1|y|t)$/i;
+const dryRunDisabled = /^(false|off|no|0|n|f)$/i;
+
+/** Any value asking for a dry run wins, and a value that cannot be read stops the request before it can delete. */
+export function parseDryRun(query: QueryValue): { dryRun: boolean; invalid?: { field: string; value: string } } {
+  let dryRun = false;
+  for (const [field, sent] of [['dry_run', query.dryRun], ['dryRun', query.dryRunCamelCase]] as const) {
+    for (const value of [sent ?? []].flat()) {
+      if (dryRunEnabled.test(value)) dryRun = true;
+      else if (!dryRunDisabled.test(value)) return { dryRun: true, invalid: { field, value } };
+    }
+  }
+  return { dryRun };
+}
+
 export function parseValidationError(reply: FastifyReply, field: string, value: string) {
   return reply.code(422).send({
     error: {
