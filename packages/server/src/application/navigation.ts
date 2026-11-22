@@ -7,6 +7,11 @@ export interface BlexNavigateDetail {
   replace: boolean;
 }
 
+/** A form that saved and redirected to a page the client application cannot show needs a full page load. */
+export function opensOutsideApplication(response: Pick<Response, 'ok' | 'redirected'>, isApplicationPage: boolean): boolean {
+  return response.ok && response.redirected && !isApplicationPage;
+}
+
 /** Navigate through the client application when it accepts the request, otherwise use the browser. */
 export function navigateTo(to: string, options: NavigateOptions = {}): void {
   if (typeof window === 'undefined' || typeof document === 'undefined') return;

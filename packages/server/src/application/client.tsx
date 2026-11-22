@@ -13,7 +13,7 @@ import {
 import { useEffect, useLayoutEffect } from 'react';
 import { ApplicationFrame, type ApplicationView } from './frame.js';
 import { openLoginPromptFrom } from './login-prompt.js';
-import type { BlexNavigateDetail } from './navigation.js';
+import { opensOutsideApplication, type BlexNavigateDetail } from './navigation.js';
 import type { SiteHeaderProps } from '../appearance/shell.js';
 
 interface HeadLink {
@@ -568,6 +568,10 @@ async function submitApplicationPost(
     const fragment = formReturnFragment(data, action, finalUrl);
     if (fragment && !finalUrl.hash) finalUrl.hash = fragment;
     const page = readApplicationDocument(parsed, finalUrl.href);
+    if (opensOutsideApplication(response, Boolean(page))) {
+      window.location.assign(finalUrl.href);
+      return;
+    }
     if (!page) {
       showPostFeedback(form, '서버 응답 페이지를 불러오지 못했습니다. 저장 상태를 확인해 주세요.');
       return;

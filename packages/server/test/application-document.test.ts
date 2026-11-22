@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { createElement as h } from 'react';
 import { test } from 'node:test';
 import { isApplicationDocument, renderApplicationDocument } from '../src/application/document.js';
+import { opensOutsideApplication } from '../src/application/navigation.js';
 import { SiteHeader, SiteTheme } from '../src/appearance/shell.js';
 import { clientAssets, readUiAsset } from '../src/platform/ui-assets.js';
 
@@ -31,6 +32,13 @@ test('renders the SSR page and its canonical metadata under one application root
 test('recognizes the application marker only in the response head', () => {
   assert.equal(isApplicationDocument('<meta name="blex-application" content="1"/>'), false);
   assert.equal(isApplicationDocument('<!doctype html><html><head></head><body><meta name="blex-application" content="1"/></body></html>'), false);
+});
+
+test('opens a saved form result as a full page only when it redirects outside the application', () => {
+  assert.equal(opensOutsideApplication({ ok: true, redirected: true }, false), true);
+  assert.equal(opensOutsideApplication({ ok: true, redirected: true }, true), false);
+  assert.equal(opensOutsideApplication({ ok: true, redirected: false }, false), false);
+  assert.equal(opensOutsideApplication({ ok: false, redirected: true }, false), false);
 });
 
 test('keeps the route mount export in the built login and editor entries', async () => {
