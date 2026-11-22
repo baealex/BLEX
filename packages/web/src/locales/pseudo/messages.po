@@ -2120,22 +2120,22 @@ msgid "editor.settings.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/TagManager.tsx:108
+#: src/components/remotes/PostEditor/components/TagManager.tsx:106
 msgid "editor.tags.add"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/TagManager.tsx:90
+#: src/components/remotes/PostEditor/components/TagManager.tsx:88
 msgid "editor.tags.name_placeholder"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/TagManager.tsx:77
+#: src/components/remotes/PostEditor/components/TagManager.tsx:75
 msgid "editor.tags.new_name"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/TagManager.tsx:60
+#: src/components/remotes/PostEditor/components/TagManager.tsx:58
 msgid "editor.tags.remove"
 msgstr ""
 

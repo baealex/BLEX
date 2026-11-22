@@ -2120,22 +2120,22 @@ msgid "editor.settings.title"
 msgstr "게시 설정"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/TagManager.tsx:108
+#: src/components/remotes/PostEditor/components/TagManager.tsx:106
 msgid "editor.tags.add"
 msgstr "태그 추가"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/TagManager.tsx:90
+#: src/components/remotes/PostEditor/components/TagManager.tsx:88
 msgid "editor.tags.name_placeholder"
 msgstr "태그명"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/TagManager.tsx:77
+#: src/components/remotes/PostEditor/components/TagManager.tsx:75
 msgid "editor.tags.new_name"
 msgstr "새 태그 이름"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/TagManager.tsx:60
+#: src/components/remotes/PostEditor/components/TagManager.tsx:58
 msgid "editor.tags.remove"
 msgstr "{tag} 태그 제거"
 

@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import test from 'node:test';
 import sharp from 'sharp';
 import { buildApp } from '../src/app.js';
+import { normalizedTags } from '../src/features/posts/services/post-content.js';
 import { isoWithOffset, isoLocalMillis, isoUtcMillis, localDate, localDateTimeText } from '../src/platform/date-format.js';
 import {
   createMigratedDatabase, insertRow, seedEditor, seedPost, signIn,
@@ -535,6 +536,27 @@ test('clears series and tags only when the editor sends them empty', async () =>
     const cleared = multipart(editorForm(csrf, { draftUrl: 'second-draft', url: 'second-draft', title: 'Second', series: '', tag: '' }));
     assert.equal((await send('POST', '/v1/posts', cleared)).json().status, 'DONE');
     assert.deepEqual(placement('second-draft'), [null, null]);
+  } finally {
+    await fixture.close();
+  }
+});
+
+test('keeps hyphens inside tags through the editor while the other separators still split', async () => {
+  assert.deepEqual(normalizedTags('legacy-tag'), ['legacy-tag']);
+  assert.deepEqual(normalizedTags('Legacy-Tag, legacy-tag,new_tag  spaced'), ['legacy-tag', 'new', 'tag', 'spaced']);
+  assert.deepEqual(normalizedTags('--edge--, a--b, -, 한글-태그, Ａ－Ｂ'), ['edge', 'a-b', '한글-태그']);
+  assert.deepEqual(normalizedTags(''), []);
+
+  const fixture = await screensApp();
+  try {
+    const headers = signIn(fixture.db, 1);
+    const form = multipart(editorForm(headers['x-csrftoken'], { title: 'Kept', url: 'kept', contentHtml: '<p>Edited</p>', tag: 'kept-tag,second-tag' }));
+    const saved = await fixture.app.inject({ method: 'POST', url: '/v1/users/@writer/posts/kept', headers: { ...headers, 'content-type': form.contentType }, payload: form.payload });
+    assert.equal(saved.json().status, 'DONE', saved.body);
+    assert.deepEqual(String(postRow(fixture.db, 'kept')?.tags).split(',').sort(), ['kept-tag', 'second-tag']);
+    assert.equal((fixture.db.prepare(`SELECT COUNT(*) AS n FROM "Tag" WHERE name IN ('kept', 'tag', 'second')`).get() as { n: number }).n, 0);
+    assert.equal((await fixture.app.inject('/tag/kept-tag')).statusCode, 200);
+    assert.equal((await fixture.app.inject('/tag/second-tag')).statusCode, 200);
   } finally {
     await fixture.close();
   }
