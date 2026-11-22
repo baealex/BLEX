@@ -288,11 +288,105 @@ function bindNoticeCarousels(signal: AbortSignal) {
   }
 }
 
+async function saveAbout(url: string, content: string) {
+  const token = /(?:^|; )csrftoken=([^;]+)/.exec(document.cookie)?.[1] ?? '';
+  try {
+    const response = await fetch(url, {
+      method: 'POST', body: new URLSearchParams({ about_md: content }),
+      headers: { 'X-CSRFToken': token, Accept: 'application/json' },
+    });
+    const data = await response.json().catch(() => ({})) as { status?: string; message?: string; about_md?: string; about_html?: string };
+    if (response.ok && data.status === 'success') return { ok: true as const, message: data.message ?? '소개글을 저장했습니다.', markdown: data.about_md ?? '', html: data.about_html ?? '' };
+    return { ok: false as const, message: data.message ?? '소개글을 저장하지 못했습니다.' };
+  } catch {
+    return { ok: false as const, message: '네트워크 오류로 저장하지 못했습니다.' };
+  }
+}
+
+function bindAboutEditors(signal: AbortSignal) {
+  for (const page of document.querySelectorAll<HTMLElement>('[data-about-page]')) {
+    const input = page.querySelector<HTMLTextAreaElement>('[data-about-input]');
+    const save = page.querySelector<HTMLButtonElement>('[data-about-save]');
+    const message = page.querySelector<HTMLElement>('[data-about-message]');
+    if (!input || !save || !message) continue;
+    save.addEventListener('click', () => {
+      save.disabled = true;
+      save.textContent = '저장 중...';
+      void saveAbout(page.dataset.aboutUrl ?? '', input.value).then((result) => {
+        message.textContent = result.message;
+        message.hidden = false;
+        if (result.ok) location.replace(page.dataset.aboutReturn ?? '/');
+      }).finally(() => {
+        save.disabled = false;
+        save.textContent = '저장';
+      });
+    }, { signal });
+  }
+
+  for (const section of document.querySelectorAll<HTMLElement>('[data-about-editor]')) {
+    const part = <T extends HTMLElement>(name: string) => section.querySelector<T>(`[data-about-${name}]`);
+    const input = part<HTMLTextAreaElement>('input');
+    const form = part('form');
+    const content = part('content');
+    const empty = part('empty');
+    const actions = part('actions');
+    const message = part('message');
+    const save = part<HTMLButtonElement>('save');
+    const cancel = part<HTMLButtonElement>('cancel');
+    if (!input || !form || !content || !empty || !actions || !message || !save || !cancel) continue;
+    let saved = input.value;
+    const showEditor = (editing: boolean) => {
+      const hasContent = Boolean(content.innerHTML.trim());
+      form.hidden = !editing;
+      content.hidden = editing || !hasContent;
+      empty.hidden = editing || hasContent;
+      actions.hidden = editing || !hasContent;
+    };
+    const notify = (text: string, failed: boolean) => {
+      message.textContent = text;
+      message.hidden = !text;
+      message.classList.toggle('text-danger', failed);
+      message.classList.toggle('text-success', !failed);
+    };
+    section.addEventListener('click', (event) => {
+      if (!(event.target instanceof Element) || !event.target.closest('[data-about-edit]')) return;
+      event.preventDefault();
+      input.value = saved;
+      notify('', false);
+      showEditor(true);
+      input.focus();
+    }, { signal });
+    cancel.addEventListener('click', () => {
+      input.value = saved;
+      notify('', false);
+      showEditor(false);
+    }, { signal });
+    save.addEventListener('click', () => {
+      save.disabled = true;
+      cancel.disabled = true;
+      save.textContent = '저장 중...';
+      void saveAbout(section.dataset.aboutUrl ?? '', input.value).then((result) => {
+        notify(result.message, !result.ok);
+        if (!result.ok) return;
+        saved = result.markdown;
+        input.value = saved;
+        content.innerHTML = result.html;
+        showEditor(false);
+      }).finally(() => {
+        save.disabled = false;
+        cancel.disabled = false;
+        save.textContent = '저장';
+      });
+    }, { signal });
+  }
+}
+
 function bindRouteElements() {
   disposeRouteBindings();
   const controller = new AbortController();
   routeController = controller;
   const { signal } = controller;
+  bindAboutEditors(signal);
 
   for (const form of document.querySelectorAll<HTMLFormElement>('[data-settings-brand-upload]')) {
     const input = form.querySelector<HTMLInputElement>('input[type="file"]');

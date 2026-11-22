@@ -1,12 +1,14 @@
 import { renderApplicationDocument, scriptJson } from './application/document.js';
 import type { ReactNode } from 'react';
 import { SiteFooter, SiteHeader, SiteIcon, SiteTheme, type HeaderViewer } from './appearance/shell.js';
-import { postOutline } from './post-html.js';
+import { postOutline, youtubeFrameSources } from './post-html.js';
 import { publicPostPath, type PostPresentation, type PostSeriesEntry, type PostSeriesNavigation, type PublicPost } from './posts.js';
 import type { RelatedPost } from './public-activity.js';
 import type { ReaderPostView } from './reader-actions/index.js';
 import { PostComments } from './reader-ui/index.js';
 import { loginPromptProps } from './reader-ui/login-prompt.js';
+
+export const postContentSecurityPolicy = `default-src 'none'; img-src 'self' https: data:; media-src 'self' https:; frame-src ${youtubeFrameSources}; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'`;
 
 function articleImage(path: string): string | undefined {
   if (!path || /[\\\u0000-\u001f\u007f]/.test(path) || path.startsWith('//')) return;
@@ -125,10 +127,13 @@ function PostSeriesCard({ name, seriesPath, author, navigation }: {
   </section>;
 }
 
-function ArticleInfo({ reader, post, postPath, authorPath, published, updated, csrfToken }: {
+function ArticleInfo({ reader, post, postPath, authorPath, published, updated, csrfToken, previewAuthor }: {
   reader: ReaderPostView | null; post: PublicPost; postPath: string; authorPath: string; published?: string; updated?: string; csrfToken: string;
+  previewAuthor?: { bio: string; homepage: string };
 }) {
   const author = reader?.author;
+  const bio = author?.bio ?? previewAuthor?.bio;
+  const homepage = author?.homepage ?? (/^https?:\/\//i.test(previewAuthor?.homepage ?? '') ? previewAuthor?.homepage : undefined);
   const subscription = author?.canSubscribe && (reader?.viewerAuthenticated
     ? <form action={`/v1/users/@${encodeURIComponent(author.username)}/subscription`} method="post">
         <input type="hidden" name="return_to" value={postPath} /><input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} />
@@ -138,11 +143,11 @@ function ArticleInfo({ reader, post, postPath, authorPath, published, updated, c
     : <a {...loginPromptProps(postPath, 'subscribe')} aria-label={`${author.username}님의 새 글 구독`} className="shrink-0 rounded-full border border-line px-3 py-1.5 text-xs font-semibold hover:bg-surface-subtle">구독</a>);
   const entries: Array<[string, ReactNode]> = [['작가', <div className="flex items-start justify-between gap-4">
     <div><a href={authorPath} className="font-semibold hover:text-content-secondary">{post.username}</a>
-      {author?.bio && <p className="mt-1 leading-relaxed text-content-secondary">{author.bio}</p>}</div>{subscription}
+      {bio && <p className="mt-1 leading-relaxed text-content-secondary">{bio}</p>}</div>{subscription}
   </div>]];
-  if (published) entries.push(['최초 발행', <time dateTime={published}>{formatDate(published)}</time>]);
+  if (published) entries.push([post.visibility === 'draft' ? '미리보기 기준' : '최초 발행', <time dateTime={published}>{formatDate(published)}</time>]);
   if (updated && published && formatDate(updated) !== formatDate(published)) entries.push(['수정일', <time dateTime={updated}>{formatDate(updated)}</time>]);
-  if (author?.homepage) entries.push(['저자 홈페이지', <a href={author.homepage} target="_blank" rel="noopener noreferrer" className="break-words hover:text-content">{author.homepage}</a>]);
+  if (homepage) entries.push(['저자 홈페이지', <a href={homepage} target="_blank" rel="noopener noreferrer" className="break-words hover:text-content">{homepage}</a>]);
   return <section className="my-16 rounded-2xl bg-surface p-6 ring-1 ring-line/60 sm:p-8" aria-labelledby="post-info-heading">
     <h2 id="post-info-heading" className="mb-6 border-b border-line-light pb-4 text-lg font-bold leading-snug text-content">포스트 정보</h2>
     <dl className="grid gap-4 text-sm">{entries.map(([label, value]) => <div key={label} className="sm:flex sm:items-start sm:gap-6">
@@ -187,16 +192,20 @@ function ShareItem({ icon, label, hint }: { icon: string; label: string; hint: s
   </>;
 }
 
+const statusNotices: Record<string, [string, string]> = {
+  draft: ['임시 포스트 미리보기입니다.', '마지막으로 저장된 내용을 실제 포스트 화면으로 표시합니다. 이 페이지는 작성자에게만 보이며 공개 목록과 검색에 노출되지 않습니다.'],
+  hidden: ['비공개 포스트입니다.', '이 포스트는 작성자만 볼 수 있습니다. 공개하려면 포스트 설정에서 비공개를 해제하세요.'],
+  scheduled: ['예약 발행 포스트입니다.', '예약 시각 전에는 작성자만 볼 수 있습니다. 예약 시각이 되면 공개 URL, RSS, Sitemap, Markdown URL에 반영됩니다.'],
+};
+
 function PostStatusNotice({ visibility, editPath }: { visibility: string; editPath?: string }) {
-  const hidden = visibility === 'hidden';
+  const [title, message] = statusNotices[visibility];
   return <section data-post-status-notice data-post-status-visibility={visibility} className="mb-8 rounded-lg border border-line bg-surface-subtle px-4 py-4 sm:px-5 sm:py-5">
     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div className="min-w-0">
         <p className="text-xs font-semibold uppercase text-content-hint">포스트 상태</p>
-        <h2 className="mt-1 text-lg font-semibold text-content">{hidden ? '비공개 포스트입니다.' : '예약 발행 포스트입니다.'}</h2>
-        <p className="mt-1 text-sm leading-relaxed text-content-secondary">{hidden
-          ? '이 포스트는 작성자만 볼 수 있습니다. 공개하려면 포스트 설정에서 비공개를 해제하세요.'
-          : '예약 시각 전에는 작성자만 볼 수 있습니다. 예약 시각이 되면 공개 URL, RSS, Sitemap, Markdown URL에 반영됩니다.'}</p>
+        <h2 className="mt-1 text-lg font-semibold text-content">{title}</h2>
+        <p className="mt-1 text-sm leading-relaxed text-content-secondary">{message}</p>
       </div>
       {editPath && <a href={editPath} className="inline-flex min-h-11 items-center justify-center rounded-lg border border-line px-4 py-2 text-sm font-semibold text-content-secondary transition-all duration-150 hover:bg-surface hover:text-content active:scale-95">수정하기</a>}
     </div>
@@ -257,7 +266,7 @@ function PostDock({ reader, post, postPath, canonical, markdown, headings, csrfT
   </>;
 }
 
-export function renderPublicPostPage(post: PublicPost, presentation: PostPresentation, siteUrl: URL, reader: ReaderPostView | null = null, csrfToken = '', canManage = false, viewer: HeaderViewer | null = null, related: RelatedPost[] = []): string {
+export function renderPublicPostPage(post: PublicPost, presentation: PostPresentation, siteUrl: URL, reader: ReaderPostView | null = null, csrfToken = '', canManage = false, viewer: HeaderViewer | null = null, related: RelatedPost[] = [], previewAuthor?: { bio: string; homepage: string }): string {
   const postPath = publicPostPath(post.username, post.slug);
   const canonical = new URL(postPath, siteUrl).href;
   const authorPath = `/@${encodeURIComponent(post.username)}`;
@@ -339,9 +348,9 @@ export function renderPublicPostPage(post: PublicPost, presentation: PostPresent
                     <a key={tag} href={`/tag/${encodeURIComponent(tag)}`} className="inline-flex items-center rounded-full border border-line-light bg-surface-subtle px-4 py-2 text-sm font-medium text-content-secondary transition-all duration-150 hover:border-line hover:bg-line-light hover:text-content active:scale-95"><span className="mr-1 text-content-hint">#</span>{tag}</a>,
                   )}</div>}
                   {presentation.banners.some((banner) => banner.position === 'bottom') && <div className="mb-16 space-y-4">{banners('bottom')}</div>}
-                  <ArticleInfo {...{ reader, post, postPath, authorPath, published, updated, csrfToken }} />
+                  <ArticleInfo {...{ reader, post, postPath, authorPath, published, updated, csrfToken, previewAuthor }} />
                 </article>
-                {seriesLink && presentation.seriesName && <PostSeriesCard name={presentation.seriesName} seriesPath={seriesLink}
+                {post.visibility !== 'draft' && seriesLink && presentation.seriesName && <PostSeriesCard name={presentation.seriesName} seriesPath={seriesLink}
                   author={post.username} navigation={presentation.seriesNavigation ?? null} />}
                 {reader && <PostComments view={reader} csrfToken={csrfToken} returnTo={postPath} />}
               </div>
@@ -355,7 +364,7 @@ export function renderPublicPostPage(post: PublicPost, presentation: PostPresent
             </div>
             {post.visibility === 'public' && <div className="mx-auto my-16 max-w-7xl"><RelatedPosts posts={related} username={post.username} /></div>}
           </div>
-          {(post.visibility === 'public' || outline.headings.length > 0 || canManage) && <PostDock {...{ reader, post, postPath, canonical, markdown, csrfToken, canManage }} headings={outline.headings} />}
+          {(post.visibility === 'public' || outline.headings.length > 0 || (canManage && post.visibility !== 'draft')) && <PostDock {...{ reader, post, postPath, canonical, markdown, csrfToken, canManage }} headings={outline.headings} />}
         </main>
         <div className="post-detail-footer-action-space"><SiteFooter brand={presentation} /></div>
       </body>

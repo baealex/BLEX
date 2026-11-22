@@ -15,6 +15,9 @@ import { credentialTag, createToken, tokenHash } from './session.js';
 import { verifyDjangoSecondFactor } from './two-factor.js';
 import { acquireVerification, hasVerification, readVerificationAccount, recordVerification } from './verification.js';
 import { renderSettingsShell } from '../settings-shell.js';
+import { renderApplicationDocument } from '../application/document.js';
+import { SiteFooter, SiteHeader, SiteTheme } from '../appearance/shell.js';
+import { readPublicSiteBrand } from '../public-pages/index.js';
 
 const securityPath = '/settings/security';
 const success = { status: 'DONE', body: {} };
@@ -49,15 +52,20 @@ function factorError(code: string | null) {
   return securityError(code, messages[code]);
 }
 
-async function securityMarkup(db: PrismaClient, account: { id: number; username: string }, title: string, body: ReactNode, csrfToken: string) {
+async function readSecurityViewer(db: PrismaClient, accountId: number) {
   const [viewer] = await db.$queryRaw<Array<{ role: string | null; isStaff: number | bigint | boolean; unreadCount: number | bigint }>>`
     SELECT profile.role AS role, account.is_staff AS isStaff,
            (SELECT COUNT(*) FROM board_notify WHERE user_id = account.id AND has_read = 0) AS unreadCount
       FROM auth_user AS account
       LEFT JOIN board_profile AS profile ON profile.user_id = account.id
-     WHERE account.id = ${account.id}
+     WHERE account.id = ${accountId}
      LIMIT 1
   `;
+  return viewer;
+}
+
+async function securityMarkup(db: PrismaClient, account: { id: number; username: string }, title: string, body: ReactNode, csrfToken: string) {
+  const viewer = await readSecurityViewer(db, account.id);
   return renderSettingsShell({
     mode: 'personal', title, currentPath: securityPath,
     user: {
@@ -149,12 +157,12 @@ export function registerAccountSecurity(app: FastifyInstance, db: PrismaClient, 
       if (!validCsrf(request, siteUrl)) return reply.code(403).send('요청을 확인해 주세요.');
       const input = formInput(request);
       const attempt = await reserveLoginAttempt(db, config.secretKey, request.ip, account.username);
-      if (!attempt) error = '시도가 너무 많습니다. 잠시 후 다시 시도해 주세요.';
+      if (!attempt) error = '너무 많은 실패로 인해 잠시 후 다시 시도해주세요.';
       else {
         const isAccount = pendingFactor || (hasPassword && typeof input.password === 'string' && await verifyDjangoPassword(input.password, account.password));
         const isFactor = account.factorId === null || (typeof input.code === 'string' && account.totpSecret !== null && account.recoveryKey !== null &&
           verifyDjangoSecondFactor({ totpSecret: account.totpSecret, recoveryKey: account.recoveryKey }, input.code, config.cipherKey));
-        if (!isAccount || !isFactor) error = '비밀번호 또는 인증 코드를 확인해 주세요.';
+        if (!isAccount || !isFactor) error = '비밀번호 또는 인증 코드가 올바르지 않습니다.';
         else {
           const token = await recordVerification(db, account);
           await attempt();
@@ -170,27 +178,45 @@ export function registerAccountSecurity(app: FastifyInstance, db: PrismaClient, 
        WHERE link.user_id = ${account.id} AND provider.is_enabled = 1
     `;
     const providers = (await publicOAuthProviders(db, config.cipherKey)).filter((choice) => links.some((link) => link.key === choice.key));
-    return reply.type('text/html; charset=utf-8').send(await securityMarkup(db, account, '본인 확인', <>
-      {(hasPassword || pendingFactor) && <section className="panel" aria-labelledby="reauth-password-heading">
-        <h2 id="reauth-password-heading">계정 확인</h2>
-        {error && <p className="status error" role="alert">{error}</p>}
-        <form action={reauthenticationPath(next)} method="post">
-          <input type="hidden" name="csrfmiddlewaretoken" value={csrf} />
-          {!pendingFactor && <div className="field"><label htmlFor="reauth-password">현재 비밀번호</label><input id="reauth-password" type="password" name="password" autoComplete="current-password" required /></div>}
-          {account.factorId !== null && <div className="field"><label htmlFor="reauth-code">인증 코드 또는 복구 코드</label><input id="reauth-code" name="code" autoComplete="one-time-code" required /></div>}
-          <div className="actions"><button type="submit">확인</button></div>
-        </form>
-      </section>}
-      {!pendingFactor && providers.length > 0 && <section className="panel" aria-labelledby="reauth-provider-heading">
-        <h2 id="reauth-provider-heading">연결된 소셜 계정</h2>
-        {providers.map((provider) => <form key={provider.key}
-          action={`/login/start/${provider.key}?${new URLSearchParams({ next })}`} method="post">
-          <input type="hidden" name="csrfmiddlewaretoken" value={csrf} />
-          <div className="actions"><button type="submit">{provider.name} 계정으로 확인</button></div>
-        </form>)}
-      </section>}
-      {error && !(hasPassword || pendingFactor) && providers.length === 0 && <p className="status error" role="alert">{error}</p>}
-    </>, csrf));
+    const showForm = hasPassword || pendingFactor;
+    const visibleProviders = pendingFactor ? [] : providers;
+    const viewer = await readSecurityViewer(db, account.id);
+    const brand = await readPublicSiteBrand(db);
+    const fieldClass = 'block h-12 w-full rounded-lg border border-line bg-surface px-3';
+    return reply.type('text/html; charset=utf-8').header('Cache-Control', 'private, no-store').send(renderApplicationDocument(<html lang="ko">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="robots" content="noindex,nofollow,noarchive" />
+        <title>{`본인 확인 - ${brand.siteName}`}</title>
+        <SiteTheme />
+      </head>
+      <body className="bg-surface-page text-content antialiased">
+        <SiteHeader brand={brand} viewer={{ username: account.username, hasEditorRole: viewer?.role === 'EDITOR', isStaff: Boolean(viewer?.isStaff), unreadCount: Number(viewer?.unreadCount ?? 0), csrfToken: csrf }} />
+        <main className="min-h-[calc(100vh-10.5rem)]"><div className="mx-auto my-16 w-full max-w-md px-4">
+          <section className="rounded-2xl border border-line bg-surface p-6 shadow-subtle">
+            <h1 className="text-xl font-semibold text-content">본인 확인</h1>
+            <p className="mt-2 text-sm text-content-secondary">본인 확인을 마치면 설정으로 돌아가 변경을 다시 시도할 수 있습니다.</p>
+            {error && <p className="mt-4 text-danger" role="alert">{error}</p>}
+            {showForm && <form action={reauthenticationPath(next)} method="post" className="mt-5 space-y-4">
+              <input type="hidden" name="csrfmiddlewaretoken" value={csrf} />
+              {!pendingFactor && <label className="block space-y-1"><span className="text-sm text-content">현재 비밀번호</span>
+                <input className={fieldClass} type="password" name="password" autoComplete="current-password" required /></label>}
+              {account.factorId !== null && <label className="block space-y-1"><span className="text-sm text-content">인증 앱 코드 또는 복구 키</span>
+                <input className={fieldClass} name="code" autoComplete="one-time-code" maxLength={64} required /></label>}
+              <button className="min-h-11 w-full rounded-lg bg-action px-4 text-content-inverted hover:bg-action-hover active:scale-95" type="submit">확인</button>
+            </form>}
+            {visibleProviders.length > 0 ? <div className="mt-5 space-y-3">{visibleProviders.map((provider) => <form key={provider.key}
+              action={`/login/start/${provider.key}?${new URLSearchParams({ next })}`} method="post">
+              <input type="hidden" name="csrfmiddlewaretoken" value={csrf} />
+              <button className="min-h-11 w-full rounded-lg border border-line px-4 hover:bg-surface-subtle active:scale-95" type="submit">{`${provider.name}로 계속하기`}</button>
+            </form>)}</div> : !showForm && <p className="mt-4 text-sm text-content-secondary">계정 접근을 복구하려면 사이트 관리자에게 문의하세요.</p>}
+            <a className="mt-4 inline-flex min-h-11 items-center text-sm text-content-secondary hover:underline" href={next}>취소</a>
+          </section>
+        </div></main>
+        <SiteFooter brand={brand} />
+      </body>
+    </html>));
   };
 
   app.get('/reauthenticate', reauthenticate);

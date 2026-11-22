@@ -135,6 +135,25 @@ test('mounts the 3.x search and signup screens', async () => {
   }
 });
 
+test('serves the 3.x introduction editor only to its owner', async () => {
+  const fixture = await screensApp();
+  try {
+    const anonymous = await fixture.app.inject('/@writer/about/edit');
+    assert.equal(anonymous.statusCode, 302);
+    assert.match(String(anonymous.headers.location), /^\/login\?next=/);
+    assert.equal((await fixture.app.inject({ url: '/@writer/about/edit', headers: signIn(fixture.db, 2) })).statusCode, 403);
+    const owner = await fixture.app.inject({ url: '/@writer/about/edit', headers: signIn(fixture.db, 1) });
+    assert.equal(owner.statusCode, 200);
+    assert.match(owner.body, /자신을 소개해 보세요/);
+    assert.match(owner.body, /data-about-page/);
+    const overview = await fixture.app.inject({ url: '/@writer', headers: signIn(fixture.db, 1) });
+    assert.match(overview.body, /data-about-editor/);
+    assert.doesNotMatch((await fixture.app.inject('/@writer')).body, /data-about-editor/);
+  } finally {
+    await fixture.close();
+  }
+});
+
 test('saves long multipart editor submissions with a cover image', async () => {
   const fixture = await screensApp();
   try {

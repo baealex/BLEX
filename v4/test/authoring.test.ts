@@ -24,13 +24,16 @@ database.exec(`
     id INTEGER PRIMARY KEY,
     username TEXT NOT NULL UNIQUE,
     first_name TEXT NOT NULL DEFAULT '',
-    is_active BOOLEAN NOT NULL DEFAULT 1
+    is_active BOOLEAN NOT NULL DEFAULT 1,
+    is_staff BOOLEAN NOT NULL DEFAULT 0
   );
   CREATE TABLE board_profile (
     id INTEGER PRIMARY KEY,
     user_id INTEGER NOT NULL UNIQUE,
     avatar TEXT NOT NULL DEFAULT '',
-    role TEXT NOT NULL DEFAULT 'READER'
+    role TEXT NOT NULL DEFAULT 'READER',
+    bio TEXT NOT NULL DEFAULT '',
+    homepage TEXT NOT NULL DEFAULT ''
   );
   CREATE TABLE board_series (
     id INTEGER PRIMARY KEY,
@@ -179,6 +182,12 @@ database.exec(`
     done INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY(post_id, channel_id)
   );
+  CREATE TABLE board_sitesetting (id INTEGER PRIMARY KEY, site_name TEXT NOT NULL DEFAULT 'BLEX', logo_svg TEXT NOT NULL DEFAULT '',
+    logo_svg_dark TEXT NOT NULL DEFAULT '', icon_manifest TEXT NOT NULL DEFAULT '{}', seo_enabled BOOLEAN NOT NULL DEFAULT 1, aeo_enabled BOOLEAN NOT NULL DEFAULT 0);
+  CREATE TABLE board_staticpage (id INTEGER PRIMARY KEY, title TEXT NOT NULL, slug TEXT NOT NULL, is_published BOOLEAN NOT NULL DEFAULT 0,
+    show_in_footer BOOLEAN NOT NULL DEFAULT 0, "order" INTEGER NOT NULL DEFAULT 0);
+  CREATE TABLE board_sitebanner (id INTEGER PRIMARY KEY, position TEXT NOT NULL, content_html TEXT NOT NULL, is_active BOOLEAN NOT NULL DEFAULT 1,
+    scope TEXT NOT NULL DEFAULT 'global', user_id INTEGER, "order" INTEGER NOT NULL DEFAULT 0, created_date TEXT);
   CREATE TABLE board_usernamechangelog (
     id INTEGER PRIMARY KEY,
     username TEXT NOT NULL,
@@ -202,9 +211,9 @@ database.exec(`
     created_date DATETIME NOT NULL
   );
 
-  INSERT INTO auth_user VALUES (1, 'writer', 'Writer', 1), (2, 'other-writer', 'Other Writer', 1),
+  INSERT INTO auth_user (id, username, first_name, is_active) VALUES (1, 'writer', 'Writer', 1), (2, 'other-writer', 'Other Writer', 1),
     (3, 'reader', 'Reader', 1), (4, 'inactive', 'Inactive', 0);
-  INSERT INTO board_profile VALUES (1, 1, 'writer.png', 'EDITOR'), (2, 2, '', 'EDITOR'),
+  INSERT INTO board_profile (id, user_id, avatar, role) VALUES (1, 1, 'writer.png', 'EDITOR'), (2, 2, '', 'EDITOR'),
     (3, 3, '', 'READER'), (4, 4, '', 'EDITOR');
   INSERT INTO board_series VALUES
     (1, 1, '', '', 0, 'learning', '', '${now}', '${now}', 1, 'Learning'),

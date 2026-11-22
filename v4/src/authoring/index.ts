@@ -10,6 +10,8 @@ import multipart from '@fastify/multipart';
 import { ContentUploadError, contentUploadLimit, saveContentFile } from '../content-media.js';
 import { djangoIso, localDate, localDateTimeText, timeSince } from '../django-format.js';
 import { Parser } from 'htmlparser2';
+import { readDraftPreview, readPostPresentation } from '../posts.js';
+import { postContentSecurityPolicy, renderPublicPostPage } from '../public-post-page.js';
 import { sanitizePostHtml } from '../post-html.js';
 import { renderSettingsShell } from '../settings-shell.js';
 import { markdownToHtml, htmlToMarkdown } from './markdown.js';
@@ -1436,66 +1438,6 @@ const title = model.isEdit ? model.isDraft ? '임시 포스트 수정' : '포스
   return renderApplicationDocument(body);
 }
 
-function renderPreview(post: StoredPost, tags: string[], siteUrl: URL, csrfToken: string): string {
-  const canonical = new URL(`/@${encodeURIComponent(post.authorUsername)}/${encodeURIComponent(post.url)}`, siteUrl).href;
-  const image = coverUrlFromStored(post.image);
-  const aspectClass = post.coverImageRatio === '16:9' ? 'aspect-video'
-    : post.coverImageRatio === '4:3' ? 'aspect-[4/3]'
-      : post.coverImageRatio === '1:1' ? 'aspect-square'
-        : post.coverImageRatio === '3:4' ? 'aspect-[3/4]' : 'h-auto';
-  const coverHidden = post.coverLayout === 'none';
-  const coverSplit = post.coverLayout === 'split' && Boolean(image);
-  const coverOverlay = post.coverLayout === 'overlay';
-  const title = h1('div', { className: coverOverlay ? 'absolute inset-x-5 bottom-5 z-10 text-white sm:inset-x-8 sm:bottom-8' : 'min-w-0' },
-    h1('h1', { className: coverOverlay ? 'text-3xl font-bold leading-tight sm:text-5xl' : 'text-3xl font-bold leading-tight text-content sm:text-5xl' }, post.title),
-    post.subtitle ? h1('p', { className: coverOverlay ? 'mt-3 text-lg text-white/85 sm:text-xl' : 'mt-3 text-lg text-content-secondary sm:text-xl' }, post.subtitle) : null,
-  );
-  const cover = h1('header', {
-    className: coverSplit ? 'grid grid-cols-1 items-center gap-6 md:grid-cols-2' : 'relative flex flex-col gap-6',
-    'data-cover-layout': post.coverLayout,
-  },
-  !coverOverlay || !image ? title : null,
-  !coverHidden && image ? h1('div', {
-    className: `relative overflow-hidden rounded-2xl bg-surface-subtle ${aspectClass} ${coverOverlay ? 'min-h-[22rem]' : ''} ${coverSplit && post.coverImagePosition === 'left' ? 'md:order-first' : ''}`,
-  },
-  h1('img', { src: image, alt: '', className: 'absolute inset-0 h-full w-full object-cover', 'data-no-filter': true }),
-  coverOverlay ? h1('div', { className: 'absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent' }) : null,
-  coverOverlay ? title : null,
-  ) : null,
-  );
-  return renderApplicationDocument(h1('html', { lang: 'ko' },
-      h1('head', null,
-        h1('meta', { charSet: 'utf-8' }),
-        h1('meta', { name: 'viewport', content: 'width=device-width, initial-scale=1' }),
-        h1('meta', { name: 'robots', content: 'noindex,nofollow' }),
-        h1('link', { rel: 'canonical', href: canonical }),
-        h1('title', null, `${post.title} · 미리보기`),
-        h1(SiteTheme),
-      ),
-      h1('body', null,
-        h1(SiteHeader, { viewer: { username: post.authorUsername, hasEditorRole: true, csrfToken }, editorPage: true }),
-        h1('div', { className: 'post-preview-page min-h-[calc(100vh-4rem)] px-4 py-8 md:px-6' },
-          h1('div', { className: 'post-detail-layout' },
-            h1('aside', { className: 'post-detail-sidebar', 'aria-hidden': true }),
-            h1('main', { className: 'post-detail-main mx-auto max-w-4xl' },
-              h1('aside', { className: 'mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-warning-line bg-warning-surface px-4 py-3 text-sm text-content-secondary' },
-                h1('span', null, '임시 포스트 미리보기 · 이 화면은 공개되지 않습니다.'),
-                h1('a', { className: 'font-medium text-content underline underline-offset-4', href: `/@${encodeURIComponent(post.authorUsername)}/${encodeURIComponent(post.url)}/edit` }, '편집으로 돌아가기')),
-              h1('article', { className: 'space-y-8' },
-                cover,
-                h1('div', { className: 'flex flex-wrap items-center gap-2 text-sm text-content-secondary' },
-                  h1('a', { className: 'font-medium hover:text-content', href: `/@${encodeURIComponent(post.authorUsername)}` }, `@${post.authorUsername}`),
-                  tags.map((tag) => h1('a', { key: tag, className: 'rounded-full border border-line-light bg-surface-subtle px-3 py-1 text-xs text-content-secondary hover:text-content', href: `/tag/${encodeURIComponent(tag)}` }, `#${tag}`))),
-                h1('div', { className: 'blog-post-content post-detail-body--after-cover', dangerouslySetInnerHTML: { __html: sanitizePostHtml(post.contentHtml) } }),
-              ),
-            ),
-            h1('aside', { className: 'post-detail-sidebar', 'aria-hidden': true }),
-          ),
-        ),
-      ),
-    ));
-}
-
 type ManagementTab = 'published' | 'scheduled' | 'drafts' | 'trash';
 
 interface ManagementPageModel {
@@ -2633,14 +2575,17 @@ export function registerAuthoring(
     routes.get<{ Params: { slug: string } }>('/write/preview/:slug', async (request, reply) => {
       const account = await currentAccount(request, db, options);
       if (!account || account.role !== 'EDITOR') return notFound(reply);
-      const post = await loadPost(db, { userId: account.id, slug: request.params.slug });
-      if (!post || post.publishedDate !== null || post.deletedDate !== null) return notFound(reply);
-      const tags = await postTags(db, post.id);
-      reply.type('text/html; charset=utf-8')
+      const post = await readDraftPreview(db, account.id, request.params.slug);
+      if (!post) return notFound(reply);
+      const presentation = await readPostPresentation(db, post);
+      const csrf = cookieValue(request, 'csrftoken');
+      return reply.type('text/html; charset=utf-8')
         .header('Cache-Control', 'private, no-store')
         .header('X-Robots-Tag', 'noindex, nofollow')
-        .header('X-Frame-Options', 'SAMEORIGIN')
-        .send(renderPreview(post, tags, options.siteUrl, cookieValue(request, 'csrftoken')));
+        .header('Content-Security-Policy', postContentSecurityPolicy)
+        .send(renderPublicPostPage(post, presentation, options.siteUrl, null, csrf, true, {
+          username: post.username, hasEditorRole: true, isStaff: Boolean(Number(post.isStaff)), unreadCount: Number(post.unreadCount),
+        }, [], { bio: post.authorBio, homepage: post.authorHomepage }));
     });
 
     routes.post('/v1/posts', async (request, reply) => {

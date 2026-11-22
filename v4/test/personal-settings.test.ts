@@ -450,33 +450,24 @@ test('removes only scoped cover files and leaves symlink targets untouched', asy
 });
 
 test('restricts about editing to the active editor owner and sanitizes stored and saved HTML', async () => {
-  const anonymous = await app.inject('/@writer/about/edit');
+  const anonymous = await app.inject({ method: 'POST', url: '/@writer/about/edit' });
   assert.equal(anonymous.statusCode, 302);
 
-  await db.$executeRaw`UPDATE board_profile SET about_md = 'Original **about**', about_html = '<script>alert(1)</script><p>Safe preview</p>' WHERE user_id = 1`;
-  const page = await app.inject({ url: '/@writer/about/edit', headers: headers(1) });
-  assert.equal(page.statusCode, 200);
-  assert.match(page.body, /name="about_md"/);
-  assert.match(page.body, /Original \*\*about\*\*/);
-  assert.match(page.body, /Safe preview/);
-  assert.doesNotMatch(page.body, /<script>/);
-
-  const notOwner = await app.inject({ url: '/@other/about/edit', headers: headers(1) });
-  assert.equal(notOwner.statusCode, 403);
-  const reader = await app.inject({ url: '/@other/about/edit', headers: headers(2) });
-  assert.equal(reader.statusCode, 403);
-
-  const htmlPost = await app.inject({
-    method: 'POST', url: '/@writer/about/edit', headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
-    payload: form([['csrfmiddlewaretoken', csrfToken], ['return_to', '1'], ['about_md', '# Hello\n\n<script>alert(2)</script>\n\n[Safe link](https://example.test)']]),
+  const notOwner = await app.inject({
+    method: 'POST', url: '/@other/about/edit', headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
+    payload: form([['csrfmiddlewaretoken', csrfToken], ['about_md', 'Not mine']]),
   });
-  assert.equal(htmlPost.statusCode, 303);
-  assert.equal(htmlPost.headers.location, '/@writer/about/edit?saved=1');
+  assert.equal(notOwner.statusCode, 403);
+
+  const saved = await app.inject({
+    method: 'POST', url: '/@writer/about/edit', headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
+    payload: form([['csrfmiddlewaretoken', csrfToken], ['about_md', '# Hello\n\n<script>alert(2)</script>\n\n[Safe link](https://example.com)']]),
+  });
+  assert.equal(saved.json().status, 'success');
+  assert.equal(saved.json().message, '소개글을 저장했습니다.');
   const [savedProfile] = await db.$queryRaw<Array<{ about_md: string; about_html: string }>>`SELECT about_md, about_html FROM board_profile WHERE user_id = 1`;
   assert.match(savedProfile.about_html, /<h1[^>]*>Hello<\/h1>/);
   assert.doesNotMatch(savedProfile.about_html, /<script>/);
-  const refreshedPage = await app.inject({ url: '/@writer/about/edit?saved=1', headers: headers(1) });
-  assert.match(refreshedPage.body, /변경 사항을 저장했습니다/);
 
   const apiSave = await app.inject({
     method: 'PUT', url: '/v1/users/@writer', headers: { ...headers(1), 'content-type': 'application/json' },

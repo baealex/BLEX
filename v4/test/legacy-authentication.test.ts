@@ -271,7 +271,7 @@ test('requires recent verification for password and 2FA changes and rotates the 
     assert.match(securityPage.body, /name="robots" content="noindex,nofollow,noarchive"/);
     const reauthenticationPage = await app.inject({ url: '/reauthenticate?next=%2Fsettings%2Fsecurity', headers: signedIn });
     assert.equal(reauthenticationPage.statusCode, 200, reauthenticationPage.body);
-    assert.match(reauthenticationPage.body, /class="settings-ui/);
+    assert.doesNotMatch(reauthenticationPage.body, /class="settings-ui/);
     assert.match(reauthenticationPage.body, /현재 비밀번호/);
     const firstAttempt = await app.inject({ method: 'PUT', url: '/v1/setting/account', headers: signedIn, payload: { password: newPassword } });
     assert.equal(firstAttempt.json().messageKey, 'auth.reauthentication_required');

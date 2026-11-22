@@ -19,7 +19,14 @@ export interface PublicPost {
   coverImageRatio: string;
   publishedDate: string;
   updatedDate: string;
-  visibility: 'public' | 'hidden' | 'scheduled';
+  visibility: 'public' | 'hidden' | 'scheduled' | 'draft';
+}
+
+export interface DraftPreview extends PublicPost {
+  authorBio: string;
+  authorHomepage: string;
+  isStaff: number | bigint | boolean;
+  unreadCount: number | bigint;
 }
 
 interface PostBanner {
@@ -120,6 +127,33 @@ export async function readPublicPost(
      LIMIT 1
   `;
 
+  return post ? { ...post, contentHtml: sanitizePostHtml(post.contentHtml) } : null;
+}
+
+/** An author's own unpublished post, dated the way the 3.x preview screen dates it. */
+export async function readDraftPreview(db: PrismaClient, authorId: number, slug: string): Promise<DraftPreview | null> {
+  const [post] = await db.$queryRaw<DraftPreview[]>`
+    SELECT post.id, author.id AS authorId, author.username, post.url AS slug, post.title, post.subtitle, post.image,
+           post.read_time AS readTime, COALESCE(profile.avatar, '') AS authorAvatar,
+           COALESCE(config.cover_layout, 'default') AS coverLayout,
+           COALESCE(config.cover_image_ratio, 'auto') AS coverImageRatio,
+           COALESCE(config.cover_image_position, 'right') AS coverImagePosition,
+           CAST(COALESCE(post.updated_date, post.created_date) AS TEXT) AS publishedDate,
+           CAST(COALESCE(post.updated_date, post.created_date) AS TEXT) AS updatedDate,
+           'draft' AS visibility, post.meta_description AS description,
+           COALESCE(content.content_html, '') AS contentHtml,
+           COALESCE(profile.bio, '') AS authorBio, COALESCE(profile.homepage, '') AS authorHomepage,
+           author.is_staff AS isStaff,
+           (SELECT COUNT(*) FROM board_notify WHERE user_id = author.id AND has_read = 0) AS unreadCount
+      FROM board_post AS post
+      JOIN auth_user AS author ON author.id = post.author_id
+      LEFT JOIN board_profile AS profile ON profile.user_id = author.id
+      LEFT JOIN board_postconfig AS config ON config.post_id = post.id
+      LEFT JOIN board_postcontent AS content ON content.post_id = post.id
+     WHERE post.url = ${slug} AND post.author_id = ${authorId}
+       AND post.published_date IS NULL AND post.deleted_date IS NULL
+     LIMIT 1
+  `;
   return post ? { ...post, contentHtml: sanitizePostHtml(post.contentHtml) } : null;
 }
 

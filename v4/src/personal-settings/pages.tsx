@@ -180,40 +180,6 @@ export function renderProfileSettings(props: {
   </>, props.csrfToken);
 }
 
-export function renderAboutSettings(props: {
-  user: PersonalSettingsUser;
-  authorUsername: string;
-  csrfToken: string;
-  markdown: string;
-  previewHtml: string;
-  saved?: boolean;
-  error?: string;
-}): string {
-  const action = `/@${encodeURIComponent(props.authorUsername)}/about/edit`;
-  return shell('작성자 소개 편집', props.user, 'about', <>
-    {statusMessage(props.saved ?? false, props.error)}
-    <p className="muted">작가 프로필에 공개할 소개를 마크다운으로 작성합니다.</p>
-    <section className="panel" aria-labelledby="about-editor-heading">
-      <h2 id="about-editor-heading">소개 내용</h2>
-      <form method="post" action={action}>
-        {hiddenCsrf(props.csrfToken)}
-        <input type="hidden" name="return_to" value="1" />
-        <div className="field">
-          <label htmlFor="author-about-markdown">마크다운 소개</label>
-          <textarea id="author-about-markdown" name="about_md" rows={18} maxLength={262144} spellCheck={false} defaultValue={props.markdown} />
-        </div>
-        <div className="actions"><button type="submit">소개 저장</button></div>
-      </form>
-    </section>
-    <section className="panel" aria-labelledby="about-preview-heading">
-      <h2 id="about-preview-heading">현재 공개 미리보기</h2>
-      {props.previewHtml
-        ? <div className="about-preview" dangerouslySetInnerHTML={{ __html: props.previewHtml }} />
-        : <p className="muted">아직 등록된 소개가 없습니다.</p>}
-    </section>
-  </>, props.csrfToken);
-}
-
 const platforms = [
   ['github', 'GitHub'], ['twitter', 'X'], ['threads', 'Threads'], ['facebook', 'Facebook'],
   ['telegram', '텔레그램'], ['instagram', 'Instagram'], ['linkedin', 'LinkedIn'], ['youtube', 'YouTube'], ['other', '기타'],

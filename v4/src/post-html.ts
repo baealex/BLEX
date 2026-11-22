@@ -177,7 +177,7 @@ export function sanitizeCommentHtml(html: string): string {
   return sanitizeHtml(html, commentHtmlOptions);
 }
 
-export function postOutline(html: string) {
+export function postOutline(html: string, naming: { maxLength?: number; fallback: string } = { fallback: 'heading' }) {
   if (!/<h[1-6][\s>]/.test(html)) return { html, headings: [] };
   const document = parseDocument(html, { withStartIndices: true });
   const elements = DomUtils.getElementsByTagName((name) => /^h[1-6]$/.test(name), document.children);
@@ -189,7 +189,8 @@ export function postOutline(html: string) {
     if (!text) return [];
     let id = element.attribs.id;
     if (!id) {
-      const base = text.toLowerCase().replace(/[^\p{L}\p{N}_\s-]/gu, '').replace(/[-\s]+/g, '-').replace(/^-|-$/g, '') || 'heading';
+      const slug = text.normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}_\s-]/gu, '').replace(/[-\s]+/g, '-').replace(/^-|-$/g, '');
+      const base = (naming.maxLength ? Array.from(slug).slice(0, naming.maxLength).join('') : slug) || naming.fallback;
       id = base;
       for (let suffix = 1; used.has(id); suffix += 1) id = `${base}-${suffix}`;
       used.add(id);

@@ -7,10 +7,9 @@ import { createHash, randomUUID } from 'node:crypto';
 import { chmod, mkdir, open, realpath, rename, rm, unlink } from 'node:fs/promises';
 import { relative, resolve, sep } from 'node:path';
 import { updateAccountIdentity } from '../auth/account-identity.js';
-import { sanitizePostHtml } from '../post-html.js';
+import { postOutline, sanitizePostHtml } from '../post-html.js';
 import { markdownToHtml } from '../authoring/markdown.js';
 import {
-  renderAboutSettings,
   renderAccountSettings,
   renderProfileSettings,
   renderSocialLinkSettings,
@@ -534,7 +533,7 @@ async function deleteProfileCover(db: PrismaClient, user: PersonalSettingsUser, 
 }
 
 function renderAboutMarkdownToHtml(markdown: string): string {
-  return markdownToHtml(markdown);
+  return postOutline(markdownToHtml(markdown), { maxLength: 25, fallback: 'header' }).html;
 }
 
 interface AuthorAboutRow {
@@ -785,26 +784,6 @@ export function registerPersonalSettings(app: FastifyInstance, db: PrismaClient,
       return html(reply, renderSocialLinkSettings({ user, profile, csrfToken: csrfToken(request), saved: error ? false : savedQuery(request), error }));
     };
 
-    const sendAboutPage = async (request: FastifyRequest, reply: FastifyReply, username: string, error?: string) => {
-      const user = await authenticatedDatabaseUser(db, request, options);
-      if (!user) {
-        loginRedirect(request, reply);
-        return reply;
-      }
-      const author = await readAuthorAbout(db, username);
-      if (!author) return reply.code(404).send('작가 정보를 찾을 수 없습니다.');
-      if (author.id !== user.id || !isActiveEditor(author)) return reply.code(403).send('접근 권한이 없습니다.');
-      return html(reply, renderAboutSettings({
-        user,
-        authorUsername: author.username,
-        csrfToken: csrfToken(request),
-        markdown: author.aboutMarkdown ?? '',
-        previewHtml: sanitizePostHtml(author.aboutHtml ?? ''),
-        saved: error ? false : savedQuery(request),
-        error,
-      }));
-    };
-
     const registerProfileImageUpload = (kind: ProfileImageKind) => {
       const expectedReturnTo = `/settings/profile?saved=${kind}`;
       routes.post<{ Body: unknown }>(`/v1/setting/${kind}`, { bodyLimit: MAX_PROFILE_IMAGE_BYTES + 32 * 1024 }, async (request, reply) => {
@@ -843,9 +822,6 @@ export function registerPersonalSettings(app: FastifyInstance, db: PrismaClient,
     routes.get('/settings/profile', (request, reply) => sendProfilePage(request, reply));
     routes.get('/settings/social-links', (request, reply) => sendSocialPage(request, reply));
 
-    routes.get<{ Params: { username: string } }>('/@:username/about/edit', (request, reply) =>
-      sendAboutPage(request, reply, request.params.username));
-
     routes.post<{ Params: { username: string }; Body: unknown }>(
       '/@:username/about/edit', async (request, reply) => {
         const user = await authenticatedDatabaseUser(db, request, options);
@@ -856,12 +832,10 @@ export function registerPersonalSettings(app: FastifyInstance, db: PrismaClient,
         if (!options.validateCsrf(request)) return reply.code(403).send('요청을 확인해 주세요.');
         const author = await readAuthorAbout(db, request.params.username);
         if (!author) return reply.code(404).send('작가 정보를 찾을 수 없습니다.');
-        if (author.id !== user.id || !isActiveEditor(author)) return reply.code(403).send('접근 권한이 없습니다.');
-        const body = bodyRecord(request.body);
-        const saved = await saveAuthorAbout(db, user.id, body.about_md);
-        if (!saved) return reply.code(400).type('text/html; charset=utf-8').send(await sendAboutPage(request, reply, author.username, '소개 내용을 확인해 주세요.'));
-        if (stringValue(body.return_to) === '1') return reply.redirect(`/@${encodeURIComponent(author.username)}/about/edit?saved=1`, 303);
-        return reply.send({ status: 'success', message: 'Introduction saved.', about_md: saved.markdown, about_html: saved.html });
+        if (author.id !== user.id) return reply.code(403).send('접근 권한이 없습니다.');
+        const saved = await saveAuthorAbout(db, user.id, bodyRecord(request.body).about_md);
+        if (!saved) return reply.code(400).send({ status: 'error', message: '소개글을 저장하지 못했습니다.' });
+        return reply.send({ status: 'success', message: '소개글을 저장했습니다.', about_md: saved.markdown, about_html: saved.html });
       },
     );
 

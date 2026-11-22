@@ -1046,7 +1046,38 @@ function profileHeader(
   );
 }
 
-function authorTabs(author: AuthorRow, activeTab: 'overview' | 'posts' | 'series'): ReactNode {
+function AboutSection({ author, aboutHtml, isOwner }: { author: AuthorRow; aboutHtml: string; isOwner: boolean }): ReactNode {
+  if (!aboutHtml && !isOwner) return null;
+  const heading = h('div', { className: 'mb-6' }, h('h2', { className: 'text-2xl font-bold text-content' }, '소개'));
+  if (!isOwner) return h('section', null, heading, h('div', { className: 'prose blog-post-content', dangerouslySetInnerHTML: { __html: aboutHtml } }));
+  const editPath = `${authorPath(author.username)}/about/edit`;
+  return h('section', { 'data-about-editor': '', 'data-about-url': editPath },
+    heading,
+    h('p', { 'data-about-message': '', hidden: true, className: 'mb-4 text-sm' }),
+    h('div', { 'data-about-content': '', hidden: !aboutHtml, className: 'prose blog-post-content', dangerouslySetInnerHTML: { __html: aboutHtml } }),
+    h('div', { 'data-about-empty': '', hidden: Boolean(aboutHtml), className: 'rounded-2xl border border-dashed border-line bg-surface px-5 py-6' },
+      h('div', { className: 'flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between' },
+        h('p', { className: 'min-w-0 text-sm font-semibold text-content' }, '아직 소개가 없습니다'),
+        h('a', { href: editPath, 'data-about-edit': '', className: 'inline-flex items-center justify-center rounded-lg bg-surface-subtle px-4 py-2 text-sm font-semibold text-content-secondary transition-colors hover:bg-surface-subtle/80 hover:text-content' },
+          h('i', { className: 'fas fa-edit mr-2', 'aria-hidden': true }), '소개글 작성'),
+      ),
+    ),
+    h('div', { 'data-about-actions': '', hidden: !aboutHtml, className: 'mt-6' },
+      h('a', { href: editPath, 'data-about-edit': '', className: 'inline-flex items-center justify-center rounded-lg bg-surface-subtle px-4 py-2 text-sm font-semibold text-content-secondary transition-colors hover:bg-surface-subtle/80 hover:text-content' },
+        h('i', { className: 'fas fa-edit mr-2', 'aria-hidden': true }), '소개글 수정'),
+    ),
+    h('div', { 'data-about-form': '', hidden: true, className: 'rounded-2xl border border-line bg-surface p-4' },
+      h('textarea', { 'data-about-input': '', defaultValue: author.aboutMarkdown ?? '', placeholder: '소개글을 작성하세요', 'aria-label': '소개',
+        className: 'min-h-64 w-full resize-y rounded-xl border border-line bg-surface-subtle p-4 text-sm leading-relaxed text-content placeholder-content-hint focus:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/10' }),
+      h('div', { className: 'mt-4 flex justify-end gap-2' },
+        h('button', { type: 'button', 'data-about-cancel': '', className: 'inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold text-content-secondary transition-colors hover:bg-surface-subtle hover:text-content disabled:opacity-50' }, '취소'),
+        h('button', { type: 'button', 'data-about-save': '', className: 'inline-flex items-center justify-center rounded-lg bg-action px-4 py-2 text-sm font-semibold text-content-inverted transition-colors hover:bg-action-hover disabled:opacity-50' }, '저장'),
+      ),
+    ),
+  );
+}
+
+function authorTabs(author: AuthorRow, activeTab: 'overview' | 'posts' | 'series' | 'about'): ReactNode {
   if (!isEditor(author)) return h('div', { className: 'mb-8' });
   const tabs: Array<{ key: 'overview' | 'posts' | 'series'; href: string; label: string; count?: number | bigint }> = [
     { key: 'overview', href: authorPath(author.username), label: '개요' },
@@ -1718,17 +1749,7 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
         h('div', { className: `${isAuthorEditor ? 'max-w-4xl' : 'max-w-7xl'} mx-auto mb-20 w-full px-4 sm:px-6` },
           h('div', { className: 'space-y-14' },
           isAuthorEditor ? NoticeSection({ notices: userNotices, scope: 'user' }) : null,
-          aboutHtml || isOwner ? h('section', null,
-            h('div', { className: 'mb-6 flex items-center justify-between gap-4' },
-              h('h2', { className: 'text-2xl font-bold text-content' }, '소개'),
-              isOwner && aboutHtml ? h('a', { href: `${authorPath(author.username)}/about/edit`, className: 'inline-flex items-center gap-2 rounded-lg bg-surface-subtle px-4 py-2 text-sm font-semibold text-content-secondary transition-colors hover:bg-surface-subtle/80 hover:text-content' },
-                h('i', { className: 'fas fa-edit', 'aria-hidden': true }), '소개글 수정',
-              ) : null,
-            ),
-            aboutHtml
-              ? h('div', { className: 'prose blog-post-content', dangerouslySetInnerHTML: { __html: aboutHtml } })
-              : EmptyState({ title: '아직 소개가 없습니다', message: '작성자 소개를 추가해 독자에게 자신을 알려주세요.', icon: 'fas fa-user-edit', actionUrl: `${authorPath(author.username)}/about/edit`, actionLabel: '소개글 작성', actionIcon: 'fas fa-edit' }),
-          ) : null,
+          AboutSection({ author, aboutHtml, isOwner }),
           isAuthorEditor ? featuredPostsSection(author, featured, viewer?.id === author.id) : null,
           h(AuthorActivitySection, activity),
           ),
@@ -1746,6 +1767,48 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
     const featured = await readFeaturedPosts(db, author);
     const content = renderToStaticMarkup(featuredPostsSection(author, featured, viewer?.id === author.id));
     return headers.type('text/html; charset=utf-8').send(content);
+  });
+
+  app.get<{ Params: { username: string } }>('/@:username/about/edit', async (request, reply) => {
+    if (!options.currentUser) return sendNotFound(reply);
+    const viewer = await readViewer(request, reply, options);
+    if (!viewer) return reply.redirect(`/login?${new URLSearchParams({ next: new URL(request.url, siteUrl).pathname })}`, 302);
+    const author = await readAuthor(db, request.params.username);
+    if (!author) return sendNotFound(reply);
+    if (author.id !== viewer.id) return reply.code(403).type('text/plain; charset=utf-8').send('접근 권한이 없습니다.');
+    const [brand, socialLinks, subscription] = await Promise.all([
+      readPublicSiteBrand(db), readAuthorSocialLinks(db, author.id), subscriptionState(db, author, viewer),
+    ]);
+    const path = `${authorPath(author.username)}/about/edit`;
+    return renderHtml(reply, PageLayout({
+      meta: {
+        title: `${author.username}님의 소개글 수정 - ${brand.siteName}`,
+        description: '자신을 소개하는 글을 작성해 보세요.',
+        canonical: makeAbsolute(siteUrl, path),
+        siteName: brand.siteName,
+        brand,
+        viewer,
+        robots: 'noindex,nofollow',
+      },
+      children: h(ReactFragment, null,
+        profileHeader(author, false, subscription, viewer, csrfCookie(request), socialLinks, path),
+        h('div', { className: 'mx-auto w-full max-w-5xl px-4 sm:px-6' },
+          authorTabs(author, 'about'),
+          h('div', { className: 'mb-8' },
+            h('div', { className: 'mb-6' },
+              h('h1', { className: 'mb-3 text-lg font-bold text-content' }, '자신을 소개해 보세요.'),
+              h('p', { className: 'text-md text-content-secondary' }, '자신을 소개하는 글을 작성해 보세요.'),
+            ),
+            h('div', { className: 'mb-6', 'data-about-page': '', 'data-about-url': path, 'data-about-return': authorPath(author.username) },
+              h('textarea', { 'data-about-input': '', defaultValue: author.aboutMarkdown ?? '', placeholder: '마크다운으로 작성해 보세요.', 'aria-label': '소개',
+                className: 'h-64 w-full rounded-lg border border-line p-4 focus:outline-none focus:ring-2 focus:ring-line-strong/70' }),
+              h('button', { type: 'button', 'data-about-save': '', className: 'mt-4 rounded-lg bg-action px-6 py-3 text-content-inverted hover:bg-action-hover focus:outline-none focus:ring-2 focus:ring-line-strong/70 focus:ring-offset-2 disabled:opacity-50' }, '저장'),
+              h('div', { 'data-about-message': '', hidden: true, className: 'mt-4 text-sm' }),
+            ),
+          ),
+        ),
+      ),
+    }));
   });
 
   app.get<{ Params: { username: string } }>('/@:username/about', async (request, reply) => {

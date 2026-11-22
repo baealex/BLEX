@@ -30,7 +30,7 @@ import { registerPublicActivity, relatedPosts } from './public-activity.js';
 import { registerPublicDiscovery, searchIndexingEnabled } from './public-discovery/index.js';
 import { registerPublicMedia } from './public-media.js';
 import { readPublicFeed, registerPublicPages } from './public-pages/index.js';
-import { renderPublicPostPage } from './public-post-page.js';
+import { postContentSecurityPolicy, renderPublicPostPage } from './public-post-page.js';
 import { registerLegacyApiContract } from './legacy-api-contract.js';
 import { readReaderPostView, registerReaderActions } from './reader-actions/index.js';
 import { registerSubscriptionPage } from './reader-ui/subscriptions.js';
@@ -201,7 +201,7 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
     }
     return reply.type('text/html; charset=utf-8')
       .header('Vary', 'Cookie')
-      .header('Content-Security-Policy', `default-src 'none'; img-src 'self' https: data:; media-src 'self' https:; frame-src ${youtubeFrameSources}; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'`)
+      .header('Content-Security-Policy', postContentSecurityPolicy)
       .send(renderPublicPostPage(post, presentation, siteUrl, reader, csrf, viewer?.username === post.username && viewer.hasEditorRole, viewer, related));
   });
 
