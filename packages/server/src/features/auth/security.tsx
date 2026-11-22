@@ -45,15 +45,14 @@ function factorError(code: string | null, action?: string) {
 }
 
 async function readSecurityViewer(db: PrismaClient, accountId: number) {
-  const [viewer] = await db.$queryRaw<Array<{ role: string | null; isStaff: number | bigint | boolean; unreadCount: number | bigint }>>`
-    SELECT profile.role AS role, account.is_staff AS isStaff,
-           (SELECT COUNT(*) FROM board_notify WHERE user_id = account.id AND has_read = 0) AS unreadCount
+  const [viewer] = await db.$queryRaw<Array<{ role: string | null; isStaff: number | bigint | boolean }>>`
+    SELECT profile.role AS role, account.is_staff AS isStaff
       FROM auth_user AS account
       LEFT JOIN board_profile AS profile ON profile.user_id = account.id
      WHERE account.id = ${accountId}
      LIMIT 1
   `;
-  return viewer;
+  return viewer && { ...viewer, unreadCount: await db.notification.count({ where: { userId: accountId, isRead: false } }) };
 }
 
 function csrfForPage(request: FastifyRequest, reply: FastifyReply, siteUrl: URL) {

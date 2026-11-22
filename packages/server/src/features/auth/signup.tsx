@@ -128,11 +128,15 @@ async function createPasswordAccount(db: PrismaClient, request: FastifyRequest, 
     if (invite) await tx.$executeRaw`
       UPDATE board_authorinvite SET claimed_by_id = ${id}, claimed_date = ${timestamp}, is_active = 0 WHERE id = ${invite.id}
     `;
-    if (settings?.welcome) await tx.$executeRaw`
-      INSERT INTO board_notify (key, url, created_date, updated_date, user_id, content, has_read, message_key, message_params)
-      VALUES (${createToken()}, ${settings.welcomeUrl || '/'}, ${timestamp}, ${timestamp}, ${id},
-              ${settings.welcome.replaceAll('{name}', () => displayName)}, 0, '', '{}')
-    `;
+    if (settings?.welcome) {
+      const createdAt = new Date();
+      await tx.notification.create({
+        data: {
+          key: createToken(), url: settings.welcomeUrl || '/', userId: id,
+          content: settings.welcome.replaceAll('{name}', () => displayName), messageParams: {}, createdAt, updatedAt: createdAt,
+        },
+      });
+    }
     return id;
   });
   return { userId, passwordHash };

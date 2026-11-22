@@ -133,9 +133,9 @@ test('announces first publication but not hiding, unhiding, or restoring an old 
   const fixture = await migratedApp();
   const db = new PrismaClient({ datasourceUrl: `file:${fixture.path}` });
   try {
-    insertRow(fixture.db, 'board_webhooksubscription', { id: 1, scope: 'global', is_active: 1, name: 'all', webhook_url: 'https://hooks.test/a' });
+    insertRow(fixture.db, 'WebhookChannel', { id: 1, scope: 'global', isActive: 1, name: 'all', url: 'https://hooks.test/a' });
     seedPost(fixture.db, 2, 1, 'old-post');
-    const queued = async () => Number((await db.$queryRaw<Array<{ total: bigint }>>`SELECT COUNT(*) AS total FROM blex_webhook_delivery`)[0].total);
+    const queued = () => db.webhookDelivery.count();
 
     const headers = signIn(fixture.db, 1);
     for (const isHide of [true, false]) {

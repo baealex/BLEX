@@ -21,8 +21,6 @@ interface TelegramOptions {
 
 const tokenChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
-function timestamp(date: Date) { return date.toISOString().slice(0, -1).replace('T', ' '); }
-
 export function telegramWebhookSecret(secretKey: string, botToken: string) {
   return createHmac('sha256', secretKey).update(`telegram-webhook:${botToken}`).digest('hex');
 }
@@ -42,14 +40,15 @@ async function issueConnection(db: PrismaClient, userId: number, username: strin
   const code = await db.$transaction(async (tx) => {
     for (let attempt = 0; attempt < 5; attempt += 1) {
       const code = Array.from({ length: 6 }, () => tokenChars[randomInt(tokenChars.length)]).join('');
-      const [exists] = await tx.$queryRaw<unknown[]>`SELECT 1 FROM board_telegramsync WHERE auth_token = ${code} LIMIT 1`;
-      if (exists) continue;
+      if (await tx.telegramConnection.findFirst({ where: { authToken: code }, select: { userId: true } })) continue;
       const now = Date.now();
-      await tx.$executeRaw`
-        INSERT INTO board_telegramsync (user_id, tid, auth_token, auth_token_exp, created_date)
-        VALUES (${userId}, '', ${code}, ${timestamp(new Date(now + 86_400_000))}, ${timestamp(new Date(now))})
-        ON CONFLICT(user_id) DO UPDATE SET auth_token = excluded.auth_token, auth_token_exp = excluded.auth_token_exp
-      `;
+      const authTokenExpiresAt = new Date(now + 86_400_000);
+      // Reissuing a code leaves telegramId alone, so a connected account stays connected until the new code is used.
+      await tx.telegramConnection.upsert({
+        where: { userId },
+        create: { userId, authToken: code, authTokenExpiresAt, createdAt: new Date(now) },
+        update: { authToken: code, authTokenExpiresAt },
+      });
       return code;
     }
     throw new Error('Could not allocate a Telegram connection token');
@@ -74,15 +73,23 @@ function extractMessage(input: Record<string, unknown>) {
 async function handleBotLink(db: PrismaClient, options: TelegramOptions, botToken: string, message: NonNullable<ReturnType<typeof extractMessage>>) {
   let text = `BLEX를 둘러보세요.\n\n${options.siteUrl.origin}`;
   if (message.code) {
-    const now = timestamp(new Date());
-    const cipher = encryptDjangoSecret(message.chatId, options.cipherKey);
-    const [linked] = await db.$queryRaw<Array<{ expiry: string }>>`
-      UPDATE board_telegramsync SET auth_token = '', tid = CASE WHEN auth_token_exp > ${now} THEN ${cipher} ELSE tid END
-       WHERE id = (SELECT link.id FROM board_telegramsync AS link JOIN auth_user account ON account.id = link.user_id
-                   WHERE link.auth_token = ${message.code} AND account.is_active = 1 LIMIT 1)
-      RETURNING CAST(auth_token_exp AS TEXT) AS expiry
-    `;
-    if (linked) text = linked.expiry > now ? '텔레그램을 연결했습니다.' : '연결 코드가 만료되었습니다. 사이트에서 다시 발급해 주세요.';
+    const pending = await db.telegramConnection.findFirst({
+      where: { authToken: message.code, user: { is_active: true } },
+      orderBy: { userId: 'asc' },
+      select: { userId: true, authTokenExpiresAt: true },
+    });
+    if (pending) {
+      const isValid = Boolean(pending.authTokenExpiresAt && pending.authTokenExpiresAt > new Date());
+      // Matching the code again makes it single-use when the same code arrives twice.
+      const { count } = await db.telegramConnection.updateMany({
+        where: { userId: pending.userId, authToken: message.code },
+        data: {
+          authToken: '', authTokenExpiresAt: null,
+          ...(isValid ? { telegramId: encryptDjangoSecret(message.chatId, options.cipherKey) } : {}),
+        },
+      });
+      if (count) text = isValid ? '텔레그램을 연결했습니다.' : '연결 코드가 만료되었습니다. 사이트에서 다시 발급해 주세요.';
+    }
   }
   try {
     const response = await (options.fetchProvider ?? fetch)(`https://api.telegram.org/bot${botToken}/sendMessage`, {
@@ -125,8 +132,8 @@ export function registerTelegram(app: FastifyInstance, db: PrismaClient, options
         if (!user) return failure('NL');
         if (!options.validateCsrf(request)) return reply.code(403).send(failure('RJ'));
         if (action === 'unsync') {
-          const changed = await db.$executeRaw`DELETE FROM board_telegramsync WHERE user_id = ${user.id} AND tid <> ''`;
-          return changed ? done() : failure('AU', '이미 연동이 해제되었습니다.');
+          const { count } = await db.telegramConnection.deleteMany({ where: { userId: user.id, telegramId: { not: '' } } });
+          return count ? done() : failure('AU', '이미 연동이 해제되었습니다.');
         }
         const config = await telegramConfig(db, options.cipherKey);
         return config.configured ? done(await issueConnection(db, user.id, config.username)) : failure('NT', '텔레그램 봇이 설정되지 않았습니다.');

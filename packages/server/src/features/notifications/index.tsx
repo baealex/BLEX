@@ -19,9 +19,7 @@ interface NotificationOptions {
   siteUrl: URL;
 }
 
-function relativeTime(stored: string, language: string) {
-  const date = new Date(stored.replace(' ', 'T') + 'Z');
-  if (!Number.isFinite(date.getTime())) return '';
+function relativeTime(date: Date, language: string) {
   const seconds = Math.max(0, (Date.now() - date.getTime()) / 1_000);
   if (seconds >= 31_536_000) return new Intl.DateTimeFormat(language, {
     dateStyle: 'long', timeZone: process.env.TZ || 'Asia/Seoul',
@@ -34,20 +32,19 @@ function relativeTime(stored: string, language: string) {
   return format.format(-Math.floor(seconds / 60), 'minute');
 }
 
-async function notificationList(db: PrismaClient, userId: number, limit = -1, offset = 0) {
-  const since = new Date(Date.now() - 180 * 86_400_000).toISOString().slice(0, -1).replace('T', ' ');
+async function notificationList(db: PrismaClient, userId: number) {
+  const since = new Date(Date.now() - 180 * 86_400_000);
   const [config] = await db.$queryRaw<Array<{ language: string | null }>>`SELECT language FROM board_config WHERE user_id = ${userId}`;
   const language = config?.language === 'en' && process.env.ENABLE_ENGLISH_UI === 'TRUE' ? 'en' : 'ko';
-  const rows = await db.$queryRaw<Array<{
-    id: number; url: string; content: string; key: string; params: string; has_read: number | bigint; date: string;
-  }>>`
-    SELECT id, url, content, message_key AS key, message_params AS params, has_read, CAST(created_date AS TEXT) AS date
-      FROM board_notify WHERE user_id = ${userId} AND (created_date > ${since} OR has_read = 0)
-     ORDER BY created_date DESC, id DESC LIMIT ${limit} OFFSET ${offset}
-  `;
+  const rows = await db.notification.findMany({
+    where: { userId, OR: [{ createdAt: { gt: since } }, { isRead: false }] },
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    select: { id: true, url: true, content: true, messageKey: true, messageParams: true, isRead: true, createdAt: true },
+  });
   return rows.map((row) => ({
-    id: row.id, url: row.url, isRead: Boolean(row.has_read),
-    content: notificationText(row.key, notificationParams(row.params), row.content, language), createdDate: relativeTime(row.date, language),
+    id: row.id, url: row.url, isRead: row.isRead,
+    content: notificationText(row.messageKey, notificationParams(row.messageParams), row.content, language),
+    createdDate: relativeTime(row.createdAt, language),
   }));
 }
 
@@ -83,10 +80,11 @@ async function savePreferences(db: PrismaClient, user: NotificationUser, input: 
   });
 }
 
-function markRead(db: PrismaClient, userId: number, input: unknown) {
+async function markRead(db: PrismaClient, userId: number, input: unknown) {
   const id = typeof input === 'string' && /^\d+$/.test(input) ? Number(input) : input;
-  if (typeof id !== 'number' || !Number.isSafeInteger(id) || id < 1) return Promise.resolve(0);
-  return db.$executeRaw`UPDATE board_notify SET has_read = 1 WHERE id = ${id} AND user_id = ${userId}`;
+  if (typeof id !== 'number' || !Number.isSafeInteger(id) || id < 1) return 0;
+  const { count } = await db.notification.updateMany({ where: { id, userId }, data: { isRead: true } });
+  return count;
 }
 
 export function registerNotifications(app: FastifyInstance, db: PrismaClient, options: NotificationOptions) {
@@ -100,10 +98,7 @@ export function registerNotifications(app: FastifyInstance, db: PrismaClient, op
     routes.get('/v1/setting/unread-notify', async (request) => {
       const user = await options.currentUser(request);
       if (!user) return failure('NL');
-      const [row] = await db.$queryRaw<Array<{ count: bigint | number }>>`
-        SELECT COUNT(*) AS count FROM board_notify WHERE user_id = ${user.id} AND has_read = 0
-      `;
-      return done({ count: Number(row.count) });
+      return done({ count: await db.notification.count({ where: { userId: user.id, isRead: false } }) });
     });
     routes.get('/v1/setting/notify-config', async (request) => {
       const user = await options.currentUser(request);

@@ -56,8 +56,6 @@ interface SessionRow {
   avatarPath: string | null;
   password: string;
   tag: string;
-  notifyCount: bigint | number;
-  hasConnectedTelegram: bigint | number;
   hasConnected2fa: bigint | number;
   hasEditorRole: bigint | number;
   isStaff: bigint | number | boolean;
@@ -70,8 +68,6 @@ export async function readSession(db: PrismaClient, token: string | undefined, s
   const [row] = await db.$queryRaw<SessionRow[]>`
     SELECT account.id, account.username, account.first_name AS name, account.email,
            account.password, account.is_staff AS isStaff, session.credential_tag AS tag, profile.avatar AS avatarPath,
-           (SELECT COUNT(*) FROM board_notify WHERE user_id = account.id AND has_read = 0) AS notifyCount,
-           EXISTS(SELECT 1 FROM board_telegramsync WHERE user_id = account.id AND tid <> '') AS hasConnectedTelegram,
            EXISTS(SELECT 1 FROM board_twofactorauth WHERE user_id = account.id) AS hasConnected2fa,
            CASE WHEN profile.role = 'EDITOR' THEN 1 ELSE 0 END AS hasEditorRole
       FROM blex_session AS session
@@ -81,6 +77,8 @@ export async function readSession(db: PrismaClient, token: string | undefined, s
   `;
   if (!row || !/^[0-9a-f]{64}$/.test(row.tag)) return null;
   if (!timingSafeEqual(Buffer.from(row.tag, 'hex'), Buffer.from(credentialTag(row.password, secretKey), 'hex'))) return null;
+  const notifyCount = await db.notification.count({ where: { userId: row.id, isRead: false } });
+  const telegramLinks = await db.telegramConnection.count({ where: { userId: row.id, telegramId: { not: '' } } });
 
   return {
     id: row.id,
@@ -88,8 +86,8 @@ export async function readSession(db: PrismaClient, token: string | undefined, s
     name: row.name,
     email: row.email,
     avatar: row.avatarPath ? `/resources/media/${row.avatarPath.split('/').map(encodeURIComponent).join('/')}` : '',
-    notifyCount: Number(row.notifyCount),
-    hasConnectedTelegram: Boolean(row.hasConnectedTelegram),
+    notifyCount,
+    hasConnectedTelegram: telegramLinks > 0,
     hasConnected2fa: Boolean(row.hasConnected2fa),
     hasEditorRole: Boolean(row.hasEditorRole),
     isStaff: Boolean(row.isStaff),

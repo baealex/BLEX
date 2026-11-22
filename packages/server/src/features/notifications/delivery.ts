@@ -4,41 +4,54 @@ import { deliverPostWebhook } from '../integrations/webhooks/delivery.js';
 import { notificationParams, notificationText, processScheduledPublications } from './model.js';
 
 const maxAttempts = 8;
+const claimLeaseMs = 120_000;
+
+/** Takes the oldest due job. The guarded update lets only one worker win, and a loser moves on to the next job. */
+async function claimDelivery(db: PrismaClient) {
+  const now = new Date();
+  for (;;) {
+    const next = await db.notificationDelivery.findFirst({
+      where: { availableAt: { lte: now } },
+      orderBy: [{ availableAt: 'asc' }, { notificationId: 'asc' }],
+      select: { notificationId: true, attempts: true },
+    });
+    if (!next) return null;
+    const { count } = await db.notificationDelivery.updateMany({
+      where: { notificationId: next.notificationId, attempts: next.attempts, availableAt: { lte: now } },
+      data: { attempts: { increment: 1 }, availableAt: new Date(now.getTime() + claimLeaseMs) },
+    });
+    if (count) return { notificationId: next.notificationId, attempts: next.attempts + 1 };
+  }
+}
 
 export async function deliverTelegramNotification(db: PrismaClient, siteUrl: URL, cipherKey: string, send: typeof fetch, signal: AbortSignal) {
-  const timestamp = BigInt(Date.now());
-  const [job] = await db.$queryRaw<Array<{ notificationId: number; attempts: number }>>`
-    UPDATE blex_notification_delivery SET attempts = attempts + 1, available_at = ${timestamp + 120_000n}
-     WHERE notification_id = (SELECT notification_id FROM blex_notification_delivery WHERE available_at <= ${timestamp}
-       ORDER BY available_at, notification_id LIMIT 1)
-    RETURNING notification_id AS notificationId, attempts
-  `;
+  const job = await claimDelivery(db);
   if (!job) return false;
 
   const settings = await db.integrationSetting.findUnique({
     where: { id: 1 },
     select: { telegramEnabled: true, telegramBotToken: true },
   });
-  const [row] = await db.$queryRaw<Array<{
-    chat: string; content: string; url: string; key: string; params: string; language: string | null;
-  }>>`
-    SELECT link.tid AS chat, notify.content, notify.url,
-           notify.message_key AS key, notify.message_params AS params, prefs.language
-      FROM board_notify AS notify JOIN board_telegramsync AS link ON link.user_id = notify.user_id
-      JOIN auth_user AS account ON account.id = notify.user_id AND account.is_active = 1
-      LEFT JOIN board_config AS prefs ON prefs.user_id = notify.user_id
-     WHERE notify.id = ${job.notificationId}
-  `;
-  const message = settings?.telegramEnabled ? row : undefined;
+  const notification = await db.notification.findFirst({
+    where: { id: job.notificationId, user: { is_active: true, telegram: { isNot: null } } },
+    select: {
+      userId: true, content: true, url: true, messageKey: true, messageParams: true,
+      user: { select: { telegram: { select: { telegramId: true } } } },
+    },
+  });
+  const message = settings?.telegramEnabled ? notification : null;
   const token = message && settings && decryptDjangoSecret(settings.telegramBotToken, cipherKey);
-  const chat = message && decryptDjangoSecret(message.chat, cipherKey);
+  const chat = message?.user.telegram && decryptDjangoSecret(message.user.telegram.telegramId, cipherKey);
   let retry = false;
   let wait = Math.min(3_600_000, 15_000 * 2 ** (job.attempts - 1));
   if (message && token && /^\d+:[A-Za-z0-9_-]+$/.test(token) && chat && /^-?\d+$/.test(chat)) {
     const url = URL.parse(message.url, siteUrl);
     const safeUrl = url && ['https:', 'http:'].includes(url.protocol) && !url.username && !url.password ? url.href : '';
-    const language = message.language === 'en' && process.env.ENABLE_ENGLISH_UI === 'TRUE' ? 'en' : 'ko';
-    const text = notificationText(message.key, notificationParams(message.params), message.content, language);
+    const [preferences] = await db.$queryRaw<Array<{ language: string | null }>>`
+      SELECT language FROM board_config WHERE user_id = ${message.userId} LIMIT 1
+    `;
+    const language = preferences?.language === 'en' && process.env.ENABLE_ENGLISH_UI === 'TRUE' ? 'en' : 'ko';
+    const text = notificationText(message.messageKey, notificationParams(message.messageParams), message.content, language);
     try {
       const response = await send(`https://api.telegram.org/bot${token}/sendMessage`, {
         method: 'POST',
@@ -57,12 +70,12 @@ export async function deliverTelegramNotification(db: PrismaClient, siteUrl: URL
     }
   }
   if (retry && job.attempts < maxAttempts) {
-    await db.$executeRaw`
-      UPDATE blex_notification_delivery SET available_at = ${BigInt(Date.now() + wait)}
-       WHERE notification_id = ${job.notificationId} AND attempts = ${job.attempts}
-    `;
+    await db.notificationDelivery.updateMany({
+      where: { notificationId: job.notificationId, attempts: job.attempts },
+      data: { availableAt: new Date(Date.now() + wait) },
+    });
   } else {
-    await db.$executeRaw`DELETE FROM blex_notification_delivery WHERE notification_id = ${job.notificationId} AND attempts = ${job.attempts}`;
+    await db.notificationDelivery.deleteMany({ where: { notificationId: job.notificationId, attempts: job.attempts } });
   }
   return true;
 }

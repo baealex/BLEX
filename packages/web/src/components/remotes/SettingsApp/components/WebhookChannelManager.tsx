@@ -60,7 +60,7 @@ interface WebhookChannelManagerProps {
     emptyDescription?: string;
     addButtonLabel?: string;
     fetchChannels: () => Promise<AxiosResponse<ChannelsResponse>>;
-    createChannel: (data: { webhook_url: string; name?: string }) => Promise<AxiosResponse<CreateResponse>>;
+    createChannel: (data: { webhookUrl: string; name?: string }) => Promise<AxiosResponse<CreateResponse>>;
     deleteChannel: (channelId: number) => Promise<AxiosResponse<DeleteResponse>>;
     testChannel: (webhookUrl: string) => Promise<AxiosResponse<TestResponse>>;
     confirmDeleteTitle: string;
@@ -305,7 +305,7 @@ const WebhookChannelManager = ({
         setIsAdding(true);
         try {
             const { data } = await createChannel({
-                webhook_url: webhookUrl,
+                webhookUrl,
                 name: webhookName || undefined
             });
 
@@ -562,9 +562,9 @@ const WebhookChannelManager = ({
                                     {channelName}
                                 </h3>
                                 <div className={`${SETTINGS_LIST_META} flex flex-wrap items-center gap-3`}>
-                                    <span className="flex items-center truncate max-w-[200px]" title={channel.webhookUrl}>
+                                    <span className="flex items-center truncate max-w-[200px]" title={channel.host}>
                                         <LinkIcon aria-hidden="true" className="mr-1.5 h-3.5 w-3.5 shrink-0" />
-                                        {channel.webhookUrl.replace(/^https?:\/\//, '').slice(0, 30)}...
+                                        {channel.host}/...
                                     </span>
                                     <span className="flex items-center">
                                         <Clock aria-hidden="true" className="mr-1.5 h-3.5 w-3.5 shrink-0" />

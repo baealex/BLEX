@@ -57,11 +57,11 @@ CREATE TABLE "blex_factor_setup" (
 );
 
 -- CreateTable
-CREATE TABLE "blex_notification_delivery" (
-    "notification_id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE "NotificationDelivery" (
+    "notificationId" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "attempts" INTEGER NOT NULL DEFAULT 0,
-    "available_at" BIGINT NOT NULL,
-    CONSTRAINT "blex_notification_delivery_notification_id_fkey" FOREIGN KEY ("notification_id") REFERENCES "board_notify" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
+    "availableAt" DATETIME NOT NULL,
+    CONSTRAINT "NotificationDelivery_notificationId_fkey" FOREIGN KEY ("notificationId") REFERENCES "Notification" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -72,15 +72,15 @@ CREATE TABLE "blex_scheduled_publication" (
 );
 
 -- CreateTable
-CREATE TABLE "blex_webhook_delivery" (
-    "post_id" INTEGER NOT NULL,
-    "channel_id" INTEGER NOT NULL,
-    "available_at" BIGINT NOT NULL,
-    "done" INTEGER NOT NULL DEFAULT 0,
+CREATE TABLE "WebhookDelivery" (
+    "postId" INTEGER NOT NULL,
+    "channelId" INTEGER NOT NULL,
+    "availableAt" DATETIME NOT NULL,
+    "isDone" BOOLEAN NOT NULL DEFAULT false,
 
-    PRIMARY KEY ("post_id", "channel_id"),
-    CONSTRAINT "blex_webhook_delivery_post_id_fkey" FOREIGN KEY ("post_id") REFERENCES "board_post" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
-    CONSTRAINT "blex_webhook_delivery_channel_id_fkey" FOREIGN KEY ("channel_id") REFERENCES "board_webhooksubscription" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
+    PRIMARY KEY ("postId", "channelId"),
+    CONSTRAINT "WebhookDelivery_postId_fkey" FOREIGN KEY ("postId") REFERENCES "board_post" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "WebhookDelivery_channelId_fkey" FOREIGN KEY ("channelId") REFERENCES "WebhookChannel" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -328,18 +328,18 @@ CREATE TABLE "board_loginattempt" (
 );
 
 -- CreateTable
-CREATE TABLE "board_notify" (
+CREATE TABLE "Notification" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "userId" INTEGER NOT NULL,
     "key" TEXT NOT NULL,
-    "url" TEXT NOT NULL,
-    "created_date" DATETIME NOT NULL,
-    "updated_date" DATETIME NOT NULL,
-    "user_id" INTEGER NOT NULL,
-    "content" TEXT NOT NULL,
-    "has_read" BOOLEAN NOT NULL,
-    "message_key" TEXT NOT NULL,
-    "message_params" TEXT NOT NULL,
-    CONSTRAINT "board_notify_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+    "url" TEXT NOT NULL DEFAULT '',
+    "content" TEXT NOT NULL DEFAULT '',
+    "messageKey" TEXT NOT NULL DEFAULT '',
+    "messageParams" JSONB NOT NULL,
+    "isRead" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -473,14 +473,13 @@ CREATE TABLE "board_tag" (
 );
 
 -- CreateTable
-CREATE TABLE "board_telegramsync" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "auth_token" TEXT NOT NULL,
-    "auth_token_exp" DATETIME NOT NULL,
-    "created_date" DATETIME NOT NULL,
-    "user_id" INTEGER NOT NULL,
-    "tid" TEXT NOT NULL,
-    CONSTRAINT "board_telegramsync_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+CREATE TABLE "TelegramConnection" (
+    "userId" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "telegramId" TEXT NOT NULL DEFAULT '',
+    "authToken" TEXT NOT NULL DEFAULT '',
+    "authTokenExpiresAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "TelegramConnection_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -517,17 +516,17 @@ CREATE TABLE "board_userlinkmeta" (
 );
 
 -- CreateTable
-CREATE TABLE "board_webhooksubscription" (
+CREATE TABLE "WebhookChannel" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "webhook_url" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "is_active" BOOLEAN NOT NULL,
-    "failure_count" INTEGER NOT NULL,
-    "last_success_date" DATETIME,
-    "created_date" DATETIME NOT NULL,
+    "ownerId" INTEGER,
     "scope" TEXT NOT NULL,
-    "author_id" INTEGER,
-    CONSTRAINT "board_webhooksubscription_author_id_fkey" FOREIGN KEY ("author_id") REFERENCES "board_profile" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+    "name" TEXT NOT NULL DEFAULT '',
+    "url" TEXT NOT NULL,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "failureCount" INTEGER NOT NULL DEFAULT 0,
+    "lastSuccessAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "WebhookChannel_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -728,13 +727,13 @@ CREATE INDEX "blex_session_user_id_idx" ON "blex_session"("user_id");
 CREATE INDEX "blex_session_expires_at_idx" ON "blex_session"("expires_at");
 
 -- CreateIndex
-CREATE INDEX "blex_notification_delivery_available_at_idx" ON "blex_notification_delivery"("available_at");
+CREATE INDEX "NotificationDelivery_availableAt_idx" ON "NotificationDelivery"("availableAt");
 
 -- CreateIndex
 CREATE INDEX "blex_scheduled_publication_publish_at_idx" ON "blex_scheduled_publication"("publish_at");
 
 -- CreateIndex
-CREATE INDEX "blex_webhook_delivery_pending_idx" ON "blex_webhook_delivery"("done", "available_at");
+CREATE INDEX "WebhookDelivery_isDone_availableAt_idx" ON "WebhookDelivery"("isDone", "availableAt");
 
 -- CreateIndex
 CREATE INDEX "board_usern_usernam_873004_idx" ON "board_usernamechangelog"("username");
@@ -929,10 +928,10 @@ CREATE UNIQUE INDEX "board_emailchange_user_id_key" ON "board_emailchange"("user
 CREATE INDEX "board_loginattempt_window_a08cc5bd" ON "board_loginattempt"("window");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "board_notify_key_key" ON "board_notify"("key");
+CREATE UNIQUE INDEX "Notification_key_key" ON "Notification"("key");
 
 -- CreateIndex
-CREATE INDEX "board_notify_user_id_b069f0b5" ON "board_notify"("user_id");
+CREATE INDEX "Notification_userId_idx" ON "Notification"("userId");
 
 -- CreateIndex
 CREATE INDEX "board_pinnedpost_user_id_162d6fde" ON "board_pinnedpost"("user_id");
@@ -1010,9 +1009,6 @@ CREATE UNIQUE INDEX "board_socialauthprovider_key_key" ON "board_socialauthprovi
 CREATE UNIQUE INDEX "board_tag_value_key" ON "board_tag"("value");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "board_telegramsync_user_id_key" ON "board_telegramsync"("user_id");
-
--- CreateIndex
 CREATE UNIQUE INDEX "board_twofactorauth_user_id_key" ON "board_twofactorauth"("user_id");
 
 -- CreateIndex
@@ -1022,10 +1018,10 @@ CREATE INDEX "board_userconfigmeta_user_id_da67eecd" ON "board_userconfigmeta"("
 CREATE INDEX "board_userlinkmeta_user_id_ba3f4047" ON "board_userlinkmeta"("user_id");
 
 -- CreateIndex
-CREATE INDEX "board_webhooksubscription_author_id_8548ecb1" ON "board_webhooksubscription"("author_id");
+CREATE INDEX "WebhookChannel_ownerId_idx" ON "WebhookChannel"("ownerId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "board_webhooksubscription_scope_author_id_webhook_url_77edf147_uniq" ON "board_webhooksubscription"("scope", "author_id", "webhook_url");
+CREATE UNIQUE INDEX "WebhookChannel_scope_ownerId_url_key" ON "WebhookChannel"("scope", "ownerId", "url");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "django_content_type_app_label_model_76bd3d3b_uniq" ON "django_content_type"("app_label", "model");

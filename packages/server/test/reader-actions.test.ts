@@ -83,14 +83,6 @@ database.exec(`
     author_id INTEGER NOT NULL,
     subscriber_id INTEGER NOT NULL
   );
-  CREATE TABLE board_telegramsync (
-    id INTEGER PRIMARY KEY,
-    auth_token TEXT NOT NULL DEFAULT '',
-    auth_token_exp DATETIME NOT NULL DEFAULT '2026-01-01 00:00:00',
-    created_date DATETIME NOT NULL DEFAULT '2026-01-01 00:00:00',
-    user_id INTEGER NOT NULL UNIQUE,
-    tid TEXT NOT NULL DEFAULT ''
-  );
 
   INSERT INTO auth_user VALUES
     (1, 'writer', 'Writer Name', 1),
@@ -121,10 +113,10 @@ database.exec(`
   INSERT INTO board_comment_likes VALUES (1, 11, 1);
   INSERT INTO IntegrationSetting (id, telegramEnabled, telegramBotUsername, telegramBotToken, updatedAt) VALUES (1, 1, 'test_bot', '${encryptDjangoSecret('bot-token', readerCipherKey)}', 1767225600123);
   INSERT INTO board_authorsubscription VALUES (1, '2020-05-01 15:00:00.654321', 4, 2);
-  INSERT INTO board_telegramsync VALUES (1, '', '2026-01-01 00:00:00', '2026-01-01 00:00:00', 2, 'telegram-id');
 `);
 installNotificationTables(database);
 database.exec(`
+  INSERT INTO TelegramConnection (userId, telegramId, createdAt) VALUES (2, 'telegram-id', 1767225600000);
   INSERT INTO board_userconfigmeta (user_id, name, value, created_date, updated_date) VALUES
     (1, 'NOTIFY_POSTS_LIKE', 'true', '2000-01-01', '2000-01-01'),
     (1, 'NOTIFY_POSTS_COMMENT', 'true', '2000-01-01', '2000-01-01'),

@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import type { DatabaseSync } from 'node:sqlite';
 
-const notificationTables = ['board_userconfigmeta', 'board_notify', 'blex_notification_delivery', 'blex_scheduled_publication'];
+const notificationTables = ['board_userconfigmeta', 'Notification', 'NotificationDelivery', 'TelegramConnection', 'blex_scheduled_publication'];
 
 export function installNotificationTables(db: DatabaseSync) {
   const schema = readFileSync(new URL('../../../prisma/migrations/0001_init/migration.sql', import.meta.url), 'utf8');

@@ -15,31 +15,32 @@ interface ChannelOptions {
   send?: SendWebhook;
 }
 
-interface Channel { id: number; name: string; webhookUrl: string; isActive: number | bigint; failureCount: number | bigint; createdDate: string }
 type Scope = 'user' | 'global';
 
+/** The URL is a bearer credential, so a response only ever names its host. */
 async function channels(db: PrismaClient, scope: Scope, owner: number | null) {
-  return db.$queryRaw<Channel[]>`
-    SELECT id, name, webhook_url AS webhookUrl, CAST(is_active AS INTEGER) AS isActive,
-      CAST(failure_count AS INTEGER) AS failureCount, CAST(created_date AS TEXT) AS createdDate
-    FROM board_webhooksubscription WHERE scope = ${scope} AND author_id IS ${owner} ORDER BY created_date DESC, id DESC
-  `;
+  const rows = await db.webhookChannel.findMany({
+    where: { scope, ownerId: owner },
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    select: { id: true, name: true, url: true, isActive: true, failureCount: true, createdAt: true },
+  });
+  return rows.map(({ url, createdAt, ...channel }) => ({
+    ...channel, host: URL.parse(url)?.hostname ?? '', createdDate: djangoJsonUtc(createdAt.toISOString()),
+  }));
 }
 
 async function saveChannel(db: PrismaClient, scope: Scope, owner: number | null, url: string, name: string) {
   return db.$transaction(async (tx) => {
-    const [existing] = await tx.$queryRaw<Array<{ id: number }>>`
-      UPDATE board_webhooksubscription SET name = COALESCE(NULLIF(${name}, ''), name), is_active = 1, failure_count = 0
-       WHERE id = (SELECT id FROM board_webhooksubscription WHERE scope = ${scope} AND author_id IS ${owner}
-         AND webhook_url = ${url} ORDER BY id LIMIT 1)
-      RETURNING id
-    `;
-    if (existing) return existing.id;
-    const now = new Date().toISOString().slice(0, -1).replace('T', ' ');
-    const [created] = await tx.$queryRaw<Array<{ id: number }>>`
-      INSERT INTO board_webhooksubscription (name, webhook_url, author_id, scope, is_active, failure_count, created_date)
-      VALUES (${name}, ${url}, ${owner}, ${scope}, 1, 0, ${now}) RETURNING id
-    `;
+    // SQLite treats NULL owners as distinct, so global channels cannot use the compound unique key here.
+    const existing = await tx.webhookChannel.findFirst({ where: { scope, ownerId: owner, url }, orderBy: { id: 'asc' }, select: { id: true } });
+    if (existing) {
+      await tx.webhookChannel.update({
+        where: { id: existing.id },
+        data: { ...(name ? { name } : {}), isActive: true, failureCount: 0 },
+      });
+      return existing.id;
+    }
+    const created = await tx.webhookChannel.create({ data: { name, url, ownerId: owner, scope, createdAt: new Date() }, select: { id: true } });
     return created.id;
   });
 }
@@ -68,24 +69,19 @@ export function registerWebhooks(app: FastifyInstance, db: PrismaClient, options
         const user = await options.currentUser(request);
         if (!user) return failure('NL');
         if (!(global ? user.isStaff : user.hasEditorRole)) return failure('RJ', global ? 'Administrator access is required.' : 'Author access is required.');
-        const profile = global ? null : await db.board_profile.findUnique({ where: { user_id: user.id }, select: { id: true } });
-        if (!global && !profile) return failure('NF');
-        const owner = profile?.id ?? null;
-        if (request.method === 'GET') {
-          return done({ channels: (await channels(db, scope, owner)).map((channel) => ({ ...channel,
-            isActive: Boolean(channel.isActive), failureCount: Number(channel.failureCount), createdDate: djangoJsonUtc(channel.createdDate) })) });
-        }
+        const owner = global ? null : user.id;
+        if (request.method === 'GET') return done({ channels: await channels(db, scope, owner) });
         if (!options.validateCsrf(request)) return reply.code(403).send(failure('RJ'));
         const body = formInput(request);
         if (request.method === 'DELETE' || body.action === 'delete') {
-          const raw = request.params?.id ?? body.channel_id;
+          const raw = request.params?.id ?? body.channelId;
           const id = typeof raw === 'string' && /^\d+$/.test(raw) ? Number(raw) : 0;
           if (!Number.isSafeInteger(id) || id < 1) return failure('NF');
-          const removed = await db.$executeRaw`DELETE FROM board_webhooksubscription WHERE id = ${id} AND scope = ${scope} AND author_id IS ${owner}`;
-          if (!removed) return failure('NF');
+          const { count } = await db.webhookChannel.deleteMany({ where: { id, scope, ownerId: owner } });
+          if (!count) return failure('NF');
           return done({ success: true });
         }
-        const url = typeof body.webhook_url === 'string' ? body.webhook_url.trim() : '';
+        const url = typeof body.webhookUrl === 'string' ? body.webhookUrl.trim() : '';
         if (!parseWebhookUrl(url)) return failure(url ? 'VA' : 'RE', 'Webhook URL을 확인해 주세요.');
         const name = typeof body.name === 'string' ? body.name.trim().slice(0, 100) : '';
         const channelId = await saveChannel(db, scope, owner, url, name);
@@ -99,7 +95,7 @@ export function registerWebhooks(app: FastifyInstance, db: PrismaClient, options
       if (!user) return failure('NL');
       if (!user.hasEditorRole && !user.isStaff) return failure('RJ');
       if (!options.validateCsrf(request)) return reply.code(403).send(failure('RJ'));
-      const url = parseWebhookUrl(formInput(request).webhook_url);
+      const url = parseWebhookUrl(formInput(request).webhookUrl);
       if (!url) return failure('VA', 'Webhook URL을 확인해 주세요.');
       return done({ success: await test(url) });
     });

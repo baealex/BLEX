@@ -17,7 +17,8 @@ import { createMigratedTables } from './fixtures/migrated-database.js';
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-authoring-'));
 const databasePath = join(directory, 'Django authoring.sqlite3');
 const database = new DatabaseSync(databasePath);
-createMigratedTables(database, 'FormTemplate', 'StaticPage', 'SiteBanner', 'UploadedImage', 'IntegrationSetting', 'SiteSetting');
+createMigratedTables(database, 'FormTemplate', 'StaticPage', 'SiteBanner', 'UploadedImage', 'IntegrationSetting', 'SiteSetting',
+  'Notification', 'NotificationDelivery', 'TelegramConnection', 'WebhookChannel', 'WebhookDelivery');
 const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
 const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString().replace('T', ' ').replace('Z', '');
 const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString().replace('T', ' ').replace('Z', '');
@@ -120,24 +121,6 @@ database.exec(`
     created_date DATETIME NOT NULL,
     UNIQUE(subscriber_id, author_id)
   );
-  CREATE TABLE board_webhooksubscription (
-    id INTEGER PRIMARY KEY,
-    author_id INTEGER,
-    scope TEXT NOT NULL,
-    is_active BOOLEAN NOT NULL DEFAULT 1
-  );
-  CREATE TABLE board_notify (
-    id INTEGER PRIMARY KEY,
-    key TEXT NOT NULL UNIQUE,
-    user_id INTEGER NOT NULL,
-    url TEXT NOT NULL,
-    content TEXT NOT NULL,
-    message_key TEXT NOT NULL DEFAULT '',
-    message_params TEXT NOT NULL DEFAULT '{}',
-    created_date DATETIME NOT NULL,
-    updated_date DATETIME NOT NULL,
-    has_read BOOLEAN NOT NULL DEFAULT 0
-  );
   CREATE TABLE board_userconfigmeta (
     id INTEGER PRIMARY KEY,
     user_id INTEGER NOT NULL,
@@ -146,22 +129,9 @@ database.exec(`
     created_date DATETIME NOT NULL,
     updated_date DATETIME NOT NULL
   );
-  CREATE TABLE board_telegramsync (user_id INTEGER PRIMARY KEY, tid TEXT NOT NULL DEFAULT '');
-  CREATE TABLE blex_notification_delivery (
-    notification_id INTEGER PRIMARY KEY,
-    attempts INTEGER NOT NULL DEFAULT 0,
-    available_at BIGINT NOT NULL
-  );
   CREATE TABLE blex_scheduled_publication (
     post_id INTEGER PRIMARY KEY,
     publish_at TEXT NOT NULL
-  );
-  CREATE TABLE blex_webhook_delivery (
-    post_id INTEGER NOT NULL,
-    channel_id INTEGER NOT NULL,
-    available_at BIGINT NOT NULL,
-    done INTEGER NOT NULL DEFAULT 0,
-    PRIMARY KEY(post_id, channel_id)
   );
   CREATE TABLE board_usernamechangelog (
     id INTEGER PRIMARY KEY,
@@ -372,10 +342,7 @@ test('creates a published Markdown post atomically with config, content, tags an
     SELECT tag.value FROM board_tag AS tag JOIN board_post_tags AS link ON link.tag_id = tag.id WHERE link.post_id = ${post[0]!.id} ORDER BY tag.value
   `;
   assert.deepEqual(tags.map((tag) => tag.value), ['python', 'typescript']);
-  const notifications = await db.$queryRaw<Array<{ total: number }>>`
-    SELECT COUNT(*) AS total FROM board_notify WHERE url = '/@writer/hello-world'
-  `;
-  assert.equal(Number(notifications[0]?.total), 1);
+  assert.equal(await db.notification.count({ where: { url: '/@writer/hello-world' } }), 1);
 });
 
 test('creates and reschedules future posts from the visible datetime-local field', async () => {
@@ -416,10 +383,7 @@ test('creates and reschedules future posts from the visible datetime-local field
   `)[0]?.total, 0n);
   const unhide = await app.inject({ method: 'PUT', url: '/v1/users/@writer/posts/scheduled-through-editor?hide=1', headers: writerHeaders });
   assert.equal(unhide.json().body.isHide, false);
-  const notifications = await db.$queryRaw<Array<{ total: number }>>`
-    SELECT COUNT(*) AS total FROM board_notify WHERE url = '/@writer/scheduled-through-editor'
-  `;
-  assert.equal(Number(notifications[0]?.total), 0);
+  assert.equal(await db.notification.count({ where: { url: '/@writer/scheduled-through-editor' } }), 0);
 });
 
 test('serves legacy create/edit/view contracts and keeps an existing post configuration intact', async () => {

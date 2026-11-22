@@ -397,7 +397,7 @@ export const updatePinnedPostsOrder = async (postUrls: string[]) => {
 export interface WebhookChannel {
     id: number;
     name: string;
-    webhookUrl: string;
+    host: string;
     isActive: boolean;
     failureCount: number;
     createdDate: string;
@@ -407,7 +407,7 @@ export const getWebhookChannels = async () => {
     return http.get<Response<{ channels: WebhookChannel[] }>>('v1/webhook/channels');
 };
 
-export const addWebhookChannel = async (data: { webhook_url: string; name?: string }) => {
+export const addWebhookChannel = async (data: { webhookUrl: string; name?: string }) => {
     return http.post<Response<{ success: boolean; channelId: number }>>('v1/webhook/channels', data, { headers: { 'Content-Type': 'application/json' } });
 };
 
@@ -419,7 +419,7 @@ export const getGlobalWebhookChannels = async () => {
     return http.get<Response<{ channels: WebhookChannel[] }>>('v1/webhook/global-channels');
 };
 
-export const addGlobalWebhookChannel = async (data: { webhook_url: string; name?: string }) => {
+export const addGlobalWebhookChannel = async (data: { webhookUrl: string; name?: string }) => {
     return http.post<Response<{ success: boolean; channelId: number }>>('v1/webhook/global-channels', data, { headers: { 'Content-Type': 'application/json' } });
 };
 
@@ -428,7 +428,7 @@ export const deleteGlobalWebhookChannel = async (channelId: number) => {
 };
 
 export const testWebhook = async (webhookUrl: string) => {
-    return http.post<Response<{ success: boolean }>>('v1/webhook/test', { webhook_url: webhookUrl }, { headers: { 'Content-Type': 'application/json' } });
+    return http.post<Response<{ success: boolean }>>('v1/webhook/test', { webhookUrl }, { headers: { 'Content-Type': 'application/json' } });
 };
 
 // Developer API Token API

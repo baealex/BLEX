@@ -48,12 +48,7 @@ export async function mySubscriptions(db: PrismaClient, viewerId: number) {
     WHERE subscription.subscriber_id = ${viewerId}
     ORDER BY subscription.created_date DESC, subscription.id DESC
   `;
-  const telegram = await db.$queryRaw<Array<{ connected: DbInteger }>>`
-    SELECT CASE WHEN TRIM(tid) <> '' THEN 1 ELSE 0 END AS connected
-    FROM board_telegramsync
-    WHERE user_id = ${viewerId}
-    LIMIT 1
-  `;
+  const telegram = await db.telegramConnection.findUnique({ where: { userId: viewerId }, select: { telegramId: true } });
   return {
     subscriptions: rows.map((row) => ({
       username: row.username,
@@ -63,6 +58,6 @@ export async function mySubscriptions(db: PrismaClient, viewerId: number) {
       isPublishing: isTrue(row.isActive) && row.profileRole === 'EDITOR',
       subscribedDate: localDateOnly(row.createdDate),
     })),
-    isTelegramConnected: isTrue(telegram[0]?.connected ?? 0),
+    isTelegramConnected: Boolean(telegram?.telegramId.trim()),
   };
 }

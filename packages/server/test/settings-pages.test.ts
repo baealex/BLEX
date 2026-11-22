@@ -18,7 +18,7 @@ const siteUrl = new URL('https://blog.example');
 
 function createSchema() {
   const fixture = new DatabaseSync(databasePath);
-  createMigratedTables(fixture, 'IntegrationSetting');
+  createMigratedTables(fixture, 'IntegrationSetting', 'Notification', 'TelegramConnection');
   fixture.exec(`
     CREATE TABLE auth_user (
       id INTEGER PRIMARY KEY, username TEXT NOT NULL UNIQUE, first_name TEXT NOT NULL DEFAULT '', is_active BOOLEAN NOT NULL DEFAULT 1
@@ -28,11 +28,6 @@ function createSchema() {
       role TEXT NOT NULL DEFAULT 'READER'
     );
     CREATE TABLE board_config (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL UNIQUE, language TEXT);
-    CREATE TABLE board_notify (
-      id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, url TEXT NOT NULL DEFAULT '', content TEXT NOT NULL DEFAULT '',
-      message_key TEXT NOT NULL DEFAULT '', message_params TEXT NOT NULL DEFAULT '{}', has_read BOOLEAN NOT NULL DEFAULT 0,
-      created_date DATETIME NOT NULL
-    );
     CREATE TABLE board_userconfigmeta (
       id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, value TEXT NOT NULL,
       created_date DATETIME NOT NULL, updated_date DATETIME NOT NULL, user_id INTEGER NOT NULL
@@ -40,7 +35,6 @@ function createSchema() {
     CREATE TABLE board_authorsubscription (
       id INTEGER PRIMARY KEY, created_date DATETIME NOT NULL, author_id INTEGER NOT NULL, subscriber_id INTEGER NOT NULL
     );
-    CREATE TABLE board_telegramsync (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, tid TEXT NOT NULL DEFAULT '');
   `);
   fixture.close();
 }
@@ -49,9 +43,9 @@ function seed() {
   const fixture = new DatabaseSync(databasePath);
   fixture.exec(`
     DELETE FROM board_userconfigmeta;
-    DELETE FROM board_notify;
+    DELETE FROM Notification;
     DELETE FROM board_authorsubscription;
-    DELETE FROM board_telegramsync;
+    DELETE FROM TelegramConnection;
     DELETE FROM IntegrationSetting;
     DELETE FROM board_config;
     DELETE FROM board_profile;
@@ -59,9 +53,9 @@ function seed() {
     INSERT INTO auth_user VALUES (1, 'reader', 'Reader', 1), (2, 'author', 'Author Name', 1);
     INSERT INTO board_profile VALUES (1, 1, 'Reader bio', '', 'READER'), (2, 2, '<unsafe bio>', 'author.png', 'EDITOR');
     INSERT INTO board_config VALUES (1, 1, 'en');
-    INSERT INTO board_notify VALUES
-      (1, 1, '/@author/post-one', 'Author posted a new article.', 'UNKNOWN', '{}', 0, datetime('now')),
-      (2, 1, 'javascript:alert(1)', 'A mention without a safe link.', 'UNKNOWN', '{}', 1, datetime('now'));
+    INSERT INTO Notification (id, userId, key, url, content, messageKey, messageParams, isRead, createdAt, updatedAt) VALUES
+      (1, 1, 'first', '/@author/post-one', 'Author posted a new article.', 'UNKNOWN', '{}', 0, ${Date.now()}, ${Date.now()}),
+      (2, 1, 'second', 'javascript:alert(1)', 'A mention without a safe link.', 'UNKNOWN', '{}', 1, ${Date.now()}, ${Date.now()});
     INSERT INTO board_authorsubscription VALUES (1, '2026-11-20 10:00:00', 2, 1);
     INSERT INTO IntegrationSetting (id, telegramEnabled, telegramBotUsername, telegramBotToken, updatedAt) VALUES (1, 1, 'synthetic_bot', 'synthetic-token', 946684800000);
   `);
@@ -117,8 +111,7 @@ test('protects the notification API and keeps read and preference changes scoped
   assert.equal(noCsrf.statusCode, 403);
   const marked = await app.inject({ method: 'PUT', url: '/v1/setting/notify', headers: signedInHeaders, payload: { id: 1 } });
   assert.equal(marked.json().status, 'DONE');
-  const [row] = await db.$queryRaw<Array<{ hasRead: number }>>`SELECT has_read AS hasRead FROM board_notify WHERE id = 1`;
-  assert.equal(Number(row?.hasRead), 1);
+  assert.equal((await db.notification.findUnique({ where: { id: 1 } }))?.isRead, true);
 
   const saved = await app.inject({
     method: 'PUT', url: '/v1/setting/notify-config', headers: signedInHeaders,
@@ -142,7 +135,7 @@ test('reads subscriptions with author details and the Telegram connection state'
   assert.equal(before.subscriptions[0]?.bio, '<unsafe bio>');
 
   const fixture = new DatabaseSync(databasePath);
-  fixture.exec("INSERT INTO board_telegramsync VALUES (1, 1, '123456')");
+  fixture.exec("INSERT INTO TelegramConnection (userId, telegramId) VALUES (1, '123456')");
   fixture.close();
   assert.equal((await mySubscriptions(db, 1)).isTelegramConnected, true);
 });

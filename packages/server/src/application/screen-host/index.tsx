@@ -67,16 +67,15 @@ async function readViewerState(db: PrismaClient, userId: number, cipherKey: stri
   });
   const telegramToken = telegram?.telegramEnabled && telegram.telegramBotUsername.trim() ? telegram.telegramBotToken : '';
   const [row] = await db.$queryRaw<Array<{
-    role: string | null; unread: number | bigint; language: string | null; timeZone: string | null;
-    telegramConnected: number | bigint;
+    role: string | null; language: string | null; timeZone: string | null;
   }>>`
     SELECT (SELECT role FROM board_profile WHERE user_id = ${userId} LIMIT 1) AS role,
-           (SELECT COUNT(*) FROM board_notify WHERE user_id = ${userId} AND has_read = 0) AS unread,
            (SELECT language FROM board_config WHERE user_id = ${userId} LIMIT 1) AS language,
-           (SELECT time_zone FROM board_config WHERE user_id = ${userId} LIMIT 1) AS timeZone,
-           EXISTS(SELECT 1 FROM board_telegramsync WHERE user_id = ${userId} AND tid <> '') AS telegramConnected
+           (SELECT time_zone FROM board_config WHERE user_id = ${userId} LIMIT 1) AS timeZone
   `;
-  return { ...row, telegramConfigured: Boolean(telegramToken && decryptsToValue(telegramToken, cipherKey)) };
+  const unread = await db.notification.count({ where: { userId, isRead: false } });
+  const telegramConnected = await db.telegramConnection.count({ where: { userId, telegramId: { not: '' } } });
+  return { ...row, unread, telegramConnected, telegramConfigured: Boolean(telegramToken && decryptsToValue(telegramToken, cipherKey)) };
 }
 
 type ViewerState = Awaited<ReturnType<typeof readViewerState>>;

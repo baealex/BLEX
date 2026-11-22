@@ -132,7 +132,7 @@ export async function readPublicPost(
 
 /** An author's own unpublished post, dated the way the 3.x preview screen dates it. */
 export async function readDraftPreview(db: PrismaClient, authorId: number, slug: string): Promise<DraftPreview | null> {
-  const [post] = await db.$queryRaw<DraftPreview[]>`
+  const [post] = await db.$queryRaw<Array<Omit<DraftPreview, 'unreadCount'>>>`
     SELECT post.id, author.id AS authorId, author.username, post.url AS slug, post.title, post.subtitle, post.image,
            post.read_time AS readTime, COALESCE(profile.avatar, '') AS authorAvatar,
            COALESCE(config.cover_layout, 'default') AS coverLayout,
@@ -143,8 +143,7 @@ export async function readDraftPreview(db: PrismaClient, authorId: number, slug:
            'draft' AS visibility, post.meta_description AS description,
            COALESCE(content.content_html, '') AS contentHtml,
            COALESCE(profile.bio, '') AS authorBio, COALESCE(profile.homepage, '') AS authorHomepage,
-           author.is_staff AS isStaff,
-           (SELECT COUNT(*) FROM board_notify WHERE user_id = author.id AND has_read = 0) AS unreadCount
+           author.is_staff AS isStaff
       FROM board_post AS post
       JOIN auth_user AS author ON author.id = post.author_id
       LEFT JOIN board_profile AS profile ON profile.user_id = author.id
@@ -154,7 +153,9 @@ export async function readDraftPreview(db: PrismaClient, authorId: number, slug:
        AND post.published_date IS NULL AND post.deleted_date IS NULL
      LIMIT 1
   `;
-  return post ? { ...post, contentHtml: sanitizePostHtml(post.contentHtml) } : null;
+  if (!post) return null;
+  const unreadCount = await db.notification.count({ where: { userId: authorId, isRead: false } });
+  return { ...post, unreadCount, contentHtml: sanitizePostHtml(post.contentHtml) };
 }
 
 export async function readPostPresentation(db: PrismaClient, post: Pick<PublicPost, 'id' | 'authorId'>): Promise<PostPresentation> {

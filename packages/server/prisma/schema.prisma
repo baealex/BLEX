@@ -82,7 +82,7 @@ model User {
   board_emailchange                                                                board_emailchange?
   formTemplates                                                                    FormTemplate[]
   uploadedImages                                                                   UploadedImage[]
-  board_notify                                                                     board_notify[]
+  notifications                                                                    Notification[]
   board_pinnedpost                                                                 board_pinnedpost[]
   posts                                                                            Post[]
   board_post_likes                                                                 board_post_likes[]
@@ -92,7 +92,8 @@ model User {
   notices                                                                          SiteNotice[]
   board_socialauth                                                                 board_socialauth[]
   staticPages                                                                      StaticPage[]
-  board_telegramsync                                                               board_telegramsync?
+  telegram                                                                         TelegramConnection?
+  webhookChannels                                                                  WebhookChannel[]
   board_twofactorauth                                                              board_twofactorauth?
   board_userconfigmeta                                                             board_userconfigmeta[]
   board_userlinkmeta                                                               board_userlinkmeta[]
@@ -132,13 +133,13 @@ model FactorSetup {
 }
 
 model NotificationDelivery {
-  notificationId Int          @id @map("notification_id")
-  attempts       Int          @default(0)
-  availableAt    BigInt       @map("available_at")
-  notification   board_notify @relation(fields: [notificationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  notificationId Int      @id
+  attempts       Int      @default(0)
+  availableAt    DateTime
 
-  @@index([availableAt], map: "blex_notification_delivery_available_at_idx")
-  @@map("blex_notification_delivery")
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@index([availableAt])
 }
 
 model ScheduledPublication {
@@ -151,16 +152,16 @@ model ScheduledPublication {
 }
 
 model WebhookDelivery {
-  postId      Int                       @map("post_id")
-  channelId   Int                       @map("channel_id")
-  availableAt BigInt                    @map("available_at")
-  done        Int                       @default(0)
-  post        Post                      @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  channel     board_webhooksubscription @relation(fields: [channelId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  postId      Int
+  channelId   Int
+  availableAt DateTime
+  isDone      Boolean  @default(false)
+
+  post    Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
+  channel WebhookChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
 
   @@id([postId, channelId])
-  @@index([done, availableAt], map: "blex_webhook_delivery_pending_idx")
-  @@map("blex_webhook_delivery")
+  @@index([isDone, availableAt])
 }
 
 model UsernameChange {
@@ -483,21 +484,22 @@ model board_loginattempt {
   @@index([window], map: "board_loginattempt_window_a08cc5bd")
 }
 
-model board_notify {
-  id             Int                   @id @default(autoincrement())
-  key            String                @unique
-  url            String
-  created_date   DateTime
-  updated_date   DateTime
-  user_id        Int
-  content        String
-  has_read       Boolean
-  message_key    String
-  message_params String
-  auth_user      User                  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  delivery       NotificationDelivery?
+model Notification {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  key           String   @unique
+  url           String   @default("")
+  content       String   @default("")
+  messageKey    String   @default("")
+  messageParams Json
+  isRead        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
 
-  @@index([user_id], map: "board_notify_user_id_b069f0b5")
+  user     User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  delivery NotificationDelivery?
+
+  @@index([userId])
 }
 
 model board_pinnedpost {
@@ -578,18 +580,17 @@ model board_postsharelink {
 }
 
 model board_profile {
-  id                        Int                         @id @default(autoincrement())
-  bio                       String
-  cover                     String
-  avatar                    String
-  homepage                  String
-  about_md                  String
-  about_html                String
-  user_id                   Int                         @unique
-  analytics_share_url       String
-  role                      String
-  auth_user                 User                        @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_webhooksubscription board_webhooksubscription[]
+  id                  Int    @id @default(autoincrement())
+  bio                 String
+  cover               String
+  avatar              String
+  homepage            String
+  about_md            String
+  about_html          String
+  user_id             Int    @unique
+  analytics_share_url String
+  role                String
+  auth_user           User   @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model board_series {
@@ -654,14 +655,14 @@ model board_tag {
   board_post_tags board_post_tags[]
 }
 
-model board_telegramsync {
-  id             Int      @id @default(autoincrement())
-  auth_token     String
-  auth_token_exp DateTime
-  created_date   DateTime
-  user_id        Int      @unique
-  tid            String
-  auth_user      User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model TelegramConnection {
+  userId             Int       @id
+  telegramId         String    @default("")
+  authToken          String    @default("")
+  authTokenExpiresAt DateTime?
+  createdAt          DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model board_twofactorauth {
@@ -698,21 +699,22 @@ model board_userlinkmeta {
   @@index([user_id], map: "board_userlinkmeta_user_id_ba3f4047")
 }
 
-model board_webhooksubscription {
-  id                Int               @id @default(autoincrement())
-  webhook_url       String
-  name              String
-  is_active         Boolean
-  failure_count     Int
-  last_success_date DateTime?
-  created_date      DateTime
-  scope             String
-  author_id         Int?
-  board_profile     board_profile?    @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  deliveries        WebhookDelivery[]
+model WebhookChannel {
+  id            Int          @id @default(autoincrement())
+  ownerId       Int?
+  scope         ContentScope
+  name          String       @default("")
+  url           String
+  isActive      Boolean      @default(true)
+  failureCount  Int          @default(0)
+  lastSuccessAt DateTime?
+  createdAt     DateTime     @default(now())
 
-  @@unique([scope, author_id, webhook_url], map: "board_webhooksubscription_scope_author_id_webhook_url_77edf147_uniq")
-  @@index([author_id], map: "board_webhooksubscription_author_id_8548ecb1")
+  owner      User?             @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  deliveries WebhookDelivery[]
+
+  @@unique([scope, ownerId, url])
+  @@index([ownerId])
 }
 
 model django_content_type {

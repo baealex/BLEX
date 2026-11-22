@@ -19,7 +19,6 @@ export async function deleteAccountRows(tx: Prisma.TransactionClient, userId: nu
   await tx.board_post_likes.deleteMany({ where: owned });
   await tx.board_edithistory.updateMany({ where: { actor_id: userId }, data: { actor_id: null } });
   await tx.board_editrequest.deleteMany({ where: owned });
-  await tx.board_webhooksubscription.deleteMany({ where: { board_profile: owned } });
   await tx.board_profile.deleteMany({ where: owned });
   await tx.board_authorsubscription.deleteMany({ where: subscription });
   await tx.board_authorsubscriptionlog.deleteMany({ where: subscription });
@@ -38,8 +37,6 @@ export async function deleteAccountRows(tx: Prisma.TransactionClient, userId: nu
   await tx.board_twofactorauth.deleteMany({ where: owned });
   await tx.usernameChange.deleteMany({ where: { userId } });
   await tx.board_socialauth.deleteMany({ where: owned });
-  await tx.board_notify.deleteMany({ where: owned });
-  await tx.board_telegramsync.deleteMany({ where: owned });
   await tx.auth_user_groups.deleteMany({ where: owned });
   await tx.auth_user_user_permissions.deleteMany({ where: owned });
   await tx.user.deleteMany({ where: { id: userId } });

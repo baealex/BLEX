@@ -39,13 +39,8 @@ export function notificationText(key: string, data: Record<string, unknown>, fal
   } as Record<string, string>)[key] ?? fallback;
 }
 
-export function notificationParams(value: string): Record<string, unknown> {
-  try {
-    const parsed: unknown = JSON.parse(value);
-    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed as Record<string, unknown> : {};
-  } catch {
-    return {};
-  }
+export function notificationParams(value: Prisma.JsonValue): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
 }
 
 async function telegramDeliveryEnabled(tx: Prisma.TransactionClient) {
@@ -58,13 +53,13 @@ async function telegramDeliveryEnabled(tx: Prisma.TransactionClient) {
 
 export async function queueNotification(tx: Prisma.TransactionClient, notificationId: number, userId: number, telegramEnabled?: boolean) {
   if (!(telegramEnabled ?? await telegramDeliveryEnabled(tx))) return;
-  await tx.$executeRaw`
-    INSERT INTO blex_notification_delivery (notification_id, available_at)
-    SELECT ${notificationId}, ${BigInt(Date.now())}
-      FROM board_telegramsync AS link
-     WHERE link.user_id = ${userId} AND link.tid <> ''
-    ON CONFLICT(notification_id) DO NOTHING
-  `;
+  const connection = await tx.telegramConnection.findFirst({ where: { userId, telegramId: { not: '' } }, select: { userId: true } });
+  if (!connection) return;
+  await tx.notificationDelivery.upsert({
+    where: { notificationId },
+    create: { notificationId, availableAt: new Date() },
+    update: {},
+  });
 }
 
 export async function createNotification(tx: Prisma.TransactionClient, input: NotificationInput, telegramEnabled?: boolean) {
@@ -77,15 +72,22 @@ export async function createNotification(tx: Prisma.TransactionClient, input: No
   const data = { actor: input.actor, ...(input.commentId ? { comment_id: input.commentId } : {}), post_title: input.title };
   const payload = JSON.stringify(data);
   const key = createHash('sha256').update(user.username + input.url + `${input.key}:${payload}` + (input.hiddenKey ?? '')).digest('base64');
-  const timestamp = new Date().toISOString().slice(0, -1).replace('T', ' ');
-  const [row] = await tx.$queryRaw<Array<{ id: number }>>`
-    INSERT INTO board_notify (key, user_id, url, content, message_key, message_params, created_date, updated_date, has_read)
-    VALUES (${key}, ${input.recipientId}, ${input.url}, ${notificationText(input.key, data)}, ${input.key}, ${payload},
-            ${timestamp}, ${timestamp}, 0)
-    ON CONFLICT(key) DO NOTHING RETURNING id
-  `;
-  if (!row) return false;
-  await queueNotification(tx, row.id, input.recipientId, telegramEnabled);
+  const timestamp = new Date();
+  let notificationId: number;
+  try {
+    ({ id: notificationId } = await tx.notification.create({
+      data: {
+        key, userId: input.recipientId, url: input.url, content: notificationText(input.key, data),
+        messageKey: input.key, messageParams: data, createdAt: timestamp, updatedAt: timestamp,
+      },
+      select: { id: true },
+    }));
+  } catch (error) {
+    // The unique key is the deduplication rule, and SQLite keeps the transaction open after this conflict.
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') return false;
+    throw error;
+  }
+  await queueNotification(tx, notificationId, input.recipientId, telegramEnabled);
   return true;
 }
 
@@ -108,12 +110,14 @@ export async function notifyPostSubscribers(tx: Prisma.TransactionClient, postId
   const url = publicPostPath(username, slug);
   const priorUrls = [url, ...aliases.map((entry) => publicPostPath(entry.username, slug))];
   const telegramEnabled = await telegramDeliveryEnabled(tx);
+  const announced = await tx.notification.findMany({
+    where: { userId: { in: subscribers.map(({ subscriber }) => subscriber) }, messageKey: 'post.published', url: { in: priorUrls } },
+    select: { userId: true },
+  });
+  const alreadyNotified = new Set(announced.map(({ userId }) => userId));
   let delivered = 0;
   for (const { subscriber, title } of subscribers) {
-    const [earlier] = await tx.$queryRaw<unknown[]>`
-      SELECT 1 FROM board_notify WHERE user_id = ${subscriber} AND message_key = 'post.published' AND url IN (${Prisma.join(priorUrls)}) LIMIT 1
-    `;
-    if (earlier) continue;
+    if (alreadyNotified.has(subscriber)) continue;
     if (await createNotification(tx, {
       recipientId: subscriber, actor: username, title, url, key: 'post.published', hiddenKey: `post-published:${postId}`,
     }, telegramEnabled)) delivered += 1;

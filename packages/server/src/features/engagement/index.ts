@@ -9,7 +9,7 @@ import { done, failure as error } from '../../platform/response.js';
 import { CommentRow, commentBodyLimit, commentForViewer, commentHtml, publicComments, serializeComment } from './services/comments.js';
 import { anonymizeComments } from './services/deletions.js';
 import { canSubscribe, mySubscriptions, subscriptionState } from './services/subscriptions.js';
-import { DbInteger, ReaderActionsOptions, activeEditor, activeUser, asBodyObject, bodyField, commentReturnTo, forbidden, isTrue, localReturnTo, missing, numberValue, publicPost, requestCsrfAccepted, textValue, truthyBodyField } from './shared.js';
+import { ReaderActionsOptions, activeEditor, activeUser, asBodyObject, bodyField, commentReturnTo, forbidden, isTrue, localReturnTo, missing, numberValue, publicPost, requestCsrfAccepted, textValue, truthyBodyField } from './shared.js';
 
 export { ReaderActionUser, ReaderActionsOptions } from './shared.js';
 export { CommentPayload } from './services/comments.js';
@@ -280,16 +280,11 @@ export function registerReaderActions(
             where: { id: 1 },
             select: { telegramEnabled: true, telegramBotUsername: true, telegramBotToken: true },
           });
-          const connected = await db.$queryRaw<Array<{ connected: DbInteger }>>`
-            SELECT CASE WHEN TRIM(tid) <> '' THEN 1 ELSE 0 END AS connected
-            FROM board_telegramsync
-            WHERE user_id = ${viewer.id}
-            LIMIT 1
-          `;
+          const telegram = await db.telegramConnection.findUnique({ where: { userId: viewer.id }, select: { telegramId: true } });
           const suggestTelegramConnection = Boolean(setting?.telegramEnabled &&
             setting.telegramBotUsername.trim() !== '' &&
             Boolean(options.cipherKey && decryptDjangoSecret(setting.telegramBotToken, options.cipherKey)) &&
-            !isTrue(connected[0]?.connected ?? 0));
+            !telegram?.telegramId.trim());
           const result = {
             canSubscribe: true,
             isSubscribed: true,

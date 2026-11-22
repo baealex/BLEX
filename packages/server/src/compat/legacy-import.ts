@@ -58,15 +58,15 @@ const int32 = (to: string): ColumnMapping => ({
 const contentScope = choice('scope', ['user', 'global']);
 
 /** Readers treat anything but a JSON object as an empty manifest, and the JSONB column would coerce bare numbers. */
-const jsonObject = (to: string): ColumnMapping => ({
+const jsonObject = (to: string, fallback: string | null = null): ColumnMapping => ({
   to,
   convert(value) {
-    if (typeof value !== 'string') return null;
+    if (typeof value !== 'string') return fallback;
     try {
       const parsed: unknown = JSON.parse(value);
-      return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? value : null;
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? value : fallback;
     } catch {
-      return null;
+      return fallback;
     }
   },
 });
@@ -163,6 +163,32 @@ const tableMappings: Record<string, TableMapping> = {
     },
   },
   board_imagecache: { to: 'UploadedImage', columns: { id: 'id', key: 'key', path: 'path', size: int32('size'), user_id: 'userId' } },
+  board_notify: {
+    to: 'Notification',
+    columns: {
+      id: 'id', user_id: 'userId', key: 'key', url: 'url', content: 'content', message_key: 'messageKey',
+      message_params: jsonObject('messageParams', '{}'), has_read: 'isRead', created_date: date('createdAt'), updated_date: date('updatedAt'),
+    },
+  },
+  board_webhooksubscription: {
+    to: 'WebhookChannel',
+    columns: {
+      id: 'id',
+      // 3.x owned channels through the profile row. BLEX 4 owns them through the account.
+      author_id: { to: 'ownerId', sql: '(SELECT profile.user_id FROM board_profile AS profile WHERE profile.id = board_webhooksubscription.author_id)' },
+      scope: contentScope, name: 'name', webhook_url: 'url', is_active: 'isActive', failure_count: int32('failureCount'),
+      last_success_date: date('lastSuccessAt'), created_date: date('createdAt'),
+    },
+  },
+  board_telegramsync: {
+    to: 'TelegramConnection',
+    columns: {
+      user_id: 'userId', tid: 'telegramId', auth_token: 'authToken',
+      // 3.x kept a stale expiry on used codes because the column was NOT NULL. Only a waiting code has an expiry now.
+      auth_token_exp: { to: 'authTokenExpiresAt', sql: `CASE WHEN auth_token <> '' THEN auth_token_exp END`, convert: legacyDate },
+      created_date: date('createdAt'),
+    },
+  },
 };
 
 function tableNames(db: DatabaseSync) {
@@ -234,7 +260,9 @@ function copyRows(sourcePath: string, targetPath: string) {
     const sequence = target.prepare('INSERT INTO sqlite_sequence (name, seq) VALUES (?, ?)');
     for (const { name, seq } of sequences.iterate() as Iterable<{ name: string; seq: bigint }>) {
       const destination = tableMappings[name]?.to ?? name;
-      if (targetTables.has(destination) && !discardedTables.has(name) && !destination.startsWith('_')) sequence.run(destination, seq);
+      // A table keyed by another column (TelegramConnection by userId) has no counter worth carrying over.
+      const keepsId = !tableMappings[name] || 'id' in tableMappings[name].columns;
+      if (keepsId && targetTables.has(destination) && !discardedTables.has(name) && !destination.startsWith('_')) sequence.run(destination, seq);
     }
 
     // 3.x published scheduled posts by date alone. BLEX 4 queues them explicitly.

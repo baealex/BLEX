@@ -2,40 +2,67 @@ import type { Prisma, PrismaClient } from '@prisma/client';
 import { publicPostPath } from '../../posts/public-post.js';
 import { parseWebhookUrl, sendWebhook, type SendWebhook } from './transport.js';
 
+const claimLeaseMs = 120_000;
+const maxFailures = 3;
+
 export async function queuePostWebhooks(tx: Prisma.TransactionClient, postId: number) {
-  await tx.$executeRaw`
-    INSERT INTO blex_webhook_delivery (post_id, channel_id, available_at)
-    SELECT post.id, channel.id, ${BigInt(Date.now() + 2_000)}
-      FROM board_post AS post
-      LEFT JOIN board_profile AS profile ON profile.user_id = post.author_id
-      JOIN board_webhooksubscription AS channel ON channel.is_active = 1 AND (
-        channel.scope = 'global' OR (channel.scope = 'user' AND channel.author_id = profile.id)
-      ) WHERE post.id = ${postId}
-    ON CONFLICT(post_id, channel_id) DO NOTHING
-  `;
+  const post = await tx.post.findUnique({ where: { id: postId }, select: { authorId: true } });
+  if (!post) return;
+  const channels = await tx.webhookChannel.findMany({
+    where: { isActive: true, OR: [{ scope: 'global' }, { scope: 'user', ownerId: post.authorId }] },
+    select: { id: true },
+  });
+  const availableAt = new Date(Date.now() + 2_000);
+  // An existing row keeps its state, so a post that is published again is never delivered twice.
+  for (const { id: channelId } of channels) {
+    await tx.webhookDelivery.upsert({
+      where: { postId_channelId: { postId, channelId } },
+      create: { postId, channelId, availableAt },
+      update: {},
+    });
+  }
+}
+
+/** Takes the oldest due job. The guarded update lets only one worker win, and a loser moves on to the next job. */
+async function claimDelivery(db: PrismaClient) {
+  const now = new Date();
+  for (;;) {
+    const next = await db.webhookDelivery.findFirst({
+      where: { isDone: false, availableAt: { lte: now } },
+      orderBy: [{ availableAt: 'asc' }, { postId: 'asc' }, { channelId: 'asc' }],
+      select: { postId: true, channelId: true },
+    });
+    if (!next) return null;
+    const { count } = await db.webhookDelivery.updateMany({
+      where: { ...next, isDone: false, availableAt: { lte: now } },
+      data: { availableAt: new Date(now.getTime() + claimLeaseMs) },
+    });
+    if (count) return next;
+  }
 }
 
 export async function deliverPostWebhook(db: PrismaClient, siteUrl: URL, signal: AbortSignal, send: SendWebhook = sendWebhook) {
-  const now = BigInt(Date.now());
-  const [job] = await db.$queryRaw<Array<{ postId: number; channelId: number }>>`
-    UPDATE blex_webhook_delivery SET available_at = ${now + 120_000n}
-     WHERE (post_id, channel_id) = (
-       SELECT post_id, channel_id FROM blex_webhook_delivery WHERE done = 0 AND available_at <= ${now}
-       ORDER BY available_at, post_id, channel_id LIMIT 1
-     ) RETURNING post_id AS postId, channel_id AS channelId
-  `;
+  const job = await claimDelivery(db);
   if (!job) return false;
-  const timestamp = new Date().toISOString().slice(0, -1).replace('T', ' ');
-  const [row] = await db.$queryRaw<Array<{ channelUrl: string; title: string; slug: string; username: string; name: string }>>`
-    SELECT channel.webhook_url AS channelUrl, post.title, post.url AS slug, author.username, author.first_name AS name
-      FROM board_webhooksubscription AS channel JOIN board_post AS post ON post.id = ${job.postId}
+  const sentAt = new Date();
+  const timestamp = sentAt.toISOString().slice(0, -1).replace('T', ' ');
+  const channel = await db.webhookChannel.findFirst({
+    where: { id: job.channelId, isActive: true },
+    select: { url: true, scope: true, ownerId: true },
+  });
+  const [post] = channel ? await db.$queryRaw<Array<{
+    authorId: number; title: string; slug: string; username: string; name: string; role: string | null;
+  }>>`
+    SELECT post.author_id AS authorId, post.title, post.url AS slug, author.username, author.first_name AS name, profile.role
+      FROM board_post AS post
       JOIN board_postconfig AS config ON config.post_id = post.id AND config.hide = 0
       JOIN auth_user AS author ON author.id = post.author_id
       LEFT JOIN board_profile AS profile ON profile.user_id = post.author_id
-     WHERE channel.id = ${job.channelId} AND channel.is_active = 1 AND (
-       channel.scope = 'global' OR (channel.scope = 'user' AND channel.author_id = profile.id AND profile.role = 'EDITOR')
-     ) AND post.deleted_date IS NULL AND post.published_date <= ${timestamp}
-  `;
+     WHERE post.id = ${job.postId} AND post.deleted_date IS NULL AND post.published_date <= ${timestamp}
+  ` : [];
+  const row = channel && post && (channel.scope === 'global' || (channel.ownerId === post.authorId && post.role === 'EDITOR'))
+    ? { ...post, channelUrl: channel.url }
+    : null;
   if (signal.aborted) return true;
   const target = row ? parseWebhookUrl(row.channelUrl) : null;
   let sent = false;
@@ -46,14 +73,14 @@ export async function deliverPostWebhook(db: PrismaClient, siteUrl: URL, signal:
   }
   if (signal.aborted) return true;
   await db.$transaction(async (tx) => {
-    await tx.$executeRaw`UPDATE blex_webhook_delivery SET done = 1 WHERE post_id = ${job.postId} AND channel_id = ${job.channelId}`;
-    if (row && sent) await tx.$executeRaw`
-      UPDATE board_webhooksubscription SET failure_count = 0, last_success_date = ${timestamp} WHERE id = ${job.channelId}
-    `;
-    else if (row) await tx.$executeRaw`
-      UPDATE board_webhooksubscription SET failure_count = failure_count + 1,
-        is_active = CASE WHEN failure_count >= 2 THEN 0 ELSE is_active END WHERE id = ${job.channelId}
-    `;
+    await tx.webhookDelivery.updateMany({ where: job, data: { isDone: true } });
+    // updateMany tolerates a channel that was removed while the request was in flight.
+    if (row && sent) {
+      await tx.webhookChannel.updateMany({ where: { id: job.channelId }, data: { failureCount: 0, lastSuccessAt: sentAt } });
+    } else if (row) {
+      await tx.webhookChannel.updateMany({ where: { id: job.channelId }, data: { failureCount: { increment: 1 } } });
+      await tx.webhookChannel.updateMany({ where: { id: job.channelId, failureCount: { gte: maxFailures } }, data: { isActive: false } });
+    }
   });
   return true;
 }

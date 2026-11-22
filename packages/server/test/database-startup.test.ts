@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
+import { PrismaClient } from '@prisma/client';
 import { DatabaseSetupError, portMappingProblem, prepareDatabase } from '../src/startup/prepare-database.js';
 import { insertRow } from './fixtures/migrated-database.js';
 
@@ -168,6 +169,68 @@ test('imports a 3.14 installation once and leaves the original unchanged', async
     const again = new DatabaseSync(space.databasePath, { readOnly: true });
     assert.equal(count(again, 'auth_user'), 1);
     again.close();
+  } finally {
+    await space.cleanup();
+  }
+});
+
+test('imports 3.14 notifications, webhook owners, and Telegram connection states', async () => {
+  const space = await workspace();
+  const source = join(space.legacyRoot, 'db.sqlite3');
+  try {
+    const legacy = await createLegacyDatabase(source);
+    for (const id of [7, 8, 9, 10]) insertRow(legacy, 'auth_user', { id, username: `user-${id}`, is_active: 1 });
+    // Profile ids deliberately collide with other accounts' user ids.
+    insertRow(legacy, 'board_profile', { id: 70, user_id: 7, role: 'EDITOR' });
+    insertRow(legacy, 'board_profile', { id: 7, user_id: 8, role: 'EDITOR' });
+    insertRow(legacy, 'board_notify', { id: 11, key: 'object', user_id: 7, url: '/a', content: 'A', has_read: 1, message_key: 'post.liked', message_params: '{"actor":"a","post_title":"T"}', created_date: '2024-05-01 01:02:03.456789', updated_date: '2024-05-02 00:00:00' });
+    insertRow(legacy, 'board_notify', { id: 12, key: 'array', user_id: 7, has_read: 0, message_params: '[1]' });
+    insertRow(legacy, 'board_notify', { id: 13, key: 'number', user_id: 7, has_read: 0, message_params: '5' });
+    insertRow(legacy, 'board_webhooksubscription', { id: 21, scope: 'user', author_id: 70, webhook_url: 'https://hooks.example.com/seven', name: 'Seven', is_active: 1, failure_count: 2, last_success_date: '2024-05-03 00:00:00', created_date: '2024-05-04 00:00:00' });
+    insertRow(legacy, 'board_webhooksubscription', { id: 22, scope: 'user', author_id: 7, webhook_url: 'https://hooks.example.com/eight', is_active: 0, created_date: '2024-05-04 00:00:00' });
+    insertRow(legacy, 'board_webhooksubscription', { id: 23, scope: 'global', webhook_url: 'https://hooks.example.com/all', is_active: 1, created_date: '2024-05-04 00:00:00' });
+    insertRow(legacy, 'board_telegramsync', { id: 31, user_id: 7, tid: 'cipher-seven', auth_token: '', auth_token_exp: '2020-01-01 00:00:00', created_date: '2024-05-05 00:00:00' });
+    insertRow(legacy, 'board_telegramsync', { id: 32, user_id: 8, tid: '', auth_token: 'pend01', auth_token_exp: '2099-01-01 00:00:00', created_date: '2024-05-05 00:00:00' });
+    insertRow(legacy, 'board_telegramsync', { id: 33, user_id: 9, tid: '', auth_token: 'late01', auth_token_exp: '2000-01-01 00:00:00', created_date: '2024-05-05 00:00:00' });
+    insertRow(legacy, 'board_telegramsync', { id: 34, user_id: 10, tid: 'cipher-ten', auth_token: 'next01', auth_token_exp: '2099-01-02 00:00:00', created_date: '2024-05-05 00:00:00' });
+    legacy.exec(`UPDATE sqlite_sequence SET seq = 99 WHERE name = 'board_notify'`);
+    legacy.exec(`UPDATE sqlite_sequence SET seq = 77 WHERE name = 'board_webhooksubscription'`);
+    legacy.close();
+
+    await prepareDatabase(space.options);
+
+    const imported = new DatabaseSync(space.databasePath, { readOnly: true });
+    assert.deepEqual({ ...imported.prepare('SELECT userId, key, url, content, messageKey, messageParams, isRead, createdAt, updatedAt FROM Notification WHERE id = 11').get() }, {
+      userId: 7, key: 'object', url: '/a', content: 'A', messageKey: 'post.liked', messageParams: '{"actor":"a","post_title":"T"}', isRead: 1,
+      createdAt: Date.UTC(2024, 4, 1, 1, 2, 3, 456), updatedAt: Date.UTC(2024, 4, 2),
+    });
+    assert.deepEqual(imported.prepare('SELECT messageParams FROM Notification WHERE id IN (12, 13) ORDER BY id').all().map((row) => row.messageParams), ['{}', '{}']);
+    assert.deepEqual(imported.prepare('SELECT id, ownerId, scope, url, isActive FROM WebhookChannel ORDER BY id').all().map((row) => ({ ...row })), [
+      { id: 21, ownerId: 7, scope: 'user', url: 'https://hooks.example.com/seven', isActive: 1 },
+      { id: 22, ownerId: 8, scope: 'user', url: 'https://hooks.example.com/eight', isActive: 0 },
+      { id: 23, ownerId: null, scope: 'global', url: 'https://hooks.example.com/all', isActive: 1 },
+    ]);
+    assert.deepEqual({ ...imported.prepare('SELECT failureCount, lastSuccessAt, createdAt FROM WebhookChannel WHERE id = 21').get() }, {
+      failureCount: 2, lastSuccessAt: Date.UTC(2024, 4, 3), createdAt: Date.UTC(2024, 4, 4),
+    });
+    assert.deepEqual(imported.prepare('SELECT userId, telegramId, authToken, authTokenExpiresAt FROM TelegramConnection ORDER BY userId').all().map((row) => ({ ...row })), [
+      { userId: 7, telegramId: 'cipher-seven', authToken: '', authTokenExpiresAt: null },
+      { userId: 8, telegramId: '', authToken: 'pend01', authTokenExpiresAt: Date.UTC(2099, 0, 1) },
+      { userId: 9, telegramId: '', authToken: 'late01', authTokenExpiresAt: Date.UTC(2000, 0, 1) },
+      { userId: 10, telegramId: 'cipher-ten', authToken: 'next01', authTokenExpiresAt: Date.UTC(2099, 0, 2) },
+    ]);
+    assert.equal(Number((imported.prepare(`SELECT seq FROM sqlite_sequence WHERE name = 'Notification'`).get() as { seq: number }).seq), 99);
+    assert.equal(Number((imported.prepare(`SELECT seq FROM sqlite_sequence WHERE name = 'WebhookChannel'`).get() as { seq: number }).seq), 77);
+    assert.notEqual(Number((imported.prepare(`SELECT seq FROM sqlite_sequence WHERE name = 'TelegramConnection'`).get() as { seq: number } | undefined)?.seq ?? 0), 34);
+    imported.close();
+
+    const client = new PrismaClient({ datasourceUrl: `file:${space.databasePath}` });
+    try {
+      const rows = await client.notification.findMany({ orderBy: { id: 'asc' }, select: { messageParams: true } });
+      assert.deepEqual(rows.map((row) => row.messageParams), [{ actor: 'a', post_title: 'T' }, {}, {}]);
+    } finally {
+      await client.$disconnect();
+    }
   } finally {
     await space.cleanup();
   }

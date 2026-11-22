@@ -124,7 +124,7 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     assert.equal(updatedDraft.statusCode, 200, updatedDraft.body);
     assert.deepEqual(updatedDraft.json().data.tags, ['node', 'sqlite']);
     const authorChannel = await app.inject({ method: 'POST', url: '/v1/webhook/channels', headers: verified,
-      payload: { name: 'Synthetic author channel', webhook_url: 'https://hooks.example.com/test-fixture' } });
+      payload: { name: 'Synthetic author channel', webhookUrl: 'https://hooks.example.com/test-fixture' } });
     assert.equal(authorChannel.json().body.success, true);
     const published = await app.inject({ method: 'POST', url: `${updateUrl}/publish`, headers: apiRequest.headers });
     assert.equal(published.statusCode, 200, published.body);
@@ -194,7 +194,7 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     assert.equal(account?.role, 'EDITOR');
     assert.equal(account?.language, 'ko');
     assert.equal(account?.time_zone, 'Asia/Seoul');
-    assert.equal(check.prepare('SELECT COUNT(*) AS count FROM blex_webhook_delivery').get()?.count, 1);
+    assert.equal(check.prepare('SELECT COUNT(*) AS count FROM WebhookDelivery').get()?.count, 1);
     check.close();
   } finally {
     await app.close();
