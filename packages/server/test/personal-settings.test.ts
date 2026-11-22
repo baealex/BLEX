@@ -9,6 +9,7 @@ import { PrismaClient } from '@prisma/client';
 import sharp from 'sharp';
 import { after, beforeEach, test } from 'node:test';
 import { registerPersonalSettings } from '../src/features/account/index.js';
+import { createMigratedTables } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-personal-settings-'));
 const databasePath = join(directory, 'synthetic-settings.sqlite3');
@@ -17,6 +18,7 @@ const csrfToken = 's'.repeat(43);
 
 function createSchema() {
   const fixture = new DatabaseSync(databasePath);
+  createMigratedTables(fixture, 'LoginSetting');
   fixture.exec(`
     CREATE TABLE auth_user (
       id INTEGER PRIMARY KEY, username TEXT NOT NULL UNIQUE, first_name TEXT NOT NULL,
@@ -34,9 +36,6 @@ function createSchema() {
       id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL UNIQUE, recovery_key TEXT NOT NULL,
       totp_secret TEXT NOT NULL, created_date DATETIME NOT NULL
     );
-    CREATE TABLE board_loginsetting (
-      id INTEGER PRIMARY KEY, account_deletion_redirect_url TEXT NOT NULL
-    );
     CREATE TABLE board_userlinkmeta (
       id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, value TEXT NOT NULL,
       created_date DATETIME NOT NULL, updated_date DATETIME NOT NULL, user_id INTEGER NOT NULL,
@@ -53,7 +52,7 @@ function seed() {
     DELETE FROM board_twofactorauth;
     DELETE FROM board_config;
     DELETE FROM board_profile;
-    DELETE FROM board_loginsetting;
+    DELETE FROM LoginSetting;
     DELETE FROM auth_user;
     INSERT INTO auth_user VALUES
       (1, 'writer', 'Writer Name', 'writer@example.test', '2024-03-02 20:00:00', 1),
@@ -62,7 +61,7 @@ function seed() {
       (1, 1, 'Writer bio', '', 'writer.png', 'https://writer.example', '', '', '', 'EDITOR'),
       (2, 2, 'Other bio', '', 'other.png', '', '', '', '', 'READER');
     INSERT INTO board_config VALUES (1, 1, NULL, '');
-    INSERT INTO board_loginsetting VALUES (1, '');
+    INSERT INTO LoginSetting (id, updatedAt) VALUES (1, 946684800000);
     INSERT INTO board_userlinkmeta VALUES
       (1, 'github', 'https://github.com/writer', '2024-01-01 00:00:00', '2024-01-01 00:00:00', 1, 1),
       (2, 'other', 'javascript:alert(1)', '2024-01-01 00:00:00', '2024-01-01 00:00:00', 1, 2),

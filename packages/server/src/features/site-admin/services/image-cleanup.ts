@@ -196,9 +196,11 @@ export async function buildImageCleanupPlan(
     db.$queryRaw<Array<{ image: string | null }>>`SELECT image FROM board_post`,
     db.$queryRaw<Array<{ avatar: string | null; cover: string | null }>>`SELECT avatar, cover FROM board_profile`,
     target === 'all' || target === 'content'
-      ? db.$queryRaw<Array<{ id: number; path: string }>>`
-          SELECT id, path FROM board_imagecache WHERE path LIKE 'images/content/%' ORDER BY id
-        `
+      ? db.uploadedImage.findMany({
+          where: { path: { startsWith: 'images/content/' } },
+          orderBy: { id: 'asc' },
+          select: { id: true, path: true },
+        })
       : Promise.resolve([] as Array<{ id: number; path: string }>),
   ]);
   const usedTitle = new Set([
@@ -258,27 +260,27 @@ export function imageCleanupPlanApi(plan: ImageCleanupPlan, dryRun: boolean): Re
   }
   return {
     target: plan.target,
-    remove_duplicates: plan.removeDuplicates,
-    total_unused: plan.unusedFiles.length,
-    total_size_mb: Math.round(plan.totalSize / 1024 / 1024 * 100) / 100,
-    total_duplicates: plan.duplicateFiles.length,
-    total_duplicate_size_mb: Math.round(plan.duplicateSize / 1024 / 1024 * 100) / 100,
-    total_saved_mb: Math.round((plan.totalSize + plan.duplicateSize) / 1024 / 1024 * 100) / 100,
+    removeDuplicates: plan.removeDuplicates,
+    totalUnused: plan.unusedFiles.length,
+    totalSizeMb: Math.round(plan.totalSize / 1024 / 1024 * 100) / 100,
+    totalDuplicates: plan.duplicateFiles.length,
+    totalDuplicateSizeMb: Math.round(plan.duplicateSize / 1024 / 1024 * 100) / 100,
+    totalSavedMb: Math.round((plan.totalSize + plan.duplicateSize) / 1024 / 1024 * 100) / 100,
     messages,
-    has_errors: false,
-    dry_run: dryRun,
+    hasErrors: false,
+    dryRun,
     ...(dryRun ? {
-      preview_hash: plan.previewHash,
-      unused_files: plan.unusedFiles.slice(0, 100).map((file) => ({
+      previewHash: plan.previewHash,
+      unusedFiles: plan.unusedFiles.slice(0, 100).map((file) => ({
         path: file.relativePath.split('/').slice(2).join('/'),
         url: imageMediaUrl(file.relativePath),
-        size_kb: file.sizeKb,
+        sizeKb: file.sizeKb,
       })),
-      ...(plan.duplicateFiles.length ? { duplicate_files: plan.duplicateFiles.slice(0, 100).map(({ duplicate, original }) => ({
-        duplicate_url: imageMediaUrl(duplicate.relativePath),
-        duplicate_size_kb: duplicate.sizeKb,
-        original_url: imageMediaUrl(original.relativePath),
-        original_size_kb: original.sizeKb,
+      ...(plan.duplicateFiles.length ? { duplicateFiles: plan.duplicateFiles.slice(0, 100).map(({ duplicate, original }) => ({
+        duplicateUrl: imageMediaUrl(duplicate.relativePath),
+        duplicateSizeKb: duplicate.sizeKb,
+        originalUrl: imageMediaUrl(original.relativePath),
+        originalSizeKb: original.sizeKb,
         hash: duplicate.contentHash.slice(0, 8),
       })) } : {}),
     } : {}),
@@ -355,9 +357,7 @@ export async function executeImageCleanupPlan(
   let deletedCaches = 0;
   for (const cache of plan.cacheRows) {
     if (!deletedRelativePaths.has(relativeImagePathFromStoredPath(cache.path))) continue;
-    deletedCaches += await db.$executeRaw`
-      DELETE FROM board_imagecache WHERE id = ${cache.id} AND path = ${cache.path}
-    `;
+    deletedCaches += (await db.uploadedImage.deleteMany({ where: { id: cache.id, path: cache.path } })).count;
   }
   const categories: ImageCleanupFile['category'][] = plan.target === 'all' ? ['content', 'title', 'avatar'] : [plan.target as ImageCleanupFile['category']];
   const categoryLabels = { content: '콘텐츠 이미지', title: '타이틀 이미지', avatar: '아바타 이미지' };
@@ -377,9 +377,9 @@ export async function executeImageCleanupPlan(
   if (errors.length) messages.push(...errors.slice(0, 20));
   return {
     ...imageCleanupPlanApi(plan, false),
-    cleaned_count: deletedFiles,
-    image_cache_count: deletedCaches,
+    cleanedCount: deletedFiles,
+    imageCacheCount: deletedCaches,
     messages,
-    has_errors: errors.length > 0,
+    hasErrors: errors.length > 0,
   };
 }

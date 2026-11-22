@@ -4,11 +4,22 @@ import { join } from 'node:path';
 import { DatabaseSync, type SQLInputValue } from 'node:sqlite';
 import { verifyLegacyDatabase } from './legacy-database.js';
 
-const discardedTables = new Set(['django_migrations', 'django_session']);
+const discardedTables = new Set(['django_migrations', 'django_session', 'django_site', 'board_oauthauthorization']);
 
 const quote = (name: string) => `"${name.replaceAll('"', '""')}"`;
 
-type ColumnMapping = string | { to: string; convert(value: SQLInputValue, source: string, id: SQLInputValue): SQLInputValue };
+type ColumnMapping = string | {
+  to: string;
+  /** Reads a derived value instead of the source column of the same name. */
+  sql?: string;
+  convert?(value: SQLInputValue, source: string, id: SQLInputValue): SQLInputValue;
+};
+
+interface TableMapping {
+  to: string;
+  columns: Record<string, ColumnMapping>;
+  where?: string;
+}
 
 /** 3.x stored naive UTC text, sometimes with an offset. Prisma stores SQLite dates as epoch milliseconds. */
 export function legacyDate(value: SQLInputValue): SQLInputValue {
@@ -46,7 +57,30 @@ const int32 = (to: string): ColumnMapping => ({
 
 const contentScope = choice('scope', ['user', 'global']);
 
-const tableMappings: Record<string, { to: string; columns: Record<string, ColumnMapping> }> = {
+/** Readers treat anything but a JSON object as an empty manifest, and the JSONB column would coerce bare numbers. */
+const jsonObject = (to: string): ColumnMapping => ({
+  to,
+  convert(value) {
+    if (typeof value !== 'string') return null;
+    try {
+      const parsed: unknown = JSON.parse(value);
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? value : null;
+    } catch {
+      return null;
+    }
+  },
+});
+
+/**
+ * 3.14 only ever wrote id 1. Public branding reads the lowest id, while every other reader asks for id 1,
+ * so a database without row 1 keeps the fields branding showed and the defaults everything else showed.
+ */
+const unlessPrimary = (column: string, to: string, fallback: string): ColumnMapping => ({
+  to,
+  sql: `CASE WHEN id = 1 THEN ${quote(column)} ELSE ${fallback} END`,
+});
+
+const tableMappings: Record<string, TableMapping> = {
   board_worklog: { to: 'WorkLog', columns: { id: 'id', owner_id: 'ownerId', title: 'title', created_at: date('createdAt') } },
   board_worklogentry: {
     to: 'WorkLogEntry',
@@ -80,6 +114,55 @@ const tableMappings: Record<string, { to: string; columns: Record<string, Column
       order: int32('order'), created_date: date('createdAt'), updated_date: date('updatedAt'),
     },
   },
+  board_sitesetting: {
+    to: 'SiteSetting',
+    where: 'id = (SELECT MIN(id) FROM board_sitesetting)',
+    columns: {
+      id: { to: 'id', sql: '1' },
+      domain: { to: 'domain', sql: `COALESCE((SELECT domain FROM django_site WHERE id = 1), '')` },
+      site_name: 'siteName', logo_svg: 'logoSvg', logo_svg_dark: 'logoSvgDark', icon_manifest: jsonObject('iconManifest'), seo_enabled: 'seoEnabled',
+      header_script: unlessPrimary('header_script', 'headerScript', `''`),
+      footer_script: unlessPrimary('footer_script', 'footerScript', `''`),
+      aeo_enabled: unlessPrimary('aeo_enabled', 'aeoEnabled', '0'),
+      robots_txt_extra_rules: unlessPrimary('robots_txt_extra_rules', 'robotsTxtExtraRules', `''`),
+      icon_svg: unlessPrimary('icon_svg', 'iconSvg', `''`),
+      icon_svg_dark: unlessPrimary('icon_svg_dark', 'iconSvgDark', `''`),
+      updated_date: date('updatedAt'),
+    },
+  },
+  board_loginsetting: {
+    to: 'LoginSetting',
+    where: 'id = 1',
+    columns: {
+      id: 'id', welcome_notification_message: 'welcomeNotificationMessage', welcome_notification_url: 'welcomeNotificationUrl',
+      account_deletion_redirect_url: 'accountDeletionRedirectUrl', hcaptcha_enabled: 'hcaptchaEnabled', hcaptcha_site_key: 'hcaptchaSiteKey',
+      hcaptcha_secret_key: 'hcaptchaSecretKey', updated_date: date('updatedAt'),
+    },
+  },
+  board_integrationsetting: {
+    to: 'IntegrationSetting',
+    where: 'id = 1',
+    columns: {
+      id: 'id', telegram_enabled: 'telegramEnabled', telegram_bot_username: 'telegramBotUsername', telegram_bot_token: 'telegramBotToken',
+      updated_date: date('updatedAt'),
+    },
+  },
+  django_admin_log: {
+    to: 'AdminLog',
+    columns: {
+      id: 'id', user_id: 'userId',
+      content_type_id: { to: 'target', sql: `COALESCE((SELECT model FROM django_content_type WHERE id = content_type_id), '')` },
+      object_id: 'objectId', object_repr: 'objectName', action_flag: int32('action'), change_message: 'message', action_time: date('createdAt'),
+    },
+  },
+  board_utilitycleanupconfirmation: {
+    to: 'CleanupConfirmation',
+    columns: {
+      id: 'id', user_id: 'userId', token_hash: 'tokenHash', action: 'action', session_fingerprint: 'sessionFingerprint',
+      expires_at: date('expiresAt'), consumed_at: date('consumedAt'), created_date: date('createdAt'),
+    },
+  },
+  board_imagecache: { to: 'UploadedImage', columns: { id: 'id', key: 'key', path: 'path', size: int32('size'), user_id: 'userId' } },
 };
 
 function tableNames(db: DatabaseSync) {
@@ -105,14 +188,18 @@ function copyTable(source: DatabaseSync, target: DatabaseSync, table: string) {
   const missing = names.filter((name) => !available.has(name));
   if (missing.length) throw new Error(`The BLEX 4 schema is missing ${destination}: ${missing.join(', ')}.`);
 
-  const read = source.prepare(`SELECT ${columns.map(quote).join(', ')} FROM ${quote(table)}`);
+  const selected = columns.map((column, index) => {
+    const output = outputs[index];
+    return typeof output !== 'string' && output.sql ? `${output.sql} AS ${quote(column)}` : quote(column);
+  });
+  const read = source.prepare(`SELECT ${selected.join(', ')} FROM ${quote(table)}${mapping?.where ? ` WHERE ${mapping.where}` : ''}`);
   read.setReadBigInts(true);
   const write = target.prepare(`INSERT INTO ${quote(destination)} (${names.map(quote).join(', ')}) VALUES (${names.map(() => '?').join(', ')})`);
   let copied = 0;
   for (const row of read.iterate() as Iterable<Record<string, SQLInputValue>>) {
     write.run(...columns.map((column, index) => {
       const output = outputs[index];
-      return typeof output === 'string' ? row[column] : output.convert(row[column], `${table}.${column}`, row.id ?? null);
+      return typeof output === 'string' || !output.convert ? row[column] : output.convert(row[column], `${table}.${column}`, row.id ?? null);
     }));
     copied += 1;
   }
@@ -131,6 +218,13 @@ function copyRows(sourcePath: string, targetPath: string) {
       if (discardedTables.has(table)) continue;
       if (!targetTables.has(tableMappings[table]?.to ?? table)) throw new Error(`The BLEX 4 schema has no table for ${table}.`);
       rows += copyTable(source, target, table);
+    }
+
+    // 3.x kept the RSS host in django_site, so it must survive even without a site settings row.
+    const site = source.prepare('SELECT domain FROM django_site WHERE id = 1').get() as { domain: string } | undefined;
+    if (site?.domain && !target.prepare('SELECT 1 FROM "SiteSetting"').get()) {
+      target.prepare('INSERT INTO "SiteSetting" (id, domain, updatedAt) VALUES (1, ?, ?)').run(site.domain, Date.now());
+      rows += 1;
     }
 
     // Keep AUTOINCREMENT counters so the IDs of deleted rows are never handed out again.

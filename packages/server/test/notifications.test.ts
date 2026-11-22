@@ -35,8 +35,8 @@ test('delivers scheduled publication once, retains queued retries, and respects 
     INSERT INTO board_authorsubscription (created_date, author_id, subscriber_id)
     VALUES ('2000-01-01', 1, 2), ('2000-01-01', 1, 3);
   `);
-  raw.prepare(`INSERT INTO board_integrationsetting (id, telegram_enabled, telegram_bot_username, telegram_bot_token, updated_date)
-    VALUES (1, 1, 'synthetic-only', ?, '2000-01-01')`).run(encryptDjangoSecret('123:dummy-private-listener', cipher));
+  raw.prepare(`INSERT INTO IntegrationSetting (id, telegramEnabled, telegramBotUsername, telegramBotToken, updatedAt)
+    VALUES (1, 1, 'synthetic-only', ?, 946684800000)`).run(encryptDjangoSecret('123:dummy-private-listener', cipher));
   raw.prepare(`INSERT INTO board_telegramsync (tid, auth_token, auth_token_exp, created_date, user_id)
     VALUES (?, '', '2000-01-01', '2000-01-01', 2)`).run(encryptDjangoSecret('456', cipher));
   raw.close();

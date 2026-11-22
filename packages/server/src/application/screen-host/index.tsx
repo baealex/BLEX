@@ -61,19 +61,22 @@ function decryptsToValue(encrypted: string, cipherKey: string): boolean {
 }
 
 async function readViewerState(db: PrismaClient, userId: number, cipherKey: string) {
+  const telegram = await db.integrationSetting.findUnique({
+    where: { id: 1 },
+    select: { telegramEnabled: true, telegramBotUsername: true, telegramBotToken: true },
+  });
+  const telegramToken = telegram?.telegramEnabled && telegram.telegramBotUsername.trim() ? telegram.telegramBotToken : '';
   const [row] = await db.$queryRaw<Array<{
     role: string | null; unread: number | bigint; language: string | null; timeZone: string | null;
-    telegramToken: string | null; telegramConnected: number | bigint;
+    telegramConnected: number | bigint;
   }>>`
     SELECT (SELECT role FROM board_profile WHERE user_id = ${userId} LIMIT 1) AS role,
            (SELECT COUNT(*) FROM board_notify WHERE user_id = ${userId} AND has_read = 0) AS unread,
            (SELECT language FROM board_config WHERE user_id = ${userId} LIMIT 1) AS language,
            (SELECT time_zone FROM board_config WHERE user_id = ${userId} LIMIT 1) AS timeZone,
-           (SELECT telegram_bot_token FROM board_integrationsetting WHERE id = 1 AND telegram_enabled = 1
-              AND TRIM(telegram_bot_username) <> '' LIMIT 1) AS telegramToken,
            EXISTS(SELECT 1 FROM board_telegramsync WHERE user_id = ${userId} AND tid <> '') AS telegramConnected
   `;
-  return { ...row, telegramConfigured: Boolean(row.telegramToken && decryptsToValue(row.telegramToken, cipherKey)) };
+  return { ...row, telegramConfigured: Boolean(telegramToken && decryptsToValue(telegramToken, cipherKey)) };
 }
 
 type ViewerState = Awaited<ReturnType<typeof readViewerState>>;
@@ -93,11 +96,11 @@ interface ScreenPage {
 
 /** 3.x only offers the captcha widget when the stored secret can actually verify it. */
 async function readCaptchaSiteKey(db: PrismaClient, cipherKey: string): Promise<string> {
-  const [row] = await db.$queryRaw<Array<{ enabled: number | bigint | boolean; siteKey: string; secret: string }>>`
-    SELECT hcaptcha_enabled AS enabled, hcaptcha_site_key AS siteKey, hcaptcha_secret_key AS secret
-      FROM board_loginsetting WHERE id = 1
-  `;
-  return row?.enabled && decryptsToValue(row.secret, cipherKey) ? row.siteKey.trim() : '';
+  const row = await db.loginSetting.findUnique({
+    where: { id: 1 },
+    select: { hcaptchaEnabled: true, hcaptchaSiteKey: true, hcaptchaSecretKey: true },
+  });
+  return row?.hcaptchaEnabled && decryptsToValue(row.hcaptchaSecretKey, cipherKey) ? row.hcaptchaSiteKey.trim() : '';
 }
 
 export function registerScreenHost(app: FastifyInstance, db: PrismaClient, options: ScreenHostOptions) {

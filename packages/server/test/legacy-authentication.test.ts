@@ -51,9 +51,8 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     VALUES (1, 'owner', '!unusable', '', 'Owner', '', '2000-01-01', 1, 1, 1);
     INSERT INTO board_authorinvite (code, note, is_active, created_by_id, created_date)
     VALUES ('synthetic-invite', '', 1, 1, '2000-01-01');
-    INSERT INTO board_loginsetting (id, welcome_notification_message, welcome_notification_url,
-      account_deletion_redirect_url, hcaptcha_enabled, hcaptcha_site_key, hcaptcha_secret_key, updated_date)
-    VALUES (1, 'Hello {name}', '/welcome', '', 0, '', '', '2000-01-01');
+    INSERT INTO LoginSetting (id, welcomeNotificationMessage, welcomeNotificationUrl, updatedAt)
+    VALUES (1, 'Hello {name}', '/welcome', 946684800000);
   `);
   fixture.prepare('UPDATE auth_user SET password = ? WHERE id = 1').run(recentPasswordHash);
   fixture.close();
@@ -68,14 +67,14 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     assert.equal(page.statusCode, 200);
     assert.match(page.body, /value="synthetic-invite"/);
     const captchaDb = new DatabaseSync(path);
-    captchaDb.prepare('UPDATE board_loginsetting SET hcaptcha_enabled = 1, hcaptcha_site_key = ?, hcaptcha_secret_key = ? WHERE id = 1').run('synthetic-site-key', encryptDjangoSecret('synthetic-captcha-secret', cipherKey));
+    captchaDb.prepare('UPDATE LoginSetting SET hcaptchaEnabled = 1, hcaptchaSiteKey = ?, hcaptchaSecretKey = ? WHERE id = 1').run('synthetic-site-key', encryptDjangoSecret('synthetic-captcha-secret', cipherKey));
     captchaDb.close();
     const captchaPage = await app.inject('/sign');
     assert.equal(captchaPage.statusCode, 200, captchaPage.body);
     assert.match(captchaPage.body, /data-blex-trusted-script="hcaptcha"/);
     assert.match(captchaPage.body, /data-blex-hcaptcha-widget=""/);
     const resetCaptchaDb = new DatabaseSync(path);
-    resetCaptchaDb.prepare('UPDATE board_loginsetting SET hcaptcha_enabled = 0, hcaptcha_site_key = ? WHERE id = 1').run('');
+    resetCaptchaDb.prepare('UPDATE LoginSetting SET hcaptchaEnabled = 0, hcaptchaSiteKey = ? WHERE id = 1').run('');
     resetCaptchaDb.close();
     const headers = headersFor(page, siteUrl);
     const fields = { username: 'neweditor', name: 'Test Author', password, time_zone: 'Asia/Seoul', email: 'editor@Example.invalid' };
@@ -382,6 +381,10 @@ test('account deletion checks recent proof, preserves other members, and protect
   insertRow(fixture, 'SiteBanner', { id: 1, userId: 2, scope: 'user', type: 'horizontal', position: 'top' });
   insertRow(fixture, 'SiteBanner', { id: 2, userId: 1, scope: 'global', type: 'sidebar', position: 'left' });
   insertRow(fixture, 'StaticPage', { id: 1, authorId: 2, slug: 'kept-page', title: 'Kept page' });
+  insertRow(fixture, 'AdminLog', { id: 1, userId: 2, action: 2, message: 'Deleted with its owner' });
+  insertRow(fixture, 'AdminLog', { id: 2, userId: 1, action: 2, message: 'Kept' });
+  insertRow(fixture, 'CleanupConfirmation', { id: 1, userId: 2, tokenHash: 'deleted', action: 'clean_tags', sessionFingerprint: 'print', expiresAt: 946684800000 });
+  insertRow(fixture, 'UploadedImage', { id: 1, userId: 2, key: 'kept-image', path: 'images/content/kept.png', size: 1 });
   fixture.close();
   const siteUrl = new URL('https://blex.example');
   const app = await buildApp(path, siteUrl, { secretKey: 'deletion-test-secret', cipherKey });
@@ -412,6 +415,9 @@ test('account deletion checks recent proof, preserves other members, and protect
     assert.deepEqual(check.prepare('SELECT id FROM SiteNotice').all().map((row) => row.id), [2]);
     assert.deepEqual(check.prepare('SELECT id FROM SiteBanner').all().map((row) => row.id), [2]);
     assert.equal(check.prepare('SELECT authorId FROM StaticPage WHERE id = 1').get()?.authorId, null);
+    assert.deepEqual(check.prepare('SELECT id FROM AdminLog').all().map((row) => row.id), [2]);
+    assert.equal(check.prepare('SELECT COUNT(*) AS rows FROM CleanupConfirmation').get()?.rows, 0);
+    assert.equal(check.prepare('SELECT userId FROM UploadedImage WHERE id = 1').get()?.userId, null);
     assert.deepEqual(check.prepare('PRAGMA foreign_key_check').all(), []);
     check.close();
   } finally {

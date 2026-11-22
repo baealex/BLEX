@@ -9,6 +9,7 @@ import { PrismaClient } from '@prisma/client';
 import { after, beforeEach, test } from 'node:test';
 import { registerNotifications } from '../src/features/notifications/index.js';
 import { mySubscriptions } from '../src/features/engagement/services/subscriptions.js';
+import { createMigratedTables } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-settings-pages-'));
 const databasePath = join(directory, 'synthetic-settings.sqlite3');
@@ -17,6 +18,7 @@ const siteUrl = new URL('https://blog.example');
 
 function createSchema() {
   const fixture = new DatabaseSync(databasePath);
+  createMigratedTables(fixture, 'IntegrationSetting');
   fixture.exec(`
     CREATE TABLE auth_user (
       id INTEGER PRIMARY KEY, username TEXT NOT NULL UNIQUE, first_name TEXT NOT NULL DEFAULT '', is_active BOOLEAN NOT NULL DEFAULT 1
@@ -39,10 +41,6 @@ function createSchema() {
       id INTEGER PRIMARY KEY, created_date DATETIME NOT NULL, author_id INTEGER NOT NULL, subscriber_id INTEGER NOT NULL
     );
     CREATE TABLE board_telegramsync (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, tid TEXT NOT NULL DEFAULT '');
-    CREATE TABLE board_integrationsetting (
-      id INTEGER PRIMARY KEY, telegram_enabled BOOLEAN NOT NULL DEFAULT 0,
-      telegram_bot_username TEXT NOT NULL DEFAULT '', telegram_bot_token TEXT NOT NULL DEFAULT ''
-    );
   `);
   fixture.close();
 }
@@ -54,7 +52,7 @@ function seed() {
     DELETE FROM board_notify;
     DELETE FROM board_authorsubscription;
     DELETE FROM board_telegramsync;
-    DELETE FROM board_integrationsetting;
+    DELETE FROM IntegrationSetting;
     DELETE FROM board_config;
     DELETE FROM board_profile;
     DELETE FROM auth_user;
@@ -65,7 +63,7 @@ function seed() {
       (1, 1, '/@author/post-one', 'Author posted a new article.', 'UNKNOWN', '{}', 0, datetime('now')),
       (2, 1, 'javascript:alert(1)', 'A mention without a safe link.', 'UNKNOWN', '{}', 1, datetime('now'));
     INSERT INTO board_authorsubscription VALUES (1, '2026-11-20 10:00:00', 2, 1);
-    INSERT INTO board_integrationsetting VALUES (1, 1, 'synthetic_bot', 'synthetic-token');
+    INSERT INTO IntegrationSetting (id, telegramEnabled, telegramBotUsername, telegramBotToken, updatedAt) VALUES (1, 1, 'synthetic_bot', 'synthetic-token', 946684800000);
   `);
   fixture.close();
 }

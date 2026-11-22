@@ -17,7 +17,7 @@ import { createSession, createToken, loginBody, readSession } from './session.js
 import { hasAdministrator, insertAccount } from './setup.js';
 
 interface SignupSettings {
-  captchaEnabled: bigint | number | boolean;
+  captchaEnabled: boolean;
   siteKey: string;
   secretKey: string;
   welcome: string;
@@ -25,12 +25,23 @@ interface SignupSettings {
 }
 
 async function signupSettings(db: PrismaClient) {
-  const [settings] = await db.$queryRaw<SignupSettings[]>`
-    SELECT hcaptcha_enabled AS captchaEnabled, hcaptcha_site_key AS siteKey, hcaptcha_secret_key AS secretKey,
-           welcome_notification_message AS welcome, welcome_notification_url AS welcomeUrl
-      FROM board_loginsetting WHERE id = 1
-  `;
-  return settings;
+  const settings = await db.loginSetting.findUnique({
+    where: { id: 1 },
+    select: {
+      hcaptchaEnabled: true,
+      hcaptchaSiteKey: true,
+      hcaptchaSecretKey: true,
+      welcomeNotificationMessage: true,
+      welcomeNotificationUrl: true,
+    },
+  });
+  return settings ? {
+    captchaEnabled: settings.hcaptchaEnabled,
+    siteKey: settings.hcaptchaSiteKey,
+    secretKey: settings.hcaptchaSecretKey,
+    welcome: settings.welcomeNotificationMessage,
+    welcomeUrl: settings.welcomeNotificationUrl,
+  } : undefined;
 }
 
 /** Like 3.x, a captcha without a usable secret is treated as switched off. */

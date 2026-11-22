@@ -40,10 +40,8 @@ export async function resolveCoverImage(
   if (!requested?.trim()) return current;
   const path = storedCoverPath(requested.trim());
   if (path === current) return current;
-  const owned = await db.$queryRaw<Array<{ path: string }>>`
-    SELECT path FROM board_imagecache WHERE path = ${path} AND user_id = ${userId} LIMIT 1
-  `;
-  if (!owned[0]) throw new PostValidationError('VA', 'Choose an image you uploaded.');
+  const owned = await db.uploadedImage.findFirst({ where: { path, userId }, select: { id: true } });
+  if (!owned) throw new PostValidationError('VA', 'Choose an image you uploaded.');
   return path;
 }
 

@@ -17,7 +17,7 @@ async function publicApp(site: { seo: number; aeo: number } = { seo: 1, aeo: 1 }
   const fixture = await createMigratedDatabase();
   const { db } = fixture;
   seedEditor(db, 1, 'writer');
-  insertRow(db, 'board_sitesetting', { id: 1, seo_enabled: site.seo, aeo_enabled: site.aeo });
+  insertRow(db, 'SiteSetting', { id: 1, seoEnabled: site.seo, aeoEnabled: site.aeo });
   insertRow(db, 'board_series', { id: 1, owner_id: 1, name: 'Guide', url: 'guide', layout: 'list', hide: 0, created_date: daysAgo(2) });
   seedPost(db, 1, 1, 'part-one', { series_id: 1, title: 'Part one', published_date: daysAgo(3) });
   seedPost(db, 2, 1, 'part-two', { series_id: 1, title: 'Part two', published_date: daysAgo(2) });

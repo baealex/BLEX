@@ -28,19 +28,18 @@ export function telegramWebhookSecret(secretKey: string, botToken: string) {
 }
 
 async function telegramConfig(db: PrismaClient, cipherKey: string) {
-  const [row] = await db.$queryRaw<Array<{ username: string; encrypted: string; enabled: number | bigint }>>`
-    SELECT telegram_bot_username AS username, telegram_bot_token AS encrypted, telegram_enabled AS enabled
-      FROM board_integrationsetting WHERE id = 1
-  `;
-  const decrypted = row?.enabled ? decryptDjangoSecret(row.encrypted, cipherKey) : null;
+  const row = await db.integrationSetting.findUnique({
+    where: { id: 1 },
+    select: { telegramBotUsername: true, telegramBotToken: true, telegramEnabled: true },
+  });
+  const decrypted = row?.telegramEnabled ? decryptDjangoSecret(row.telegramBotToken, cipherKey) : null;
   const token = decrypted && /^\d+:[a-zA-Z0-9_-]+$/.test(decrypted) ? decrypted : '';
-  const username = row?.username.trim() ?? '';
+  const username = row?.telegramBotUsername.trim() ?? '';
   return { username, token, configured: Boolean(token && /^[a-zA-Z0-9_]{1,64}$/.test(username)) };
 }
 
 async function issueConnection(db: PrismaClient, userId: number, username: string) {
   const code = await db.$transaction(async (tx) => {
-    await tx.$executeRaw`UPDATE board_integrationsetting SET id = id WHERE id = 1`;
     for (let attempt = 0; attempt < 5; attempt += 1) {
       const code = Array.from({ length: 6 }, () => tokenChars[randomInt(tokenChars.length)]).join('');
       const [exists] = await tx.$queryRaw<unknown[]>`SELECT 1 FROM board_telegramsync WHERE auth_token = ${code} LIMIT 1`;

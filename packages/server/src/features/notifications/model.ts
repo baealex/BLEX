@@ -48,18 +48,26 @@ export function notificationParams(value: string): Record<string, unknown> {
   }
 }
 
-export async function queueNotification(tx: Prisma.TransactionClient, notificationId: number, userId: number) {
+async function telegramDeliveryEnabled(tx: Prisma.TransactionClient) {
+  const settings = await tx.integrationSetting.findUnique({
+    where: { id: 1 },
+    select: { telegramEnabled: true, telegramBotToken: true },
+  });
+  return Boolean(settings?.telegramEnabled && settings.telegramBotToken);
+}
+
+export async function queueNotification(tx: Prisma.TransactionClient, notificationId: number, userId: number, telegramEnabled?: boolean) {
+  if (!(telegramEnabled ?? await telegramDeliveryEnabled(tx))) return;
   await tx.$executeRaw`
     INSERT INTO blex_notification_delivery (notification_id, available_at)
     SELECT ${notificationId}, ${BigInt(Date.now())}
-      FROM board_telegramsync AS link, board_integrationsetting AS settings
-     WHERE link.user_id = ${userId} AND link.tid <> '' AND settings.id = 1
-       AND settings.telegram_enabled = 1 AND settings.telegram_bot_token <> ''
+      FROM board_telegramsync AS link
+     WHERE link.user_id = ${userId} AND link.tid <> ''
     ON CONFLICT(notification_id) DO NOTHING
   `;
 }
 
-export async function createNotification(tx: Prisma.TransactionClient, input: NotificationInput) {
+export async function createNotification(tx: Prisma.TransactionClient, input: NotificationInput, telegramEnabled?: boolean) {
   const [user] = await tx.$queryRaw<Array<{ username: string; enabled: string | null }>>`
     SELECT username, (SELECT value FROM board_userconfigmeta WHERE user_id = ${input.recipientId}
       AND name = ${input.preference ?? ''} ORDER BY id LIMIT 1) AS enabled
@@ -77,7 +85,7 @@ export async function createNotification(tx: Prisma.TransactionClient, input: No
     ON CONFLICT(key) DO NOTHING RETURNING id
   `;
   if (!row) return false;
-  await queueNotification(tx, row.id, input.recipientId);
+  await queueNotification(tx, row.id, input.recipientId, telegramEnabled);
   return true;
 }
 
@@ -99,6 +107,7 @@ export async function notifyPostSubscribers(tx: Prisma.TransactionClient, postId
   `;
   const url = publicPostPath(username, slug);
   const priorUrls = [url, ...aliases.map((entry) => publicPostPath(entry.username, slug))];
+  const telegramEnabled = await telegramDeliveryEnabled(tx);
   let delivered = 0;
   for (const { subscriber, title } of subscribers) {
     const [earlier] = await tx.$queryRaw<unknown[]>`
@@ -107,7 +116,7 @@ export async function notifyPostSubscribers(tx: Prisma.TransactionClient, postId
     if (earlier) continue;
     if (await createNotification(tx, {
       recipientId: subscriber, actor: username, title, url, key: 'post.published', hiddenKey: `post-published:${postId}`,
-    })) delivered += 1;
+    }, telegramEnabled)) delivered += 1;
   }
   return delivered;
 }

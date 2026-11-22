@@ -82,7 +82,7 @@ export const createSvgBrandAssetFormData = (
     svgFile: File
 ) => {
     const formData = new FormData();
-    formData.append('asset_type', assetType);
+    formData.append('assetType', assetType);
     formData.append('theme', theme);
     formData.append('svg', svgFile, svgFile.name || `${assetType}.svg`);
     return formData;
@@ -103,9 +103,9 @@ export const createIconBrandAssetFormData = async (svgFile: File) => {
     }));
 
     pngFiles.forEach(({ size, blob }) => {
-        formData.append(`png_${size}`, new File([blob], `logo${size}.png`, { type: 'image/png' }));
+        formData.append(`png${size}`, new File([blob], `logo${size}.png`, { type: 'image/png' }));
     });
-    formData.append('favicon_ico', new File([faviconIco], 'favicon.ico', { type: ICO_MIME_TYPE }));
+    formData.append('faviconIco', new File([faviconIco], 'favicon.ico', { type: ICO_MIME_TYPE }));
     return formData;
 };
 

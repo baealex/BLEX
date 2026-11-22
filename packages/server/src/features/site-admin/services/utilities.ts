@@ -36,13 +36,13 @@ function utilitySessionFingerprint(request: FastifyRequest): string {
 }
 
 function utilityParameters(action: UtilityAction, body: Body): UtilityParameters {
-  if (action === 'clean_sessions') return { cleanAll: body.clean_all === true };
+  if (action === 'clean_sessions') return { cleanAll: body.cleanAll === true };
   if (action === 'clean_images') {
     const target = body.target ?? 'all';
     if (typeof target !== 'string' || !['all', 'content', 'title', 'avatar'].includes(target)) {
       throw new Error('유효한 정리 대상을 선택해주세요.');
     }
-    return { target, removeDuplicates: body.remove_duplicates === true };
+    return { target, removeDuplicates: body.removeDuplicates === true };
   }
   return {};
 }
@@ -82,16 +82,15 @@ async function issueUtilityConfirmation(
   const encodedPayload = Buffer.from(JSON.stringify(payload)).toString('base64url');
   const signature = utilityTokenSignature(encodedPayload, secretKey).toString('base64url');
   const token = `${encodedPayload}.${signature}`;
-  const now = djangoTimestamp();
-  const expiresAt = djangoTimestamp(new Date(Date.now() + 5 * 60 * 1000));
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + 5 * 60 * 1000);
   const tokenHash = createHash('sha256').update(token).digest('hex');
   await db.$transaction(async (transaction) => {
-    await transaction.$executeRaw`DELETE FROM board_utilitycleanupconfirmation WHERE expires_at <= ${now}`;
-    await transaction.$executeRaw`
-      INSERT INTO board_utilitycleanupconfirmation
-        (token_hash, action, session_fingerprint, expires_at, consumed_at, created_date, user_id)
-      VALUES (${tokenHash}, ${action}, ${sessionFingerprint}, ${expiresAt}, NULL, ${now}, ${userId})
-    `;
+    await transaction.cleanupConfirmation.deleteMany({ where: { expiresAt: { lte: now } } });
+    await transaction.cleanupConfirmation.create({
+      data: { tokenHash, action, sessionFingerprint, expiresAt, createdAt: now, userId },
+      select: { id: true },
+    });
   });
   return token;
 }
@@ -134,13 +133,12 @@ async function consumeUtilityConfirmation(
     throw new Error('invalid utility confirmation');
   }
   const tokenHash = createHash('sha256').update(tokenValue).digest('hex');
-  const now = djangoTimestamp();
-  const consumed = await transaction.$executeRaw`
-    UPDATE board_utilitycleanupconfirmation SET consumed_at = ${now}
-    WHERE token_hash = ${tokenHash} AND user_id = ${userId} AND action = ${action}
-      AND session_fingerprint = ${sessionFingerprint} AND expires_at > ${now} AND consumed_at IS NULL
-  `;
-  if (consumed !== 1) throw new Error('invalid utility confirmation');
+  const now = new Date();
+  const consumed = await transaction.cleanupConfirmation.updateMany({
+    where: { tokenHash, userId, action, sessionFingerprint, expiresAt: { gt: now }, consumedAt: null },
+    data: { consumedAt: now },
+  });
+  if (consumed.count !== 1) throw new Error('invalid utility confirmation');
 }
 
 function retentionDays(name: string, defaultValue: number): number {
@@ -153,24 +151,24 @@ export async function readUtilityStats(db: PrismaClient): Promise<Record<string,
   const epoch = BigInt(Date.now());
   const [stats] = await db.$queryRaw<Array<Record<string, number | bigint>>>(Prisma.sql`
     SELECT
-      (SELECT COUNT(*) FROM board_post) AS total_posts,
-      COALESCE(SUM(CASE WHEN post.deleted_date IS NULL AND post.published_date IS NOT NULL AND post.published_date <= ${now} AND config.hide = 0 THEN 1 ELSE 0 END), 0) AS public_posts,
-      COALESCE(SUM(CASE WHEN post.deleted_date IS NULL AND post.published_date IS NOT NULL AND post.published_date <= ${now} THEN 1 ELSE 0 END), 0) AS published_posts,
-      COALESCE(SUM(CASE WHEN post.deleted_date IS NULL AND post.published_date > ${now} THEN 1 ELSE 0 END), 0) AS scheduled_posts,
-      COALESCE(SUM(CASE WHEN config.hide = 1 THEN 1 ELSE 0 END), 0) AS hidden_posts,
-      COALESCE(SUM(CASE WHEN post.deleted_date IS NULL AND post.published_date IS NULL THEN 1 ELSE 0 END), 0) AS draft_posts,
-      (SELECT COUNT(*) FROM board_comment) AS total_comments,
-      (SELECT COUNT(*) FROM auth_user) AS total_users,
-      (SELECT COUNT(*) FROM board_profile) AS active_profiles,
-      (SELECT COUNT(*) FROM board_series) AS total_series,
-      (SELECT COUNT(*) FROM board_imagecache) AS image_cache_count,
-      (SELECT COUNT(*) FROM blex_session) AS total_sessions,
-      (SELECT COUNT(*) FROM blex_session WHERE expires_at < ${epoch}) AS expired_sessions
+      (SELECT COUNT(*) FROM board_post) AS totalPosts,
+      COALESCE(SUM(CASE WHEN post.deleted_date IS NULL AND post.published_date IS NOT NULL AND post.published_date <= ${now} AND config.hide = 0 THEN 1 ELSE 0 END), 0) AS publicPosts,
+      COALESCE(SUM(CASE WHEN post.deleted_date IS NULL AND post.published_date IS NOT NULL AND post.published_date <= ${now} THEN 1 ELSE 0 END), 0) AS publishedPosts,
+      COALESCE(SUM(CASE WHEN post.deleted_date IS NULL AND post.published_date > ${now} THEN 1 ELSE 0 END), 0) AS scheduledPosts,
+      COALESCE(SUM(CASE WHEN config.hide = 1 THEN 1 ELSE 0 END), 0) AS hiddenPosts,
+      COALESCE(SUM(CASE WHEN post.deleted_date IS NULL AND post.published_date IS NULL THEN 1 ELSE 0 END), 0) AS draftPosts,
+      (SELECT COUNT(*) FROM board_comment) AS totalComments,
+      (SELECT COUNT(*) FROM auth_user) AS totalUsers,
+      (SELECT COUNT(*) FROM board_profile) AS activeProfiles,
+      (SELECT COUNT(*) FROM board_series) AS totalSeries,
+      (SELECT COUNT(*) FROM blex_session) AS totalSessions,
+      (SELECT COUNT(*) FROM blex_session WHERE expires_at < ${epoch}) AS expiredSessions
     FROM board_post AS post LEFT JOIN board_postconfig AS config ON config.post_id = post.id
   `);
-  const [logs] = await db.$queryRaw<Array<{ logCount: number | bigint; developerRequestLogCount: number | bigint }>>`
-    SELECT (SELECT COUNT(*) FROM django_admin_log) AS logCount,
-      (SELECT COUNT(*) FROM board_developerrequestlog) AS developerRequestLogCount
+  const imageCacheCount = await db.uploadedImage.count();
+  const logCount = await db.adminLog.count();
+  const [developerLogs] = await db.$queryRaw<Array<{ total: number | bigint }>>`
+    SELECT COUNT(*) AS total FROM board_developerrequestlog
   `;
   let dbSize = 'N/A';
   try {
@@ -182,9 +180,10 @@ export async function readUtilityStats(db: PrismaClient): Promise<Record<string,
   }
   return {
     ...Object.fromEntries(Object.entries(stats ?? {}).map(([key, value]) => [key, Number(value)])),
-    log_count: Number(logs?.logCount ?? 0),
-    developer_request_log_count: Number(logs?.developerRequestLogCount ?? 0),
-    db_size: dbSize,
+    imageCacheCount,
+    logCount,
+    developerRequestLogCount: Number(developerLogs?.total ?? 0),
+    dbSize,
   };
 }
 
@@ -223,67 +222,58 @@ async function runUtilityCleanup(
     const total = Number(counts?.totalTags ?? 0);
     const used = Number(counts?.usedTags ?? 0);
     return {
-      total_tags: total,
-      used_tags: used,
-      unused_tags: Math.max(0, total - used),
-      top_tags: topTags.map((tag) => ({ name: tag.name, count: Number(tag.count) })),
-      cleaned_count: Number(deleted || unusedRows.length),
-      cleaned_tags: unusedRows.slice(0, 20).map((row) => row.value),
-      dry_run: dryRun,
+      totalTags: total,
+      usedTags: used,
+      unusedTags: Math.max(0, total - used),
+      topTags: topTags.map((tag) => ({ name: tag.name, count: Number(tag.count) })),
+      cleanedCount: Number(deleted || unusedRows.length),
+      cleanedTags: unusedRows.slice(0, 20).map((row) => row.value),
+      dryRun,
     };
   }
   if (action === 'clean_sessions') {
     const now = BigInt(Date.now());
-    const legacyNow = djangoTimestamp();
     const [counts] = await db.$queryRaw<Array<{ total: number | bigint; expired: number | bigint }>>`
-      SELECT (SELECT COUNT(*) FROM blex_session) + (SELECT COUNT(*) FROM django_session) AS total,
-        (SELECT COUNT(*) FROM blex_session WHERE expires_at < ${now})
-          + (SELECT COUNT(*) FROM django_session WHERE expire_date < ${legacyNow}) AS expired
+      SELECT (SELECT COUNT(*) FROM blex_session) AS total,
+        (SELECT COUNT(*) FROM blex_session WHERE expires_at < ${now}) AS expired
     `;
     const cleanAll = parameters.cleanAll === true;
     let deleted = 0;
     if (!dryRun) {
       deleted = cleanAll
-        ? Number(await db.$executeRaw`DELETE FROM blex_session`) + Number(await db.$executeRaw`DELETE FROM django_session`)
-        : Number(await db.$executeRaw`DELETE FROM blex_session WHERE expires_at < ${now}`)
-          + Number(await db.$executeRaw`DELETE FROM django_session WHERE expire_date < ${legacyNow}`);
+        ? Number(await db.$executeRaw`DELETE FROM blex_session`)
+        : Number(await db.$executeRaw`DELETE FROM blex_session WHERE expires_at < ${now}`);
     }
     return {
-      total_sessions: Number(counts?.total ?? 0),
-      expired_sessions: Number(counts?.expired ?? 0),
-      cleaned_count: Number(deleted),
-      clean_all: cleanAll,
-      dry_run: dryRun,
+      totalSessions: Number(counts?.total ?? 0),
+      expiredSessions: Number(counts?.expired ?? 0),
+      cleanedCount: deleted,
+      cleanAll,
+      dryRun,
     };
   }
   const adminRetention = retentionDays('ADMIN_AUDIT_LOG_RETENTION_DAYS', 365);
   const developerRetention = retentionDays('DEVELOPER_API_LOG_RETENTION_DAYS', 30);
-  const adminCutoff = djangoTimestamp(new Date(Date.now() - adminRetention * 24 * 60 * 60 * 1000));
+  const adminCutoff = new Date(Date.now() - adminRetention * 24 * 60 * 60 * 1000);
   const developerCutoff = djangoTimestamp(new Date(Date.now() - developerRetention * 24 * 60 * 60 * 1000));
-  const [counts] = await db.$queryRaw<Array<{
-    logCount: number | bigint;
-    expiredLogCount: number | bigint;
-    developerCount: number | bigint;
-    expiredDeveloperCount: number | bigint;
-  }>>`
-    SELECT COUNT(*) AS logCount,
-      SUM(CASE WHEN action_time < ${adminCutoff} THEN 1 ELSE 0 END) AS expiredLogCount,
-      (SELECT COUNT(*) FROM board_developerrequestlog) AS developerCount,
-      (SELECT COUNT(*) FROM board_developerrequestlog WHERE created_date < ${developerCutoff}) AS expiredDeveloperCount
-    FROM django_admin_log
+  const logCount = await db.adminLog.count();
+  const expiredLogCount = await db.adminLog.count({ where: { createdAt: { lt: adminCutoff } } });
+  const [developer] = await db.$queryRaw<Array<{ total: number | bigint; expired: number | bigint }>>`
+    SELECT (SELECT COUNT(*) FROM board_developerrequestlog) AS total,
+      (SELECT COUNT(*) FROM board_developerrequestlog WHERE created_date < ${developerCutoff}) AS expired
   `;
-  const cleanedLogs = dryRun ? 0 : await db.$executeRaw`DELETE FROM django_admin_log WHERE action_time < ${adminCutoff}`;
+  const cleanedLogs = dryRun ? 0 : (await db.adminLog.deleteMany({ where: { createdAt: { lt: adminCutoff } } })).count;
   const cleanedDeveloperLogs = dryRun ? 0 : await db.$executeRaw`DELETE FROM board_developerrequestlog WHERE created_date < ${developerCutoff}`;
   return {
-    log_count: Number(counts?.logCount ?? 0),
-    admin_audit_log_retention_days: adminRetention,
-    expired_log_count: Number(counts?.expiredLogCount ?? 0),
-    cleaned_count: Number(cleanedLogs),
-    developer_request_log_count: Number(counts?.developerCount ?? 0),
-    developer_api_log_retention_days: developerRetention,
-    expired_developer_request_log_count: Number(counts?.expiredDeveloperCount ?? 0),
-    cleaned_developer_request_log_count: Number(cleanedDeveloperLogs),
-    dry_run: dryRun,
+    logCount,
+    adminAuditLogRetentionDays: adminRetention,
+    expiredLogCount,
+    cleanedCount: cleanedLogs,
+    developerRequestLogCount: Number(developer?.total ?? 0),
+    developerApiLogRetentionDays: developerRetention,
+    expiredDeveloperRequestLogCount: Number(developer?.expired ?? 0),
+    cleanedDeveloperRequestLogCount: Number(cleanedDeveloperLogs),
+    dryRun,
   };
 }
 
@@ -292,24 +282,18 @@ async function recordUtilityAudit(
   userId: number,
   action: UtilityAction,
   phase: 'started' | 'completed' = 'completed',
-): Promise<number | null> {
-  const changeMessages: Record<UtilityAction, string> = {
+): Promise<number> {
+  const messages: Record<UtilityAction, string> = {
     clean_tags: 'Executed unused tag cleanup',
     clean_sessions: 'Executed session cleanup',
     clean_logs: 'Executed expired log cleanup',
     clean_images: phase === 'started' ? 'Started unused image cleanup' : 'Executed unused image cleanup',
   };
-  await transaction.$executeRaw`INSERT OR IGNORE INTO django_content_type (app_label, model) VALUES ('admin', 'logentry')`;
-  const [contentType] = await transaction.$queryRaw<Array<{ id: number }>>`
-    SELECT id FROM django_content_type WHERE app_label = 'admin' AND model = 'logentry' LIMIT 1
-  `;
-  if (!contentType) return null;
-  await transaction.$executeRaw`
-    INSERT INTO django_admin_log (object_id, object_repr, action_flag, change_message, content_type_id, user_id, action_time)
-    VALUES (NULL, 'System utilities', 2, ${changeMessages[action]}, ${contentType.id}, ${userId}, ${djangoTimestamp()})
-  `;
-  const [row] = await transaction.$queryRaw<Array<{ id: number }>>`SELECT last_insert_rowid() AS id`;
-  return row ? Number(row.id) : null;
+  const log = await transaction.adminLog.create({
+    data: { userId, target: 'logentry', objectName: 'System utilities', action: 2, message: messages[action] },
+    select: { id: true },
+  });
+  return log.id;
 }
 
 export async function runUtilityAction(
@@ -330,7 +314,7 @@ export async function runUtilityAction(
   }
   if (action === 'clean_images') {
     if (!options.mediaRoot) return { ok: false, code: 'RJ', message: 'Image cleanup storage is unavailable.' };
-    if (body.dry_run !== false) {
+    if (body.dryRun !== false) {
       try {
         const plan = await buildImageCleanupPlan(db, options.mediaRoot, parameters);
         const confirmationToken = await issueUtilityConfirmation(
@@ -341,12 +325,12 @@ export async function runUtilityAction(
           { ...parameters, previewHash: plan.previewHash },
           options.secretKey,
         );
-        return { ok: true, body: { ...imageCleanupPlanApi(plan, true), confirmation_token: confirmationToken } };
+        return { ok: true, body: { ...imageCleanupPlanApi(plan, true), confirmationToken } };
       } catch (error) {
         return { ok: false, code: 'VA', message: error instanceof Error ? error.message : 'Could not preview image cleanup.' };
       }
     }
-    const previewHash = typeof body.preview_hash === 'string' ? body.preview_hash : signedPreviewHash(body.confirmation_token);
+    const previewHash = typeof body.previewHash === 'string' ? body.previewHash : signedPreviewHash(body.confirmationToken);
     if (!/^[a-f0-9]{64}$/.test(previewHash)) {
       return { ok: false, code: 'RJ', message: '미리보기 확인이 만료되었거나 유효하지 않습니다.' };
     }
@@ -356,16 +340,14 @@ export async function runUtilityAction(
       auditId = await db.$transaction(async (transaction) => {
         await consumeUtilityConfirmation(
           transaction,
-          body.confirmation_token,
+          body.confirmationToken,
           userId,
           fingerprint,
           action,
           boundParameters,
           options.secretKey,
         );
-        const createdAuditId = await recordUtilityAudit(transaction, userId, action, 'started');
-        if (createdAuditId === null) throw new Error('Image cleanup audit could not be recorded.');
-        return createdAuditId;
+        return recordUtilityAudit(transaction, userId, action, 'started');
       });
     } catch (error) {
       if (String(error).includes('invalid utility confirmation')) {
@@ -379,11 +361,7 @@ export async function runUtilityAction(
         if (plan.previewHash !== previewHash) throw new Error('image cleanup preview changed');
         return executeImageCleanupPlan(transaction, options.mediaRoot as string, plan);
       }, { timeout: 120_000 });
-      await db.$transaction(async (transaction) => {
-        await transaction.$executeRaw`
-          UPDATE django_admin_log SET change_message = 'Executed unused image cleanup' WHERE id = ${auditId}
-        `;
-      });
+      await db.adminLog.updateMany({ where: { id: auditId }, data: { message: 'Executed unused image cleanup' } });
       return { ok: true, body: result };
     } catch (error) {
       if (String(error).includes('image cleanup preview changed')) {
@@ -392,16 +370,16 @@ export async function runUtilityAction(
       return { ok: false, code: 'VA', message: 'Image cleanup stopped safely; review the utility audit log.' };
     }
   }
-  if (body.dry_run !== false) {
+  if (body.dryRun !== false) {
     const result = await runUtilityCleanup(db, action, parameters, true, options.mediaRoot);
     const confirmationToken = await issueUtilityConfirmation(db, userId, fingerprint, action, parameters, options.secretKey);
-    return { ok: true, body: { ...result, confirmation_token: confirmationToken } };
+    return { ok: true, body: { ...result, confirmationToken } };
   }
   try {
     const result = await db.$transaction(async (transaction) => {
       await consumeUtilityConfirmation(
         transaction,
-        body.confirmation_token,
+        body.confirmationToken,
         userId,
         fingerprint,
         action,

@@ -24,7 +24,7 @@ async function commentsApp() {
   const { db } = fixture;
   seedEditor(db, 1, 'writer');
   seedEditor(db, 2, 'reader');
-  insertRow(db, 'board_sitesetting', { id: 1, seo_enabled: 1, aeo_enabled: 1 });
+  insertRow(db, 'SiteSetting', { id: 1, seoEnabled: 1, aeoEnabled: 1 });
   seedPost(db, 1, 1, 'open-post', { title: 'Open post', published_date: recent });
   insertRow(db, 'board_comment', { id: 10, post_id: 1, author_id: 1, text_md: 'root', text_html: '<p>root</p>', created_date: recent });
   insertRow(db, 'board_comment', { id: 11, post_id: 1, author_id: 2, parent_id: 10, text_md: 'reply', text_html: '<p>reply</p>', created_date: recent });

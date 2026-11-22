@@ -11,7 +11,7 @@ const directory = await mkdtemp(join(tmpdir(), 'blex-v4-test-'));
 const databasePath = join(directory, 'Django posts.sqlite3');
 const legacySlug = 'a'.repeat(69);
 const database = new DatabaseSync(databasePath);
-createMigratedTables(database, 'StaticPage', 'SiteBanner');
+createMigratedTables(database, 'StaticPage', 'SiteBanner', 'SiteSetting');
 database.exec(`
   CREATE TABLE auth_user (id INTEGER PRIMARY KEY, username TEXT, password TEXT);
   CREATE TABLE board_profile (user_id INTEGER PRIMARY KEY, avatar TEXT);
@@ -24,8 +24,6 @@ database.exec(`
   CREATE TABLE board_postconfig (id INTEGER PRIMARY KEY, post_id INTEGER UNIQUE, hide BOOLEAN,
     cover_layout TEXT NOT NULL DEFAULT 'default', cover_image_ratio TEXT NOT NULL DEFAULT 'auto', cover_image_position TEXT NOT NULL DEFAULT 'right');
   CREATE TABLE board_postcontent (id INTEGER PRIMARY KEY, post_id INTEGER UNIQUE, content_html TEXT);
-  CREATE TABLE board_sitesetting (id INTEGER PRIMARY KEY, site_name TEXT, aeo_enabled BOOLEAN, seo_enabled BOOLEAN,
-    logo_svg TEXT, logo_svg_dark TEXT, icon_manifest TEXT);
   CREATE TABLE board_series (id INTEGER PRIMARY KEY, name TEXT, url TEXT, hide BOOLEAN, owner_id INTEGER);
   CREATE TABLE board_post_tags (post_id INTEGER, tag_id INTEGER);
   CREATE TABLE board_tag (id INTEGER PRIMARY KEY, value TEXT);
@@ -40,7 +38,7 @@ database.exec(`
     (6, 7, 'no-config', 'No config', '', '2000-01-01 10:04:02', NULL),
     (7, 7, '${legacySlug}', 'Long legacy URL', '', '2000-01-01 10:04:02', NULL);
   INSERT INTO board_postconfig (id, post_id, hide) VALUES (1, 1, 0), (2, 2, 1), (3, 3, 0), (4, 4, 0), (5, 5, 0), (7, 7, 0);
-  INSERT INTO board_sitesetting VALUES (1, 'Synthetic Site', 1, 0, 'brand/logo/default/hash/logo.svg', '', '{"ico":"brand/icon/default/hash/favicon.ico"}');
+  INSERT INTO SiteSetting (id, siteName, aeoEnabled, seoEnabled, logoSvg, iconManifest, updatedAt) VALUES (1, 'Synthetic Site', 1, 0, 'brand/logo/default/hash/logo.svg', '{"ico":"brand/icon/default/hash/favicon.ico"}', 946684800000);
   INSERT INTO SiteBanner (id, userId, isActive, type, position, contentHtml, scope, "order", createdAt, updatedAt) VALUES
     (1, NULL, 1, 'horizontal', 'top', '<p>Global banner</p>', 'global', 0, 946684800000, 946684800000),
     (2, 7, 1, 'sidebar', 'right', '<p>Author banner</p>', 'user', 0, 946684800000, 946684800000),

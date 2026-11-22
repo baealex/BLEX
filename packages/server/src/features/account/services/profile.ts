@@ -41,10 +41,8 @@ export async function readAccount(db: PrismaClient, userId: number): Promise<Acc
 export async function accountExtras(db: PrismaClient, userId: number): Promise<{ accountDeletionRedirectUrl: string; has2fa: boolean }> {
   let accountDeletionRedirectUrl = '';
   try {
-    const [setting] = await db.$queryRaw<Array<{ url: string | null }>>`
-      SELECT account_deletion_redirect_url AS url FROM board_loginsetting LIMIT 1
-    `;
-    accountDeletionRedirectUrl = setting?.url ?? '';
+    const setting = await db.loginSetting.findUnique({ where: { id: 1 }, select: { accountDeletionRedirectUrl: true } });
+    accountDeletionRedirectUrl = setting?.accountDeletionRedirectUrl ?? '';
   } catch {
     accountDeletionRedirectUrl = '';
   }

@@ -45,19 +45,11 @@ export function isoDate(value: string | Date | null): string {
 export async function recordAudit(
   db: Prisma.TransactionClient,
   userId: number,
-  model: 'sitesetting' | 'loginsetting' | 'integrationsetting',
-  objectRepr: string,
-  changeMessage: string,
+  target: 'sitesetting' | 'loginsetting' | 'integrationsetting',
+  objectName: string,
+  message: string,
 ): Promise<void> {
-  await db.$executeRaw`INSERT OR IGNORE INTO django_content_type (app_label, model) VALUES ('board', ${model})`;
-  const [contentType] = await db.$queryRaw<Array<{ id: number }>>`
-    SELECT id FROM django_content_type WHERE app_label = 'board' AND model = ${model} LIMIT 1
-  `;
-  if (!contentType) return;
-  await db.$executeRaw`
-    INSERT INTO django_admin_log (object_id, object_repr, action_flag, change_message, content_type_id, user_id, action_time)
-    VALUES ('1', ${objectRepr}, 2, ${changeMessage}, ${contentType.id}, ${userId}, ${djangoTimestamp()})
-  `;
+  await db.adminLog.create({ data: { userId, target, objectId: '1', objectName, action: 2, message } });
 }
 
 export function csrfValid(request: FastifyRequest, options: AdminSettingsOptions): boolean {
@@ -130,15 +122,6 @@ export function positiveInteger(value: string | null, fallback: number): number 
   if (!value || !/^\d+$/.test(value)) return fallback;
   const number = Number(value);
   return Number.isSafeInteger(number) ? number : fallback;
-}
-
-export function camelizeValue(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(camelizeValue);
-  if (!isRecord(value)) return value;
-  return Object.fromEntries(Object.entries(value).map(([key, item]) => [
-    key.replace(/_([a-z])/g, (_match, letter: string) => letter.toUpperCase()),
-    camelizeValue(item),
-  ]));
 }
 
 /** SQLite stores wider numbers, but Prisma then fails every later read of an Int column. */

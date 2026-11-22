@@ -87,6 +87,19 @@ test('imports a 3.14 installation once and leaves the original unchanged', async
     insertRow(legacy, 'board_staticpage', { id: 3, author_id: 7, slug: 'about', title: 'About', content: '<p>About</p>', meta_description: 'Summary', is_published: 1, show_in_footer: 1, order: 4, created_date: '2024-03-03 00:00:00', updated_date: '2024-03-04 00:00:00' });
     insertRow(legacy, 'board_sitenotice', { id: 4, user_id: 7, scope: 'user', title: 'Notice', url: '/notice', is_active: 0, order: 2, created_date: '2024-03-05 00:00:00', updated_date: '2024-03-06 00:00:00' });
     insertRow(legacy, 'board_sitebanner', { id: 5, scope: 'global', banner_type: 'sidebar', position: 'right', title: 'Banner', content_html: '<script>trusted()</script>', is_active: 1, order: 3, created_date: '2024-03-07 00:00:00', updated_date: '2024-03-08 00:00:00' });
+    insertRow(legacy, 'django_content_type', { id: 30, app_label: 'board', model: 'sitesetting' });
+    insertRow(legacy, 'django_site', { id: 1, name: 'site', domain: 'feeds.example.test' });
+    insertRow(legacy, 'board_oauthauthorization', { state_hash: 'discarded', expires_at: '2099-01-01' });
+    insertRow(legacy, 'board_sitesetting', { id: 1, site_name: 'Imported', header_script: '<script>kept()</script>', seo_enabled: 0, aeo_enabled: 1, robots_txt_extra_rules: 'Disallow: /x', logo_svg: 'brand/logo.svg', icon_manifest: '{"ico":"brand/favicon.ico"}', updated_date: '2024-04-01 00:00:00' });
+    insertRow(legacy, 'board_sitesetting', { id: 2, site_name: 'Ignored second row', updated_date: '2024-04-02 00:00:00' });
+    insertRow(legacy, 'board_loginsetting', { id: 1, welcome_notification_message: 'Hi', welcome_notification_url: '/hi', hcaptcha_enabled: 1, hcaptcha_site_key: 'site', hcaptcha_secret_key: 'stored-ciphertext', updated_date: '2024-04-03 00:00:00' });
+    insertRow(legacy, 'board_loginsetting', { id: 2, welcome_notification_message: 'Unread row', updated_date: '2024-04-03 00:00:00' });
+    insertRow(legacy, 'board_integrationsetting', { id: 1, telegram_enabled: 1, telegram_bot_username: 'bot', telegram_bot_token: 'stored-token', updated_date: '2024-04-04 00:00:00' });
+    insertRow(legacy, 'django_admin_log', { id: 8, object_id: '1', object_repr: 'Site settings', action_flag: 2, change_message: 'Changed', content_type_id: 30, user_id: 7, action_time: '2024-04-05 00:00:00' });
+    insertRow(legacy, 'django_admin_log', { id: 9, object_repr: 'No type', action_flag: 1, change_message: '', user_id: 7, action_time: '2024-04-06 00:00:00' });
+    insertRow(legacy, 'board_utilitycleanupconfirmation', { id: 3, token_hash: 'hash', action: 'clean_tags', session_fingerprint: 'print', expires_at: '2024-04-07 00:00:00', consumed_at: '2024-04-07 00:01:00', created_date: '2024-04-06 23:55:00', user_id: 7 });
+    insertRow(legacy, 'board_imagecache', { id: 6, key: 'image-key', path: 'images/content/a.png', size: 12, user_id: 7 });
+    legacy.exec(`UPDATE sqlite_sequence SET seq = 70 WHERE name = 'django_admin_log'`);
     legacy.exec(`UPDATE sqlite_sequence SET seq = 40 WHERE name = 'board_post'`);
     legacy.exec(`UPDATE sqlite_sequence SET seq = 90 WHERE name = 'board_sitebanner'`);
     legacy.close();
@@ -102,8 +115,9 @@ test('imports a 3.14 installation once and leaves the original unchanged', async
     assert.equal(count(imported, 'auth_user'), 1);
     assert.equal(count(imported, 'board_post'), 2);
     assert.equal(count(imported, 'board_comment'), 1);
-    assert.equal(count(imported, 'django_session'), 0);
-    assert.equal(imported.prepare(`SELECT 1 FROM sqlite_schema WHERE name = 'django_migrations'`).get(), undefined);
+    for (const table of ['django_migrations', 'django_session', 'django_site', 'board_oauthauthorization']) {
+      assert.equal(imported.prepare('SELECT 1 FROM sqlite_schema WHERE name = ?').get(table), undefined, table);
+    }
     assert.equal((imported.prepare('SELECT password FROM auth_user WHERE id = 7').get() as { password: string }).password, 'pbkdf2_sha256$fixture$hash');
     assert.deepEqual({ ...imported.prepare('SELECT post_id, publish_at FROM blex_scheduled_publication').get() }, { post_id: 5, publish_at: '2099-01-01 00:00:00' });
     assert.equal(Number((imported.prepare(`SELECT seq FROM sqlite_sequence WHERE name = 'board_post'`).get() as { seq: number }).seq), 40);
@@ -124,6 +138,27 @@ test('imports a 3.14 installation once and leaves the original unchanged', async
       userId: null, scope: 'global', type: 'sidebar', position: 'right', contentHtml: '<script>trusted()</script>', order: 3,
     });
     assert.equal(Number((imported.prepare(`SELECT seq FROM sqlite_sequence WHERE name = 'SiteBanner'`).get() as { seq: number }).seq), 90);
+    assert.equal(count(imported, 'SiteSetting'), 1);
+    assert.deepEqual({ ...imported.prepare('SELECT id, siteName, domain, headerScript, seoEnabled, aeoEnabled, robotsTxtExtraRules, logoSvg, iconManifest, updatedAt FROM SiteSetting').get() }, {
+      id: 1, siteName: 'Imported', domain: 'feeds.example.test', headerScript: '<script>kept()</script>', seoEnabled: 0, aeoEnabled: 1,
+      robotsTxtExtraRules: 'Disallow: /x', logoSvg: 'brand/logo.svg', iconManifest: '{"ico":"brand/favicon.ico"}', updatedAt: Date.UTC(2024, 3, 1),
+    });
+    assert.equal(count(imported, 'LoginSetting'), 1);
+    assert.deepEqual({ ...imported.prepare('SELECT id, welcomeNotificationMessage, welcomeNotificationUrl, hcaptchaEnabled, hcaptchaSecretKey FROM LoginSetting').get() }, {
+      id: 1, welcomeNotificationMessage: 'Hi', welcomeNotificationUrl: '/hi', hcaptchaEnabled: 1, hcaptchaSecretKey: 'stored-ciphertext',
+    });
+    assert.deepEqual({ ...imported.prepare('SELECT id, telegramEnabled, telegramBotUsername, telegramBotToken FROM IntegrationSetting').get() }, {
+      id: 1, telegramEnabled: 1, telegramBotUsername: 'bot', telegramBotToken: 'stored-token',
+    });
+    assert.deepEqual({ ...imported.prepare('SELECT userId, target, objectId, objectName, action, message, createdAt FROM AdminLog WHERE id = 8').get() }, {
+      userId: 7, target: 'sitesetting', objectId: '1', objectName: 'Site settings', action: 2, message: 'Changed', createdAt: Date.UTC(2024, 3, 5),
+    });
+    assert.equal((imported.prepare('SELECT target FROM AdminLog WHERE id = 9').get() as { target: string }).target, '');
+    assert.equal(Number((imported.prepare(`SELECT seq FROM sqlite_sequence WHERE name = 'AdminLog'`).get() as { seq: number }).seq), 70);
+    assert.deepEqual({ ...imported.prepare('SELECT userId, tokenHash, expiresAt, consumedAt, createdAt FROM CleanupConfirmation WHERE id = 3').get() }, {
+      userId: 7, tokenHash: 'hash', expiresAt: Date.UTC(2024, 3, 7), consumedAt: Date.UTC(2024, 3, 7, 0, 1), createdAt: Date.UTC(2024, 3, 6, 23, 55),
+    });
+    assert.deepEqual({ ...imported.prepare('SELECT key, path, size, userId FROM UploadedImage WHERE id = 6').get() }, { key: 'image-key', path: 'images/content/a.png', size: 12, userId: 7 });
     imported.close();
 
     const changed = new DatabaseSync(source);
@@ -133,6 +168,43 @@ test('imports a 3.14 installation once and leaves the original unchanged', async
     const again = new DatabaseSync(space.databasePath, { readOnly: true });
     assert.equal(count(again, 'auth_user'), 1);
     again.close();
+  } finally {
+    await space.cleanup();
+  }
+});
+
+test('keeps what public pages showed when a 3.14 database has no site settings row 1', async () => {
+  const space = await workspace();
+  try {
+    const legacy = await createLegacyDatabase(join(space.legacyRoot, 'db.sqlite3'));
+    insertRow(legacy, 'django_site', { id: 1, name: 'site', domain: 'feeds.example.test' });
+    insertRow(legacy, 'board_sitesetting', { id: 4, site_name: 'Brand row', logo_svg: 'brand/logo.svg', seo_enabled: 0, aeo_enabled: 1, robots_txt_extra_rules: 'Disallow: /x', header_script: '<script>unread()</script>', icon_manifest: '[]', updated_date: '2024-04-01 00:00:00' });
+    insertRow(legacy, 'board_integrationsetting', { id: 3, telegram_enabled: 1, updated_date: '2024-04-01 00:00:00' });
+    legacy.close();
+    await prepareDatabase(space.options);
+    const imported = new DatabaseSync(space.databasePath, { readOnly: true });
+    assert.deepEqual({ ...imported.prepare('SELECT id, siteName, domain, logoSvg, seoEnabled, aeoEnabled, robotsTxtExtraRules, headerScript, iconManifest FROM SiteSetting').get() }, {
+      id: 1, siteName: 'Brand row', domain: 'feeds.example.test', logoSvg: 'brand/logo.svg', seoEnabled: 0, aeoEnabled: 0, robotsTxtExtraRules: '', headerScript: '', iconManifest: null,
+    });
+    assert.equal(count(imported, 'IntegrationSetting'), 0);
+    imported.close();
+  } finally {
+    await space.cleanup();
+  }
+});
+
+test('keeps the RSS host when 3.14 has no site settings row at all', async () => {
+  const space = await workspace();
+  try {
+    const legacy = await createLegacyDatabase(join(space.legacyRoot, 'db.sqlite3'));
+    insertRow(legacy, 'django_site', { id: 1, name: 'site', domain: 'feeds.example.test' });
+    legacy.close();
+    await prepareDatabase(space.options);
+    const imported = new DatabaseSync(space.databasePath, { readOnly: true });
+    assert.deepEqual({ ...imported.prepare('SELECT id, siteName, domain, seoEnabled, aeoEnabled FROM SiteSetting').get() }, {
+      id: 1, siteName: 'BLEX', domain: 'feeds.example.test', seoEnabled: 1, aeoEnabled: 0,
+    });
+    imported.close();
   } finally {
     await space.cleanup();
   }

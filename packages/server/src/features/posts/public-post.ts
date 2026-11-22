@@ -158,13 +158,12 @@ export async function readDraftPreview(db: PrismaClient, authorId: number, slug:
 }
 
 export async function readPostPresentation(db: PrismaClient, post: Pick<PublicPost, 'id' | 'authorId'>): Promise<PostPresentation> {
-  const [brand, [metadata], tags, banners] = await Promise.all([
+  const [brand, site, [metadata], tags, banners] = await Promise.all([
     readPublicSiteBrand(db),
-    db.$queryRaw<Array<{ aeoEnabled: number; seriesId: number | null; seriesName: string | null; seriesUrl: string | null; seriesAuthor: string | null }>>`
-      SELECT CAST(COALESCE(site.aeo_enabled, 0) AS INTEGER) AS aeoEnabled, series.id AS seriesId,
-             series.name AS seriesName, series.url AS seriesUrl, author.username AS seriesAuthor
+    db.siteSetting.findUnique({ where: { id: 1 }, select: { aeoEnabled: true } }),
+    db.$queryRaw<Array<{ seriesId: number | null; seriesName: string | null; seriesUrl: string | null; seriesAuthor: string | null }>>`
+      SELECT series.id AS seriesId, series.name AS seriesName, series.url AS seriesUrl, author.username AS seriesAuthor
         FROM board_post AS post
-        LEFT JOIN board_sitesetting AS site ON site.id = 1
         LEFT JOIN board_series AS series ON series.id = post.series_id AND series.hide = 0
         LEFT JOIN auth_user AS author ON author.id = series.owner_id
        WHERE post.id = ${post.id}
@@ -190,7 +189,7 @@ export async function readPostPresentation(db: PrismaClient, post: Pick<PublicPo
   `;
   return {
     ...brand,
-    aeoEnabled: Boolean(metadata?.aeoEnabled),
+    aeoEnabled: site?.aeoEnabled ?? false,
     seriesNavigation: seriesNavigation(seriesPosts.map((row) => ({ ...row, id: Number(row.id) })), Number(post.id)),
     seriesName: metadata?.seriesName ?? null,
     seriesUrl: metadata?.seriesUrl ?? null,

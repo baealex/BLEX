@@ -31,7 +31,6 @@ export async function deleteAccountRows(tx: Prisma.TransactionClient, userId: nu
   await tx.board_developertoken.deleteMany({ where: owned });
   await tx.board_authorinvite.updateMany({ where: { created_by_id: userId }, data: { created_by_id: null } });
   await tx.board_authorinvite.updateMany({ where: { claimed_by_id: userId }, data: { claimed_by_id: null } });
-  await tx.board_imagecache.updateMany({ where: owned, data: { user_id: null } });
   await tx.board_emailchange.deleteMany({ where: owned });
   await tx.board_userconfigmeta.deleteMany({ where: owned });
   await tx.board_config.deleteMany({ where: owned });
@@ -41,8 +40,6 @@ export async function deleteAccountRows(tx: Prisma.TransactionClient, userId: nu
   await tx.board_socialauth.deleteMany({ where: owned });
   await tx.board_notify.deleteMany({ where: owned });
   await tx.board_telegramsync.deleteMany({ where: owned });
-  await tx.board_utilitycleanupconfirmation.deleteMany({ where: owned });
-  await tx.django_admin_log.deleteMany({ where: owned });
   await tx.auth_user_groups.deleteMany({ where: owned });
   await tx.auth_user_user_permissions.deleteMany({ where: owned });
   await tx.user.deleteMany({ where: { id: userId } });

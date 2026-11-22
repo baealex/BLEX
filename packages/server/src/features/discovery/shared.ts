@@ -10,14 +10,6 @@ type StoredDate = string | Date;
 
 export type DatabaseInteger = number | bigint;
 
-export interface SiteSettingRow {
-  siteName: string | null;
-  logo: string | null;
-  darkLogo: string | null;
-  iconManifest: unknown;
-  seoEnabled: DatabaseInteger | boolean | null;
-}
-
 export interface SiteBrand {
   siteName: string;
   logoUrl: string | null;

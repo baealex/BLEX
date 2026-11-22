@@ -15,18 +15,22 @@ export async function deliverTelegramNotification(db: PrismaClient, siteUrl: URL
   `;
   if (!job) return false;
 
-  const [message] = await db.$queryRaw<Array<{
-    chat: string; token: string; content: string; url: string; key: string; params: string; language: string | null;
+  const settings = await db.integrationSetting.findUnique({
+    where: { id: 1 },
+    select: { telegramEnabled: true, telegramBotToken: true },
+  });
+  const [row] = await db.$queryRaw<Array<{
+    chat: string; content: string; url: string; key: string; params: string; language: string | null;
   }>>`
-    SELECT link.tid AS chat, settings.telegram_bot_token AS token, notify.content, notify.url,
+    SELECT link.tid AS chat, notify.content, notify.url,
            notify.message_key AS key, notify.message_params AS params, prefs.language
       FROM board_notify AS notify JOIN board_telegramsync AS link ON link.user_id = notify.user_id
       JOIN auth_user AS account ON account.id = notify.user_id AND account.is_active = 1
       LEFT JOIN board_config AS prefs ON prefs.user_id = notify.user_id
-      JOIN board_integrationsetting AS settings ON settings.id = 1 AND settings.telegram_enabled = 1
      WHERE notify.id = ${job.notificationId}
   `;
-  const token = message && decryptDjangoSecret(message.token, cipherKey);
+  const message = settings?.telegramEnabled ? row : undefined;
+  const token = message && settings && decryptDjangoSecret(settings.telegramBotToken, cipherKey);
   const chat = message && decryptDjangoSecret(message.chat, cipherKey);
   let retry = false;
   let wait = Math.min(3_600_000, 15_000 * 2 ** (job.attempts - 1));

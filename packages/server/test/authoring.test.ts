@@ -17,7 +17,7 @@ import { createMigratedTables } from './fixtures/migrated-database.js';
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-authoring-'));
 const databasePath = join(directory, 'Django authoring.sqlite3');
 const database = new DatabaseSync(databasePath);
-createMigratedTables(database, 'FormTemplate', 'StaticPage', 'SiteBanner');
+createMigratedTables(database, 'FormTemplate', 'StaticPage', 'SiteBanner', 'UploadedImage', 'IntegrationSetting', 'SiteSetting');
 const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
 const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString().replace('T', ' ').replace('Z', '');
 const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString().replace('T', ' ').replace('Z', '');
@@ -49,13 +49,6 @@ database.exec(`
     updated_date DATETIME NOT NULL,
     owner_id INTEGER NOT NULL,
     name TEXT NOT NULL
-  );
-  CREATE TABLE board_imagecache (
-    id INTEGER PRIMARY KEY,
-    key TEXT NOT NULL UNIQUE,
-    path TEXT NOT NULL UNIQUE,
-    size INTEGER NOT NULL DEFAULT 0,
-    user_id INTEGER
   );
   CREATE TABLE board_post (
     id INTEGER PRIMARY KEY,
@@ -154,11 +147,6 @@ database.exec(`
     updated_date DATETIME NOT NULL
   );
   CREATE TABLE board_telegramsync (user_id INTEGER PRIMARY KEY, tid TEXT NOT NULL DEFAULT '');
-  CREATE TABLE board_integrationsetting (
-    id INTEGER PRIMARY KEY,
-    telegram_enabled BOOLEAN NOT NULL DEFAULT 0,
-    telegram_bot_token TEXT NOT NULL DEFAULT ''
-  );
   CREATE TABLE blex_notification_delivery (
     notification_id INTEGER PRIMARY KEY,
     attempts INTEGER NOT NULL DEFAULT 0,
@@ -175,8 +163,6 @@ database.exec(`
     done INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY(post_id, channel_id)
   );
-  CREATE TABLE board_sitesetting (id INTEGER PRIMARY KEY, site_name TEXT NOT NULL DEFAULT 'BLEX', logo_svg TEXT NOT NULL DEFAULT '',
-    logo_svg_dark TEXT NOT NULL DEFAULT '', icon_manifest TEXT NOT NULL DEFAULT '{}', seo_enabled BOOLEAN NOT NULL DEFAULT 1, aeo_enabled BOOLEAN NOT NULL DEFAULT 0);
   CREATE TABLE board_usernamechangelog (
     id INTEGER PRIMARY KEY,
     username TEXT NOT NULL,
@@ -210,7 +196,7 @@ database.exec(`
   INSERT INTO FormTemplate (id, title, content, isPublic, createdAt, updatedAt, userId) VALUES
     (1, 'Short form', '# Template body', 0, ${Date.now()}, ${Date.now()}, 1),
     (2, 'Another writer form', 'Private form body', 0, ${Date.now()}, ${Date.now()}, 2);
-  INSERT INTO board_imagecache VALUES
+  INSERT INTO UploadedImage (id, key, path, size, userId) VALUES
     (1, 'cover-hash', 'images/content/2026/11/21/cover-test.jpg', 12, 1);
   INSERT INTO board_post VALUES
     (1, 'Existing', 'Existing subtitle', 'existing', '', '', 2, '${now}', '${now}', 1, 1, 'Existing description', '${now}', NULL),

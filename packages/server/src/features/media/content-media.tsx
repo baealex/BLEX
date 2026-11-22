@@ -144,7 +144,7 @@ async function storeContent(
     const file = await readFile();
     const root = await realpath(mediaRoot);
     const key = createHash('sha256').update(file.buffer).digest('base64');
-    const [cached] = await db.$queryRaw<Array<{ path: string }>>`SELECT path FROM board_imagecache WHERE key = ${key}`;
+    const cached = await db.uploadedImage.findUnique({ where: { key }, select: { path: true } });
     if (cached && await pathExists(root, cached.path)) return contentUploadUrl(cached.path);
     const extension = extname(file.filename).slice(1).toLowerCase();
     if (!supported.has(extension)) throw new ContentUploadError('image.invalid_extension', 'This file extension is not allowed.', 400);
@@ -163,15 +163,14 @@ async function storeContent(
       await rename(resolve(working, 'preview.jpg'), `${final}.preview.jpg`);
       committed.push(`${final}.preview.jpg`);
       const chosen = await db.$transaction(async (tx) => {
-        const [saved] = await tx.$queryRaw<Array<{ path: string }>>`
-          INSERT INTO board_imagecache (key, path, size, user_id) VALUES (${key}, ${path}, ${file.buffer.length}, ${userId})
-          ON CONFLICT(key) DO UPDATE SET path = excluded.path WHERE board_imagecache.path = ${cached?.path ?? ''}
-          RETURNING path
-        `;
-        if (saved) return saved.path;
-        const [existing] = await tx.$queryRaw<Array<{ path: string }>>`SELECT path FROM board_imagecache WHERE key = ${key}`;
-        if (!existing) throw failed();
-        return existing.path;
+        const existing = await tx.uploadedImage.findUnique({ where: { key }, select: { path: true } });
+        if (!existing) {
+          await tx.uploadedImage.create({ data: { key, path, size: file.buffer.length, userId }, select: { id: true } });
+          return path;
+        }
+        if (existing.path !== cached?.path) return existing.path;
+        await tx.uploadedImage.update({ where: { key }, data: { path }, select: { id: true } });
+        return path;
       });
       if (chosen === path) committed.length = 0;
       return contentUploadUrl(chosen);

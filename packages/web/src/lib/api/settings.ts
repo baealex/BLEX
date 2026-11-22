@@ -687,19 +687,19 @@ export interface SiteSettingData {
 
 export interface SocialAuthProviderUpdateData {
     key: string;
-    is_enabled?: boolean;
-    client_id?: string;
-    client_secret?: string;
-    clear_client_secret?: boolean;
+    isEnabled?: boolean;
+    clientId?: string;
+    clientSecret?: string;
+    clearClientSecret?: boolean;
 }
 
 export interface SiteSettingUpdateData {
-    site_name?: string;
-    header_script?: string;
-    footer_script?: string;
-    seo_enabled?: boolean;
-    robots_txt_extra_rules?: string;
-    aeo_enabled?: boolean;
+    siteName?: string;
+    headerScript?: string;
+    footerScript?: string;
+    seoEnabled?: boolean;
+    robotsTxtExtraRules?: string;
+    aeoEnabled?: boolean;
 }
 
 export interface LoginSettingData {
@@ -714,14 +714,14 @@ export interface LoginSettingData {
 }
 
 export interface LoginSettingUpdateData {
-    welcome_notification_message?: string;
-    welcome_notification_url?: string;
-    account_deletion_redirect_url?: string;
-    hcaptcha_enabled?: boolean;
-    hcaptcha_site_key?: string;
-    hcaptcha_secret_key?: string;
-    clear_hcaptcha_secret_key?: boolean;
-    social_auth_providers?: SocialAuthProviderUpdateData[];
+    welcomeNotificationMessage?: string;
+    welcomeNotificationUrl?: string;
+    accountDeletionRedirectUrl?: string;
+    hcaptchaEnabled?: boolean;
+    hcaptchaSiteKey?: string;
+    hcaptchaSecretKey?: string;
+    clearHcaptchaSecretKey?: boolean;
+    socialAuthProviders?: SocialAuthProviderUpdateData[];
 }
 
 export type TelegramConnectionState =
@@ -745,10 +745,10 @@ export interface IntegrationSettingData {
 }
 
 export interface IntegrationSettingUpdateData {
-    telegram_enabled?: boolean;
-    telegram_bot_username?: string;
-    telegram_bot_token?: string;
-    clear_telegram_bot_token?: boolean;
+    telegramEnabled?: boolean;
+    telegramBotUsername?: string;
+    telegramBotToken?: string;
+    clearTelegramBotToken?: boolean;
 }
 
 export const getSiteSettings = async () => {
@@ -785,7 +785,7 @@ export const uploadBrandAsset = async (data: FormData) => {
 export const deleteBrandAsset = async (assetType: BrandAssetType, theme: BrandAssetTheme) => {
     return http.delete<Response<SiteSettingData>>('v1/site-settings/brand-assets', {
         data: {
-            asset_type: assetType,
+            assetType,
             theme
         },
         headers: { 'Content-Type': 'application/json' }
@@ -876,8 +876,8 @@ export const getUtilityStats = async () => {
 };
 
 const cleanupConfirmationBody = (dryRun: boolean, confirmationToken?: string) => ({
-    dry_run: dryRun,
-    ...(confirmationToken ? { confirmation_token: confirmationToken } : {})
+    dryRun,
+    ...(confirmationToken ? { confirmationToken } : {})
 });
 
 export const cleanTags = async (dryRun: boolean, confirmationToken?: string) => {
@@ -895,7 +895,7 @@ export const cleanSessions = async (
 ) => {
     return http.post<Response<SessionCleanResult>>('v1/utilities/clean-sessions', {
         ...cleanupConfirmationBody(dryRun, confirmationToken),
-        clean_all: cleanAll
+        cleanAll
     }, { headers: { 'Content-Type': 'application/json' } });
 };
 
@@ -916,7 +916,7 @@ export const cleanImages = async (
     return http.post<Response<ImageCleanResult>>('v1/utilities/clean-images', {
         ...cleanupConfirmationBody(dryRun, confirmationToken),
         target,
-        remove_duplicates: removeDuplicates
+        removeDuplicates
     }, { headers: { 'Content-Type': 'application/json' } });
 };
 

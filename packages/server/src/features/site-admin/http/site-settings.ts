@@ -2,9 +2,9 @@ import { type PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import { done as success, failure } from '../../../platform/response.js';
 import { deleteBrandAsset, uploadBrandAsset, validateBrandTarget } from '../services/brand-assets.js';
-import { integrationSettingsApi, serializeIntegrationSettings, updateIntegrationSettings } from '../services/integrations.js';
+import { serializeIntegrationSettings, updateIntegrationSettings } from '../services/integrations.js';
 import { serializeLoginSettings, updateLoginSettings } from '../services/login-settings.js';
-import { apiSitePayload, readSiteRow, serializeSiteSettings, updateSiteSettings } from '../services/site-settings.js';
+import { readSiteRow, serializeSiteSettings, updateSiteSettings } from '../services/site-settings.js';
 import { userListQuery } from '../services/users.js';
 import { AdminSettingsOptions, Body, apiAccess, apiJsonBody, csrfValid, csrfValidWithBody, isRecord, readMultipartFields, sendApiResult, stringValue } from '../shared.js';
 
@@ -45,7 +45,7 @@ export function registerSiteSettingsRoutes(routes: FastifyInstance, db: PrismaCl
       let target: ReturnType<typeof validateBrandTarget>;
       try {
         target = validateBrandTarget({
-          asset_type: input.asset_type ?? query.get('asset_type'),
+          assetType: input.assetType ?? query.get('assetType'),
           theme: input.theme ?? query.get('theme'),
         });
       } catch (error) {
@@ -67,7 +67,7 @@ export function registerSiteSettingsRoutes(routes: FastifyInstance, db: PrismaCl
       const permission = await apiAccess(request, db, options);
       if ('response' in permission) return reply.send(permission.response);
       if (!permission.access.canManageSiteSettings) return reply.send(failure('RJ', 'Permission to change site settings is required.'));
-      const updated = await updateSiteSettings(db, permission.user.id, permission.access.superuser, apiSitePayload(apiJsonBody(request)), options);
+      const updated = await updateSiteSettings(db, permission.user.id, permission.access.superuser, apiJsonBody(request), options);
       return sendApiResult(reply, updated);
     });
 
@@ -91,7 +91,7 @@ export function registerSiteSettingsRoutes(routes: FastifyInstance, db: PrismaCl
       const permission = await apiAccess(request, db, options);
       if ('response' in permission) return reply.send(permission.response);
       if (!permission.access.superuser) return reply.send(failure('RJ', 'Superuser access is required.'));
-      return reply.send(success(integrationSettingsApi(await serializeIntegrationSettings(db, options))));
+      return reply.send(success(await serializeIntegrationSettings(db, options)));
     });
 
     routes.put<{ Body: unknown }>('/v1/integration-settings', { bodyLimit: 64 * 1024 }, async (request, reply) => {
@@ -101,8 +101,6 @@ export function registerSiteSettingsRoutes(routes: FastifyInstance, db: PrismaCl
       if (!permission.access.superuser) return reply.send(failure('RJ', 'Superuser access is required.'));
       if (!isRecord(request.body)) return reply.send(failure('VA', 'Invalid request body.'));
       const updated = await updateIntegrationSettings(db, permission.user.id, request.body, options);
-      return updated.ok
-        ? reply.send(success(integrationSettingsApi(updated.body)))
-        : reply.send(failure(updated.code, updated.message));
+      return sendApiResult(reply, updated);
     });
 }

@@ -529,7 +529,7 @@ model UploadedImage {
 
 model SiteSetting {
   id                  Int      @id @default(1)
-  siteName            String   @default("")
+  siteName            String   @default("BLEX")
   /// Host used for RSS links when it differs from SITE_URL.
   domain              String   @default("")
   headerScript        String   @default("")
@@ -548,7 +548,7 @@ model SiteSetting {
 model LoginSetting {
   id                         Int      @id @default(1)
   welcomeNotificationMessage String   @default("")
-  welcomeNotificationUrl     String   @default("")
+  welcomeNotificationUrl     String   @default("/")
   accountDeletionRedirectUrl String   @default("")
   hcaptchaEnabled            Boolean  @default(false)
   hcaptchaSiteKey            String   @default("")

@@ -127,12 +127,7 @@ export function registerSetup(app: FastifyInstance, db: PrismaClient, siteUrl: U
 
     const passwordHash = await hashDjangoPassword(password);
     const userId = await db.$transaction(async (tx) => {
-      const timestamp = new Date().toISOString().slice(0, -1).replace('T', ' ');
-      await tx.$executeRaw`
-        INSERT INTO board_sitesetting (id, header_script, footer_script, updated_date, aeo_enabled, seo_enabled,
-          robots_txt_extra_rules, site_name, logo_svg, logo_svg_dark, icon_svg, icon_svg_dark, icon_manifest)
-        VALUES (1, '', '', ${timestamp}, 0, 1, '', 'BLEX', '', '', '', '', '{}') ON CONFLICT(id) DO NOTHING
-      `;
+      await tx.siteSetting.upsert({ where: { id: 1 }, create: { id: 1 }, update: {}, select: { id: true } });
       if (await hasAdministrator(tx)) return null;
       return insertAccount(tx, { username, displayName, email: normalizeAccountEmail(email), passwordHash, administrator: true });
     });

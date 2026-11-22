@@ -549,19 +549,19 @@ const LoginSetting = () => {
     const handleSave = (event?: FormEvent<HTMLFormElement>) => {
         event?.preventDefault();
         updateMutation.mutate({
-            welcome_notification_message: loginSettings.welcomeMessage,
-            welcome_notification_url: loginSettings.welcomeUrl,
-            account_deletion_redirect_url: loginSettings.deletionRedirectUrl,
-            hcaptcha_enabled: loginSettings.hcaptchaEnabled,
-            hcaptcha_site_key: loginSettings.hcaptchaSiteKey,
-            ...(loginSettings.hcaptchaSecretKey.trim() ? { hcaptcha_secret_key: loginSettings.hcaptchaSecretKey } : {}),
-            ...(loginSettings.clearHcaptchaSecretKey ? { clear_hcaptcha_secret_key: true } : {}),
-            social_auth_providers: socialAuthProviders.map((provider) => ({
+            welcomeNotificationMessage: loginSettings.welcomeMessage,
+            welcomeNotificationUrl: loginSettings.welcomeUrl,
+            accountDeletionRedirectUrl: loginSettings.deletionRedirectUrl,
+            hcaptchaEnabled: loginSettings.hcaptchaEnabled,
+            hcaptchaSiteKey: loginSettings.hcaptchaSiteKey,
+            ...(loginSettings.hcaptchaSecretKey.trim() ? { hcaptchaSecretKey: loginSettings.hcaptchaSecretKey } : {}),
+            ...(loginSettings.clearHcaptchaSecretKey ? { clearHcaptchaSecretKey: true } : {}),
+            socialAuthProviders: socialAuthProviders.map((provider) => ({
                 key: provider.key,
-                is_enabled: provider.isEnabled,
-                client_id: provider.clientId,
-                ...(provider.clientSecret.trim() ? { client_secret: provider.clientSecret } : {}),
-                ...(provider.clearClientSecret ? { clear_client_secret: true } : {})
+                isEnabled: provider.isEnabled,
+                clientId: provider.clientId,
+                ...(provider.clientSecret.trim() ? { clientSecret: provider.clientSecret } : {}),
+                ...(provider.clearClientSecret ? { clearClientSecret: true } : {})
             }))
         });
     };

@@ -12,7 +12,7 @@ import { createMigratedTables } from './fixtures/migrated-database.js';
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-public-pages-'));
 const databasePath = join(directory, 'Django public pages.sqlite3');
 const database = new DatabaseSync(databasePath);
-createMigratedTables(database, 'StaticPage', 'SiteNotice');
+createMigratedTables(database, 'StaticPage', 'SiteNotice', 'SiteSetting');
 database.exec(`
   CREATE TABLE auth_user (
     id INTEGER PRIMARY KEY,
@@ -81,15 +81,6 @@ database.exec(`
   CREATE TABLE board_tag (id INTEGER PRIMARY KEY, value TEXT NOT NULL);
   CREATE TABLE board_post_tags (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, tag_id INTEGER NOT NULL);
   CREATE TABLE board_pinnedpost (id INTEGER PRIMARY KEY, "order" INTEGER NOT NULL, created_date DATETIME NOT NULL, post_id INTEGER NOT NULL, user_id INTEGER NOT NULL);
-  CREATE TABLE board_sitesetting (
-    id INTEGER PRIMARY KEY,
-    site_name TEXT NOT NULL,
-    logo_svg TEXT NOT NULL DEFAULT '',
-    logo_svg_dark TEXT NOT NULL DEFAULT '',
-    icon_manifest TEXT NOT NULL DEFAULT '{}',
-    seo_enabled BOOLEAN NOT NULL DEFAULT 1,
-    aeo_enabled BOOLEAN NOT NULL DEFAULT 0
-  );
   CREATE TABLE board_authorsubscription (
     id INTEGER PRIMARY KEY,
     created_date DATETIME NOT NULL,
@@ -155,8 +146,8 @@ database.exec(`
     (6, 'user', 1, 'Unsafe author notice', 1, 3, 1578268800000, 1578268800000, 'javascript:alert(1)'),
     (7, 'user', 2, 'Reader-only notice', 1, 1, 1578355200000, 1578355200000, '/@reader');
   INSERT INTO board_authorsubscription VALUES (1, '2020-02-01 00:00:00', 1, 2);
-  INSERT INTO board_sitesetting (id, site_name, logo_svg, logo_svg_dark, icon_manifest, seo_enabled)
-    VALUES (1, 'BLEX Docs', 'brand/logo/default/synthetic.svg', 'brand/logo/dark/synthetic-dark.svg', '{}', 1);
+  INSERT INTO SiteSetting (id, siteName, logoSvg, logoSvgDark, iconManifest, seoEnabled, updatedAt)
+    VALUES (1, 'BLEX Docs', 'brand/logo/default/synthetic.svg', 'brand/logo/dark/synthetic-dark.svg', '{}', 1, 946684800000);
 `);
 const bulkPosts = database.prepare(`
   INSERT INTO board_post (
@@ -263,7 +254,7 @@ test('keeps tag search and sort usable while marking filtered pages noindex', as
 });
 
 test('site SEO setting applies noindex,nofollow to public pages', async () => {
-  await db.$executeRaw`UPDATE board_sitesetting SET seo_enabled = 0 WHERE id = 1`;
+  await db.$executeRaw`UPDATE SiteSetting SET seoEnabled = 0 WHERE id = 1`;
   try {
     const home = await app.inject('/');
     assert.match(home.body, /<meta name="robots" content="noindex,nofollow"/);
@@ -273,7 +264,7 @@ test('site SEO setting applies noindex,nofollow to public pages', async () => {
     assert.match(filtered.body, /<meta name="robots" content="noindex,nofollow"/);
     assert.match(filtered.body, /<meta name="googlebot" content="noindex,nofollow"/);
   } finally {
-    await db.$executeRaw`UPDATE board_sitesetting SET seo_enabled = 1 WHERE id = 1`;
+    await db.$executeRaw`UPDATE SiteSetting SET seoEnabled = 1 WHERE id = 1`;
   }
 });
 

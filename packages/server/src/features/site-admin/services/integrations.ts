@@ -1,31 +1,17 @@
-import { Prisma, type PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import { createHmac } from 'node:crypto';
 import { encryptDjangoSecret, decryptDjangoSecret } from '../../auth/django-secret.js';
 import { type AdminIntegrationSettings } from '../types.js';
-import { AdminSettingsOptions, ApiResult, Body, booleanValue, djangoTimestamp, isRecord, isoDate, recordAudit } from '../shared.js';
+import { AdminSettingsOptions, ApiResult, Body, isRecord, isoDate, recordAudit } from '../shared.js';
 
-interface IntegrationRow {
-  telegramEnabled: number | bigint | boolean;
-  telegramBotUsername: string | null;
-  telegramBotToken: string | null;
-  updatedDate: string | null;
+function readIntegrationRow(db: PrismaClient) {
+  return db.integrationSetting.findUnique({
+    where: { id: 1 },
+    select: { telegramEnabled: true, telegramBotUsername: true, telegramBotToken: true, updatedAt: true },
+  });
 }
 
-async function ensureIntegrationSetting(db: Prisma.TransactionClient): Promise<void> {
-  await db.$executeRaw`
-    INSERT OR IGNORE INTO board_integrationsetting (id, telegram_enabled, telegram_bot_username, telegram_bot_token, updated_date)
-    VALUES (1, 0, '', '', ${djangoTimestamp()})
-  `;
-}
-
-async function readIntegrationRow(db: PrismaClient): Promise<IntegrationRow | null> {
-  const [row] = await db.$queryRaw<IntegrationRow[]>`
-    SELECT telegram_enabled AS telegramEnabled, telegram_bot_username AS telegramBotUsername,
-      telegram_bot_token AS telegramBotToken, CAST(updated_date AS TEXT) AS updatedDate
-    FROM board_integrationsetting WHERE id = 1 LIMIT 1
-  `;
-  return row ?? null;
-}
+type IntegrationRow = NonNullable<Awaited<ReturnType<typeof readIntegrationRow>>>;
 
 function connection(state: string, detail = ''): AdminIntegrationSettings['telegramConnection'] {
   return { state, detail };
@@ -80,14 +66,12 @@ async function confirmTelegramBot(
 
 async function inspectTelegramConnection(
   options: AdminSettingsOptions,
-  setting: IntegrationRow,
+  setting: Omit<IntegrationRow, 'updatedAt'>,
   webhookUrl: string,
 ): Promise<AdminIntegrationSettings['telegramConnection']> {
-  const token = booleanValue(setting.telegramEnabled)
-    ? decryptDjangoSecret(setting.telegramBotToken ?? '', options.cipherKey) ?? ''
-    : '';
+  const token = setting.telegramEnabled ? decryptDjangoSecret(setting.telegramBotToken, options.cipherKey) ?? '' : '';
   if (!token) return connection('disabled');
-  if (!(setting.telegramBotUsername ?? '').trim()) return connection('not_connected');
+  if (!setting.telegramBotUsername.trim()) return connection('not_connected');
   const result = await callTelegramApi(options, token, 'getWebhookInfo');
   const failure = telegramFailure(result);
   if (failure) return failure;
@@ -103,31 +87,15 @@ export async function serializeIntegrationSettings(
   db: PrismaClient,
   options: AdminSettingsOptions,
 ): Promise<AdminIntegrationSettings> {
-  await db.$transaction((transaction) => ensureIntegrationSetting(transaction));
   const row = await readIntegrationRow(db);
-  const setting: IntegrationRow = row ?? {
-    telegramEnabled: false,
-    telegramBotUsername: '',
-    telegramBotToken: '',
-    updatedDate: '',
-  };
+  const setting = row ?? { telegramEnabled: false, telegramBotUsername: '', telegramBotToken: '', updatedAt: null };
   const webhookUrl = new URL('/v1/telegram/webHook', options.siteUrl).href;
   return {
-    telegramEnabled: booleanValue(setting.telegramEnabled),
-    telegramBotUsername: (setting.telegramBotUsername ?? '').trim(),
-    telegramHasBotToken: Boolean(decryptDjangoSecret(setting.telegramBotToken ?? '', options.cipherKey)),
-    updatedDate: isoDate(setting.updatedDate),
+    telegramEnabled: setting.telegramEnabled,
+    telegramBotUsername: setting.telegramBotUsername.trim(),
+    telegramHasBotToken: Boolean(decryptDjangoSecret(setting.telegramBotToken, options.cipherKey)),
+    updatedDate: isoDate(setting.updatedAt),
     telegramConnection: await inspectTelegramConnection(options, setting, webhookUrl),
-  };
-}
-
-export function integrationSettingsApi(settings: AdminIntegrationSettings): Record<string, unknown> {
-  return {
-    telegram_enabled: settings.telegramEnabled,
-    telegram_bot_username: settings.telegramBotUsername,
-    telegram_has_bot_token: settings.telegramHasBotToken,
-    updated_date: settings.updatedDate,
-    telegram_connection: settings.telegramConnection,
   };
 }
 
@@ -137,27 +105,26 @@ export async function updateIntegrationSettings(
   input: Body,
   options: AdminSettingsOptions,
 ): Promise<ApiResult<AdminIntegrationSettings>> {
-  await db.$transaction((transaction) => ensureIntegrationSetting(transaction));
   const current = await readIntegrationRow(db);
-  let enabled = current ? booleanValue(current.telegramEnabled) : false;
+  let enabled = current?.telegramEnabled ?? false;
   let username = current?.telegramBotUsername ?? '';
   let tokenCiphertext = current?.telegramBotToken ?? '';
-  if ('telegram_enabled' in input) enabled = input.telegram_enabled === true;
-  if ('telegram_bot_username' in input) {
-    username = typeof input.telegram_bot_username === 'string'
-      ? input.telegram_bot_username.trim().replace(/^@+/, '')
+  if ('telegramEnabled' in input) enabled = input.telegramEnabled === true;
+  if ('telegramBotUsername' in input) {
+    username = typeof input.telegramBotUsername === 'string'
+      ? input.telegramBotUsername.trim().replace(/^@+/, '')
       : '';
   }
-  if (input.clear_telegram_bot_token === true) tokenCiphertext = '';
-  if (typeof input.telegram_bot_token === 'string' && input.telegram_bot_token.trim()) {
-    const botToken = input.telegram_bot_token.trim();
-    if (!/^\d+:[A-Za-z0-9_-]+$/.test(botToken)) {
+  if (input.clearTelegramBotToken === true) tokenCiphertext = '';
+  if (typeof input.telegramBotToken === 'string' && input.telegramBotToken.trim()) {
+    const submittedToken = input.telegramBotToken.trim();
+    if (!/^\d+:[A-Za-z0-9_-]+$/.test(submittedToken)) {
       return { ok: false, code: 'VA', message: 'Enter a valid Telegram bot token.' };
     }
     const existingToken = decryptDjangoSecret(current?.telegramBotToken ?? '', options.cipherKey) ?? '';
-    const isNewToken = botToken !== existingToken;
-    tokenCiphertext = encryptDjangoSecret(botToken, options.cipherKey);
-    if (isNewToken && !('telegram_bot_username' in input)) username = '';
+    const isNewToken = submittedToken !== existingToken;
+    tokenCiphertext = encryptDjangoSecret(submittedToken, options.cipherKey);
+    if (isNewToken && !('telegramBotUsername' in input)) username = '';
   }
   const botToken = decryptDjangoSecret(tokenCiphertext, options.cipherKey) ?? '';
   if (enabled && !botToken) return { ok: false, code: 'VA', message: 'Enter a Telegram bot token.' };
@@ -172,15 +139,16 @@ export async function updateIntegrationSettings(
     if (!botFailure && confirmed.username) username = confirmed.username;
   }
 
-  const timestamp = djangoTimestamp();
-  await db.$transaction(async (transaction) => {
-    await ensureIntegrationSetting(transaction);
-    await transaction.$executeRaw`
-      UPDATE board_integrationsetting SET telegram_enabled = ${enabled ? 1 : 0},
-        telegram_bot_username = ${username}, telegram_bot_token = ${tokenCiphertext}, updated_date = ${timestamp}
-      WHERE id = 1
-    `;
+  const saved = await db.$transaction(async (transaction) => {
+    const changes = { telegramEnabled: enabled, telegramBotUsername: username, telegramBotToken: tokenCiphertext, updatedAt: new Date() };
+    const row = await transaction.integrationSetting.upsert({
+      where: { id: 1 },
+      create: { id: 1, ...changes },
+      update: changes,
+      select: { updatedAt: true },
+    });
     await recordAudit(transaction, userId, 'integrationsetting', 'Integration settings', 'Updated notification integration settings');
+    return row;
   });
 
   let connectionResult: AdminIntegrationSettings['telegramConnection'];
@@ -201,7 +169,7 @@ export async function updateIntegrationSettings(
       telegramEnabled: enabled,
       telegramBotUsername: username.trim(),
       telegramHasBotToken: Boolean(botToken),
-      updatedDate: isoDate(timestamp),
+      updatedDate: isoDate(saved.updatedAt),
       telegramConnection: connectionResult,
     },
   };

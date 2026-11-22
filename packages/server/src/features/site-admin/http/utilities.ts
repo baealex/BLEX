@@ -2,14 +2,14 @@ import { type PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import { done as success, failure } from '../../../platform/response.js';
 import { UtilityAction, readUtilityStats, runUtilityAction } from '../services/utilities.js';
-import { AdminSettingsOptions, apiAccess, camelizeValue, csrfValid, isRecord } from '../shared.js';
+import { AdminSettingsOptions, apiAccess, csrfValid, isRecord, sendApiResult } from '../shared.js';
 
 export function registerUtilitiesRoutes(routes: FastifyInstance, db: PrismaClient, options: AdminSettingsOptions) {
     routes.get('/v1/utilities/stats', async (request, reply) => {
       const permission = await apiAccess(request, db, options);
       if ('response' in permission) return reply.send(permission.response);
       if (!permission.access.superuser) return reply.send(failure('RJ', 'Superuser access is required.'));
-      return reply.send(success(camelizeValue(await readUtilityStats(db))));
+      return reply.send(success(await readUtilityStats(db)));
     });
 
     const utilityActions: Array<{ path: string; action: UtilityAction }> = [
@@ -27,9 +27,7 @@ export function registerUtilitiesRoutes(routes: FastifyInstance, db: PrismaClien
         if (!permission.access.superuser) return reply.send(failure('RJ', 'Superuser access is required.'));
         if (!isRecord(request.body)) return reply.send(failure('VA', 'Invalid request body.'));
         const result = await runUtilityAction(db, request, permission.user.id, route.action, request.body, options);
-        return result.ok
-          ? reply.send(success(camelizeValue(result.body)))
-          : reply.send(failure(result.code, result.message));
+        return sendApiResult(reply, result);
       });
     }
 }

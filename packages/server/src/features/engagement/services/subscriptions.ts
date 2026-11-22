@@ -12,12 +12,6 @@ interface SubscriptionRow {
   createdDate: DbDate;
 }
 
-export interface TelegramRow {
-  telegramEnabled: DbInteger;
-  botUsername: string;
-  botToken: string;
-}
-
 export function canSubscribe(author: AuthorRow): boolean {
   return isTrue(author.isActive) && author.profileRole === 'EDITOR';
 }

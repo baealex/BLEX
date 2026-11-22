@@ -8,7 +8,7 @@ import { publicPostPath } from '../posts/public-post.js';
 import { done, failure as error } from '../../platform/response.js';
 import { CommentRow, commentBodyLimit, commentForViewer, commentHtml, publicComments, serializeComment } from './services/comments.js';
 import { anonymizeComments } from './services/deletions.js';
-import { TelegramRow, canSubscribe, mySubscriptions, subscriptionState } from './services/subscriptions.js';
+import { canSubscribe, mySubscriptions, subscriptionState } from './services/subscriptions.js';
 import { DbInteger, ReaderActionsOptions, activeEditor, activeUser, asBodyObject, bodyField, commentReturnTo, forbidden, isTrue, localReturnTo, missing, numberValue, publicPost, requestCsrfAccepted, textValue, truthyBodyField } from './shared.js';
 
 export { ReaderActionUser, ReaderActionsOptions } from './shared.js';
@@ -276,24 +276,19 @@ export function registerReaderActions(
               `;
             }
           });
-          const telegram = await db.$queryRaw<TelegramRow[]>`
-            SELECT CAST(telegram_enabled AS INTEGER) AS telegramEnabled,
-                   telegram_bot_username AS botUsername,
-                   telegram_bot_token AS botToken
-            FROM board_integrationsetting
-            WHERE id = 1
-            LIMIT 1
-          `;
+          const setting = await db.integrationSetting.findUnique({
+            where: { id: 1 },
+            select: { telegramEnabled: true, telegramBotUsername: true, telegramBotToken: true },
+          });
           const connected = await db.$queryRaw<Array<{ connected: DbInteger }>>`
             SELECT CASE WHEN TRIM(tid) <> '' THEN 1 ELSE 0 END AS connected
             FROM board_telegramsync
             WHERE user_id = ${viewer.id}
             LIMIT 1
           `;
-          const setting = telegram[0];
-          const suggestTelegramConnection = Boolean(setting && isTrue(setting.telegramEnabled) &&
-            setting.botUsername.trim() !== '' &&
-            Boolean(options.cipherKey && decryptDjangoSecret(setting.botToken, options.cipherKey)) &&
+          const suggestTelegramConnection = Boolean(setting?.telegramEnabled &&
+            setting.telegramBotUsername.trim() !== '' &&
+            Boolean(options.cipherKey && decryptDjangoSecret(setting.telegramBotToken, options.cipherKey)) &&
             !isTrue(connected[0]?.connected ?? 0));
           const result = {
             canSubscribe: true,

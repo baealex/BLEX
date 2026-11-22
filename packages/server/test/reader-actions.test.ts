@@ -8,6 +8,7 @@ import Fastify from 'fastify';
 import test from 'node:test';
 import { encryptDjangoSecret } from '../src/features/auth/django-secret.js';
 import { registerReaderActions } from '../src/features/engagement/index.js';
+import { createMigratedTables } from './fixtures/migrated-database.js';
 import { installNotificationTables } from './fixtures/notifications.js';
 
 const readerCipherKey = '0123456789abcdef0123456789abcdef';
@@ -15,6 +16,7 @@ const readerCipherKey = '0123456789abcdef0123456789abcdef';
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-reader-actions-'));
 const databasePath = join(directory, 'Django reader actions.sqlite3');
 const database = new DatabaseSync(databasePath);
+createMigratedTables(database, 'IntegrationSetting');
 database.exec(`
   CREATE TABLE auth_user (
     id INTEGER PRIMARY KEY,
@@ -81,13 +83,6 @@ database.exec(`
     author_id INTEGER NOT NULL,
     subscriber_id INTEGER NOT NULL
   );
-  CREATE TABLE board_integrationsetting (
-    id INTEGER PRIMARY KEY,
-    telegram_enabled BOOLEAN NOT NULL DEFAULT 0,
-    telegram_bot_username TEXT NOT NULL DEFAULT '',
-    telegram_bot_token TEXT NOT NULL DEFAULT '',
-    updated_date DATETIME NOT NULL
-  );
   CREATE TABLE board_telegramsync (
     id INTEGER PRIMARY KEY,
     auth_token TEXT NOT NULL DEFAULT '',
@@ -124,7 +119,7 @@ database.exec(`
     (13, 'Hidden comment', '<p>private</p>', 0, 0, '2026-01-04 00:00:00', 2, 2, NULL),
     (14, 'Blocked comment', '<p>kept visible</p>', 0, 0, '2026-01-05 00:00:00', 2, 4, NULL);
   INSERT INTO board_comment_likes VALUES (1, 11, 1);
-  INSERT INTO board_integrationsetting VALUES (1, 1, 'test_bot', '${encryptDjangoSecret('bot-token', readerCipherKey)}', '2026-01-01 00:00:00.123456');
+  INSERT INTO IntegrationSetting (id, telegramEnabled, telegramBotUsername, telegramBotToken, updatedAt) VALUES (1, 1, 'test_bot', '${encryptDjangoSecret('bot-token', readerCipherKey)}', 1767225600123);
   INSERT INTO board_authorsubscription VALUES (1, '2020-05-01 15:00:00.654321', 4, 2);
   INSERT INTO board_telegramsync VALUES (1, '', '2026-01-01 00:00:00', '2026-01-01 00:00:00', 2, 'telegram-id');
 `);

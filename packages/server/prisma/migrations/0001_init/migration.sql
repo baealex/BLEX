@@ -321,41 +321,10 @@ CREATE TABLE "board_emailchange" (
 );
 
 -- CreateTable
-CREATE TABLE "board_imagecache" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "key" TEXT NOT NULL,
-    "path" TEXT NOT NULL,
-    "size" INTEGER NOT NULL,
-    "user_id" INTEGER,
-    CONSTRAINT "board_imagecache_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- CreateTable
-CREATE TABLE "board_integrationsetting" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "telegram_enabled" BOOLEAN NOT NULL,
-    "telegram_bot_username" TEXT NOT NULL,
-    "telegram_bot_token" TEXT NOT NULL,
-    "updated_date" DATETIME NOT NULL
-);
-
--- CreateTable
 CREATE TABLE "board_loginattempt" (
     "key" TEXT NOT NULL PRIMARY KEY,
     "window" BIGINT NOT NULL,
     "count" INTEGER NOT NULL
-);
-
--- CreateTable
-CREATE TABLE "board_loginsetting" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "welcome_notification_message" TEXT NOT NULL,
-    "welcome_notification_url" TEXT NOT NULL,
-    "account_deletion_redirect_url" TEXT NOT NULL,
-    "hcaptcha_enabled" BOOLEAN NOT NULL,
-    "hcaptcha_site_key" TEXT NOT NULL,
-    "hcaptcha_secret_key" TEXT NOT NULL,
-    "updated_date" DATETIME NOT NULL
 );
 
 -- CreateTable
@@ -371,12 +340,6 @@ CREATE TABLE "board_notify" (
     "message_key" TEXT NOT NULL,
     "message_params" TEXT NOT NULL,
     CONSTRAINT "board_notify_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- CreateTable
-CREATE TABLE "board_oauthauthorization" (
-    "state_hash" TEXT NOT NULL PRIMARY KEY,
-    "expires_at" DATETIME NOT NULL
 );
 
 -- CreateTable
@@ -483,23 +446,6 @@ CREATE TABLE "board_seriesconfigmeta" (
 );
 
 -- CreateTable
-CREATE TABLE "board_sitesetting" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "header_script" TEXT NOT NULL,
-    "footer_script" TEXT NOT NULL,
-    "updated_date" DATETIME NOT NULL,
-    "aeo_enabled" BOOLEAN NOT NULL,
-    "seo_enabled" BOOLEAN NOT NULL,
-    "robots_txt_extra_rules" TEXT NOT NULL,
-    "site_name" TEXT NOT NULL,
-    "logo_svg" TEXT NOT NULL,
-    "logo_svg_dark" TEXT NOT NULL,
-    "icon_svg" TEXT NOT NULL,
-    "icon_svg_dark" TEXT NOT NULL,
-    "icon_manifest" TEXT NOT NULL
-);
-
--- CreateTable
 CREATE TABLE "board_socialauth" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "uid" TEXT NOT NULL,
@@ -571,19 +517,6 @@ CREATE TABLE "board_userlinkmeta" (
 );
 
 -- CreateTable
-CREATE TABLE "board_utilitycleanupconfirmation" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "token_hash" TEXT NOT NULL,
-    "action" TEXT NOT NULL,
-    "session_fingerprint" TEXT NOT NULL,
-    "expires_at" DATETIME NOT NULL,
-    "consumed_at" DATETIME,
-    "created_date" DATETIME NOT NULL,
-    "user_id" INTEGER NOT NULL,
-    CONSTRAINT "board_utilitycleanupconfirmation_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- CreateTable
 CREATE TABLE "board_webhooksubscription" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "webhook_url" TEXT NOT NULL,
@@ -598,38 +531,10 @@ CREATE TABLE "board_webhooksubscription" (
 );
 
 -- CreateTable
-CREATE TABLE "django_admin_log" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "object_id" TEXT,
-    "object_repr" TEXT NOT NULL,
-    "action_flag" INTEGER NOT NULL,
-    "change_message" TEXT NOT NULL,
-    "content_type_id" INTEGER,
-    "user_id" INTEGER NOT NULL,
-    "action_time" DATETIME NOT NULL,
-    CONSTRAINT "django_admin_log_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT "django_admin_log_content_type_id_fkey" FOREIGN KEY ("content_type_id") REFERENCES "django_content_type" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- CreateTable
 CREATE TABLE "django_content_type" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "app_label" TEXT NOT NULL,
     "model" TEXT NOT NULL
-);
-
--- CreateTable
-CREATE TABLE "django_session" (
-    "session_key" TEXT NOT NULL PRIMARY KEY,
-    "session_data" TEXT NOT NULL,
-    "expire_date" DATETIME NOT NULL
-);
-
--- CreateTable
-CREATE TABLE "django_site" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "name" TEXT NOT NULL,
-    "domain" TEXT NOT NULL
 );
 
 -- CreateTable
@@ -719,6 +624,81 @@ CREATE TABLE "SiteBanner" (
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     CONSTRAINT "SiteBanner_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "SiteSetting" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT DEFAULT 1,
+    "siteName" TEXT NOT NULL DEFAULT 'BLEX',
+    "domain" TEXT NOT NULL DEFAULT '',
+    "headerScript" TEXT NOT NULL DEFAULT '',
+    "footerScript" TEXT NOT NULL DEFAULT '',
+    "seoEnabled" BOOLEAN NOT NULL DEFAULT true,
+    "aeoEnabled" BOOLEAN NOT NULL DEFAULT false,
+    "robotsTxtExtraRules" TEXT NOT NULL DEFAULT '',
+    "logoSvg" TEXT NOT NULL DEFAULT '',
+    "logoSvgDark" TEXT NOT NULL DEFAULT '',
+    "iconSvg" TEXT NOT NULL DEFAULT '',
+    "iconSvgDark" TEXT NOT NULL DEFAULT '',
+    "iconManifest" JSONB,
+    "updatedAt" DATETIME NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "LoginSetting" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT DEFAULT 1,
+    "welcomeNotificationMessage" TEXT NOT NULL DEFAULT '',
+    "welcomeNotificationUrl" TEXT NOT NULL DEFAULT '/',
+    "accountDeletionRedirectUrl" TEXT NOT NULL DEFAULT '',
+    "hcaptchaEnabled" BOOLEAN NOT NULL DEFAULT false,
+    "hcaptchaSiteKey" TEXT NOT NULL DEFAULT '',
+    "hcaptchaSecretKey" TEXT NOT NULL DEFAULT '',
+    "updatedAt" DATETIME NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "IntegrationSetting" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT DEFAULT 1,
+    "telegramEnabled" BOOLEAN NOT NULL DEFAULT false,
+    "telegramBotUsername" TEXT NOT NULL DEFAULT '',
+    "telegramBotToken" TEXT NOT NULL DEFAULT '',
+    "updatedAt" DATETIME NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "AdminLog" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "userId" INTEGER NOT NULL,
+    "target" TEXT NOT NULL DEFAULT '',
+    "objectId" TEXT,
+    "objectName" TEXT NOT NULL DEFAULT '',
+    "action" INTEGER NOT NULL,
+    "message" TEXT NOT NULL DEFAULT '',
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "AdminLog_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "CleanupConfirmation" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "userId" INTEGER NOT NULL,
+    "tokenHash" TEXT NOT NULL,
+    "action" TEXT NOT NULL,
+    "sessionFingerprint" TEXT NOT NULL,
+    "expiresAt" DATETIME NOT NULL,
+    "consumedAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "CleanupConfirmation_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "UploadedImage" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "key" TEXT NOT NULL,
+    "path" TEXT NOT NULL,
+    "size" INTEGER NOT NULL,
+    "userId" INTEGER,
+    CONSTRAINT "UploadedImage_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -946,15 +926,6 @@ CREATE INDEX "board_editrequest_user_id_0deec073" ON "board_editrequest"("user_i
 CREATE UNIQUE INDEX "board_emailchange_user_id_key" ON "board_emailchange"("user_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "board_imagecache_key_key" ON "board_imagecache"("key");
-
--- CreateIndex
-CREATE UNIQUE INDEX "board_imagecache_path_key" ON "board_imagecache"("path");
-
--- CreateIndex
-CREATE INDEX "board_imagecache_user_id_a52aef7a" ON "board_imagecache"("user_id");
-
--- CreateIndex
 CREATE INDEX "board_loginattempt_window_a08cc5bd" ON "board_loginattempt"("window");
 
 -- CreateIndex
@@ -962,9 +933,6 @@ CREATE UNIQUE INDEX "board_notify_key_key" ON "board_notify"("key");
 
 -- CreateIndex
 CREATE INDEX "board_notify_user_id_b069f0b5" ON "board_notify"("user_id");
-
--- CreateIndex
-CREATE INDEX "board_oauthauthorization_expires_at_1587f3fa" ON "board_oauthauthorization"("expires_at");
 
 -- CreateIndex
 CREATE INDEX "board_pinnedpost_user_id_162d6fde" ON "board_pinnedpost"("user_id");
@@ -1054,34 +1022,13 @@ CREATE INDEX "board_userconfigmeta_user_id_da67eecd" ON "board_userconfigmeta"("
 CREATE INDEX "board_userlinkmeta_user_id_ba3f4047" ON "board_userlinkmeta"("user_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "board_utilitycleanupconfirmation_token_hash_key" ON "board_utilitycleanupconfirmation"("token_hash");
-
--- CreateIndex
-CREATE INDEX "board_utilconfirm_exp_idx" ON "board_utilitycleanupconfirmation"("expires_at");
-
--- CreateIndex
-CREATE INDEX "board_utilitycleanupconfirmation_user_id_1a58a3ed" ON "board_utilitycleanupconfirmation"("user_id");
-
--- CreateIndex
 CREATE INDEX "board_webhooksubscription_author_id_8548ecb1" ON "board_webhooksubscription"("author_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "board_webhooksubscription_scope_author_id_webhook_url_77edf147_uniq" ON "board_webhooksubscription"("scope", "author_id", "webhook_url");
 
 -- CreateIndex
-CREATE INDEX "django_admin_log_user_id_c564eba6" ON "django_admin_log"("user_id");
-
--- CreateIndex
-CREATE INDEX "django_admin_log_content_type_id_c4bce8eb" ON "django_admin_log"("content_type_id");
-
--- CreateIndex
 CREATE UNIQUE INDEX "django_content_type_app_label_model_76bd3d3b_uniq" ON "django_content_type"("app_label", "model");
-
--- CreateIndex
-CREATE INDEX "django_session_expire_date_a5c62663" ON "django_session"("expire_date");
-
--- CreateIndex
-CREATE UNIQUE INDEX "django_site_domain_key" ON "django_site"("domain");
 
 -- CreateIndex
 CREATE INDEX "WorkLog_ownerId_idx" ON "WorkLog"("ownerId");
@@ -1115,6 +1062,30 @@ CREATE INDEX "SiteBanner_userId_isActive_idx" ON "SiteBanner"("userId", "isActiv
 
 -- CreateIndex
 CREATE INDEX "SiteBanner_scope_isActive_type_position_idx" ON "SiteBanner"("scope", "isActive", "type", "position");
+
+-- CreateIndex
+CREATE INDEX "AdminLog_userId_idx" ON "AdminLog"("userId");
+
+-- CreateIndex
+CREATE INDEX "AdminLog_createdAt_idx" ON "AdminLog"("createdAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CleanupConfirmation_tokenHash_key" ON "CleanupConfirmation"("tokenHash");
+
+-- CreateIndex
+CREATE INDEX "CleanupConfirmation_expiresAt_idx" ON "CleanupConfirmation"("expiresAt");
+
+-- CreateIndex
+CREATE INDEX "CleanupConfirmation_userId_idx" ON "CleanupConfirmation"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "UploadedImage_key_key" ON "UploadedImage"("key");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "UploadedImage_path_key" ON "UploadedImage"("path");
+
+-- CreateIndex
+CREATE INDEX "UploadedImage_userId_idx" ON "UploadedImage"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_WorkLogEntryToWorkLogShare_AB_unique" ON "_WorkLogEntryToWorkLogShare"("A", "B");

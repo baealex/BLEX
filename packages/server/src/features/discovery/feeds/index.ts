@@ -18,10 +18,10 @@ const defaultRobotsRules = [
 type DbDate = Date | string | null;
 
 type SiteSetting = {
-  seoEnabled: number | bigint | boolean;
-  aeoEnabled: number | bigint | boolean;
-  robotsTxtExtraRules: string | null;
-  siteName: string | null;
+  seoEnabled: boolean;
+  aeoEnabled: boolean;
+  robotsTxtExtraRules: string;
+  siteName: string;
 };
 
 type PublicPostRow = {
@@ -59,23 +59,21 @@ type SitemapMetadata = { itemCount: number | bigint; latestLastmod: DbDate };
 type SitemapUrl = { location: string; lastmod?: DbDate; changefreq: string; priority: string };
 
 async function rssOrigin(db: PrismaClient, siteUrl: URL): Promise<URL> {
-  const [site] = await db.$queryRaw<Array<{ domain: string }>>`SELECT domain FROM django_site WHERE id = 1`;
+  const site = await db.siteSetting.findUnique({ where: { id: 1 }, select: { domain: true } });
   const origin = site?.domain ? URL.parse(`${siteUrl.protocol}//${site.domain}`) : null;
   return origin && origin.host && origin.pathname === '/' && !origin.username && !origin.password &&
     !origin.search && !origin.hash ? origin : siteUrl;
 }
 
 export async function searchIndexingEnabled(db: PrismaClient): Promise<boolean> {
-  const [setting] = await db.$queryRaw<Array<{ seoEnabled: number | bigint | boolean }>>`
-    SELECT seo_enabled AS seoEnabled FROM board_sitesetting WHERE id = 1
-  `;
-  return setting ? isEnabled(setting.seoEnabled) : true;
+  const setting = await db.siteSetting.findUnique({ where: { id: 1 }, select: { seoEnabled: true } });
+  return setting?.seoEnabled ?? true;
 }
 
 export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, siteUrl: URL): void {
   app.get('/llms.txt', async (_request, reply) => {
     const setting = await readSiteSetting(db);
-    if (!isEnabled(setting.aeoEnabled)) return notFound(reply);
+    if (!setting.aeoEnabled) return notFound(reply);
     const content = buildLlmsTxt(siteUrl, setting);
     return reply.type('text/plain; charset=utf-8')
       .header('X-Estimated-Tokens', String(estimateTokens(content)))
@@ -85,12 +83,12 @@ export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, 
   app.get('/robots.txt', async (_request, reply) => {
     const setting = await readSiteSetting(db);
     const lines = ['User-agent: *', ...defaultRobotsRules];
-    if (isEnabled(setting.aeoEnabled)) {
+    if (setting.aeoEnabled) {
       lines.push('', `# AI agent entry point: ${absoluteUrl(siteUrl, '/llms.txt')}`);
     } else {
       lines.push('Disallow: /llms.txt', 'Disallow: /*.md');
     }
-    if (isEnabled(setting.seoEnabled)) {
+    if (setting.seoEnabled) {
       lines.push(`Sitemap: ${absoluteUrl(siteUrl, '/sitemap.xml')}`);
     } else {
       lines.push('', '# Search indexing is disabled at runtime.', '# Page responses include X-Robots-Tag and HTML robots meta noindex signals.');
@@ -177,7 +175,7 @@ export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, 
 
   app.get<{ Params: { username: string; postUrl: string } }>('/@:username/:postUrl.md', async (request, reply) => {
     const setting = await readSiteSetting(db);
-    if (!isEnabled(setting.aeoEnabled)) return notFound(reply);
+    if (!setting.aeoEnabled) return notFound(reply);
     const post = await readPublicPost(db, request.params.username, request.params.postUrl);
     if (!post) return notFound(reply);
     if (post.username !== request.params.username) {
@@ -204,7 +202,7 @@ export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, 
 
   app.get<{ Params: { username: string; seriesUrl: string } }>('/@:username/series/:seriesUrl.md', async (request, reply) => {
     const setting = await readSiteSetting(db);
-    if (!isEnabled(setting.aeoEnabled)) return notFound(reply);
+    if (!setting.aeoEnabled) return notFound(reply);
     const series = await readPublicSeries(db, request.params.username, request.params.seriesUrl);
     if (!series) return notFound(reply);
     if (series.username !== request.params.username) {
@@ -236,7 +234,7 @@ export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, 
 
   app.get<{ Params: { slug: string } }>('/static/:slug.md', async (request, reply) => {
     const setting = await readSiteSetting(db);
-    if (!isEnabled(setting.aeoEnabled)) return notFound(reply);
+    if (!setting.aeoEnabled) return notFound(reply);
     const page = await db.staticPage.findFirst({
       where: { slug: request.params.slug, isPublished: true },
       select: { title: true, slug: true, content: true, updatedAt: true },
@@ -258,14 +256,11 @@ export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, 
 }
 
 async function readSiteSetting(db: PrismaClient): Promise<SiteSetting> {
-  const [setting] = await db.$queryRaw<SiteSetting[]>`
-    SELECT seo_enabled AS seoEnabled, aeo_enabled AS aeoEnabled,
-           robots_txt_extra_rules AS robotsTxtExtraRules, site_name AS siteName
-      FROM board_sitesetting
-     WHERE id = 1
-     LIMIT 1
-  `;
-  return setting ?? { seoEnabled: 1, aeoEnabled: 0, robotsTxtExtraRules: '', siteName: 'BLEX' };
+  const setting = await db.siteSetting.findUnique({
+    where: { id: 1 },
+    select: { seoEnabled: true, aeoEnabled: true, robotsTxtExtraRules: true, siteName: true },
+  });
+  return setting ?? { seoEnabled: true, aeoEnabled: false, robotsTxtExtraRules: '', siteName: 'BLEX' };
 }
 
 function buildLlmsTxt(siteUrl: URL, setting: SiteSetting): string {
@@ -589,10 +584,6 @@ function siteDescription(setting: SiteSetting): string {
 
 function absoluteUrl(siteUrl: URL, path: string): string {
   return new URL(path, `${siteUrl.origin}/`).toString();
-}
-
-function isEnabled(value: number | bigint | boolean): boolean {
-  return value === true || value === 1 || value === 1n;
 }
 
 function sendMarkdown(reply: FastifyReply, content: string): FastifyReply {
