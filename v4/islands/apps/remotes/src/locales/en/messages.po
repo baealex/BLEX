@@ -44,7 +44,7 @@ msgid "auth.fields.email_placeholder"
 msgstr "Enter your email address"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:132
+#: src/components/remotes/Login/components/LoginForm.tsx:138
 #: src/components/remotes/Signup/Signup.tsx:432
 msgid "auth.fields.password"
 msgstr "Password"
@@ -55,12 +55,12 @@ msgid "auth.fields.password_new_placeholder"
 msgstr "Enter a secure password"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:145
+#: src/components/remotes/Login/components/LoginForm.tsx:151
 msgid "auth.fields.password_placeholder"
 msgstr "Enter your password"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:105
+#: src/components/remotes/Login/components/LoginForm.tsx:111
 #: src/components/remotes/Signup/Signup.tsx:342
 msgid "auth.fields.username"
 msgstr "Username"
@@ -72,7 +72,7 @@ msgid "auth.fields.username_hint"
 msgstr "4–15 lowercase letters or numbers"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:118
+#: src/components/remotes/Login/components/LoginForm.tsx:124
 msgid "auth.fields.username_placeholder"
 msgstr "Enter your username"
 
@@ -87,46 +87,46 @@ msgid "auth.login.failed_blocked_remaining"
 msgstr "Too many failed attempts. Try again in {seconds, plural, one {# second} other {# seconds}}."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:146
+#: src/components/remotes/Login/Login.tsx:150
 msgid "auth.login.invalid_credentials"
 msgstr "The username or password is incorrect."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:323
+#: src/components/remotes/Login/Login.tsx:318
 msgid "auth.login.no_account"
 msgstr "Don't have an account?"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:198
+#: src/components/remotes/Login/components/LoginForm.tsx:189
 msgid "auth.login.submitting"
 msgstr "Logging in..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:200
-#: src/components/remotes/Login/Login.tsx:275
-#: src/components/remotes/Signup/Signup.tsx:560
+#: src/components/remotes/Login/components/LoginForm.tsx:191
+#: src/components/remotes/Login/Login.tsx:270
+#: src/components/remotes/Signup/Signup.tsx:545
 msgid "auth.login.title"
 msgstr "Log in"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:282
+#: src/components/remotes/Login/Login.tsx:277
 msgid "auth.login.welcome_back"
 msgstr "Welcome back"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:558
+#: src/components/remotes/Signup/Signup.tsx:543
 msgid "auth.signup.already_have_account"
 msgstr "Already have an account?"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Signup/Signup.tsx:315
-#: src/components/remotes/Signup/Signup.tsx:547
+#: src/components/remotes/Signup/Signup.tsx:532
 msgid "auth.signup.as_author"
 msgstr "Sign up as an author"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Signup/Signup.tsx:317
-#: src/components/remotes/Signup/Signup.tsx:549
+#: src/components/remotes/Signup/Signup.tsx:534
 msgid "auth.signup.as_reader"
 msgstr "Sign up as a reader"
 
@@ -136,12 +136,12 @@ msgid "auth.signup.author_description"
 msgstr "Create your invited author account"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:242
+#: src/components/remotes/Signup/Signup.tsx:249
 msgid "auth.signup.complete_security_check"
 msgstr "Complete the security check."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:281
+#: src/components/remotes/Signup/Signup.tsx:288
 msgid "auth.signup.failed"
 msgstr "Could not create your account."
 
@@ -151,22 +151,22 @@ msgid "auth.signup.password_strength"
 msgstr "Password strength: {passwordStrengthLabel}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:90
+#: src/components/remotes/Signup/Signup.tsx:97
 msgid "auth.signup.password_strength.fair"
 msgstr "Fair"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:94
+#: src/components/remotes/Signup/Signup.tsx:101
 msgid "auth.signup.password_strength.strong"
 msgstr "Strong"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:82
+#: src/components/remotes/Signup/Signup.tsx:89
 msgid "auth.signup.password_strength.too_short"
 msgstr "Too short"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:86
+#: src/components/remotes/Signup/Signup.tsx:93
 msgid "auth.signup.password_strength.weak"
 msgstr "Weak"
 
@@ -176,32 +176,32 @@ msgid "auth.signup.reader_description"
 msgstr "Discover stories from independent authors"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:325
+#: src/components/remotes/Login/Login.tsx:320
 msgid "auth.signup.title"
 msgstr "Sign up"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SocialLogin/SocialLogin.tsx:79
+#: src/components/remotes/SocialLogin/SocialLogin.tsx:69
 msgid "auth.social.continue_with"
 msgstr "Continue with {providerName}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SocialLogin/SocialLogin.tsx:88
+#: src/components/remotes/SocialLogin/SocialLogin.tsx:78
 msgid "auth.social.first_sign_in"
 msgstr "Your first social sign-in creates a BLEX account."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SocialLogin/SocialLogin.tsx:93
+#: src/components/remotes/SocialLogin/SocialLogin.tsx:83
 msgid "auth.social.password_divider"
 msgstr "Or use a username and password"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:80
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:87
 msgid "auth.two_factor.back_to_login"
 msgstr "Back to login"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:280
+#: src/components/remotes/Login/Login.tsx:275
 msgid "auth.two_factor.description"
 msgstr "Use your authenticator app or a recovery key to sign in."
 
@@ -216,107 +216,107 @@ msgid "auth.two_factor.failed_blocked"
 msgstr "Too many failed attempts. Try again in 5 minutes."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:228
+#: src/components/remotes/Login/Login.tsx:232
 msgid "auth.two_factor.incorrect_code"
 msgstr "The verification code is incorrect."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:185
+#: src/components/remotes/Login/Login.tsx:189
 msgid "auth.two_factor.invalid_format"
 msgstr "Enter a valid 6-digit code."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:189
+#: src/components/remotes/Login/Login.tsx:193
 msgid "auth.two_factor.invalid_recovery_key"
 msgstr "Enter a valid recovery key."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:43
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:50
 msgid "auth.two_factor.recovery_key"
 msgstr "Recovery key"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:216
+#: src/components/remotes/Login/Login.tsx:220
 msgid "auth.two_factor.success_redirect"
 msgstr "Verification complete. Redirecting you to the home page."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:273
+#: src/components/remotes/Login/Login.tsx:268
 msgid "auth.two_factor.title"
 msgstr "Two-factor authentication"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:70
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:77
 msgid "auth.two_factor.use_authenticator"
 msgstr "Use an authenticator code"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:72
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:79
 msgid "auth.two_factor.use_recovery_key"
 msgstr "Use a recovery key"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:128
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:120
 msgid "auth.two_factor.verify"
 msgstr "Verify"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:126
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:118
 msgid "auth.two_factor.verifying"
 msgstr "Verifying..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:224
+#: src/components/remotes/Signup/Signup.tsx:231
 msgid "auth.validation.confirm_password_required"
 msgstr "Confirm your password."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:191
+#: src/components/remotes/Signup/Signup.tsx:198
 msgid "auth.validation.display_name_required"
 msgstr "Display name is required."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:204
+#: src/components/remotes/Signup/Signup.tsx:211
 msgid "auth.validation.email_invalid"
 msgstr "Enter a valid email address."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:198
+#: src/components/remotes/Signup/Signup.tsx:205
 msgid "auth.validation.email_required"
 msgstr "Email is required."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:230
+#: src/components/remotes/Signup/Signup.tsx:237
 #: src/components/remotes/Signup/Signup.tsx:448
 #: src/components/remotes/Signup/Signup.tsx:489
 msgid "auth.validation.password_mismatch"
 msgstr "Passwords do not match."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:109
-#: src/components/remotes/Signup/Signup.tsx:211
+#: src/components/remotes/Login/Login.tsx:113
+#: src/components/remotes/Signup/Signup.tsx:218
 msgid "auth.validation.password_required"
 msgstr "Password is required."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:217
+#: src/components/remotes/Signup/Signup.tsx:224
 msgid "auth.validation.password_too_short"
 msgstr "Password must be at least 8 characters."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:178
+#: src/components/remotes/Signup/Signup.tsx:185
 #: src/components/remotes/Signup/Signup.tsx:357
 msgid "auth.validation.username_characters"
 msgstr "Use only lowercase letters and numbers."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:184
+#: src/components/remotes/Signup/Signup.tsx:191
 msgid "auth.validation.username_length"
 msgstr "Username must be 4–15 lowercase letters or numbers."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:102
-#: src/components/remotes/Signup/Signup.tsx:172
+#: src/components/remotes/Login/Login.tsx:106
+#: src/components/remotes/Signup/Signup.tsx:179
 msgid "auth.validation.username_required"
 msgstr "Username is required."
 
@@ -346,17 +346,17 @@ msgid "author.heatmap.unit"
 msgstr "Unit: activity"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Author/PinnedPostQuickAction.tsx:99
+#: src/components/remotes/Author/PinnedPostQuickAction.tsx:104
 msgid "author.pinned_posts.action"
 msgstr "Manage pinned posts"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Author/PinnedPostQuickAction.tsx:115
+#: src/components/remotes/Author/PinnedPostQuickAction.tsx:120
 msgid "author.pinned_posts.loading"
 msgstr "Loading pinned posts..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Author/PinnedPostQuickAction.tsx:105
+#: src/components/remotes/Author/PinnedPostQuickAction.tsx:110
 msgid "author.pinned_posts.modal_title"
 msgstr "Manage pinned posts"
 
@@ -376,7 +376,7 @@ msgid "comments.closed"
 msgstr "The author is not accepting new comments or replies on this post."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentItem.tsx:106
+#: src/components/remotes/Comments/components/CommentItem.tsx:112
 msgid "comments.comment_by_author"
 msgstr "Comment by {author}"
 
@@ -427,7 +427,7 @@ msgstr "Delete comment"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentHeader.tsx:21
-#: src/components/remotes/Comments/components/CommentItem.tsx:63
+#: src/components/remotes/Comments/components/CommentItem.tsx:69
 msgid "comments.deleted_author"
 msgstr "Deleted user"
 
@@ -482,7 +482,7 @@ msgid "comments.edited"
 msgstr "Edited"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/EmptyState.tsx:20
+#: src/components/remotes/Comments/components/EmptyState.tsx:9
 msgid "comments.empty"
 msgstr "No comments yet"
 
@@ -567,12 +567,12 @@ msgid "comments.login_required"
 msgstr "Log in to comment"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentItem.tsx:118
+#: src/components/remotes/Comments/components/CommentItem.tsx:124
 msgid "comments.options.open"
 msgstr "Open comment options"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentItem.tsx:101
+#: src/components/remotes/Comments/components/CommentItem.tsx:107
 msgid "comments.reply_by_author"
 msgstr "Reply by {author}"
 
@@ -597,13 +597,13 @@ msgid "comments.reply.parent_missing"
 msgstr "Could not find the comment to reply to."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentItem.tsx:185
+#: src/components/remotes/Comments/components/CommentItem.tsx:191
 msgid "comments.reply.placeholder"
 msgstr "Write a reply..."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentActions.tsx:83
-#: src/components/remotes/Comments/components/CommentItem.tsx:191
+#: src/components/remotes/Comments/components/CommentItem.tsx:197
 msgid "comments.reply.submit"
 msgstr "Post reply"
 
@@ -613,7 +613,7 @@ msgid "comments.reply.success"
 msgstr "Reply posted."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentItem.tsx:170
+#: src/components/remotes/Comments/components/CommentItem.tsx:176
 msgid "comments.replying_to"
 msgstr "Replying to {author}"
 
@@ -715,7 +715,7 @@ msgid "common.create"
 msgstr "Create"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentItem.tsx:78
+#: src/components/remotes/Comments/components/CommentItem.tsx:84
 #: src/components/remotes/Comments/hooks/useCommentsController.ts:279
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:608
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:639
@@ -772,7 +772,7 @@ msgid "common.done"
 msgstr "Done"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentItem.tsx:70
+#: src/components/remotes/Comments/components/CommentItem.tsx:76
 #: src/components/remotes/SettingsApp/pages/BannerSetting/components/BannerList.tsx:103
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:348
 #: src/components/remotes/SettingsApp/pages/GlobalBannerSetting/components/GlobalBannerList.tsx:103
@@ -787,9 +787,9 @@ msgid "common.enable"
 msgstr "Enable"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:155
-#: src/components/remotes/Login/Login.tsx:243
-#: src/components/remotes/Signup/Signup.tsx:287
+#: src/components/remotes/Login/Login.tsx:159
+#: src/components/remotes/Login/Login.tsx:247
+#: src/components/remotes/Signup/Signup.tsx:294
 msgid "common.error.try_again"
 msgstr "Something went wrong. Please try again."
 
@@ -870,7 +870,7 @@ msgid "common.previous"
 msgstr "Previous"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:543
+#: src/components/remotes/Signup/Signup.tsx:528
 msgid "common.processing"
 msgstr "Processing..."
 
@@ -941,7 +941,7 @@ msgstr "Clear search"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:112
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:127
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:125
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:134
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:203
 msgid "common.untitled"
@@ -2195,56 +2195,56 @@ msgid "editor.validation.url_required"
 msgstr "Enter a post URL."
 
 #. js-lingui-explicit-id
-#: src/contexts/LoginPromptContext.tsx:63
+#: src/contexts/LoginPromptContext.tsx:64
 msgid "login_prompt.action.generic"
 msgstr "this action"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:127
-#: src/contexts/LoginPromptContext.tsx:127
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:116
+#: src/contexts/LoginPromptContext.tsx:116
 msgid "login_prompt.cancel"
 msgstr "Cancel"
 
 #. js-lingui-explicit-id
-#: src/contexts/LoginPromptContext.tsx:106
+#: src/contexts/LoginPromptContext.tsx:95
 msgid "login_prompt.description.action"
 msgstr "Log in to continue with {action}."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:61
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:62
 msgid "login_prompt.description.comment"
 msgstr "Log in to leave a comment."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:53
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:54
 msgid "login_prompt.description.generic"
 msgstr "Log in to continue."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:57
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:58
 msgid "login_prompt.description.like"
 msgstr "Log in to like this post."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:65
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:66
 msgid "login_prompt.description.reply"
 msgstr "Log in to reply."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:69
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:70
 msgid "login_prompt.description.subscribe"
 msgstr "Log in to get notified about new posts from this author."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:121
-#: src/contexts/LoginPromptContext.tsx:118
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:110
+#: src/contexts/LoginPromptContext.tsx:107
 msgid "login_prompt.login"
 msgstr "Log in"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:75
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:107
-#: src/contexts/LoginPromptContext.tsx:98
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:76
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:96
+#: src/contexts/LoginPromptContext.tsx:87
 msgid "login_prompt.title"
 msgstr "Login required"
 
@@ -2420,157 +2420,157 @@ msgid "post_timelapse.title"
 msgstr "How this post was written"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:172
+#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:178
 msgid "related_posts.empty.body"
 msgstr "Find more posts on this profile."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:169
+#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:175
 msgid "related_posts.empty.title"
 msgstr "Explore more posts by {username}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:177
+#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:183
 msgid "related_posts.profile"
 msgstr "View profile"
 
 #. js-lingui-explicit-id
 #. placeholder {0}: relatedPost.readTime
-#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:80
+#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:86
 msgid "related_posts.read_time"
 msgstr "{0, plural, one {# min} other {# mins}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:145
-#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:189
+#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:151
+#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:195
 msgid "related_posts.title"
 msgstr "Related posts"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:410
+#: src/components/remotes/SearchPage/SearchPage.tsx:417
 msgid "search.author_filter"
 msgstr "Filtering by author: <0>@{usernameFilter}</0>"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:575
+#: src/components/remotes/SearchPage/SearchPage.tsx:582
 msgid "search.empty.body"
 msgstr "Try a different search term."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:572
+#: src/components/remotes/SearchPage/SearchPage.tsx:579
 msgid "search.empty.title"
 msgstr "No results found"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:214
+#: src/components/remotes/SearchPage/SearchPage.tsx:221
 msgid "search.error.generic"
 msgstr "Something went wrong while searching."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:456
+#: src/components/remotes/SearchPage/SearchPage.tsx:463
 msgid "search.error.heading"
 msgstr "Unable to complete search"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:223
+#: src/components/remotes/SearchPage/SearchPage.tsx:230
 msgid "search.error.network"
 msgstr "Search is temporarily unavailable. Please try again shortly."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:399
+#: src/components/remotes/SearchPage/SearchPage.tsx:406
 msgid "search.input.clear"
 msgstr "Clear search term"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:386
+#: src/components/remotes/SearchPage/SearchPage.tsx:393
 msgid "search.input.label"
 msgstr "Search posts"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:382
+#: src/components/remotes/SearchPage/SearchPage.tsx:389
 msgid "search.input.placeholder"
 msgstr "Enter a search term"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:369
+#: src/components/remotes/SearchPage/SearchPage.tsx:376
 msgid "search.loading"
 msgstr "Searching"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:342
+#: src/components/remotes/SearchPage/SearchPage.tsx:349
 msgid "search.match.content"
 msgstr "Content"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:334
+#: src/components/remotes/SearchPage/SearchPage.tsx:341
 msgid "search.match.description"
 msgstr "Description"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:338
+#: src/components/remotes/SearchPage/SearchPage.tsx:345
 msgid "search.match.tag"
 msgstr "Tag"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:330
+#: src/components/remotes/SearchPage/SearchPage.tsx:337
 msgid "search.match.title"
 msgstr "Title"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:615
+#: src/components/remotes/SearchPage/SearchPage.tsx:622
 msgid "search.pagination.next"
 msgstr "Next"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:596
+#: src/components/remotes/SearchPage/SearchPage.tsx:603
 msgid "search.pagination.page"
 msgstr "Go to page {page}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:587
+#: src/components/remotes/SearchPage/SearchPage.tsx:594
 msgid "search.pagination.previous"
 msgstr "Previous"
 
 #. js-lingui-explicit-id
 #. placeholder {0}: result.readTime
-#: src/components/remotes/SearchPage/SearchPage.tsx:528
+#: src/components/remotes/SearchPage/SearchPage.tsx:535
 msgid "search.read_time"
 msgstr "{0, plural, one {# min read} other {# mins read}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:437
+#: src/components/remotes/SearchPage/SearchPage.tsx:444
 msgid "search.recent.remove"
 msgstr "Remove “{query}” from recent searches"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:420
+#: src/components/remotes/SearchPage/SearchPage.tsx:427
 msgid "search.recent.title"
 msgstr "Recent searches"
 
 #. js-lingui-explicit-id
 #. placeholder {0}: searchResults.totalSize ?? 0
-#: src/components/remotes/SearchPage/SearchPage.tsx:469
+#: src/components/remotes/SearchPage/SearchPage.tsx:476
 msgid "search.results.count"
 msgstr "{0, plural, one {# post} other {# posts}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:478
+#: src/components/remotes/SearchPage/SearchPage.tsx:485
 msgid "search.results.for"
 msgstr "Results for “{displayedQuery}”"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:361
+#: src/components/remotes/SearchPage/SearchPage.tsx:368
 msgid "search.title"
 msgstr "Search posts"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:209
+#: src/components/remotes/SearchPage/SearchPage.tsx:216
 msgid "search.validation.invalid_page"
 msgstr "Invalid page number."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:204
-#: src/components/remotes/SearchPage/SearchPage.tsx:273
+#: src/components/remotes/SearchPage/SearchPage.tsx:211
+#: src/components/remotes/SearchPage/SearchPage.tsx:280
 msgid "search.validation.query_required"
 msgstr "Enter a search term."
 
@@ -4514,7 +4514,7 @@ msgid "settings.pinned_posts.empty"
 msgstr "No pinned posts yet"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Author/PinnedPostQuickAction.tsx:53
+#: src/components/remotes/Author/PinnedPostQuickAction.tsx:58
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:50
 msgid "settings.pinned_posts.error.load"
 msgstr "Could not load pinned posts."
@@ -4668,67 +4668,67 @@ msgid "settings.pinned_posts.view_trash"
 msgstr "View trash"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:252
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:246
 msgid "settings.posts.card.edit"
 msgstr "Edit post"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:244
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:238
 msgid "settings.posts.card.open_menu"
 msgstr "Open post menu: {title}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:196
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:190
 msgid "settings.posts.card.read_time"
 msgstr "{minutes, plural, one {# min} other {# min}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:212
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:206
 msgid "settings.posts.card.recently_updated"
 msgstr "Recently updated"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:155
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:153
 msgid "settings.posts.card.view_post"
 msgstr "View post: {title}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:306
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:300
 msgid "settings.posts.classification.close"
 msgstr "Close tag and series editor"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:318
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:312
 msgid "settings.posts.classification.label"
 msgstr "Tags · Series"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:310
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:304
 msgid "settings.posts.classification.open"
 msgstr "Open tag and series editor"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:328
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:322
 msgid "settings.posts.classification.save_required"
 msgstr "{fields}: save required"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:89
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:87
 msgid "settings.posts.classification.series"
 msgstr "Series"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:100
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:98
 msgid "settings.posts.classification.tag_count"
 msgstr "{count, plural, one {# tag} other {# tags}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:85
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:83
 msgid "settings.posts.classification.tags"
 msgstr "Tags"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:80
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:78
 msgid "settings.posts.classification.tags_and_series"
 msgstr "Tags and series"
 
@@ -4996,18 +4996,18 @@ msgid "settings.posts.scheduled_for"
 msgstr "Scheduled for {date}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:400
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:410
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:394
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:404
 msgid "settings.posts.series.none"
 msgstr "No series"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:425
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:419
 msgid "settings.posts.series.save"
 msgstr "Save series"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:392
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:386
 msgid "settings.posts.series.select_aria"
 msgstr "Select series for {title}"
 
@@ -5109,7 +5109,7 @@ msgid "settings.posts.share_links.save_failed"
 msgstr "Could not save the share link."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:260
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:254
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:124
 msgid "settings.posts.share_links.title"
 msgstr "Share links"
@@ -5163,17 +5163,17 @@ msgid "settings.posts.tabs.trash"
 msgstr "Trash"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:352
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:346
 msgid "settings.posts.tags.input_aria"
 msgstr "Tags for {title}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:357
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:351
 msgid "settings.posts.tags.placeholder"
 msgstr "Enter tags..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:374
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:368
 msgid "settings.posts.tags.save"
 msgstr "Save tags"
 
@@ -5238,7 +5238,7 @@ msgstr "Could not load the trash."
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:60
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:148
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:275
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:269
 #: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:91
 msgid "settings.posts.trash.move.confirm"
 msgstr "Move to trash"
@@ -5321,34 +5321,34 @@ msgid "settings.posts.visibility.changed_public"
 msgstr "Post is now public."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:123
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:121
 msgid "settings.posts.visibility.make_private"
 msgstr "Make private"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:119
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:117
 msgid "settings.posts.visibility.make_private_after_publish"
 msgstr "Make private after publishing"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:114
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:112
 msgid "settings.posts.visibility.make_public"
 msgstr "Make public"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:110
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:108
 msgid "settings.posts.visibility.make_public_after_publish"
 msgstr "Make public after publishing"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:230
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:224
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:95
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:278
 msgid "settings.posts.visibility.private"
 msgstr "Private"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:226
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:220
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:91
 msgid "settings.posts.visibility.private_after_publish"
 msgstr "Private after publishing"
@@ -6462,149 +6462,149 @@ msgid "settings.site.title"
 msgstr "Blog customization"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:513
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:519
 msgid "settings.social_links.add"
 msgstr "Add link"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:474
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:480
 msgid "settings.social_links.add_first"
 msgstr "Add a social link"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:451
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:457
 msgid "settings.social_links.description"
 msgstr "Displayed on your profile. Drag to change the order."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:462
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:468
 msgid "settings.social_links.empty"
 msgstr "No social links yet"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:152
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:189
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:161
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:198
 msgid "settings.social_links.item.label"
 msgstr "Social link"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:162
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:171
 msgid "settings.social_links.item.remove"
 msgstr "Remove {platform}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:157
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:166
 msgid "settings.social_links.item.reorder"
 msgstr "Change order of social link {position}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:294
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:300
 msgid "settings.social_links.load_failed"
 msgstr "Could not load social links."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:108
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:117
 msgid "settings.social_links.platform.facebook"
 msgstr "Facebook"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:87
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:96
 msgid "settings.social_links.platform.github"
 msgstr "GitHub"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:122
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:131
 msgid "settings.social_links.platform.instagram"
 msgstr "Instagram"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:224
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:230
 msgid "settings.social_links.platform.label"
 msgstr "Platform"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:129
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:138
 msgid "settings.social_links.platform.linkedin"
 msgstr "LinkedIn"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:143
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:152
 msgid "settings.social_links.platform.other"
 msgstr "Other"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:80
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:89
 msgid "settings.social_links.platform.select"
 msgstr "Select platform"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:115
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:124
 msgid "settings.social_links.platform.telegram"
 msgstr "Telegram"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:101
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:110
 msgid "settings.social_links.platform.threads"
 msgstr "Threads"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:94
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:103
 msgid "settings.social_links.platform.twitter"
 msgstr "X"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:136
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:145
 msgid "settings.social_links.platform.youtube"
 msgstr "YouTube"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:528
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:534
 msgid "settings.social_links.save"
 msgstr "Save changes"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:524
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:530
 msgid "settings.social_links.saving"
 msgstr "Saving..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:447
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:453
 msgid "settings.social_links.title"
 msgstr "Social links"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:429
 #: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:435
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:441
 msgid "settings.social_links.update_failed"
 msgstr "Could not update social links."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:418
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:424
 msgid "settings.social_links.update_success"
 msgstr "Social links updated."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:248
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:254
 msgid "settings.social_links.url.label"
 msgstr "Link URL"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:395
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:401
 msgid "settings.social_links.validation.forbidden_separators"
 msgstr "Social link URLs cannot contain commas or ampersands."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:386
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:392
 msgid "settings.social_links.validation.https_required"
 msgstr "Social link URLs must start with https://."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:368
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:374
 msgid "settings.social_links.validation.platform_required"
 msgstr "Select a platform for every social link."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:377
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:383
 msgid "settings.social_links.validation.url_required"
 msgstr "Enter a URL for every social link."
 
@@ -8136,31 +8136,31 @@ msgid "settings.webhooks.validation.url_required"
 msgstr "Enter a webhook URL."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:57
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:55
 msgid "subscription_telegram_hint.aria_label"
 msgstr "Telegram suggestion"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:73
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:66
 msgid "subscription_telegram_hint.close"
 msgstr "Close"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:96
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:89
 msgid "subscription_telegram_hint.connect"
 msgstr "Connect Telegram"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:87
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:80
 msgid "subscription_telegram_hint.headline"
 msgstr "Get new posts on Telegram"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:102
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:95
 msgid "subscription_telegram_hint.later"
 msgstr "Later"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:84
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:77
 msgid "subscription_telegram_hint.title"
 msgstr "Subscribed"

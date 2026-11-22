@@ -7,9 +7,7 @@ import {
 import { useLingui } from '@lingui/react/macro';
 import { Modal } from '~/components/shared';
 import { LoginPromptContext } from './internal/LoginPromptContextDef';
-import {
-    UserRound
-} from '@blex/ui/icons';
+import { UserRound } from '@blex/ui/icons';
 
 interface LoginPromptDialogState {
     isOpen: boolean;

@@ -44,7 +44,7 @@ msgid "auth.fields.email_placeholder"
 msgstr "이메일 주소를 입력해 주세요"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:132
+#: src/components/remotes/Login/components/LoginForm.tsx:138
 #: src/components/remotes/Signup/Signup.tsx:432
 msgid "auth.fields.password"
 msgstr "비밀번호"
@@ -55,12 +55,12 @@ msgid "auth.fields.password_new_placeholder"
 msgstr "안전한 비밀번호를 입력해 주세요"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:145
+#: src/components/remotes/Login/components/LoginForm.tsx:151
 msgid "auth.fields.password_placeholder"
 msgstr "비밀번호를 입력해 주세요"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:105
+#: src/components/remotes/Login/components/LoginForm.tsx:111
 #: src/components/remotes/Signup/Signup.tsx:342
 msgid "auth.fields.username"
 msgstr "사용자 이름"
@@ -72,7 +72,7 @@ msgid "auth.fields.username_hint"
 msgstr "영문 소문자와 숫자 4~15자"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:118
+#: src/components/remotes/Login/components/LoginForm.tsx:124
 msgid "auth.fields.username_placeholder"
 msgstr "사용자 이름을 입력해 주세요"
 
@@ -87,46 +87,46 @@ msgid "auth.login.failed_blocked_remaining"
 msgstr "너무 많은 실패로 인해 {seconds}초 동안 차단되었습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:146
+#: src/components/remotes/Login/Login.tsx:150
 msgid "auth.login.invalid_credentials"
 msgstr "잘못된 사용자 이름 또는 비밀번호입니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:323
+#: src/components/remotes/Login/Login.tsx:318
 msgid "auth.login.no_account"
 msgstr "계정이 없으신가요?"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:198
+#: src/components/remotes/Login/components/LoginForm.tsx:189
 msgid "auth.login.submitting"
 msgstr "로그인 중..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:200
-#: src/components/remotes/Login/Login.tsx:275
-#: src/components/remotes/Signup/Signup.tsx:560
+#: src/components/remotes/Login/components/LoginForm.tsx:191
+#: src/components/remotes/Login/Login.tsx:270
+#: src/components/remotes/Signup/Signup.tsx:545
 msgid "auth.login.title"
 msgstr "로그인"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:282
+#: src/components/remotes/Login/Login.tsx:277
 msgid "auth.login.welcome_back"
 msgstr "돌아오신 것을 환영해요"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:558
+#: src/components/remotes/Signup/Signup.tsx:543
 msgid "auth.signup.already_have_account"
 msgstr "이미 계정이 있으신가요?"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Signup/Signup.tsx:315
-#: src/components/remotes/Signup/Signup.tsx:547
+#: src/components/remotes/Signup/Signup.tsx:532
 msgid "auth.signup.as_author"
 msgstr "작가로 가입하기"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Signup/Signup.tsx:317
-#: src/components/remotes/Signup/Signup.tsx:549
+#: src/components/remotes/Signup/Signup.tsx:534
 msgid "auth.signup.as_reader"
 msgstr "독자로 가입하기"
 
@@ -136,12 +136,12 @@ msgid "auth.signup.author_description"
 msgstr "초대받은 작가 계정을 만듭니다"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:242
+#: src/components/remotes/Signup/Signup.tsx:249
 msgid "auth.signup.complete_security_check"
 msgstr "보안 확인을 완료해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:281
+#: src/components/remotes/Signup/Signup.tsx:288
 msgid "auth.signup.failed"
 msgstr "회원가입에 실패했습니다."
 
@@ -151,22 +151,22 @@ msgid "auth.signup.password_strength"
 msgstr "비밀번호 강도: {passwordStrengthLabel}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:90
+#: src/components/remotes/Signup/Signup.tsx:97
 msgid "auth.signup.password_strength.fair"
 msgstr "보통"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:94
+#: src/components/remotes/Signup/Signup.tsx:101
 msgid "auth.signup.password_strength.strong"
 msgstr "강함"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:82
+#: src/components/remotes/Signup/Signup.tsx:89
 msgid "auth.signup.password_strength.too_short"
 msgstr "너무 짧음"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:86
+#: src/components/remotes/Signup/Signup.tsx:93
 msgid "auth.signup.password_strength.weak"
 msgstr "약함"
 
@@ -176,32 +176,32 @@ msgid "auth.signup.reader_description"
 msgstr "작가들의 이야기를 읽어 보세요"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:325
+#: src/components/remotes/Login/Login.tsx:320
 msgid "auth.signup.title"
 msgstr "회원가입"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SocialLogin/SocialLogin.tsx:79
+#: src/components/remotes/SocialLogin/SocialLogin.tsx:69
 msgid "auth.social.continue_with"
 msgstr "{providerName}로 계속하기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SocialLogin/SocialLogin.tsx:88
+#: src/components/remotes/SocialLogin/SocialLogin.tsx:78
 msgid "auth.social.first_sign_in"
 msgstr "소셜 계정으로 처음 로그인하면 BLEX 계정이 만들어져요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SocialLogin/SocialLogin.tsx:93
+#: src/components/remotes/SocialLogin/SocialLogin.tsx:83
 msgid "auth.social.password_divider"
 msgstr "또는 사용자 이름과 비밀번호로 계속하기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:80
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:87
 msgid "auth.two_factor.back_to_login"
 msgstr "로그인 화면으로 돌아가기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:280
+#: src/components/remotes/Login/Login.tsx:275
 msgid "auth.two_factor.description"
 msgstr "인증 앱 코드 또는 복구 키로 로그인하세요."
 
@@ -216,107 +216,107 @@ msgid "auth.two_factor.failed_blocked"
 msgstr "너무 많은 실패로 인해 5분 동안 차단되었습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:228
+#: src/components/remotes/Login/Login.tsx:232
 msgid "auth.two_factor.incorrect_code"
 msgstr "잘못된 인증 코드입니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:185
+#: src/components/remotes/Login/Login.tsx:189
 msgid "auth.two_factor.invalid_format"
 msgstr "올바른 6자리 숫자 코드를 입력해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:189
+#: src/components/remotes/Login/Login.tsx:193
 msgid "auth.two_factor.invalid_recovery_key"
 msgstr "올바른 복구 키를 입력해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:43
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:50
 msgid "auth.two_factor.recovery_key"
 msgstr "복구 키"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:216
+#: src/components/remotes/Login/Login.tsx:220
 msgid "auth.two_factor.success_redirect"
 msgstr "인증이 완료되었습니다. 잠시 후 이동합니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:273
+#: src/components/remotes/Login/Login.tsx:268
 msgid "auth.two_factor.title"
 msgstr "이중 인증"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:70
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:77
 msgid "auth.two_factor.use_authenticator"
 msgstr "인증 앱 코드 사용"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:72
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:79
 msgid "auth.two_factor.use_recovery_key"
 msgstr "복구 키 사용"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:128
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:120
 msgid "auth.two_factor.verify"
 msgstr "인증하기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:126
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:118
 msgid "auth.two_factor.verifying"
 msgstr "인증 중..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:224
+#: src/components/remotes/Signup/Signup.tsx:231
 msgid "auth.validation.confirm_password_required"
 msgstr "비밀번호를 한 번 더 입력해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:191
+#: src/components/remotes/Signup/Signup.tsx:198
 msgid "auth.validation.display_name_required"
 msgstr "표시 이름을 입력해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:204
+#: src/components/remotes/Signup/Signup.tsx:211
 msgid "auth.validation.email_invalid"
 msgstr "올바른 이메일 주소를 입력해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:198
+#: src/components/remotes/Signup/Signup.tsx:205
 msgid "auth.validation.email_required"
 msgstr "이메일을 입력해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:230
+#: src/components/remotes/Signup/Signup.tsx:237
 #: src/components/remotes/Signup/Signup.tsx:448
 #: src/components/remotes/Signup/Signup.tsx:489
 msgid "auth.validation.password_mismatch"
 msgstr "비밀번호가 일치하지 않습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:109
-#: src/components/remotes/Signup/Signup.tsx:211
+#: src/components/remotes/Login/Login.tsx:113
+#: src/components/remotes/Signup/Signup.tsx:218
 msgid "auth.validation.password_required"
 msgstr "비밀번호를 입력해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:217
+#: src/components/remotes/Signup/Signup.tsx:224
 msgid "auth.validation.password_too_short"
 msgstr "비밀번호는 8자 이상이어야 합니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:178
+#: src/components/remotes/Signup/Signup.tsx:185
 #: src/components/remotes/Signup/Signup.tsx:357
 msgid "auth.validation.username_characters"
 msgstr "영문 소문자와 숫자만 사용할 수 있습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:184
+#: src/components/remotes/Signup/Signup.tsx:191
 msgid "auth.validation.username_length"
 msgstr "사용자 이름은 영문 소문자와 숫자로 4~15자여야 합니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:102
-#: src/components/remotes/Signup/Signup.tsx:172
+#: src/components/remotes/Login/Login.tsx:106
+#: src/components/remotes/Signup/Signup.tsx:179
 msgid "auth.validation.username_required"
 msgstr "사용자 이름을 입력해 주세요."
 
@@ -346,17 +346,17 @@ msgid "author.heatmap.unit"
 msgstr "단위: 활동"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Author/PinnedPostQuickAction.tsx:99
+#: src/components/remotes/Author/PinnedPostQuickAction.tsx:104
 msgid "author.pinned_posts.action"
 msgstr "고정 포스트 설정"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Author/PinnedPostQuickAction.tsx:115
+#: src/components/remotes/Author/PinnedPostQuickAction.tsx:120
 msgid "author.pinned_posts.loading"
 msgstr "고정 포스트를 불러오는 중..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Author/PinnedPostQuickAction.tsx:105
+#: src/components/remotes/Author/PinnedPostQuickAction.tsx:110
 msgid "author.pinned_posts.modal_title"
 msgstr "고정 포스트 설정"
 
@@ -376,7 +376,7 @@ msgid "comments.closed"
 msgstr "작성자가 이 글의 새 댓글과 답글을 받지 않습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentItem.tsx:106
+#: src/components/remotes/Comments/components/CommentItem.tsx:112
 msgid "comments.comment_by_author"
 msgstr "{author}님의 댓글"
 
@@ -427,7 +427,7 @@ msgstr "댓글 삭제"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentHeader.tsx:21
-#: src/components/remotes/Comments/components/CommentItem.tsx:63
+#: src/components/remotes/Comments/components/CommentItem.tsx:69
 msgid "comments.deleted_author"
 msgstr "삭제된 사용자"
 
@@ -482,7 +482,7 @@ msgid "comments.edited"
 msgstr "수정됨"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/EmptyState.tsx:20
+#: src/components/remotes/Comments/components/EmptyState.tsx:9
 msgid "comments.empty"
 msgstr "아직 댓글이 없습니다"
 
@@ -567,12 +567,12 @@ msgid "comments.login_required"
 msgstr "로그인하고 댓글 작성"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentItem.tsx:118
+#: src/components/remotes/Comments/components/CommentItem.tsx:124
 msgid "comments.options.open"
 msgstr "댓글 옵션 열기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentItem.tsx:101
+#: src/components/remotes/Comments/components/CommentItem.tsx:107
 msgid "comments.reply_by_author"
 msgstr "{author}님의 답글"
 
@@ -597,13 +597,13 @@ msgid "comments.reply.parent_missing"
 msgstr "답글을 남길 댓글을 찾지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentItem.tsx:185
+#: src/components/remotes/Comments/components/CommentItem.tsx:191
 msgid "comments.reply.placeholder"
 msgstr "답글을 작성하세요..."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentActions.tsx:83
-#: src/components/remotes/Comments/components/CommentItem.tsx:191
+#: src/components/remotes/Comments/components/CommentItem.tsx:197
 msgid "comments.reply.submit"
 msgstr "답글 작성"
 
@@ -613,7 +613,7 @@ msgid "comments.reply.success"
 msgstr "답글을 작성했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentItem.tsx:170
+#: src/components/remotes/Comments/components/CommentItem.tsx:176
 msgid "comments.replying_to"
 msgstr "{author}님에게 답글 작성 중"
 
@@ -715,7 +715,7 @@ msgid "common.create"
 msgstr "생성"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentItem.tsx:78
+#: src/components/remotes/Comments/components/CommentItem.tsx:84
 #: src/components/remotes/Comments/hooks/useCommentsController.ts:279
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:608
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:639
@@ -772,7 +772,7 @@ msgid "common.done"
 msgstr "완료"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentItem.tsx:70
+#: src/components/remotes/Comments/components/CommentItem.tsx:76
 #: src/components/remotes/SettingsApp/pages/BannerSetting/components/BannerList.tsx:103
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:348
 #: src/components/remotes/SettingsApp/pages/GlobalBannerSetting/components/GlobalBannerList.tsx:103
@@ -787,9 +787,9 @@ msgid "common.enable"
 msgstr "활성화"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:155
-#: src/components/remotes/Login/Login.tsx:243
-#: src/components/remotes/Signup/Signup.tsx:287
+#: src/components/remotes/Login/Login.tsx:159
+#: src/components/remotes/Login/Login.tsx:247
+#: src/components/remotes/Signup/Signup.tsx:294
 msgid "common.error.try_again"
 msgstr "오류가 발생했습니다. 다시 시도해 주세요."
 
@@ -870,7 +870,7 @@ msgid "common.previous"
 msgstr "이전"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:543
+#: src/components/remotes/Signup/Signup.tsx:528
 msgid "common.processing"
 msgstr "처리 중..."
 
@@ -941,7 +941,7 @@ msgstr "검색어 지우기"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:112
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:127
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:125
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:134
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:203
 msgid "common.untitled"
@@ -2195,56 +2195,56 @@ msgid "editor.validation.url_required"
 msgstr "URL을 입력해 주세요."
 
 #. js-lingui-explicit-id
-#: src/contexts/LoginPromptContext.tsx:63
+#: src/contexts/LoginPromptContext.tsx:64
 msgid "login_prompt.action.generic"
 msgstr "이 작업"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:127
-#: src/contexts/LoginPromptContext.tsx:127
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:116
+#: src/contexts/LoginPromptContext.tsx:116
 msgid "login_prompt.cancel"
 msgstr "취소"
 
 #. js-lingui-explicit-id
-#: src/contexts/LoginPromptContext.tsx:106
+#: src/contexts/LoginPromptContext.tsx:95
 msgid "login_prompt.description.action"
 msgstr "{action}을(를) 계속하려면 로그인해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:61
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:62
 msgid "login_prompt.description.comment"
 msgstr "댓글을 남기려면 로그인해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:53
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:54
 msgid "login_prompt.description.generic"
 msgstr "계속하려면 로그인해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:57
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:58
 msgid "login_prompt.description.like"
 msgstr "좋아요를 누르려면 로그인해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:65
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:66
 msgid "login_prompt.description.reply"
 msgstr "답글을 작성하려면 로그인해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:69
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:70
 msgid "login_prompt.description.subscribe"
 msgstr "이 작가의 새 글 알림을 받으려면 로그인해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:121
-#: src/contexts/LoginPromptContext.tsx:118
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:110
+#: src/contexts/LoginPromptContext.tsx:107
 msgid "login_prompt.login"
 msgstr "로그인하기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:75
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:107
-#: src/contexts/LoginPromptContext.tsx:98
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:76
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:96
+#: src/contexts/LoginPromptContext.tsx:87
 msgid "login_prompt.title"
 msgstr "로그인이 필요해요"
 
@@ -2420,157 +2420,157 @@ msgid "post_timelapse.title"
 msgstr "이 포스트가 쓰인 과정"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:172
+#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:178
 msgid "related_posts.empty.body"
 msgstr "프로필에서 더 많은 포스트를 확인할 수 있습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:169
+#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:175
 msgid "related_posts.empty.title"
 msgstr "{username}의 다른 포스트 둘러보기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:177
+#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:183
 msgid "related_posts.profile"
 msgstr "프로필 보기"
 
 #. js-lingui-explicit-id
 #. placeholder {0}: relatedPost.readTime
-#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:80
+#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:86
 msgid "related_posts.read_time"
 msgstr "{0, plural, other {#분}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:145
-#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:189
+#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:151
+#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:195
 msgid "related_posts.title"
 msgstr "관련 포스트"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:410
+#: src/components/remotes/SearchPage/SearchPage.tsx:417
 msgid "search.author_filter"
 msgstr "작성자 필터 적용 중: <0>@{usernameFilter}</0>"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:575
+#: src/components/remotes/SearchPage/SearchPage.tsx:582
 msgid "search.empty.body"
 msgstr "다른 검색어를 시도해보세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:572
+#: src/components/remotes/SearchPage/SearchPage.tsx:579
 msgid "search.empty.title"
 msgstr "검색 결과가 없습니다"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:214
+#: src/components/remotes/SearchPage/SearchPage.tsx:221
 msgid "search.error.generic"
 msgstr "검색 중 오류가 발생했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:456
+#: src/components/remotes/SearchPage/SearchPage.tsx:463
 msgid "search.error.heading"
 msgstr "검색을 완료하지 못했습니다"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:223
+#: src/components/remotes/SearchPage/SearchPage.tsx:230
 msgid "search.error.network"
 msgstr "검색 기능을 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:399
+#: src/components/remotes/SearchPage/SearchPage.tsx:406
 msgid "search.input.clear"
 msgstr "검색어 초기화"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:386
+#: src/components/remotes/SearchPage/SearchPage.tsx:393
 msgid "search.input.label"
 msgstr "포스트 검색"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:382
+#: src/components/remotes/SearchPage/SearchPage.tsx:389
 msgid "search.input.placeholder"
 msgstr "검색어를 입력하세요"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:369
+#: src/components/remotes/SearchPage/SearchPage.tsx:376
 msgid "search.loading"
 msgstr "검색 중"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:342
+#: src/components/remotes/SearchPage/SearchPage.tsx:349
 msgid "search.match.content"
 msgstr "내용"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:334
+#: src/components/remotes/SearchPage/SearchPage.tsx:341
 msgid "search.match.description"
 msgstr "설명"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:338
+#: src/components/remotes/SearchPage/SearchPage.tsx:345
 msgid "search.match.tag"
 msgstr "태그"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:330
+#: src/components/remotes/SearchPage/SearchPage.tsx:337
 msgid "search.match.title"
 msgstr "제목"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:615
+#: src/components/remotes/SearchPage/SearchPage.tsx:622
 msgid "search.pagination.next"
 msgstr "다음"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:596
+#: src/components/remotes/SearchPage/SearchPage.tsx:603
 msgid "search.pagination.page"
 msgstr "{page}페이지로 이동"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:587
+#: src/components/remotes/SearchPage/SearchPage.tsx:594
 msgid "search.pagination.previous"
 msgstr "이전"
 
 #. js-lingui-explicit-id
 #. placeholder {0}: result.readTime
-#: src/components/remotes/SearchPage/SearchPage.tsx:528
+#: src/components/remotes/SearchPage/SearchPage.tsx:535
 msgid "search.read_time"
 msgstr "{0, plural, other {#분 읽기}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:437
+#: src/components/remotes/SearchPage/SearchPage.tsx:444
 msgid "search.recent.remove"
 msgstr "최근 검색어에서 “{query}” 삭제"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:420
+#: src/components/remotes/SearchPage/SearchPage.tsx:427
 msgid "search.recent.title"
 msgstr "최근 검색어"
 
 #. js-lingui-explicit-id
 #. placeholder {0}: searchResults.totalSize ?? 0
-#: src/components/remotes/SearchPage/SearchPage.tsx:469
+#: src/components/remotes/SearchPage/SearchPage.tsx:476
 msgid "search.results.count"
 msgstr "{0, plural, other {#개의 포스트}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:478
+#: src/components/remotes/SearchPage/SearchPage.tsx:485
 msgid "search.results.for"
 msgstr "“{displayedQuery}” 검색 결과"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:361
+#: src/components/remotes/SearchPage/SearchPage.tsx:368
 msgid "search.title"
 msgstr "포스트 검색"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:209
+#: src/components/remotes/SearchPage/SearchPage.tsx:216
 msgid "search.validation.invalid_page"
 msgstr "잘못된 페이지 번호입니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SearchPage/SearchPage.tsx:204
-#: src/components/remotes/SearchPage/SearchPage.tsx:273
+#: src/components/remotes/SearchPage/SearchPage.tsx:211
+#: src/components/remotes/SearchPage/SearchPage.tsx:280
 msgid "search.validation.query_required"
 msgstr "검색어를 입력하세요."
 
@@ -4514,7 +4514,7 @@ msgid "settings.pinned_posts.empty"
 msgstr "고정된 포스트가 없습니다"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Author/PinnedPostQuickAction.tsx:53
+#: src/components/remotes/Author/PinnedPostQuickAction.tsx:58
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:50
 msgid "settings.pinned_posts.error.load"
 msgstr "고정 포스트 목록을 불러오는데 실패했습니다."
@@ -4668,67 +4668,67 @@ msgid "settings.pinned_posts.view_trash"
 msgstr "휴지통 보기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:252
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:246
 msgid "settings.posts.card.edit"
 msgstr "포스트 편집"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:244
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:238
 msgid "settings.posts.card.open_menu"
 msgstr "{title} 포스트 메뉴 열기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:196
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:190
 msgid "settings.posts.card.read_time"
 msgstr "{minutes, plural, other {#분}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:212
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:206
 msgid "settings.posts.card.recently_updated"
 msgstr "최근 수정"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:155
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:153
 msgid "settings.posts.card.view_post"
 msgstr "{title} 포스트 보기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:306
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:300
 msgid "settings.posts.classification.close"
 msgstr "태그 및 시리즈 편집 닫기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:318
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:312
 msgid "settings.posts.classification.label"
 msgstr "태그·시리즈"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:310
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:304
 msgid "settings.posts.classification.open"
 msgstr "태그 및 시리즈 편집 열기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:328
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:322
 msgid "settings.posts.classification.save_required"
 msgstr "{fields} 저장 필요"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:89
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:87
 msgid "settings.posts.classification.series"
 msgstr "시리즈"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:100
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:98
 msgid "settings.posts.classification.tag_count"
 msgstr "{count, plural, other {태그 #개}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:85
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:83
 msgid "settings.posts.classification.tags"
 msgstr "태그"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:80
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:78
 msgid "settings.posts.classification.tags_and_series"
 msgstr "태그·시리즈"
 
@@ -4996,18 +4996,18 @@ msgid "settings.posts.scheduled_for"
 msgstr "예약 {date}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:400
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:410
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:394
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:404
 msgid "settings.posts.series.none"
 msgstr "시리즈 선택 안 함"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:425
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:419
 msgid "settings.posts.series.save"
 msgstr "시리즈 저장"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:392
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:386
 msgid "settings.posts.series.select_aria"
 msgstr "{title} 시리즈 선택"
 
@@ -5109,7 +5109,7 @@ msgid "settings.posts.share_links.save_failed"
 msgstr "공유 링크를 저장하지 못했어요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:260
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:254
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:124
 msgid "settings.posts.share_links.title"
 msgstr "공유 링크"
@@ -5163,17 +5163,17 @@ msgid "settings.posts.tabs.trash"
 msgstr "휴지통"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:352
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:346
 msgid "settings.posts.tags.input_aria"
 msgstr "{title} 태그"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:357
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:351
 msgid "settings.posts.tags.placeholder"
 msgstr "태그를 입력하세요..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:374
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:368
 msgid "settings.posts.tags.save"
 msgstr "태그 저장"
 
@@ -5238,7 +5238,7 @@ msgstr "휴지통을 불러오지 못했습니다."
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:60
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:148
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:275
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:269
 #: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:91
 msgid "settings.posts.trash.move.confirm"
 msgstr "휴지통으로 이동"
@@ -5321,34 +5321,34 @@ msgid "settings.posts.visibility.changed_public"
 msgstr "포스트가 공개로 변경되었습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:123
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:121
 msgid "settings.posts.visibility.make_private"
 msgstr "비공개로 변경"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:119
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:117
 msgid "settings.posts.visibility.make_private_after_publish"
 msgstr "발행 시 비공개로 변경"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:114
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:112
 msgid "settings.posts.visibility.make_public"
 msgstr "공개로 변경"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:110
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:108
 msgid "settings.posts.visibility.make_public_after_publish"
 msgstr "발행 시 공개로 변경"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:230
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:224
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:95
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:278
 msgid "settings.posts.visibility.private"
 msgstr "비공개"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:226
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:220
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:91
 msgid "settings.posts.visibility.private_after_publish"
 msgstr "발행 후 비공개"
@@ -6462,149 +6462,149 @@ msgid "settings.site.title"
 msgstr "블로그 꾸미기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:513
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:519
 msgid "settings.social_links.add"
 msgstr "링크 추가"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:474
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:480
 msgid "settings.social_links.add_first"
 msgstr "소셜 링크 추가"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:451
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:457
 msgid "settings.social_links.description"
 msgstr "프로필에 표시되며 드래그하여 순서를 조정할 수 있습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:462
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:468
 msgid "settings.social_links.empty"
 msgstr "소셜 링크가 없습니다"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:152
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:189
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:161
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:198
 msgid "settings.social_links.item.label"
 msgstr "소셜 링크"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:162
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:171
 msgid "settings.social_links.item.remove"
 msgstr "{platform} 삭제"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:157
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:166
 msgid "settings.social_links.item.reorder"
 msgstr "{position}번째 소셜 링크 순서 변경"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:294
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:300
 msgid "settings.social_links.load_failed"
 msgstr "소셜 링크 정보를 불러오지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:108
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:117
 msgid "settings.social_links.platform.facebook"
 msgstr "페이스북"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:87
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:96
 msgid "settings.social_links.platform.github"
 msgstr "깃허브"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:122
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:131
 msgid "settings.social_links.platform.instagram"
 msgstr "인스타그램"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:224
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:230
 msgid "settings.social_links.platform.label"
 msgstr "플랫폼"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:129
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:138
 msgid "settings.social_links.platform.linkedin"
 msgstr "링크드인"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:143
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:152
 msgid "settings.social_links.platform.other"
 msgstr "기타"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:80
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:89
 msgid "settings.social_links.platform.select"
 msgstr "플랫폼 선택"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:115
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:124
 msgid "settings.social_links.platform.telegram"
 msgstr "텔레그램"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:101
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:110
 msgid "settings.social_links.platform.threads"
 msgstr "스레드"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:94
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:103
 msgid "settings.social_links.platform.twitter"
 msgstr "X"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:136
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:145
 msgid "settings.social_links.platform.youtube"
 msgstr "유튜브"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:528
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:534
 msgid "settings.social_links.save"
 msgstr "변경사항 저장"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:524
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:530
 msgid "settings.social_links.saving"
 msgstr "저장 중..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:447
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:453
 msgid "settings.social_links.title"
 msgstr "소셜 링크"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:429
 #: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:435
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:441
 msgid "settings.social_links.update_failed"
 msgstr "소셜 링크를 업데이트하지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:418
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:424
 msgid "settings.social_links.update_success"
 msgstr "소셜 링크를 업데이트했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:248
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:254
 msgid "settings.social_links.url.label"
 msgstr "링크 주소"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:395
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:401
 msgid "settings.social_links.validation.forbidden_separators"
 msgstr "소셜 링크 주소에는 쉼표(,)와 앰퍼샌드(&)를 포함할 수 없습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:386
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:392
 msgid "settings.social_links.validation.https_required"
 msgstr "소셜 링크 주소는 https://로 시작해야 합니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:368
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:374
 msgid "settings.social_links.validation.platform_required"
 msgstr "모든 소셜 링크의 플랫폼을 선택해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:377
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:383
 msgid "settings.social_links.validation.url_required"
 msgstr "모든 소셜 링크의 주소를 입력해 주세요."
 
@@ -8136,31 +8136,31 @@ msgid "settings.webhooks.validation.url_required"
 msgstr "웹훅 URL을 입력해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:57
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:55
 msgid "subscription_telegram_hint.aria_label"
 msgstr "텔레그램 연결 안내"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:73
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:66
 msgid "subscription_telegram_hint.close"
 msgstr "닫기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:96
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:89
 msgid "subscription_telegram_hint.connect"
 msgstr "텔레그램 연결"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:87
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:80
 msgid "subscription_telegram_hint.headline"
 msgstr "새 글을 텔레그램으로 받아보세요"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:102
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:95
 msgid "subscription_telegram_hint.later"
 msgstr "다음에"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:84
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:77
 msgid "subscription_telegram_hint.title"
 msgstr "구독했어요"

@@ -7,9 +7,7 @@ import {
     type LoginPromptAction,
     type LoginPromptRequest
 } from '~/utils/loginPrompt';
-import {
-    UserRound
-} from '@blex/ui/icons';
+import { UserRound } from '@blex/ui/icons';
 
 interface LoginPromptProps {
     isOpen?: boolean;

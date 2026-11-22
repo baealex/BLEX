@@ -34,6 +34,17 @@ jobs:
         run: npx --no-install prisma validate
         env:
           DATABASE_URL: file:/tmp/blex-validation.sqlite3
+      - run: npm install --global pnpm@11.17.0
+      - name: Check the React screens
+        working-directory: v4/islands
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm i18n:check
+          pnpm lint
+          pnpm type-check
+          pnpm test
+          pnpm run build
+          pnpm run check:entry-budgets
 
   container:
     runs-on: ubuntu-latest

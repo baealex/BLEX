@@ -3,9 +3,7 @@ import type { Editor } from '@tiptap/react';
 import type { NodeViewProps } from '@tiptap/react';
 import { SUPPORTED_LANGUAGES, getLanguageLabel } from '~/utils/languages';
 import { useEditorI18n } from '../../i18n';
-import {
-    ChevronDown
-} from '@blex/ui/icons';
+import { ChevronDown } from '@blex/ui/icons';
 
 interface CodeBlockLanguageSelectorProps {
     editor: Editor;

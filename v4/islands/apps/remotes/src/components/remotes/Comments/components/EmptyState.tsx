@@ -1,7 +1,5 @@
 import { Trans } from '@lingui/react/macro';
-import {
-    MessageDots
-} from '@blex/ui/icons';
+import { MessageDots } from '@blex/ui/icons';
 
 export const EmptyState = () => {
     return (
