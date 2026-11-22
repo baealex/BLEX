@@ -2,15 +2,7 @@ import { randomBytes } from 'node:crypto';
 import { Prisma, type PrismaClient } from '@prisma/client';
 import { syncPostPublication } from '../../notifications/model.js';
 import { descriptionFromHtml, normalizedTags, plainText, readingTime, resolveContent, resolveCoverImage, slugify, validatePostInput } from './post-content.js';
-import { AuthoringPostInput, DbDate, POST_URL_MAX, RESERVED_URLS, SeriesOption, StoredPost, UserRow, dateAsIso, field, isTrue, nowString, numberValue } from '../shared.js';
-
-export async function getSeriesOptions(db: PrismaClient, userId: number): Promise<SeriesOption[]> {
-  return db.$queryRaw<SeriesOption[]>`
-    SELECT id, name, url FROM board_series
-    WHERE owner_id = ${userId}
-    ORDER BY updated_date DESC, id DESC
-  `;
-}
+import { AuthoringPostInput, DbDate, POST_URL_MAX, RESERVED_URLS, StoredPost, UserRow, dateAsIso, field, isTrue, nowString, numberValue } from '../shared.js';
 
 export async function loadPost(
   db: PrismaClient,

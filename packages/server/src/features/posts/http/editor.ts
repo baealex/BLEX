@@ -6,183 +6,28 @@ import { readDraftPreview, readPostPresentation } from '../public-post.js';
 import { postContentSecurityPolicy, renderPublicPostPage } from '../pages/public-post-page.js';
 import { sanitizePostHtml } from '../post-html.js';
 import { done, failure as failed } from '../../../platform/response.js';
-import { editorKeepsOriginalContent, editorModel, inputFromEditorForm, sendEditorPage } from '../pages/editor-page.js';
 import { editorBodyLimit, editorKeepsOriginalTags, isMultipartRequest, prepareEditorFields, readEditorForm } from '../services/editor-form.js';
 import { apiPostBase, preservePostOmissions } from '../services/author-api.js';
 import { mediaUrl, parseAuthoringPostInput } from '../services/post-content.js';
-import { AuthoringSaveResult, PostValidationError, createPost, draftReservation, getSeriesOptions, loadPost, postPublic, postTags, trashPost, updatePost, updatePostSettings } from '../services/post-store.js';
-import { AuthoringOptions, DbBoolean, StoredDraftSummary, StoredPost, bodyObject, booleanField, cookieValue, currentAccount, dateAsIso, editorAccount, editorRedirect, field, forbidden, isTrue, localDateTime, notFound, nowString, numberValue, queryObject } from '../shared.js';
+import { PostValidationError, createPost, draftReservation, loadPost, postPublic, postTags, trashPost, updatePost, updatePostSettings } from '../services/post-store.js';
+import { AuthoringOptions, DbBoolean, StoredDraftSummary, cookieValue, currentAccount, dateAsIso, editorAccount, field, forbidden, isTrue, localDateTime, notFound, nowString, numberValue, queryObject } from '../shared.js';
 
 export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, options: AuthoringOptions) {
-    // Large editor bodies are only parsed for a signed-in session.
+    // Large draft bodies are only parsed for a signed-in session.
     const sessionBeforeBody = async (request: FastifyRequest, reply: FastifyReply) => {
       if (request.method === 'GET' || request.method === 'HEAD' || await options.currentUser(request)) return;
-      if (request.url.startsWith('/v1/')) return reply.send(failed('NL', 'Login required.'));
-      editorRedirect(reply, false);
-      return reply;
+      return reply.send(failed('NL', 'Login required.'));
     };
 
-    routes.route({
-      method: ['GET', 'POST'],
-      url: '/write',
-      bodyLimit: editorBodyLimit,
-      onRequest: sessionBeforeBody,
-      handler: async (request, reply) => {
-        const account = await editorAccount(request, reply, db, options, false);
-        if (!account) return reply;
-        // The screen host mounts this page for editors, so only unrecognized URL spellings reach here.
-        if (request.method !== 'POST') return notFound(reply);
-        const seriesOptions = await getSeriesOptions(db, account.id);
-        const csrfToken = cookieValue(request, 'csrftoken');
-        const form = await readEditorForm(request);
-        if (!options.validateCsrf(request)) return forbidden(reply);
-        const body = form.body;
-        const uploadError = await prepareEditorFields(db, options, account, form);
-        if (uploadError) return reply.redirect(field(body.draft_url) ? `/write?draft=${encodeURIComponent(field(body.draft_url))}` : '/write', 303);
-        const input = inputFromEditorForm(body);
-        const savesDraft = field(body.is_draft) === 'true';
-        const action = field(body.action) || (savesDraft ? 'draft' : 'publish');
-        const draftUrl = field(body.draft_url);
-        let existingDraft: StoredPost | null = null;
-        if (draftUrl) {
-          existingDraft = await loadPost(db, { userId: account.id, slug: draftUrl });
-          if (!existingDraft || existingDraft.publishedDate !== null) return notFound(reply);
-        }
-        if (action === 'delete' && existingDraft) {
-          await trashPost(db, account, existingDraft);
-          return reply.redirect(`/@${encodeURIComponent(account.username)}`, 302);
-        }
-        try {
-          let saved: AuthoringSaveResult;
-          if (action === 'draft') {
-            saved = existingDraft
-              ? await updatePost(db, account, existingDraft, input, {
-                allowEmptyBody: true,
-                updateDraft: true,
-                preserveExistingHtml: editorKeepsOriginalContent(existingDraft, body),
-                preserveTags: await editorKeepsOriginalTags(db, existingDraft, body),
-              })
-              : await createPost(db, account, input, true);
-            if (savesDraft) return reply.redirect(`/@${encodeURIComponent(account.username)}/${encodeURIComponent(saved.url)}/edit`, 302);
-            return reply.redirect(`/write?draft=${encodeURIComponent(saved.url)}&saved=1`, 302);
-          }
-          if (existingDraft) {
-            saved = await updatePost(db, account, existingDraft, input, {
-              allowEmptyBody: false,
-              publishDraft: true,
-              preserveExistingHtml: editorKeepsOriginalContent(existingDraft, body),
-              preserveTags: await editorKeepsOriginalTags(db, existingDraft, body),
-            });
-          } else {
-            saved = await createPost(db, account, input, false);
-          }
-          return reply.redirect(`/@${encodeURIComponent(account.username)}/${encodeURIComponent(saved.url)}`, 302);
-        } catch (error) {
-          const message = error instanceof PostValidationError ? error.message : '글을 저장하지 못했습니다.';
-          const currentDraft = existingDraft;
-          await sendEditorPage(reply, editorModel(account, csrfToken, seriesOptions, {
-            isDraft: action === 'draft' || Boolean(currentDraft),
-            postUrl: currentDraft?.url ?? field(body.url),
-            title: field(body.title),
-            subtitle: field(body.subtitle),
-            content: field(body.text_md),
-            contentType: field(body.content_type) === 'html' ? 'html' : 'markdown',
-            description: field(body.meta_description),
-            tags: field(body.tag),
-            series: field(body.series),
-            coverImageUrl: field(body.cover_image_url),
-            hide: booleanField(body.hide),
-            blockComment: booleanField(body.block_comment),
-            reservedDate: field(body.reserved_date),
-            errorMessage: message,
-          }), 400, options.editorAssets);
-          return reply;
-        }
-      },
+    // The screen host mounts these pages for their owner, so every other reader gets the login, role, or 404 answer.
+    routes.get('/write', async (request, reply) => {
+      const account = await editorAccount(request, reply, db, options, false);
+      return account ? notFound(reply) : reply;
     });
 
-    routes.route<{ Params: { username: string; slug: string } }>({
-      method: ['GET', 'POST'],
-      url: '/@:username/:slug/edit',
-      bodyLimit: editorBodyLimit,
-      onRequest: sessionBeforeBody,
-      handler: async (request, reply) => {
-        const account = await editorAccount(request, reply, db, options, false);
-        if (!account) return reply;
-        // The screen host mounts this page for the owner, so other readers get the same 404 as a missing post.
-        if (request.method !== 'POST') return notFound(reply);
-        const form = await readEditorForm(request);
-        if (!options.validateCsrf(request)) return forbidden(reply);
-        const post = await loadPost(db, { username: request.params.username, slug: request.params.slug });
-        if (!post || post.authorId !== account.id) return notFound(reply);
-        const body = form.body;
-        const isAsyncSubmit = request.headers['x-blex-editor-submit'] === 'async';
-        const action = field(body.delete) === 'true' ? 'delete' : field(body.action) || 'publish';
-        if (action === 'delete') {
-          await trashPost(db, account, post);
-          return reply.redirect(`/@${encodeURIComponent(account.username)}`, 302);
-        }
-        const uploadError = await prepareEditorFields(db, options, account, form);
-        if (uploadError) return isAsyncSubmit ? failed('RJ', uploadError) : reply.redirect(`/@${encodeURIComponent(account.username)}/${encodeURIComponent(post.url)}/edit`, 303);
-        const parsedInput = inputFromEditorForm(body);
-        // The editor form has no advertising control, so an omitted flag keeps the stored value.
-        const keepsAdvertise = !Object.hasOwn(body, 'is_advertise') && !Object.hasOwn(body, 'advertise');
-        const input = keepsAdvertise ? { ...parsedInput, advertise: isTrue(post.advertise) } : parsedInput;
-        if (isAsyncSubmit) {
-          // A 3.x edit that omits the series or tags keeps the stored values.
-          if (!field(body.series)) input.series = post.seriesUrl ?? '';
-        }
-        try {
-          if (isAsyncSubmit) {
-            await updatePost(db, account, post, input, {
-              allowEmptyBody: post.publishedDate === null,
-              updateDraft: post.publishedDate === null,
-              preserveTags: !field(body.tag),
-            });
-            return done({ url: `/@${encodeURIComponent(account.username)}/${encodeURIComponent(post.url)}` });
-          }
-          if (post.publishedDate === null && action === 'publish') {
-            const saved = await updatePost(db, account, post, input, {
-              allowEmptyBody: false,
-              publishDraft: true,
-              preserveExistingHtml: editorKeepsOriginalContent(post, body),
-              preserveTags: await editorKeepsOriginalTags(db, post, body),
-            });
-            return reply.redirect(`/@${encodeURIComponent(account.username)}/${encodeURIComponent(saved.url)}`, 302);
-          }
-          await updatePost(db, account, post, input, {
-            allowEmptyBody: post.publishedDate === null,
-            updateDraft: post.publishedDate === null,
-            preserveExistingHtml: editorKeepsOriginalContent(post, body),
-            preserveTags: await editorKeepsOriginalTags(db, post, body),
-          });
-          return reply.redirect(`/@${encodeURIComponent(account.username)}/${encodeURIComponent(post.url)}/edit`, 302);
-        } catch (error) {
-          if (isAsyncSubmit && error instanceof PostValidationError) return failed(error.code, error.message);
-          const message = error instanceof PostValidationError ? error.message : '글을 저장하지 못했습니다.';
-          await sendEditorPage(reply, editorModel(account, cookieValue(request, 'csrftoken'), await getSeriesOptions(db, account.id), {
-            isEdit: true,
-            isDraft: post.publishedDate === null,
-            postUrl: post.url,
-            title: field(body.title),
-            subtitle: field(body.subtitle),
-            content: field(body.text_md),
-            contentType: field(body.content_type) === 'html' ? 'html' : 'markdown',
-            description: field(body.meta_description),
-            tags: field(body.tag),
-            series: field(body.series),
-            coverImageUrl: field(body.cover_image_url),
-            hide: booleanField(body.hide),
-            blockComment: booleanField(body.block_comment),
-            reservedDate: field(body.reserved_date),
-            showSchedule: post.publishedDate === null || Boolean(
-              dateAsIso(post.publishedDate) && new Date(dateAsIso(post.publishedDate)!).valueOf() > Date.now(),
-            ),
-            errorMessage: message,
-          }), 400, options.editorAssets);
-          return reply;
-        }
-      },
+    routes.get<{ Params: { username: string; slug: string } }>('/@:username/:slug/edit', async (request, reply) => {
+      const account = await editorAccount(request, reply, db, options, false);
+      return account ? notFound(reply) : reply;
     });
 
     routes.get<{ Params: { slug: string } }>('/write/preview/:slug', async (request, reply) => {

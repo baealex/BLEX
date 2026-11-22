@@ -1,11 +1,10 @@
 import formBody from '@fastify/formbody';
 import { type PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { renderSeriesEditorPage } from './pages.js';
 import { done as apiDone, messageFailure as apiError } from '../../platform/response.js';
 import { MAX_PINNED_POSTS, PinnedServiceError, addPinnedPost, parsePinnedUrls, pinnedError, pinnedPostUrl, readPinnablePosts, readPinnedPosts, removePinnedPost, reorderPinnedPosts, reservedPinnedCount } from './services/pinned-posts.js';
 import { deleteSeries, parsePostIds, readAvailableSeriesPosts, readSeriesById, readSeriesPostIds, readSeriesRows, saveSeries, updateSeriesOrder } from './services/series.js';
-import { AuthorCollectionsOptions, DatabaseUser, bodyRecord, errorMessage, html, htmlForbidden, htmlNotFound, isActiveEditor, localDate, loginRedirect, positiveInt, queryValue, readDatabaseUser, requestCsrfToken, requireActiveEditor, seriesFormError, stringValue, unauthorizedLogin } from './shared.js';
+import { AuthorCollectionsOptions, bodyRecord, errorMessage, isActiveEditor, localDate, positiveInt, queryValue, readDatabaseUser, requireActiveEditor, stringValue, unauthorizedLogin } from './shared.js';
 
 export { AuthorCollectionsOptions } from './shared.js';
 
@@ -15,19 +14,6 @@ export function registerAuthorCollections(app: FastifyInstance, db: PrismaClient
     routes.addHook('onRequest', async (_request, reply) => {
       reply.header('Cache-Control', 'private, no-store');
     });
-
-    const pageEditor = async (request: FastifyRequest, reply: FastifyReply): Promise<DatabaseUser | null> => {
-      const user = await requireActiveEditor(db, request, options);
-      if (!user) {
-        loginRedirect(request, reply);
-        return null;
-      }
-      if (!isActiveEditor(user)) {
-        htmlNotFound(reply);
-        return null;
-      }
-      return user;
-    };
 
     const apiEditor = async (request: FastifyRequest) => {
       const user = await requireActiveEditor(db, request, options);
@@ -47,60 +33,6 @@ export function registerAuthorCollections(app: FastifyInstance, db: PrismaClient
       if (!isActiveEditor(user)) return { user: null, error: apiError('RJ', 'Author access is required.') };
       return { user, error: null };
     };
-
-    const sendSeriesEditor = async (request: FastifyRequest, reply: FastifyReply, id?: number, error?: string) => {
-      const user = await pageEditor(request, reply);
-      if (!user) return reply;
-      const series = id ? await readSeriesById(db, user.id, id) : null;
-      if (id && !series) return htmlNotFound(reply, '시리즈를 찾을 수 없습니다.');
-      const [availablePosts, selectedPostIds] = await Promise.all([
-        readAvailableSeriesPosts(db, user.id, id),
-        id ? readSeriesPostIds(db, user.id, id) : Promise.resolve([]),
-      ]);
-      return html(reply, renderSeriesEditorPage({
-        user, csrfToken: requestCsrfToken(request), series, description: series?.description ?? '',
-        selectedPostIds, availablePosts, error,
-      }));
-    };
-
-    routes.get('/series/create', (request, reply) => sendSeriesEditor(request, reply));
-    routes.get<{ Params: { id: string } }>('/series/edit/:id', (request, reply) => {
-      const id = positiveInt(request.params.id);
-      return id ? sendSeriesEditor(request, reply, id) : htmlNotFound(reply, '시리즈를 찾을 수 없습니다.');
-    });
-
-    const saveSeriesFromForm = async (request: FastifyRequest, reply: FastifyReply, id?: number) => {
-      const user = await pageEditor(request, reply);
-      if (!user) return reply;
-      if (!options.validateCsrf(request)) return htmlForbidden(reply);
-      const body = bodyRecord(request.body);
-      if (stringValue(body.intent) === 'delete' && id) {
-        if (!(await deleteSeries(db, user.id, id))) return htmlNotFound(reply, '시리즈를 찾을 수 없습니다.');
-        return reply.redirect('/settings/series?saved=1', 303);
-      }
-      const postIds = parsePostIds(body.post_ids);
-      if (!postIds) {
-        reply.code(400);
-        return sendSeriesEditor(request, reply, id, '시리즈에 포함할 포스트를 확인해 주세요.');
-      }
-      try {
-        const saved = await saveSeries(db, user.id, {
-          name: stringValue(body.name),
-          url: id ? undefined : stringValue(body.url),
-          description: stringValue(body.description),
-          postIds,
-        }, id);
-        return reply.redirect('/settings/series?saved=1', 303);
-      } catch (error) {
-        reply.code(400);
-        return sendSeriesEditor(request, reply, id, seriesFormError(error, '시리즈를 저장하지 못했습니다.'));
-      }
-    };
-    routes.post('/series/create', (request, reply) => saveSeriesFromForm(request, reply));
-    routes.post<{ Params: { id: string } }>('/series/edit/:id', (request, reply) => {
-      const id = positiveInt(request.params.id);
-      return id ? saveSeriesFromForm(request, reply, id) : htmlNotFound(reply, '시리즈를 찾을 수 없습니다.');
-    });
 
     routes.get('/v1/setting/series', async (request, reply) => {
       const { user, error } = await apiEditor(request);

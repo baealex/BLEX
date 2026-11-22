@@ -1,9 +1,8 @@
 import { Prisma, type PrismaClient } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
 import { sanitizePostHtml } from '../../posts/post-html.js';
-import { type SeriesListItem, type SeriesPostOption } from '../pages.js';
 import { deleteSeriesRows } from './deletions.js';
-import { arrayValues, localDate, stringValue } from '../shared.js';
+import { type SeriesListItem, type SeriesPostOption, arrayValues, localDate, stringValue } from '../shared.js';
 
 interface StoredSeries extends SeriesListItem {
   description: string;

@@ -127,22 +127,6 @@ const jsonHeaders = (id: number, csrf = true) => ({
   'content-type': 'application/json',
 });
 
-test('keeps the direct series editor URL protected and pre-filled', async () => {
-  const anonymous = await app.inject('/series/edit/10');
-  assert.equal(anonymous.statusCode, 302);
-  assert.equal(anonymous.headers.location, '/login?next=%2Fseries%2Fedit%2F10');
-  assert.equal((await app.inject({ url: '/series/edit/10', headers: signedIn(3) })).statusCode, 404);
-  assert.equal((await app.inject({ url: '/series/edit/10', headers: signedIn(2) })).statusCode, 404);
-
-  const editor = await app.inject({ url: '/series/edit/10', headers: signedIn(1) });
-  assert.equal(editor.statusCode, 200);
-  assert.match(editor.body, /name="description"[^>]*>\*\*series description\*\*/);
-  assert.match(editor.body, /name="post_ids"[^>]*checked=""[^>]*value="2"/);
-  assert.match(editor.body, /Assigned hidden/);
-  assert.match(editor.body, /Assigned draft/);
-  assert.match(editor.body, /Assigned trash/);
-});
-
 test('series APIs preserve ownership, counts, markdown, post selection, and ordering', async () => {
   const ownerList = await app.inject({ url: '/v1/series', headers: signedIn(1) });
   assert.equal(ownerList.json().status, 'DONE');
@@ -259,31 +243,7 @@ test('pinned APIs expose public rows, reserve trash, paginate, and guard author 
   assert.equal(noCsrf.statusCode, 403);
 });
 
-test('the direct series form saves series and the pinned API removes rows', async () => {
-  const csrfFormHeaders = { ...signedIn(1), 'content-type': 'application/x-www-form-urlencoded' };
-  const created = await app.inject({
-    method: 'POST', url: '/series/create', headers: csrfFormHeaders,
-    payload: new URLSearchParams([
-      ['csrfmiddlewaretoken', csrfToken], ['name', 'Form Series'], ['url', 'form-series'],
-      ['description', 'A **form** series'], ['post_ids', '1'],
-    ]).toString(),
-  });
-  assert.equal(created.statusCode, 303);
-  assert.equal(created.headers.location, '/settings/series?saved=1');
-
-  const [formSeries] = await db.$queryRaw<Array<{ id: number; text_html: string }>>`SELECT id, text_html FROM board_series WHERE url = 'form-series'`;
-  assert.equal(formSeries.text_html, 'A **form** series');
-  const updated = await app.inject({
-    method: 'POST', url: `/series/edit/${formSeries.id}`, headers: csrfFormHeaders,
-    payload: new URLSearchParams([
-      ['csrfmiddlewaretoken', csrfToken], ['name', 'Form Series Updated'], ['description', ''],
-      ['post_ids', '12'],
-    ]).toString(),
-  });
-  assert.equal(updated.statusCode, 303);
-  const [assigned] = await db.$queryRaw<Array<{ series_id: number | null }>>`SELECT series_id FROM board_post WHERE id = 12`;
-  assert.equal(assigned.series_id, formSeries.id);
-
+test('the pinned API removes rows', async () => {
   const removed = await app.inject({
     method: 'DELETE', url: '/v1/setting/pinned-posts', headers: jsonHeaders(1), payload: { post_url: 'public-unassigned' },
   });

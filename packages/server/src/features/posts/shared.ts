@@ -17,7 +17,6 @@ export interface AuthoringOptions {
   validateCsrf: (req: FastifyRequest) => boolean;
   siteUrl: URL;
   mediaRoot?: string;
-  editorAssets?: { script: string; css: string[] };
 }
 
 export type DbBoolean = number | bigint | boolean | null;
@@ -27,12 +26,6 @@ export type DbDate = string | Date | null;
 export interface UserRow extends AuthoringUser {
   isActive: DbBoolean;
   role: string | null;
-}
-
-export interface SeriesOption {
-  id: number;
-  name: string;
-  url: string;
 }
 
 export interface StoredPost {
@@ -115,35 +108,6 @@ export interface AuthoringPostInput {
   coverImage?: string;
   removeCoverImage: boolean;
   reservedDate: string;
-}
-
-export interface EditorModel {
-  action: string;
-  csrfToken: string;
-  content: string;
-  contentType: 'markdown' | 'html';
-  description: string;
-  errorMessage: string;
-  successMessage: string;
-  savedDraft: boolean;
-  isDraft: boolean;
-  isEdit: boolean;
-  postUrl: string;
-  series: string;
-  seriesOptions: SeriesOption[];
-  tags: string;
-  title: string;
-  username: string;
-  subtitle: string;
-  hide: boolean;
-  blockComment: boolean;
-  coverLayout: string;
-  coverImagePosition: string;
-  coverImageRatio: string;
-  reservedDate: string;
-  showSchedule: boolean;
-  formTitle: string;
-  coverImageUrl: string;
 }
 
 export const h1 = h;
@@ -255,7 +219,7 @@ export function forbidden(reply: FastifyReply): null {
   return null;
 }
 
-export function editorRedirect(reply: FastifyReply, loggedIn: boolean): null {
+function editorRedirect(reply: FastifyReply, loggedIn: boolean): null {
   reply.redirect(loggedIn ? '/' : '/login', 302);
   return null;
 }

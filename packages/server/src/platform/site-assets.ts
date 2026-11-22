@@ -33,16 +33,6 @@ export function registerSiteAssets(app: FastifyInstance) {
       const { script } = await readUiAsset('src/features/engagement/ui/comments-client.tsx');
       return reply.header('Cache-Control', 'no-store').redirect(script, 302);
     });
-    const getEditor = () => readUiAsset('src/features/posts/editor/editor-client.tsx');
-    routes.get('/assets/blex/editor.js', async (_request, reply) => {
-      const { script } = await getEditor();
-      return reply.header('Cache-Control', 'no-store').redirect(script, 302);
-    });
-    routes.get('/assets/blex/editor.css', async (_request, reply) => {
-      const { css } = await getEditor();
-      if (css.length !== 1) throw new Error('The BLEX editor stylesheet was not built.');
-      return reply.header('Cache-Control', 'no-store').redirect(css[0], 302);
-    });
     routes.get('/favicon.ico', (_request, reply) => reply.sendFile('favicon.ico'));
     routes.get<{ Params: { name: string } }>('/resources/:name', (request, reply) => {
       const { name } = request.params;

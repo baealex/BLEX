@@ -54,9 +54,7 @@ export async function registerRoutes(app: FastifyInstance, { db, siteUrl, auth, 
     registerDeveloperTokens(app, db, { ...routeOptions, secretKey: auth.secretKey });
     await registerDeveloperDocumentation(app, db, routeOptions);
     registerContentMedia(app, db, routeOptions);
-    registerAuthoring(app, db, { ...routeOptions, editorAssets: {
-      script: '/assets/blex/editor.js', css: ['/assets/blex/editor.css'],
-    } });
+    registerAuthoring(app, db, routeOptions);
     registerAuthorForms(app, db, routeOptions);
     registerAuthorCollections(app, db, routeOptions);
     registerTelegram(app, db, { ...routeOptions, cipherKey: auth.cipherKey, secretKey: auth.secretKey, fetchProvider: auth.fetchProvider });

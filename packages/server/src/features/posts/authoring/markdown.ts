@@ -162,36 +162,3 @@ export function markdownToHtml(markdown: string): string {
 
   return sanitizePostHtml(blocks.join('\n'));
 }
-
-export function htmlToMarkdown(source: string): string {
-  let html = sanitizePostHtml(source);
-  html = html
-    .replace(/<pre><code(?: class="language-([\w-]+)")?>([\s\S]*?)<\/code><\/pre>/gi, (_match, language: string | undefined, code: string) => {
-      const decoded = decodeEntities(code);
-      return `\n\n\`\`\`${language ?? ''}\n${decoded}\n\`\`\`\n\n`;
-    })
-    .replace(/<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/gi, (_match, level: string, text: string) => `\n\n${'#'.repeat(Number(level))} ${decodeEntities(text.replace(/<[^>]+>/g, ''))}\n\n`)
-    .replace(/<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi, (_match, href: string, text: string) => `[${decodeEntities(text.replace(/<[^>]+>/g, ''))}](${decodeEntities(href)})`)
-    .replace(/<(strong|b)\b[^>]*>([\s\S]*?)<\/\1>/gi, '**$2**')
-    .replace(/<(em|i)\b[^>]*>([\s\S]*?)<\/\1>/gi, '*$2*')
-    .replace(/<(del|s)\b[^>]*>([\s\S]*?)<\/\1>/gi, '~~$2~~')
-    .replace(/<code\b[^>]*>([\s\S]*?)<\/code>/gi, '`$1`')
-    .replace(/<br\s*\/?\s*>/gi, '\n')
-    .replace(/<li\b[^>]*>/gi, '\n- ')
-    .replace(/<\/(?:li|p|blockquote|ul|ol|div|figure|figcaption)>/gi, '\n\n')
-    .replace(/<[^>]+>/g, '')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
-  return decodeEntities(html);
-}
-
-function decodeEntities(value: string): string {
-  return value
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#x27;/gi, "'")
-    .replace(/&#39;/g, "'")
-    .replace(/&amp;/g, '&');
-}

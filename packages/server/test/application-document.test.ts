@@ -15,7 +15,7 @@ test('renders the SSR page and its canonical metadata under one application root
     h('body', { className: 'page-body' },
       h(SiteHeader, { viewer }),
       h('main', null, h('h1', null, 'Hello'), h('p', null, 'Rendered article')),
-      h('script', { type: 'module', src: '/assets/blex/editor.js', 'data-blex-page-module': '' }),
+      h('script', { type: 'module', src: '/assets/blex/comments.js', 'data-blex-page-module': '' }),
     ),
   ));
   assert.ok(isApplicationDocument(html));
@@ -25,7 +25,7 @@ test('renders the SSR page and its canonical metadata under one application root
   assert.equal(html.match(/data-site-header=/g)?.length, 1);
   assert.equal(html.match(/src="\/assets\/blex\/theme\.js"/g)?.length, 1);
   assert.match(html, /<script type="module" src="\/assets\/blex\/app\.js" data-blex-app-entry=""><\/script>/);
-  assert.match(html, /<\/main><\/div><\/div><script type="module" src="\/assets\/blex\/editor\.js" data-blex-page-module="">/);
+  assert.match(html, /<\/main><\/div><\/div><script type="module" src="\/assets\/blex\/comments\.js" data-blex-page-module="">/);
   assert.doesNotMatch(html, /private@example/);
 });
 
@@ -41,10 +41,9 @@ test('opens a saved form result as a full page only when it redirects outside th
   assert.equal(opensOutsideApplication({ ok: false, redirected: true }, false), false);
 });
 
-test('keeps the route mount export in the built login and editor entries', async () => {
-  for (const entry of ['src/features/auth/ui/login-client.tsx', 'src/features/posts/editor/editor-client.tsx']) {
-    const { script } = await readUiAsset(entry);
-    const source = await readFile(new URL(script.slice('/assets/ui/'.length), clientAssets), 'utf8');
-    assert.match(source, /\bexport\s*\{[^}]*\bmountPage\b/, entry);
-  }
+test('keeps the route mount export in the built login entry', async () => {
+  const entry = 'src/features/auth/ui/login-client.tsx';
+  const { script } = await readUiAsset(entry);
+  const source = await readFile(new URL(script.slice('/assets/ui/'.length), clientAssets), 'utf8');
+  assert.match(source, /\bexport\s*\{[^}]*\bmountPage\b/, entry);
 });

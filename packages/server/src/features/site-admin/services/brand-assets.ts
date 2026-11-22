@@ -195,32 +195,6 @@ async function validateBrandPng(content: Buffer | undefined, size: number): Prom
   return content;
 }
 
-async function generateIconDerivatives(svg: Buffer) {
-  const master = await sharp(svg, { limitInputPixels: 16_777_216, failOn: 'error' })
-    .resize(512, 512, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toBuffer();
-  const pngs = new Map<number, Buffer>();
-  for (const size of REQUIRED_ICON_PNG_SIZES) {
-    pngs.set(size, size === 512 ? master : await sharp(master).resize(size, size).png().toBuffer());
-  }
-  const faviconSizes = [16, 32];
-  const directory = Buffer.alloc(6 + faviconSizes.length * 16);
-  directory.writeUInt16LE(1, 2);
-  directory.writeUInt16LE(faviconSizes.length, 4);
-  let offset = directory.length;
-  const images = faviconSizes.map((size, index) => {
-    const png = pngs.get(size)!;
-    const entry = 6 + index * 16;
-    directory[entry] = directory[entry + 1] = size;
-    directory.writeUInt16LE(1, entry + 4);
-    directory.writeUInt16LE(32, entry + 6);
-    directory.writeUInt32LE(png.length, entry + 8);
-    directory.writeUInt32LE(offset, entry + 12);
-    offset += png.length;
-    return png;
-  });
-  return { pngs, ico: Buffer.concat([directory, ...images]) };
-}
-
 async function validateBrandIco(content: Buffer | undefined): Promise<Buffer> {
   if (!content?.length) throw new BrandAssetValidationError('favicon.ico file is required.');
   if (content.length > BRAND_ICO_MAX_BYTES) throw new BrandAssetValidationError('favicon.ico file is too large.');
@@ -386,7 +360,7 @@ export async function uploadBrandAsset(
   db: PrismaClient,
   userId: number,
   canManageScripts: boolean,
-  input: { assetType: BrandAssetType; theme: BrandAssetTheme; svg?: Buffer; files: Map<string, Buffer>; manifest: string; generateDerivatives?: boolean },
+  input: { assetType: BrandAssetType; theme: BrandAssetTheme; svg?: Buffer; files: Map<string, Buffer>; manifest: string },
   options: AdminSettingsOptions,
 ): Promise<ApiResult<AdminSiteSettings>> {
   if (!options.mediaRoot) return { ok: false, code: 'RJ', message: 'Brand asset storage is unavailable.' };
@@ -401,18 +375,9 @@ export async function uploadBrandAsset(
       if (!siteRowBrandAsset(current, input.assetType, 'default')) throw new BrandAssetValidationError('Upload the default asset first.');
     }
     if (input.assetType === 'icon' && input.theme === 'default') {
-      if (input.generateDerivatives) {
-        const generated = await generateIconDerivatives(svg).catch(() => {
-          throw new BrandAssetValidationError('Could not generate icon files from the SVG.');
-        });
-        pngContent = generated.pngs;
-        ico = generated.ico;
-        manifestSource = { version: 1, pngSizes: REQUIRED_ICON_PNG_SIZES, ico: true };
-      } else {
-        manifestSource = parseBrandIconManifest(input.manifest);
-        for (const size of REQUIRED_ICON_PNG_SIZES) pngContent.set(size, await validateBrandPng(input.files.get(`png_${size}`), size));
-        ico = await validateBrandIco(input.files.get('favicon_ico'));
-      }
+      manifestSource = parseBrandIconManifest(input.manifest);
+      for (const size of REQUIRED_ICON_PNG_SIZES) pngContent.set(size, await validateBrandPng(input.files.get(`png_${size}`), size));
+      ico = await validateBrandIco(input.files.get('favicon_ico'));
     }
   } catch (error) {
     return { ok: false, code: 'VA', message: error instanceof Error ? error.message : 'Check the uploaded brand asset.' };

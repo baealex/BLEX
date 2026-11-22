@@ -257,7 +257,6 @@ const db = new PrismaClient({ datasourceUrl: `file:${databasePath}?connection_li
 const app = Fastify();
 registerAuthoring(app, db, {
   siteUrl: new URL('https://blog.example'),
-  editorAssets: { script: '/assets/editor.js', css: ['/assets/editor.css'] },
   currentUser: async (request) => {
     const rawId = request.headers['x-user-id'];
     const id = Number(Array.isArray(rawId) ? rawId[0] : rawId);
@@ -291,7 +290,7 @@ test('renders only same-site uploaded MP4 and WebM links as video embeds', () =>
   assert.doesNotMatch(markdownToHtml('![traversal](/resources/media/%2e%2e/private/clip.mp4)'), /<video/);
 });
 
-test('gates editor URLs, keeps failed saves recoverable, and serves draft-only previews', async () => {
+test('gates editor URLs, rejects a bad cover without saving, and serves draft-only previews', async () => {
   const unauthorized = await app.inject({ url: '/write', headers: { 'x-user-id': '3' } });
   assert.equal(unauthorized.statusCode, 302);
   assert.equal(unauthorized.headers.location, '/');
@@ -301,19 +300,20 @@ test('gates editor URLs, keeps failed saves recoverable, and serves draft-only p
 
   assert.equal((await app.inject({ url: '/@writer/existing/edit', headers: { 'x-user-id': '2' } })).statusCode, 404);
 
+  const editFields = {
+    title: 'Existing', url: 'existing', subtitle: 'Existing subtitle',
+    meta_description: 'Existing description', content_html: '<h2>Existing content</h2><p>Do not lose this.</p>',
+    cover_layout: 'split', cover_image_position: 'left', cover_image_ratio: '4:3', block_comment: 'false',
+  };
+  const boundary = 'blexboundary';
+  const editHeaders = { ...writerHeaders, 'content-type': `multipart/form-data; boundary=${boundary}` };
+  const editorForm = (fields: Record<string, string>) => `${Object.entries(fields)
+    .map(([name, value]) => `--${boundary}\r\nContent-Disposition: form-data; name="${name}"\r\n\r\n${value}\r\n`).join('')}--${boundary}--\r\n`;
   const metadataEdit = await app.inject({
-    method: 'POST',
-    url: '/@writer/existing/edit',
-    headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
-    payload: new URLSearchParams({
-      action: 'publish', title: 'Existing', url: 'existing', subtitle: 'Existing subtitle',
-      tag: 'legacy-tag', series: 'learning', meta_description: 'Existing description',
-      content_type: 'markdown', text_md: '## Existing content\n\nDo not lose this.',
-      cover_image_url: '/resources/media/images/content/2026/11/21/cover-test.jpg',
-      cover_layout: 'split', cover_image_position: 'left', cover_image_ratio: '4:3', block_comment: 'false',
-    }).toString(),
+    method: 'POST', url: '/v1/users/@writer/posts/existing', headers: editHeaders,
+    payload: editorForm({ ...editFields, cover_image_url: '/resources/media/images/content/2026/11/21/cover-test.jpg' }),
   });
-  assert.equal(metadataEdit.statusCode, 302, metadataEdit.body);
+  assert.equal(metadataEdit.json().status, 'DONE', metadataEdit.body);
   const unchangedBody = await db.$queryRaw<Array<{ html: string }>>`
     SELECT content_html AS html FROM board_postcontent WHERE post_id = 1
   `;
@@ -324,32 +324,17 @@ test('gates editor URLs, keeps failed saves recoverable, and serves draft-only p
   assert.equal(selectedCover[0]?.image, 'images/content/2026/11/21/cover-test.jpg');
 
   const rejectedCover = await app.inject({
-    method: 'POST', url: '/@writer/existing/edit',
-    headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
-    payload: new URLSearchParams({
-      action: 'publish', title: 'Existing', url: 'existing', subtitle: 'Existing subtitle',
-      tag: 'legacy-tag', series: 'learning', meta_description: 'Existing description',
-      text_md: '## Existing content\n\nDo not lose this.', cover_image_url: 'https://external.example/cover.jpg',
-      cover_layout: 'split', cover_image_position: 'left', cover_image_ratio: '4:3', block_comment: 'false',
-    }).toString(),
+    method: 'POST', url: '/v1/users/@writer/posts/existing', headers: editHeaders,
+    payload: editorForm({ ...editFields, title: 'Must not save', cover_image_url: 'https://external.example/cover.jpg' }),
   });
-  assert.equal(rejectedCover.statusCode, 400);
-  assert.match(rejectedCover.body, /id="post-editor-form"/);
-  assert.match(rejectedCover.body, /Do not lose this\./);
-  assert.match(rejectedCover.body, /href="\/assets\/editor\.css"/);
-  assert.match(rejectedCover.body, /src="\/assets\/editor\.js"/);
-  assert.match(rejectedCover.body, /href="\/write\/images"/);
+  assert.deepEqual([rejectedCover.statusCode, rejectedCover.json().status], [200, 'ERROR']);
+  const afterRejectedCover = await db.$queryRaw<Array<{ title: string; image: string }>>`SELECT title, image FROM board_post WHERE id = 1`;
+  assert.deepEqual(afterRejectedCover[0], { title: 'Existing', image: 'images/content/2026/11/21/cover-test.jpg' });
   const removeCover = await app.inject({
-    method: 'POST', url: '/@writer/existing/edit',
-    headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
-    payload: new URLSearchParams({
-      action: 'publish', title: 'Existing', url: 'existing', subtitle: 'Existing subtitle',
-      tag: 'legacy-tag', series: 'learning', meta_description: 'Existing description',
-      text_md: '## Existing content\n\nDo not lose this.', remove_cover_image: 'on',
-      cover_layout: 'split', cover_image_position: 'left', cover_image_ratio: '4:3', block_comment: 'false',
-    }).toString(),
+    method: 'POST', url: '/v1/users/@writer/posts/existing', headers: editHeaders,
+    payload: editorForm({ ...editFields, remove_cover_image: 'on' }),
   });
-  assert.equal(removeCover.statusCode, 302);
+  assert.equal(removeCover.json().status, 'DONE', removeCover.body);
   const removedCover = await db.$queryRaw<Array<{ image: string }>>`SELECT image FROM board_post WHERE id = 1`;
   assert.equal(removedCover[0]?.image, '');
 
@@ -367,10 +352,9 @@ test('gates editor URLs, keeps failed saves recoverable, and serves draft-only p
 test('creates a published Markdown post atomically with config, content, tags and series', async () => {
   const response = await app.inject({
     method: 'POST',
-    url: '/write',
+    url: '/v1/posts',
     headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
     payload: new URLSearchParams({
-      action: 'publish',
       title: 'Markdown launch',
       url: 'hello-world',
       subtitle: 'A small subtitle',
@@ -385,8 +369,7 @@ test('creates a published Markdown post atomically with config, content, tags an
       cover_image_ratio: '4:3',
     }).toString(),
   });
-  assert.equal(response.statusCode, 302, response.body);
-  assert.equal(response.headers.location, '/@writer/hello-world');
+  assert.deepEqual(response.json(), { status: 'DONE', body: { url: 'hello-world' } });
 
   const post = await db.$queryRaw<Array<{ id: number; publishedDate: string; seriesId: number; title: string; readTime: number }>>`
     SELECT id, CAST(published_date AS TEXT) AS publishedDate, series_id AS seriesId, title, read_time AS readTime
@@ -423,13 +406,13 @@ test('creates a published Markdown post atomically with config, content, tags an
 test('creates and reschedules future posts from the visible datetime-local field', async () => {
   const initialAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
   const create = await app.inject({
-    method: 'POST', url: '/write', headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
+    method: 'POST', url: '/v1/posts', headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
     payload: new URLSearchParams({
-      action: 'publish', title: 'Scheduled through editor', url: 'scheduled-through-editor',
+      title: 'Scheduled through editor', url: 'scheduled-through-editor',
       text_md: '# Ready later', content_type: 'markdown', reserved_date: initialAt,
     }).toString(),
   });
-  assert.equal(create.statusCode, 302, create.body);
+  assert.equal(create.json().status, 'DONE', create.body);
   const created = await db.$queryRaw<Array<{ id: number; published: string }>>`
     SELECT id, CAST(published_date AS TEXT) AS published FROM board_post WHERE url = 'scheduled-through-editor'
   `;
@@ -712,31 +695,28 @@ test('saves, previews, edits and publishes drafts while keeping only owner acces
   assert.equal((await app.inject({ url: `/v1/drafts/${slug}`, headers: { 'x-user-id': '2' } })).statusCode, 404);
 
   const saveDraft = await app.inject({
-    method: 'POST', url: '/write',
-    headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
-    payload: new URLSearchParams({
-      action: 'draft', draft_url: slug, title: 'Draft from API', url: slug,
-      text_md: '<h1>Private draft</h1>', content_type: 'html', tag: 'draft, notes',
+    method: 'PUT', url: `/v1/drafts/${slug}`,
+    headers: { ...writerHeaders, 'content-type': 'application/json' },
+    payload: {
+      title: 'Draft from API', url: slug, content_html: '<h1>Private draft</h1>', tag: 'draft, notes',
       meta_description: 'Private draft', cover_layout: 'default', cover_image_position: 'right',
       cover_image_ratio: 'auto', block_comment: 'false',
-    }).toString(),
+    },
   });
-  assert.equal(saveDraft.statusCode, 302, saveDraft.body);
-  assert.equal(saveDraft.headers.location, `/write?draft=${slug}&saved=1`);
+  assert.deepEqual(saveDraft.json(), { status: 'DONE', body: { url: slug } });
   const preview = await app.inject({ url: `/write/preview/${slug}`, headers: writerHeaders });
   assert.equal(preview.statusCode, 200, preview.body);
 
   const publish = await app.inject({
-    method: 'POST', url: '/write', headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
+    method: 'POST', url: '/v1/posts', headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
     payload: new URLSearchParams({
-      action: 'publish', draft_url: slug, title: 'Draft published', url: slug,
+      draft_url: slug, title: 'Draft published', url: slug,
       text_md: '# Now public\n\nPublished **safely**.', content_type: 'markdown',
       tag: 'live', series: 'learning', block_comment: 'false', cover_layout: 'default',
       cover_image_position: 'right', cover_image_ratio: 'auto',
     }).toString(),
   });
-  assert.equal(publish.statusCode, 302, publish.body);
-  assert.equal(publish.headers.location, `/@writer/${slug}`);
+  assert.deepEqual(publish.json(), { status: 'DONE', body: { url: slug } });
   const published = await db.$queryRaw<Array<{ published: string | null; title: string }>>`
     SELECT CAST(published_date AS TEXT) AS published, title FROM board_post WHERE url = ${slug}
   `;

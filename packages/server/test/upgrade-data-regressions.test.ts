@@ -250,14 +250,14 @@ test('keeps the advertising flag when the web editor saves a post', async () => 
   try {
     seedPost(fixture.db, 10, 1, 'promoted');
     fixture.db.exec('UPDATE board_postconfig SET advertise = 1 WHERE post_id = 10');
+    const boundary = 'blexboundary';
+    const fields = { title: 'Promoted', content_html: '<p>Changed body</p>', url: 'promoted', tag: '' };
     const saved = await fixture.app.inject({
-      method: 'POST', url: '/@writer/promoted/edit',
-      headers: { ...fixture.headers, 'content-type': 'application/x-www-form-urlencoded' },
-      payload: new URLSearchParams({
-        action: 'publish', title: 'Promoted', text_md: 'Changed body', content_type: 'markdown', url: 'promoted', tag: '',
-      }).toString(),
+      method: 'POST', url: '/v1/users/@writer/posts/promoted',
+      headers: { ...fixture.headers, 'content-type': `multipart/form-data; boundary=${boundary}` },
+      payload: `${Object.entries(fields).map(([name, value]) => `--${boundary}\r\nContent-Disposition: form-data; name="${name}"\r\n\r\n${value}\r\n`).join('')}--${boundary}--\r\n`,
     });
-    assert.equal(saved.statusCode, 302, saved.body);
+    assert.equal(saved.json().status, 'DONE', saved.body);
     assert.equal(fixture.count('board_post', `id = 10 AND title = 'Promoted'`), 1);
     assert.equal(fixture.count('board_postconfig', 'post_id = 10 AND advertise = 1'), 1);
   } finally {

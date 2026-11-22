@@ -10,7 +10,6 @@ import { PrismaClient } from '@prisma/client';
 import { after, beforeEach, test } from 'node:test';
 import { decryptDjangoSecret, encryptDjangoSecret } from '../src/features/auth/django-secret.js';
 import { registerAdminSettings } from '../src/features/site-admin/index.js';
-import { uploadBrandAsset } from '../src/features/site-admin/services/brand-assets.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-admin-settings-'));
 const databasePath = join(directory, 'admin-settings.sqlite3');
@@ -347,24 +346,11 @@ test('uploads and deletes validated brand SVG assets under the legacy public med
   await assert.rejects(readFile(join(mediaRoot, setting[0]?.logoSvg ?? '')));
 });
 
-test('generates icon derivatives for a single SVG uploaded through blog customization', async () => {
+test('rejects an icon upload that omits its PNG and ICO derivatives', async () => {
   const svg = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 32"><rect width="64" height="32" fill="#123456"/></svg>');
   const form = multipartPayload({ asset_type: 'icon', theme: 'default', csrfmiddlewaretoken: csrfToken }, {
     svg: { name: 'icon.svg', type: 'image/svg+xml', data: svg },
   });
-  const uploaded = await uploadBrandAsset(prisma, 1, false, {
-    assetType: 'icon', theme: 'default', svg, files: new Map([['svg', svg]]), manifest: '', generateDerivatives: true,
-  }, { siteUrl: new URL('https://blog.example'), cipherKey: '', secretKey: '', mediaRoot, currentUser: async () => null, validateCsrf: () => false });
-  assert.equal(uploaded.ok, true);
-  const [row] = await prisma.$queryRaw<Array<{ iconManifest: string }>>`SELECT icon_manifest AS iconManifest FROM board_sitesetting WHERE id = 1`;
-  const manifest = JSON.parse(row?.iconManifest ?? '{}') as { png: Record<string, string>; ico: string };
-  assert.equal(Object.keys(manifest.png).length, 14);
-  const icon = await sharp(join(mediaRoot, manifest.png['512'])).metadata();
-  assert.equal(icon.width, 512);
-  assert.equal(icon.height, 512);
-  const ico = await readFile(join(mediaRoot, manifest.ico));
-  assert.equal(ico.readUInt16LE(4), 2);
-
   const missingDerivatives = await app.inject({
     method: 'POST', url: '/v1/site-settings/brand-assets', headers: { ...headers(1), ...form.headers }, payload: form.payload,
   });

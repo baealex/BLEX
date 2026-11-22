@@ -1,9 +1,8 @@
 import { Prisma, type PrismaClient } from '@prisma/client';
 import type { FastifyRequest } from 'fastify';
-import { type PinnablePagination, type PinnablePostItem, type PinnedPostItem } from '../pages.js';
 import { messageFailure as apiError } from '../../../platform/response.js';
 import { SERIES_PUBLIC_FILTER } from './series.js';
-import { bodyRecord, localDate, stringValue } from '../shared.js';
+import { type PinnablePagination, type PinnablePostItem, type PinnedPostItem, bodyRecord, localDate, stringValue } from '../shared.js';
 
 interface StoredPinnedPost extends PinnedPostItem {
   publishedDate: string | null;

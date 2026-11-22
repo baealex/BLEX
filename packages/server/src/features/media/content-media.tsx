@@ -1,4 +1,3 @@
-import { renderApplicationDocument } from '../../application/document.js';
 import multipart, { type MultipartFile } from '@fastify/multipart';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
@@ -7,9 +6,6 @@ import { createHash, randomBytes } from 'node:crypto';
 import { mkdir, mkdtemp, realpath, rename, rm, stat, unlink, writeFile } from 'node:fs/promises';
 import { extname, isAbsolute, relative, resolve, sep } from 'node:path';
 import sharp from 'sharp';
-import { authCookieOptions, csrfCookie, requestCookies } from '../../platform/cookies.js';
-import { csrfPattern } from '../../platform/csrf.js';
-import { createToken } from '../auth/session.js';
 import { failure } from '../../platform/response.js';
 
 export class ContentUploadError extends Error {
@@ -29,16 +25,12 @@ function limitError() {
 
 function failed() { return new ContentUploadError('image.upload_failed', 'Image upload failed.', 422); }
 
-async function parseContentUpload(request: FastifyRequest): Promise<{ buffer: Buffer; filename: string; csrf: string }> {
+async function parseContentUpload(request: FastifyRequest): Promise<{ buffer: Buffer; filename: string }> {
   if (!request.isMultipart()) throw new ContentUploadError('image.missing', 'No image was provided.', 400);
   let selected: { buffer: Buffer; filename: string } | undefined;
-  let csrf = '';
   try {
     for await (const part of request.parts()) {
-      if (part.type !== 'file') {
-        if (part.fieldname === 'csrfmiddlewaretoken' && typeof part.value === 'string') csrf = part.value;
-        continue;
-      }
+      if (part.type !== 'file') continue;
       const file = part as MultipartFile;
       if (file.fieldname === 'image' && !selected) {
         const buffer = await file.toBuffer();
@@ -54,7 +46,7 @@ async function parseContentUpload(request: FastifyRequest): Promise<{ buffer: Bu
     throw failed();
   }
   if (!selected) throw new ContentUploadError('image.missing', 'No image was provided.', 400);
-  return { ...selected, csrf };
+  return selected;
 }
 
 function contentUploadUrl(path: string) {
@@ -138,17 +130,8 @@ export function saveContentFile(
   return storeContent(db, mediaRoot, userId, async () => file);
 }
 
-export function saveContentUpload(
-  db: PrismaClient, mediaRoot: string | undefined, userId: number, request: FastifyRequest, validateCsrf?: (request: FastifyRequest) => boolean,
-) {
-  return storeContent(db, mediaRoot, userId, async () => {
-    const file = await parseContentUpload(request);
-    if (validateCsrf) {
-      request.body = { csrfmiddlewaretoken: file.csrf };
-      if (!validateCsrf(request)) throw new ContentUploadError('image.csrf', '요청 출처를 확인할 수 없습니다.', 403);
-    }
-    return file;
-  });
+export function saveContentUpload(db: PrismaClient, mediaRoot: string | undefined, userId: number, request: FastifyRequest) {
+  return storeContent(db, mediaRoot, userId, () => parseContentUpload(request));
 }
 
 async function storeContent(
@@ -212,26 +195,6 @@ interface ContentMediaOptions {
   currentUser: (request: FastifyRequest) => Promise<{ id: number; hasEditorRole: boolean } | null>;
   validateCsrf: (request: FastifyRequest) => boolean;
   mediaRoot?: string;
-  siteUrl?: URL;
-}
-
-function imagePage(csrf: string, uploaded?: string, error?: string) {
-  const video = uploaded && /\.(mp4|webm)$/.test(uploaded);
-  return renderApplicationDocument(<html lang="ko"><head><meta charSet="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-      <meta name="robots" content="noindex" /><title>글에 넣을 이미지 · BLEX</title>
-      <style>{'body{margin:3rem auto;max-width:42rem;padding:0 1rem;font:1rem/1.6 system-ui}button,input{font:inherit}img,video{max-width:100%;height:auto}label{display:block;margin:.75rem 0}pre{overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere}'}</style>
-    </head><body><main><a href="/write">글쓰기</a><h1>글에 넣을 이미지</h1>
-      {error && <p role="alert">{error}</p>}
-      {uploaded && <section><h2>업로드 완료</h2>
-        {video ? <video src={uploaded} controls preload="metadata" /> : <img src={uploaded} alt="업로드한 이미지" />}
-        <p>아래 주소를 글 본문에 넣을 수 있습니다.</p><pre>{video ? uploaded : `![이미지 설명](${uploaded})`}</pre>
-      </section>}
-      <form method="post" action="/write/images" encType="multipart/form-data">
-        <input type="hidden" name="csrfmiddlewaretoken" value={csrf} />
-        <label>파일 <input type="file" name="image" accept="image/jpeg,image/png,image/gif,video/mp4,video/webm" required /></label>
-        <button type="submit">업로드</button>
-      </form>
-    </main></body></html>);
 }
 
 export function registerContentMedia(app: FastifyInstance, db: PrismaClient, options: ContentMediaOptions) {
@@ -252,25 +215,5 @@ export function registerContentMedia(app: FastifyInstance, db: PrismaClient, opt
         return error(code, failure.message);
       }
     });
-    if (options.siteUrl) routes.route({ method: ['GET', 'POST'], url: '/write/images', bodyLimit: contentUploadLimit + 8192, async handler(request, reply) {
-      const user = await options.currentUser(request);
-      if (!user) return reply.redirect('/login?next=%2Fwrite%2Fimages', 302);
-      if (!user.hasEditorRole) return reply.code(404).send('Not found');
-      const previous = requestCookies(request)[csrfCookie] ?? '';
-      const csrf = csrfPattern.test(previous) ? previous : createToken();
-      if (csrf !== previous) reply.setCookie(csrfCookie, csrf, authCookieOptions(options.siteUrl!));
-      let output: string | undefined;
-      let error: string | undefined;
-      if (request.method === 'POST') {
-        try {
-          output = await saveContentUpload(db, options.mediaRoot, user.id, request, options.validateCsrf);
-        } catch (failure) {
-          if (!(failure instanceof ContentUploadError)) throw failure;
-          error = failure.message;
-          reply.code(failure.status);
-        }
-      }
-      return reply.type('text/html; charset=utf-8').header('Cache-Control', 'private, no-store').send(imagePage(csrf, output, error));
-    } });
   });
 }

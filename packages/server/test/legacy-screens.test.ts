@@ -301,43 +301,6 @@ test('limits drafts and creates a complete profile on a role change', async () =
   }
 });
 
-test('saves long multipart editor submissions with a cover image', async () => {
-  const fixture = await screensApp();
-  try {
-    const headers = signIn(fixture.db, 1);
-    const longBody = `<p>${'긴 본문 '.repeat(4000)}</p>`;
-    const content = await sharp({ create: { width: 32, height: 24, channels: 3, background: '#336699' } }).png().toBuffer();
-    const form = multipart({
-      csrfmiddlewaretoken: headers['x-csrftoken'], title: 'Long post', url: 'long-post', content_html: longBody, tag: 'one,two', series: '7',
-      hide: 'false', advertise: 'false', block_comment: 'false', cover_layout: 'default', cover_image_position: 'right', cover_image_ratio: 'auto',
-    }, { name: 'image', filename: 'cover.png', content });
-    const created = await fixture.app.inject({ method: 'POST', url: '/write', headers: { ...headers, 'content-type': form.contentType }, payload: form.payload });
-    assert.equal(created.statusCode, 302, created.body);
-    assert.equal(created.headers.location, '/@writer/long-post');
-    const row = fixture.db.prepare(`SELECT p.image, p.series_id AS series, c.content_html AS html FROM board_post p JOIN board_postcontent c ON c.post_id = p.id WHERE p.url = 'long-post'`).get() as { image: string; series: number; html: string };
-    assert.ok(row.image);
-    assert.equal(row.series, 7);
-    assert.ok(row.html.length > 8 * 1024);
-  } finally {
-    await fixture.close();
-  }
-});
-
-test('answers an async edit with JSON and keeps omitted series and tags', async () => {
-  const fixture = await screensApp();
-  try {
-    const headers = signIn(fixture.db, 1);
-    const form = multipart({ csrfmiddlewaretoken: headers['x-csrftoken'], title: 'Kept edited', content_html: '<p>Edited</p>', hide: 'false', advertise: 'false', block_comment: 'false' });
-    const saved = await fixture.app.inject({ method: 'POST', url: '/@writer/kept/edit', headers: { ...headers, 'content-type': form.contentType, 'x-blex-editor-submit': 'async' }, payload: form.payload });
-    assert.deepEqual(saved.json(), { status: 'DONE', body: { url: '/@writer/kept' } });
-    const row = fixture.db.prepare('SELECT title, series_id AS series FROM board_post WHERE id = 1').get() as { title: string; series: number };
-    assert.deepEqual([row.title, row.series], ['Kept edited', 7]);
-    assert.equal((fixture.db.prepare('SELECT COUNT(*) AS n FROM board_post_tags WHERE post_id = 1').get() as { n: number }).n, 1);
-  } finally {
-    await fixture.close();
-  }
-});
-
 const editorForm = (csrf: string, values: Record<string, string> = {}) => ({
   csrfmiddlewaretoken: csrf, title: 'Editor post', subtitle: 'Sub', url: 'editor-post', content_html: '<p>Written body</p>',
   meta_description: 'Written description', tag: 'one,two', series: '7', hide: 'false', advertise: 'false', block_comment: 'false',
@@ -470,6 +433,27 @@ test('edits a post from the editor form and keeps what it leaves out', async () 
     const notOwner = multipart(editorForm(other['x-csrftoken'], { url: 'kept' }));
     const denied = await fixture.app.inject({ method: 'POST', url: '/v1/users/@writer/posts/kept', headers: { ...other, 'content-type': notOwner.contentType }, payload: notOwner.payload });
     assert.equal(denied.statusCode, 404);
+  } finally {
+    await fixture.close();
+  }
+});
+
+test('retires the old editor, image upload, and series form URLs', async () => {
+  const fixture = await screensApp();
+  try {
+    const headers = signIn(fixture.db, 1);
+    const form = { ...headers, 'content-type': 'application/x-www-form-urlencoded' };
+    const payload = `csrfmiddlewaretoken=${headers['x-csrftoken']}&title=Gone&text_md=Gone&name=Gone`;
+    const before = (fixture.db.prepare('SELECT COUNT(*) AS n FROM board_post').get() as { n: number }).n;
+    for (const url of ['/write', '/@writer/kept/edit', '/write/images', '/series/create', '/series/edit/7']) {
+      assert.equal((await fixture.app.inject({ method: 'POST', url, headers: form, payload })).statusCode, 404, `POST ${url}`);
+    }
+    for (const url of ['/write/images', '/series/create', '/series/edit/7', '/assets/blex/editor.js', '/assets/blex/editor.css']) {
+      assert.equal((await fixture.app.inject({ url, headers })).statusCode, 404, `GET ${url}`);
+    }
+    assert.equal((fixture.db.prepare('SELECT COUNT(*) AS n FROM board_post').get() as { n: number }).n, before);
+    assert.equal((fixture.db.prepare(`SELECT title FROM board_post WHERE id = 1`).get() as { title: string }).title, 'Kept');
+    assert.equal((fixture.db.prepare(`SELECT name FROM board_series WHERE id = 7`).get() as { name: string }).name, 'Guide');
   } finally {
     await fixture.close();
   }
