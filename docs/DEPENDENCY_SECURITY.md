@@ -32,6 +32,6 @@ pnpm audit
 
 Run the server and web checks in the [Testing Guide](TESTING_GUIDE.md), including JavaScript bundle size limits when browser dependencies change.
 
-[CI](../.github/workflows/CI.yml) audits production dependencies. The [release build](../.github/workflows/BUILD.yml) scans runtime and migration images before publishing release tags, and [Image Security](../.github/workflows/IMAGE_SECURITY.yml) scans published images on a schedule. The shared [image security action](../.github/actions/image-security/action.yml) defines report output and failure thresholds.
+[CI](../.github/workflows/CI.yml) audits production dependencies. The [release build](../.github/workflows/BUILD.yml) scans the runtime image before publishing release tags, and [Image Security](../.github/workflows/IMAGE_SECURITY.yml) scans published images on a schedule. The shared [image security action](../.github/actions/image-security/action.yml) defines report output and failure thresholds.
 
 Audit output describes the dependency graph and advisory data at the time it runs. Record the actual results for each dependency change.

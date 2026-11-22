@@ -50,7 +50,7 @@ BLEX 4 imports a 3.14 installation once, the first time it starts. The original 
 ## What the first start does
 
 1. Checks that `/legacy/db.sqlite3` is an intact 3.14 database.
-2. Builds a new database beside the destination and copies your data into it, leaving out Django's internal records and old sessions.
+2. Builds a new database beside the destination and copies your data into it, leaving out the 3.x framework's internal records and old sessions.
 3. Copies media into the BLEX 4 data volume.
 4. Verifies the result and moves the new database into place.
 

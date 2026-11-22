@@ -340,7 +340,7 @@ GET /settings/account?saved=1
         <article class="stack card"><h3>Server · APIs</h3><strong>Fastify 5</strong><p>Serves SSR pages, forms, and existing HTTP APIs.</p></article>
         <article class="stack card"><h3>Screens · routing</h3><strong>React 19 · React Router 7</strong><p>React renders pages on the server; the shared browser app handles internal navigation.</p></article>
         <article class="stack card"><h3>Build · editor</h3><strong>Vite 7 · Tailwind CSS 4 · Tiptap 3</strong><p>Vite builds browser assets. Sass handles additional styles, and Tiptap loads on the writing screen.</p></article>
-        <article class="stack card"><h3>Data · schema</h3><strong>Prisma 6 · SQLite</strong><p>Data is stored in SQLite. Prisma manages schema changes, and parameterized SQL is used to read and update some existing tables.</p></article>
+        <article class="stack card"><h3>Data · schema</h3><strong>Prisma 6 · SQLite</strong><p>Data is stored in SQLite. Prisma manages the schema and all queries. Only SQLite PRAGMA statements run as raw SQL.</p></article>
         <article class="stack card"><h3>Deployment · media</h3><strong>Docker · Sharp · FFmpeg</strong><p>The runtime image uses Node. It mounts the SQLite file and upload directory and processes images and video within the same service.</p></article>
       </div>
       <p class="upgrade"><strong>Installation and operations</strong> The <a href="SELF_HOSTING.md">self-hosting guide</a> covers running and backing up an instance; the <a href="UPGRADE_FROM_3.md">upgrade guide</a> covers moving an existing database and media directory.</p>

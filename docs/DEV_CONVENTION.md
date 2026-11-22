@@ -27,8 +27,10 @@ The development command builds the app and starts the server at `http://localhos
 Read [Backend Guide](BACKEND_GUIDE.md) and [Testing Guide](TESTING_GUIDE.md).
 
 - Put domain code in `packages/server/src/features/<domain>`: `http` for routes, `services` for business logic and data access, and `pages` for SSR screens. Register routes from `packages/server/src/routes/index.ts`.
-- Keep shared response, CSRF, cookie, and header helpers in `packages/server/src/platform/`; stored data formats and upgrade checks belong in `packages/server/src/compat/`.
-- Prisma schema and migrations live in `packages/server/prisma/`.
+- Keep shared response, CSRF, cookie, date format, and header helpers in `packages/server/src/platform/`. Only the one-time BLEX 3.14 import and its verification belong in `packages/server/src/compat/`.
+- Prisma schema and migrations live in `packages/server/prisma/`. `0001_init` stays the single migration until 4.0 ships; after that, new migrations stack on it.
+- Use the Prisma model API for database access. Raw SQL needs a documented reason; see the [Backend Guide](BACKEND_GUIDE.md#database-changes).
+- `/v1` request and response fields are camelCase. The Developer API keeps its public snake_case contract through `features/developer-api/wire-format.ts`.
 - Keep authorization, validation, and ownership checks in shared services when multiple routes perform the same operation.
 - Add regression coverage for behavior changes. Verify schema changes on an empty database and an upgraded database copy; see the [upgrade guide](UPGRADE_FROM_3.md).
 - Preserve the observable contracts listed in [Backend Compatibility](BACKEND_COMPATIBILITY.md) during refactors.
