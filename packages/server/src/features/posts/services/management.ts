@@ -1,6 +1,7 @@
 import { Prisma, type PrismaClient } from '@prisma/client';
 import { syncPostPublication } from '../../notifications/model.js';
 import { localDate, localDateTimeText } from '../../../compat/django-format.js';
+import { deleteTrashedPost } from './deletions.js';
 import { mediaUrl } from './post-content.js';
 import { PostValidationError, comparableDate } from './post-store.js';
 import { DbDate, ManagedPostRow, TrashedPostRow, UserRow, dateAsIso, field, isTrue, nowString, numberValue } from '../shared.js';
@@ -212,39 +213,14 @@ export async function permanentlyDeleteTrashedPost(
   post: TrashedPostRow,
   expectedDeletedDate: string,
 ): Promise<number> {
-  if (!post.deletedDate || comparableDate(post.deletedDate) !== comparableDate(expectedDeletedDate)) {
+  const { deletedDate } = post;
+  if (!deletedDate || comparableDate(deletedDate) !== comparableDate(expectedDeletedDate)) {
     throw new PostValidationError('RJ', 'The trash state changed. Refresh the list and try again.');
   }
-  const comments = Prisma.sql`
-    WITH RECURSIVE thread(id) AS (
-      SELECT id FROM board_comment WHERE post_id = ${post.id}
-      UNION SELECT child.id FROM board_comment AS child JOIN thread ON child.parent_id = thread.id
-    ) SELECT id FROM thread
-  `;
   await db.$transaction(async (tx) => {
-    const [current] = await tx.$queryRaw<unknown[]>`
-      SELECT 1 FROM board_post WHERE id = ${post.id} AND author_id = ${author.id} AND deleted_date = ${post.deletedDate}
-    `;
-    if (!current) throw new PostValidationError('RJ', 'The trash state changed. Refresh the list and try again.');
-    // Django applied these CASCADE and SET_NULL policies in its ORM.
-    const changes = [
-      Prisma.sql`DELETE FROM board_post_share_link_daily_counts WHERE link_id IN (SELECT id FROM board_postsharelink WHERE post_id = ${post.id})`,
-      Prisma.sql`DELETE FROM board_postsharelink WHERE post_id = ${post.id}`,
-      Prisma.sql`DELETE FROM board_comment_likes WHERE comment_id IN (${comments})`,
-      Prisma.sql`DELETE FROM board_comment WHERE id IN (${comments})`,
-      Prisma.sql`DELETE FROM board_postcontent WHERE post_id = ${post.id}`,
-      Prisma.sql`DELETE FROM board_postconfig WHERE post_id = ${post.id}`,
-      Prisma.sql`DELETE FROM board_postconfigmeta WHERE post_id = ${post.id}`,
-      Prisma.sql`DELETE FROM board_post_tags WHERE post_id = ${post.id}`,
-      Prisma.sql`DELETE FROM board_pinnedpost WHERE post_id = ${post.id}`,
-      Prisma.sql`DELETE FROM board_post_likes WHERE post_id = ${post.id}`,
-      Prisma.sql`UPDATE board_edithistory SET restored_from_id = NULL
-        WHERE restored_from_id IN (SELECT id FROM board_edithistory WHERE post_id = ${post.id})`,
-      Prisma.sql`DELETE FROM board_edithistory WHERE post_id = ${post.id}`,
-      Prisma.sql`DELETE FROM board_editrequest WHERE post_id = ${post.id}`,
-      Prisma.sql`DELETE FROM board_post WHERE id = ${post.id}`,
-    ];
-    for (const command of changes) await tx.$executeRaw(command);
-  }, { timeout: 15_000 });
+    if (!await deleteTrashedPost(tx, post.id, author.id, deletedDate)) {
+      throw new PostValidationError('RJ', 'The trash state changed. Refresh the list and try again.');
+    }
+  }, { timeout: 15_000, isolationLevel: 'Serializable' });
   return post.id;
 }

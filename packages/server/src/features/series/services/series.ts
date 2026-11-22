@@ -2,6 +2,7 @@ import { Prisma, type PrismaClient } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
 import { sanitizePostHtml } from '../../posts/post-html.js';
 import { type SeriesListItem, type SeriesPostOption } from '../pages.js';
+import { deleteSeriesRows } from './deletions.js';
 import { arrayValues, localDate, stringValue } from '../shared.js';
 
 interface StoredSeries extends SeriesListItem {
@@ -210,16 +211,8 @@ export async function saveSeries(
 }
 
 export async function deleteSeries(db: PrismaClient, ownerId: number, seriesId: number): Promise<boolean> {
-  return db.$transaction(async (tx: Prisma.TransactionClient) => {
-    const [row] = await tx.$queryRaw<Array<{ id: number }>>`
-      SELECT id FROM board_series WHERE id = ${seriesId} AND owner_id = ${ownerId} LIMIT 1
-    `;
-    if (!row) return false;
-    await tx.$executeRaw`UPDATE board_post SET series_id = NULL WHERE series_id = ${seriesId}`;
-    await tx.$executeRaw`DELETE FROM board_seriesconfigmeta WHERE post_id = ${seriesId}`;
-    await tx.$executeRaw`DELETE FROM board_series WHERE id = ${seriesId} AND owner_id = ${ownerId}`;
-    return true;
-  });
+  const count = await db.$transaction((tx) => deleteSeriesRows(tx, { id: seriesId, owner_id: ownerId }));
+  return count === 1;
 }
 
 export async function updateSeriesOrder(db: PrismaClient, ownerId: number, entries: Array<[number, number]>): Promise<void> {

@@ -41,8 +41,11 @@ test('permanently deletes a Django-era trashed post with the rows Django cascade
     insertRow(db, 'board_comment', { id: 1, post_id: 10, author_id: 2, text_md: 'parent', text_html: 'parent' });
     insertRow(db, 'board_comment', { id: 2, post_id: 10, author_id: 2, parent_id: 1, text_md: 'child', text_html: 'child' });
     insertRow(db, 'board_comment', { id: 3, post_id: 11, author_id: 2, text_md: 'other', text_html: 'other' });
+    insertRow(db, 'board_comment', { id: 4, post_id: 11, author_id: 2, parent_id: 2 });
+    insertRow(db, 'board_comment', { id: 5, post_id: 11, author_id: 2, parent_id: 4 });
     insertRow(db, 'board_comment_likes', { comment_id: 2, user_id: 1 });
     insertRow(db, 'board_comment_likes', { comment_id: 3, user_id: 1 });
+    insertRow(db, 'board_comment_likes', { comment_id: 5, user_id: 1 });
     insertRow(db, 'board_tag', { id: 1, value: 'kept-tag' });
     insertRow(db, 'board_post_tags', { post_id: 10, tag_id: 1 });
     insertRow(db, 'board_post_likes', { post_id: 10, user_id: 2 });
@@ -52,14 +55,18 @@ test('permanently deletes a Django-era trashed post with the rows Django cascade
     insertRow(db, 'board_post_share_link_daily_counts', { link_id: 1, day: '2026-01-01', clicks: 1 });
     insertRow(db, 'board_edithistory', { id: 1, post_id: 10, change_type: 'edit' });
     insertRow(db, 'board_edithistory', { id: 2, post_id: 10, change_type: 'restore', restored_from_id: 1 });
+    insertRow(db, 'board_edithistory', { id: 3, post_id: 11, change_type: 'restore', restored_from_id: 2 });
     insertRow(db, 'board_editrequest', { post_id: 10, user_id: 2 });
 
-    const expected = await trashToken(fixture);
-    const response = await fixture.app.inject({
+    const purge = (expected: string) => fixture.app.inject({
       method: 'DELETE',
       url: `/v1/setting/trash-posts/trashed?expectedDeletedDate=${encodeURIComponent(expected)}`,
       headers: fixture.headers,
     });
+    assert.equal((await purge('2026-02-01T03:04:06.000Z')).json().status, 'ERROR');
+    assert.equal(fixture.count('board_comment', 'id IN (1, 2, 4, 5)'), 4);
+
+    const response = await purge(await trashToken(fixture));
     assert.equal(response.statusCode, 200, response.body);
     assert.equal(response.json().status, 'DONE', response.body);
 
@@ -68,12 +75,15 @@ test('permanently deletes a Django-era trashed post with the rows Django cascade
       'board_postsharelink', 'board_edithistory', 'board_editrequest', 'board_postcontent', 'board_postconfig']) {
       assert.equal(fixture.count(table, 'post_id = 10'), 0, table);
     }
-    assert.equal(fixture.count('board_comment_likes', 'comment_id = 2'), 0);
+    assert.equal(fixture.count('board_comment', 'id IN (4, 5)'), 0);
+    assert.equal(fixture.count('board_comment_likes', 'comment_id IN (2, 5)'), 0);
     assert.equal(fixture.count('board_post_share_link_daily_counts', 'link_id = 1'), 0);
     assert.equal(fixture.count('board_comment', 'id = 3'), 1);
     assert.equal(fixture.count('board_comment_likes', 'comment_id = 3'), 1);
     assert.equal(fixture.count('board_tag', 'id = 1'), 1);
     assert.equal(fixture.count('board_post', 'id = 11'), 1);
+    assert.equal(fixture.count('board_edithistory', 'id = 3 AND restored_from_id IS NULL'), 1);
+    assert.deepEqual(db.prepare('PRAGMA foreign_key_check').all(), []);
   } finally {
     await fixture.close();
   }

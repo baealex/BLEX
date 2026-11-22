@@ -7,6 +7,7 @@ import { timeSince } from '../../compat/django-format.js';
 import { publicPostPath } from '../posts/public-post.js';
 import { done, failure as error } from '../../platform/response.js';
 import { CommentRow, commentBodyLimit, commentForViewer, commentHtml, publicComments, serializeComment } from './services/comments.js';
+import { anonymizeComments } from './services/deletions.js';
 import { TelegramRow, canSubscribe, mySubscriptions, subscriptionState } from './services/subscriptions.js';
 import { DbInteger, ReaderActionsOptions, activeEditor, activeUser, asBodyObject, bodyField, commentReturnTo, forbidden, isTrue, localReturnTo, missing, numberValue, publicPost, requestCsrfAccepted, textValue, truthyBodyField } from './shared.js';
 
@@ -217,10 +218,7 @@ export function registerReaderActions(
             if (!viewer || comment.authorId !== viewer.id) {
               return error('AT', 'You do not have permission to delete this comment.');
             }
-            await db.$executeRaw`
-              UPDATE board_comment SET author_id = NULL
-              WHERE id = ${comment.id} AND author_id = ${viewer.id}
-            `;
+            await anonymizeComments(db, viewer.id, comment.id);
             const returnTo = localReturnTo(body?.return_to);
             if (returnTo) return reply.redirect(returnTo, 303);
             const deleted = await commentForViewer(db, comment.id, viewer.id);
@@ -234,10 +232,7 @@ export function registerReaderActions(
           if (!viewer || comment.authorId !== viewer.id) {
             return error('AT', 'You do not have permission to delete this comment.');
           }
-          await db.$executeRaw`
-            UPDATE board_comment SET author_id = NULL
-            WHERE id = ${comment.id} AND author_id = ${viewer.id}
-          `;
+          await anonymizeComments(db, viewer.id, comment.id);
           const deleted = await commentForViewer(db, comment.id, viewer.id);
           return done(deleted ? serializeComment(deleted, viewer.id, !isTrue(deleted.postBlockComment)) : {});
         }

@@ -11,6 +11,7 @@ import { verifyDjangoPassword } from '../src/features/auth/django-password.js';
 import { decryptDjangoSecret, encryptDjangoSecret } from '../src/features/auth/django-secret.js';
 import { authenticatePassword } from '../src/features/auth/password-login.js';
 import { verifyDjangoSecondFactor } from '../src/features/auth/two-factor.js';
+import { insertRow, seedPost } from './fixtures/migrated-database.js';
 
 // Test values were produced by Django, cryptography's Fernet and PyOTP.
 const password = 'compatibility-비밀번호-2026';
@@ -415,6 +416,14 @@ test('account deletion checks recent proof, preserves other members, and protect
     INSERT INTO board_worklogshare (id, token, headline, created_at, log_id) VALUES (5, '123', 'Snapshot', '2000-01-01', 3);
     INSERT INTO board_worklogshare_entries (worklogshare_id, worklogentry_id) VALUES (5, 4);
   `);
+  insertRow(fixture, 'board_series', { id: 2, owner_id: 2, url: 'deleted-series' });
+  insertRow(fixture, 'board_seriesconfigmeta', { post_id: 2 });
+  seedPost(fixture, 1, 1, 'kept-post', { series_id: 2 });
+  seedPost(fixture, 2, 2, 'deleted-post', { series_id: 2 });
+  insertRow(fixture, 'board_comment', { id: 1, post_id: 1, author_id: 2, text_md: 'kept' });
+  insertRow(fixture, 'board_comment', { id: 2, post_id: 2, author_id: 1 });
+  insertRow(fixture, 'board_comment_likes', { comment_id: 1, user_id: 2 });
+  insertRow(fixture, 'board_edithistory', { id: 1, post_id: 1, actor_id: 2, change_type: 'edit' });
   fixture.close();
   const siteUrl = new URL('https://blex.example');
   const app = await buildApp(path, siteUrl, { secretKey: 'deletion-test-secret', cipherKey });
@@ -435,6 +444,12 @@ test('account deletion checks recent proof, preserves other members, and protect
     assert.deepEqual(check.prepare('SELECT username FROM auth_user').all().map((row) => row.username), ['administrator']);
     assert.equal(check.prepare('SELECT COUNT(*) AS rows FROM board_worklogshare_entries').get()?.rows, 0);
     assert.equal(check.prepare('SELECT claimed_by_id FROM board_authorinvite').get()?.claimed_by_id, null);
+    assert.deepEqual(check.prepare('SELECT url FROM board_post WHERE series_id IS NULL').all().map((row) => row.url), ['kept-post']);
+    assert.deepEqual(check.prepare('SELECT text_md FROM board_comment WHERE author_id IS NULL').all().map((row) => row.text_md), ['kept']);
+    assert.equal(check.prepare('SELECT COUNT(*) AS rows FROM board_post').get()?.rows, 1);
+    assert.equal(check.prepare('SELECT COUNT(*) AS rows FROM board_comment').get()?.rows, 1);
+    assert.equal(check.prepare('SELECT COUNT(*) AS rows FROM board_comment_likes').get()?.rows, 0);
+    assert.equal(check.prepare('SELECT actor_id FROM board_edithistory WHERE id = 1').get()?.actor_id, null);
     assert.deepEqual(check.prepare('PRAGMA foreign_key_check').all(), []);
     check.close();
   } finally {
