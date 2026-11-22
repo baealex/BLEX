@@ -64,6 +64,9 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
           if (uploadError) return failed('RJ', uploadError);
         }
         const input = parseAuthoringPostInput(body);
+        if (draft && form.isMultipart && !Object.hasOwn(body, 'series') && !Object.hasOwn(body, 'seriesUrl')) {
+          input.series = draft.seriesUrl ?? '';
+        }
         const post = draft
           ? await updatePost(db, user, draft, input, {
             allowEmptyBody: false,
@@ -162,14 +165,14 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
             if (!Object.hasOwn(body, 'blockComment')) input.blockComment = post.blockComment;
           }
           if (form.isMultipart) {
-            // The editor form leaves these out to mean "unchanged", while JSON clients replace them.
-            if (!field(body.series)) input.series = post.seriesUrl ?? '';
+            // The editor form leaves these out to mean "unchanged" and sends them empty to clear them.
+            if (!Object.hasOwn(body, 'series')) input.series = post.seriesUrl ?? '';
             if (!Object.hasOwn(body, 'isAdvertise') && !Object.hasOwn(body, 'advertise')) input.advertise = post.advertise;
           }
           await updatePost(db, user, post, input, {
             allowEmptyBody: post.publishedDate === null,
             updateDraft: post.publishedDate === null,
-            preserveTags: form.isMultipart && !field(body.tag),
+            preserveTags: form.isMultipart && !Object.hasOwn(body, 'tag'),
           });
           return done();
         } catch (error) {

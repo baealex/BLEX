@@ -42,12 +42,16 @@ export async function readEditorForm(request: FastifyRequest): Promise<EditorFor
 export async function prepareEditorFields(db: PrismaClient, options: AuthoringOptions, account: UserRow, form: EditorForm): Promise<string | null> {
   if (form.uploadError) return form.uploadError;
   const { body, image } = form;
-  if (Object.hasOwn(body, 'contentHtml') && !Object.hasOwn(body, 'textMd')) {
+  if (Object.hasOwn(body, 'series') && Object.hasOwn(body, 'contentHtml') && !Object.hasOwn(body, 'textMd')) {
     const seriesId = field(body.series);
-    const series = /^\d+$/.test(seriesId)
-      ? await db.series.findFirst({ where: { id: Number(seriesId), ownerId: account.id }, select: { slug: true } })
-      : null;
-    body.series = series?.slug ?? '';
+    if (seriesId) {
+      const series = /^\d+$/.test(seriesId)
+        ? await db.series.findFirst({ where: { id: Number(seriesId), ownerId: account.id }, select: { slug: true } })
+        : null;
+      // Only an empty value clears the series. An id that no longer resolves changes nothing.
+      if (series) body.series = series.slug;
+      else delete body.series;
+    }
   }
   if (image) {
     try {

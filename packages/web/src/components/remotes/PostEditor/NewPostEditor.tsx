@@ -90,6 +90,8 @@ const NewPostEditor = ({
     });
 
     const [tags, setTags] = useState<string[]>([]);
+    // A draft whose series could not be matched must keep it until the author picks another.
+    const [hasEditedSeries, setHasEditedSeries] = useState(false);
     const [selectedSeries, setSelectedSeries] = useState<Series>({
         id: '',
         name: '',
@@ -201,7 +203,7 @@ const NewPostEditor = ({
         tags: tags.join(','),
         subtitle: formData.subtitle,
         description: formData.metaDescription,
-        seriesUrl: selectedSeries.url || undefined,
+        seriesUrl: selectedSeries.url || (hasEditedSeries ? '' : undefined),
         customUrl: sanitizedUrlForSubmit || undefined,
         coverLayout: formData.coverLayout,
         coverImagePosition: formData.coverImagePosition,
@@ -263,6 +265,7 @@ const NewPostEditor = ({
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true);
+            setHasEditedSeries(false);
             try {
                 // Fetch series list
                 const { data: seriesResponse } = await getSeries();
@@ -500,6 +503,11 @@ const NewPostEditor = ({
         }));
     };
 
+    const handleSeriesChange = (series: Series) => {
+        setHasEditedSeries(true);
+        setSelectedSeries(series);
+    };
+
     const submitCurrentPost = async () => {
         await submitForm({
             title: formData.title,
@@ -511,7 +519,7 @@ const NewPostEditor = ({
             advertise: formData.advertise,
             allowComments: formData.allowComments,
             tags,
-            seriesId: selectedSeries.id,
+            seriesId: selectedSeries.id || (hasEditedSeries ? '' : undefined),
             coverLayout: formData.coverLayout,
             coverImagePosition: formData.coverImagePosition,
             coverImageRatio: formData.coverImageRatio,
@@ -664,7 +672,7 @@ const NewPostEditor = ({
                     ...prev,
                     metaDescription
                 }))}
-                onSeriesChange={setSelectedSeries}
+                onSeriesChange={handleSeriesChange}
                 onFormDataChange={(field, value) => setFormData(prev => ({
                     ...prev,
                     [field]: value
