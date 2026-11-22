@@ -24,11 +24,11 @@ function localParts(date: Date) {
 }
 
 /** Rebuilds the naive UTC text 3.x stored, so a date read from a Prisma column keeps every existing output format. */
-export function storedDateText(value: Date | number | bigint, microseconds: number | bigint = 0): string {
+export function storedDateText(value: Date | number | bigint): string {
   const date = value instanceof Date ? value : new Date(Number(value));
-  const fraction = `${String(date.getUTCMilliseconds()).padStart(3, '0')}${String(microseconds).padStart(3, '0')}`;
+  const milliseconds = date.getUTCMilliseconds();
   const seconds = date.toISOString().slice(0, 19).replace('T', ' ');
-  return fraction === '000000' ? seconds : `${seconds}.${fraction}`;
+  return milliseconds === 0 ? seconds : `${seconds}.${String(milliseconds).padStart(3, '0')}000`;
 }
 
 /** Python `datetime.isoformat()` for a UTC value. */

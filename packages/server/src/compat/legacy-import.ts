@@ -57,16 +57,6 @@ const int32 = (to: string): ColumnMapping => ({
 
 const contentScope = choice('scope', ['user', 'global']);
 
-/** Prisma dates stop at milliseconds, so the rest of a 3.x timestamp's six fractional digits is kept beside it. */
-const subMillisecond = (column: string, to: string): ColumnMapping => ({
-  to,
-  sql: quote(column),
-  convert(value) {
-    const fraction = /\.(\d+)/.exec(String(value))?.[1] ?? '';
-    return BigInt(fraction.padEnd(6, '0').slice(3, 6));
-  },
-});
-
 /** Readers treat anything but a JSON object as an empty manifest, and the JSONB column would coerce bare numbers. */
 const jsonObject = (to: string, fallback: string | null = null): ColumnMapping => ({
   to,
@@ -225,8 +215,6 @@ const tableMappings: Record<string, TableMapping> = {
     columns: {
       id: 'id', owner_id: 'ownerId', url: 'slug', name: 'name', text_md: 'descriptionMarkdown', text_html: 'descriptionHtml',
       hide: 'isHidden', layout: 'layout', order: int32('order'), created_date: date('createdAt'), updated_date: date('updatedAt'),
-      created_microseconds: subMillisecond('created_date', 'createdAtMicroseconds'),
-      updated_microseconds: subMillisecond('updated_date', 'updatedAtMicroseconds'),
     },
   },
   board_comment: {

@@ -264,9 +264,9 @@ test('imports 3.14 comments, series, and subscriptions with their counters and r
     await prepareDatabase(space.options);
 
     const imported = new DatabaseSync(space.databasePath, { readOnly: true });
-    assert.deepEqual({ ...imported.prepare('SELECT ownerId, slug, name, descriptionMarkdown, descriptionHtml, isHidden, layout, "order", createdAt, createdAtMicroseconds, updatedAt, updatedAtMicroseconds FROM Series WHERE id = 3').get() }, {
+    assert.deepEqual({ ...imported.prepare('SELECT ownerId, slug, name, descriptionMarkdown, descriptionHtml, isHidden, layout, "order", createdAt, updatedAt FROM Series WHERE id = 3').get() }, {
       ownerId: 7, slug: 'guide', name: 'Guide', descriptionMarkdown: 'md', descriptionHtml: '<p>md</p>', isHidden: 1, layout: 'list', order: 4,
-      createdAt: Date.UTC(2024, 0, 2, 3, 4, 5, 123), createdAtMicroseconds: 456, updatedAt: Date.UTC(2024, 0, 3), updatedAtMicroseconds: 0,
+      createdAt: Date.UTC(2024, 0, 2, 3, 4, 5, 123), updatedAt: Date.UTC(2024, 0, 3),
     });
     assert.equal(imported.prepare('SELECT 1 FROM sqlite_schema WHERE name = ?').get('board_seriesconfigmeta'), undefined);
     assert.deepEqual(imported.prepare('SELECT id, postId, authorId, parentId, markdown, html, isEdited, isHearted, createdAt FROM Comment ORDER BY id').all().map((row) => ({ ...row })), [

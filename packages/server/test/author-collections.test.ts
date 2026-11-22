@@ -52,10 +52,10 @@ function seed() {
       (1, 'writer', 1), (2, 'other-writer', 1), (3, 'reader', 1), (4, 'inactive-writer', 0);
     INSERT INTO board_profile VALUES
       (1, 1, 'EDITOR'), (2, 2, 'EDITOR'), (3, 3, 'READER'), (4, 4, 'EDITOR');
-    INSERT INTO "Series" ("id", "order", "descriptionMarkdown", "descriptionHtml", "isHidden", "slug", "layout", "createdAt", "updatedAt", "ownerId", "name", "createdAtMicroseconds", "updatedAtMicroseconds") VALUES
-    (10, 0, '**series description**', '<p><strong>series description</strong></p>', 0, 'writer-series', 'list', 1704099600000, 1704099600000, 1, 'Writer Series', 0, 0),
-    (11, 1, '', '', 1, 'hidden-series', 'list', 1704186000000, 1704186000000, 1, 'Hidden Series', 0, 0),
-    (20, 0, '', '', 0, 'other-series', 'list', 1704272400000, 1704272400000, 2, 'Other Series', 0, 0);
+    INSERT INTO "Series" ("id", "order", "descriptionMarkdown", "descriptionHtml", "isHidden", "slug", "layout", "createdAt", "updatedAt", "ownerId", "name") VALUES
+    (10, 0, '**series description**', '<p><strong>series description</strong></p>', 0, 'writer-series', 'list', 1704099600000, 1704099600000, 1, 'Writer Series'),
+    (11, 1, '', '', 1, 'hidden-series', 'list', 1704186000000, 1704186000000, 1, 'Hidden Series'),
+    (20, 0, '', '', 0, 'other-series', 'list', 1704272400000, 1704272400000, 2, 'Other Series');
     INSERT INTO board_post VALUES
       (1, 'public-unassigned', 'Public unassigned', '', '2024-06-01 12:00:00', NULL, 1, NULL, '2024-06-01 12:00:00'),
       (2, 'public-assigned', 'Public assigned', '', '2024-06-02 12:00:00', NULL, 1, 10, '2024-06-02 12:00:00'),

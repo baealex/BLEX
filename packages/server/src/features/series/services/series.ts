@@ -72,14 +72,14 @@ export async function readSeriesRows(db: PrismaClient, ownerId: number, countKin
     where: { ownerId },
     orderBy: [{ order: 'asc' }, { id: 'desc' }],
     select: {
-      id: true, slug: true, name: true, order: true, descriptionMarkdown: true, createdAt: true, createdAtMicroseconds: true,
+      id: true, slug: true, name: true, order: true, descriptionMarkdown: true, createdAt: true,
       _count: { select: activePosts },
     },
   });
   const publicCounts = countKind === 'public' ? await countPublicPosts(db, rows.map(({ id }) => id)) : null;
   return rows.map((row) => ({
     id: row.id, url: row.slug, name: row.name, order: row.order, description: row.descriptionMarkdown,
-    createdDate: storedDateText(row.createdAt, row.createdAtMicroseconds),
+    createdDate: storedDateText(row.createdAt),
     totalPosts: publicCounts ? publicCounts.get(row.id) ?? 0 : row._count.posts,
   }));
 }
@@ -88,14 +88,14 @@ export async function readSeriesById(db: PrismaClient, ownerId: number, id: numb
   const row = await db.series.findFirst({
     where: { id, ownerId },
     select: {
-      id: true, slug: true, name: true, order: true, descriptionMarkdown: true, createdAt: true, createdAtMicroseconds: true,
+      id: true, slug: true, name: true, order: true, descriptionMarkdown: true, createdAt: true,
       _count: { select: activePosts },
     },
   });
   if (!row) return null;
   return {
     id: row.id, url: row.slug, name: row.name, order: row.order, totalPosts: row._count.posts,
-    description: row.descriptionMarkdown, createdDate: storedDateText(row.createdAt, row.createdAtMicroseconds),
+    description: row.descriptionMarkdown, createdDate: storedDateText(row.createdAt),
   };
 }
 
@@ -189,7 +189,7 @@ export async function saveSeries(
           where: { id, ownerId },
           data: {
             name: finalName, slug: url, descriptionMarkdown: finalDescription, descriptionHtml: sanitizePostHtml(finalDescription),
-            updatedAt: currentSecond(), updatedAtMicroseconds: 0,
+            updatedAt: currentSecond(),
           },
         });
       }
@@ -230,7 +230,7 @@ export async function updateSeriesOrder(db: PrismaClient, ownerId: number, entri
     for (const [id, order] of entries) {
       // Prisma cannot read an order wider than its 32-bit column back.
       if (!Number.isSafeInteger(id) || !Number.isSafeInteger(order) || Math.abs(order) > MAX_DATABASE_INTEGER) continue;
-      await tx.series.updateMany({ where: { id, ownerId }, data: { order, updatedAt: currentSecond(), updatedAtMicroseconds: 0 } });
+      await tx.series.updateMany({ where: { id, ownerId }, data: { order, updatedAt: currentSecond() } });
     }
   });
 }

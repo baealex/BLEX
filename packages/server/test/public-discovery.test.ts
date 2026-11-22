@@ -31,10 +31,10 @@ fixture.exec(`
   INSERT INTO board_usernamechangelog VALUES (1, 1, 'old-writer', '1999-01-01 00:00:00');
   INSERT INTO board_profile VALUES (1, 1, 'Writer bio', '', 'EDITOR');
   INSERT INTO SiteSetting (id, seoEnabled, aeoEnabled, robotsTxtExtraRules, siteName, updatedAt) VALUES (1, 1, 1, 'User-agent: ExampleBot\nDisallow: /private/  \n', 'Custom Blog', 946684800000);
-  INSERT INTO "Series" ("id", "ownerId", "name", "slug", "descriptionMarkdown", "descriptionHtml", "isHidden", "updatedAt", "updatedAtMicroseconds") VALUES
-    (1, 1, 'Public Series', 'public-series', 'Series summary.', '', 0, 946771200000, 0);
-  INSERT INTO "Series" ("id", "ownerId", "name", "slug", "descriptionMarkdown", "descriptionHtml", "isHidden", "updatedAt", "updatedAtMicroseconds") VALUES
-    (2, 1, 'Hidden Series', 'hidden-series', '', '', 1, 946771200000, 0);
+  INSERT INTO "Series" ("id", "ownerId", "name", "slug", "descriptionMarkdown", "descriptionHtml", "isHidden", "updatedAt") VALUES
+    (1, 1, 'Public Series', 'public-series', 'Series summary.', '', 0, 946771200000);
+  INSERT INTO "Series" ("id", "ownerId", "name", "slug", "descriptionMarkdown", "descriptionHtml", "isHidden", "updatedAt") VALUES
+    (2, 1, 'Hidden Series', 'hidden-series', '', '', 1, 946771200000);
   INSERT INTO StaticPage (id, slug, title, content, isPublished, updatedAt) VALUES (1, 'about-ai', 'About AI', '<h2>About BLEX</h2><p>Static <strong>page</strong>.</p>', 1, ${Date.UTC(2000, 0, 3)});
   INSERT INTO StaticPage (id, slug, title, content, isPublished, updatedAt) VALUES (2, 'private', 'Private page', '<p>Do not expose</p>', 0, ${Date.UTC(2000, 0, 4)});
 

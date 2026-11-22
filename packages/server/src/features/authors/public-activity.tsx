@@ -116,7 +116,7 @@ async function recentActivities(db: PrismaClient, userId: number): Promise<Recen
            SELECT 1 FROM board_post AS post JOIN board_postconfig AS config ON config.post_id = post.id
             WHERE post.series_id = series.id AND post.deleted_date IS NULL AND config.hide = 0 AND post.published_date <= ${now}
          )
-       ORDER BY series.createdAt DESC, series.createdAtMicroseconds DESC LIMIT 5
+       ORDER BY series.createdAt DESC LIMIT 5
     `,
     db.$queryRaw<PostActivity[]>`
       SELECT post.title, post.url AS slug, account.username, CAST(comment.createdAt AS INTEGER) AS date

@@ -13,18 +13,15 @@ import { NoticeSection, PageLayout, advertiseMarkdown, authorFeed, csrfCookie, g
 import { EmptyState, Pagination, PostGrid, postPath } from '../../discovery/pages/post-list.js';
 import { DropdownFilter, QueryFilter, ReactFragment } from '../../discovery/pages/search.js';
 
-const storedSeriesDateColumns = `CAST(series.createdAt AS INTEGER) AS createdAt, series.createdAtMicroseconds AS createdMicroseconds,
-             CAST(series.updatedAt AS INTEGER) AS updatedAt, series.updatedAtMicroseconds AS updatedMicroseconds`;
+const storedSeriesDateColumns = 'CAST(series.createdAt AS INTEGER) AS createdAt, CAST(series.updatedAt AS INTEGER) AS updatedAt';
 
 interface SeriesDateColumns {
   createdAt: number | bigint;
-  createdMicroseconds: number | bigint;
   updatedAt: number | bigint;
-  updatedMicroseconds: number | bigint;
 }
 
-function withSeriesDates<Row extends SeriesDateColumns>({ createdAt, createdMicroseconds, updatedAt, updatedMicroseconds, ...row }: Row) {
-  return { ...row, createdDate: storedDateText(createdAt, createdMicroseconds), updatedDate: storedDateText(updatedAt, updatedMicroseconds) };
+function withSeriesDates<Row extends SeriesDateColumns>({ createdAt, updatedAt, ...row }: Row) {
+  return { ...row, createdDate: storedDateText(createdAt), updatedDate: storedDateText(updatedAt) };
 }
 
 export function registerProfileRoutes(app: FastifyInstance, db: PrismaClient, siteUrl: URL, options: PublicPageOptions = {}) {
@@ -267,8 +264,8 @@ export function registerProfileRoutes(app: FastifyInstance, db: PrismaClient, si
     const count = Number(seriesCountRows[0]?.count ?? 0);
     const checkedPage = validPublicPage(reply, page, count, 12);
     if (checkedPage === null) return reply;
-    const orderBy = sort === 'newest' ? 'series.createdAt DESC, series.createdAtMicroseconds DESC, series.id DESC'
-      : sort === 'oldest' ? 'series.createdAt ASC, series.createdAtMicroseconds ASC, series.id ASC'
+    const orderBy = sort === 'newest' ? 'series.createdAt DESC, series.id DESC'
+      : sort === 'oldest' ? 'series.createdAt ASC, series.id ASC'
         : sort === 'posts' ? 'postCount DESC, series."order" ASC'
           : 'series."order" ASC, series.id ASC';
     const seriesRows = (await db.$queryRawUnsafe<Array<Omit<SeriesRow, 'createdDate' | 'updatedDate'> & SeriesDateColumns>>(`
@@ -372,8 +369,7 @@ export function registerProfileRoutes(app: FastifyInstance, db: PrismaClient, si
              series.name AS name,
              series.descriptionMarkdown AS textMarkdown,
              series.descriptionHtml AS textHtml,
-             CAST(series.createdAt AS INTEGER) AS createdAt, series.createdAtMicroseconds AS createdMicroseconds,
-             CAST(series.updatedAt AS INTEGER) AS updatedAt, series.updatedAtMicroseconds AS updatedMicroseconds,
+             CAST(series.createdAt AS INTEGER) AS createdAt, CAST(series.updatedAt AS INTEGER) AS updatedAt,
              series.ownerId AS authorId,
              author.username AS authorUsername,
              profile.avatar AS authorAvatar,

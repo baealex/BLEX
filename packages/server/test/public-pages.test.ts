@@ -80,10 +80,10 @@ database.exec(`
   INSERT INTO board_userlinkmeta VALUES
     (1, 'GitHub', 'https://github.com/example-writer', '2020-01-01 00:00:00', '2020-01-01 00:00:00', 1, 1),
     (2, 'unsafe', 'javascript:alert(1)', '2020-01-01 00:00:00', '2020-01-01 00:00:00', 1, 2);
-  INSERT INTO "Series" ("id", "order", "descriptionMarkdown", "descriptionHtml", "isHidden", "slug", "layout", "createdAt", "updatedAt", "ownerId", "name", "createdAtMicroseconds", "updatedAtMicroseconds") VALUES
-    (1, 1, 'First series description', '<p>First series description</p>', 0, 'public-series', '', 1577836800000, 1577923200000, 1, 'Public series', 0, 0),
-    (2, 2, 'Second series description', '<p>Second series description</p>', 0, 'other-series', '', 1578009600000, 1578096000000, 1, 'Other series', 0, 0),
-    (3, 3, 'Hidden series', '<p>Hidden series</p>', 1, 'hidden-series', '', 1577836800000, 1577836800000, 1, 'Hidden series', 0, 0);
+  INSERT INTO "Series" ("id", "order", "descriptionMarkdown", "descriptionHtml", "isHidden", "slug", "layout", "createdAt", "updatedAt", "ownerId", "name") VALUES
+    (1, 1, 'First series description', '<p>First series description</p>', 0, 'public-series', '', 1577836800000, 1577923200000, 1, 'Public series'),
+    (2, 2, 'Second series description', '<p>Second series description</p>', 0, 'other-series', '', 1578009600000, 1578096000000, 1, 'Other series'),
+    (3, 3, 'Hidden series', '<p>Hidden series</p>', 1, 'hidden-series', '', 1577836800000, 1577836800000, 1, 'Hidden series');
   INSERT INTO board_post VALUES
     (1, 'Public new article', 'A useful subtitle', 'public-new', 'images/public-new.jpg', 4,
      '2020-02-01 00:00:00.123456', '2020-02-01 00:00:00.123456', 1, 1, 'Public description', '2020-02-01 00:00:00.123456', NULL),

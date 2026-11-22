@@ -66,9 +66,9 @@ const inactiveToken = insertToken(6, 'inactive00001', 4, ['posts:read']);
 const otherToken = insertToken(7, 'other00000001', 2, ['posts:read']);
 
 database.exec(`
-  INSERT INTO "Series" ("id", "ownerId", "name", "slug", "descriptionMarkdown", "isHidden", "order", "createdAt", "updatedAt", "createdAtMicroseconds", "updatedAtMicroseconds") VALUES
-    (10, 1, 'Writer Series', 'writer-series', 'A series description', 1, 2, 1577934245000, 1580702706000, 0, 0),
-    (20, 2, 'Other Series', 'other-series', '', 0, 1, 1577934245000, 1580702706000, 0, 0);
+  INSERT INTO "Series" ("id", "ownerId", "name", "slug", "descriptionMarkdown", "isHidden", "order", "createdAt", "updatedAt") VALUES
+    (10, 1, 'Writer Series', 'writer-series', 'A series description', 1, 2, 1577934245000, 1580702706000),
+    (20, 2, 'Other Series', 'other-series', '', 0, 1, 1577934245000, 1580702706000);
   INSERT INTO board_post VALUES
     (1, 1, 10, 'draft-needle', 'Draft Needle', 'A draft', 'description', NULL, NULL, '2020-01-01 00:00:00', '2025-01-01 00:00:09.123456', 3),
     (2, 2, 20, 'other-draft', 'Other Draft', '', '', NULL, NULL, '2020-01-01 00:00:00', '2025-01-01 00:00:08', 1),

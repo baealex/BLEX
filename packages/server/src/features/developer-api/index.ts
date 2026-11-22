@@ -1,7 +1,6 @@
 import { type PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { isIP } from 'node:net';
-import { storedDateText } from '../../compat/django-format.js';
 import { ContentUploadError, contentUploadLimit, registerContentMultipart, saveContentUpload } from '../media/content-media.js';
 import { DeveloperMutationInputError, developerPostInput } from './mutation-input.js';
 import { PaginationQuery, SearchQuery, listPosts, postDetail, postNotFound, postVersionIssue, readOwnedPost, summarizePost } from './services/posts.js';
@@ -276,7 +275,7 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
       orderBy: [{ order: 'asc' }, { name: 'asc' }, { id: 'asc' }],
       select: {
         id: true, name: true, slug: true, descriptionMarkdown: true, isHidden: true,
-        createdAt: true, createdAtMicroseconds: true, updatedAt: true, updatedAtMicroseconds: true,
+        createdAt: true, updatedAt: true,
         _count: { select: { posts: { where: { deletedDate: null } } } },
       },
     });
@@ -287,8 +286,8 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
       description: item.descriptionMarkdown,
       isHidden: item.isHidden,
       postCount: item._count.posts,
-      createdAt: toIsoDateTime(storedDateText(item.createdAt, item.createdAtMicroseconds)),
-      updatedAt: toIsoDateTime(storedDateText(item.updatedAt, item.updatedAtMicroseconds)),
+      createdAt: toIsoDateTime(item.createdAt),
+      updatedAt: toIsoDateTime(item.updatedAt),
     })) } });
   });
 }

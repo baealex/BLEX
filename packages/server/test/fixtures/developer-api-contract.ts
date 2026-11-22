@@ -97,7 +97,7 @@ function seed(db: DatabaseSync, store: ContractTokenStore) {
   }
 
   insertRow(db, 'Series', { id: 10, ownerId: 1, name: 'Writer Series', slug: 'writer-series', descriptionMarkdown: 'A series_description', isHidden: 1, order: 2, createdAt: prismaDate('2020-01-02 03:04:05'), updatedAt: prismaDate('2020-02-03 04:05:06') });
-  insertRow(db, 'Series', { id: 11, ownerId: 1, name: 'Second Series', slug: 'second-series', descriptionMarkdown: '', isHidden: 0, order: 3, createdAt: prismaDate('2020-01-02 03:04:05.123456'), createdAtMicroseconds: 456, updatedAt: prismaDate('2020-02-03 04:05:06') });
+  insertRow(db, 'Series', { id: 11, ownerId: 1, name: 'Second Series', slug: 'second-series', descriptionMarkdown: '', isHidden: 0, order: 3, createdAt: prismaDate('2020-01-02 03:04:05.123456'), updatedAt: prismaDate('2020-02-03 04:05:06') });
   insertRow(db, 'Series', { id: 20, ownerId: 2, name: 'Other Series', slug: 'other-series', descriptionMarkdown: '', isHidden: 0, order: 1, createdAt: prismaDate('2020-01-02 03:04:05'), updatedAt: prismaDate('2020-02-03 04:05:06') });
 
   const created = '2020-01-01 00:00:00';

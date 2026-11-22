@@ -132,9 +132,9 @@ database.exec(`
     (3, 'reader', 'Reader', 1), (4, 'inactive', 'Inactive', 0);
   INSERT INTO board_profile (id, user_id, avatar, role) VALUES (1, 1, 'writer.png', 'EDITOR'), (2, 2, '', 'EDITOR'),
     (3, 3, '', 'READER'), (4, 4, '', 'EDITOR');
-  INSERT INTO "Series" ("id", "order", "descriptionMarkdown", "descriptionHtml", "isHidden", "slug", "layout", "createdAt", "updatedAt", "ownerId", "name", "createdAtMicroseconds", "updatedAtMicroseconds") VALUES
-    (1, 1, '', '', 0, 'learning', '', ${prismaDate(now)}, ${prismaDate(now)}, 1, 'Learning', 0, 0),
-    (2, 1, '', '', 0, 'other-series', '', ${prismaDate(now)}, ${prismaDate(now)}, 2, 'Other series', 0, 0);
+  INSERT INTO "Series" ("id", "order", "descriptionMarkdown", "descriptionHtml", "isHidden", "slug", "layout", "createdAt", "updatedAt", "ownerId", "name") VALUES
+    (1, 1, '', '', 0, 'learning', '', ${prismaDate(now)}, ${prismaDate(now)}, 1, 'Learning'),
+    (2, 1, '', '', 0, 'other-series', '', ${prismaDate(now)}, ${prismaDate(now)}, 2, 'Other series');
   INSERT INTO FormTemplate (id, title, content, isPublic, createdAt, updatedAt, userId) VALUES
     (1, 'Short form', '# Template body', 0, ${Date.now()}, ${Date.now()}, 1),
     (2, 'Another writer form', 'Private form body', 0, ${Date.now()}, ${Date.now()}, 2);

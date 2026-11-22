@@ -325,10 +325,10 @@ async function readPostTags(db: PrismaClient, postId: number): Promise<string[]>
 
 async function readPublicSeries(db: PrismaClient, username: string, slug: string): Promise<SeriesRow | null> {
   const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
-  const [series] = await db.$queryRaw<Array<Omit<SeriesRow, 'updatedDate'> & { updatedAt: number | bigint; updatedMicroseconds: number | bigint }>>`
+  const [series] = await db.$queryRaw<Array<Omit<SeriesRow, 'updatedDate'> & { updatedAt: number | bigint }>>`
     SELECT series.id, owner.username, series.name, series.slug AS slug,
            series.descriptionMarkdown AS textMd, series.descriptionHtml AS textHtml,
-           CAST(series.updatedAt AS INTEGER) AS updatedAt, series.updatedAtMicroseconds AS updatedMicroseconds
+           CAST(series.updatedAt AS INTEGER) AS updatedAt
       FROM "Series" AS series
       JOIN auth_user AS owner ON owner.id = series.ownerId
      WHERE series.slug = ${slug}
@@ -351,8 +351,8 @@ async function readPublicSeries(db: PrismaClient, username: string, slug: string
      LIMIT 1
   `;
   if (!series) return null;
-  const { updatedAt, updatedMicroseconds, ...row } = series;
-  return { ...row, updatedDate: storedDateText(updatedAt, updatedMicroseconds) };
+  const { updatedAt, ...row } = series;
+  return { ...row, updatedDate: storedDateText(updatedAt) };
 }
 
 async function readPublicSeriesPosts(db: PrismaClient, seriesId: number): Promise<Array<Pick<PublicPostRow, 'username' | 'title' | 'slug' | 'publishedDate'>>> {
@@ -543,7 +543,7 @@ async function readSitemapPage(
               AND post.deleted_date IS NULL
               AND post.published_date <= ${now}
          )
-       ORDER BY series.updatedAt DESC, series.updatedAtMicroseconds DESC
+       ORDER BY series.updatedAt DESC
        LIMIT ${sitemapLimit} OFFSET ${offset}
     `;
     return series.map((item) => ({
