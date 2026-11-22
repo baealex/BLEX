@@ -7,10 +7,10 @@ import test from 'node:test';
 import { PrismaClient } from '@prisma/client';
 import { Secret, TOTP } from 'otpauth';
 import { buildApp } from '../src/app.js';
-import { verifyDjangoPassword } from '../src/auth/django-password.js';
-import { decryptDjangoSecret, encryptDjangoSecret } from '../src/auth/django-secret.js';
-import { authenticatePassword } from '../src/auth/password-login.js';
-import { verifyDjangoSecondFactor } from '../src/auth/two-factor.js';
+import { verifyDjangoPassword } from '../src/features/auth/django-password.js';
+import { decryptDjangoSecret, encryptDjangoSecret } from '../src/features/auth/django-secret.js';
+import { authenticatePassword } from '../src/features/auth/password-login.js';
+import { verifyDjangoSecondFactor } from '../src/features/auth/two-factor.js';
 
 // Test values were produced by Django, cryptography's Fernet and PyOTP.
 const password = 'compatibility-비밀번호-2026';

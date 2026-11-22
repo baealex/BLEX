@@ -10,8 +10,8 @@ import {
   PostValidationError,
   registerAuthoring,
   updateAuthorPost,
-} from '../src/authoring/index.js';
-import { markdownToHtml } from '../src/authoring/markdown.js';
+} from '../src/features/posts/authoring/index.js';
+import { markdownToHtml } from '../src/features/posts/authoring/markdown.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-authoring-'));
 const databasePath = join(directory, 'Django authoring.sqlite3');

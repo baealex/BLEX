@@ -7,7 +7,7 @@ import { join } from 'node:path';
 import Fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import test from 'node:test';
-import { registerDeveloperApi } from '../src/developer-api/index.js';
+import { registerDeveloperApi } from '../src/features/developer-api/index.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-developer-api-'));
 const databasePath = join(directory, 'developer-api.sqlite3');

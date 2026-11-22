@@ -8,7 +8,7 @@ import Fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import sharp from 'sharp';
 import { after, beforeEach, test } from 'node:test';
-import { registerPersonalSettings } from '../src/personal-settings/index.js';
+import { registerPersonalSettings } from '../src/features/account/index.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-personal-settings-'));
 const databasePath = join(directory, 'synthetic-settings.sqlite3');

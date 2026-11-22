@@ -1,5 +1,5 @@
 import { __iconNode as userIcon } from '@tabler/icons-react/icons/IconUser';
-import type { LoginPromptAction } from '../reader-ui/login-prompt.js';
+import type { LoginPromptAction } from '../features/engagement/ui/login-prompt.js';
 
 interface SocialProvider { key: string; name: string }
 

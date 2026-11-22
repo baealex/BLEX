@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { PrismaClient } from '@prisma/client';
 import { buildApp } from '../src/app.js';
-import { PostValidationError, updateAuthorPost } from '../src/authoring/index.js';
+import { PostValidationError, updateAuthorPost } from '../src/features/posts/authoring/index.js';
 import {
   createMigratedDatabase, insertRow, seedEditor, seedPost, signIn,
   testCipherKey, testSecretKey, testSiteUrl,

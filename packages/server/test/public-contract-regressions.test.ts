@@ -3,8 +3,8 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import test from 'node:test';
 import { buildApp } from '../src/app.js';
-import { seriesNavigation } from '../src/posts.js';
-import { htmlToMarkdown } from '../src/public-discovery/markdown.js';
+import { seriesNavigation } from '../src/features/posts/public-post.js';
+import { htmlToMarkdown } from '../src/features/discovery/feeds/markdown.js';
 import {
   createMigratedDatabase, insertRow, seedEditor, seedPost, signIn,
   testCipherKey, testSecretKey, testSiteUrl,

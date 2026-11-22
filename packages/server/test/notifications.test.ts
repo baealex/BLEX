@@ -7,11 +7,11 @@ import test from 'node:test';
 import cookie from '@fastify/cookie';
 import Fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
-import { encryptDjangoSecret } from '../src/auth/django-secret.js';
-import { deliverTelegramNotification } from '../src/notifications/delivery.js';
-import { registerNotifications } from '../src/notifications/index.js';
-import { processScheduledPublications, syncPostPublication } from '../src/notifications/model.js';
-import { registerSubscriptionPage } from '../src/reader-ui/subscriptions.js';
+import { encryptDjangoSecret } from '../src/features/auth/django-secret.js';
+import { deliverTelegramNotification } from '../src/features/notifications/delivery.js';
+import { registerNotifications } from '../src/features/notifications/index.js';
+import { processScheduledPublications, syncPostPublication } from '../src/features/notifications/model.js';
+import { registerSubscriptionPage } from '../src/features/engagement/ui/subscriptions.js';
 
 test('delivers scheduled publication once, retains queued retries, and respects a removed subscription', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'blex-notifications-'));

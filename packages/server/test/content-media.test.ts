@@ -7,7 +7,7 @@ import test from 'node:test';
 import { PrismaClient } from '@prisma/client';
 import Fastify from 'fastify';
 import sharp from 'sharp';
-import { registerContentMedia } from '../src/content-media.js';
+import { registerContentMedia } from '../src/features/media/content-media.js';
 
 test('validates photo uploads, creates a preview, and deduplicates the same bytes', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'blex-content-media-'));

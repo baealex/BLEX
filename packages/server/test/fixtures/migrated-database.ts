@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DatabaseSync, type SQLInputValue } from 'node:sqlite';
-import { createToken, credentialTag, tokenHash } from '../../src/auth/session.js';
+import { createToken, credentialTag, tokenHash } from '../../src/features/auth/session.js';
 
 const migrationsRoot = new URL('../../../prisma/migrations/', import.meta.url);
 const legacyTimestamp = '2020-01-02 03:04:05.123456';

@@ -14,9 +14,9 @@ export default defineConfig({
       preserveEntrySignatures: 'exports-only',
       input: [
         fileURLToPath(new URL('./src/application/client.tsx', import.meta.url)),
-        fileURLToPath(new URL('./src/auth-ui/login-client.tsx', import.meta.url)),
-        fileURLToPath(new URL('./src/authoring-ui/editor-client.tsx', import.meta.url)),
-        fileURLToPath(new URL('./src/reader-ui/comments-client.tsx', import.meta.url)),
+        fileURLToPath(new URL('./src/features/auth/ui/login-client.tsx', import.meta.url)),
+        fileURLToPath(new URL('./src/features/posts/editor/editor-client.tsx', import.meta.url)),
+        fileURLToPath(new URL('./src/features/engagement/ui/comments-client.tsx', import.meta.url)),
         fileURLToPath(new URL('./src/settings-host/client.ts', import.meta.url)),
         fileURLToPath(new URL('./src/appearance/site-client.ts', import.meta.url)),
       ],

@@ -3,11 +3,11 @@ import { connect } from 'node:net';
 import test from 'node:test';
 import { PrismaClient } from '@prisma/client';
 import { buildApp } from '../src/app.js';
-import { createAuthorPost, publishAuthorDraft, updateAuthorPost } from '../src/authoring/index.js';
-import { syncPostPublication } from '../src/notifications/model.js';
-import { sanitizePostHtml } from '../src/post-html.js';
-import { trustedProxiesFromEnv } from '../src/runtime-config.js';
-import { upgradeProblems } from '../src/upgrade-preflight.js';
+import { createAuthorPost, publishAuthorDraft, updateAuthorPost } from '../src/features/posts/authoring/index.js';
+import { syncPostPublication } from '../src/features/notifications/model.js';
+import { sanitizePostHtml } from '../src/features/posts/post-html.js';
+import { trustedProxiesFromEnv } from '../src/platform/runtime-config.js';
+import { upgradeProblems } from '../src/compat/upgrade-preflight.js';
 import {
   createMigratedDatabase, insertRow, seedEditor, seedPost, signIn,
   testCipherKey, testSecretKey, testSiteUrl,

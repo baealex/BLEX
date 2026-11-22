@@ -8,8 +8,8 @@ import sharp from 'sharp';
 import Fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import { after, beforeEach, test } from 'node:test';
-import { decryptDjangoSecret, encryptDjangoSecret } from '../src/auth/django-secret.js';
-import { registerAdminSettings } from '../src/admin-settings/index.js';
+import { decryptDjangoSecret, encryptDjangoSecret } from '../src/features/auth/django-secret.js';
+import { registerAdminSettings } from '../src/features/site-admin/index.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-admin-settings-'));
 const databasePath = join(directory, 'admin-settings.sqlite3');

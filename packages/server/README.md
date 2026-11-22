@@ -72,7 +72,7 @@ BLEX 3.14의 마지막 Django 마이그레이션은 `0070_author_subscription`�
    ```sh
    docker run --rm --user 1000:1000 --mount "type=bind,source=$BLEX_DATA,target=/var/lib/blex" \
      -e DATABASE_URL=file:/var/lib/blex/db.sqlite3 blex4-migration sh -ec '\
-       node dist/src/database-baseline.js /var/lib/blex/db.sqlite3 && \
+       node dist/src/compat/database-baseline.js /var/lib/blex/db.sqlite3 && \
        node node_modules/prisma/build/index.js migrate resolve --applied 0000_django_3x && \
        node node_modules/prisma/build/index.js migrate deploy'
    ```

@@ -4,7 +4,7 @@ import { createElement as h } from 'react';
 import { test } from 'node:test';
 import { isApplicationDocument, renderApplicationDocument } from '../src/application/document.js';
 import { SiteHeader, SiteTheme } from '../src/appearance/shell.js';
-import { clientAssets, readUiAsset } from '../src/ui-assets.js';
+import { clientAssets, readUiAsset } from '../src/platform/ui-assets.js';
 
 test('renders the SSR page and its canonical metadata under one application root', () => {
   const url = 'https://blog.example/@writer/hello';
@@ -34,7 +34,7 @@ test('recognizes the application marker only in the response head', () => {
 });
 
 test('keeps the route mount export in the built login and editor entries', async () => {
-  for (const entry of ['src/auth-ui/login-client.tsx', 'src/authoring-ui/editor-client.tsx']) {
+  for (const entry of ['src/features/auth/ui/login-client.tsx', 'src/features/posts/editor/editor-client.tsx']) {
     const { script } = await readUiAsset(entry);
     const source = await readFile(new URL(script.slice('/assets/ui/'.length), clientAssets), 'utf8');
     assert.match(source, /\bexport\s*\{[^}]*\bmountPage\b/, entry);

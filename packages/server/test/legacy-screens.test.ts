@@ -5,8 +5,8 @@ import { join } from 'node:path';
 import test from 'node:test';
 import sharp from 'sharp';
 import { buildApp } from '../src/app.js';
-import { djangoIso, djangoJsonLocal, djangoJsonUtc, localDate, localDateTimeText } from '../src/django-format.js';
-import { camelizeKey, camelizeKeys } from '../src/legacy-api-contract.js';
+import { djangoIso, djangoJsonLocal, djangoJsonUtc, localDate, localDateTimeText } from '../src/compat/django-format.js';
+import { camelizeKey, camelizeKeys } from '../src/compat/legacy-api-contract.js';
 import {
   createMigratedDatabase, insertRow, seedEditor, seedPost, signIn,
   testCipherKey, testSecretKey, testSiteUrl,

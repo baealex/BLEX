@@ -1,7 +1,7 @@
 import { Children, cloneElement, isValidElement, type ReactElement, type ReactNode } from 'react';
 import { renderToStaticMarkup, renderToString } from 'react-dom/server';
 import { SiteHeader, SiteTheme, type SiteHeaderProps } from '../appearance/shell.js';
-import { youtubeFrameSources } from '../post-html.js';
+import { youtubeFrameSources } from '../features/posts/post-html.js';
 import { ApplicationFrame } from './frame.js';
 
 type Element = ReactElement<{ children?: ReactNode }>;

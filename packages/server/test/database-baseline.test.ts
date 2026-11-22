@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
-import { verifyLegacyDatabase } from '../src/database-baseline.js';
+import { verifyLegacyDatabase } from '../src/compat/database-baseline.js';
 
 test('validates the Django baseline and refuses to adopt an incomplete or inconsistent database', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'blex-baseline-test-'));

@@ -11,7 +11,7 @@
     "build": "tsc -p tsconfig.json && vite build",
     "dev": "pnpm run build && node dist/src/development.js",
     "type-check": "tsc -p tsconfig.json --noEmit",
-    "db:check-legacy": "node dist/src/database-baseline.js",
+    "db:check-legacy": "node dist/src/compat/database-baseline.js",
     "db:migrate": "prisma migrate deploy",
     "start": "node dist/src/main.js",
     "test": "pnpm run build && node --test dist/test/*.test.js"

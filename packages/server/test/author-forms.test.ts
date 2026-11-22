@@ -7,7 +7,7 @@ import Fastify from 'fastify';
 import cookie from '@fastify/cookie';
 import { PrismaClient } from '@prisma/client';
 import { after, test } from 'node:test';
-import { registerAuthorForms } from '../src/author-forms.js';
+import { registerAuthorForms } from '../src/features/posts/author-forms.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-author-forms-'));
 const databasePath = join(directory, 'synthetic-author-forms.sqlite3');

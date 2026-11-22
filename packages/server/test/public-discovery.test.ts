@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import Fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import test from 'node:test';
-import { registerPublicDiscovery } from '../src/public-discovery/index.js';
+import { registerPublicDiscovery } from '../src/features/discovery/feeds/index.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-discovery-'));
 const databasePath = join(directory, 'synthetic legacy.sqlite3');

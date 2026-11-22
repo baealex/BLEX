@@ -7,8 +7,8 @@ import cookie from '@fastify/cookie';
 import Fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import { after, beforeEach, test } from 'node:test';
-import { registerNotifications } from '../src/notifications/index.js';
-import { registerSubscriptionPage } from '../src/reader-ui/subscriptions.js';
+import { registerNotifications } from '../src/features/notifications/index.js';
+import { registerSubscriptionPage } from '../src/features/engagement/ui/subscriptions.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-settings-pages-'));
 const databasePath = join(directory, 'synthetic-settings.sqlite3');

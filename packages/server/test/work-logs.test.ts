@@ -7,8 +7,8 @@ import Fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import sharp from 'sharp';
 import { after, beforeEach, test } from 'node:test';
-import { registerPublicMedia } from '../src/public-media.js';
-import { registerWorkLogs } from '../src/work-logs/index.js';
+import { registerPublicMedia } from '../src/features/media/public-media.js';
+import { registerWorkLogs } from '../src/features/work-logs/index.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-work-logs-'));
 const databasePath = join(directory, 'work-logs.sqlite3');

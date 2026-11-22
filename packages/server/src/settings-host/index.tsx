@@ -4,15 +4,15 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { access, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { renderToString } from 'react-dom/server';
-import { readAdminAccess } from '../admin-settings/access.js';
+import { readAdminAccess } from '../features/site-admin/access.js';
 import { SiteFooter, SiteHeader, SiteTheme } from '../appearance/shell.js';
 import { applicationContentSecurityPolicy, scriptJson } from '../application/document.js';
-import { authCookieOptions, csrfCookie, requestCookies } from '../auth/cookies.js';
-import { decryptDjangoSecret } from '../auth/django-secret.js';
-import { safeReturnPath } from '../auth/oauth.js';
-import { createToken } from '../auth/session.js';
-import { hasAdministrator } from '../auth/setup.js';
-import { readPublicSiteBrand } from '../public-pages/index.js';
+import { authCookieOptions, csrfCookie, requestCookies } from '../features/auth/cookies.js';
+import { decryptDjangoSecret } from '../features/auth/django-secret.js';
+import { safeReturnPath } from '../features/auth/oauth.js';
+import { createToken } from '../features/auth/session.js';
+import { hasAdministrator } from '../features/auth/setup.js';
+import { readPublicSiteBrand } from '../features/discovery/pages/index.js';
 
 interface ManifestEntry { file: string }
 type Manifest = Record<string, ManifestEntry>;

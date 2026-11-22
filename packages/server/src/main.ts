@@ -1,6 +1,6 @@
 import { buildApp } from './app.js';
-import { createToken } from './auth/session.js';
-import { trustedProxiesFromEnv } from './runtime-config.js';
+import { createToken } from './features/auth/session.js';
+import { trustedProxiesFromEnv } from './platform/runtime-config.js';
 import { resolveIslandsRoot } from './settings-host/index.js';
 
 const dbPath = process.env.BLEX_V4_DB_PATH;

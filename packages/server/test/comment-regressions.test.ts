@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { buildApp } from '../src/app.js';
-import { sanitizeCommentHtml } from '../src/post-html.js';
-import { timeSince } from '../src/reader-actions/index.js';
+import { sanitizeCommentHtml } from '../src/features/posts/post-html.js';
+import { timeSince } from '../src/features/engagement/index.js';
 import {
   appendCommentToTree, buildReplySubmissionText, commentAuthors, countComments, findRootParentId,
   isMentionQuery, isMentionStart, mergeCommentInTree,
-} from '../src/reader-ui/comment-model.js';
-import type { CommentPayload } from '../src/reader-actions/index.js';
+} from '../src/features/engagement/ui/comment-model.js';
+import type { CommentPayload } from '../src/features/engagement/index.js';
 import {
   createMigratedDatabase, insertRow, seedEditor, seedPost, signIn,
   testCipherKey, testSecretKey, testSiteUrl,

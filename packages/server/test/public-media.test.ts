@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import Fastify from 'fastify';
-import { registerPublicMedia } from '../src/public-media.js';
+import { registerPublicMedia } from '../src/features/media/public-media.js';
 
 test('serves legacy media URLs and video ranges while keeping work-log files private', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'blex-media-test-'));

@@ -6,8 +6,8 @@ import { DatabaseSync } from 'node:sqlite';
 import { PrismaClient } from '@prisma/client';
 import Fastify from 'fastify';
 import test from 'node:test';
-import { encryptDjangoSecret } from '../src/auth/django-secret.js';
-import { registerReaderActions } from '../src/reader-actions/index.js';
+import { encryptDjangoSecret } from '../src/features/auth/django-secret.js';
+import { registerReaderActions } from '../src/features/engagement/index.js';
 import { installNotificationTables } from './fixtures/notifications.js';
 
 const readerCipherKey = '0123456789abcdef0123456789abcdef';

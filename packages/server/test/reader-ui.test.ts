@@ -6,9 +6,9 @@ import { join } from 'node:path';
 import Fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import { after, beforeEach, test } from 'node:test';
-import { readReaderPostView, registerReaderActions } from '../src/reader-actions/index.js';
+import { readReaderPostView, registerReaderActions } from '../src/features/engagement/index.js';
 import { installNotificationTables } from './fixtures/notifications.js';
-import { ReaderActions } from '../src/reader-ui/index.js';
+import { ReaderActions } from '../src/features/engagement/ui/index.js';
 import { renderToStaticMarkup } from 'react-dom/server';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-reader-ui-'));

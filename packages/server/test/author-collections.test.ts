@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import Fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import { after, beforeEach, test } from 'node:test';
-import { registerAuthorCollections } from '../src/author-collections/index.js';
+import { registerAuthorCollections } from '../src/features/series/index.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-author-collections-'));
 const databasePath = join(directory, 'synthetic-author-collections.sqlite3');
