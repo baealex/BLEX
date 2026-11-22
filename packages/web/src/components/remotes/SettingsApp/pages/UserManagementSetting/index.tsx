@@ -616,7 +616,7 @@ const UserManagementSetting = () => {
                 })}
                 description={t({
                     id: 'settings.users.description',
-                    message: 'Administrator access can only be changed in Django admin.'
+                    message: 'Administrator access cannot be changed on this screen.'
                 })}
             />
 
