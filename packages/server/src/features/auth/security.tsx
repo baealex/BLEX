@@ -88,7 +88,7 @@ export function passwordUpdater(db: PrismaClient, siteUrl: URL, config: AuthConf
     if (passwordError) return securityError('VA', passwordError);
     const newPasswordHash = await hashDjangoPassword(password);
     const sessionToken = createToken();
-    const timestamp = new Date().toISOString().slice(0, -1).replace('T', ' ');
+    const revokedAt = new Date();
 
     const result = await db.$transaction<PasswordUpdate>(async (tx) => {
       if (!await acquireVerification(tx, account)) return verificationRequired;
@@ -107,10 +107,9 @@ export function passwordUpdater(db: PrismaClient, siteUrl: URL, config: AuthConf
         UPDATE blex_session SET token_hash = ${tokenHash(sessionToken)!}, credential_tag = ${credentialTag(newPasswordHash, config.secretKey)},
                verified_until = NULL, verified_factor_id = NULL, requires_factor = 0 WHERE token_hash = ${account.sessionHash}
       `;
-      if (revokeTokens === true || revokeTokens === 'true') await tx.$executeRaw`
-        UPDATE board_developertoken SET revoked_at = ${timestamp}, updated_date = ${timestamp}
-         WHERE user_id = ${account.id} AND revoked_at IS NULL
-      `;
+      if (revokeTokens === true || revokeTokens === 'true') {
+        await tx.developerToken.updateMany({ where: { userId: account.id, revokedAt: null }, data: { revokedAt, updatedAt: revokedAt } });
+      }
       return success;
     });
     if (result.status === 'DONE') setSessionCookies(reply, siteUrl, sessionToken);

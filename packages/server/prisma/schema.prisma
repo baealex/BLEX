@@ -75,8 +75,8 @@ model User {
   board_comment                                                                    board_comment[]
   board_comment_likes                                                              board_comment_likes[]
   board_config                                                                     board_config?
-  board_developerrequestlog                                                        board_developerrequestlog[]
-  board_developertoken                                                             board_developertoken[]
+  developerRequests                                                                DeveloperRequestLog[]
+  developerTokens                                                                  DeveloperToken[]
   board_edithistory                                                                board_edithistory[]
   board_editrequest                                                                board_editrequest[]
   board_emailchange                                                                board_emailchange?
@@ -386,44 +386,42 @@ model board_config {
   auth_user User    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model board_developerrequestlog {
-  id                   Int                   @id @default(autoincrement())
-  method               String
-  path                 String
-  status_code          Int
-  ip_address           String?
-  user_agent           String
-  created_date         DateTime
-  token_id             Int?
-  user_id              Int
-  auth_user            User                  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_developertoken board_developertoken? @relation(fields: [token_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model DeveloperRequestLog {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  tokenId    Int?
+  method     String
+  path       String
+  statusCode Int
+  ipAddress  String?
+  userAgent  String   @default("")
+  createdAt  DateTime @default(now())
 
-  @@index([token_id, created_date], map: "board_devel_token_i_fbbd82_idx")
-  @@index([user_id, created_date], map: "board_devel_user_id_e88d8c_idx")
-  @@index([user_id], map: "board_developerrequestlog_user_id_123587fb")
-  @@index([token_id], map: "board_developerrequestlog_token_id_ea1cc060")
+  user  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token DeveloperToken? @relation(fields: [tokenId], references: [id], onDelete: SetNull)
+
+  @@index([tokenId, createdAt])
+  @@index([userId, createdAt])
 }
 
-model board_developertoken {
-  id                        Int                         @id @default(autoincrement())
-  name                      String
-  token_prefix              String                      @unique
-  token_hash                String                      @unique
-  scopes                    String
-  expires_at                DateTime?
-  revoked_at                DateTime?
-  last_used_at              DateTime?
-  last_used_ip              String?
-  created_date              DateTime
-  updated_date              DateTime
-  user_id                   Int
-  board_developerrequestlog board_developerrequestlog[]
-  auth_user                 User                        @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model DeveloperToken {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  name        String
+  tokenPrefix String    @unique
+  tokenHash   String    @unique
+  scopes      Json
+  expiresAt   DateTime?
+  revokedAt   DateTime?
+  lastUsedAt  DateTime?
+  lastUsedIp  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  @@index([token_prefix], map: "board_devel_token_p_7a12b4_idx")
-  @@index([user_id, revoked_at], map: "board_devel_user_id_bf372b_idx")
-  @@index([user_id], map: "board_developertoken_user_id_24b231ab")
+  user     User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  requests DeveloperRequestLog[]
+
+  @@index([userId, revokedAt])
 }
 
 model board_edithistory {

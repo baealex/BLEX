@@ -1,6 +1,6 @@
-import { type PrismaClient } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
 import { createHash, timingSafeEqual } from 'node:crypto';
-import { DeveloperApiError, asBoolean, dateTimeValue, formatError } from '../shared.js';
+import { DeveloperApiError, asBoolean, formatError } from '../shared.js';
 
 const TOKEN_PREFIX = 'blex_pat_';
 
@@ -13,16 +13,6 @@ interface UserRow {
   role: string | null;
 }
 
-interface TokenRow extends UserRow {
-  tokenId: number;
-  name: string;
-  tokenPrefix: string;
-  tokenHash: string;
-  scopes: string;
-  expiresAt: string | Date | null;
-  revokedAt: string | Date | null;
-}
-
 export interface AuthenticatedToken {
   id: number;
   name: string;
@@ -31,13 +21,8 @@ export interface AuthenticatedToken {
   user: UserRow;
 }
 
-export function parseScopes(scopes: string): string[] {
-  try {
-    const value: unknown = JSON.parse(scopes);
-    return Array.isArray(value) ? value.filter((scope): scope is string => typeof scope === 'string') : [];
-  } catch {
-    return [];
-  }
+export function parseScopes(scopes: Prisma.JsonValue): string[] {
+  return Array.isArray(scopes) ? scopes.filter((scope): scope is string => typeof scope === 'string') : [];
 }
 
 export async function authenticate(
@@ -59,38 +44,36 @@ export async function authenticate(
     return { error: formatError('auth.invalid_token', 'Invalid token.', 401) };
   }
 
-  const [row] = await db.$queryRaw<TokenRow[]>`
-    SELECT token.id AS tokenId, token.name, token.token_prefix AS tokenPrefix,
-           token.token_hash AS tokenHash, token.scopes,
-           CAST(token.expires_at AS TEXT) AS expiresAt,
-           CAST(token.revoked_at AS TEXT) AS revokedAt, user.id, user.username,
-           user.first_name AS firstName, user.email, user.is_active AS isActive,
-           profile.role
-      FROM board_developertoken AS token
-      JOIN auth_user AS user ON user.id = token.user_id
-      LEFT JOIN board_profile AS profile ON profile.user_id = user.id
-     WHERE token.token_prefix = ${tokenPrefix}
-     LIMIT 1
-  `;
+  const stored = await db.developerToken.findUnique({
+    where: { tokenPrefix },
+    select: { id: true, userId: true, name: true, tokenPrefix: true, tokenHash: true, scopes: true, expiresAt: true, revokedAt: true },
+  });
 
   const suppliedHash = createHash('sha256').update(rawToken, 'utf8').digest('hex');
-  const expectedHash = row ? Buffer.from(row.tokenHash) : Buffer.alloc(0);
+  const expectedHash = stored ? Buffer.from(stored.tokenHash) : Buffer.alloc(0);
   const providedHash = Buffer.from(suppliedHash);
-  if (!row || expectedHash.length !== providedHash.length || !timingSafeEqual(expectedHash, providedHash)) {
+  if (!stored || expectedHash.length !== providedHash.length || !timingSafeEqual(expectedHash, providedHash)) {
     return { error: formatError('auth.invalid_token', 'Invalid token.', 401) };
   }
 
-  if (row.revokedAt !== null || (
-    row.expiresAt !== null && (dateTimeValue(row.expiresAt) ?? Number.POSITIVE_INFINITY) <= Date.now()
-  )) {
+  const [user] = await db.$queryRaw<UserRow[]>`
+    SELECT user.id, user.username, user.first_name AS firstName, user.email, user.is_active AS isActive, profile.role
+      FROM auth_user AS user
+      LEFT JOIN board_profile AS profile ON profile.user_id = user.id
+     WHERE user.id = ${stored.userId}
+     LIMIT 1
+  `;
+  if (!user) return { error: formatError('auth.invalid_token', 'Invalid token.', 401) };
+
+  if (stored.revokedAt !== null || (stored.expiresAt !== null && stored.expiresAt.getTime() <= Date.now())) {
     return {
       error: formatError('auth.invalid_token', 'This token has expired or been revoked.', 401),
     };
   }
-  if (!asBoolean(row.isActive)) {
+  if (!asBoolean(user.isActive)) {
     return { error: formatError('auth.inactive_user', 'This user is inactive.', 401) };
   }
-  if (row.role !== 'EDITOR') {
+  if (user.role !== 'EDITOR') {
     return {
       error: formatError('auth.editor_required', 'The Developer API requires author access.', 403),
     };
@@ -98,18 +81,11 @@ export async function authenticate(
 
   return {
     token: {
-      id: row.tokenId,
-      name: row.name,
-      tokenPrefix: row.tokenPrefix,
-      scopes: parseScopes(row.scopes),
-      user: {
-        id: row.id,
-        username: row.username,
-        firstName: row.firstName,
-        email: row.email,
-        isActive: row.isActive,
-        role: row.role,
-      },
+      id: stored.id,
+      name: stored.name,
+      tokenPrefix: stored.tokenPrefix,
+      scopes: parseScopes(stored.scopes),
+      user,
     },
   };
 }

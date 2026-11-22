@@ -1,5 +1,5 @@
 import formBody from '@fastify/formbody';
-import { Prisma, type PrismaClient } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { createHash, randomBytes } from 'node:crypto';
 import { formInput } from '../../platform/csrf.js';
@@ -17,31 +17,22 @@ interface TokenOptions {
   siteUrl: URL;
 }
 
-interface TokenRow {
-  id: number;
-  name: string;
-  tokenPrefix: string;
-  scopes: string;
-  expiresAt: string | null;
-  revokedAt: string | null;
-  lastUsedAt: string | null;
-  createdAt: string;
-}
+/** Lists what a response may show. The hash is deliberately absent, and the secret is only returned once at creation. */
+const tokenFields = {
+  id: true, name: true, tokenPrefix: true, scopes: true, expiresAt: true, revokedAt: true, lastUsedAt: true, createdAt: true,
+} satisfies Prisma.DeveloperTokenSelect;
 
-const tokenFields = Prisma.sql`id, name, token_prefix AS tokenPrefix, scopes,
-  CAST(expires_at AS TEXT) AS expiresAt, CAST(revoked_at AS TEXT) AS revokedAt,
-  CAST(last_used_at AS TEXT) AS lastUsedAt, CAST(created_date AS TEXT) AS createdAt`;
+type TokenRow = Prisma.DeveloperTokenGetPayload<{ select: typeof tokenFields }>;
 
 function serialize(token: TokenRow) {
-  return { ...token, scopes: parseScopes(token.scopes), expiresAt: toIsoDateTime(token.expiresAt), revokedAt: toIsoDateTime(token.revokedAt),
+  return { id: token.id, name: token.name, tokenPrefix: token.tokenPrefix, scopes: parseScopes(token.scopes),
+    expiresAt: toIsoDateTime(token.expiresAt), revokedAt: toIsoDateTime(token.revokedAt),
     lastUsedAt: toIsoDateTime(token.lastUsedAt), createdAt: toIsoDateTime(token.createdAt) };
 }
 
 function listTokens(db: PrismaClient, userId: number) {
-  return db.$queryRaw<TokenRow[]>`SELECT ${tokenFields} FROM board_developertoken WHERE user_id = ${userId} ORDER BY created_date DESC`;
+  return db.developerToken.findMany({ where: { userId }, select: tokenFields, orderBy: { createdAt: 'desc' } });
 }
-
-function timestamp(date: Date) { return date.toISOString().slice(0, -1).replace('T', ' '); }
 
 async function issueToken(db: PrismaClient, account: VerificationAccount | null, input: Record<string, unknown>) {
   if (!account || !hasVerification(account)) return verificationRequired;
@@ -51,7 +42,7 @@ async function issueToken(db: PrismaClient, account: VerificationAccount | null,
     return securityError('VA', '지원되는 권한을 선택해 주세요.');
   }
   const scopes = [...new Set(provided)].sort();
-  const rawDays = input.expires_in_days ?? input.expiresInDays ?? 90;
+  const rawDays = input.expiresInDays ?? 90;
   const days = rawDays === '' ? 90 : typeof rawDays === 'number' || /^\d+$/.test(String(rawDays)) ? Number(rawDays) : NaN;
   if (!Number.isInteger(days) || days < 1 || days > 365) return securityError('VA', '유효 기간은 1일부터 365일까지 입력해 주세요.');
   if (input.name !== undefined && typeof input.name !== 'string') return securityError('VA', '토큰 이름을 확인해 주세요.');
@@ -59,31 +50,32 @@ async function issueToken(db: PrismaClient, account: VerificationAccount | null,
   const prefix = randomBytes(6).toString('hex');
   const token = `blex_pat_${prefix}_${createToken()}`;
   const hash = createHash('sha256').update(token).digest('hex');
-  const now = Date.now();
-  const created = timestamp(new Date(now));
-  const expiry = timestamp(new Date(now + days * 86_400_000));
+  const created = new Date();
+  const expiry = new Date(created.getTime() + days * 86_400_000);
   return db.$transaction(async (tx) => {
     if (!await acquireVerification(tx, account)) return verificationRequired;
-    const [row] = await tx.$queryRaw<TokenRow[]>`
-      INSERT INTO board_developertoken (name, token_prefix, token_hash, scopes, expires_at, created_date, updated_date, user_id)
-      SELECT ${name}, ${prefix}, ${hash}, ${JSON.stringify(scopes)}, ${expiry}, ${created}, ${created}, id
-        FROM auth_user AS account WHERE account.id = ${account.id} AND account.is_active = 1
-          AND EXISTS(SELECT 1 FROM board_profile WHERE user_id = account.id AND role = 'EDITOR')
-      RETURNING ${tokenFields}
+    const [eligible] = await tx.$queryRaw<Array<{ id: number }>>`
+      SELECT account.id FROM auth_user AS account WHERE account.id = ${account.id} AND account.is_active = 1
+         AND EXISTS(SELECT 1 FROM board_profile WHERE user_id = account.id AND role = 'EDITOR')
     `;
-    return row ? done({ ...serialize(row), token }) : securityError('AT');
+    if (!eligible) return securityError('AT');
+    const row = await tx.developerToken.create({
+      data: { userId: account.id, name, tokenPrefix: prefix, tokenHash: hash, scopes, expiresAt: expiry, createdAt: created, updatedAt: created },
+      select: tokenFields,
+    });
+    return done({ ...serialize(row), token });
   });
 }
 
 async function revokeToken(db: PrismaClient, account: TokenUser, tokenId: unknown) {
   const id = typeof tokenId === 'string' && /^\d+$/.test(tokenId) ? Number(tokenId) : tokenId;
   if (typeof id !== 'number' || !Number.isSafeInteger(id) || id < 1) return null;
-  const now = timestamp(new Date());
-  const [token] = await db.$queryRaw<TokenRow[]>`
-    UPDATE board_developertoken SET revoked_at = ${now}, updated_date = ${now}
-     WHERE id = ${id} AND user_id = ${account.id}
-    RETURNING ${tokenFields}
-  `;
+  const now = new Date();
+  const [token] = await db.developerToken.updateManyAndReturn({
+    where: { id, userId: account.id },
+    data: { revokedAt: now, updatedAt: now },
+    select: tokenFields,
+  });
   return token ? serialize(token) : null;
 }
 

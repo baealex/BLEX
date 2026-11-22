@@ -5,26 +5,47 @@ import { ContentUploadError, contentUploadLimit, registerContentMultipart, saveC
 import { DeveloperMutationInputError, developerPostInput } from './mutation-input.js';
 import { PaginationQuery, SearchQuery, listPosts, postDetail, postNotFound, postVersionIssue, readOwnedPost, summarizePost } from './services/posts.js';
 import { AuthenticatedToken, authenticate, requireScope } from './services/token-auth.js';
-import { API_PREFIX, DeveloperApiOptions, Editor, QueryValue, SeriesRow, TagRow, asBoolean, errorReply, formatError, parsePostId, parseValidationError, readScalar, toIsoDateTime, toSqlDateTime } from './shared.js';
+import { API_PREFIX, DeveloperApiOptions, Editor, QueryValue, SeriesRow, TagRow, asBoolean, errorReply, formatError, parsePostId, parseValidationError, readScalar, toIsoDateTime } from './shared.js';
+import { registerWireFormat } from './wire-format.js';
 
 export { toIsoDateTime } from './shared.js';
 export { parseScopes } from './services/token-auth.js';
 
 export function registerDeveloperApi(app: FastifyInstance, db: PrismaClient, options: DeveloperApiOptions = {}): void {
+  app.register(async (routes) => {
+    registerWireFormat(routes);
+    registerDeveloperRoutes(routes, db, options);
+  });
+}
+
+function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options: DeveloperApiOptions): void {
   const audited = new WeakMap<FastifyRequest, AuthenticatedToken>();
   if (options.writable) app.addHook('onSend', async (request, reply, payload) => {
     const token = audited.get(request);
     if (!token) return payload;
     try {
-      const when = toSqlDateTime(new Date());
+      const when = new Date();
       const ip = isIP(request.ip) ? request.ip : null;
-      await db.$transaction([
-        db.$executeRaw`UPDATE board_developertoken SET last_used_at = ${when}, last_used_ip = ${ip}, updated_date = ${when} WHERE id = ${token.id}`,
-        db.$executeRaw`INSERT INTO board_developerrequestlog (method, path, status_code, ip_address, user_agent, created_date, token_id, user_id)
-                       SELECT ${request.method.slice(0, 10)}, ${request.url.split('?')[0].slice(0, 255)}, ${reply.statusCode},
-                              ${ip}, ${(request.headers['user-agent'] ?? '').slice(0, 255)}, ${when}, id, user_id
-                         FROM board_developertoken WHERE id = ${token.id}`,
-      ]);
+      await db.$transaction(async (tx) => {
+        // A token removed while this request ran leaves nothing to record.
+        const { count } = await tx.developerToken.updateMany({
+          where: { id: token.id },
+          data: { lastUsedAt: when, lastUsedIp: ip, updatedAt: when },
+        });
+        if (!count) return;
+        await tx.developerRequestLog.create({
+          data: {
+            method: request.method.slice(0, 10),
+            path: request.url.split('?')[0].slice(0, 255),
+            statusCode: reply.statusCode,
+            ipAddress: ip,
+            userAgent: (request.headers['user-agent'] ?? '').slice(0, 255),
+            createdAt: when,
+            tokenId: token.id,
+            userId: token.user.id,
+          },
+        });
+      });
     } catch (error) {
       request.log.error({ error }, 'Could not record Developer API request');
     }
@@ -95,8 +116,8 @@ export function registerDeveloperApi(app: FastifyInstance, db: PrismaClient, opt
     });
 
     for (const operation of ['update', 'publish'] as const) {
-      const route = `${API_PREFIX}/posts/:post_id${operation === 'publish' ? '/publish' : ''}`;
-      app.route<{ Params: { post_id: string } }>({ method: operation === 'publish' ? 'POST' : 'PATCH', url: route,
+      const route = `${API_PREFIX}/posts/:postId${operation === 'publish' ? '/publish' : ''}`;
+      app.route<{ Params: { postId: string } }>({ method: operation === 'publish' ? 'POST' : 'PATCH', url: route,
         bodyLimit: 1024 * 1024,
         // The publish body is optional, so an empty JSON request must still reach the handler.
         onRequest: async (request) => {
@@ -105,8 +126,8 @@ export function registerDeveloperApi(app: FastifyInstance, db: PrismaClient, opt
         async handler(request, reply) {
           const token = await writeToken(request, reply);
           if (!token) return reply;
-          const id = parsePostId(request.params.post_id);
-          if (id === null) return parseValidationError(reply, 'post_id', request.params.post_id);
+          const id = parsePostId(request.params.postId);
+          if (id === null) return parseValidationError(reply, 'post_id', request.params.postId);
           const original = await readOwnedPost(db, token.user.id, id);
           if (!original) return postNotFound(reply);
           if (operation === 'publish' && original.publishedAt !== null) {
@@ -129,21 +150,21 @@ export function registerDeveloperApi(app: FastifyInstance, db: PrismaClient, opt
         } });
     }
 
-    app.delete<{ Params: { post_id: string }; Querystring: QueryValue }>(`${API_PREFIX}/posts/:post_id`, async (request, reply) => {
+    app.delete<{ Params: { postId: string }; Querystring: QueryValue }>(`${API_PREFIX}/posts/:postId`, async (request, reply) => {
       const token = await writeToken(request, reply);
       if (!token) return reply;
-      const id = parsePostId(request.params.post_id);
-      if (id === null) return parseValidationError(reply, 'post_id', request.params.post_id);
-      const dryRun = readScalar(request.query.dry_run);
+      const id = parsePostId(request.params.postId);
+      if (id === null) return parseValidationError(reply, 'post_id', request.params.postId);
+      const dryRun = readScalar(request.query.dryRun);
       if (dryRun && !/^(true|on|yes|1|y|t|false|off|no|0|n|f)$/i.test(dryRun)) return parseValidationError(reply, 'dry_run', dryRun);
       const original = await readOwnedPost(db, token.user.id, id);
       if (!original) return postNotFound(reply);
       if (dryRun && /^(true|on|yes|1|y|t)$/i.test(dryRun)) {
-        return reply.send({ data: { can_delete: true, post: await summarizePost(db, original) } });
+        return reply.send({ data: { canDelete: true, post: await summarizePost(db, original) } });
       }
       try {
         const deleted = await mutations.trash(token.user, id);
-        return deleted ? reply.send({ data: { deleted: true, trashed: true, id, deleted_at: toIsoDateTime(deleted) } }) : postNotFound(reply);
+        return deleted ? reply.send({ data: { deleted: true, trashed: true, id, deletedAt: toIsoDateTime(deleted) } }) : postNotFound(reply);
       } catch (failure) {
         return mutationError(failure, token.user, reply);
       }
@@ -162,12 +183,12 @@ export function registerDeveloperApi(app: FastifyInstance, db: PrismaClient, opt
           username: token.user.username,
           name: token.user.firstName,
           email: token.user.email,
-          is_editor: true,
+          isEditor: true,
         },
         token: {
           id: token.id,
           name: token.name,
-          token_prefix: token.tokenPrefix,
+          tokenPrefix: token.tokenPrefix,
           scopes: token.scopes,
         },
       },
@@ -202,7 +223,7 @@ export function registerDeveloperApi(app: FastifyInstance, db: PrismaClient, opt
     return reply.send(result);
   });
 
-  app.get<{ Params: { post_id: string } }>(`${API_PREFIX}/posts/:post_id`, async (request, reply) => {
+  app.get<{ Params: { postId: string } }>(`${API_PREFIX}/posts/:postId`, async (request, reply) => {
     const auth = await authenticateRequest(request);
     if (auth.error) return errorReply(reply, auth.error);
     const token = auth.token;
@@ -210,8 +231,8 @@ export function registerDeveloperApi(app: FastifyInstance, db: PrismaClient, opt
     const scopeError = requireScope(token);
     if (scopeError) return errorReply(reply, scopeError);
 
-    const postId = parsePostId(request.params.post_id);
-    if (postId === null) return parseValidationError(reply, 'post_id', request.params.post_id);
+    const postId = parsePostId(request.params.postId);
+    if (postId === null) return parseValidationError(reply, 'post_id', request.params.postId);
 
     const post = await readOwnedPost(db, token.user.id, postId);
     if (!post) return postNotFound(reply);
@@ -237,7 +258,7 @@ export function registerDeveloperApi(app: FastifyInstance, db: PrismaClient, opt
     `;
     return reply.send({ data: { tags: tags.map((tag) => ({
       name: tag.name,
-      post_count: Number(tag.postCount),
+      postCount: Number(tag.postCount),
     })) } });
   });
 
@@ -267,10 +288,10 @@ export function registerDeveloperApi(app: FastifyInstance, db: PrismaClient, opt
       name: item.name,
       url: item.url,
       description: item.description,
-      is_hidden: asBoolean(item.isHidden),
-      post_count: Number(item.postCount),
-      created_at: toIsoDateTime(item.createdAt),
-      updated_at: toIsoDateTime(item.updatedAt),
+      isHidden: asBoolean(item.isHidden),
+      postCount: Number(item.postCount),
+      createdAt: toIsoDateTime(item.createdAt),
+      updatedAt: toIsoDateTime(item.updatedAt),
     })) } });
   });
 }

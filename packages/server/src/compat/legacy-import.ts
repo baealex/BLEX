@@ -71,6 +71,19 @@ const jsonObject = (to: string, fallback: string | null = null): ColumnMapping =
   },
 });
 
+/** 3.x treated anything but a JSON array as no scopes and skipped non-string items, so the stored list says the same. */
+const scopeList = (to: string): ColumnMapping => ({
+  to,
+  convert(value) {
+    try {
+      const parsed: unknown = typeof value === 'string' ? JSON.parse(value) : null;
+      return JSON.stringify(Array.isArray(parsed) ? parsed.filter((scope) => typeof scope === 'string') : []);
+    } catch {
+      return '[]';
+    }
+  },
+});
+
 /**
  * 3.14 only ever wrote id 1. Public branding reads the lowest id, while every other reader asks for id 1,
  * so a database without row 1 keeps the fields branding showed and the defaults everything else showed.
@@ -187,6 +200,21 @@ const tableMappings: Record<string, TableMapping> = {
       // 3.x kept a stale expiry on used codes because the column was NOT NULL. Only a waiting code has an expiry now.
       auth_token_exp: { to: 'authTokenExpiresAt', sql: `CASE WHEN auth_token <> '' THEN auth_token_exp END`, convert: legacyDate },
       created_date: date('createdAt'),
+    },
+  },
+  board_developertoken: {
+    to: 'DeveloperToken',
+    columns: {
+      id: 'id', user_id: 'userId', name: 'name', token_prefix: 'tokenPrefix', token_hash: 'tokenHash', scopes: scopeList('scopes'),
+      expires_at: date('expiresAt'), revoked_at: date('revokedAt'), last_used_at: date('lastUsedAt'), last_used_ip: 'lastUsedIp',
+      created_date: date('createdAt'), updated_date: date('updatedAt'),
+    },
+  },
+  board_developerrequestlog: {
+    to: 'DeveloperRequestLog',
+    columns: {
+      id: 'id', user_id: 'userId', token_id: 'tokenId', method: 'method', path: 'path', status_code: int32('statusCode'),
+      ip_address: 'ipAddress', user_agent: 'userAgent', created_date: date('createdAt'),
     },
   },
 };

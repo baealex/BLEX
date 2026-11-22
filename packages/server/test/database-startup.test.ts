@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
 import { PrismaClient } from '@prisma/client';
+import { buildApp } from '../src/app.js';
 import { DatabaseSetupError, portMappingProblem, prepareDatabase } from '../src/startup/prepare-database.js';
 import { insertRow } from './fixtures/migrated-database.js';
 
@@ -231,6 +232,81 @@ test('imports 3.14 notifications, webhook owners, and Telegram connection states
     } finally {
       await client.$disconnect();
     }
+  } finally {
+    await space.cleanup();
+  }
+});
+
+test('imports 3.14 developer tokens and request logs so they keep authenticating and auditing', async () => {
+  const space = await workspace();
+  const source = join(space.legacyRoot, 'db.sqlite3');
+  try {
+    const legacy = await createLegacyDatabase(source);
+    insertRow(legacy, 'auth_user', { id: 7, username: 'writer', password: 'pbkdf2_sha256$fixture$hash', is_active: 1 });
+    insertRow(legacy, 'board_profile', { id: 7, user_id: 7, role: 'EDITOR' });
+    const activeToken = 'blex_pat_activetoken1_imported-secret';
+    insertRow(legacy, 'board_developertoken', {
+      id: 12, user_id: 7, name: 'Active', token_prefix: 'activetoken1', token_hash: createHash('sha256').update(activeToken).digest('hex'), scopes: '["posts:read"]',
+      expires_at: '2099-01-01 00:00:00.000000', created_date: '2024-01-01 00:00:00', updated_date: '2024-01-01 00:00:00',
+    });
+    insertRow(legacy, 'board_developertoken', {
+      id: 3, user_id: 7, name: 'Automation', token_prefix: 'aaaaaaaaaaaa', token_hash: 'a'.repeat(64), scopes: '["posts:read", "posts:write"]',
+      expires_at: '2030-01-02 03:04:05.678901', revoked_at: '2024-05-06 07:08:09+09:00', last_used_at: '2024-05-01 00:00:00', last_used_ip: '203.0.113.9',
+      created_date: '2024-01-01 00:00:00', updated_date: '2024-05-01 00:00:00',
+    });
+    const malformedScopes: Array<[number, string, string]> = [[5, '{"posts:read":true}', '[]'], [6, '["posts:read", 1, null]', '["posts:read"]'], [8, '7', '[]']];
+    for (const [id, scopes] of malformedScopes) {
+      insertRow(legacy, 'board_developertoken', { id, user_id: 7, name: `Token ${id}`, token_prefix: `prefix${id}`, token_hash: `hash${id}`, scopes, created_date: '2024-01-01 00:00:00', updated_date: '2024-01-01 00:00:00' });
+    }
+    insertRow(legacy, 'board_developerrequestlog', { id: 9, user_id: 7, token_id: 3, method: 'PATCH', path: '/api/developer/v1/posts/1', status_code: 409, ip_address: '203.0.113.9', user_agent: 'blex-mcp', created_date: '2024-05-01 00:00:00.250000' });
+    insertRow(legacy, 'board_developerrequestlog', { id: 10, user_id: 7, token_id: null, method: 'GET', path: '/api/developer/v1/me', status_code: 200, ip_address: null, user_agent: '', created_date: '2024-05-02 00:00:00' });
+    legacy.exec(`
+      UPDATE sqlite_sequence SET seq = 50 WHERE name = 'board_developertoken';
+      UPDATE sqlite_sequence SET seq = 60 WHERE name = 'board_developerrequestlog';
+    `);
+    legacy.close();
+
+    await prepareDatabase(space.options);
+
+    const imported = new DatabaseSync(space.databasePath);
+    assert.deepEqual({ ...imported.prepare('SELECT userId, name, tokenPrefix, tokenHash, scopes, expiresAt, revokedAt, lastUsedAt, lastUsedIp, createdAt, updatedAt FROM DeveloperToken WHERE id = 3').get() }, {
+      userId: 7, name: 'Automation', tokenPrefix: 'aaaaaaaaaaaa', tokenHash: 'a'.repeat(64), scopes: '["posts:read","posts:write"]',
+      expiresAt: Date.UTC(2030, 0, 2, 3, 4, 5, 678), revokedAt: Date.UTC(2024, 4, 5, 22, 8, 9), lastUsedAt: Date.UTC(2024, 4, 1), lastUsedIp: '203.0.113.9',
+      createdAt: Date.UTC(2024, 0, 1), updatedAt: Date.UTC(2024, 4, 1),
+    });
+    for (const [id, , scopes] of malformedScopes) {
+      assert.equal((imported.prepare('SELECT scopes FROM DeveloperToken WHERE id = ?').get(id) as { scopes: string }).scopes, scopes);
+    }
+    assert.deepEqual({ ...imported.prepare('SELECT userId, tokenId, method, path, statusCode, ipAddress, userAgent, createdAt FROM DeveloperRequestLog WHERE id = 9').get() }, {
+      userId: 7, tokenId: 3, method: 'PATCH', path: '/api/developer/v1/posts/1', statusCode: 409, ipAddress: '203.0.113.9', userAgent: 'blex-mcp', createdAt: Date.UTC(2024, 4, 1, 0, 0, 0, 250),
+    });
+    assert.deepEqual({ ...imported.prepare('SELECT tokenId, ipAddress, userAgent FROM DeveloperRequestLog WHERE id = 10').get() }, { tokenId: null, ipAddress: null, userAgent: '' });
+    assert.equal(Number((imported.prepare(`SELECT seq FROM sqlite_sequence WHERE name = 'DeveloperToken'`).get() as { seq: number }).seq), 50);
+    assert.equal(Number((imported.prepare(`SELECT seq FROM sqlite_sequence WHERE name = 'DeveloperRequestLog'`).get() as { seq: number }).seq), 60);
+    imported.close();
+
+    const db = new PrismaClient({ datasourceUrl: `file:${space.databasePath}` });
+    try {
+      const scopes = await db.developerToken.findMany({ orderBy: { id: 'asc' }, select: { scopes: true } });
+      assert.deepEqual(scopes.map((token) => token.scopes), [['posts:read', 'posts:write'], [], ['posts:read'], [], ['posts:read']]);
+    } finally {
+      await db.$disconnect();
+    }
+
+    const app = await buildApp(space.databasePath, new URL('http://site.test'), { secretKey: 'import-secret', cipherKey: '0123456789abcdef0123456789abcdef' });
+    try {
+      const me = await app.inject({ url: '/api/developer/v1/me', headers: { authorization: `Bearer ${activeToken}`, 'user-agent': 'after-import' } });
+      assert.equal(me.statusCode, 200, me.body);
+      assert.equal(me.json().data.token.token_prefix, 'activetoken1');
+    } finally {
+      await app.close();
+    }
+    const audited = new DatabaseSync(space.databasePath, { readOnly: true });
+    assert.deepEqual({ ...audited.prepare(`SELECT id, tokenId, userId, statusCode, userAgent FROM DeveloperRequestLog WHERE userAgent = 'after-import'`).get() }, {
+      id: 61, tokenId: 12, userId: 7, statusCode: 200, userAgent: 'after-import',
+    });
+    assert.equal((audited.prepare('SELECT lastUsedAt IS NOT NULL AS used FROM DeveloperToken WHERE id = 12').get() as { used: number }).used, 1);
+    audited.close();
   } finally {
     await space.cleanup();
   }

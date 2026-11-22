@@ -245,35 +245,35 @@ CREATE TABLE "board_config" (
 );
 
 -- CreateTable
-CREATE TABLE "board_developerrequestlog" (
+CREATE TABLE "DeveloperRequestLog" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "userId" INTEGER NOT NULL,
+    "tokenId" INTEGER,
     "method" TEXT NOT NULL,
     "path" TEXT NOT NULL,
-    "status_code" INTEGER NOT NULL,
-    "ip_address" TEXT,
-    "user_agent" TEXT NOT NULL,
-    "created_date" DATETIME NOT NULL,
-    "token_id" INTEGER,
-    "user_id" INTEGER NOT NULL,
-    CONSTRAINT "board_developerrequestlog_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT "board_developerrequestlog_token_id_fkey" FOREIGN KEY ("token_id") REFERENCES "board_developertoken" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+    "statusCode" INTEGER NOT NULL,
+    "ipAddress" TEXT,
+    "userAgent" TEXT NOT NULL DEFAULT '',
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "DeveloperRequestLog_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "DeveloperRequestLog_tokenId_fkey" FOREIGN KEY ("tokenId") REFERENCES "DeveloperToken" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
-CREATE TABLE "board_developertoken" (
+CREATE TABLE "DeveloperToken" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "userId" INTEGER NOT NULL,
     "name" TEXT NOT NULL,
-    "token_prefix" TEXT NOT NULL,
-    "token_hash" TEXT NOT NULL,
-    "scopes" TEXT NOT NULL,
-    "expires_at" DATETIME,
-    "revoked_at" DATETIME,
-    "last_used_at" DATETIME,
-    "last_used_ip" TEXT,
-    "created_date" DATETIME NOT NULL,
-    "updated_date" DATETIME NOT NULL,
-    "user_id" INTEGER NOT NULL,
-    CONSTRAINT "board_developertoken_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+    "tokenPrefix" TEXT NOT NULL,
+    "tokenHash" TEXT NOT NULL,
+    "scopes" JSONB NOT NULL,
+    "expiresAt" DATETIME,
+    "revokedAt" DATETIME,
+    "lastUsedAt" DATETIME,
+    "lastUsedIp" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "DeveloperToken_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -877,31 +877,19 @@ CREATE UNIQUE INDEX "board_comment_likes_comment_id_user_id_c6d811be_uniq" ON "b
 CREATE UNIQUE INDEX "board_config_user_id_key" ON "board_config"("user_id");
 
 -- CreateIndex
-CREATE INDEX "board_devel_token_i_fbbd82_idx" ON "board_developerrequestlog"("token_id", "created_date");
+CREATE INDEX "DeveloperRequestLog_tokenId_createdAt_idx" ON "DeveloperRequestLog"("tokenId", "createdAt");
 
 -- CreateIndex
-CREATE INDEX "board_devel_user_id_e88d8c_idx" ON "board_developerrequestlog"("user_id", "created_date");
+CREATE INDEX "DeveloperRequestLog_userId_createdAt_idx" ON "DeveloperRequestLog"("userId", "createdAt");
 
 -- CreateIndex
-CREATE INDEX "board_developerrequestlog_user_id_123587fb" ON "board_developerrequestlog"("user_id");
+CREATE UNIQUE INDEX "DeveloperToken_tokenPrefix_key" ON "DeveloperToken"("tokenPrefix");
 
 -- CreateIndex
-CREATE INDEX "board_developerrequestlog_token_id_ea1cc060" ON "board_developerrequestlog"("token_id");
+CREATE UNIQUE INDEX "DeveloperToken_tokenHash_key" ON "DeveloperToken"("tokenHash");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "board_developertoken_token_prefix_key" ON "board_developertoken"("token_prefix");
-
--- CreateIndex
-CREATE UNIQUE INDEX "board_developertoken_token_hash_key" ON "board_developertoken"("token_hash");
-
--- CreateIndex
-CREATE INDEX "board_devel_token_p_7a12b4_idx" ON "board_developertoken"("token_prefix");
-
--- CreateIndex
-CREATE INDEX "board_devel_user_id_bf372b_idx" ON "board_developertoken"("user_id", "revoked_at");
-
--- CreateIndex
-CREATE INDEX "board_developertoken_user_id_24b231ab" ON "board_developertoken"("user_id");
+CREATE INDEX "DeveloperToken_userId_revokedAt_idx" ON "DeveloperToken"("userId", "revokedAt");
 
 -- CreateIndex
 CREATE INDEX "board_edith_post_id_50a332_idx" ON "board_edithistory"("post_id", "created_date");

@@ -452,7 +452,7 @@ export interface CreatedDeveloperTokenData extends DeveloperTokenData {
 export interface DeveloperTokenCreateData {
     name?: string;
     scopes: DeveloperTokenScope[];
-    expires_in_days?: number;
+    expiresInDays?: number;
 }
 
 export const getDeveloperTokens = async () => {

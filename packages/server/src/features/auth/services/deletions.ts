@@ -22,12 +22,6 @@ export async function deleteAccountRows(tx: Prisma.TransactionClient, userId: nu
   await tx.board_profile.deleteMany({ where: owned });
   await tx.board_authorsubscription.deleteMany({ where: subscription });
   await tx.board_authorsubscriptionlog.deleteMany({ where: subscription });
-  await tx.board_developerrequestlog.deleteMany({ where: owned });
-  await tx.board_developerrequestlog.updateMany({
-    where: { board_developertoken: owned },
-    data: { token_id: null },
-  });
-  await tx.board_developertoken.deleteMany({ where: owned });
   await tx.board_authorinvite.updateMany({ where: { created_by_id: userId }, data: { created_by_id: null } });
   await tx.board_authorinvite.updateMany({ where: { claimed_by_id: userId }, data: { claimed_by_id: null } });
   await tx.board_emailchange.deleteMany({ where: owned });

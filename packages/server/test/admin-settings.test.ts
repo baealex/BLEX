@@ -38,7 +38,7 @@ function configureTelegram(responses: Record<string, unknown> = {}) {
 
 function createSchema() {
   const database = new DatabaseSync(databasePath);
-  createMigratedTables(database, 'FormTemplate', 'StaticPage', 'SiteNotice', 'SiteBanner', 'SiteSetting', 'LoginSetting', 'IntegrationSetting', 'AdminLog', 'CleanupConfirmation', 'UploadedImage');
+  createMigratedTables(database, 'FormTemplate', 'StaticPage', 'SiteNotice', 'SiteBanner', 'SiteSetting', 'LoginSetting', 'IntegrationSetting', 'AdminLog', 'CleanupConfirmation', 'UploadedImage', 'DeveloperToken', 'DeveloperRequestLog');
   database.exec(`
     CREATE TABLE auth_user (
       id INTEGER PRIMARY KEY, username TEXT NOT NULL, first_name TEXT NOT NULL DEFAULT '', email TEXT NOT NULL DEFAULT '',
@@ -79,7 +79,6 @@ function createSchema() {
     CREATE TABLE board_series (id INTEGER PRIMARY KEY, text_md TEXT NOT NULL DEFAULT '', text_html TEXT NOT NULL DEFAULT '');
     CREATE TABLE board_tag (id INTEGER PRIMARY KEY, value TEXT NOT NULL UNIQUE);
     CREATE TABLE board_post_tags (post_id INTEGER NOT NULL, tag_id INTEGER NOT NULL, UNIQUE(post_id, tag_id));
-    CREATE TABLE board_developerrequestlog (id INTEGER PRIMARY KEY, created_date DATETIME NOT NULL);
     CREATE TABLE blex_session (token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL, expires_at BIGINT NOT NULL);
   `);
   database.close();
@@ -107,7 +106,7 @@ function seedDatabase() {
     DELETE FROM UploadedImage;
     DELETE FROM board_tag;
     DELETE FROM board_post_tags;
-    DELETE FROM board_developerrequestlog;
+    DELETE FROM DeveloperRequestLog;
     DELETE FROM blex_session;
     DELETE FROM CleanupConfirmation;
     DELETE FROM board_socialauthprovider;
@@ -1048,7 +1047,8 @@ test('previews and confirms expired log cleanup for superusers only', async () =
     INSERT INTO AdminLog (objectName, action, message, userId, createdAt)
     VALUES ('old audit', 2, 'old', 2, 1577836800000)
   `).run();
-  database.prepare('INSERT INTO board_developerrequestlog (id, created_date) VALUES (1, ?)').run('2020-01-01 00:00:00');
+  database.prepare(`INSERT INTO DeveloperRequestLog (id, userId, method, path, statusCode, createdAt) VALUES (1, 2, 'GET', '/api/developer/v1/me', 200, ?)`).run(Date.UTC(2020, 0, 1));
+  database.prepare(`INSERT INTO DeveloperRequestLog (id, userId, method, path, statusCode, createdAt) VALUES (2, 2, 'GET', '/api/developer/v1/me', 200, ?)`).run(Date.now());
   database.close();
 
   const preview = await app.inject({
@@ -1065,7 +1065,7 @@ test('previews and confirms expired log cleanup for superusers only', async () =
   });
   assert.equal(body(execute).status, 'DONE', execute.body);
   assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM AdminLog WHERE message = 'old'`)[0]?.count), 0);
-  assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM board_developerrequestlog`)[0]?.count), 0);
+  assert.deepEqual((await prisma.developerRequestLog.findMany({ select: { id: true } })).map(({ id }) => id), [2]);
   const noCsrf = await app.inject({
     method: 'POST', url: '/v1/utilities/clean-tags', headers: jsonHeaders(2, false), payload: JSON.stringify({ dryRun: true }),
   });

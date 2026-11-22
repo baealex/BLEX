@@ -1,0 +1,2966 @@
+{
+ "exchanges": [
+  {
+   "name": "me",
+   "method": "GET",
+   "url": "/api/developer/v1/me",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"user\":{\"id\":1,\"username\":\"writer\",\"name\":\"Writer\",\"email\":\"writer@example.test\",\"is_editor\":true},\"token\":{\"id\":1,\"name\":\"Token 1\",\"token_prefix\":\"writer000001\",\"scopes\":[\"posts:read\",\"posts:write\"]}}}"
+  },
+  {
+   "name": "me without any scope",
+   "method": "GET",
+   "url": "/api/developer/v1/me",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"user\":{\"id\":1,\"username\":\"writer\",\"name\":\"Writer\",\"email\":\"writer@example.test\",\"is_editor\":true},\"token\":{\"id\":3,\"name\":\"Token 3\",\"token_prefix\":\"noscope00001\",\"scopes\":[]}}}"
+  },
+  {
+   "name": "missing token",
+   "method": "GET",
+   "url": "/api/developer/v1/me",
+   "status": 401,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"auth.missing_token\",\"message\":\"A Bearer token is required.\",\"fields\":null}}"
+  },
+  {
+   "name": "wrong scheme",
+   "method": "GET",
+   "url": "/api/developer/v1/me",
+   "status": 401,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"auth.missing_token\",\"message\":\"A Bearer token is required.\",\"fields\":null}}"
+  },
+  {
+   "name": "malformed token",
+   "method": "GET",
+   "url": "/api/developer/v1/me",
+   "status": 401,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"auth.invalid_token\",\"message\":\"Invalid token.\",\"fields\":null}}"
+  },
+  {
+   "name": "foreign prefix",
+   "method": "GET",
+   "url": "/api/developer/v1/me",
+   "status": 401,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"auth.invalid_token\",\"message\":\"Invalid token.\",\"fields\":null}}"
+  },
+  {
+   "name": "unknown token",
+   "method": "GET",
+   "url": "/api/developer/v1/me",
+   "status": 401,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"auth.invalid_token\",\"message\":\"Invalid token.\",\"fields\":null}}"
+  },
+  {
+   "name": "wrong secret",
+   "method": "GET",
+   "url": "/api/developer/v1/me",
+   "status": 401,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"auth.invalid_token\",\"message\":\"Invalid token.\",\"fields\":null}}"
+  },
+  {
+   "name": "revoked token",
+   "method": "GET",
+   "url": "/api/developer/v1/me",
+   "status": 401,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"auth.invalid_token\",\"message\":\"This token has expired or been revoked.\",\"fields\":null}}"
+  },
+  {
+   "name": "expired token",
+   "method": "GET",
+   "url": "/api/developer/v1/me",
+   "status": 401,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"auth.invalid_token\",\"message\":\"This token has expired or been revoked.\",\"fields\":null}}"
+  },
+  {
+   "name": "inactive account",
+   "method": "GET",
+   "url": "/api/developer/v1/me",
+   "status": 401,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"auth.inactive_user\",\"message\":\"This user is inactive.\",\"fields\":null}}"
+  },
+  {
+   "name": "non-editor account",
+   "method": "GET",
+   "url": "/api/developer/v1/me",
+   "status": 403,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"auth.editor_required\",\"message\":\"The Developer API requires author access.\",\"fields\":null}}"
+  },
+  {
+   "name": "read scope required /posts",
+   "method": "GET",
+   "url": "/api/developer/v1/posts",
+   "status": 403,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"auth.insufficient_scope\",\"message\":\"posts:read scope is required.\",\"fields\":null}}"
+  },
+  {
+   "name": "read scope required /posts/search",
+   "method": "GET",
+   "url": "/api/developer/v1/posts/search",
+   "status": 403,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"auth.insufficient_scope\",\"message\":\"posts:read scope is required.\",\"fields\":null}}"
+  },
+  {
+   "name": "read scope required /posts/1",
+   "method": "GET",
+   "url": "/api/developer/v1/posts/1",
+   "status": 403,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"auth.insufficient_scope\",\"message\":\"posts:read scope is required.\",\"fields\":null}}"
+  },
+  {
+   "name": "read scope required /tags",
+   "method": "GET",
+   "url": "/api/developer/v1/tags",
+   "status": 403,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"auth.insufficient_scope\",\"message\":\"posts:read scope is required.\",\"fields\":null}}"
+  },
+  {
+   "name": "read scope required /series",
+   "method": "GET",
+   "url": "/api/developer/v1/series",
+   "status": 403,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"auth.insufficient_scope\",\"message\":\"posts:read scope is required.\",\"fields\":null}}"
+  },
+  {
+   "name": "write scope required",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 403,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"auth.insufficient_scope\",\"message\":\"posts:write scope is required.\",\"fields\":null}}"
+  },
+  {
+   "name": "read scope is separate from write",
+   "method": "GET",
+   "url": "/api/developer/v1/posts",
+   "status": 403,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"auth.insufficient_scope\",\"message\":\"posts:read scope is required.\",\"fields\":null}}"
+  },
+  {
+   "name": "post list",
+   "method": "GET",
+   "url": "/api/developer/v1/posts",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"posts\":[{\"id\":1,\"title\":\"Title draft-needle\",\"subtitle\":\"sub_title\",\"url\":\"draft-needle\",\"public_url\":\"/@writer/draft-needle\",\"status\":\"draft\",\"tags\":[\"api\",\"snake_tag\"],\"series\":{\"id\":10,\"name\":\"Writer Series\",\"url\":\"writer-series\"},\"is_hidden\":false,\"is_advertise\":true,\"cover_layout\":\"split\",\"cover_image_position\":\"left\",\"cover_image_ratio\":\"16:9\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:09.123456+00:00\",\"published_at\":null},{\"id\":3,\"title\":\"Title public\",\"subtitle\":\"sub_title\",\"url\":\"public\",\"public_url\":\"/@writer/public\",\"status\":\"published\",\"tags\":[\"api\",\"snake_tag\"],\"series\":{\"id\":10,\"name\":\"Writer Series\",\"url\":\"writer-series\"},\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:07+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":4,\"title\":\"Title hidden\",\"subtitle\":\"sub_title\",\"url\":\"hidden\",\"public_url\":\"/@writer/hidden\",\"status\":\"hidden\",\"tags\":[],\"series\":null,\"is_hidden\":true,\"is_advertise\":false,\"cover_layout\":\"overlay\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"4:3\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:06+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":5,\"title\":\"Title scheduled\",\"subtitle\":\"sub_title\",\"url\":\"scheduled\",\"public_url\":\"/@writer/scheduled\",\"status\":\"scheduled\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:05+00:00\",\"published_at\":\"2099-01-01T00:00:00+00:00\"},{\"id\":7,\"title\":\"Title dry-run-target\",\"subtitle\":\"sub_title\",\"url\":\"dry-run-target\",\"public_url\":\"/@writer/dry-run-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:03+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":8,\"title\":\"Title delete-target\",\"subtitle\":\"sub_title\",\"url\":\"delete-target\",\"public_url\":\"/@writer/delete-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:02+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":9,\"title\":\"Title camel-delete-target\",\"subtitle\":\"sub_title\",\"url\":\"camel-delete-target\",\"public_url\":\"/@writer/camel-delete-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:01+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":12,\"title\":\"Title publish-target\",\"subtitle\":\"sub_title\",\"url\":\"publish-target\",\"public_url\":\"/@writer/publish-target\",\"status\":\"draft\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2024-12-31T00:00:00+00:00\",\"published_at\":null},{\"id\":13,\"title\":\"Title publish-empty-target\",\"subtitle\":\"sub_title\",\"url\":\"publish-empty-target\",\"public_url\":\"/@writer/publish-empty-target\",\"status\":\"draft\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2024-12-30T00:00:00+00:00\",\"published_at\":null},{\"id\":14,\"title\":\"Title update-target\",\"subtitle\":\"sub_title\",\"url\":\"update-target\",\"public_url\":\"/@writer/update-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2024-12-29T00:00:00+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"}],\"pagination\":{\"page\":1,\"limit\":20,\"total\":10}}}"
+  },
+  {
+   "name": "post list drafts paged",
+   "method": "GET",
+   "url": "/api/developer/v1/posts?status=draft&page=2&limit=1",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"posts\":[{\"id\":12,\"title\":\"Title publish-target\",\"subtitle\":\"sub_title\",\"url\":\"publish-target\",\"public_url\":\"/@writer/publish-target\",\"status\":\"draft\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2024-12-31T00:00:00+00:00\",\"published_at\":null}],\"pagination\":{\"page\":2,\"limit\":1,\"total\":3}}}"
+  },
+  {
+   "name": "post list published",
+   "method": "GET",
+   "url": "/api/developer/v1/posts?status=published",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"posts\":[{\"id\":3,\"title\":\"Title public\",\"subtitle\":\"sub_title\",\"url\":\"public\",\"public_url\":\"/@writer/public\",\"status\":\"published\",\"tags\":[\"api\",\"snake_tag\"],\"series\":{\"id\":10,\"name\":\"Writer Series\",\"url\":\"writer-series\"},\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:07+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":7,\"title\":\"Title dry-run-target\",\"subtitle\":\"sub_title\",\"url\":\"dry-run-target\",\"public_url\":\"/@writer/dry-run-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:03+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":8,\"title\":\"Title delete-target\",\"subtitle\":\"sub_title\",\"url\":\"delete-target\",\"public_url\":\"/@writer/delete-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:02+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":9,\"title\":\"Title camel-delete-target\",\"subtitle\":\"sub_title\",\"url\":\"camel-delete-target\",\"public_url\":\"/@writer/camel-delete-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:01+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":14,\"title\":\"Title update-target\",\"subtitle\":\"sub_title\",\"url\":\"update-target\",\"public_url\":\"/@writer/update-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2024-12-29T00:00:00+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"}],\"pagination\":{\"page\":1,\"limit\":20,\"total\":5}}}"
+  },
+  {
+   "name": "post list hidden",
+   "method": "GET",
+   "url": "/api/developer/v1/posts?status=hidden",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"posts\":[{\"id\":4,\"title\":\"Title hidden\",\"subtitle\":\"sub_title\",\"url\":\"hidden\",\"public_url\":\"/@writer/hidden\",\"status\":\"hidden\",\"tags\":[],\"series\":null,\"is_hidden\":true,\"is_advertise\":false,\"cover_layout\":\"overlay\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"4:3\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:06+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"}],\"pagination\":{\"page\":1,\"limit\":20,\"total\":1}}}"
+  },
+  {
+   "name": "post list scheduled",
+   "method": "GET",
+   "url": "/api/developer/v1/posts?status=scheduled",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"posts\":[{\"id\":5,\"title\":\"Title scheduled\",\"subtitle\":\"sub_title\",\"url\":\"scheduled\",\"public_url\":\"/@writer/scheduled\",\"status\":\"scheduled\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:05+00:00\",\"published_at\":\"2099-01-01T00:00:00+00:00\"}],\"pagination\":{\"page\":1,\"limit\":20,\"total\":1}}}"
+  },
+  {
+   "name": "post list clamped",
+   "method": "GET",
+   "url": "/api/developer/v1/posts?page=0&limit=500",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"posts\":[{\"id\":1,\"title\":\"Title draft-needle\",\"subtitle\":\"sub_title\",\"url\":\"draft-needle\",\"public_url\":\"/@writer/draft-needle\",\"status\":\"draft\",\"tags\":[\"api\",\"snake_tag\"],\"series\":{\"id\":10,\"name\":\"Writer Series\",\"url\":\"writer-series\"},\"is_hidden\":false,\"is_advertise\":true,\"cover_layout\":\"split\",\"cover_image_position\":\"left\",\"cover_image_ratio\":\"16:9\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:09.123456+00:00\",\"published_at\":null},{\"id\":3,\"title\":\"Title public\",\"subtitle\":\"sub_title\",\"url\":\"public\",\"public_url\":\"/@writer/public\",\"status\":\"published\",\"tags\":[\"api\",\"snake_tag\"],\"series\":{\"id\":10,\"name\":\"Writer Series\",\"url\":\"writer-series\"},\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:07+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":4,\"title\":\"Title hidden\",\"subtitle\":\"sub_title\",\"url\":\"hidden\",\"public_url\":\"/@writer/hidden\",\"status\":\"hidden\",\"tags\":[],\"series\":null,\"is_hidden\":true,\"is_advertise\":false,\"cover_layout\":\"overlay\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"4:3\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:06+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":5,\"title\":\"Title scheduled\",\"subtitle\":\"sub_title\",\"url\":\"scheduled\",\"public_url\":\"/@writer/scheduled\",\"status\":\"scheduled\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:05+00:00\",\"published_at\":\"2099-01-01T00:00:00+00:00\"},{\"id\":7,\"title\":\"Title dry-run-target\",\"subtitle\":\"sub_title\",\"url\":\"dry-run-target\",\"public_url\":\"/@writer/dry-run-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:03+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":8,\"title\":\"Title delete-target\",\"subtitle\":\"sub_title\",\"url\":\"delete-target\",\"public_url\":\"/@writer/delete-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:02+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":9,\"title\":\"Title camel-delete-target\",\"subtitle\":\"sub_title\",\"url\":\"camel-delete-target\",\"public_url\":\"/@writer/camel-delete-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:01+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":12,\"title\":\"Title publish-target\",\"subtitle\":\"sub_title\",\"url\":\"publish-target\",\"public_url\":\"/@writer/publish-target\",\"status\":\"draft\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2024-12-31T00:00:00+00:00\",\"published_at\":null},{\"id\":13,\"title\":\"Title publish-empty-target\",\"subtitle\":\"sub_title\",\"url\":\"publish-empty-target\",\"public_url\":\"/@writer/publish-empty-target\",\"status\":\"draft\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2024-12-30T00:00:00+00:00\",\"published_at\":null},{\"id\":14,\"title\":\"Title update-target\",\"subtitle\":\"sub_title\",\"url\":\"update-target\",\"public_url\":\"/@writer/update-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2024-12-29T00:00:00+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"}],\"pagination\":{\"page\":1,\"limit\":100,\"total\":10}}}"
+  },
+  {
+   "name": "post list repeated parameter",
+   "method": "GET",
+   "url": "/api/developer/v1/posts?limit=50&limit=1",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"posts\":[{\"id\":1,\"title\":\"Title draft-needle\",\"subtitle\":\"sub_title\",\"url\":\"draft-needle\",\"public_url\":\"/@writer/draft-needle\",\"status\":\"draft\",\"tags\":[\"api\",\"snake_tag\"],\"series\":{\"id\":10,\"name\":\"Writer Series\",\"url\":\"writer-series\"},\"is_hidden\":false,\"is_advertise\":true,\"cover_layout\":\"split\",\"cover_image_position\":\"left\",\"cover_image_ratio\":\"16:9\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:09.123456+00:00\",\"published_at\":null}],\"pagination\":{\"page\":1,\"limit\":1,\"total\":10}}}"
+  },
+  {
+   "name": "post list beyond the end",
+   "method": "GET",
+   "url": "/api/developer/v1/posts?page=99",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"posts\":[],\"pagination\":{\"page\":99,\"limit\":20,\"total\":10}}}"
+  },
+  {
+   "name": "post list bad page",
+   "method": "GET",
+   "url": "/api/developer/v1/posts?page=abc",
+   "status": 422,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_payload\",\"message\":\"The request payload could not be validated.\",\"fields\":{\"errors\":[{\"type\":\"int_parsing\",\"loc\":[\"query\",\"page\"],\"msg\":\"Input should be a valid integer, unable to parse string as an integer: 'abc'\",\"input\":\"abc\"}]}}}"
+  },
+  {
+   "name": "post list bad limit",
+   "method": "GET",
+   "url": "/api/developer/v1/posts?limit=1.5",
+   "status": 422,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_payload\",\"message\":\"The request payload could not be validated.\",\"fields\":{\"errors\":[{\"type\":\"int_parsing\",\"loc\":[\"query\",\"limit\"],\"msg\":\"Input should be a valid integer, unable to parse string as an integer: '1.5'\",\"input\":\"1.5\"}]}}}"
+  },
+  {
+   "name": "post list bad status",
+   "method": "GET",
+   "url": "/api/developer/v1/posts?status=trashed",
+   "status": 400,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"post.invalid_status\",\"message\":\"Unsupported status.\",\"fields\":null}}"
+  },
+  {
+   "name": "search",
+   "method": "GET",
+   "url": "/api/developer/v1/posts/search?q=NEEDLE&tag=missing,snake_tag&status=draft&series_id=10",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"posts\":[{\"id\":1,\"title\":\"Title draft-needle\",\"subtitle\":\"sub_title\",\"url\":\"draft-needle\",\"public_url\":\"/@writer/draft-needle\",\"status\":\"draft\",\"tags\":[\"api\",\"snake_tag\"],\"series\":{\"id\":10,\"name\":\"Writer Series\",\"url\":\"writer-series\"},\"is_hidden\":false,\"is_advertise\":true,\"cover_layout\":\"split\",\"cover_image_position\":\"left\",\"cover_image_ratio\":\"16:9\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:09.123456+00:00\",\"published_at\":null}],\"pagination\":{\"page\":1,\"limit\":20,\"total\":1}}}"
+  },
+  {
+   "name": "search by series",
+   "method": "GET",
+   "url": "/api/developer/v1/posts/search?series_id=10",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"posts\":[{\"id\":1,\"title\":\"Title draft-needle\",\"subtitle\":\"sub_title\",\"url\":\"draft-needle\",\"public_url\":\"/@writer/draft-needle\",\"status\":\"draft\",\"tags\":[\"api\",\"snake_tag\"],\"series\":{\"id\":10,\"name\":\"Writer Series\",\"url\":\"writer-series\"},\"is_hidden\":false,\"is_advertise\":true,\"cover_layout\":\"split\",\"cover_image_position\":\"left\",\"cover_image_ratio\":\"16:9\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:09.123456+00:00\",\"published_at\":null},{\"id\":3,\"title\":\"Title public\",\"subtitle\":\"sub_title\",\"url\":\"public\",\"public_url\":\"/@writer/public\",\"status\":\"published\",\"tags\":[\"api\",\"snake_tag\"],\"series\":{\"id\":10,\"name\":\"Writer Series\",\"url\":\"writer-series\"},\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:07+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"}],\"pagination\":{\"page\":1,\"limit\":20,\"total\":2}}}"
+  },
+  {
+   "name": "search empty series",
+   "method": "GET",
+   "url": "/api/developer/v1/posts/search?series_id=",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"posts\":[{\"id\":1,\"title\":\"Title draft-needle\",\"subtitle\":\"sub_title\",\"url\":\"draft-needle\",\"public_url\":\"/@writer/draft-needle\",\"status\":\"draft\",\"tags\":[\"api\",\"snake_tag\"],\"series\":{\"id\":10,\"name\":\"Writer Series\",\"url\":\"writer-series\"},\"is_hidden\":false,\"is_advertise\":true,\"cover_layout\":\"split\",\"cover_image_position\":\"left\",\"cover_image_ratio\":\"16:9\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:09.123456+00:00\",\"published_at\":null},{\"id\":3,\"title\":\"Title public\",\"subtitle\":\"sub_title\",\"url\":\"public\",\"public_url\":\"/@writer/public\",\"status\":\"published\",\"tags\":[\"api\",\"snake_tag\"],\"series\":{\"id\":10,\"name\":\"Writer Series\",\"url\":\"writer-series\"},\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:07+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":4,\"title\":\"Title hidden\",\"subtitle\":\"sub_title\",\"url\":\"hidden\",\"public_url\":\"/@writer/hidden\",\"status\":\"hidden\",\"tags\":[],\"series\":null,\"is_hidden\":true,\"is_advertise\":false,\"cover_layout\":\"overlay\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"4:3\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:06+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":5,\"title\":\"Title scheduled\",\"subtitle\":\"sub_title\",\"url\":\"scheduled\",\"public_url\":\"/@writer/scheduled\",\"status\":\"scheduled\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:05+00:00\",\"published_at\":\"2099-01-01T00:00:00+00:00\"},{\"id\":7,\"title\":\"Title dry-run-target\",\"subtitle\":\"sub_title\",\"url\":\"dry-run-target\",\"public_url\":\"/@writer/dry-run-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:03+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":8,\"title\":\"Title delete-target\",\"subtitle\":\"sub_title\",\"url\":\"delete-target\",\"public_url\":\"/@writer/delete-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:02+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":9,\"title\":\"Title camel-delete-target\",\"subtitle\":\"sub_title\",\"url\":\"camel-delete-target\",\"public_url\":\"/@writer/camel-delete-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:01+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":12,\"title\":\"Title publish-target\",\"subtitle\":\"sub_title\",\"url\":\"publish-target\",\"public_url\":\"/@writer/publish-target\",\"status\":\"draft\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2024-12-31T00:00:00+00:00\",\"published_at\":null},{\"id\":13,\"title\":\"Title publish-empty-target\",\"subtitle\":\"sub_title\",\"url\":\"publish-empty-target\",\"public_url\":\"/@writer/publish-empty-target\",\"status\":\"draft\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2024-12-30T00:00:00+00:00\",\"published_at\":null},{\"id\":14,\"title\":\"Title update-target\",\"subtitle\":\"sub_title\",\"url\":\"update-target\",\"public_url\":\"/@writer/update-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2024-12-29T00:00:00+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"}],\"pagination\":{\"page\":1,\"limit\":20,\"total\":10}}}"
+  },
+  {
+   "name": "search repeated tags",
+   "method": "GET",
+   "url": "/api/developer/v1/posts/search?tag=api&tag=snake_tag",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"posts\":[{\"id\":1,\"title\":\"Title draft-needle\",\"subtitle\":\"sub_title\",\"url\":\"draft-needle\",\"public_url\":\"/@writer/draft-needle\",\"status\":\"draft\",\"tags\":[\"api\",\"snake_tag\"],\"series\":{\"id\":10,\"name\":\"Writer Series\",\"url\":\"writer-series\"},\"is_hidden\":false,\"is_advertise\":true,\"cover_layout\":\"split\",\"cover_image_position\":\"left\",\"cover_image_ratio\":\"16:9\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:09.123456+00:00\",\"published_at\":null},{\"id\":3,\"title\":\"Title public\",\"subtitle\":\"sub_title\",\"url\":\"public\",\"public_url\":\"/@writer/public\",\"status\":\"published\",\"tags\":[\"api\",\"snake_tag\"],\"series\":{\"id\":10,\"name\":\"Writer Series\",\"url\":\"writer-series\"},\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:07+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"}],\"pagination\":{\"page\":1,\"limit\":20,\"total\":2}}}"
+  },
+  {
+   "name": "search wildcard is literal",
+   "method": "GET",
+   "url": "/api/developer/v1/posts/search?q=%25",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"posts\":[],\"pagination\":{\"page\":1,\"limit\":20,\"total\":0}}}"
+  },
+  {
+   "name": "search underscore is literal",
+   "method": "GET",
+   "url": "/api/developer/v1/posts/search?q=some_key",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"posts\":[{\"id\":1,\"title\":\"Title draft-needle\",\"subtitle\":\"sub_title\",\"url\":\"draft-needle\",\"public_url\":\"/@writer/draft-needle\",\"status\":\"draft\",\"tags\":[\"api\",\"snake_tag\"],\"series\":{\"id\":10,\"name\":\"Writer Series\",\"url\":\"writer-series\"},\"is_hidden\":false,\"is_advertise\":true,\"cover_layout\":\"split\",\"cover_image_position\":\"left\",\"cover_image_ratio\":\"16:9\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:09.123456+00:00\",\"published_at\":null}],\"pagination\":{\"page\":1,\"limit\":20,\"total\":1}}}"
+  },
+  {
+   "name": "search bad series",
+   "method": "GET",
+   "url": "/api/developer/v1/posts/search?series_id=not-a-number",
+   "status": 400,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_series_id\",\"message\":\"series_id must be a number.\",\"fields\":null}}"
+  },
+  {
+   "name": "search ignores a camelCase series filter",
+   "method": "GET",
+   "url": "/api/developer/v1/posts/search?seriesId=20",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"posts\":[{\"id\":1,\"title\":\"Title draft-needle\",\"subtitle\":\"sub_title\",\"url\":\"draft-needle\",\"public_url\":\"/@writer/draft-needle\",\"status\":\"draft\",\"tags\":[\"api\",\"snake_tag\"],\"series\":{\"id\":10,\"name\":\"Writer Series\",\"url\":\"writer-series\"},\"is_hidden\":false,\"is_advertise\":true,\"cover_layout\":\"split\",\"cover_image_position\":\"left\",\"cover_image_ratio\":\"16:9\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:09.123456+00:00\",\"published_at\":null},{\"id\":3,\"title\":\"Title public\",\"subtitle\":\"sub_title\",\"url\":\"public\",\"public_url\":\"/@writer/public\",\"status\":\"published\",\"tags\":[\"api\",\"snake_tag\"],\"series\":{\"id\":10,\"name\":\"Writer Series\",\"url\":\"writer-series\"},\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:07+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":4,\"title\":\"Title hidden\",\"subtitle\":\"sub_title\",\"url\":\"hidden\",\"public_url\":\"/@writer/hidden\",\"status\":\"hidden\",\"tags\":[],\"series\":null,\"is_hidden\":true,\"is_advertise\":false,\"cover_layout\":\"overlay\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"4:3\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:06+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":5,\"title\":\"Title scheduled\",\"subtitle\":\"sub_title\",\"url\":\"scheduled\",\"public_url\":\"/@writer/scheduled\",\"status\":\"scheduled\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:05+00:00\",\"published_at\":\"2099-01-01T00:00:00+00:00\"},{\"id\":7,\"title\":\"Title dry-run-target\",\"subtitle\":\"sub_title\",\"url\":\"dry-run-target\",\"public_url\":\"/@writer/dry-run-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:03+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":8,\"title\":\"Title delete-target\",\"subtitle\":\"sub_title\",\"url\":\"delete-target\",\"public_url\":\"/@writer/delete-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:02+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":9,\"title\":\"Title camel-delete-target\",\"subtitle\":\"sub_title\",\"url\":\"camel-delete-target\",\"public_url\":\"/@writer/camel-delete-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:01+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":12,\"title\":\"Title publish-target\",\"subtitle\":\"sub_title\",\"url\":\"publish-target\",\"public_url\":\"/@writer/publish-target\",\"status\":\"draft\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2024-12-31T00:00:00+00:00\",\"published_at\":null},{\"id\":13,\"title\":\"Title publish-empty-target\",\"subtitle\":\"sub_title\",\"url\":\"publish-empty-target\",\"public_url\":\"/@writer/publish-empty-target\",\"status\":\"draft\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2024-12-30T00:00:00+00:00\",\"published_at\":null},{\"id\":14,\"title\":\"Title update-target\",\"subtitle\":\"sub_title\",\"url\":\"update-target\",\"public_url\":\"/@writer/update-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2024-12-29T00:00:00+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"}],\"pagination\":{\"page\":1,\"limit\":20,\"total\":10}}}"
+  },
+  {
+   "name": "search ignores an uppercase query key",
+   "method": "GET",
+   "url": "/api/developer/v1/posts/search?Q=needle&SERIES_ID=20",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"posts\":[{\"id\":1,\"title\":\"Title draft-needle\",\"subtitle\":\"sub_title\",\"url\":\"draft-needle\",\"public_url\":\"/@writer/draft-needle\",\"status\":\"draft\",\"tags\":[\"api\",\"snake_tag\"],\"series\":{\"id\":10,\"name\":\"Writer Series\",\"url\":\"writer-series\"},\"is_hidden\":false,\"is_advertise\":true,\"cover_layout\":\"split\",\"cover_image_position\":\"left\",\"cover_image_ratio\":\"16:9\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:09.123456+00:00\",\"published_at\":null},{\"id\":3,\"title\":\"Title public\",\"subtitle\":\"sub_title\",\"url\":\"public\",\"public_url\":\"/@writer/public\",\"status\":\"published\",\"tags\":[\"api\",\"snake_tag\"],\"series\":{\"id\":10,\"name\":\"Writer Series\",\"url\":\"writer-series\"},\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:07+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":4,\"title\":\"Title hidden\",\"subtitle\":\"sub_title\",\"url\":\"hidden\",\"public_url\":\"/@writer/hidden\",\"status\":\"hidden\",\"tags\":[],\"series\":null,\"is_hidden\":true,\"is_advertise\":false,\"cover_layout\":\"overlay\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"4:3\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:06+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":5,\"title\":\"Title scheduled\",\"subtitle\":\"sub_title\",\"url\":\"scheduled\",\"public_url\":\"/@writer/scheduled\",\"status\":\"scheduled\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:05+00:00\",\"published_at\":\"2099-01-01T00:00:00+00:00\"},{\"id\":7,\"title\":\"Title dry-run-target\",\"subtitle\":\"sub_title\",\"url\":\"dry-run-target\",\"public_url\":\"/@writer/dry-run-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:03+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":8,\"title\":\"Title delete-target\",\"subtitle\":\"sub_title\",\"url\":\"delete-target\",\"public_url\":\"/@writer/delete-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:02+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":9,\"title\":\"Title camel-delete-target\",\"subtitle\":\"sub_title\",\"url\":\"camel-delete-target\",\"public_url\":\"/@writer/camel-delete-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:01+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"},{\"id\":12,\"title\":\"Title publish-target\",\"subtitle\":\"sub_title\",\"url\":\"publish-target\",\"public_url\":\"/@writer/publish-target\",\"status\":\"draft\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2024-12-31T00:00:00+00:00\",\"published_at\":null},{\"id\":13,\"title\":\"Title publish-empty-target\",\"subtitle\":\"sub_title\",\"url\":\"publish-empty-target\",\"public_url\":\"/@writer/publish-empty-target\",\"status\":\"draft\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2024-12-30T00:00:00+00:00\",\"published_at\":null},{\"id\":14,\"title\":\"Title update-target\",\"subtitle\":\"sub_title\",\"url\":\"update-target\",\"public_url\":\"/@writer/update-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2024-12-29T00:00:00+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"}],\"pagination\":{\"page\":1,\"limit\":20,\"total\":10}}}"
+  },
+  {
+   "name": "post detail",
+   "method": "GET",
+   "url": "/api/developer/v1/posts/1",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"id\":1,\"title\":\"Title draft-needle\",\"subtitle\":\"sub_title\",\"url\":\"draft-needle\",\"public_url\":\"/@writer/draft-needle\",\"status\":\"draft\",\"tags\":[\"api\",\"snake_tag\"],\"series\":{\"id\":10,\"name\":\"Writer Series\",\"url\":\"writer-series\"},\"is_hidden\":false,\"is_advertise\":true,\"cover_layout\":\"split\",\"cover_image_position\":\"left\",\"cover_image_ratio\":\"16:9\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:09.123456+00:00\",\"published_at\":null,\"description\":\"meta_description text\",\"content\":\"<p>needle some_key {\\\"inner_key\\\": 1}</p>\",\"content_html\":\"<p>needle some_key {\\\"inner_key\\\": 1}</p>\",\"rendered_html\":\"<p>needle some_key {\\\"inner_key\\\": 1}</p>\",\"read_time\":1}}"
+  },
+  {
+   "name": "post detail published",
+   "method": "GET",
+   "url": "/api/developer/v1/posts/3",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"id\":3,\"title\":\"Title public\",\"subtitle\":\"sub_title\",\"url\":\"public\",\"public_url\":\"/@writer/public\",\"status\":\"published\",\"tags\":[\"api\",\"snake_tag\"],\"series\":{\"id\":10,\"name\":\"Writer Series\",\"url\":\"writer-series\"},\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:07+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\",\"description\":\"meta_description text\",\"content\":\"<p>Body</p>\",\"content_html\":\"<p>Body</p>\",\"rendered_html\":\"<p>Body</p>\",\"read_time\":3}}"
+  },
+  {
+   "name": "post detail other owner",
+   "method": "GET",
+   "url": "/api/developer/v1/posts/2",
+   "status": 404,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"post.not_found\",\"message\":\"포스트를 찾을 수 없습니다.\",\"fields\":null}}"
+  },
+  {
+   "name": "post detail missing",
+   "method": "GET",
+   "url": "/api/developer/v1/posts/999",
+   "status": 404,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"post.not_found\",\"message\":\"포스트를 찾을 수 없습니다.\",\"fields\":null}}"
+  },
+  {
+   "name": "post detail trashed",
+   "method": "GET",
+   "url": "/api/developer/v1/posts/6",
+   "status": 404,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"post.not_found\",\"message\":\"포스트를 찾을 수 없습니다.\",\"fields\":null}}"
+  },
+  {
+   "name": "post detail bad id",
+   "method": "GET",
+   "url": "/api/developer/v1/posts/abc",
+   "status": 422,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_payload\",\"message\":\"The request payload could not be validated.\",\"fields\":{\"errors\":[{\"type\":\"int_parsing\",\"loc\":[\"query\",\"post_id\"],\"msg\":\"Input should be a valid integer, unable to parse string as an integer: 'abc'\",\"input\":\"abc\"}]}}}"
+  },
+  {
+   "name": "post detail head",
+   "method": "HEAD",
+   "url": "/api/developer/v1/posts/1",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": ""
+  },
+  {
+   "name": "post detail as a browser",
+   "method": "GET",
+   "url": "/api/developer/v1/posts/999",
+   "framework": true,
+   "status": 404,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "<omitted>"
+  },
+  {
+   "name": "tags",
+   "method": "GET",
+   "url": "/api/developer/v1/tags",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"tags\":[{\"name\":\"api\",\"post_count\":2},{\"name\":\"snake_tag\",\"post_count\":2}]}}"
+  },
+  {
+   "name": "series",
+   "method": "GET",
+   "url": "/api/developer/v1/series",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"series\":[{\"id\":10,\"name\":\"Writer Series\",\"url\":\"writer-series\",\"description\":\"A series_description\",\"is_hidden\":true,\"post_count\":2,\"created_at\":\"2020-01-02T03:04:05+00:00\",\"updated_at\":\"2020-02-03T04:05:06+00:00\"},{\"id\":11,\"name\":\"Second Series\",\"url\":\"second-series\",\"description\":\"\",\"is_hidden\":false,\"post_count\":0,\"created_at\":\"2020-01-02T03:04:05.123456+00:00\",\"updated_at\":\"2020-02-03T04:05:06+00:00\"}]}}"
+  },
+  {
+   "name": "unknown route",
+   "method": "GET",
+   "url": "/api/developer/v1/unknown",
+   "framework": true,
+   "status": 404,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"message\":\"Route GET:/api/developer/v1/unknown not found\",\"error\":\"Not Found\",\"statusCode\":404}"
+  },
+  {
+   "name": "create draft",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 201,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"id\":15,\"title\":\"snake_case title\",\"subtitle\":\"sub_title value\",\"url\":\"contract-draft\",\"public_url\":\"/@writer/contract-draft\",\"status\":\"draft\",\"tags\":[\"camelcasetag\",\"case\",\"snake\",\"tag\"],\"series\":{\"id\":10,\"name\":\"Writer Series\",\"url\":\"writer-series\"},\"is_hidden\":false,\"is_advertise\":true,\"cover_layout\":\"split\",\"cover_image_position\":\"left\",\"cover_image_ratio\":\"1:1\",\"created_at\":\"<now>\",\"updated_at\":\"<now>\",\"published_at\":null,\"description\":\"meta_key description\",\"content\":\"<h1>some_key</h1>\\n<p><code>foo_bar: {\\\"inner_key\\\": 1}</code> and camelCase</p>\",\"content_html\":\"<h1>some_key</h1>\\n<p><code>foo_bar: {\\\"inner_key\\\": 1}</code> and camelCase</p>\",\"rendered_html\":\"<h1>some_key</h1>\\n<p><code>foo_bar: {\\\"inner_key\\\": 1}</code> and camelCase</p>\",\"read_time\":1}}"
+  },
+  {
+   "name": "create from content_html",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 201,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"id\":16,\"title\":\"From html\",\"subtitle\":\"\",\"url\":\"from-html\",\"public_url\":\"/@writer/from-html\",\"status\":\"draft\",\"tags\":[\"one\",\"tag\",\"two\"],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"<now>\",\"updated_at\":\"<now>\",\"published_at\":null,\"description\":\"html_body\",\"content\":\"<p>html_body</p>\",\"content_html\":\"<p>html_body</p>\",\"rendered_html\":\"<p>html_body</p>\",\"read_time\":1}}"
+  },
+  {
+   "name": "create from text_md",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 201,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"id\":17,\"title\":\"From text md\",\"subtitle\":\"\",\"url\":\"from-text-md\",\"public_url\":\"/@writer/from-text-md\",\"status\":\"draft\",\"tags\":[],\"series\":{\"id\":11,\"name\":\"Second Series\",\"url\":\"second-series\"},\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"<now>\",\"updated_at\":\"<now>\",\"published_at\":null,\"description\":\"text_md\",\"content\":\"<p><strong>text_md</strong></p>\",\"content_html\":\"<p><strong>text_md</strong></p>\",\"rendered_html\":\"<p><strong>text_md</strong></p>\",\"read_time\":1}}"
+  },
+  {
+   "name": "create from text_html",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 201,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"id\":18,\"title\":\"From text html\",\"subtitle\":\"\",\"url\":\"from-text-html\",\"public_url\":\"/@writer/from-text-html\",\"status\":\"draft\",\"tags\":[],\"series\":null,\"is_hidden\":true,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"<now>\",\"updated_at\":\"<now>\",\"published_at\":null,\"description\":\"text_html\",\"content\":\"<p>text_html</p>\",\"content_html\":\"<p>text_html</p>\",\"rendered_html\":\"<p>text_html</p>\",\"read_time\":1}}"
+  },
+  {
+   "name": "create from content",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 201,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"id\":19,\"title\":\"From content\",\"subtitle\":\"\",\"url\":\"from-content\",\"public_url\":\"/@writer/from-content\",\"status\":\"draft\",\"tags\":[],\"series\":null,\"is_hidden\":true,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"<now>\",\"updated_at\":\"<now>\",\"published_at\":null,\"description\":\"em\",\"content\":\"<p><em>em</em></p>\",\"content_html\":\"<p><em>em</em></p>\",\"rendered_html\":\"<p><em>em</em></p>\",\"read_time\":1}}"
+  },
+  {
+   "name": "create scheduled",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 201,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"id\":20,\"title\":\"Scheduled post\",\"subtitle\":\"\",\"url\":\"contract-scheduled\",\"public_url\":\"/@writer/contract-scheduled\",\"status\":\"scheduled\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"<now>\",\"updated_at\":\"<now>\",\"published_at\":\"2098-05-06T07:08:09+00:00\",\"description\":\"Later\",\"content\":\"<p>Later</p>\",\"content_html\":\"<p>Later</p>\",\"rendered_html\":\"<p>Later</p>\",\"read_time\":1}}"
+  },
+  {
+   "name": "create published",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 201,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"id\":21,\"title\":\"Published post\",\"subtitle\":\"\",\"url\":\"contract-published\",\"public_url\":\"/@writer/contract-published\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"<now>\",\"updated_at\":\"<now>\",\"published_at\":\"<now>\",\"description\":\"Now\",\"content\":\"<p>Now</p>\",\"content_html\":\"<p>Now</p>\",\"rendered_html\":\"<p>Now</p>\",\"read_time\":1}}"
+  },
+  {
+   "name": "create ignores camelCase keys",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 201,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"id\":22,\"title\":\"Camel keys ignored\",\"subtitle\":\"\",\"url\":\"camel-ignored\",\"public_url\":\"/@writer/camel-ignored\",\"status\":\"draft\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"<now>\",\"updated_at\":\"<now>\",\"published_at\":null,\"description\":\"\",\"content\":\"\",\"content_html\":\"\",\"rendered_html\":\"\",\"read_time\":1}}"
+  },
+  {
+   "name": "create ignores malformed snake keys",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 201,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"id\":23,\"title\":\"Malformed keys ignored\",\"subtitle\":\"\",\"url\":\"malformed-ignored\",\"public_url\":\"/@writer/malformed-ignored\",\"status\":\"draft\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"<now>\",\"updated_at\":\"<now>\",\"published_at\":null,\"description\":\"\",\"content\":\"\",\"content_html\":\"\",\"rendered_html\":\"\",\"read_time\":1}}"
+  },
+  {
+   "name": "create with a null body field",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 201,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"id\":24,\"title\":\"Null content\",\"subtitle\":\"\",\"url\":\"null-content\",\"public_url\":\"/@writer/null-content\",\"status\":\"draft\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"<now>\",\"updated_at\":\"<now>\",\"published_at\":null,\"description\":\"\",\"content\":\"\",\"content_html\":\"\",\"rendered_html\":\"\",\"read_time\":1}}"
+  },
+  {
+   "name": "create invalid array",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 422,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_payload\",\"message\":\"The request payload could not be validated.\",\"fields\":{\"errors\":[{\"loc\":[\"body\",\"payload\",\"payload\"],\"msg\":\"Input should be a valid object\"}]}}}"
+  },
+  {
+   "name": "create invalid string field",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 422,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_payload\",\"message\":\"The request payload could not be validated.\",\"fields\":{\"errors\":[{\"loc\":[\"body\",\"payload\",\"title\"],\"msg\":\"Input should be a valid string\"}]}}}"
+  },
+  {
+   "name": "create invalid snake string field",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 422,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_payload\",\"message\":\"The request payload could not be validated.\",\"fields\":{\"errors\":[{\"loc\":[\"body\",\"payload\",\"content_html\"],\"msg\":\"Input should be a valid string\"}]}}}"
+  },
+  {
+   "name": "create invalid series_url",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 422,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_payload\",\"message\":\"The request payload could not be validated.\",\"fields\":{\"errors\":[{\"loc\":[\"body\",\"payload\",\"series_url\"],\"msg\":\"Input should be a valid string\"}]}}}"
+  },
+  {
+   "name": "create invalid expected_updated_at",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 422,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_payload\",\"message\":\"The request payload could not be validated.\",\"fields\":{\"errors\":[{\"loc\":[\"body\",\"payload\",\"expected_updated_at\"],\"msg\":\"Input should be a valid string\"}]}}}"
+  },
+  {
+   "name": "create invalid published_at",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 422,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_payload\",\"message\":\"The request payload could not be validated.\",\"fields\":{\"errors\":[{\"loc\":[\"body\",\"payload\",\"published_at\"],\"msg\":\"Input should be a valid string\"}]}}}"
+  },
+  {
+   "name": "create invalid cover_layout",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 422,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_payload\",\"message\":\"The request payload could not be validated.\",\"fields\":{\"errors\":[{\"loc\":[\"body\",\"payload\",\"cover_layout\"],\"msg\":\"Input should be one of default, split, overlay, none\"}]}}}"
+  },
+  {
+   "name": "create invalid cover_image_position",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 422,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_payload\",\"message\":\"The request payload could not be validated.\",\"fields\":{\"errors\":[{\"loc\":[\"body\",\"payload\",\"cover_image_position\"],\"msg\":\"Input should be one of left, right\"}]}}}"
+  },
+  {
+   "name": "create invalid cover_image_ratio",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 422,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_payload\",\"message\":\"The request payload could not be validated.\",\"fields\":{\"errors\":[{\"loc\":[\"body\",\"payload\",\"cover_image_ratio\"],\"msg\":\"Input should be one of auto, 16:9, 4:3, 1:1, 3:4\"}]}}}"
+  },
+  {
+   "name": "create invalid content_type",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 422,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_payload\",\"message\":\"The request payload could not be validated.\",\"fields\":{\"errors\":[{\"loc\":[\"body\",\"payload\",\"content_type\"],\"msg\":\"Input should be one of markdown, html\"}]}}}"
+  },
+  {
+   "name": "create invalid status",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 422,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_payload\",\"message\":\"The request payload could not be validated.\",\"fields\":{\"errors\":[{\"loc\":[\"body\",\"payload\",\"status\"],\"msg\":\"Input should be one of draft, published, scheduled\"}]}}}"
+  },
+  {
+   "name": "create null status",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 400,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"post.invalid_status\",\"message\":\"status must be one of draft, published, or scheduled.\",\"fields\":null}}"
+  },
+  {
+   "name": "create scheduled without time",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 400,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"post.missing_published_at\",\"message\":\"published_at is required when status is scheduled.\",\"fields\":null}}"
+  },
+  {
+   "name": "create null content_type",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 400,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"post.invalid_content_type\",\"message\":\"content_type must be either html or markdown.\",\"fields\":null}}"
+  },
+  {
+   "name": "create invalid tags",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 422,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_payload\",\"message\":\"The request payload could not be validated.\",\"fields\":{\"errors\":[{\"loc\":[\"body\",\"payload\",\"tags\"],\"msg\":\"Input should be a string or list of strings\"}]}}}"
+  },
+  {
+   "name": "create invalid is_hidden",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 422,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_payload\",\"message\":\"The request payload could not be validated.\",\"fields\":{\"errors\":[{\"loc\":[\"body\",\"payload\",\"is_hidden\"],\"msg\":\"Input should be a valid boolean\"}]}}}"
+  },
+  {
+   "name": "create invalid is_hide",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 422,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_payload\",\"message\":\"The request payload could not be validated.\",\"fields\":{\"errors\":[{\"loc\":[\"body\",\"payload\",\"is_hidden\"],\"msg\":\"Input should be a valid boolean\"}]}}}"
+  },
+  {
+   "name": "create invalid is_advertise",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 422,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_payload\",\"message\":\"The request payload could not be validated.\",\"fields\":{\"errors\":[{\"loc\":[\"body\",\"payload\",\"is_advertise\"],\"msg\":\"Input should be a valid boolean\"}]}}}"
+  },
+  {
+   "name": "create invalid series_id",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 422,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_payload\",\"message\":\"The request payload could not be validated.\",\"fields\":{\"errors\":[{\"loc\":[\"body\",\"payload\",\"series_id\"],\"msg\":\"Input should be a valid integer\"}]}}}"
+  },
+  {
+   "name": "create unknown series_id",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 404,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"post.series_not_found\",\"message\":\"No series matches series_id.\",\"fields\":null}}"
+  },
+  {
+   "name": "create other owner series_id",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 404,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"post.series_not_found\",\"message\":\"No series matches series_id.\",\"fields\":null}}"
+  },
+  {
+   "name": "create missing title",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 201,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"id\":25,\"title\":\"Untitled\",\"subtitle\":\"\",\"url\":\"untitled\",\"public_url\":\"/@writer/untitled\",\"status\":\"draft\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"<now>\",\"updated_at\":\"<now>\",\"published_at\":null,\"description\":\"x\",\"content\":\"<p>x</p>\",\"content_html\":\"<p>x</p>\",\"rendered_html\":\"<p>x</p>\",\"read_time\":1}}"
+  },
+  {
+   "name": "create malformed json",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "framework": true,
+   "status": 400,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"statusCode\":400,\"code\":\"FST_ERR_CTP_INVALID_JSON_BODY\",\"error\":\"Bad Request\",\"message\":\"Body is not valid JSON but content-type is set to 'application/json'\"}"
+  },
+  {
+   "name": "create prototype key",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "framework": true,
+   "status": 400,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"statusCode\":400,\"code\":\"FST_ERR_CTP_INVALID_JSON_BODY\",\"error\":\"Bad Request\",\"message\":\"Body is not valid JSON but content-type is set to 'application/json'\"}"
+  },
+  {
+   "name": "create text body",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 422,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_payload\",\"message\":\"The request payload could not be validated.\",\"fields\":{\"errors\":[{\"loc\":[\"body\",\"payload\",\"payload\"],\"msg\":\"Input should be a valid object\"}]}}}"
+  },
+  {
+   "name": "create form body",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "framework": true,
+   "status": 415,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"statusCode\":415,\"code\":\"FST_ERR_CTP_INVALID_MEDIA_TYPE\",\"error\":\"Unsupported Media Type\",\"message\":\"Unsupported Media Type\"}"
+  },
+  {
+   "name": "create too large",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "framework": true,
+   "status": 413,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"statusCode\":413,\"code\":\"FST_ERR_CTP_BODY_TOO_LARGE\",\"error\":\"Payload Too Large\",\"message\":\"Request body is too large\"}"
+  },
+  {
+   "name": "create deeply nested",
+   "method": "POST",
+   "url": "/api/developer/v1/posts",
+   "status": 201,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"id\":26,\"title\":\"Untitled\",\"subtitle\":\"\",\"url\":\"untitled-<suffix>\",\"public_url\":\"/@writer/untitled-<suffix>\",\"status\":\"draft\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"<now>\",\"updated_at\":\"<now>\",\"published_at\":null,\"description\":\"\",\"content\":\"\",\"content_html\":\"\",\"rendered_html\":\"\",\"read_time\":1}}"
+  },
+  {
+   "name": "read before update",
+   "method": "GET",
+   "url": "/api/developer/v1/posts/14",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"id\":14,\"title\":\"Title update-target\",\"subtitle\":\"sub_title\",\"url\":\"update-target\",\"public_url\":\"/@writer/update-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2024-12-29T00:00:00+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\",\"description\":\"meta_description text\",\"content\":\"<p>Body</p>\",\"content_html\":\"<p>Body</p>\",\"rendered_html\":\"<p>Body</p>\",\"read_time\":14}}"
+  },
+  {
+   "name": "update stale version",
+   "method": "PATCH",
+   "url": "/api/developer/v1/posts/14",
+   "status": 409,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"post.version_conflict\",\"message\":\"The post was already updated by another request.\",\"fields\":{\"expected_updated_at\":\"2001-01-01T00:00:00+00:00\",\"actual_updated_at\":\"2024-12-29T00:00:00+00:00\",\"post_id\":14}}}"
+  },
+  {
+   "name": "update",
+   "method": "PATCH",
+   "url": "/api/developer/v1/posts/14",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"id\":14,\"title\":\"Updated_title\",\"subtitle\":\"new_sub\",\"url\":\"update-target\",\"public_url\":\"/@writer/update-target\",\"status\":\"published\",\"tags\":[\"new\",\"tag\"],\"series\":{\"id\":11,\"name\":\"Second Series\",\"url\":\"second-series\"},\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"none\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"<now>\",\"published_at\":\"2020-01-01T00:00:00+00:00\",\"description\":\"new_body\",\"content\":\"<p>new_body</p>\",\"content_html\":\"<p>new_body</p>\",\"rendered_html\":\"<p>new_body</p>\",\"read_time\":1}}"
+  },
+  {
+   "name": "update ignores published_at",
+   "method": "PATCH",
+   "url": "/api/developer/v1/posts/14",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"id\":14,\"title\":\"Updated_title\",\"subtitle\":\"new_sub\",\"url\":\"update-target\",\"public_url\":\"/@writer/update-target\",\"status\":\"published\",\"tags\":[\"new\",\"tag\"],\"series\":{\"id\":11,\"name\":\"Second Series\",\"url\":\"second-series\"},\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"none\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"<now>\",\"published_at\":\"2020-01-01T00:00:00+00:00\",\"description\":\"new_body\",\"content\":\"<p>new_body</p>\",\"content_html\":\"<p>new_body</p>\",\"rendered_html\":\"<p>new_body</p>\",\"read_time\":1}}"
+  },
+  {
+   "name": "update clears tags",
+   "method": "PATCH",
+   "url": "/api/developer/v1/posts/14",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"id\":14,\"title\":\"Updated_title\",\"subtitle\":\"new_sub\",\"url\":\"update-target\",\"public_url\":\"/@writer/update-target\",\"status\":\"published\",\"tags\":[],\"series\":{\"id\":11,\"name\":\"Second Series\",\"url\":\"second-series\"},\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"none\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"<now>\",\"published_at\":\"2020-01-01T00:00:00+00:00\",\"description\":\"new_body\",\"content\":\"<p>new_body</p>\",\"content_html\":\"<p>new_body</p>\",\"rendered_html\":\"<p>new_body</p>\",\"read_time\":1}}"
+  },
+  {
+   "name": "update null tags",
+   "method": "PATCH",
+   "url": "/api/developer/v1/posts/14",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"id\":14,\"title\":\"Updated_title\",\"subtitle\":\"new_sub\",\"url\":\"update-target\",\"public_url\":\"/@writer/update-target\",\"status\":\"published\",\"tags\":[],\"series\":{\"id\":11,\"name\":\"Second Series\",\"url\":\"second-series\"},\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"none\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"<now>\",\"published_at\":\"2020-01-01T00:00:00+00:00\",\"description\":\"new_body\",\"content\":\"<p>new_body</p>\",\"content_html\":\"<p>new_body</p>\",\"rendered_html\":\"<p>new_body</p>\",\"read_time\":1}}"
+  },
+  {
+   "name": "update with empty series",
+   "method": "PATCH",
+   "url": "/api/developer/v1/posts/14",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"id\":14,\"title\":\"Updated_title\",\"subtitle\":\"new_sub\",\"url\":\"update-target\",\"public_url\":\"/@writer/update-target\",\"status\":\"published\",\"tags\":[],\"series\":{\"id\":11,\"name\":\"Second Series\",\"url\":\"second-series\"},\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"none\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"<now>\",\"published_at\":\"2020-01-01T00:00:00+00:00\",\"description\":\"new_body\",\"content\":\"<p>new_body</p>\",\"content_html\":\"<p>new_body</p>\",\"rendered_html\":\"<p>new_body</p>\",\"read_time\":1}}"
+  },
+  {
+   "name": "update with string series",
+   "method": "PATCH",
+   "url": "/api/developer/v1/posts/14",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"id\":14,\"title\":\"Updated_title\",\"subtitle\":\"new_sub\",\"url\":\"update-target\",\"public_url\":\"/@writer/update-target\",\"status\":\"published\",\"tags\":[],\"series\":{\"id\":10,\"name\":\"Writer Series\",\"url\":\"writer-series\"},\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"none\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"<now>\",\"published_at\":\"2020-01-01T00:00:00+00:00\",\"description\":\"new_body\",\"content\":\"<p>new_body</p>\",\"content_html\":\"<p>new_body</p>\",\"rendered_html\":\"<p>new_body</p>\",\"read_time\":1}}"
+  },
+  {
+   "name": "update ignores camelCase version",
+   "method": "PATCH",
+   "url": "/api/developer/v1/posts/14",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"id\":14,\"title\":\"Updated_title\",\"subtitle\":\"kept\",\"url\":\"update-target\",\"public_url\":\"/@writer/update-target\",\"status\":\"published\",\"tags\":[],\"series\":{\"id\":10,\"name\":\"Writer Series\",\"url\":\"writer-series\"},\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"none\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"<now>\",\"published_at\":\"2020-01-01T00:00:00+00:00\",\"description\":\"new_body\",\"content\":\"<p>new_body</p>\",\"content_html\":\"<p>new_body</p>\",\"rendered_html\":\"<p>new_body</p>\",\"read_time\":1}}"
+  },
+  {
+   "name": "update invalid",
+   "method": "PATCH",
+   "url": "/api/developer/v1/posts/14",
+   "status": 422,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_payload\",\"message\":\"The request payload could not be validated.\",\"fields\":{\"errors\":[{\"loc\":[\"body\",\"payload\",\"cover_layout\"],\"msg\":\"Input should be one of default, split, overlay, none\"}]}}}"
+  },
+  {
+   "name": "update other owner",
+   "method": "PATCH",
+   "url": "/api/developer/v1/posts/2",
+   "status": 404,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"post.not_found\",\"message\":\"포스트를 찾을 수 없습니다.\",\"fields\":null}}"
+  },
+  {
+   "name": "update missing",
+   "method": "PATCH",
+   "url": "/api/developer/v1/posts/999",
+   "status": 404,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"post.not_found\",\"message\":\"포스트를 찾을 수 없습니다.\",\"fields\":null}}"
+  },
+  {
+   "name": "update bad id",
+   "method": "PATCH",
+   "url": "/api/developer/v1/posts/abc",
+   "status": 422,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_payload\",\"message\":\"The request payload could not be validated.\",\"fields\":{\"errors\":[{\"type\":\"int_parsing\",\"loc\":[\"query\",\"post_id\"],\"msg\":\"Input should be a valid integer, unable to parse string as an integer: 'abc'\",\"input\":\"abc\"}]}}}"
+  },
+  {
+   "name": "update without write scope",
+   "method": "PATCH",
+   "url": "/api/developer/v1/posts/14",
+   "status": 403,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"auth.insufficient_scope\",\"message\":\"posts:write scope is required.\",\"fields\":null}}"
+  },
+  {
+   "name": "publish",
+   "method": "POST",
+   "url": "/api/developer/v1/posts/12/publish",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"id\":12,\"title\":\"Published_title\",\"subtitle\":\"sub_title\",\"url\":\"publish-target\",\"public_url\":\"/@writer/publish-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":true,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"<now>\",\"published_at\":\"<now>\",\"description\":\"meta_description text\",\"content\":\"<p>Body</p>\",\"content_html\":\"<p>Body</p>\",\"rendered_html\":\"<p>Body</p>\",\"read_time\":1}}"
+  },
+  {
+   "name": "publish empty body",
+   "method": "POST",
+   "url": "/api/developer/v1/posts/13/publish",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"id\":13,\"title\":\"Title publish-empty-target\",\"subtitle\":\"sub_title\",\"url\":\"publish-empty-target\",\"public_url\":\"/@writer/publish-empty-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"<now>\",\"published_at\":\"<now>\",\"description\":\"meta_description text\",\"content\":\"<p>Body</p>\",\"content_html\":\"<p>Body</p>\",\"rendered_html\":\"<p>Body</p>\",\"read_time\":1}}"
+  },
+  {
+   "name": "publish twice",
+   "method": "POST",
+   "url": "/api/developer/v1/posts/12/publish",
+   "status": 409,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"post.not_draft\",\"message\":\"This post has already been published or scheduled.\",\"fields\":null}}"
+  },
+  {
+   "name": "publish other owner",
+   "method": "POST",
+   "url": "/api/developer/v1/posts/2/publish",
+   "status": 404,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"post.not_found\",\"message\":\"포스트를 찾을 수 없습니다.\",\"fields\":null}}"
+  },
+  {
+   "name": "publish bad id",
+   "method": "POST",
+   "url": "/api/developer/v1/posts/abc/publish",
+   "status": 422,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_payload\",\"message\":\"The request payload could not be validated.\",\"fields\":{\"errors\":[{\"type\":\"int_parsing\",\"loc\":[\"query\",\"post_id\"],\"msg\":\"Input should be a valid integer, unable to parse string as an integer: 'abc'\",\"input\":\"abc\"}]}}}"
+  },
+  {
+   "name": "publish invalid",
+   "method": "POST",
+   "url": "/api/developer/v1/posts/1/publish",
+   "status": 422,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_payload\",\"message\":\"The request payload could not be validated.\",\"fields\":{\"errors\":[{\"loc\":[\"body\",\"payload\",\"published_at\"],\"msg\":\"Input should be a valid string\"}]}}}"
+  },
+  {
+   "name": "delete dry run",
+   "method": "DELETE",
+   "url": "/api/developer/v1/posts/7?dry_run=true",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"can_delete\":true,\"post\":{\"id\":7,\"title\":\"Title dry-run-target\",\"subtitle\":\"sub_title\",\"url\":\"dry-run-target\",\"public_url\":\"/@writer/dry-run-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:03+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"}}}"
+  },
+  {
+   "name": "delete dry run one",
+   "method": "DELETE",
+   "url": "/api/developer/v1/posts/7?dry_run=1",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"can_delete\":true,\"post\":{\"id\":7,\"title\":\"Title dry-run-target\",\"subtitle\":\"sub_title\",\"url\":\"dry-run-target\",\"public_url\":\"/@writer/dry-run-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:03+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"}}}"
+  },
+  {
+   "name": "delete dry run repeated",
+   "method": "DELETE",
+   "url": "/api/developer/v1/posts/7?dry_run=false&dry_run=YES",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"can_delete\":true,\"post\":{\"id\":7,\"title\":\"Title dry-run-target\",\"subtitle\":\"sub_title\",\"url\":\"dry-run-target\",\"public_url\":\"/@writer/dry-run-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:03+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\"}}}"
+  },
+  {
+   "name": "delete dry run invalid",
+   "method": "DELETE",
+   "url": "/api/developer/v1/posts/7?dry_run=maybe",
+   "status": 422,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_payload\",\"message\":\"The request payload could not be validated.\",\"fields\":{\"errors\":[{\"type\":\"int_parsing\",\"loc\":[\"query\",\"dry_run\"],\"msg\":\"Input should be a valid integer, unable to parse string as an integer: 'maybe'\",\"input\":\"maybe\"}]}}}"
+  },
+  {
+   "name": "post survives dry run",
+   "method": "GET",
+   "url": "/api/developer/v1/posts/7",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"id\":7,\"title\":\"Title dry-run-target\",\"subtitle\":\"sub_title\",\"url\":\"dry-run-target\",\"public_url\":\"/@writer/dry-run-target\",\"status\":\"published\",\"tags\":[],\"series\":null,\"is_hidden\":false,\"is_advertise\":false,\"cover_layout\":\"default\",\"cover_image_position\":\"right\",\"cover_image_ratio\":\"auto\",\"created_at\":\"2020-01-01T00:00:00+00:00\",\"updated_at\":\"2025-01-01T00:00:03+00:00\",\"published_at\":\"2020-01-01T00:00:00+00:00\",\"description\":\"meta_description text\",\"content\":\"<p>Body</p>\",\"content_html\":\"<p>Body</p>\",\"rendered_html\":\"<p>Body</p>\",\"read_time\":7}}"
+  },
+  {
+   "name": "delete with dry run false",
+   "method": "DELETE",
+   "url": "/api/developer/v1/posts/7?dry_run=false",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"deleted\":true,\"trashed\":true,\"id\":7,\"deleted_at\":\"<now>\"}}"
+  },
+  {
+   "name": "delete",
+   "method": "DELETE",
+   "url": "/api/developer/v1/posts/8",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"deleted\":true,\"trashed\":true,\"id\":8,\"deleted_at\":\"<now>\"}}"
+  },
+  {
+   "name": "delete twice",
+   "method": "DELETE",
+   "url": "/api/developer/v1/posts/8",
+   "status": 404,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"post.not_found\",\"message\":\"포스트를 찾을 수 없습니다.\",\"fields\":null}}"
+  },
+  {
+   "name": "camelCase dry run is not a dry run",
+   "method": "DELETE",
+   "url": "/api/developer/v1/posts/9?dryRun=true",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"deleted\":true,\"trashed\":true,\"id\":9,\"deleted_at\":\"<now>\"}}"
+  },
+  {
+   "name": "camelCase dry run removed the post",
+   "method": "GET",
+   "url": "/api/developer/v1/posts/9",
+   "status": 404,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"post.not_found\",\"message\":\"포스트를 찾을 수 없습니다.\",\"fields\":null}}"
+  },
+  {
+   "name": "delete other owner",
+   "method": "DELETE",
+   "url": "/api/developer/v1/posts/2",
+   "status": 404,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"post.not_found\",\"message\":\"포스트를 찾을 수 없습니다.\",\"fields\":null}}"
+  },
+  {
+   "name": "delete bad id",
+   "method": "DELETE",
+   "url": "/api/developer/v1/posts/abc",
+   "status": 422,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"request.invalid_payload\",\"message\":\"The request payload could not be validated.\",\"fields\":{\"errors\":[{\"type\":\"int_parsing\",\"loc\":[\"query\",\"post_id\"],\"msg\":\"Input should be a valid integer, unable to parse string as an integer: 'abc'\",\"input\":\"abc\"}]}}}"
+  },
+  {
+   "name": "delete without write scope",
+   "method": "DELETE",
+   "url": "/api/developer/v1/posts/3",
+   "status": 403,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"auth.insufficient_scope\",\"message\":\"posts:write scope is required.\",\"fields\":null}}"
+  },
+  {
+   "name": "image upload",
+   "method": "POST",
+   "url": "/api/developer/v1/images",
+   "status": 201,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"url\":\"/resources/media/<uploaded-file>\"}}"
+  },
+  {
+   "name": "image upload deduplicated",
+   "method": "POST",
+   "url": "/api/developer/v1/images",
+   "status": 201,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"data\":{\"url\":\"/resources/media/<uploaded-file>\"}}"
+  },
+  {
+   "name": "image bad extension",
+   "method": "POST",
+   "url": "/api/developer/v1/images",
+   "status": 400,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"image.invalid_extension\",\"message\":\"This file extension is not allowed.\",\"fields\":null}}"
+  },
+  {
+   "name": "image wrong field",
+   "method": "POST",
+   "url": "/api/developer/v1/images",
+   "status": 400,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"image.missing\",\"message\":\"No image was provided.\",\"fields\":null}}"
+  },
+  {
+   "name": "image not multipart",
+   "method": "POST",
+   "url": "/api/developer/v1/images",
+   "status": 400,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"image.missing\",\"message\":\"No image was provided.\",\"fields\":null}}"
+  },
+  {
+   "name": "image without write scope",
+   "method": "POST",
+   "url": "/api/developer/v1/images",
+   "status": 403,
+   "headers": {
+    "content-type": "application/json; charset=utf-8",
+    "x-frame-options": "DENY",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "same-origin",
+    "cross-origin-opener-policy": "same-origin"
+   },
+   "body": "{\"error\":{\"code\":\"auth.insufficient_scope\",\"message\":\"posts:write scope is required.\",\"fields\":null}}"
+  }
+ ],
+ "requests": [
+  {
+   "id": 1,
+   "method": "GET",
+   "path": "/api/developer/v1/me",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 2,
+   "method": "GET",
+   "path": "/api/developer/v1/me",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 3,
+   "userId": 1
+  },
+  {
+   "id": 3,
+   "method": "GET",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 403,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 3,
+   "userId": 1
+  },
+  {
+   "id": 4,
+   "method": "GET",
+   "path": "/api/developer/v1/posts/search",
+   "statusCode": 403,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 3,
+   "userId": 1
+  },
+  {
+   "id": 5,
+   "method": "GET",
+   "path": "/api/developer/v1/posts/1",
+   "statusCode": 403,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 3,
+   "userId": 1
+  },
+  {
+   "id": 6,
+   "method": "GET",
+   "path": "/api/developer/v1/tags",
+   "statusCode": 403,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 3,
+   "userId": 1
+  },
+  {
+   "id": 7,
+   "method": "GET",
+   "path": "/api/developer/v1/series",
+   "statusCode": 403,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 3,
+   "userId": 1
+  },
+  {
+   "id": 8,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 403,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 9,
+   "method": "GET",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 403,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 4,
+   "userId": 1
+  },
+  {
+   "id": 10,
+   "method": "GET",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 11,
+   "method": "GET",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 12,
+   "method": "GET",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 13,
+   "method": "GET",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 14,
+   "method": "GET",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 15,
+   "method": "GET",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 16,
+   "method": "GET",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 17,
+   "method": "GET",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 18,
+   "method": "GET",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 422,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 19,
+   "method": "GET",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 422,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 20,
+   "method": "GET",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 400,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 21,
+   "method": "GET",
+   "path": "/api/developer/v1/posts/search",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 22,
+   "method": "GET",
+   "path": "/api/developer/v1/posts/search",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 23,
+   "method": "GET",
+   "path": "/api/developer/v1/posts/search",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 24,
+   "method": "GET",
+   "path": "/api/developer/v1/posts/search",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 25,
+   "method": "GET",
+   "path": "/api/developer/v1/posts/search",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 26,
+   "method": "GET",
+   "path": "/api/developer/v1/posts/search",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 27,
+   "method": "GET",
+   "path": "/api/developer/v1/posts/search",
+   "statusCode": 400,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 28,
+   "method": "GET",
+   "path": "/api/developer/v1/posts/search",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 29,
+   "method": "GET",
+   "path": "/api/developer/v1/posts/search",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 30,
+   "method": "GET",
+   "path": "/api/developer/v1/posts/1",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 31,
+   "method": "GET",
+   "path": "/api/developer/v1/posts/3",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 32,
+   "method": "GET",
+   "path": "/api/developer/v1/posts/2",
+   "statusCode": 404,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 33,
+   "method": "GET",
+   "path": "/api/developer/v1/posts/999",
+   "statusCode": 404,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 34,
+   "method": "GET",
+   "path": "/api/developer/v1/posts/6",
+   "statusCode": 404,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 35,
+   "method": "GET",
+   "path": "/api/developer/v1/posts/abc",
+   "statusCode": 422,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 36,
+   "method": "HEAD",
+   "path": "/api/developer/v1/posts/1",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 37,
+   "method": "GET",
+   "path": "/api/developer/v1/posts/999",
+   "statusCode": 404,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 38,
+   "method": "GET",
+   "path": "/api/developer/v1/tags",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 39,
+   "method": "GET",
+   "path": "/api/developer/v1/series",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 40,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 201,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 41,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 201,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 42,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 201,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 43,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 201,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 44,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 201,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 45,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 201,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 46,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 201,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 47,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 201,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 48,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 201,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 49,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 201,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 50,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 422,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 51,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 422,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 52,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 422,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 53,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 422,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 54,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 422,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 55,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 422,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 56,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 422,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 57,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 422,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 58,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 422,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 59,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 422,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 60,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 422,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 61,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 400,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 62,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 400,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 63,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 400,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 64,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 422,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 65,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 422,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 66,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 422,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 67,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 422,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 68,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 422,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 69,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 404,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 70,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 404,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 71,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 201,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 72,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 422,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 73,
+   "method": "POST",
+   "path": "/api/developer/v1/posts",
+   "statusCode": 201,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 74,
+   "method": "GET",
+   "path": "/api/developer/v1/posts/14",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 75,
+   "method": "PATCH",
+   "path": "/api/developer/v1/posts/14",
+   "statusCode": 409,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 76,
+   "method": "PATCH",
+   "path": "/api/developer/v1/posts/14",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 77,
+   "method": "PATCH",
+   "path": "/api/developer/v1/posts/14",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 78,
+   "method": "PATCH",
+   "path": "/api/developer/v1/posts/14",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 79,
+   "method": "PATCH",
+   "path": "/api/developer/v1/posts/14",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 80,
+   "method": "PATCH",
+   "path": "/api/developer/v1/posts/14",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 81,
+   "method": "PATCH",
+   "path": "/api/developer/v1/posts/14",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 82,
+   "method": "PATCH",
+   "path": "/api/developer/v1/posts/14",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 83,
+   "method": "PATCH",
+   "path": "/api/developer/v1/posts/14",
+   "statusCode": 422,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 84,
+   "method": "PATCH",
+   "path": "/api/developer/v1/posts/2",
+   "statusCode": 404,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 85,
+   "method": "PATCH",
+   "path": "/api/developer/v1/posts/999",
+   "statusCode": 404,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 86,
+   "method": "PATCH",
+   "path": "/api/developer/v1/posts/abc",
+   "statusCode": 422,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 87,
+   "method": "PATCH",
+   "path": "/api/developer/v1/posts/14",
+   "statusCode": 403,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 88,
+   "method": "POST",
+   "path": "/api/developer/v1/posts/12/publish",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 89,
+   "method": "POST",
+   "path": "/api/developer/v1/posts/13/publish",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 90,
+   "method": "POST",
+   "path": "/api/developer/v1/posts/12/publish",
+   "statusCode": 409,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 91,
+   "method": "POST",
+   "path": "/api/developer/v1/posts/2/publish",
+   "statusCode": 404,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 92,
+   "method": "POST",
+   "path": "/api/developer/v1/posts/abc/publish",
+   "statusCode": 422,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 93,
+   "method": "POST",
+   "path": "/api/developer/v1/posts/1/publish",
+   "statusCode": 422,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 94,
+   "method": "DELETE",
+   "path": "/api/developer/v1/posts/7",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 95,
+   "method": "DELETE",
+   "path": "/api/developer/v1/posts/7",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 96,
+   "method": "DELETE",
+   "path": "/api/developer/v1/posts/7",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 97,
+   "method": "DELETE",
+   "path": "/api/developer/v1/posts/7",
+   "statusCode": 422,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 98,
+   "method": "GET",
+   "path": "/api/developer/v1/posts/7",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 99,
+   "method": "DELETE",
+   "path": "/api/developer/v1/posts/7",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 100,
+   "method": "DELETE",
+   "path": "/api/developer/v1/posts/8",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 101,
+   "method": "DELETE",
+   "path": "/api/developer/v1/posts/8",
+   "statusCode": 404,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 102,
+   "method": "DELETE",
+   "path": "/api/developer/v1/posts/9",
+   "statusCode": 200,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 103,
+   "method": "GET",
+   "path": "/api/developer/v1/posts/9",
+   "statusCode": 404,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 104,
+   "method": "DELETE",
+   "path": "/api/developer/v1/posts/2",
+   "statusCode": 404,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 105,
+   "method": "DELETE",
+   "path": "/api/developer/v1/posts/abc",
+   "statusCode": 422,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 106,
+   "method": "DELETE",
+   "path": "/api/developer/v1/posts/3",
+   "statusCode": 403,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  },
+  {
+   "id": 107,
+   "method": "POST",
+   "path": "/api/developer/v1/images",
+   "statusCode": 201,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 108,
+   "method": "POST",
+   "path": "/api/developer/v1/images",
+   "statusCode": 201,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 109,
+   "method": "POST",
+   "path": "/api/developer/v1/images",
+   "statusCode": 400,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 110,
+   "method": "POST",
+   "path": "/api/developer/v1/images",
+   "statusCode": 400,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 111,
+   "method": "POST",
+   "path": "/api/developer/v1/images",
+   "statusCode": 400,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 1,
+   "userId": 1
+  },
+  {
+   "id": 112,
+   "method": "POST",
+   "path": "/api/developer/v1/images",
+   "statusCode": 403,
+   "ipAddress": "127.0.0.1",
+   "userAgent": "contract-client/1.0",
+   "tokenId": 2,
+   "userId": 1
+  }
+ ],
+ "usage": [
+  {
+   "id": 1,
+   "used": 1,
+   "lastUsedIp": "127.0.0.1",
+   "updatedWithUse": 1
+  },
+  {
+   "id": 2,
+   "used": 1,
+   "lastUsedIp": "127.0.0.1",
+   "updatedWithUse": 1
+  },
+  {
+   "id": 3,
+   "used": 1,
+   "lastUsedIp": "127.0.0.1",
+   "updatedWithUse": 1
+  },
+  {
+   "id": 4,
+   "used": 1,
+   "lastUsedIp": "127.0.0.1",
+   "updatedWithUse": 1
+  },
+  {
+   "id": 5,
+   "used": 0,
+   "lastUsedIp": null,
+   "updatedWithUse": null
+  },
+  {
+   "id": 6,
+   "used": 0,
+   "lastUsedIp": null,
+   "updatedWithUse": null
+  },
+  {
+   "id": 7,
+   "used": 0,
+   "lastUsedIp": null,
+   "updatedWithUse": null
+  },
+  {
+   "id": 8,
+   "used": 0,
+   "lastUsedIp": null,
+   "updatedWithUse": null
+  },
+  {
+   "id": 9,
+   "used": 0,
+   "lastUsedIp": null,
+   "updatedWithUse": null
+  }
+ ]
+}

@@ -92,7 +92,7 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     assert.match(headersFor(editor, siteUrl).cookie, /blexsessionid=/);
     const tokenUrl = '/v1/developer-tokens';
     const editorSession = headersFor(editor, siteUrl);
-    const credentials = { name: 'Test automation', scopes: ['posts:read', 'posts:write'], expires_in_days: 30 };
+    const credentials = { name: 'Test automation', scopes: ['posts:read', 'posts:write'], expiresInDays: 30 };
     assert.equal((await app.inject({ method: 'POST', url: tokenUrl, headers: editorSession, payload: credentials })).json().errorCode, 'error:RE');
     const identityProof = await app.inject({ method: 'POST', url: '/reauthenticate', headers: editorSession, payload: { password } });
     const verified = headersFor(identityProof, siteUrl);

@@ -167,9 +167,7 @@ export async function readUtilityStats(db: PrismaClient): Promise<Record<string,
   `);
   const imageCacheCount = await db.uploadedImage.count();
   const logCount = await db.adminLog.count();
-  const [developerLogs] = await db.$queryRaw<Array<{ total: number | bigint }>>`
-    SELECT COUNT(*) AS total FROM board_developerrequestlog
-  `;
+  const developerRequestLogCount = await db.developerRequestLog.count();
   let dbSize = 'N/A';
   try {
     const [pageCount] = await db.$queryRaw<Array<{ page_count: number | bigint }>>`PRAGMA page_count`;
@@ -182,7 +180,7 @@ export async function readUtilityStats(db: PrismaClient): Promise<Record<string,
     ...Object.fromEntries(Object.entries(stats ?? {}).map(([key, value]) => [key, Number(value)])),
     imageCacheCount,
     logCount,
-    developerRequestLogCount: Number(developerLogs?.total ?? 0),
+    developerRequestLogCount,
     dbSize,
   };
 }
@@ -255,24 +253,22 @@ async function runUtilityCleanup(
   const adminRetention = retentionDays('ADMIN_AUDIT_LOG_RETENTION_DAYS', 365);
   const developerRetention = retentionDays('DEVELOPER_API_LOG_RETENTION_DAYS', 30);
   const adminCutoff = new Date(Date.now() - adminRetention * 24 * 60 * 60 * 1000);
-  const developerCutoff = djangoTimestamp(new Date(Date.now() - developerRetention * 24 * 60 * 60 * 1000));
+  const developerCutoff = new Date(Date.now() - developerRetention * 24 * 60 * 60 * 1000);
   const logCount = await db.adminLog.count();
   const expiredLogCount = await db.adminLog.count({ where: { createdAt: { lt: adminCutoff } } });
-  const [developer] = await db.$queryRaw<Array<{ total: number | bigint; expired: number | bigint }>>`
-    SELECT (SELECT COUNT(*) FROM board_developerrequestlog) AS total,
-      (SELECT COUNT(*) FROM board_developerrequestlog WHERE created_date < ${developerCutoff}) AS expired
-  `;
+  const developerRequestLogCount = await db.developerRequestLog.count();
+  const expiredDeveloperRequestLogCount = await db.developerRequestLog.count({ where: { createdAt: { lt: developerCutoff } } });
   const cleanedLogs = dryRun ? 0 : (await db.adminLog.deleteMany({ where: { createdAt: { lt: adminCutoff } } })).count;
-  const cleanedDeveloperLogs = dryRun ? 0 : await db.$executeRaw`DELETE FROM board_developerrequestlog WHERE created_date < ${developerCutoff}`;
+  const cleanedDeveloperLogs = dryRun ? 0 : (await db.developerRequestLog.deleteMany({ where: { createdAt: { lt: developerCutoff } } })).count;
   return {
     logCount,
     adminAuditLogRetentionDays: adminRetention,
     expiredLogCount,
     cleanedCount: cleanedLogs,
-    developerRequestLogCount: Number(developer?.total ?? 0),
+    developerRequestLogCount,
     developerApiLogRetentionDays: developerRetention,
-    expiredDeveloperRequestLogCount: Number(developer?.expired ?? 0),
-    cleanedDeveloperRequestLogCount: Number(cleanedDeveloperLogs),
+    expiredDeveloperRequestLogCount,
+    cleanedDeveloperRequestLogCount: cleanedDeveloperLogs,
     dryRun,
   };
 }

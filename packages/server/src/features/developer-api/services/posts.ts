@@ -43,7 +43,7 @@ export interface PaginationQuery extends QueryValue {
 export interface SearchQuery extends PaginationQuery {
   q?: string | string[];
   tag?: string | string[];
-  series_id?: string | string[];
+  seriesId?: string | string[];
 }
 
 function addStatusFilter(filters: Prisma.Sql[], status: string, now: string): DeveloperApiError | undefined {
@@ -92,7 +92,7 @@ function postSummary(row: PostRow, tags: string[], now: number) {
     title: row.title,
     subtitle: row.subtitle,
     url: row.url,
-    public_url: `/@${row.username}/${row.url}`,
+    publicUrl: `/@${row.username}/${row.url}`,
     status,
     tags,
     series: row.seriesId === null ? null : {
@@ -100,14 +100,14 @@ function postSummary(row: PostRow, tags: string[], now: number) {
       name: row.seriesName ?? '',
       url: row.seriesUrl ?? '',
     },
-    is_hidden: isHidden,
-    is_advertise: asBoolean(row.isAdvertise),
-    cover_layout: row.coverLayout ?? 'default',
-    cover_image_position: row.coverImagePosition ?? 'right',
-    cover_image_ratio: row.coverImageRatio ?? 'auto',
-    created_at: toIsoDateTime(row.createdAt),
-    updated_at: toIsoDateTime(row.updatedAt),
-    published_at: toIsoDateTime(row.publishedAt),
+    isHidden,
+    isAdvertise: asBoolean(row.isAdvertise),
+    coverLayout: row.coverLayout ?? 'default',
+    coverImagePosition: row.coverImagePosition ?? 'right',
+    coverImageRatio: row.coverImageRatio ?? 'auto',
+    createdAt: toIsoDateTime(row.createdAt),
+    updatedAt: toIsoDateTime(row.updatedAt),
+    publishedAt: toIsoDateTime(row.publishedAt),
   };
 }
 
@@ -167,7 +167,7 @@ export async function listPosts(
       )`);
     }
 
-    const seriesId = readScalar(search.series_id);
+    const seriesId = readScalar(search.seriesId);
     if (seriesId !== undefined && seriesId !== '') {
       if (!/^[+-]?\d+$/.test(seriesId) || !Number.isSafeInteger(Number(seriesId))) {
         return {
@@ -282,9 +282,9 @@ export async function postDetail(db: PrismaClient, post: PostDetailRow) {
     ...data,
     description: post.description,
     content: contentHtml,
-    content_html: contentHtml,
-    rendered_html: contentHtml,
-    read_time: post.readTime,
+    contentHtml,
+    renderedHtml: contentHtml,
+    readTime: post.readTime,
   };
 }
 

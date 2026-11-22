@@ -8,6 +8,7 @@ import Fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import test from 'node:test';
 import { registerDeveloperApi } from '../src/features/developer-api/index.js';
+import { createMigratedTables, insertRow } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-developer-api-'));
 const databasePath = join(directory, 'developer-api.sqlite3');
@@ -18,11 +19,6 @@ database.exec(`
     email TEXT NOT NULL DEFAULT '', is_active BOOLEAN NOT NULL DEFAULT 1
   );
   CREATE TABLE board_profile (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, role TEXT NOT NULL);
-  CREATE TABLE board_developertoken (
-    id INTEGER PRIMARY KEY, name TEXT NOT NULL, token_prefix TEXT NOT NULL,
-    token_hash TEXT NOT NULL, scopes TEXT NOT NULL, expires_at DATETIME, revoked_at DATETIME,
-    user_id INTEGER NOT NULL
-  );
   CREATE TABLE board_series (
     id INTEGER PRIMARY KEY, owner_id INTEGER NOT NULL, name TEXT NOT NULL, url TEXT NOT NULL,
     text_md TEXT NOT NULL DEFAULT '', hide BOOLEAN NOT NULL DEFAULT 0, "order" INTEGER NOT NULL DEFAULT 0,
@@ -50,25 +46,25 @@ database.exec(`
     (4, 'inactive', 'Inactive', 'inactive@example.test', 0);
   INSERT INTO board_profile VALUES (1, 1, 'EDITOR'), (2, 2, 'EDITOR'), (3, 3, 'READER'), (4, 4, 'EDITOR');
 `);
+createMigratedTables(database, 'DeveloperToken');
 
 function insertToken(id: number, prefix: string, userId: number, scopes: string[], options: {
-  revokedAt?: string | null;
-  expiresAt?: string | null;
+  revokedAt?: number;
+  expiresAt?: number;
 } = {}) {
   const rawToken = `blex_pat_${prefix}_test-secret`;
   const tokenHash = createHash('sha256').update(rawToken, 'utf8').digest('hex');
-  database.prepare(`
-    INSERT INTO board_developertoken
-      (id, name, token_prefix, token_hash, scopes, expires_at, revoked_at, user_id)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(id, `Token ${id}`, prefix, tokenHash, JSON.stringify(scopes), options.expiresAt ?? null, options.revokedAt ?? null, userId);
+  insertRow(database, 'DeveloperToken', {
+    id, name: `Token ${id}`, tokenPrefix: prefix, tokenHash, scopes: JSON.stringify(scopes),
+    expiresAt: options.expiresAt ?? null, revokedAt: options.revokedAt ?? null, userId,
+  });
   return rawToken;
 }
 
 const readToken = insertToken(1, 'abcdef123456', 1, ['posts:read']);
 const noScopeToken = insertToken(2, 'scope00000001', 1, []);
-const revokedToken = insertToken(3, 'revoked000001', 1, ['posts:read'], { revokedAt: '2025-01-01 00:00:00' });
-const expiredToken = insertToken(4, 'expired000001', 1, ['posts:read'], { expiresAt: '2025-01-01 00:00:00' });
+const revokedToken = insertToken(3, 'revoked000001', 1, ['posts:read'], { revokedAt: Date.UTC(2025, 0, 1) });
+const expiredToken = insertToken(4, 'expired000001', 1, ['posts:read'], { expiresAt: Date.UTC(2025, 0, 1) });
 const readerToken = insertToken(5, 'reader0000001', 3, ['posts:read']);
 const inactiveToken = insertToken(6, 'inactive00001', 4, ['posts:read']);
 const otherToken = insertToken(7, 'other00000001', 2, ['posts:read']);
