@@ -2,7 +2,7 @@ import formBody from '@fastify/formbody';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { formInput } from '../../platform/csrf.js';
-import { notificationParams, notificationPreferences, notificationText } from './model.js';
+import { type NotificationPreference, notificationParams, notificationPreferenceColumns, notificationPreferenceSelect, notificationPreferences, notificationText } from './model.js';
 import { done, failure } from '../../platform/response.js';
 
 interface NotificationUser {
@@ -34,7 +34,7 @@ function relativeTime(date: Date, language: string) {
 
 async function notificationList(db: PrismaClient, userId: number) {
   const since = new Date(Date.now() - 180 * 86_400_000);
-  const [config] = await db.$queryRaw<Array<{ language: string | null }>>`SELECT language FROM board_config WHERE user_id = ${userId}`;
+  const config = await db.userPreference.findUnique({ where: { userId }, select: { language: true } });
   const language = config?.language === 'en' && process.env.ENABLE_ENGLISH_UI === 'TRUE' ? 'en' : 'ko';
   const rows = await db.notification.findMany({
     where: { userId, OR: [{ createdAt: { gt: since } }, { isRead: false }] },
@@ -53,30 +53,23 @@ function visiblePreferences(user: NotificationUser) {
 }
 
 async function readPreferences(db: PrismaClient, user: NotificationUser) {
-  const existing = await db.$queryRaw<Array<{ name: string; value: string }>>`
-    SELECT name, value FROM board_userconfigmeta WHERE user_id = ${user.id} ORDER BY id
-  `;
-  return visiblePreferences(user).map((name) => {
-    const item = existing.find((preference) => preference.name === name);
-    return { name, value: item ? item.value === 'true' : null };
-  });
+  const stored = await db.userPreference.findUnique({ where: { userId: user.id }, select: notificationPreferenceSelect });
+  return visiblePreferences(user).map((name) => ({ name, value: stored?.[notificationPreferenceColumns[name]] ?? null }));
 }
 
 async function savePreferences(db: PrismaClient, user: NotificationUser, input: Record<string, unknown>) {
-  const timestamp = new Date().toISOString().slice(0, -1).replace('T', ' ');
-  await db.$transaction(async (tx) => {
-    for (const name of visiblePreferences(user)) {
-      const value = input[name];
-      if (value === null || value === undefined || value === '') continue;
-      const normalized = value === true || value === 'true' ? 'true' : 'false';
-      const updated = await tx.$executeRaw`
-        UPDATE board_userconfigmeta SET value = ${normalized} WHERE user_id = ${user.id} AND name = ${name}
-      `;
-      if (!updated) await tx.$executeRaw`
-        INSERT INTO board_userconfigmeta (user_id, name, value, created_date, updated_date)
-        VALUES (${user.id}, ${name}, ${normalized}, ${timestamp}, ${timestamp})
-      `;
-    }
+  const changes: Partial<Record<typeof notificationPreferenceColumns[NotificationPreference], boolean>> = {};
+  for (const name of visiblePreferences(user)) {
+    const value = input[name];
+    if (value === null || value === undefined || value === '') continue;
+    changes[notificationPreferenceColumns[name]] = value === true || value === 'true';
+  }
+  if (!Object.keys(changes).length) return;
+  await db.userPreference.upsert({
+    where: { userId: user.id },
+    create: { userId: user.id, ...changes },
+    update: changes,
+    select: { userId: true },
   });
 }
 

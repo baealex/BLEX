@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  READER
+  EDITOR
+}
+
 enum ContentScope {
   user
   global
@@ -48,156 +53,257 @@ enum BannerPosition {
   right
 }
 
-model OAuthFlow {
-  stateHash   String  @id @map("state_hash")
-  browserHash String  @map("browser_hash")
-  provider    String
-  verifier    String
-  returnPath  String  @map("return_path")
-  expiresAt   BigInt  @map("expires_at")
-  sessionHash String? @map("session_hash")
-  language    String  @default("")
-  timeZone    String  @default("") @map("time_zone")
+// Accounts
 
-  @@index([expiresAt], map: "blex_oauth_flow_expires_at_idx")
-  @@map("blex_oauth_flow")
-}
-
-model OAuthChallenge {
-  tokenHash    String           @id @map("token_hash")
-  socialAuthId Int              @map("social_auth_id")
-  returnPath   String           @map("return_path")
-  expiresAt    BigInt           @map("expires_at")
-  socialAuth   board_socialauth @relation(fields: [socialAuthId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@index([socialAuthId], map: "blex_oauth_challenge_social_auth_id_idx")
-  @@index([expiresAt], map: "blex_oauth_challenge_expires_at_idx")
-  @@map("blex_oauth_challenge")
-}
-
-/// Existing Django account table and relationships.
 model User {
-  id                                                             Int                          @id @default(autoincrement())
-  password                                                       String
-  last_login                                                     DateTime?
-  is_superuser                                                   Boolean
-  username                                                       String                       @unique
-  last_name                                                      String
-  email                                                          String
-  is_staff                                                       Boolean
-  is_active                                                      Boolean
-  date_joined                                                    DateTime
-  first_name                                                     String
-  auth_user_groups                                               auth_user_groups[]
-  auth_user_user_permissions                                     auth_user_user_permissions[]
-  board_authorinvite_board_authorinvite_created_by_idToauth_user board_authorinvite[]         @relation("board_authorinvite_created_by_idToauth_user")
-  board_authorinvite_board_authorinvite_claimed_by_idToauth_user board_authorinvite[]         @relation("board_authorinvite_claimed_by_idToauth_user")
-  board_config                                                   board_config?
-  developerRequests                                              DeveloperRequestLog[]
-  developerTokens                                                DeveloperToken[]
-  postRevisions                                                  PostRevision[]
-  board_emailchange                                              board_emailchange?
-  formTemplates                                                  FormTemplate[]
-  uploadedImages                                                 UploadedImage[]
-  notifications                                                  Notification[]
-  pinnedPosts                                                    PinnedPost[]
-  posts                                                          Post[]
-  subscriptions                                                  AuthorSubscription[]         @relation("Subscriber")
-  subscribers                                                    AuthorSubscription[]         @relation("SubscribedAuthor")
-  subscriptionLogs                                               AuthorSubscriptionLog[]      @relation("LogSubscriber")
-  subscriberLogs                                                 AuthorSubscriptionLog[]      @relation("LogAuthor")
-  series                                                         Series[]
-  comments                                                       Comment[]
-  commentLikes                                                   CommentLike[]
-  postLikes                                                      PostLike[]
-  board_profile                                                  board_profile?
-  banners                                                        SiteBanner[]
-  notices                                                        SiteNotice[]
-  board_socialauth                                               board_socialauth[]
-  staticPages                                                    StaticPage[]
-  telegram                                                       TelegramConnection?
-  webhookChannels                                                WebhookChannel[]
-  board_twofactorauth                                            board_twofactorauth?
-  board_userconfigmeta                                           board_userconfigmeta[]
-  board_userlinkmeta                                             board_userlinkmeta[]
-  usernameChanges                                                UsernameChange[]
-  cleanupConfirmations                                           CleanupConfirmation[]
-  workLogs                                                       WorkLog[]
-  adminLogs                                                      AdminLog[]
-  sessions                                                       Session[]
+  id                    Int       @id @default(autoincrement())
+  username              String    @unique
+  email                 String
+  passwordHash          String
+  name                  String    @default("")
+  isActive              Boolean   @default(true)
+  isStaff               Boolean   @default(false)
+  isSuperuser           Boolean   @default(false)
+  canManageSiteSettings Boolean   @default(false)
+  lastLoginAt           DateTime?
+  joinedAt              DateTime  @default(now())
 
-  @@map("auth_user")
+  profile              Profile?
+  preference           UserPreference?
+  twoFactor            TwoFactorAuth?
+  telegram             TelegramConnection?
+  socialLinks          SocialLink[]
+  socialAccounts       SocialAccount[]
+  usernameChanges      UsernameChange[]
+  sessions             Session[]
+  createdInvites       AuthorInvite[]          @relation("InviteCreator")
+  claimedInvites       AuthorInvite[]          @relation("InviteClaimer")
+  subscriptions        AuthorSubscription[]    @relation("Subscriber")
+  subscribers          AuthorSubscription[]    @relation("SubscribedAuthor")
+  subscriptionLogs     AuthorSubscriptionLog[] @relation("LogSubscriber")
+  subscriberLogs       AuthorSubscriptionLog[] @relation("LogAuthor")
+  posts                Post[]
+  postRevisions        PostRevision[]
+  postLikes            PostLike[]
+  pinnedPosts          PinnedPost[]
+  series               Series[]
+  comments             Comment[]
+  commentLikes         CommentLike[]
+  formTemplates        FormTemplate[]
+  uploadedImages       UploadedImage[]
+  staticPages          StaticPage[]
+  notices              SiteNotice[]
+  banners              SiteBanner[]
+  adminLogs            AdminLog[]
+  notifications        Notification[]
+  webhookChannels      WebhookChannel[]
+  developerTokens      DeveloperToken[]
+  developerRequests    DeveloperRequestLog[]
+  workLogs             WorkLog[]
+  cleanupConfirmations CleanupConfirmation[]
 }
 
-model Session {
-  tokenHash        String       @id @map("token_hash")
-  userId           Int          @map("user_id")
-  credentialTag    String       @map("credential_tag")
-  expiresAt        BigInt       @map("expires_at")
-  verifiedUntil    BigInt?      @map("verified_until")
-  verifiedFactorId Int?         @map("verified_factor_id")
-  requiresFactor   Int          @default(0) @map("requires_factor")
-  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  factorSetup      FactorSetup?
+model Profile {
+  userId        Int      @id
+  role          UserRole @default(READER)
+  bio           String   @default("")
+  avatar        String   @default("")
+  cover         String   @default("")
+  homepage      String   @default("")
+  aboutMarkdown String   @default("")
+  aboutHtml     String   @default("")
 
-  @@index([userId], map: "blex_session_user_id_idx")
-  @@index([expiresAt], map: "blex_session_expires_at_idx")
-  @@map("blex_session")
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model FactorSetup {
-  sessionHash  String  @id @map("session_hash")
-  secret       String
-  recoveryHash String  @map("recovery_hash")
-  expiresAt    BigInt  @map("expires_at")
-  session      Session @relation(fields: [sessionHash], references: [tokenHash], onDelete: Cascade, onUpdate: Cascade)
+model UserPreference {
+  userId            Int      @id
+  language          String?
+  timeZone          String   @default("")
+  notifyPostLike    Boolean?
+  notifyPostComment Boolean?
+  notifyCommentLike Boolean?
+  notifyMention     Boolean?
 
-  @@map("blex_factor_setup")
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model NotificationDelivery {
-  notificationId Int      @id
-  attempts       Int      @default(0)
-  availableAt    DateTime
+model SocialLink {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  platform  String
+  url       String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 
-  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([availableAt])
+  @@index([userId, order])
 }
 
-model ScheduledPublication {
-  postId    Int      @id
-  publishAt DateTime
+model SocialProvider {
+  id           Int     @id @default(autoincrement())
+  key          String  @unique
+  clientId     String  @default("")
+  clientSecret String  @default("")
+  isEnabled    Boolean @default(false)
 
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-
-  @@index([publishAt])
+  accounts SocialAccount[]
 }
 
-model WebhookDelivery {
-  postId      Int
-  channelId   Int
-  availableAt DateTime
-  isDone      Boolean  @default(false)
+model SocialAccount {
+  id         Int      @id @default(autoincrement())
+  providerId Int
+  uid        String
+  userId     Int
+  extraData  String   @default("")
+  createdAt  DateTime @default(now())
 
-  post    Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
-  channel WebhookChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  provider   SocialProvider   @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenges OAuthChallenge[]
 
-  @@id([postId, channelId])
-  @@index([isDone, availableAt])
+  @@unique([providerId, uid])
+  @@index([userId])
+}
+
+model TwoFactorAuth {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @unique
+  totpSecret  String
+  recoveryKey String
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model TelegramConnection {
+  userId             Int       @id
+  telegramId         String    @default("")
+  authToken          String    @default("")
+  authTokenExpiresAt DateTime?
+  createdAt          DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model UsernameChange {
-  id           Int      @id @default(autoincrement())
-  username     String
-  created_date DateTime
-  userId       Int      @map("user_id")
-  user         User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  username  String
+  createdAt DateTime @default(now())
 
-  @@index([username], map: "board_usern_usernam_873004_idx")
-  @@index([userId], map: "board_usernamechangelog_user_id_42630b04")
-  @@map("board_usernamechangelog")
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([username])
+  @@index([userId])
 }
+
+model AuthorInvite {
+  id          Int       @id @default(autoincrement())
+  code        String    @unique
+  note        String    @default("")
+  isActive    Boolean   @default(true)
+  createdById Int?
+  claimedById Int?
+  createdAt   DateTime  @default(now())
+  claimedAt   DateTime?
+
+  createdBy User? @relation("InviteCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  claimedBy User? @relation("InviteClaimer", fields: [claimedById], references: [id], onDelete: SetNull)
+
+  @@index([createdById])
+  @@index([claimedById])
+}
+
+model LoginAttempt {
+  key    String @id
+  window BigInt
+  count  Int
+
+  @@index([window])
+}
+
+model Session {
+  tokenHash        String    @id
+  userId           Int
+  credentialTag    String
+  expiresAt        DateTime
+  verifiedUntil    DateTime?
+  verifiedFactorId Int?
+  requiresFactor   Boolean   @default(false)
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  factorSetup FactorSetup?
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model FactorSetup {
+  sessionHash  String   @id
+  secret       String
+  recoveryHash String
+  expiresAt    DateTime
+
+  session Session @relation(fields: [sessionHash], references: [tokenHash], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model OAuthFlow {
+  stateHash   String   @id
+  browserHash String
+  provider    String
+  verifier    String
+  returnPath  String
+  sessionHash String?
+  language    String   @default("")
+  timeZone    String   @default("")
+  expiresAt   DateTime
+
+  @@index([expiresAt])
+}
+
+model OAuthChallenge {
+  tokenHash       String   @id
+  socialAccountId Int
+  returnPath      String
+  expiresAt       DateTime
+
+  socialAccount SocialAccount @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
+
+  @@index([socialAccountId])
+  @@index([expiresAt])
+}
+
+model AuthorSubscription {
+  id           Int      @id @default(autoincrement())
+  subscriberId Int
+  authorId     Int
+  createdAt    DateTime @default(now())
+
+  subscriber User @relation("Subscriber", fields: [subscriberId], references: [id], onDelete: Cascade)
+  author     User @relation("SubscribedAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@unique([subscriberId, authorId])
+  @@index([authorId, createdAt])
+}
+
+model AuthorSubscriptionLog {
+  id           Int                @id @default(autoincrement())
+  subscriberId Int
+  authorId     Int
+  action       SubscriptionAction
+  createdAt    DateTime           @default(now())
+
+  subscriber User @relation("LogSubscriber", fields: [subscriberId], references: [id], onDelete: Cascade)
+  author     User @relation("LogAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([authorId, createdAt])
+  @@index([subscriberId])
+}
+
+// Posts
 
 model Post {
   id                 Int                @id @default(autoincrement())
@@ -252,105 +358,112 @@ model PostContent {
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 }
 
-model auth_group {
-  id                     Int                      @id @default(autoincrement())
-  name                   String                   @unique
-  auth_group_permissions auth_group_permissions[]
-  auth_user_groups       auth_user_groups[]
+model Tag {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  posts Post[]
 }
 
-model auth_group_permissions {
-  id              Int             @id @default(autoincrement())
-  group_id        Int
-  permission_id   Int
-  auth_permission auth_permission @relation(fields: [permission_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  auth_group      auth_group      @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model PostRevision {
+  id              Int          @id @default(autoincrement())
+  postId          Int
+  actorId         Int?
+  restoredFromId  Int?
+  type            RevisionType
+  title           String       @default("")
+  subtitle        String       @default("")
+  description     String       @default("")
+  content         String       @default("")
+  contentExcerpt  String?
+  tags            Json
+  sourceUpdatedAt DateTime?
+  createdAt       DateTime     @default(now())
 
-  @@unique([group_id, permission_id], map: "auth_group_permissions_group_id_permission_id_0cd325b0_uniq")
-  @@index([permission_id], map: "auth_group_permissions_permission_id_84c5c92e")
-  @@index([group_id], map: "auth_group_permissions_group_id_b120cbf9")
+  post         Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
+  actor        User?          @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  restoredFrom PostRevision?  @relation("RevisionRestore", fields: [restoredFromId], references: [id], onDelete: SetNull)
+  restores     PostRevision[] @relation("RevisionRestore")
+
+  @@index([postId, createdAt])
+  @@index([restoredFromId])
+  @@index([actorId])
 }
 
-model auth_permission {
-  id                         Int                          @id @default(autoincrement())
-  content_type_id            Int
-  codename                   String
-  name                       String
-  auth_group_permissions     auth_group_permissions[]
-  django_content_type        django_content_type          @relation(fields: [content_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  auth_user_user_permissions auth_user_user_permissions[]
+model PostLike {
+  postId    Int
+  userId    Int
+  createdAt DateTime @default(now())
 
-  @@unique([content_type_id, codename], map: "auth_permission_content_type_id_codename_01ab375a_uniq")
-  @@index([content_type_id], map: "auth_permission_content_type_id_2f476e4b")
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([postId, userId])
+  @@index([userId, createdAt])
 }
 
-model auth_user_groups {
-  id         Int        @id @default(autoincrement())
-  user_id    Int
-  group_id   Int
-  auth_group auth_group @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  auth_user  User       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model PinnedPost {
+  userId    Int
+  postId    Int
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
 
-  @@unique([user_id, group_id], map: "auth_user_groups_user_id_group_id_94350c0c_uniq")
-  @@index([group_id], map: "auth_user_groups_group_id_97559544")
-  @@index([user_id], map: "auth_user_groups_user_id_6a12ed8b")
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([userId, postId])
+  @@index([postId])
 }
 
-model auth_user_user_permissions {
-  id              Int             @id @default(autoincrement())
-  user_id         Int
-  permission_id   Int
-  auth_permission auth_permission @relation(fields: [permission_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  auth_user       User            @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model PostShareLink {
+  id        Int      @id @default(autoincrement())
+  postId    Int
+  token     String   @unique
+  label     String   @default("")
+  isPaused  Boolean  @default(false)
+  createdAt DateTime @default(now())
 
-  @@unique([user_id, permission_id], map: "auth_user_user_permissions_user_id_permission_id_14a6b632_uniq")
-  @@index([permission_id], map: "auth_user_user_permissions_permission_id_1fbb5f2c")
-  @@index([user_id], map: "auth_user_user_permissions_user_id_a95ead1b")
+  post        Post                  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  dailyCounts PostShareDailyCount[]
+
+  @@index([postId])
 }
 
-model board_authorinvite {
-  id                                                    Int       @id @default(autoincrement())
-  code                                                  String    @unique
-  note                                                  String
-  is_active                                             Boolean
-  created_date                                          DateTime
-  claimed_date                                          DateTime?
-  claimed_by_id                                         Int?
-  created_by_id                                         Int?
-  auth_user_board_authorinvite_created_by_idToauth_user User?     @relation("board_authorinvite_created_by_idToauth_user", fields: [created_by_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  auth_user_board_authorinvite_claimed_by_idToauth_user User?     @relation("board_authorinvite_claimed_by_idToauth_user", fields: [claimed_by_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model PostShareDailyCount {
+  linkId Int
+  day    DateTime
+  clicks Int      @default(0)
 
-  @@index([claimed_by_id], map: "board_autho_claimed_0188bf_idx")
-  @@index([code, is_active], map: "board_autho_code_e7ed63_idx")
-  @@index([created_by_id], map: "board_authorinvite_created_by_id_0cd57a38")
-  @@index([claimed_by_id], map: "board_authorinvite_claimed_by_id_7a8026eb")
+  link PostShareLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
+
+  @@id([linkId, day])
 }
 
-model AuthorSubscription {
-  id           Int      @id @default(autoincrement())
-  subscriberId Int
-  authorId     Int
-  createdAt    DateTime @default(now())
+model ScheduledPublication {
+  postId    Int      @id
+  publishAt DateTime
 
-  subscriber User @relation("Subscriber", fields: [subscriberId], references: [id], onDelete: Cascade)
-  author     User @relation("SubscribedAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 
-  @@unique([subscriberId, authorId])
-  @@index([authorId, createdAt])
+  @@index([publishAt])
 }
 
-model AuthorSubscriptionLog {
-  id           Int                @id @default(autoincrement())
-  subscriberId Int
-  authorId     Int
-  action       SubscriptionAction
-  createdAt    DateTime           @default(now())
+model Series {
+  id                  Int      @id @default(autoincrement())
+  ownerId             Int
+  slug                String   @unique
+  name                String
+  descriptionMarkdown String   @default("")
+  descriptionHtml     String   @default("")
+  isHidden            Boolean  @default(false)
+  layout              String   @default("")
+  order               Int      @default(0)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @default(now())
 
-  subscriber User @relation("LogSubscriber", fields: [subscriberId], references: [id], onDelete: Cascade)
-  author     User @relation("LogAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  owner User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  posts Post[]
 
-  @@index([authorId, createdAt])
-  @@index([subscriberId])
+  @@index([ownerId])
 }
 
 model Comment {
@@ -386,337 +499,6 @@ model CommentLike {
   @@index([userId])
 }
 
-model board_config {
-  id        Int     @id @default(autoincrement())
-  user_id   Int     @unique
-  language  String?
-  time_zone String
-  auth_user User    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-model DeveloperRequestLog {
-  id         Int      @id @default(autoincrement())
-  userId     Int
-  tokenId    Int?
-  method     String
-  path       String
-  statusCode Int
-  ipAddress  String?
-  userAgent  String   @default("")
-  createdAt  DateTime @default(now())
-
-  user  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  token DeveloperToken? @relation(fields: [tokenId], references: [id], onDelete: SetNull)
-
-  @@index([tokenId, createdAt])
-  @@index([userId, createdAt])
-}
-
-model DeveloperToken {
-  id          Int       @id @default(autoincrement())
-  userId      Int
-  name        String
-  tokenPrefix String    @unique
-  tokenHash   String    @unique
-  scopes      Json
-  expiresAt   DateTime?
-  revokedAt   DateTime?
-  lastUsedAt  DateTime?
-  lastUsedIp  String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  user     User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  requests DeveloperRequestLog[]
-
-  @@index([userId, revokedAt])
-}
-
-model PostRevision {
-  id              Int          @id @default(autoincrement())
-  postId          Int
-  actorId         Int?
-  restoredFromId  Int?
-  type            RevisionType
-  title           String       @default("")
-  subtitle        String       @default("")
-  description     String       @default("")
-  content         String       @default("")
-  contentExcerpt  String?
-  tags            Json
-  sourceUpdatedAt DateTime?
-  createdAt       DateTime     @default(now())
-
-  post         Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
-  actor        User?          @relation(fields: [actorId], references: [id], onDelete: SetNull)
-  restoredFrom PostRevision?  @relation("RevisionRestore", fields: [restoredFromId], references: [id], onDelete: SetNull)
-  restores     PostRevision[] @relation("RevisionRestore")
-
-  @@index([postId, createdAt])
-  @@index([restoredFromId])
-  @@index([actorId])
-}
-
-model board_emailchange {
-  id           Int      @id @default(autoincrement())
-  email        String
-  auth_token   String
-  created_date DateTime
-  user_id      Int      @unique
-  auth_user    User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-model board_loginattempt {
-  key    String @id
-  window BigInt
-  count  Int
-
-  @@index([window], map: "board_loginattempt_window_a08cc5bd")
-}
-
-model Notification {
-  id            Int      @id @default(autoincrement())
-  userId        Int
-  key           String   @unique
-  url           String   @default("")
-  content       String   @default("")
-  messageKey    String   @default("")
-  messageParams Json
-  isRead        Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @default(now())
-
-  user     User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  delivery NotificationDelivery?
-
-  @@index([userId])
-}
-
-model PinnedPost {
-  userId    Int
-  postId    Int
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-
-  @@id([userId, postId])
-  @@index([postId])
-}
-
-model PostLike {
-  postId    Int
-  userId    Int
-  createdAt DateTime @default(now())
-
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([postId, userId])
-  @@index([userId, createdAt])
-}
-
-model PostShareDailyCount {
-  linkId Int
-  day    DateTime
-  clicks Int      @default(0)
-
-  link PostShareLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
-
-  @@id([linkId, day])
-}
-
-model PostShareLink {
-  id        Int      @id @default(autoincrement())
-  postId    Int
-  token     String   @unique
-  label     String   @default("")
-  isPaused  Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  post        Post                  @relation(fields: [postId], references: [id], onDelete: Cascade)
-  dailyCounts PostShareDailyCount[]
-
-  @@index([postId])
-}
-
-model board_profile {
-  id                  Int    @id @default(autoincrement())
-  bio                 String
-  cover               String
-  avatar              String
-  homepage            String
-  about_md            String
-  about_html          String
-  user_id             Int    @unique
-  analytics_share_url String
-  role                String
-  auth_user           User   @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-model Series {
-  id                  Int      @id @default(autoincrement())
-  ownerId             Int
-  slug                String   @unique
-  name                String
-  descriptionMarkdown String   @default("")
-  descriptionHtml     String   @default("")
-  isHidden            Boolean  @default(false)
-  layout              String   @default("")
-  order               Int      @default(0)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @default(now())
-
-  owner User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  posts Post[]
-
-  @@index([ownerId])
-}
-
-model board_socialauth {
-  challenges               OAuthChallenge[]
-  id                       Int                      @id @default(autoincrement())
-  uid                      String
-  extra_data               String
-  created_date             DateTime
-  provider_id              Int
-  user_id                  Int
-  auth_user                User                     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  board_socialauthprovider board_socialauthprovider @relation(fields: [provider_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([provider_id, uid])
-  @@index([user_id], map: "board_socialauth_user_id_92dc0ec9")
-  @@index([provider_id], map: "board_socialauth_provider_id_6d0024d4")
-}
-
-model board_socialauthprovider {
-  id               Int                @id @default(autoincrement())
-  key              String             @unique
-  client_id        String
-  client_secret    String
-  is_enabled       Boolean
-  board_socialauth board_socialauth[]
-}
-
-model Tag {
-  id    Int    @id @default(autoincrement())
-  name  String @unique
-  posts Post[]
-}
-
-model TelegramConnection {
-  userId             Int       @id
-  telegramId         String    @default("")
-  authToken          String    @default("")
-  authTokenExpiresAt DateTime?
-  createdAt          DateTime  @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model board_twofactorauth {
-  id           Int      @id @default(autoincrement())
-  recovery_key String
-  created_date DateTime
-  user_id      Int      @unique
-  totp_secret  String
-  auth_user    User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-model board_userconfigmeta {
-  id           Int      @id @default(autoincrement())
-  name         String
-  value        String
-  created_date DateTime
-  updated_date DateTime
-  user_id      Int
-  auth_user    User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([user_id], map: "board_userconfigmeta_user_id_da67eecd")
-}
-
-model board_userlinkmeta {
-  id           Int      @id @default(autoincrement())
-  name         String
-  value        String
-  created_date DateTime
-  updated_date DateTime
-  user_id      Int
-  order        Int
-  auth_user    User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([user_id], map: "board_userlinkmeta_user_id_ba3f4047")
-}
-
-model WebhookChannel {
-  id            Int          @id @default(autoincrement())
-  ownerId       Int?
-  scope         ContentScope
-  name          String       @default("")
-  url           String
-  isActive      Boolean      @default(true)
-  failureCount  Int          @default(0)
-  lastSuccessAt DateTime?
-  createdAt     DateTime     @default(now())
-
-  owner      User?             @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  deliveries WebhookDelivery[]
-
-  @@unique([scope, ownerId, url])
-  @@index([ownerId])
-}
-
-model django_content_type {
-  id              Int               @id @default(autoincrement())
-  app_label       String
-  model           String
-  auth_permission auth_permission[]
-
-  @@unique([app_label, model], map: "django_content_type_app_label_model_76bd3d3b_uniq")
-}
-
-model WorkLog {
-  id        Int      @id @default(autoincrement())
-  ownerId   Int
-  title     String
-  createdAt DateTime @default(now())
-
-  owner   User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  entries WorkLogEntry[]
-  shares  WorkLogShare[]
-
-  @@index([ownerId])
-}
-
-model WorkLogEntry {
-  id         Int      @id @default(autoincrement())
-  logId      Int
-  title      String   @default("")
-  text       String   @default("")
-  mediaType  String   @default("")
-  attachment String   @default("")
-  createdAt  DateTime @default(now())
-
-  log    WorkLog        @relation(fields: [logId], references: [id], onDelete: Cascade)
-  shares WorkLogShare[]
-
-  @@index([logId, createdAt(sort: Desc), id(sort: Desc)])
-}
-
-model WorkLogShare {
-  id        Int      @id @default(autoincrement())
-  logId     Int
-  token     String   @unique
-  headline  String   @default("")
-  createdAt DateTime @default(now())
-
-  log     WorkLog        @relation(fields: [logId], references: [id], onDelete: Cascade)
-  entries WorkLogEntry[]
-
-  @@index([logId])
-}
-
 model FormTemplate {
   id        Int      @id @default(autoincrement())
   userId    Int
@@ -729,6 +511,57 @@ model FormTemplate {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model UploadedImage {
+  id     Int    @id @default(autoincrement())
+  key    String @unique
+  path   String @unique
+  size   Int
+  userId Int?
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+}
+
+// Site
+
+model SiteSetting {
+  id                  Int      @id @default(1)
+  siteName            String   @default("BLEX")
+  /// Host used for RSS links when it differs from SITE_URL.
+  domain              String   @default("")
+  headerScript        String   @default("")
+  footerScript        String   @default("")
+  seoEnabled          Boolean  @default(true)
+  aeoEnabled          Boolean  @default(false)
+  robotsTxtExtraRules String   @default("")
+  logoSvg             String   @default("")
+  logoSvgDark         String   @default("")
+  iconSvg             String   @default("")
+  iconSvgDark         String   @default("")
+  iconManifest        Json?
+  updatedAt           DateTime @updatedAt
+}
+
+model LoginSetting {
+  id                         Int      @id @default(1)
+  welcomeNotificationMessage String   @default("")
+  welcomeNotificationUrl     String   @default("/")
+  accountDeletionRedirectUrl String   @default("")
+  hcaptchaEnabled            Boolean  @default(false)
+  hcaptchaSiteKey            String   @default("")
+  hcaptchaSecretKey          String   @default("")
+  updatedAt                  DateTime @updatedAt
+}
+
+model IntegrationSetting {
+  id                  Int      @id @default(1)
+  telegramEnabled     Boolean  @default(false)
+  telegramBotUsername String   @default("")
+  telegramBotToken    String   @default("")
+  updatedAt           DateTime @updatedAt
 }
 
 model StaticPage {
@@ -785,43 +618,6 @@ model SiteBanner {
   @@index([scope, isActive, type, position])
 }
 
-model SiteSetting {
-  id                  Int      @id @default(1)
-  siteName            String   @default("BLEX")
-  /// Host used for RSS links when it differs from SITE_URL.
-  domain              String   @default("")
-  headerScript        String   @default("")
-  footerScript        String   @default("")
-  seoEnabled          Boolean  @default(true)
-  aeoEnabled          Boolean  @default(false)
-  robotsTxtExtraRules String   @default("")
-  logoSvg             String   @default("")
-  logoSvgDark         String   @default("")
-  iconSvg             String   @default("")
-  iconSvgDark         String   @default("")
-  iconManifest        Json?
-  updatedAt           DateTime @updatedAt
-}
-
-model LoginSetting {
-  id                         Int      @id @default(1)
-  welcomeNotificationMessage String   @default("")
-  welcomeNotificationUrl     String   @default("/")
-  accountDeletionRedirectUrl String   @default("")
-  hcaptchaEnabled            Boolean  @default(false)
-  hcaptchaSiteKey            String   @default("")
-  hcaptchaSecretKey          String   @default("")
-  updatedAt                  DateTime @updatedAt
-}
-
-model IntegrationSetting {
-  id                  Int      @id @default(1)
-  telegramEnabled     Boolean  @default(false)
-  telegramBotUsername String   @default("")
-  telegramBotToken    String   @default("")
-  updatedAt           DateTime @updatedAt
-}
-
 model AdminLog {
   id         Int      @id @default(autoincrement())
   userId     Int
@@ -854,14 +650,144 @@ model CleanupConfirmation {
   @@index([userId])
 }
 
-model UploadedImage {
-  id     Int    @id @default(autoincrement())
-  key    String @unique
-  path   String @unique
-  size   Int
-  userId Int?
+// Notifications and integrations
 
-  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+model Notification {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  key           String   @unique
+  url           String   @default("")
+  content       String   @default("")
+  messageKey    String   @default("")
+  messageParams Json
+  isRead        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
+
+  user     User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  delivery NotificationDelivery?
 
   @@index([userId])
+}
+
+model NotificationDelivery {
+  notificationId Int      @id
+  attempts       Int      @default(0)
+  availableAt    DateTime
+
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@index([availableAt])
+}
+
+model WebhookChannel {
+  id            Int          @id @default(autoincrement())
+  ownerId       Int?
+  scope         ContentScope
+  name          String       @default("")
+  url           String
+  isActive      Boolean      @default(true)
+  failureCount  Int          @default(0)
+  lastSuccessAt DateTime?
+  createdAt     DateTime     @default(now())
+
+  owner      User?             @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  deliveries WebhookDelivery[]
+
+  @@unique([scope, ownerId, url])
+  @@index([ownerId])
+}
+
+model WebhookDelivery {
+  postId      Int
+  channelId   Int
+  availableAt DateTime
+  isDone      Boolean  @default(false)
+
+  post    Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
+  channel WebhookChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@id([postId, channelId])
+  @@index([isDone, availableAt])
+}
+
+model DeveloperToken {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  name        String
+  tokenPrefix String    @unique
+  tokenHash   String    @unique
+  scopes      Json
+  expiresAt   DateTime?
+  revokedAt   DateTime?
+  lastUsedAt  DateTime?
+  lastUsedIp  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user     User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  requests DeveloperRequestLog[]
+
+  @@index([userId, revokedAt])
+}
+
+model DeveloperRequestLog {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  tokenId    Int?
+  method     String
+  path       String
+  statusCode Int
+  ipAddress  String?
+  userAgent  String   @default("")
+  createdAt  DateTime @default(now())
+
+  user  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token DeveloperToken? @relation(fields: [tokenId], references: [id], onDelete: SetNull)
+
+  @@index([tokenId, createdAt])
+  @@index([userId, createdAt])
+}
+
+// Work logs
+
+model WorkLog {
+  id        Int      @id @default(autoincrement())
+  ownerId   Int
+  title     String
+  createdAt DateTime @default(now())
+
+  owner   User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  entries WorkLogEntry[]
+  shares  WorkLogShare[]
+
+  @@index([ownerId])
+}
+
+model WorkLogEntry {
+  id         Int      @id @default(autoincrement())
+  logId      Int
+  title      String   @default("")
+  text       String   @default("")
+  mediaType  String   @default("")
+  attachment String   @default("")
+  createdAt  DateTime @default(now())
+
+  log    WorkLog        @relation(fields: [logId], references: [id], onDelete: Cascade)
+  shares WorkLogShare[]
+
+  @@index([logId, createdAt(sort: Desc), id(sort: Desc)])
+}
+
+model WorkLogShare {
+  id        Int      @id @default(autoincrement())
+  logId     Int
+  token     String   @unique
+  headline  String   @default("")
+  createdAt DateTime @default(now())
+
+  log     WorkLog        @relation(fields: [logId], references: [id], onDelete: Cascade)
+  entries WorkLogEntry[]
+
+  @@index([logId])
 }

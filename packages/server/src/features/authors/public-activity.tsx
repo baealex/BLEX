@@ -219,7 +219,7 @@ export async function relatedPosts(db: PrismaClient, sourceId: number, sourceAut
     where: { id: { in: ranked.map(({ id }) => id) } },
     select: {
       id: true, slug: true, title: true, image: true, description: true, readTime: true, publishedAt: true,
-      author: { select: { username: true, first_name: true, board_profile: { select: { avatar: true } } } },
+      author: { select: { username: true, name: true, profile: { select: { avatar: true } } } },
     },
   });
   const byId = new Map(rows.map((row) => [row.id, row]));
@@ -227,21 +227,21 @@ export async function relatedPosts(db: PrismaClient, sourceId: number, sourceAut
     const post = byId.get(id)!;
     return {
       slug: post.slug, title: post.title, image: post.image, description: post.description, readTime: post.readTime,
-      published: storedDateText(post.publishedAt!), username: post.author.username, name: post.author.first_name,
-      avatar: post.author.board_profile?.avatar ?? '',
+      published: storedDateText(post.publishedAt!), username: post.author.username, name: post.author.name,
+      avatar: post.author.profile?.avatar ?? '',
     };
   });
 }
 
 export function registerPublicActivity(app: FastifyInstance, db: PrismaClient, options: ActivityOptions) {
   app.get<{ Params: { username: string } }>('/v1/users/@:username/check-redirect', async (request, reply) => {
-    const [changed] = await db.$queryRaw<Array<{ newUsername: string; date: string }>>`
-      SELECT account.username AS newUsername, CAST(log.created_date AS TEXT) AS date
-      FROM board_usernamechangelog AS log JOIN auth_user AS account ON account.id = log.user_id
-      WHERE log.username = ${request.params.username} ORDER BY log.id LIMIT 1
-    `;
+    const changed = await db.usernameChange.findFirst({
+      where: { username: request.params.username },
+      orderBy: { id: 'asc' },
+      select: { createdAt: true, user: { select: { username: true } } },
+    });
     if (!changed) return reply.code(404).send('Not found');
-    return done({ oldUsername: request.params.username, newUsername: changed.newUsername, createdDate: dateLabel.format(storedDate(changed.date)) });
+    return done({ oldUsername: request.params.username, newUsername: changed.user.username, createdDate: dateLabel.format(changed.createdAt) });
   });
   app.get<{ Params: { username: string } }>('/v1/users/@:username/heatmap', async (request, reply) => {
     const account = await db.user.findUnique({ where: { username: request.params.username }, select: { id: true } });

@@ -32,7 +32,7 @@ export function toEntryRow(entry: StoredEntry): EntryRow {
 
 export async function readOwnedLog(db: PrismaClient, logId: number, userId: number): Promise<WorkLogRow | null> {
   const log = await db.workLog.findFirst({
-    where: { id: logId, ownerId: userId, owner: { is_active: true } },
+    where: { id: logId, ownerId: userId, owner: { isActive: true } },
     select: { id: true, title: true, createdAt: true, ownerId: true, owner: { select: { username: true } } },
   });
   if (!log) return null;
@@ -40,12 +40,12 @@ export async function readOwnedLog(db: PrismaClient, logId: number, userId: numb
 }
 
 export function countOwnedLogs(db: PrismaClient, userId: number): Promise<number> {
-  return db.workLog.count({ where: { ownerId: userId, owner: { is_active: true } } });
+  return db.workLog.count({ where: { ownerId: userId, owner: { isActive: true } } });
 }
 
 export async function readOwnedLogs(db: PrismaClient, userId: number, page: number): Promise<WorkLogRow[]> {
   const logs = await db.workLog.findMany({
-    where: { ownerId: userId, owner: { is_active: true } },
+    where: { ownerId: userId, owner: { isActive: true } },
     select: { id: true, title: true, createdAt: true },
     orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     take: PAGE_SIZE,

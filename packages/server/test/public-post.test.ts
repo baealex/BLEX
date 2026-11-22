@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
 import { buildApp } from '../src/app.js';
-import { createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
+import { accountTables, createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-test-'));
 const databasePath = join(directory, 'Django posts.sqlite3');
@@ -13,17 +13,18 @@ const legacySlug = 'a'.repeat(69);
 const database = new DatabaseSync(databasePath);
 createMigratedTables(database, 'StaticPage', 'SiteBanner', 'SiteSetting');
 database.exec(`
-  CREATE TABLE auth_user (id INTEGER PRIMARY KEY, username TEXT, password TEXT, first_name TEXT NOT NULL DEFAULT '');
-  CREATE TABLE board_profile (id INTEGER PRIMARY KEY, user_id INTEGER UNIQUE, avatar TEXT);
-  CREATE TABLE board_usernamechangelog (id INTEGER PRIMARY KEY, user_id INTEGER, username TEXT);
+  ${migratedTableSql(...accountTables)}
 ${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', 'PostLike', 'PinnedPost', 'PostShareLink', 'PostShareDailyCount', 'ScheduledPublication')}
 
 
   ${migratedTableSql('Series')}
 
 
-  INSERT INTO auth_user (id, username, password) VALUES (7, 'writer', 'test-only-password'), (8, 'other-writer', 'test-only-password');
-  INSERT INTO board_usernamechangelog VALUES (1, 7, 'old-writer');
+  INSERT INTO "User" ("id", "username", "passwordHash", "email", "joinedAt") VALUES
+    (7, 'writer', 'test-only-password', '', 1577836800000),
+    (8, 'other-writer', 'test-only-password', '', 1577836800000);
+  INSERT INTO "UsernameChange" ("id", "userId", "username", "createdAt") VALUES
+    (1, 7, 'old-writer', 1577836800000);
   INSERT INTO "Post" ("id", "authorId", "slug", "title", "description", "publishedAt", "deletedAt", "createdAt", "updatedAt") VALUES
     (1, 7, 'public', 'Public article', 'Public description', 946721042123, NULL, 946684800000, 946684800000),
     (2, 7, 'hidden', 'Hidden article', '', 946721042000, NULL, 946684800000, 946684800000),

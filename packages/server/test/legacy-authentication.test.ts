@@ -11,7 +11,7 @@ import { verifyDjangoPassword } from '../src/features/auth/django-password.js';
 import { decryptDjangoSecret, encryptDjangoSecret } from '../src/features/auth/django-secret.js';
 import { authenticatePassword } from '../src/features/auth/password-login.js';
 import { verifyDjangoSecondFactor } from '../src/features/auth/two-factor.js';
-import { insertRow, seedPost } from './fixtures/migrated-database.js';
+import { accountTables, insertRow, seedPost, migratedTableSql } from './fixtures/migrated-database.js';
 
 // Test values were produced by Django, cryptography's Fernet and PyOTP.
 const password = 'compatibility-비밀번호-2026';
@@ -47,14 +47,14 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
   const path = join(directory, 'signup.sqlite3');
   const fixture = await migratedFixture(path);
   fixture.exec(`
-    INSERT INTO auth_user (id, username, password, email, first_name, last_name, date_joined, is_active, is_staff, is_superuser)
-    VALUES (1, 'owner', '!unusable', '', 'Owner', '', '2000-01-01', 1, 1, 1);
-    INSERT INTO board_authorinvite (code, note, is_active, created_by_id, created_date)
-    VALUES ('synthetic-invite', '', 1, 1, '2000-01-01');
+    INSERT INTO "User" ("id", "username", "passwordHash", "email", "name", "joinedAt", "isActive", "isStaff", "isSuperuser") VALUES
+    (1, 'owner', '!unusable', '', 'Owner', 946684800000, 1, 1, 1);
+    INSERT INTO "AuthorInvite" ("code", "note", "isActive", "createdById", "createdAt") VALUES
+    ('synthetic-invite', '', 1, 1, 946684800000);
     INSERT INTO LoginSetting (id, welcomeNotificationMessage, welcomeNotificationUrl, updatedAt)
     VALUES (1, 'Hello {name}', '/welcome', 946684800000);
   `);
-  fixture.prepare('UPDATE auth_user SET password = ? WHERE id = 1').run(recentPasswordHash);
+  fixture.prepare('UPDATE "User" SET passwordHash = ? WHERE id = 1').run(recentPasswordHash);
   fixture.close();
 
   const siteUrl = new URL('https://blex.example');
@@ -168,32 +168,20 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     assert.equal((await app.inject('/v1/sign?username=neweditor')).json().body.isAvailable, false);
     assert.equal((await app.inject('/v1/sign?username=anothereditor')).json().body.isAvailable, true);
     const promoteFixture = new DatabaseSync(path);
-    promoteFixture.prepare(`UPDATE auth_user SET is_staff = 1 WHERE username = 'neweditor'`).run();
-    promoteFixture.exec(`
-      INSERT INTO django_content_type (app_label, model) VALUES ('board', 'sitesetting');
-      INSERT INTO auth_permission (content_type_id, codename, name)
-        SELECT id, 'change_sitesetting', 'Can change site settings'
-          FROM django_content_type WHERE app_label = 'board' AND model = 'sitesetting';
-      INSERT INTO auth_user_user_permissions (user_id, permission_id)
-        SELECT account.id, permission.id FROM auth_user AS account
-        CROSS JOIN auth_permission AS permission
-        JOIN django_content_type AS content_type ON content_type.id = permission.content_type_id
-        WHERE account.username = 'neweditor' AND permission.codename = 'change_sitesetting'
-          AND content_type.app_label = 'board' AND content_type.model = 'sitesetting';
-    `);
+    promoteFixture.prepare(`UPDATE "User" SET isStaff = 1, canManageSiteSettings = 1 WHERE username = 'neweditor'`).run();
     promoteFixture.close();
     const globalChannels = await app.inject({ url: '/v1/webhook/global-channels', headers: verified });
     assert.equal(globalChannels.json().status, 'DONE', globalChannels.body);
     assert.equal((await app.inject({ url: '/v1/webhook/global-channels', headers: headersFor(reader, siteUrl) })).json().errorCode, 'error:RJ');
     const check = new DatabaseSync(path, { readOnly: true });
     const account = check.prepare(`
-      SELECT profile.role, config.language, config.time_zone FROM auth_user AS account
-        JOIN board_profile AS profile ON profile.user_id = account.id JOIN board_config AS config ON config.user_id = account.id
+      SELECT profile.role, config.language, config.timeZone FROM "User" AS account
+        JOIN "Profile" AS profile ON profile.userId = account.id JOIN "UserPreference" AS config ON config.userId = account.id
        WHERE account.username = 'neweditor'
     `).get();
     assert.equal(account?.role, 'EDITOR');
     assert.equal(account?.language, 'ko');
-    assert.equal(account?.time_zone, 'Asia/Seoul');
+    assert.equal(account?.timeZone, 'Asia/Seoul');
     assert.equal(check.prepare('SELECT COUNT(*) AS count FROM WebhookDelivery').get()?.count, 1);
     check.close();
   } finally {
@@ -207,8 +195,8 @@ test('requires recent verification for password and 2FA changes and rotates the 
   const path = join(directory, 'security.sqlite3');
   const fixture = await migratedFixture(path);
   fixture.prepare(`
-    INSERT INTO auth_user (id, username, password, email, first_name, last_name, date_joined, is_active, is_staff, is_superuser)
-    VALUES (41, 'account', ?, 'test@example.invalid', 'Reader', '', '2000-01-01', 1, 0, 0)
+    INSERT INTO "User" (id, username, passwordHash, email, name, joinedAt, isActive, isStaff, isSuperuser)
+    VALUES (41, 'account', ?, 'test@example.invalid', 'Reader', 946684800000, 1, 0, 0)
   `).run(olderPasswordHash);
   fixture.close();
   const siteUrl = new URL('https://blex.example');
@@ -246,8 +234,8 @@ test('requires recent verification for password and 2FA changes and rotates the 
     assert.match(setup.json().body.qrCode, /^data:image\/png;base64,/);
     assert.match(setup.json().body.recoveryKey, /^[a-zA-Z0-9]{45}$/);
     const stored = new DatabaseSync(path, { readOnly: true });
-    const pending = stored.prepare('SELECT secret, recovery_hash FROM blex_factor_setup').get();
-    assert.notEqual(pending?.recovery_hash, setup.json().body.recoveryKey);
+    const pending = stored.prepare('SELECT secret, recoveryHash FROM "FactorSetup"').get();
+    assert.notEqual(pending?.recoveryHash, setup.json().body.recoveryKey);
     const decrypted = decryptDjangoSecret(String(pending?.secret), cipherKey);
     assert.ok(decrypted);
     stored.close();
@@ -281,12 +269,12 @@ test('keeps the legacy login envelope and issues a new session only after CSRF, 
   const path = join(directory, 'accounts.sqlite3');
   const fixture = await migratedFixture(path);
   fixture.prepare(`
-    INSERT INTO auth_user (id, username, password, email, first_name, last_name, date_joined, is_active, is_staff, is_superuser)
-    VALUES (42, 'account', ?, 'test@example.invalid', 'Test', '', '2000-01-01', 1, 0, 0)
+    INSERT INTO "User" (id, username, passwordHash, email, name, joinedAt, isActive, isStaff, isSuperuser)
+    VALUES (42, 'account', ?, 'test@example.invalid', 'Test', 946684800000, 1, 0, 0)
   `).run(olderPasswordHash);
   fixture.prepare(`
-    INSERT INTO board_twofactorauth (user_id, recovery_key, totp_secret, created_date)
-    VALUES (42, ?, ?, '2000-01-01')
+    INSERT INTO "TwoFactorAuth" (userId, recoveryKey, totpSecret, createdAt)
+    VALUES (42, ?, ?, 946684800000)
   `).run(recoveryKey, totpSecret);
   fixture.close();
 
@@ -354,13 +342,13 @@ test('account deletion checks recent proof, preserves other members, and protect
   const path = join(directory, 'deletion.sqlite3');
   const fixture = await migratedFixture(path);
   fixture.prepare(`
-    INSERT INTO auth_user (id, username, password, email, first_name, last_name, date_joined, is_active, is_staff, is_superuser)
-    VALUES (1, 'administrator', ?, 'admin@example.invalid', 'Owner', '', '2000-01-01', 1, 1, 1),
-           (2, 'reader', ?, 'reader@example.invalid', 'Reader', '', '2000-01-01', 1, 0, 0)
+    INSERT INTO "User" (id, username, passwordHash, email, name, joinedAt, isActive, isStaff, isSuperuser)
+    VALUES (1, 'administrator', ?, 'admin@example.invalid', 'Owner', 946684800000, 1, 1, 1),
+           (2, 'reader', ?, 'reader@example.invalid', 'Reader', 946684800000, 1, 0, 0)
   `).run(olderPasswordHash, olderPasswordHash);
   fixture.exec(`
-    INSERT INTO board_authorinvite (code, note, is_active, created_by_id, claimed_by_id, created_date, claimed_date)
-    VALUES ('test-claimed', '', 0, 1, 2, '2000-01-01', '2000-01-01');
+    INSERT INTO "AuthorInvite" ("code", "note", "isActive", "createdById", "claimedById", "createdAt", "claimedAt") VALUES
+    ('test-claimed', '', 0, 1, 2, 946684800000, 946684800000);
     INSERT INTO WorkLog (id, title, createdAt, ownerId) VALUES (3, 'Synthetic log', 946684800000, 2);
     INSERT INTO WorkLogEntry (id, title, text, mediaType, attachment, createdAt, logId)
     VALUES (4, 'Synthetic entry', '', '', '', 946684800000, 3);
@@ -401,9 +389,9 @@ test('account deletion checks recent proof, preserves other members, and protect
       }
     }
     const check = new DatabaseSync(path, { readOnly: true });
-    assert.deepEqual(check.prepare('SELECT username FROM auth_user').all().map((row) => row.username), ['administrator']);
+    assert.deepEqual(check.prepare('SELECT username FROM "User"').all().map((row) => row.username), ['administrator']);
     assert.equal(check.prepare('SELECT COUNT(*) AS rows FROM _WorkLogEntryToWorkLogShare').get()?.rows, 0);
-    assert.equal(check.prepare('SELECT claimed_by_id FROM board_authorinvite').get()?.claimed_by_id, null);
+    assert.equal(check.prepare('SELECT claimedById FROM AuthorInvite').get()?.claimedById, null);
     assert.deepEqual(check.prepare('SELECT slug FROM "Post" WHERE seriesId IS NULL').all().map((row) => row.slug), ['kept-post']);
     assert.deepEqual(check.prepare('SELECT markdown FROM Comment WHERE authorId IS NULL').all().map((row) => row.markdown), ['kept']);
     assert.equal(check.prepare('SELECT COUNT(*) AS rows FROM "Post"').get()?.rows, 1);
@@ -430,17 +418,17 @@ test('binds OAuth callbacks to the initiating browser and reuses an existing soc
   const path = join(directory, 'oauth.sqlite3');
   const fixture = await migratedFixture(path);
   fixture.exec(`
-    INSERT INTO auth_user (id, username, password, email, first_name, last_name, date_joined, is_active, is_staff, is_superuser)
-    VALUES (45, 'social-reader', '!unusable', '', 'Reader', '', '2000-01-01', 1, 0, 0),
-           (46, 'site-owner', '!unusable', 'new-social@example.invalid', 'Owner', '', '2000-01-01', 1, 1, 1);
+    INSERT INTO "User" ("id", "username", "passwordHash", "email", "name", "joinedAt", "isActive", "isStaff", "isSuperuser") VALUES
+    (45, 'social-reader', '!unusable', '', 'Reader', 946684800000, 1, 0, 0),
+    (46, 'site-owner', '!unusable', 'new-social@example.invalid', 'Owner', 946684800000, 1, 1, 1);
   `);
-  fixture.prepare('INSERT INTO board_socialauthprovider (id, key, client_id, client_secret, is_enabled) VALUES (1, ?, ?, ?, 1)')
+  fixture.prepare('INSERT INTO "SocialProvider" (id, key, clientId, clientSecret, isEnabled) VALUES (1, ?, ?, ?, 1)')
     .run('google', 'synthetic-client', totpSecret);
-  fixture.prepare("INSERT INTO board_socialauth (provider_id, uid, user_id, extra_data, created_date) VALUES (1, ?, 45, ?, '2000-01-01')")
+  fixture.prepare('INSERT INTO "SocialAccount" (providerId, uid, userId, extraData, createdAt) VALUES (1, ?, 45, ?, 946684800000)')
     .run('existing-social-uid', '{}');
   fixture.prepare(`
-    INSERT INTO board_twofactorauth (user_id, recovery_key, totp_secret, created_date)
-    VALUES (45, ?, ?, '2000-01-01')
+    INSERT INTO "TwoFactorAuth" (userId, recoveryKey, totpSecret, createdAt)
+    VALUES (45, ?, ?, 946684800000)
   `).run(recoveryKey, totpSecret);
   fixture.close();
 
@@ -526,8 +514,8 @@ test('binds OAuth callbacks to the initiating browser and reuses an existing soc
     assert.equal(newViewer.json().body.username, 'new-social');
     assert.equal(newViewer.json().body.hasEditorRole, false);
     const check = new DatabaseSync(path, { readOnly: true });
-    assert.notEqual(check.prepare("SELECT user_id FROM board_socialauth WHERE uid = 'brand-new-social-uid'").get()?.user_id, 46);
-    assert.equal(check.prepare("SELECT time_zone FROM board_config WHERE user_id = (SELECT id FROM auth_user WHERE username = 'new-social')").get()?.time_zone, 'Asia/Seoul');
+    assert.notEqual(check.prepare("SELECT userId FROM SocialAccount WHERE uid = 'brand-new-social-uid'").get()?.userId, 46);
+    assert.equal(check.prepare("SELECT timeZone FROM UserPreference WHERE userId = (SELECT id FROM User WHERE username = 'new-social')").get()?.timeZone, 'Asia/Seoul');
     check.close();
   } finally {
     await app.close();
@@ -553,12 +541,11 @@ test('requires 2FA for an active existing account and preserves the account ID u
   const path = join(temp, 'legacy-auth.sqlite3');
   const fixture = new DatabaseSync(path);
   fixture.exec(`
-    CREATE TABLE auth_user (id INTEGER PRIMARY KEY, username TEXT, password TEXT, is_active BOOLEAN);
-    CREATE TABLE board_twofactorauth (user_id INTEGER, totp_secret TEXT, recovery_key TEXT);
+  ${migratedTableSql(...accountTables)}
   `);
-  fixture.prepare('INSERT INTO auth_user VALUES (?, ?, ?, ?)').run(42, 'existing', olderPasswordHash, 1);
-  fixture.prepare('INSERT INTO auth_user VALUES (?, ?, ?, ?)').run(43, 'inactive', olderPasswordHash, 0);
-  fixture.prepare('INSERT INTO board_twofactorauth VALUES (?, ?, ?)').run(42, totpSecret, recoveryKey);
+  fixture.prepare('INSERT INTO "User" (id, username, passwordHash, isActive, email) VALUES (?, ?, ?, ?, \'\')').run(42, 'existing', olderPasswordHash, 1);
+  fixture.prepare('INSERT INTO "User" (id, username, passwordHash, isActive, email) VALUES (?, ?, ?, ?, \'\')').run(43, 'inactive', olderPasswordHash, 0);
+  fixture.prepare('INSERT INTO "TwoFactorAuth" (userId, totpSecret, recoveryKey, createdAt) VALUES (?, ?, ?, 946684800000)').run(42, totpSecret, recoveryKey);
   fixture.close();
 
   const db = new PrismaClient({ datasourceUrl: `file:${path}` });
@@ -619,11 +606,13 @@ test('creates a first administrator against an empty Prisma database once', asyn
     assert.equal(identity.json().body.hasEditorRole, true);
     const db = new DatabaseSync(path, { readOnly: true });
     try {
-      const user = db.prepare('SELECT password, is_staff, is_superuser FROM auth_user LIMIT 1').get();
-      assert.equal(await verifyDjangoPassword(password, String(user?.password)), true);
-      assert.equal(user?.is_superuser, 1);
-      assert.equal(user?.is_staff, 1);
-      assert.equal(db.prepare('SELECT COUNT(*) AS count FROM board_userconfigmeta').get()?.count, 2);
+      const user = db.prepare('SELECT passwordHash, isStaff, isSuperuser FROM "User" LIMIT 1').get();
+      assert.equal(await verifyDjangoPassword(password, String(user?.passwordHash)), true);
+      assert.equal(user?.isSuperuser, 1);
+      assert.equal(user?.isStaff, 1);
+      assert.deepEqual({ ...db.prepare('SELECT notifyMention, notifyCommentLike, notifyPostLike, notifyPostComment FROM UserPreference').get() }, {
+        notifyMention: 1, notifyCommentLike: 1, notifyPostLike: null, notifyPostComment: null,
+      });
     } finally {
       db.close();
     }

@@ -331,7 +331,7 @@ export function registerProfileRoutes(app: FastifyInstance, db: PrismaClient, si
       where: { ownerId: author.id, slug: request.params.seriesUrl, isHidden: false, posts: { some: publicPost } },
       select: {
         id: true, slug: true, name: true, descriptionMarkdown: true, descriptionHtml: true, createdAt: true, updatedAt: true, ownerId: true,
-        owner: { select: { username: true, board_profile: { select: { avatar: true } } } },
+        owner: { select: { username: true, profile: { select: { avatar: true } } } },
         _count: { select: { posts: { where: publicPost } } },
       },
     });
@@ -340,7 +340,7 @@ export function registerProfileRoutes(app: FastifyInstance, db: PrismaClient, si
       id: storedSeries.id, url: storedSeries.slug, name: storedSeries.name, textMarkdown: storedSeries.descriptionMarkdown,
       textHtml: storedSeries.descriptionHtml, createdDate: storedDateText(storedSeries.createdAt), updatedDate: storedDateText(storedSeries.updatedAt),
       authorId: storedSeries.ownerId, authorUsername: storedSeries.owner.username,
-      authorAvatar: storedSeries.owner.board_profile?.avatar ?? null, postCount: storedSeries._count.posts,
+      authorAvatar: storedSeries.owner.profile?.avatar ?? null, postCount: storedSeries._count.posts,
     };
     const seriesPath = `${authorPath(author.username, '/series')}/${encodeURIComponent(series.url)}`;
     if (author.username !== requestedUsername) return sendRedirect(reply, seriesPath);

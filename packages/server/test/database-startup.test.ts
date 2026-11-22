@@ -7,8 +7,10 @@ import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
 import { PrismaClient } from '@prisma/client';
+import { Secret, TOTP } from 'otpauth';
 import { buildApp } from '../src/app.js';
 import { DatabaseSetupError, portMappingProblem, prepareDatabase } from '../src/startup/prepare-database.js';
+import { encryptDjangoSecret } from '../src/features/auth/django-secret.js';
 import { insertRow } from './fixtures/migrated-database.js';
 
 const legacySchema = new URL('../../prisma/legacy/django-3.14.sql', import.meta.url);
@@ -58,12 +60,12 @@ test('creates a new database and leaves it in place on the next start', async ()
   try {
     await prepareDatabase(space.options);
     const first = new DatabaseSync(space.databasePath);
-    insertRow(first, 'auth_user', { id: 1, username: 'kept' });
+    insertRow(first, 'User', { id: 1, username: 'kept' });
     first.close();
 
     await prepareDatabase(space.options);
     const second = new DatabaseSync(space.databasePath, { readOnly: true });
-    assert.equal(count(second, 'auth_user'), 1);
+    assert.equal(count(second, 'User'), 1);
     assert.equal(count(second, '_prisma_migrations'), 1);
     second.close();
   } finally {
@@ -114,13 +116,13 @@ test('imports a 3.14 installation once and leaves the original unchanged', async
     assert.equal(existsSync(`${space.databasePath}.importing`), false);
     assert.equal(await readFile(join(space.mediaRoot, 'images', 'cover.png'), 'utf8'), 'image');
     const imported = new DatabaseSync(space.databasePath);
-    assert.equal(count(imported, 'auth_user'), 1);
+    assert.equal(count(imported, 'User'), 1);
     assert.equal(count(imported, 'Post'), 2);
     assert.equal(count(imported, 'Comment'), 1);
     for (const table of ['django_migrations', 'django_session', 'django_site', 'board_oauthauthorization']) {
       assert.equal(imported.prepare('SELECT 1 FROM sqlite_schema WHERE name = ?').get(table), undefined, table);
     }
-    assert.equal((imported.prepare('SELECT password FROM auth_user WHERE id = 7').get() as { password: string }).password, 'pbkdf2_sha256$fixture$hash');
+    assert.equal((imported.prepare('SELECT passwordHash FROM User WHERE id = 7').get() as { passwordHash: string }).passwordHash, 'pbkdf2_sha256$fixture$hash');
     assert.deepEqual({ ...imported.prepare('SELECT postId, publishAt FROM "ScheduledPublication"').get() }, { postId: 5, publishAt: Date.UTC(2099, 0, 1) });
     assert.equal(Number((imported.prepare(`SELECT seq FROM sqlite_sequence WHERE name = 'Post'`).get() as { seq: number }).seq), 40);
     assert.equal(count(imported, '_prisma_migrations'), 1);
@@ -168,7 +170,7 @@ test('imports a 3.14 installation once and leaves the original unchanged', async
     changed.close();
     await prepareDatabase(space.options);
     const again = new DatabaseSync(space.databasePath, { readOnly: true });
-    assert.equal(count(again, 'auth_user'), 1);
+    assert.equal(count(again, 'User'), 1);
     again.close();
   } finally {
     await space.cleanup();
@@ -564,6 +566,148 @@ test('leaves no database behind when the import fails', async () => {
     await assert.rejects(prepareDatabase(space.options), /Could not import the BLEX 3\.14 data.*not changed/s);
     assert.equal(existsSync(space.databasePath), false);
     assert.equal(existsSync(`${space.databasePath}.importing`), false);
+  } finally {
+    await space.cleanup();
+  }
+});
+
+test('imports 3.14 accounts with credentials, permissions, and preferences intact', async () => {
+  const space = await workspace();
+  const source = join(space.legacyRoot, 'db.sqlite3');
+  const cipherKey = '0123456789abcdef0123456789abcdef';
+  const password = 'compatibility-비밀번호-2026';
+  const passwordHash = 'pbkdf2_sha256$100000$TestOnlyBlexCompatibilitySalt$C7LHeNRVZX18ry19YwDvmo1l7q8hcL5jtbv2QGe2x8E=';
+  const totpSecret = encryptDjangoSecret('JBSWY3DPEHPK3PXP', cipherKey);
+  const recoveryKey = '831c28715dcd5f61787dc41ad7bf1663f904ab40c6220da4630e7fddecae6fe8';
+  const clientSecret = encryptDjangoSecret('oauth-client-secret', cipherKey);
+  try {
+    const legacy = await createLegacyDatabase(source);
+    insertRow(legacy, 'auth_user', {
+      id: 7, username: 'writer', password: passwordHash, first_name: 'Writer', last_name: 'Discarded', email: 'writer@example.test',
+      is_active: 1, is_staff: 1, is_superuser: 0, last_login: '2024-01-02 03:04:05.678901', date_joined: '2023-01-01 00:00:00',
+    });
+    for (const [id, username] of [[8, 'direct'], [9, 'grouped'], [10, 'viewonly'], [11, 'otherapp']] as const) {
+      insertRow(legacy, 'auth_user', { id, username, password: passwordHash, is_active: 1, is_staff: 1, date_joined: '2023-01-01 00:00:00' });
+    }
+    insertRow(legacy, 'auth_user', { id: 12, username: 'root', password: passwordHash, is_active: 1, is_staff: 1, is_superuser: 1, date_joined: '2023-01-01 00:00:00' });
+    insertRow(legacy, 'auth_user', { id: 13, username: 'noprofile', password: passwordHash, is_active: 0, date_joined: '2023-01-01 00:00:00' });
+    insertRow(legacy, 'django_content_type', { id: 30, app_label: 'board', model: 'sitesetting' });
+    insertRow(legacy, 'django_content_type', { id: 31, app_label: 'other', model: 'sitesetting' });
+    insertRow(legacy, 'auth_permission', { id: 40, content_type_id: 30, codename: 'change_sitesetting', name: 'Can change' });
+    insertRow(legacy, 'auth_permission', { id: 41, content_type_id: 30, codename: 'view_sitesetting', name: 'Can view' });
+    insertRow(legacy, 'auth_permission', { id: 42, content_type_id: 31, codename: 'change_sitesetting', name: 'Other app' });
+    insertRow(legacy, 'auth_group', { id: 50, name: 'Editors' });
+    insertRow(legacy, 'auth_group_permissions', { id: 1, group_id: 50, permission_id: 40 });
+    insertRow(legacy, 'auth_user_groups', { id: 1, user_id: 9, group_id: 50 });
+    insertRow(legacy, 'auth_user_user_permissions', { id: 1, user_id: 8, permission_id: 40 });
+    insertRow(legacy, 'auth_user_user_permissions', { id: 2, user_id: 10, permission_id: 41 });
+    insertRow(legacy, 'auth_user_user_permissions', { id: 3, user_id: 11, permission_id: 42 });
+    insertRow(legacy, 'board_profile', {
+      id: 70, user_id: 7, role: 'EDITOR', bio: 'Bio', avatar: 'a.png', cover: 'c.png', homepage: 'https://w.example',
+      about_md: '# About', about_html: '<h1>About</h1>', analytics_share_url: 'https://discarded.example',
+    });
+    insertRow(legacy, 'board_profile', { id: 71, user_id: 8, role: 'READER' });
+    insertRow(legacy, 'board_config', { id: 1, user_id: 7, language: 'en', time_zone: 'Asia/Seoul' });
+    insertRow(legacy, 'board_config', { id: 2, user_id: 8, language: null, time_zone: '' });
+    const meta = (id: number, user_id: number, name: string, value: string) => insertRow(legacy, 'board_userconfigmeta', {
+      id, user_id, name, value, created_date: '2024-01-01 00:00:00', updated_date: '2024-01-01 00:00:00',
+    });
+    meta(3, 7, 'NOTIFY_MENTION', 'true');
+    meta(4, 7, 'NOTIFY_MENTION', 'false');
+    meta(1, 7, 'NOTIFY_POSTS_LIKE', 'false');
+    meta(2, 7, 'NOTIFY_POSTS_LIKE', 'true');
+    meta(5, 7, 'NOTIFY_COMMENT_LIKE', 'True');
+    meta(6, 9, 'NOTIFY_POSTS_COMMENT', 'true');
+    insertRow(legacy, 'board_userlinkmeta', { id: 21, user_id: 7, name: 'github', value: 'https://github.com/w', order: 2, created_date: '2024-01-01 00:00:00', updated_date: '2024-01-02 00:00:00' });
+    insertRow(legacy, 'board_socialauthprovider', { id: 3, key: 'google', client_id: 'client', client_secret: clientSecret, is_enabled: 1 });
+    insertRow(legacy, 'board_socialauth', { id: 4, provider_id: 3, uid: 'uid-1', user_id: 7, extra_data: '{"name":"W"}', created_date: '2024-01-03 00:00:00' });
+    insertRow(legacy, 'board_twofactorauth', { id: 5, user_id: 7, totp_secret: totpSecret, recovery_key: recoveryKey, created_date: '2024-01-04 00:00:00' });
+    insertRow(legacy, 'board_usernamechangelog', { id: 6, user_id: 7, username: 'oldwriter', created_date: '2024-01-05 00:00:00' });
+    insertRow(legacy, 'board_authorinvite', { id: 8, code: 'claimed', note: 'n', is_active: 0, created_by_id: 7, claimed_by_id: 8, created_date: '2024-01-06 00:00:00', claimed_date: '2024-01-07 00:00:00' });
+    insertRow(legacy, 'board_loginattempt', { key: 'k'.repeat(64), window: 123, count: 4 });
+    insertRow(legacy, 'board_emailchange', { id: 1, user_id: 7, email: 'discarded@example.test', auth_token: 'tok', created_date: '2024-01-01 00:00:00' });
+    for (const [name, seq] of [['auth_user', 500], ['board_userlinkmeta', 501], ['board_socialauthprovider', 502], ['board_socialauth', 503], ['board_twofactorauth', 504], ['board_usernamechangelog', 505], ['board_authorinvite', 506]] as const) {
+      legacy.prepare('UPDATE sqlite_sequence SET seq = ? WHERE name = ?').run(seq, name);
+    }
+    legacy.close();
+
+    await prepareDatabase(space.options);
+
+    const imported = new DatabaseSync(space.databasePath, { readOnly: true });
+    const one = (sql: string) => ({ ...imported.prepare(sql).get() });
+    assert.deepEqual(one('SELECT username, email, passwordHash, name, isActive, isStaff, isSuperuser, canManageSiteSettings, lastLoginAt, joinedAt FROM User WHERE id = 7'), {
+      username: 'writer', email: 'writer@example.test', passwordHash, name: 'Writer', isActive: 1, isStaff: 1, isSuperuser: 0, canManageSiteSettings: 0,
+      lastLoginAt: Date.UTC(2024, 0, 2, 3, 4, 5, 678), joinedAt: Date.UTC(2023, 0, 1),
+    });
+    const granted = imported.prepare('SELECT id FROM User WHERE canManageSiteSettings = 1 ORDER BY id').all().map((row) => row.id);
+    assert.deepEqual(granted, [8, 9]);
+    assert.deepEqual(one('SELECT role, bio, avatar, cover, homepage, aboutMarkdown, aboutHtml FROM Profile WHERE userId = 7'), {
+      role: 'EDITOR', bio: 'Bio', avatar: 'a.png', cover: 'c.png', homepage: 'https://w.example', aboutMarkdown: '# About', aboutHtml: '<h1>About</h1>',
+    });
+    assert.equal(count(imported, 'Profile'), 2);
+    assert.deepEqual(one('SELECT language, timeZone, notifyPostLike, notifyPostComment, notifyCommentLike, notifyMention FROM UserPreference WHERE userId = 7'), {
+      language: 'en', timeZone: 'Asia/Seoul', notifyPostLike: 0, notifyPostComment: null, notifyCommentLike: 0, notifyMention: 1,
+    });
+    assert.deepEqual(one('SELECT language, timeZone, notifyPostComment, notifyMention FROM UserPreference WHERE userId = 9'), {
+      language: null, timeZone: '', notifyPostComment: 1, notifyMention: null,
+    });
+    assert.deepEqual(one('SELECT language, timeZone, notifyPostLike FROM UserPreference WHERE userId = 8'), { language: null, timeZone: '', notifyPostLike: null });
+    assert.equal(count(imported, 'UserPreference'), 3);
+    assert.deepEqual(one('SELECT id, userId, platform, url, "order", createdAt, updatedAt FROM SocialLink'), {
+      id: 21, userId: 7, platform: 'github', url: 'https://github.com/w', order: 2, createdAt: Date.UTC(2024, 0, 1), updatedAt: Date.UTC(2024, 0, 2),
+    });
+    assert.deepEqual(one('SELECT id, key, clientId, clientSecret, isEnabled FROM SocialProvider'), { id: 3, key: 'google', clientId: 'client', clientSecret, isEnabled: 1 });
+    assert.deepEqual(one('SELECT id, providerId, uid, userId, extraData, createdAt FROM SocialAccount'), {
+      id: 4, providerId: 3, uid: 'uid-1', userId: 7, extraData: '{"name":"W"}', createdAt: Date.UTC(2024, 0, 3),
+    });
+    assert.deepEqual(one('SELECT id, userId, totpSecret, recoveryKey, createdAt FROM TwoFactorAuth'), {
+      id: 5, userId: 7, totpSecret, recoveryKey, createdAt: Date.UTC(2024, 0, 4),
+    });
+    assert.deepEqual(one('SELECT id, userId, username, createdAt FROM UsernameChange'), { id: 6, userId: 7, username: 'oldwriter', createdAt: Date.UTC(2024, 0, 5) });
+    assert.deepEqual(one('SELECT id, code, note, isActive, createdById, claimedById, createdAt, claimedAt FROM AuthorInvite'), {
+      id: 8, code: 'claimed', note: 'n', isActive: 0, createdById: 7, claimedById: 8, createdAt: Date.UTC(2024, 0, 6), claimedAt: Date.UTC(2024, 0, 7),
+    });
+    assert.deepEqual(one('SELECT key, window, count FROM LoginAttempt'), { key: 'k'.repeat(64), window: 123, count: 4 });
+    for (const [name, seq] of [['User', 500], ['SocialLink', 501], ['SocialProvider', 502], ['SocialAccount', 503], ['TwoFactorAuth', 504], ['UsernameChange', 505], ['AuthorInvite', 506]] as const) {
+      assert.equal(Number((imported.prepare('SELECT seq FROM sqlite_sequence WHERE name = ?').get(name) as { seq: number }).seq), seq, name);
+    }
+    for (const table of ['auth_user', 'auth_group', 'auth_group_permissions', 'auth_permission', 'auth_user_groups', 'auth_user_user_permissions', 'django_content_type', 'board_emailchange', 'board_config', 'board_userconfigmeta']) {
+      assert.equal(imported.prepare('SELECT 1 FROM sqlite_schema WHERE name = ?').get(table), undefined, table);
+    }
+    assert.deepEqual(imported.prepare('PRAGMA foreign_key_check').all(), []);
+    imported.close();
+
+    const siteUrl = new URL('https://blex.example');
+    const app = await buildApp(space.databasePath, siteUrl, { secretKey: 'import-account-secret', cipherKey });
+    try {
+      const page = await app.inject('/v1/login');
+      const csrf = String(page.headers['set-cookie']).match(/csrftoken=([^;]+)/)?.[1] ?? '';
+      const headers = { origin: siteUrl.origin, cookie: `csrftoken=${csrf}`, 'x-csrftoken': csrf };
+      const login = (payload: Record<string, string>) => app.inject({ method: 'POST', url: '/v1/login', headers, payload });
+      assert.equal((await login({ username: 'writer', password })).json().body.security, true);
+      assert.equal((await login({ username: 'writer', password, code: 'test-only-recovery-code' })).json().body.username, 'writer');
+      const code = new TOTP({ secret: Secret.fromBase32('JBSWY3DPEHPK3PXP') }).generate();
+      assert.equal((await login({ username: 'writer', password, code })).json().body.username, 'writer');
+      assert.equal((await login({ username: 'noprofile', password })).json().errorCode, 'error:AT');
+      assert.deepEqual((await app.inject('/v1/social-providers')).json().body, [{ key: 'google', name: 'Google', clientId: 'client' }]);
+    } finally {
+      await app.close();
+    }
+  } finally {
+    await space.cleanup();
+  }
+});
+
+test('stops the import on a 3.14 profile role BLEX 4 cannot read', async () => {
+  const space = await workspace();
+  const source = join(space.legacyRoot, 'db.sqlite3');
+  try {
+    const legacy = await createLegacyDatabase(source);
+    insertRow(legacy, 'auth_user', { id: 7, username: 'writer', date_joined: '2023-01-01 00:00:00' });
+    insertRow(legacy, 'board_profile', { id: 1, user_id: 7, role: 'OWNER' });
+    legacy.close();
+    await assert.rejects(prepareDatabase(space.options), /board_profile\.role in row 7 is "OWNER"/);
+    assert.equal(existsSync(space.databasePath), false);
   } finally {
     await space.cleanup();
   }

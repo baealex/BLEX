@@ -1,6 +1,6 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
 import { createHash, timingSafeEqual } from 'node:crypto';
-import { DeveloperApiError, asBoolean, formatError } from '../shared.js';
+import { DeveloperApiError, formatError } from '../shared.js';
 
 const TOKEN_PREFIX = 'blex_pat_';
 
@@ -9,7 +9,7 @@ interface UserRow {
   username: string;
   firstName: string;
   email: string;
-  isActive: number | bigint | boolean;
+  isActive: boolean;
   role: string | null;
 }
 
@@ -56,13 +56,14 @@ export async function authenticate(
     return { error: formatError('auth.invalid_token', 'Invalid token.', 401) };
   }
 
-  const [user] = await db.$queryRaw<UserRow[]>`
-    SELECT user.id, user.username, user.first_name AS firstName, user.email, user.is_active AS isActive, profile.role
-      FROM auth_user AS user
-      LEFT JOIN board_profile AS profile ON profile.user_id = user.id
-     WHERE user.id = ${stored.userId}
-     LIMIT 1
-  `;
+  const owner = await db.user.findUnique({
+    where: { id: stored.userId },
+    select: { id: true, username: true, name: true, email: true, isActive: true, profile: { select: { role: true } } },
+  });
+  const user: UserRow | null = owner && {
+    id: owner.id, username: owner.username, firstName: owner.name, email: owner.email,
+    isActive: owner.isActive, role: owner.profile?.role ?? null,
+  };
   if (!user) return { error: formatError('auth.invalid_token', 'Invalid token.', 401) };
 
   if (stored.revokedAt !== null || (stored.expiresAt !== null && stored.expiresAt.getTime() <= Date.now())) {
@@ -70,7 +71,7 @@ export async function authenticate(
       error: formatError('auth.invalid_token', 'This token has expired or been revoked.', 401),
     };
   }
-  if (!asBoolean(user.isActive)) {
+  if (!user.isActive) {
     return { error: formatError('auth.inactive_user', 'This user is inactive.', 401) };
   }
   if (user.role !== 'EDITOR') {

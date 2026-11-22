@@ -51,13 +51,7 @@ function normalizedTimeZone(value: string | null): string {
   return value && isSupportedTimeZone(value) ? value : '';
 }
 
-export function accountDate(value: string | null, timeZone: string): string {
-  if (!value) return '';
-  const timestamp = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(value)
-    ? value.replace(' ', 'T')
-    : `${value.replace(' ', 'T')}Z`;
-  const date = new Date(timestamp);
-  if (!Number.isFinite(date.getTime())) return '';
+export function accountDate(date: Date, timeZone: string): string {
   try {
     const parts = new Intl.DateTimeFormat('en-CA', {
       timeZone: isSupportedTimeZone(timeZone) ? timeZone : DEFAULT_TIME_ZONE,
@@ -105,10 +99,7 @@ export async function updateRegionalPreferences(db: PrismaClient, userId: number
   if (typeof timeZone !== 'string' || (timeZone !== '' && !isSupportedTimeZone(timeZone))) {
     return regionalError('time_zone');
   }
-  await db.$executeRaw`
-    INSERT INTO board_config (user_id, language, time_zone)
-    VALUES (${userId}, ${language as string | null}, ${timeZone})
-    ON CONFLICT(user_id) DO UPDATE SET language = excluded.language, time_zone = excluded.time_zone
-  `;
+  const preference = { language: language as string | null, timeZone };
+  await db.userPreference.upsert({ where: { userId }, create: { userId, ...preference }, update: preference, select: { userId: true } });
   return { ok: true };
 }

@@ -7,16 +7,14 @@ import Fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import test from 'node:test';
 import { registerPublicDiscovery } from '../src/features/discovery/feeds/index.js';
-import { createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
+import { accountTables, createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-discovery-'));
 const databasePath = join(directory, 'synthetic legacy.sqlite3');
 const fixture = new DatabaseSync(databasePath);
 createMigratedTables(fixture, 'StaticPage', 'SiteSetting');
 fixture.exec(`
-  CREATE TABLE auth_user (id INTEGER PRIMARY KEY, username TEXT, first_name TEXT);
-  CREATE TABLE board_usernamechangelog (id INTEGER PRIMARY KEY, user_id INTEGER, username TEXT, created_date DATETIME);
-  CREATE TABLE board_profile (id INTEGER PRIMARY KEY, user_id INTEGER, bio TEXT, avatar TEXT, role TEXT);
+  ${migratedTableSql(...accountTables)}
 ${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', 'PostLike', 'PinnedPost', 'PostShareLink', 'PostShareDailyCount', 'ScheduledPublication')}
 
 
@@ -24,9 +22,12 @@ ${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', '
 
   ${migratedTableSql('Series')}
 
-  INSERT INTO auth_user VALUES (1, 'writer', 'Alex');
-  INSERT INTO board_usernamechangelog VALUES (1, 1, 'old-writer', '1999-01-01 00:00:00');
-  INSERT INTO board_profile VALUES (1, 1, 'Writer bio', '', 'EDITOR');
+  INSERT INTO "User" ("id", "username", "name", "email", "passwordHash", "joinedAt") VALUES
+    (1, 'writer', 'Alex', '', '', 1577836800000);
+  INSERT INTO "UsernameChange" ("id", "userId", "username", "createdAt") VALUES
+    (1, 1, 'old-writer', 915148800000);
+  INSERT INTO "Profile" ("userId", "bio", "avatar", "role") VALUES
+    (1, 'Writer bio', '', 'EDITOR');
   INSERT INTO SiteSetting (id, seoEnabled, aeoEnabled, robotsTxtExtraRules, siteName, updatedAt) VALUES (1, 1, 1, 'User-agent: ExampleBot\nDisallow: /private/  \n', 'Custom Blog', 946684800000);
   INSERT INTO "Series" ("id", "ownerId", "name", "slug", "descriptionMarkdown", "descriptionHtml", "isHidden", "updatedAt") VALUES
     (1, 1, 'Public Series', 'public-series', 'Series summary.', '', 0, 946771200000);

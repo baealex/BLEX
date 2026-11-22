@@ -7,45 +7,14 @@ import { PrismaClient } from '@prisma/client';
 import Fastify from 'fastify';
 import test from 'node:test';
 import { registerPublicPages } from '../src/features/discovery/pages/index.js';
-import { createMigratedTables, migratedTableSql, prismaDate } from './fixtures/migrated-database.js';
+import { accountTables, createMigratedTables, migratedTableSql, prismaDate } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-public-pages-'));
 const databasePath = join(directory, 'Django public pages.sqlite3');
 const database = new DatabaseSync(databasePath);
 createMigratedTables(database, 'StaticPage', 'SiteNotice', 'SiteSetting');
 database.exec(`
-  CREATE TABLE auth_user (
-    id INTEGER PRIMARY KEY,
-    username TEXT NOT NULL,
-    first_name TEXT NOT NULL DEFAULT '',
-    is_active BOOLEAN NOT NULL DEFAULT 1
-  );
-  CREATE TABLE board_usernamechangelog (
-    id INTEGER PRIMARY KEY,
-    user_id INTEGER NOT NULL,
-    username TEXT NOT NULL,
-    created_date DATETIME NOT NULL
-  );
-  CREATE TABLE board_profile (
-    id INTEGER PRIMARY KEY,
-    user_id INTEGER NOT NULL,
-    bio TEXT NOT NULL DEFAULT '',
-    cover TEXT NOT NULL DEFAULT '',
-    avatar TEXT NOT NULL DEFAULT '',
-    homepage TEXT NOT NULL DEFAULT '',
-    about_md TEXT NOT NULL DEFAULT '',
-    about_html TEXT NOT NULL DEFAULT '',
-    role TEXT NOT NULL DEFAULT 'READER'
-  );
-  CREATE TABLE board_userlinkmeta (
-    id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL,
-    value TEXT NOT NULL,
-    created_date DATETIME NOT NULL,
-    updated_date DATETIME NOT NULL,
-    user_id INTEGER NOT NULL,
-    "order" INTEGER NOT NULL DEFAULT 0
-  );
+  ${migratedTableSql(...accountTables)}
 ${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', 'PostLike', 'PinnedPost', 'PostShareLink', 'PostShareDailyCount', 'ScheduledPublication')}
 
 
@@ -57,15 +26,17 @@ ${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', '
 
   ${migratedTableSql('AuthorSubscription')}
 
-  INSERT INTO auth_user VALUES (1, 'writer', 'Writer', 1), (2, 'reader', 'Reader', 1);
-  INSERT INTO board_usernamechangelog VALUES (1, 1, 'old-writer', '2019-01-01 00:00:00');
-  INSERT INTO board_profile VALUES
-    (1, 1, 'A public author bio', '', 'images/writer.png', 'https://writer.example', '',
-      '<p>About the writer <script>window.bad = true</script></p>', 'EDITOR'),
-    (2, 2, '', '', '', '', '', '', 'READER');
-  INSERT INTO board_userlinkmeta VALUES
-    (1, 'GitHub', 'https://github.com/example-writer', '2020-01-01 00:00:00', '2020-01-01 00:00:00', 1, 1),
-    (2, 'unsafe', 'javascript:alert(1)', '2020-01-01 00:00:00', '2020-01-01 00:00:00', 1, 2);
+  INSERT INTO "User" ("id", "username", "name", "isActive", "email", "passwordHash", "joinedAt") VALUES
+    (1, 'writer', 'Writer', 1, '', '', 1577836800000),
+    (2, 'reader', 'Reader', 1, '', '', 1577836800000);
+  INSERT INTO "UsernameChange" ("id", "userId", "username", "createdAt") VALUES
+    (1, 1, 'old-writer', 1546300800000);
+  INSERT INTO "Profile" ("userId", "bio", "cover", "avatar", "homepage", "aboutMarkdown", "aboutHtml", "role") VALUES
+    (1, 'A public author bio', '', 'images/writer.png', 'https://writer.example', '', '<p>About the writer <script>window.bad = true</script></p>', 'EDITOR'),
+    (2, '', '', '', '', '', '', 'READER');
+  INSERT INTO "SocialLink" ("id", "platform", "url", "createdAt", "updatedAt", "userId", "order") VALUES
+    (1, 'GitHub', 'https://github.com/example-writer', 1577836800000, 1577836800000, 1, 1),
+    (2, 'unsafe', 'javascript:alert(1)', 1577836800000, 1577836800000, 1, 2);
   INSERT INTO "Series" ("id", "order", "descriptionMarkdown", "descriptionHtml", "isHidden", "slug", "layout", "createdAt", "updatedAt", "ownerId", "name") VALUES
     (1, 1, 'First series description', '<p>First series description</p>', 0, 'public-series', '', 1577836800000, 1577923200000, 1, 'Public series'),
     (2, 2, 'Second series description', '<p>Second series description</p>', 0, 'other-series', '', 1578009600000, 1578096000000, 1, 'Other series'),

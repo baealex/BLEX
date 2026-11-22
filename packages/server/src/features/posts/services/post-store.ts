@@ -9,7 +9,7 @@ const storedPostSelect = {
   createdAt: true, updatedAt: true, publishedAt: true, deletedAt: true, authorId: true, readTime: true, seriesId: true,
   isHidden: true, isAdvertised: true, commentsBlocked: true,
   coverLayout: true, coverImagePosition: true, coverImageRatio: true,
-  author: { select: { username: true, board_profile: { select: { avatar: true } } } },
+  author: { select: { username: true, profile: { select: { avatar: true } } } },
   series: { select: { name: true, slug: true, isHidden: true } },
   content: { select: { html: true } },
 } satisfies Prisma.PostSelect;
@@ -24,7 +24,7 @@ export async function loadPost(
   return {
     id: row.id, title: row.title, subtitle: row.subtitle, url: row.slug, image: row.image, description: row.description,
     createdDate: row.createdAt, updatedDate: row.updatedAt, publishedDate: row.publishedAt, deletedDate: row.deletedAt,
-    authorId: row.authorId, authorUsername: row.author.username, authorAvatar: row.author.board_profile?.avatar ?? null,
+    authorId: row.authorId, authorUsername: row.author.username, authorAvatar: row.author.profile?.avatar ?? null,
     readTime: row.readTime, seriesId: row.seriesId, seriesName: row.series?.name ?? null, seriesUrl: row.series?.slug ?? null,
     seriesHidden: row.series?.isHidden ?? false, contentHtml: row.content?.html ?? '',
     hide: row.isHidden, advertise: row.isAdvertised, blockComment: row.commentsBlocked,

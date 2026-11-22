@@ -2,19 +2,12 @@ import type { Prisma, PrismaClient } from '@prisma/client';
 import { domainToASCII } from 'node:url';
 import { encryptDjangoSecret, decryptDjangoSecret } from '../../auth/django-secret.js';
 import { type AdminLoginSettings } from '../types.js';
-import { ApiResult, Body, booleanValue, isRecord, isoDate, recordAudit, stringValue } from '../shared.js';
+import { ApiResult, Body, isRecord, isoDate, recordAudit, stringValue } from '../shared.js';
 
 const SOCIAL_PROVIDERS = [
   { key: 'google', name: 'Google' },
   { key: 'github', name: 'GitHub' },
 ] as const;
-
-interface ProviderRow {
-  key: string;
-  clientId: string | null;
-  clientSecret: string | null;
-  isEnabled: number | bigint | boolean;
-}
 
 function readLoginRow(db: PrismaClient) {
   return db.loginSetting.findUnique({
@@ -31,11 +24,11 @@ function readLoginRow(db: PrismaClient) {
   });
 }
 
-async function readProviders(db: PrismaClient): Promise<ProviderRow[]> {
-  return db.$queryRaw<ProviderRow[]>`
-    SELECT key, client_id AS clientId, client_secret AS clientSecret, is_enabled AS isEnabled
-      FROM board_socialauthprovider WHERE key IN ('google', 'github')
-  `;
+function readProviders(db: PrismaClient) {
+  return db.socialProvider.findMany({
+    where: { key: { in: SOCIAL_PROVIDERS.map(({ key }) => key) } },
+    select: { key: true, clientId: true, clientSecret: true, isEnabled: true },
+  });
 }
 
 export async function serializeLoginSettings(db: PrismaClient, cipherKey: string): Promise<AdminLoginSettings> {
@@ -55,7 +48,7 @@ export async function serializeLoginSettings(db: PrismaClient, cipherKey: string
       return {
         key,
         name,
-        isEnabled: provider ? booleanValue(provider.isEnabled) : false,
+        isEnabled: provider?.isEnabled ?? false,
         clientId: provider?.clientId ?? '',
         hasClientSecret: Boolean(provider?.clientSecret),
       };
@@ -135,22 +128,17 @@ export async function updateLoginSettings(
 
     if (supportedPayload !== null) {
       for (const provider of SOCIAL_PROVIDERS) {
-        await transaction.$executeRaw`
-          INSERT OR IGNORE INTO board_socialauthprovider (key, client_id, client_secret, is_enabled)
-          VALUES (${provider.key}, '', '', 0)
-        `;
+        await transaction.socialProvider.upsert({ where: { key: provider.key }, create: { key: provider.key }, update: {}, select: { id: true } });
       }
       for (const item of supportedPayload) {
         const key = stringValue(item.key);
         if (!SOCIAL_PROVIDERS.some((provider) => provider.key === key)) continue;
-        const [existing] = await transaction.$queryRaw<ProviderRow[]>`
-          SELECT key, client_id AS clientId, client_secret AS clientSecret, is_enabled AS isEnabled
-            FROM board_socialauthprovider WHERE key = ${key} LIMIT 1
-        `;
+        const existing = await transaction.socialProvider.findUnique({
+          where: { key },
+          select: { clientId: true, clientSecret: true, isEnabled: true },
+        });
         if (!existing) continue;
-        let clientId = existing.clientId ?? '';
-        let clientSecret = existing.clientSecret ?? '';
-        let isEnabled = booleanValue(existing.isEnabled);
+        let { clientId, clientSecret, isEnabled } = existing;
         if ('isEnabled' in item) isEnabled = item.isEnabled === true;
         if (typeof item.clientId === 'string') clientId = item.clientId.trim();
         if (typeof item.clientSecret === 'string' && item.clientSecret) {
@@ -158,10 +146,7 @@ export async function updateLoginSettings(
           clientSecret = trimmed ? encryptSecret(trimmed, cipherKey) : '';
         }
         if (item.clearClientSecret === true) clientSecret = '';
-        await transaction.$executeRaw`
-          UPDATE board_socialauthprovider SET is_enabled = ${isEnabled ? 1 : 0}, client_id = ${clientId}, client_secret = ${clientSecret}
-           WHERE key = ${key}
-        `;
+        await transaction.socialProvider.update({ where: { key }, data: { isEnabled, clientId, clientSecret }, select: { id: true } });
       }
     }
     await recordAudit(transaction, userId, 'loginsetting', 'Login settings', 'Updated login and security settings');

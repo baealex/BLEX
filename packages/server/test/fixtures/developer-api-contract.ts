@@ -73,8 +73,8 @@ function seed(db: DatabaseSync, store: ContractTokenStore) {
     [3, 'reader', 'Reader', 1, 'READER'], [4, 'inactive', 'Inactive', 0, 'EDITOR'],
   ];
   for (const [id, username, firstName, isActive, role] of users) {
-    insertRow(db, 'auth_user', { id, username, first_name: firstName, email: `${username}@example.test`, password: `pbkdf2_sha256$fixture$${username}`, is_active: isActive });
-    insertRow(db, 'board_profile', { id, user_id: id, role });
+    insertRow(db, 'User', { id, username, name: firstName, email: `${username}@example.test`, passwordHash: `pbkdf2_sha256$fixture$${username}`, isActive: isActive });
+    insertRow(db, 'Profile', { userId: id, role });
   }
 
   const past = Date.UTC(2025, 0, 1);

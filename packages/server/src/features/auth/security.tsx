@@ -45,14 +45,14 @@ function factorError(code: string | null, action?: string) {
 }
 
 async function readSecurityViewer(db: PrismaClient, accountId: number) {
-  const [viewer] = await db.$queryRaw<Array<{ role: string | null; isStaff: number | bigint | boolean }>>`
-    SELECT profile.role AS role, account.is_staff AS isStaff
-      FROM auth_user AS account
-      LEFT JOIN board_profile AS profile ON profile.user_id = account.id
-     WHERE account.id = ${accountId}
-     LIMIT 1
-  `;
-  return viewer && { ...viewer, unreadCount: await db.notification.count({ where: { userId: accountId, isRead: false } }) };
+  const viewer = await db.user.findUnique({
+    where: { id: accountId },
+    select: { isStaff: true, profile: { select: { role: true } } },
+  });
+  return viewer && {
+    role: viewer.profile?.role ?? null, isStaff: viewer.isStaff,
+    unreadCount: await db.notification.count({ where: { userId: accountId, isRead: false } }),
+  };
 }
 
 function csrfForPage(request: FastifyRequest, reply: FastifyReply, siteUrl: URL) {
@@ -93,20 +93,24 @@ export function passwordUpdater(db: PrismaClient, siteUrl: URL, config: AuthConf
     const result = await db.$transaction<PasswordUpdate>(async (tx) => {
       if (!await acquireVerification(tx, account)) return verificationRequired;
       if (username) {
-        const [current] = await tx.$queryRaw<Array<{ username: string }>>`SELECT username FROM auth_user WHERE id = ${account.id}`;
+        const current = await tx.user.findUniqueOrThrow({ where: { id: account.id }, select: { username: true } });
         const invalid = await prepareUsernameChange(tx, account.id, current.username, newUsername, 'account');
         if (invalid) return securityError('VA', invalid);
       }
-      await tx.$executeRaw`
-        UPDATE auth_user SET password = ${newPasswordHash}, username = COALESCE(${username || null}, username),
-               first_name = COALESCE(${name || null}, first_name) WHERE id = ${account.id}
-      `;
-      await tx.$executeRaw`DELETE FROM blex_session WHERE user_id = ${account.id} AND token_hash <> ${account.sessionHash}`;
-      await tx.$executeRaw`DELETE FROM blex_factor_setup WHERE session_hash = ${account.sessionHash}`;
-      await tx.$executeRaw`
-        UPDATE blex_session SET token_hash = ${tokenHash(sessionToken)!}, credential_tag = ${credentialTag(newPasswordHash, config.secretKey)},
-               verified_until = NULL, verified_factor_id = NULL, requires_factor = 0 WHERE token_hash = ${account.sessionHash}
-      `;
+      await tx.user.update({
+        where: { id: account.id },
+        data: { passwordHash: newPasswordHash, username: username || undefined, name: name || undefined },
+        select: { id: true },
+      });
+      await tx.session.deleteMany({ where: { userId: account.id, tokenHash: { not: account.sessionHash } } });
+      await tx.factorSetup.deleteMany({ where: { sessionHash: account.sessionHash } });
+      await tx.session.updateMany({
+        where: { tokenHash: account.sessionHash },
+        data: {
+          tokenHash: tokenHash(sessionToken)!, credentialTag: credentialTag(newPasswordHash, config.secretKey),
+          verifiedUntil: null, verifiedFactorId: null, requiresFactor: false,
+        },
+      });
       if (revokeTokens === true || revokeTokens === 'true') {
         await tx.developerToken.updateMany({ where: { userId: account.id, revokedAt: null }, data: { revokedAt, updatedAt: revokedAt } });
       }
@@ -124,7 +128,7 @@ export function registerAccountSecurity(app: FastifyInstance, db: PrismaClient, 
     if (!account) return reply.redirect(`/login?${new URLSearchParams({ next: reauthenticationPath(next) })}`, 302);
     if (hasVerification(account)) return reply.redirect(next, 302);
     const pendingFactor = hasVerification(account, true);
-    const hasPassword = /^[a-z0-9_]+\$/.test(account.password);
+    const hasPassword = /^[a-z0-9_]+\$/.test(account.passwordHash);
     let error = '';
     if (request.method === 'POST') {
       if (!validCsrf(request, siteUrl)) return reply.code(403).send('요청을 확인해 주세요.');
@@ -132,7 +136,7 @@ export function registerAccountSecurity(app: FastifyInstance, db: PrismaClient, 
       const attempt = await reserveLoginAttempt(db, config.secretKey, request.ip, account.username);
       if (!attempt) error = '너무 많은 실패로 인해 잠시 후 다시 시도해주세요.';
       else {
-        const isAccount = pendingFactor || (hasPassword && typeof input.password === 'string' && await verifyDjangoPassword(input.password, account.password));
+        const isAccount = pendingFactor || (hasPassword && typeof input.password === 'string' && await verifyDjangoPassword(input.password, account.passwordHash));
         const isFactor = account.factorId === null || (typeof input.code === 'string' && account.totpSecret !== null && account.recoveryKey !== null &&
           verifyDjangoSecondFactor({ totpSecret: account.totpSecret, recoveryKey: account.recoveryKey }, input.code, config.cipherKey));
         if (!isAccount || !isFactor) error = '비밀번호 또는 인증 코드가 올바르지 않습니다.';
@@ -146,11 +150,11 @@ export function registerAccountSecurity(app: FastifyInstance, db: PrismaClient, 
     }
 
     const csrf = csrfForPage(request, reply, siteUrl);
-    const links = await db.$queryRaw<Array<{ key: string }>>`
-      SELECT provider.key FROM board_socialauth AS link JOIN board_socialauthprovider AS provider ON provider.id = link.provider_id
-       WHERE link.user_id = ${account.id} AND provider.is_enabled = 1
-    `;
-    const providers = (await publicOAuthProviders(db, config.cipherKey)).filter((choice) => links.some((link) => link.key === choice.key));
+    const links = await db.socialAccount.findMany({
+      where: { userId: account.id, provider: { isEnabled: true } },
+      select: { provider: { select: { key: true } } },
+    });
+    const providers = (await publicOAuthProviders(db, config.cipherKey)).filter((choice) => links.some((link) => link.provider.key === choice.key));
     const showForm = hasPassword || pendingFactor;
     const visibleProviders = pendingFactor ? [] : providers;
     const viewer = await readSecurityViewer(db, account.id);

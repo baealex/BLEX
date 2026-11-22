@@ -17,10 +17,10 @@ async function screensApp({ assets = true } = {}) {
   const fixture = await createMigratedDatabase();
   const { db } = fixture;
   seedEditor(db, 1, 'writer');
-  insertRow(db, 'auth_user', { id: 2, username: 'reader', password: 'pbkdf2_sha256$fixture$reader', is_active: 1 });
-  insertRow(db, 'board_profile', { id: 2, user_id: 2, role: 'READER' });
-  insertRow(db, 'auth_user', { id: 3, username: 'staff', password: 'pbkdf2_sha256$fixture$staff', is_active: 1, is_staff: 1, is_superuser: 1 });
-  insertRow(db, 'board_profile', { id: 3, user_id: 3, role: 'EDITOR' });
+  insertRow(db, 'User', { id: 2, username: 'reader', passwordHash: 'pbkdf2_sha256$fixture$reader', isActive: 1 });
+  insertRow(db, 'Profile', { userId: 2, role: 'READER' });
+  insertRow(db, 'User', { id: 3, username: 'staff', passwordHash: 'pbkdf2_sha256$fixture$staff', isActive: 1, isStaff: 1, isSuperuser: 1 });
+  insertRow(db, 'Profile', { userId: 3, role: 'EDITOR' });
   insertRow(db, 'SiteSetting', { id: 1, seoEnabled: 1, aeoEnabled: 1 });
   insertRow(db, 'Series', { id: 7, ownerId: 1, name: 'Guide', slug: 'guide', layout: 'list', isHidden: 0, createdAt: prismaDate(recent) });
   seedPost(db, 1, 1, 'kept', { title: 'Kept', seriesId: 7, publishedAt: recent });
@@ -135,8 +135,8 @@ test('keeps login, role, and ownership answers for editor URLs the screen cannot
 test('passes each role its settings capabilities', async () => {
   const fixture = await screensApp();
   try {
-    insertRow(fixture.db, 'auth_user', { id: 8, username: 'delegate', password: 'pbkdf2_sha256$fixture$delegate', is_active: 1, is_staff: 1 });
-    insertRow(fixture.db, 'board_profile', { id: 8, user_id: 8, role: 'READER' });
+    insertRow(fixture.db, 'User', { id: 8, username: 'delegate', passwordHash: 'pbkdf2_sha256$fixture$delegate', isActive: 1, isStaff: 1 });
+    insertRow(fixture.db, 'Profile', { userId: 8, role: 'READER' });
     const owner = screenProps((await fixture.app.inject({ url: '/admin-settings/users', headers: signIn(fixture.db, 3) })).body);
     assert.deepEqual(owner.props.adminCapabilities, {
       canManageSiteSettings: true, canManageLoginSettings: true, canManageIntegrationSettings: true, canManageUtilities: true,
@@ -269,7 +269,7 @@ test('serves the 3.x page for missing documents and plain answers elsewhere', as
 test('keeps the query when an old username redirects to the author page', async () => {
   const fixture = await screensApp();
   try {
-    insertRow(fixture.db, 'board_usernamechangelog', { id: 1, user_id: 1, username: 'oldwriter', created_date: recent });
+    insertRow(fixture.db, 'UsernameChange', { id: 1, userId: 1, username: 'oldwriter', createdAt: recent });
     const moved = await fixture.app.inject('/@oldwriter/posts?page=1&q=kept');
     assert.equal(moved.statusCode, 302);
     assert.equal(moved.headers.location, '/@writer/posts?page=1&q=kept');
@@ -288,12 +288,12 @@ test('limits drafts and creates a complete profile on a role change', async () =
     assert.equal(blocked.json().errorCode, 'error:OF');
     assert.match(blocked.json().errorMessage, /100개/);
 
-    insertRow(fixture.db, 'auth_user', { id: 9, username: 'noprofile', password: 'pbkdf2_sha256$fixture$none', is_active: 1 });
+    insertRow(fixture.db, 'User', { id: 9, username: 'noprofile', passwordHash: 'pbkdf2_sha256$fixture$none', isActive: 1 });
     const staff = signIn(fixture.db, 3);
     const changed = await fixture.app.inject({ method: 'PATCH', url: '/v1/admin/users/9/role',
       headers: { ...staff, 'content-type': 'application/json' }, payload: { role: 'EDITOR' } });
     assert.equal(changed.json().status, 'DONE', changed.body);
-    const profile = fixture.db.prepare('SELECT role FROM board_profile WHERE user_id = 9').get() as { role: string };
+    const profile = fixture.db.prepare('SELECT role FROM "Profile" WHERE userId = 9').get() as { role: string };
     assert.equal(profile.role, 'EDITOR');
   } finally {
     await fixture.close();

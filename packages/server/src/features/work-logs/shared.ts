@@ -97,7 +97,7 @@ export async function currentUser(
 }
 
 export async function isActiveEditor(db: PrismaClient, userId: number): Promise<boolean> {
-  return await db.user.count({ where: { id: userId, is_active: true, board_profile: { is: { role: 'EDITOR' } } } }) > 0;
+  return await db.user.count({ where: { id: userId, isActive: true, profile: { is: { role: 'EDITOR' } } } }) > 0;
 }
 
 export function csrfValid(request: FastifyRequest, options: WorkLogOptions): boolean {

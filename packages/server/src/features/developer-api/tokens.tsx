@@ -54,10 +54,10 @@ async function issueToken(db: PrismaClient, account: VerificationAccount | null,
   const expiry = new Date(created.getTime() + days * 86_400_000);
   return db.$transaction(async (tx) => {
     if (!await acquireVerification(tx, account)) return verificationRequired;
-    const [eligible] = await tx.$queryRaw<Array<{ id: number }>>`
-      SELECT account.id FROM auth_user AS account WHERE account.id = ${account.id} AND account.is_active = 1
-         AND EXISTS(SELECT 1 FROM board_profile WHERE user_id = account.id AND role = 'EDITOR')
-    `;
+    const eligible = await tx.user.findFirst({
+      where: { id: account.id, isActive: true, profile: { role: 'EDITOR' } },
+      select: { id: true },
+    });
     if (!eligible) return securityError('AT');
     const row = await tx.developerToken.create({
       data: { userId: account.id, name, tokenPrefix: prefix, tokenHash: hash, scopes, expiresAt: expiry, createdAt: created, updatedAt: created },

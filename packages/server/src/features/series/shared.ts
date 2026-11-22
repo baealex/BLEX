@@ -58,7 +58,7 @@ export interface AuthorCollectionsOptions {
 }
 
 export interface DatabaseUser extends CollectionUser {
-  active: number | bigint | boolean;
+  active: boolean;
   role: string | null;
 }
 
@@ -108,19 +108,15 @@ export function localDate(value: string | Date | null): string {
 }
 
 export async function readDatabaseUser(db: PrismaClient, id: number, username: string): Promise<DatabaseUser | null> {
-  const [row] = await db.$queryRaw<DatabaseUser[]>`
-    SELECT user.id AS id, user.username AS username,
-           CAST(user.is_active AS INTEGER) AS active, profile.role AS role
-      FROM auth_user AS user
-      LEFT JOIN board_profile AS profile ON profile.user_id = user.id
-     WHERE user.id = ${id} AND user.username = ${username}
-     LIMIT 1
-  `;
-  return row ?? null;
+  const user = await db.user.findFirst({
+    where: { id, username },
+    select: { id: true, username: true, isActive: true, profile: { select: { role: true } } },
+  });
+  return user && { id: user.id, username: user.username, active: user.isActive, role: user.profile?.role ?? null };
 }
 
 export function isActiveEditor(user: DatabaseUser | null): user is DatabaseUser {
-  return Boolean(user && user.active && user.role === 'EDITOR');
+  return user !== null && user.active && user.role === 'EDITOR';
 }
 
 export async function requireActiveEditor(db: PrismaClient, request: FastifyRequest, options: AuthorCollectionsOptions) {

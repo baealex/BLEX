@@ -8,7 +8,7 @@ import Fastify from 'fastify';
 import test from 'node:test';
 import { encryptDjangoSecret } from '../src/features/auth/django-secret.js';
 import { registerReaderActions } from '../src/features/engagement/index.js';
-import { createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
+import { accountTables, createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
 import { installNotificationTables } from './fixtures/notifications.js';
 
 const readerCipherKey = '0123456789abcdef0123456789abcdef';
@@ -18,19 +18,7 @@ const databasePath = join(directory, 'Django reader actions.sqlite3');
 const database = new DatabaseSync(databasePath);
 createMigratedTables(database, 'IntegrationSetting');
 database.exec(`
-  CREATE TABLE auth_user (
-    id INTEGER PRIMARY KEY,
-    username TEXT NOT NULL UNIQUE,
-    first_name TEXT NOT NULL DEFAULT '',
-    is_active BOOLEAN NOT NULL DEFAULT 1
-  );
-  CREATE TABLE board_profile (
-    id INTEGER PRIMARY KEY,
-    user_id INTEGER NOT NULL UNIQUE,
-    bio TEXT NOT NULL DEFAULT '',
-    avatar TEXT NOT NULL DEFAULT '',
-    role TEXT NOT NULL DEFAULT 'READER'
-  );
+  ${migratedTableSql(...accountTables)}
 ${migratedTableSql('Series', 'Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', 'PostLike', 'PinnedPost', 'PostShareLink', 'PostShareDailyCount')}
 
 
@@ -38,18 +26,18 @@ ${migratedTableSql('Series', 'Post', 'PostContent', 'Tag', '_PostToTag', 'PostRe
     ${migratedTableSql('AuthorSubscription')}
   ${migratedTableSql('AuthorSubscriptionLog')}
 
-  INSERT INTO auth_user VALUES
-    (1, 'writer', 'Writer Name', 1),
-    (2, 'reader', 'Reader Name', 1),
-    (3, 'inactive', 'Inactive', 0),
-    (4, 'second-writer', 'Second Writer', 1),
-    (5, 'other-reader', 'Other Reader', 1);
-  INSERT INTO board_profile VALUES
-    (1, 1, 'Writer bio', 'avatars/writer.png', 'EDITOR'),
-    (2, 2, 'Reader bio', '', 'READER'),
-    (3, 3, '', '', 'EDITOR'),
-    (4, 4, 'Second bio', 'https://images.example/second.png', 'EDITOR'),
-    (5, 5, 'Other reader bio', '', 'READER');
+  INSERT INTO "User" ("id", "username", "name", "isActive", "email", "passwordHash", "joinedAt") VALUES
+    (1, 'writer', 'Writer Name', 1, '', '', 1577836800000),
+    (2, 'reader', 'Reader Name', 1, '', '', 1577836800000),
+    (3, 'inactive', 'Inactive', 0, '', '', 1577836800000),
+    (4, 'second-writer', 'Second Writer', 1, '', '', 1577836800000),
+    (5, 'other-reader', 'Other Reader', 1, '', '', 1577836800000);
+  INSERT INTO "Profile" ("userId", "bio", "avatar", "role") VALUES
+    (1, 'Writer bio', 'avatars/writer.png', 'EDITOR'),
+    (2, 'Reader bio', '', 'READER'),
+    (3, '', '', 'EDITOR'),
+    (4, 'Second bio', 'https://images.example/second.png', 'EDITOR'),
+    (5, 'Other reader bio', '', 'READER');
   INSERT INTO "Post" ("id", "title", "slug", "authorId", "publishedAt", "deletedAt", "createdAt", "updatedAt") VALUES
     (1, 'Public post', 'public-post', 1, 1767225600123, NULL, 946684800000, 946684800000),
     (2, 'Hidden post', 'hidden-post', 1, 1767225600123, NULL, 946684800000, 946684800000),
@@ -76,10 +64,7 @@ ${migratedTableSql('Series', 'Post', 'PostContent', 'Tag', '_PostToTag', 'PostRe
 installNotificationTables(database);
 database.exec(`
   INSERT INTO TelegramConnection (userId, telegramId, createdAt) VALUES (2, 'telegram-id', 1767225600000);
-  INSERT INTO board_userconfigmeta (user_id, name, value, created_date, updated_date) VALUES
-    (1, 'NOTIFY_POSTS_LIKE', 'true', '2000-01-01', '2000-01-01'),
-    (1, 'NOTIFY_POSTS_COMMENT', 'true', '2000-01-01', '2000-01-01'),
-    (1, 'NOTIFY_MENTION', 'true', '2000-01-01', '2000-01-01');
+  INSERT INTO "UserPreference" (userId, notifyPostLike, notifyPostComment, notifyMention) VALUES (1, 1, 1, 1);
 `);
 database.close();
 
@@ -92,7 +77,7 @@ registerReaderActions(app, db, {
     const id = Number(Array.isArray(rawId) ? rawId[0] : rawId);
     if (!Number.isSafeInteger(id) || id < 1) return null;
     const rows = await db.$queryRaw<Array<{ username: string }>>`
-      SELECT username FROM auth_user WHERE id = ${id} LIMIT 1
+      SELECT username FROM "User" WHERE id = ${id} LIMIT 1
     `;
     return rows[0] ? { id, username: rows[0].username } : null;
   },

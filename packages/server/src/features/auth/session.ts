@@ -25,72 +25,63 @@ export async function createSession(
   const token = createToken();
   const storedToken = tokenHash(token)!;
   const previous = tokenHash(previousToken);
-  const now = Date.now();
-  const legacyTimestamp = new Date(now).toISOString().slice(0, -1).replace('T', ' ');
-  const expiry = BigInt(now + SESSION_DURATION_SECONDS * 1_000);
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + SESSION_DURATION_SECONDS * 1_000);
   const tag = credentialTag(account.passwordHash, secretKey);
 
   return db.$transaction(async (transaction) => {
     // A concurrent password change or deactivation must invalidate the proof.
-    const updated = await transaction.$executeRaw`
-      UPDATE auth_user SET last_login = ${legacyTimestamp}
-       WHERE id = ${account.userId} AND is_active = 1 AND password = ${account.passwordHash}
-    `;
-    if (updated !== 1) return null;
+    const { count } = await transaction.user.updateMany({
+      where: { id: account.userId, isActive: true, passwordHash: account.passwordHash },
+      data: { lastLoginAt: now },
+    });
+    if (count !== 1) return null;
 
-    await transaction.$executeRaw`DELETE FROM blex_session WHERE expires_at <= ${BigInt(now)}`;
-    if (previous) await transaction.$executeRaw`DELETE FROM blex_session WHERE token_hash = ${previous}`;
-    await transaction.$executeRaw`
-      INSERT INTO blex_session (token_hash, user_id, credential_tag, expires_at)
-      VALUES (${storedToken}, ${account.userId}, ${tag}, ${expiry})
-    `;
+    await transaction.session.deleteMany({ where: { expiresAt: { lte: now } } });
+    if (previous) await transaction.session.deleteMany({ where: { tokenHash: previous } });
+    await transaction.session.create({
+      data: { tokenHash: storedToken, userId: account.userId, credentialTag: tag, expiresAt },
+      select: { tokenHash: true },
+    });
     return token;
   });
-}
-
-interface SessionRow {
-  id: number;
-  username: string;
-  name: string;
-  email: string;
-  avatarPath: string | null;
-  password: string;
-  tag: string;
-  hasConnected2fa: bigint | number;
-  hasEditorRole: bigint | number;
-  isStaff: bigint | number | boolean;
 }
 
 export async function readSession(db: PrismaClient, token: string | undefined, secretKey: string) {
   const hash = tokenHash(token);
   if (!hash) return null;
 
-  const [row] = await db.$queryRaw<SessionRow[]>`
-    SELECT account.id, account.username, account.first_name AS name, account.email,
-           account.password, account.is_staff AS isStaff, session.credential_tag AS tag, profile.avatar AS avatarPath,
-           EXISTS(SELECT 1 FROM board_twofactorauth WHERE user_id = account.id) AS hasConnected2fa,
-           CASE WHEN profile.role = 'EDITOR' THEN 1 ELSE 0 END AS hasEditorRole
-      FROM blex_session AS session
-      JOIN auth_user AS account ON account.id = session.user_id
-      LEFT JOIN board_profile AS profile ON profile.user_id = account.id
-     WHERE session.token_hash = ${hash} AND session.expires_at > ${BigInt(Date.now())} AND account.is_active = 1
-  `;
-  if (!row || !/^[0-9a-f]{64}$/.test(row.tag)) return null;
-  if (!timingSafeEqual(Buffer.from(row.tag, 'hex'), Buffer.from(credentialTag(row.password, secretKey), 'hex'))) return null;
-  const notifyCount = await db.notification.count({ where: { userId: row.id, isRead: false } });
-  const telegramLinks = await db.telegramConnection.count({ where: { userId: row.id, telegramId: { not: '' } } });
+  const session = await db.session.findFirst({
+    where: { tokenHash: hash, expiresAt: { gt: new Date() }, user: { isActive: true } },
+    select: {
+      credentialTag: true,
+      user: {
+        select: {
+          id: true, username: true, name: true, email: true, passwordHash: true, isStaff: true,
+          profile: { select: { avatar: true, role: true } },
+          twoFactor: { select: { id: true } },
+        },
+      },
+    },
+  });
+  if (!session || !/^[0-9a-f]{64}$/.test(session.credentialTag)) return null;
+  const { user } = session;
+  if (!timingSafeEqual(Buffer.from(session.credentialTag, 'hex'), Buffer.from(credentialTag(user.passwordHash, secretKey), 'hex'))) return null;
+  const notifyCount = await db.notification.count({ where: { userId: user.id, isRead: false } });
+  const telegramLinks = await db.telegramConnection.count({ where: { userId: user.id, telegramId: { not: '' } } });
+  const avatarPath = user.profile?.avatar;
 
   return {
-    id: row.id,
-    username: row.username,
-    name: row.name,
-    email: row.email,
-    avatar: row.avatarPath ? `/resources/media/${row.avatarPath.split('/').map(encodeURIComponent).join('/')}` : '',
+    id: user.id,
+    username: user.username,
+    name: user.name,
+    email: user.email,
+    avatar: avatarPath ? `/resources/media/${avatarPath.split('/').map(encodeURIComponent).join('/')}` : '',
     notifyCount,
     hasConnectedTelegram: telegramLinks > 0,
-    hasConnected2fa: Boolean(row.hasConnected2fa),
-    hasEditorRole: Boolean(row.hasEditorRole),
-    isStaff: Boolean(row.isStaff),
+    hasConnected2fa: user.twoFactor !== null,
+    hasEditorRole: user.profile?.role === 'EDITOR',
+    isStaff: user.isStaff,
   };
 }
 
@@ -101,5 +92,5 @@ export function loginBody(user: NonNullable<Awaited<ReturnType<typeof readSessio
 
 export async function deleteSession(db: PrismaClient, token: string | undefined): Promise<void> {
   const hash = tokenHash(token);
-  if (hash) await db.$executeRaw`DELETE FROM blex_session WHERE token_hash = ${hash}`;
+  if (hash) await db.session.deleteMany({ where: { tokenHash: hash } });
 }

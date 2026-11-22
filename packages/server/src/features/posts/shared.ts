@@ -19,12 +19,10 @@ export interface AuthoringOptions {
   mediaRoot?: string;
 }
 
-export type DbBoolean = number | bigint | boolean | null;
-
 export type DbDate = string | Date | null;
 
 export interface UserRow extends AuthoringUser {
-  isActive: DbBoolean;
+  isActive: boolean;
   role: string | null;
 }
 
@@ -106,10 +104,6 @@ export const COVER_LAYOUTS = new Set(['default', 'split', 'overlay', 'none']);
 export const COVER_POSITIONS = new Set(['left', 'right']);
 
 export const COVER_RATIOS = new Set(['auto', '16:9', '4:3', '1:1', '3:4']);
-
-export function numberValue(value: number | bigint | boolean | null | undefined): number {
-  return Number(value ?? 0);
-}
 
 export function field(value: unknown): string {
   if (Array.isArray(value)) return field(value.at(-1));
@@ -200,19 +194,15 @@ export async function currentAccount(
 ): Promise<UserRow | null> {
   const user = await options.currentUser(request);
   if (!user || !Number.isSafeInteger(user.id) || user.id < 1) return null;
-  const rows = await db.$queryRaw<UserRow[]>`
-    SELECT author.id AS id,
-           author.username AS username,
-           CAST(author.is_active AS INTEGER) AS isActive,
-           profile.role AS role
-    FROM auth_user AS author
-    LEFT JOIN board_profile AS profile ON profile.user_id = author.id
-    WHERE author.id = ${user.id} AND author.username = ${user.username}
-    LIMIT 1
-  `;
-  const account = rows[0];
-  return account && numberValue(account.isActive) === 1
-    ? { ...account, isStaff: user.isStaff, notifyCount: user.notifyCount, hasConnectedTelegram: user.hasConnectedTelegram }
+  const account = await db.user.findFirst({
+    where: { id: user.id, username: user.username },
+    select: { id: true, username: true, isActive: true, profile: { select: { role: true } } },
+  });
+  return account?.isActive
+    ? {
+      id: account.id, username: account.username, isActive: true, role: account.profile?.role ?? null,
+      isStaff: user.isStaff, notifyCount: user.notifyCount, hasConnectedTelegram: user.hasConnectedTelegram,
+    }
     : null;
 }
 

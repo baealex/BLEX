@@ -74,7 +74,7 @@ async function handleBotLink(db: PrismaClient, options: TelegramOptions, botToke
   let text = `BLEX를 둘러보세요.\n\n${options.siteUrl.origin}`;
   if (message.code) {
     const pending = await db.telegramConnection.findFirst({
-      where: { authToken: message.code, user: { is_active: true } },
+      where: { authToken: message.code, user: { isActive: true } },
       orderBy: { userId: 'asc' },
       select: { userId: true, authTokenExpiresAt: true },
     });

@@ -158,9 +158,7 @@ export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, 
       if (renamedUsername) return redirect(reply, request, `/rss/@${encodeURIComponent(renamedUsername)}`);
       return notFound(reply);
     }
-    const [profile] = await db.$queryRaw<Array<{ bio: string | null; avatar: string | null }>>`
-      SELECT bio, avatar FROM board_profile WHERE user_id = ${user.id} LIMIT 1
-    `;
+    const profile = await db.profile.findUnique({ where: { userId: user.id }, select: { bio: true, avatar: true } });
     const posts = await readFeedPosts(db, user.id);
     const origin = await rssOrigin(db, siteUrl);
     const imagePath = profile?.avatar
@@ -338,22 +336,17 @@ async function readPublicSeriesPosts(db: PrismaClient, seriesId: number): Promis
 }
 
 async function findUser(db: PrismaClient, username: string): Promise<UserRow | null> {
-  const [user] = await db.$queryRaw<UserRow[]>`
-    SELECT id, username, first_name AS firstName FROM auth_user WHERE username = ${username} LIMIT 1
-  `;
-  return user ?? null;
+  const user = await db.user.findUnique({ where: { username }, select: { id: true, username: true, name: true } });
+  return user && { id: user.id, username: user.username, firstName: user.name };
 }
 
 async function findRenamedUsername(db: PrismaClient, username: string): Promise<string | null> {
-  const [renamed] = await db.$queryRaw<Array<{ username: string }>>`
-    SELECT author.username
-      FROM board_usernamechangelog AS previous
-      JOIN auth_user AS author ON author.id = previous.user_id
-     WHERE previous.username = ${username}
-     ORDER BY previous.created_date DESC, previous.id DESC
-     LIMIT 1
-  `;
-  return renamed?.username ?? null;
+  const renamed = await db.usernameChange.findFirst({
+    where: { username },
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    select: { user: { select: { username: true } } },
+  });
+  return renamed?.user.username ?? null;
 }
 
 async function readFeedPosts(db: PrismaClient, authorId: number | null): Promise<FeedPostRow[]> {
@@ -378,7 +371,7 @@ async function readSitemapMetadata(db: PrismaClient, section: (typeof sitemapSec
   if (section === 'site') return { itemCount: 2, latestLastmod: null };
   const publicPost = publicPostWhere();
   if (section === 'user') {
-    const itemCount = await db.user.count({ where: { board_profile: { role: 'EDITOR' }, posts: { some: publicPost } } });
+    const itemCount = await db.user.count({ where: { profile: { role: 'EDITOR' }, posts: { some: publicPost } } });
     return { itemCount, latestLastmod: null };
   }
   if (section === 'posts') {
@@ -417,7 +410,7 @@ async function readSitemapPage(
   }
   if (section === 'user') {
     const users = await db.user.findMany({
-      where: { board_profile: { role: 'EDITOR' }, posts: { some: publicPost } },
+      where: { profile: { role: 'EDITOR' }, posts: { some: publicPost } },
       orderBy: { username: 'asc' },
       take: sitemapLimit,
       skip: offset,

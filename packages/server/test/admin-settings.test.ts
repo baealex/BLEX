@@ -10,7 +10,7 @@ import { PrismaClient } from '@prisma/client';
 import { after, beforeEach, test } from 'node:test';
 import { decryptDjangoSecret, encryptDjangoSecret } from '../src/features/auth/django-secret.js';
 import { registerAdminSettings } from '../src/features/site-admin/index.js';
-import { createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
+import { accountTables, createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-admin-settings-'));
 const databasePath = join(directory, 'admin-settings.sqlite3');
@@ -40,33 +40,8 @@ function createSchema() {
   const database = new DatabaseSync(databasePath);
   createMigratedTables(database, 'FormTemplate', 'StaticPage', 'SiteNotice', 'SiteBanner', 'SiteSetting', 'LoginSetting', 'IntegrationSetting', 'AdminLog', 'CleanupConfirmation', 'UploadedImage', 'DeveloperToken', 'DeveloperRequestLog');
   database.exec(`
-    CREATE TABLE auth_user (
-      id INTEGER PRIMARY KEY, username TEXT NOT NULL, first_name TEXT NOT NULL DEFAULT '', email TEXT NOT NULL DEFAULT '',
-      is_active BOOLEAN NOT NULL DEFAULT 1, is_staff BOOLEAN NOT NULL DEFAULT 0,
-      is_superuser BOOLEAN NOT NULL DEFAULT 0, date_joined DATETIME NOT NULL DEFAULT '2025-01-01 00:00:00', last_login DATETIME
-    );
-    CREATE TABLE django_content_type (id INTEGER PRIMARY KEY, app_label TEXT NOT NULL, model TEXT NOT NULL, UNIQUE(app_label, model));
-    CREATE TABLE auth_permission (id INTEGER PRIMARY KEY, content_type_id INTEGER NOT NULL, codename TEXT NOT NULL, name TEXT NOT NULL);
-    CREATE TABLE auth_user_user_permissions (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, permission_id INTEGER NOT NULL);
-    CREATE TABLE auth_group (id INTEGER PRIMARY KEY, name TEXT NOT NULL);
-    CREATE TABLE auth_user_groups (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, group_id INTEGER NOT NULL);
-    CREATE TABLE auth_group_permissions (id INTEGER PRIMARY KEY, group_id INTEGER NOT NULL, permission_id INTEGER NOT NULL);
-    CREATE TABLE board_socialauthprovider (
-      id INTEGER PRIMARY KEY, key TEXT NOT NULL UNIQUE, client_id TEXT NOT NULL,
-      client_secret TEXT NOT NULL, is_enabled BOOLEAN NOT NULL
-    );
-    CREATE TABLE board_authorinvite (
-      id INTEGER PRIMARY KEY, code TEXT NOT NULL UNIQUE, note TEXT NOT NULL, is_active BOOLEAN NOT NULL,
-      created_date DATETIME NOT NULL, claimed_date DATETIME, claimed_by_id INTEGER, created_by_id INTEGER
-    );
+  ${migratedTableSql(...accountTables)}
     CREATE TABLE WorkLogEntry (id INTEGER PRIMARY KEY, text TEXT NOT NULL DEFAULT '');
-    CREATE TABLE board_profile (
-      id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL UNIQUE, role TEXT NOT NULL DEFAULT 'READER',
-      about_md TEXT NOT NULL DEFAULT '', about_html TEXT NOT NULL DEFAULT '', avatar TEXT NOT NULL DEFAULT '', cover TEXT NOT NULL DEFAULT '', bio TEXT NOT NULL DEFAULT '', homepage TEXT NOT NULL DEFAULT '', analytics_share_url TEXT NOT NULL DEFAULT ''
-  );
-    CREATE TABLE board_config (
-      id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL UNIQUE, language TEXT, time_zone TEXT NOT NULL DEFAULT ''
-    );
 ${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', 'PostLike', 'PinnedPost', 'PostShareLink', 'PostShareDailyCount', 'ScheduledPublication')}
 
 
@@ -76,7 +51,6 @@ ${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', '
     ${migratedTableSql('Series')}
 
 
-    CREATE TABLE blex_session (token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL, expires_at BIGINT NOT NULL);
   `);
   database.close();
 }
@@ -85,13 +59,13 @@ function seedDatabase() {
   const database = new DatabaseSync(databasePath);
   database.exec(`
     DELETE FROM AdminLog;
-    DELETE FROM board_authorinvite;
+    DELETE FROM "AuthorInvite";
     DELETE FROM StaticPage;
     DELETE FROM SiteNotice;
     DELETE FROM SiteBanner;
     DELETE FROM WorkLogEntry;
-    DELETE FROM board_profile;
-    DELETE FROM board_config;
+    DELETE FROM "Profile";
+    DELETE FROM "UserPreference";
     DELETE FROM "Post";
     DELETE FROM "PostContent";
     DELETE FROM "PostRevision";
@@ -104,42 +78,37 @@ function seedDatabase() {
     DELETE FROM "Tag";
     DELETE FROM "_PostToTag";
     DELETE FROM DeveloperRequestLog;
-    DELETE FROM blex_session;
+    DELETE FROM "Session";
     DELETE FROM CleanupConfirmation;
-    DELETE FROM board_socialauthprovider;
+    DELETE FROM "SocialProvider";
     DELETE FROM IntegrationSetting;
     DELETE FROM LoginSetting;
     DELETE FROM SiteSetting;
-    DELETE FROM auth_user_user_permissions;
-    DELETE FROM auth_group_permissions;
-    DELETE FROM auth_user_groups;
-    DELETE FROM auth_permission;
-    DELETE FROM django_content_type;
-    DELETE FROM auth_group;
-    DELETE FROM auth_user;
-    INSERT INTO auth_user (id, username, first_name, email, is_active, is_staff, is_superuser, date_joined, last_login) VALUES
-      (1, 'site-editor', 'Site Editor', 'editor@example.test', 1, 1, 0, '2025-01-01 00:00:00', '2025-01-02 00:00:00'),
-      (2, 'admin', 'Admin', 'admin@example.test', 1, 1, 1, '2025-01-01 00:00:00', '2025-01-03 00:00:00'),
-      (3, 'reader', 'Reader', 'reader@example.test', 1, 0, 0, '2025-01-02 00:00:00', NULL),
-      (4, 'inactive-admin', 'Inactive', 'inactive@example.test', 0, 1, 1, '2025-01-03 00:00:00', NULL),
-      (5, 'profileless', 'No Profile', 'profileless@example.test', 1, 0, 0, '2025-01-04 00:00:00', NULL);
-    INSERT INTO board_profile (id, user_id, role) VALUES
-      (1, 1, 'EDITOR'), (2, 2, 'EDITOR'), (3, 3, 'READER'), (4, 4, 'EDITOR');
+    DELETE FROM "User";
+    INSERT INTO "User" ("id", "username", "name", "email", "isActive", "isStaff", "isSuperuser", "joinedAt", "lastLoginAt", "passwordHash") VALUES
+    (1, 'site-editor', 'Site Editor', 'editor@example.test', 1, 1, 0, 1735689600000, 1735776000000, ''),
+    (2, 'admin', 'Admin', 'admin@example.test', 1, 1, 1, 1735689600000, 1735862400000, ''),
+    (3, 'reader', 'Reader', 'reader@example.test', 1, 0, 0, 1735776000000, NULL, ''),
+    (4, 'inactive-admin', 'Inactive', 'inactive@example.test', 0, 1, 1, 1735862400000, NULL, ''),
+    (5, 'profileless', 'No Profile', 'profileless@example.test', 1, 0, 0, 1735948800000, NULL, '');
+    INSERT INTO "Profile" ("userId", "role") VALUES
+    (1, 'EDITOR'),
+    (2, 'EDITOR'),
+    (3, 'READER'),
+    (4, 'EDITOR');
     INSERT INTO "Post" ("id", "authorId", "deletedAt", "publishedAt", "slug", "title", "createdAt", "updatedAt") VALUES
     (1, 1, NULL, NULL, 'post-1', '', 946684800000, 946684800000),
     (2, 1, NULL, NULL, 'post-2', '', 946684800000, 946684800000),
     (3, 1, 1735948800000, NULL, 'post-3', '', 946684800000, 946684800000),
     (4, 3, NULL, 4070908800000, 'post-4', '', 946684800000, 946684800000);
-    INSERT INTO django_content_type VALUES (1, 'board', 'sitesetting');
-    INSERT INTO auth_permission VALUES (1, 1, 'change_sitesetting', 'Can change site settings');
-    INSERT INTO auth_user_user_permissions VALUES (1, 1, 1);
+    UPDATE "User" SET canManageSiteSettings = 1 WHERE id = 1;
     INSERT INTO SiteSetting (id, headerScript, siteName, iconManifest, updatedAt)
       VALUES (1, '<script>hidden from delegated staff</script>', 'Test Blog', '{}', 1735689600000);
     INSERT INTO LoginSetting (id, welcomeNotificationMessage, welcomeNotificationUrl, hcaptchaEnabled, hcaptchaSiteKey, hcaptchaSecretKey, updatedAt)
       VALUES (1, 'Welcome {name}', '/welcome', 1, 'captcha-site-key', '${encryptDjangoSecret('hs_test_secret_99', cipherKey)}', 1735689600000);
-    INSERT INTO board_socialauthprovider VALUES
-      (1, 'google', 'google-id', '${encryptDjangoSecret('oauth_test_secret_17', cipherKey)}', 1),
-      (2, 'github', '', '', 0);
+    INSERT INTO "SocialProvider" ("id", "key", "clientId", "clientSecret", "isEnabled") VALUES
+    (1, 'google', 'google-id', '${encryptDjangoSecret('oauth_test_secret_17', cipherKey)}', 1),
+    (2, 'github', '', '', 0);
     INSERT INTO IntegrationSetting (id, updatedAt) VALUES (1, 1735689600000);
   `);
   database.close();
@@ -159,7 +128,7 @@ registerAdminSettings(app, prisma, {
     const id = Number(request.headers['x-test-user']);
     if (!Number.isSafeInteger(id) || id <= 0) return null;
     const database = new DatabaseSync(databasePath, { readOnly: true });
-    const user = database.prepare('SELECT id, username FROM auth_user WHERE id = ?').get(id) as { id: number; username: string } | undefined;
+    const user = database.prepare('SELECT id, username FROM "User" WHERE id = ?').get(id) as { id: number; username: string } | undefined;
     database.close();
     return user ?? null;
   },
@@ -447,7 +416,7 @@ test('updates hCaptcha and social provider credentials atomically without echoin
   const row = await prisma.$queryRaw<Array<{ hcaptchaSecretKey: string }>>`SELECT hcaptchaSecretKey FROM LoginSetting WHERE id = 1`;
   assert.notEqual(row[0]?.hcaptchaSecretKey, 'new-captcha-secret');
   assert.equal(decryptDjangoSecret(row[0]?.hcaptchaSecretKey ?? '', cipherKey), 'new-captcha-secret');
-  const social = await prisma.$queryRaw<Array<{ key: string; clientSecret: string; isEnabled: number }>>`SELECT key, client_secret AS clientSecret, is_enabled AS isEnabled FROM board_socialauthprovider ORDER BY id`;
+  const social = await prisma.$queryRaw<Array<{ key: string; clientSecret: string; isEnabled: number }>>`SELECT key, clientSecret, isEnabled FROM "SocialProvider" ORDER BY id`;
   assert.equal(decryptDjangoSecret(social.find((item) => item.key === 'google')?.clientSecret ?? '', cipherKey), 'google-new-secret');
   assert.equal(Boolean(social.find((item) => item.key === 'github')?.isEnabled), true);
   assert.equal(decryptDjangoSecret(social.find((item) => item.key === 'google')?.clientSecret ?? '', cipherKey), 'google-new-secret');
@@ -507,11 +476,11 @@ test('refuses to delete a staff invitation after it is claimed', async () => {
   assert.equal(body(create).status, 'DONE', create.body);
   const created = (body(create).body as { invite: { id: number } }).invite;
   const database = new DatabaseSync(databasePath);
-  database.prepare('UPDATE board_authorinvite SET is_active = 0, claimed_by_id = 3, claimed_date = ? WHERE id = ?').run('2025-03-01 00:00:00', created.id);
+  database.prepare('UPDATE "AuthorInvite" SET isActive = 0, claimedById = 3, claimedAt = ? WHERE id = ?').run(Date.UTC(2025, 2, 1), created.id);
   database.close();
   const deletion = await app.inject({ method: 'DELETE', url: `/v1/admin/author-invites/${created.id}`, headers: headers(1) });
   assert.equal(body(deletion).errorCode, 'error:RJ');
-  assert.equal(Number((await prisma.$queryRaw<Array<{ total: number | bigint }>>`SELECT COUNT(*) AS total FROM board_authorinvite WHERE id = ${created.id}`)[0]?.total), 1);
+  assert.equal(Number((await prisma.$queryRaw<Array<{ total: number | bigint }>>`SELECT COUNT(*) AS total FROM "AuthorInvite" WHERE id = ${created.id}`)[0]?.total), 1);
 });
 
 test('provides staff-only static page CRUD and sanitizes persisted page HTML', async () => {
@@ -917,8 +886,8 @@ test('limits utility access to superusers and requires session-bound one-time cl
     (1, 1);
   `);
   database.prepare(`
-    INSERT INTO auth_user (id, username, first_name, email, is_active, is_staff, is_superuser, date_joined, last_login)
-    VALUES (?, ?, ?, ?, 1, 1, 1, '2025-01-01 00:00:00', NULL)
+    INSERT INTO "User" (id, username, name, email, passwordHash, isActive, isStaff, isSuperuser, joinedAt, lastLoginAt)
+    VALUES (?, ?, ?, ?, '', 1, 1, 1, ${Date.UTC(2025, 0, 1)}, NULL)
   `).run(6, 'second-superuser', 'Second', 'second@example.test');
   database.close();
   const preview = await app.inject({
@@ -972,8 +941,8 @@ test('limits utility access to superusers and requires session-bound one-time cl
 test('binds session cleanup confirmation to its scope and deletes only the previewed session set', async () => {
   const now = BigInt(Date.now());
   const database = new DatabaseSync(databasePath);
-  database.prepare('INSERT INTO blex_session (token_hash, user_id, expires_at) VALUES (?, ?, ?)').run('expired', 3, now - 1_000n);
-  database.prepare('INSERT INTO blex_session (token_hash, user_id, expires_at) VALUES (?, ?, ?)').run('active', 3, now + 60_000n);
+  database.prepare('INSERT INTO "Session" (tokenHash, userId, credentialTag, expiresAt) VALUES (?, ?, \'\', ?)').run('expired', 3, now - 1_000n);
+  database.prepare('INSERT INTO "Session" (tokenHash, userId, credentialTag, expiresAt) VALUES (?, ?, \'\', ?)').run('active', 3, now + 60_000n);
   database.close();
 
   const preview = await app.inject({
@@ -993,7 +962,7 @@ test('binds session cleanup confirmation to its scope and deletes only the previ
   });
   assert.equal(body(execute).status, 'DONE', execute.body);
   assert.equal((body(execute).body as Record<string, unknown>).cleanedCount, 1);
-  assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM blex_session WHERE token_hash = 'active'`)[0]?.count), 1);
+  assert.equal(Number((await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM "Session" WHERE tokenHash = 'active'`)[0]?.count), 1);
 });
 
 test('lets only one of two simultaneous requests spend a cleanup confirmation', async () => {
@@ -1102,7 +1071,7 @@ test('image cleanup retains every referenced asset and only clears cache rows fo
   const database = new DatabaseSync(databasePath);
   database.exec(`
     UPDATE "Post" SET image = '/resources/media/images/title/deleted-post-title.png' WHERE id = 3;
-    UPDATE board_profile SET avatar = '/resources/media/images/avatar/profile-avatar.png' WHERE user_id = 1;
+    UPDATE "Profile" SET avatar = '/resources/media/images/avatar/profile-avatar.png' WHERE userId = 1;
     INSERT INTO "PostContent" ("postId", "html") VALUES
     (1, '<img src="/resources/media/images/content/current-content.png">');
     INSERT INTO "PostRevision" (id, postId, type, tags, content)
@@ -1207,9 +1176,9 @@ test('lists users with filters and safely updates only reader/editor roles', asy
     method: 'PATCH', url: '/v1/admin/users/3/role', headers: jsonHeaders(1), payload: JSON.stringify({ role: 'EDITOR' }),
   });
   assert.equal(body(roleUpdate).status, 'DONE', roleUpdate.body);
-  const [profile] = await prisma.$queryRaw<Array<{ role: string }>>`SELECT role FROM board_profile WHERE user_id = 3`;
+  const [profile] = await prisma.$queryRaw<Array<{ role: string }>>`SELECT role FROM "Profile" WHERE userId = 3`;
   assert.equal(profile?.role, 'EDITOR');
-  const [config] = await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM board_config WHERE user_id = 3`;
+  const [config] = await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM "UserPreference" WHERE userId = 3`;
   assert.equal(Number(config?.count), 1);
 
   const ownRole = await app.inject({
@@ -1229,7 +1198,7 @@ test('lists users with filters and safely updates only reader/editor roles', asy
   });
   assert.equal(noCsrf.statusCode, 403);
   const [staff] = await prisma.$queryRaw<Array<{ isStaff: number | bigint; isSuperuser: number | bigint }>>`
-    SELECT is_staff AS isStaff, is_superuser AS isSuperuser FROM auth_user WHERE id = 3
+    SELECT isStaff, isSuperuser FROM "User" WHERE id = 3
   `;
   assert.equal(Number(staff?.isStaff), 0);
   assert.equal(Number(staff?.isSuperuser), 0);
@@ -1245,8 +1214,8 @@ test('lists users with filters and safely updates only reader/editor roles', asy
     method: 'PATCH', url: '/v1/admin/users/5/role', headers: jsonHeaders(1), payload: JSON.stringify({ role: 'EDITOR' }),
   });
   assert.equal(body(profilelessPromotion).status, 'DONE', profilelessPromotion.body);
-  const [newProfile] = await prisma.$queryRaw<Array<{ role: string }>>`SELECT role FROM board_profile WHERE user_id = 5`;
+  const [newProfile] = await prisma.$queryRaw<Array<{ role: string }>>`SELECT role FROM "Profile" WHERE userId = 5`;
   assert.equal(newProfile?.role, 'EDITOR');
-  const [newConfig] = await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM board_config WHERE user_id = 5`;
+  const [newConfig] = await prisma.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM "UserPreference" WHERE userId = 5`;
   assert.equal(Number(newConfig?.count), 1);
 });

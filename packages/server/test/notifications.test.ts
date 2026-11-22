@@ -27,12 +27,12 @@ test('delivers scheduled publication once, retains queued retries, and respects 
     raw.exec(await readFile(new URL(`../../prisma/migrations/${migration}/migration.sql`, import.meta.url), 'utf8'));
   }
   raw.exec(`
-    INSERT INTO auth_user (id, username, password, email, first_name, last_name, date_joined, is_active, is_staff, is_superuser)
-    VALUES (1, 'editor', '!synthetic', '', 'Editor', '', '2000-01-01', 1, 0, 0),
-           (2, 'reader', '!synthetic', '', 'Reader', '', '2000-01-01', 1, 0, 0),
-           (3, 'oldreader', '!synthetic', '', 'Old reader', '', '2000-01-01', 1, 0, 0);
-    INSERT INTO board_profile (user_id, bio, cover, avatar, homepage, about_md, about_html, analytics_share_url, role)
-    VALUES (1, '', '', '', '', '', '', '', 'EDITOR');
+    INSERT INTO "User" ("id", "username", "passwordHash", "email", "name", "joinedAt", "isActive", "isStaff", "isSuperuser") VALUES
+    (1, 'editor', '!synthetic', '', 'Editor', 946684800000, 1, 0, 0),
+    (2, 'reader', '!synthetic', '', 'Reader', 946684800000, 1, 0, 0),
+    (3, 'oldreader', '!synthetic', '', 'Old reader', 946684800000, 1, 0, 0);
+    INSERT INTO "Profile" ("userId", "bio", "cover", "avatar", "homepage", "aboutMarkdown", "aboutHtml", "role") VALUES
+    (1, '', '', '', '', '', '', 'EDITOR');
     INSERT INTO "Post" (id, title, slug, readTime, createdAt, updatedAt, authorId, publishedAt)
     VALUES (1, 'Scheduled post', 'scheduled', 1, 946684800000, 946684800000, 1, ${Date.UTC(2099, 0, 1)});
     INSERT INTO AuthorSubscription (createdAt, authorId, subscriberId)
@@ -111,10 +111,10 @@ const neverAborted = new AbortController().signal;
 /** Profile ids deliberately collide with other accounts' user ids, so an owner mix-up cannot pass. */
 async function deliveryFixture() {
   const fixture = await createMigratedDatabase();
-  insertRow(fixture.db, 'auth_user', { id: 7, username: 'writer', first_name: 'Writer', password: 'x', is_active: 1 });
-  insertRow(fixture.db, 'auth_user', { id: 70, username: 'other', first_name: 'Other', password: 'x', is_active: 1 });
-  insertRow(fixture.db, 'board_profile', { id: 70, user_id: 7, role: 'EDITOR' });
-  insertRow(fixture.db, 'board_profile', { id: 7, user_id: 70, role: 'EDITOR' });
+  insertRow(fixture.db, 'User', { id: 7, username: 'writer', name: 'Writer', passwordHash: 'x', isActive: 1 });
+  insertRow(fixture.db, 'User', { id: 70, username: 'other', name: 'Other', passwordHash: 'x', isActive: 1 });
+  insertRow(fixture.db, 'Profile', { userId: 7, role: 'EDITOR' });
+  insertRow(fixture.db, 'Profile', { userId: 70, role: 'EDITOR' });
   fixture.db.prepare(`INSERT INTO IntegrationSetting (id, telegramEnabled, telegramBotUsername, telegramBotToken, updatedAt)
     VALUES (1, 1, 'synthetic_bot', ?, 946684800000)`).run(encryptDjangoSecret(botToken, cipherKey));
   const db = new PrismaClient({ datasourceUrl: `file:${fixture.path}?connection_limit=1` });

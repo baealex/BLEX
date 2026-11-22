@@ -1,95 +1,188 @@
 -- CreateTable
-CREATE TABLE "blex_oauth_flow" (
-    "state_hash" TEXT NOT NULL PRIMARY KEY,
-    "browser_hash" TEXT NOT NULL,
+CREATE TABLE "User" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "username" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "passwordHash" TEXT NOT NULL,
+    "name" TEXT NOT NULL DEFAULT '',
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "isStaff" BOOLEAN NOT NULL DEFAULT false,
+    "isSuperuser" BOOLEAN NOT NULL DEFAULT false,
+    "canManageSiteSettings" BOOLEAN NOT NULL DEFAULT false,
+    "lastLoginAt" DATETIME,
+    "joinedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CreateTable
+CREATE TABLE "Profile" (
+    "userId" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "role" TEXT NOT NULL DEFAULT 'READER',
+    "bio" TEXT NOT NULL DEFAULT '',
+    "avatar" TEXT NOT NULL DEFAULT '',
+    "cover" TEXT NOT NULL DEFAULT '',
+    "homepage" TEXT NOT NULL DEFAULT '',
+    "aboutMarkdown" TEXT NOT NULL DEFAULT '',
+    "aboutHtml" TEXT NOT NULL DEFAULT '',
+    CONSTRAINT "Profile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "UserPreference" (
+    "userId" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "language" TEXT,
+    "timeZone" TEXT NOT NULL DEFAULT '',
+    "notifyPostLike" BOOLEAN,
+    "notifyPostComment" BOOLEAN,
+    "notifyCommentLike" BOOLEAN,
+    "notifyMention" BOOLEAN,
+    CONSTRAINT "UserPreference_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "SocialLink" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "userId" INTEGER NOT NULL,
+    "platform" TEXT NOT NULL,
+    "url" TEXT NOT NULL,
+    "order" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "SocialLink_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "SocialProvider" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "key" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL DEFAULT '',
+    "clientSecret" TEXT NOT NULL DEFAULT '',
+    "isEnabled" BOOLEAN NOT NULL DEFAULT false
+);
+
+-- CreateTable
+CREATE TABLE "SocialAccount" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "providerId" INTEGER NOT NULL,
+    "uid" TEXT NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "extraData" TEXT NOT NULL DEFAULT '',
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "SocialAccount_providerId_fkey" FOREIGN KEY ("providerId") REFERENCES "SocialProvider" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "SocialAccount_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "TwoFactorAuth" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "userId" INTEGER NOT NULL,
+    "totpSecret" TEXT NOT NULL,
+    "recoveryKey" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "TwoFactorAuth_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "TelegramConnection" (
+    "userId" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "telegramId" TEXT NOT NULL DEFAULT '',
+    "authToken" TEXT NOT NULL DEFAULT '',
+    "authTokenExpiresAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "TelegramConnection_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "UsernameChange" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "userId" INTEGER NOT NULL,
+    "username" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "UsernameChange_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "AuthorInvite" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "code" TEXT NOT NULL,
+    "note" TEXT NOT NULL DEFAULT '',
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdById" INTEGER,
+    "claimedById" INTEGER,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "claimedAt" DATETIME,
+    CONSTRAINT "AuthorInvite_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "AuthorInvite_claimedById_fkey" FOREIGN KEY ("claimedById") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "LoginAttempt" (
+    "key" TEXT NOT NULL PRIMARY KEY,
+    "window" BIGINT NOT NULL,
+    "count" INTEGER NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "Session" (
+    "tokenHash" TEXT NOT NULL PRIMARY KEY,
+    "userId" INTEGER NOT NULL,
+    "credentialTag" TEXT NOT NULL,
+    "expiresAt" DATETIME NOT NULL,
+    "verifiedUntil" DATETIME,
+    "verifiedFactorId" INTEGER,
+    "requiresFactor" BOOLEAN NOT NULL DEFAULT false,
+    CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "FactorSetup" (
+    "sessionHash" TEXT NOT NULL PRIMARY KEY,
+    "secret" TEXT NOT NULL,
+    "recoveryHash" TEXT NOT NULL,
+    "expiresAt" DATETIME NOT NULL,
+    CONSTRAINT "FactorSetup_sessionHash_fkey" FOREIGN KEY ("sessionHash") REFERENCES "Session" ("tokenHash") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "OAuthFlow" (
+    "stateHash" TEXT NOT NULL PRIMARY KEY,
+    "browserHash" TEXT NOT NULL,
     "provider" TEXT NOT NULL,
     "verifier" TEXT NOT NULL,
-    "return_path" TEXT NOT NULL,
-    "expires_at" BIGINT NOT NULL,
-    "session_hash" TEXT,
+    "returnPath" TEXT NOT NULL,
+    "sessionHash" TEXT,
     "language" TEXT NOT NULL DEFAULT '',
-    "time_zone" TEXT NOT NULL DEFAULT ''
+    "timeZone" TEXT NOT NULL DEFAULT '',
+    "expiresAt" DATETIME NOT NULL
 );
 
 -- CreateTable
-CREATE TABLE "blex_oauth_challenge" (
-    "token_hash" TEXT NOT NULL PRIMARY KEY,
-    "social_auth_id" INTEGER NOT NULL,
-    "return_path" TEXT NOT NULL,
-    "expires_at" BIGINT NOT NULL,
-    CONSTRAINT "blex_oauth_challenge_social_auth_id_fkey" FOREIGN KEY ("social_auth_id") REFERENCES "board_socialauth" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
+CREATE TABLE "OAuthChallenge" (
+    "tokenHash" TEXT NOT NULL PRIMARY KEY,
+    "socialAccountId" INTEGER NOT NULL,
+    "returnPath" TEXT NOT NULL,
+    "expiresAt" DATETIME NOT NULL,
+    CONSTRAINT "OAuthChallenge_socialAccountId_fkey" FOREIGN KEY ("socialAccountId") REFERENCES "SocialAccount" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
-CREATE TABLE "auth_user" (
+CREATE TABLE "AuthorSubscription" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "password" TEXT NOT NULL,
-    "last_login" DATETIME,
-    "is_superuser" BOOLEAN NOT NULL,
-    "username" TEXT NOT NULL,
-    "last_name" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "is_staff" BOOLEAN NOT NULL,
-    "is_active" BOOLEAN NOT NULL,
-    "date_joined" DATETIME NOT NULL,
-    "first_name" TEXT NOT NULL
+    "subscriberId" INTEGER NOT NULL,
+    "authorId" INTEGER NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "AuthorSubscription_subscriberId_fkey" FOREIGN KEY ("subscriberId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "AuthorSubscription_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
-CREATE TABLE "blex_session" (
-    "token_hash" TEXT NOT NULL PRIMARY KEY,
-    "user_id" INTEGER NOT NULL,
-    "credential_tag" TEXT NOT NULL,
-    "expires_at" BIGINT NOT NULL,
-    "verified_until" BIGINT,
-    "verified_factor_id" INTEGER,
-    "requires_factor" INTEGER NOT NULL DEFAULT 0,
-    CONSTRAINT "blex_session_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
-);
-
--- CreateTable
-CREATE TABLE "blex_factor_setup" (
-    "session_hash" TEXT NOT NULL PRIMARY KEY,
-    "secret" TEXT NOT NULL,
-    "recovery_hash" TEXT NOT NULL,
-    "expires_at" BIGINT NOT NULL,
-    CONSTRAINT "blex_factor_setup_session_hash_fkey" FOREIGN KEY ("session_hash") REFERENCES "blex_session" ("token_hash") ON DELETE CASCADE ON UPDATE CASCADE
-);
-
--- CreateTable
-CREATE TABLE "NotificationDelivery" (
-    "notificationId" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "attempts" INTEGER NOT NULL DEFAULT 0,
-    "availableAt" DATETIME NOT NULL,
-    CONSTRAINT "NotificationDelivery_notificationId_fkey" FOREIGN KEY ("notificationId") REFERENCES "Notification" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-);
-
--- CreateTable
-CREATE TABLE "ScheduledPublication" (
-    "postId" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "publishAt" DATETIME NOT NULL,
-    CONSTRAINT "ScheduledPublication_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-);
-
--- CreateTable
-CREATE TABLE "WebhookDelivery" (
-    "postId" INTEGER NOT NULL,
-    "channelId" INTEGER NOT NULL,
-    "availableAt" DATETIME NOT NULL,
-    "isDone" BOOLEAN NOT NULL DEFAULT false,
-
-    PRIMARY KEY ("postId", "channelId"),
-    CONSTRAINT "WebhookDelivery_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "WebhookDelivery_channelId_fkey" FOREIGN KEY ("channelId") REFERENCES "WebhookChannel" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-);
-
--- CreateTable
-CREATE TABLE "board_usernamechangelog" (
+CREATE TABLE "AuthorSubscriptionLog" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "username" TEXT NOT NULL,
-    "created_date" DATETIME NOT NULL,
-    "user_id" INTEGER NOT NULL,
-    CONSTRAINT "board_usernamechangelog_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+    "subscriberId" INTEGER NOT NULL,
+    "authorId" INTEGER NOT NULL,
+    "action" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "AuthorSubscriptionLog_subscriberId_fkey" FOREIGN KEY ("subscriberId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "AuthorSubscriptionLog_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -115,7 +208,7 @@ CREATE TABLE "Post" (
     "publishedAt" DATETIME,
     "deletedAt" DATETIME,
     "draftScheduledAt" DATETIME,
-    CONSTRAINT "Post_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "Post_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "Post_seriesId_fkey" FOREIGN KEY ("seriesId") REFERENCES "Series" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
@@ -127,147 +220,9 @@ CREATE TABLE "PostContent" (
 );
 
 -- CreateTable
-CREATE TABLE "auth_group" (
+CREATE TABLE "Tag" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "name" TEXT NOT NULL
-);
-
--- CreateTable
-CREATE TABLE "auth_group_permissions" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "group_id" INTEGER NOT NULL,
-    "permission_id" INTEGER NOT NULL,
-    CONSTRAINT "auth_group_permissions_permission_id_fkey" FOREIGN KEY ("permission_id") REFERENCES "auth_permission" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT "auth_group_permissions_group_id_fkey" FOREIGN KEY ("group_id") REFERENCES "auth_group" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- CreateTable
-CREATE TABLE "auth_permission" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "content_type_id" INTEGER NOT NULL,
-    "codename" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    CONSTRAINT "auth_permission_content_type_id_fkey" FOREIGN KEY ("content_type_id") REFERENCES "django_content_type" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- CreateTable
-CREATE TABLE "auth_user_groups" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "user_id" INTEGER NOT NULL,
-    "group_id" INTEGER NOT NULL,
-    CONSTRAINT "auth_user_groups_group_id_fkey" FOREIGN KEY ("group_id") REFERENCES "auth_group" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT "auth_user_groups_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- CreateTable
-CREATE TABLE "auth_user_user_permissions" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "user_id" INTEGER NOT NULL,
-    "permission_id" INTEGER NOT NULL,
-    CONSTRAINT "auth_user_user_permissions_permission_id_fkey" FOREIGN KEY ("permission_id") REFERENCES "auth_permission" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT "auth_user_user_permissions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- CreateTable
-CREATE TABLE "board_authorinvite" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "code" TEXT NOT NULL,
-    "note" TEXT NOT NULL,
-    "is_active" BOOLEAN NOT NULL,
-    "created_date" DATETIME NOT NULL,
-    "claimed_date" DATETIME,
-    "claimed_by_id" INTEGER,
-    "created_by_id" INTEGER,
-    CONSTRAINT "board_authorinvite_created_by_id_fkey" FOREIGN KEY ("created_by_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT "board_authorinvite_claimed_by_id_fkey" FOREIGN KEY ("claimed_by_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- CreateTable
-CREATE TABLE "AuthorSubscription" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "subscriberId" INTEGER NOT NULL,
-    "authorId" INTEGER NOT NULL,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "AuthorSubscription_subscriberId_fkey" FOREIGN KEY ("subscriberId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "AuthorSubscription_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-);
-
--- CreateTable
-CREATE TABLE "AuthorSubscriptionLog" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "subscriberId" INTEGER NOT NULL,
-    "authorId" INTEGER NOT NULL,
-    "action" TEXT NOT NULL,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "AuthorSubscriptionLog_subscriberId_fkey" FOREIGN KEY ("subscriberId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "AuthorSubscriptionLog_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-);
-
--- CreateTable
-CREATE TABLE "Comment" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "postId" INTEGER NOT NULL,
-    "authorId" INTEGER,
-    "parentId" INTEGER,
-    "markdown" TEXT NOT NULL DEFAULT '',
-    "html" TEXT NOT NULL DEFAULT '',
-    "isEdited" BOOLEAN NOT NULL DEFAULT false,
-    "isHearted" BOOLEAN NOT NULL DEFAULT false,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "Comment_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "Comment_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "auth_user" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
-    CONSTRAINT "Comment_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "Comment" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-);
-
--- CreateTable
-CREATE TABLE "CommentLike" (
-    "commentId" INTEGER NOT NULL,
-    "userId" INTEGER NOT NULL,
-
-    PRIMARY KEY ("commentId", "userId"),
-    CONSTRAINT "CommentLike_commentId_fkey" FOREIGN KEY ("commentId") REFERENCES "Comment" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "CommentLike_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-);
-
--- CreateTable
-CREATE TABLE "board_config" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "user_id" INTEGER NOT NULL,
-    "language" TEXT,
-    "time_zone" TEXT NOT NULL,
-    CONSTRAINT "board_config_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- CreateTable
-CREATE TABLE "DeveloperRequestLog" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "userId" INTEGER NOT NULL,
-    "tokenId" INTEGER,
-    "method" TEXT NOT NULL,
-    "path" TEXT NOT NULL,
-    "statusCode" INTEGER NOT NULL,
-    "ipAddress" TEXT,
-    "userAgent" TEXT NOT NULL DEFAULT '',
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "DeveloperRequestLog_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "DeveloperRequestLog_tokenId_fkey" FOREIGN KEY ("tokenId") REFERENCES "DeveloperToken" ("id") ON DELETE SET NULL ON UPDATE CASCADE
-);
-
--- CreateTable
-CREATE TABLE "DeveloperToken" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "userId" INTEGER NOT NULL,
-    "name" TEXT NOT NULL,
-    "tokenPrefix" TEXT NOT NULL,
-    "tokenHash" TEXT NOT NULL,
-    "scopes" JSONB NOT NULL,
-    "expiresAt" DATETIME,
-    "revokedAt" DATETIME,
-    "lastUsedAt" DATETIME,
-    "lastUsedIp" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "DeveloperToken_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -286,52 +241,8 @@ CREATE TABLE "PostRevision" (
     "sourceUpdatedAt" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "PostRevision_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "PostRevision_actorId_fkey" FOREIGN KEY ("actorId") REFERENCES "auth_user" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "PostRevision_actorId_fkey" FOREIGN KEY ("actorId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "PostRevision_restoredFromId_fkey" FOREIGN KEY ("restoredFromId") REFERENCES "PostRevision" ("id") ON DELETE SET NULL ON UPDATE CASCADE
-);
-
--- CreateTable
-CREATE TABLE "board_emailchange" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "email" TEXT NOT NULL,
-    "auth_token" TEXT NOT NULL,
-    "created_date" DATETIME NOT NULL,
-    "user_id" INTEGER NOT NULL,
-    CONSTRAINT "board_emailchange_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- CreateTable
-CREATE TABLE "board_loginattempt" (
-    "key" TEXT NOT NULL PRIMARY KEY,
-    "window" BIGINT NOT NULL,
-    "count" INTEGER NOT NULL
-);
-
--- CreateTable
-CREATE TABLE "Notification" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "userId" INTEGER NOT NULL,
-    "key" TEXT NOT NULL,
-    "url" TEXT NOT NULL DEFAULT '',
-    "content" TEXT NOT NULL DEFAULT '',
-    "messageKey" TEXT NOT NULL DEFAULT '',
-    "messageParams" JSONB NOT NULL,
-    "isRead" BOOLEAN NOT NULL DEFAULT false,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "Notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-);
-
--- CreateTable
-CREATE TABLE "PinnedPost" (
-    "userId" INTEGER NOT NULL,
-    "postId" INTEGER NOT NULL,
-    "order" INTEGER NOT NULL DEFAULT 0,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    PRIMARY KEY ("userId", "postId"),
-    CONSTRAINT "PinnedPost_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "PinnedPost_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -342,17 +253,19 @@ CREATE TABLE "PostLike" (
 
     PRIMARY KEY ("postId", "userId"),
     CONSTRAINT "PostLike_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "PostLike_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "PostLike_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
-CREATE TABLE "PostShareDailyCount" (
-    "linkId" INTEGER NOT NULL,
-    "day" DATETIME NOT NULL,
-    "clicks" INTEGER NOT NULL DEFAULT 0,
+CREATE TABLE "PinnedPost" (
+    "userId" INTEGER NOT NULL,
+    "postId" INTEGER NOT NULL,
+    "order" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    PRIMARY KEY ("linkId", "day"),
-    CONSTRAINT "PostShareDailyCount_linkId_fkey" FOREIGN KEY ("linkId") REFERENCES "PostShareLink" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    PRIMARY KEY ("userId", "postId"),
+    CONSTRAINT "PinnedPost_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "PinnedPost_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -367,18 +280,20 @@ CREATE TABLE "PostShareLink" (
 );
 
 -- CreateTable
-CREATE TABLE "board_profile" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "bio" TEXT NOT NULL,
-    "cover" TEXT NOT NULL,
-    "avatar" TEXT NOT NULL,
-    "homepage" TEXT NOT NULL,
-    "about_md" TEXT NOT NULL,
-    "about_html" TEXT NOT NULL,
-    "user_id" INTEGER NOT NULL,
-    "analytics_share_url" TEXT NOT NULL,
-    "role" TEXT NOT NULL,
-    CONSTRAINT "board_profile_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+CREATE TABLE "PostShareDailyCount" (
+    "linkId" INTEGER NOT NULL,
+    "day" DATETIME NOT NULL,
+    "clicks" INTEGER NOT NULL DEFAULT 0,
+
+    PRIMARY KEY ("linkId", "day"),
+    CONSTRAINT "PostShareDailyCount_linkId_fkey" FOREIGN KEY ("linkId") REFERENCES "PostShareLink" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "ScheduledPublication" (
+    "postId" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "publishAt" DATETIME NOT NULL,
+    CONSTRAINT "ScheduledPublication_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -394,129 +309,33 @@ CREATE TABLE "Series" (
     "order" INTEGER NOT NULL DEFAULT 0,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "Series_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "Series_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
-CREATE TABLE "board_socialauth" (
+CREATE TABLE "Comment" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "uid" TEXT NOT NULL,
-    "extra_data" TEXT NOT NULL,
-    "created_date" DATETIME NOT NULL,
-    "provider_id" INTEGER NOT NULL,
-    "user_id" INTEGER NOT NULL,
-    CONSTRAINT "board_socialauth_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT "board_socialauth_provider_id_fkey" FOREIGN KEY ("provider_id") REFERENCES "board_socialauthprovider" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- CreateTable
-CREATE TABLE "board_socialauthprovider" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "key" TEXT NOT NULL,
-    "client_id" TEXT NOT NULL,
-    "client_secret" TEXT NOT NULL,
-    "is_enabled" BOOLEAN NOT NULL
-);
-
--- CreateTable
-CREATE TABLE "Tag" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "name" TEXT NOT NULL
-);
-
--- CreateTable
-CREATE TABLE "TelegramConnection" (
-    "userId" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "telegramId" TEXT NOT NULL DEFAULT '',
-    "authToken" TEXT NOT NULL DEFAULT '',
-    "authTokenExpiresAt" DATETIME,
+    "postId" INTEGER NOT NULL,
+    "authorId" INTEGER,
+    "parentId" INTEGER,
+    "markdown" TEXT NOT NULL DEFAULT '',
+    "html" TEXT NOT NULL DEFAULT '',
+    "isEdited" BOOLEAN NOT NULL DEFAULT false,
+    "isHearted" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "TelegramConnection_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "Comment_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "Comment_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "Comment_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "Comment" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
-CREATE TABLE "board_twofactorauth" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "recovery_key" TEXT NOT NULL,
-    "created_date" DATETIME NOT NULL,
-    "user_id" INTEGER NOT NULL,
-    "totp_secret" TEXT NOT NULL,
-    CONSTRAINT "board_twofactorauth_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
+CREATE TABLE "CommentLike" (
+    "commentId" INTEGER NOT NULL,
+    "userId" INTEGER NOT NULL,
 
--- CreateTable
-CREATE TABLE "board_userconfigmeta" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "name" TEXT NOT NULL,
-    "value" TEXT NOT NULL,
-    "created_date" DATETIME NOT NULL,
-    "updated_date" DATETIME NOT NULL,
-    "user_id" INTEGER NOT NULL,
-    CONSTRAINT "board_userconfigmeta_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- CreateTable
-CREATE TABLE "board_userlinkmeta" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "name" TEXT NOT NULL,
-    "value" TEXT NOT NULL,
-    "created_date" DATETIME NOT NULL,
-    "updated_date" DATETIME NOT NULL,
-    "user_id" INTEGER NOT NULL,
-    "order" INTEGER NOT NULL,
-    CONSTRAINT "board_userlinkmeta_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
--- CreateTable
-CREATE TABLE "WebhookChannel" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "ownerId" INTEGER,
-    "scope" TEXT NOT NULL,
-    "name" TEXT NOT NULL DEFAULT '',
-    "url" TEXT NOT NULL,
-    "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "failureCount" INTEGER NOT NULL DEFAULT 0,
-    "lastSuccessAt" DATETIME,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "WebhookChannel_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-);
-
--- CreateTable
-CREATE TABLE "django_content_type" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "app_label" TEXT NOT NULL,
-    "model" TEXT NOT NULL
-);
-
--- CreateTable
-CREATE TABLE "WorkLog" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "ownerId" INTEGER NOT NULL,
-    "title" TEXT NOT NULL,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "WorkLog_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-);
-
--- CreateTable
-CREATE TABLE "WorkLogEntry" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "logId" INTEGER NOT NULL,
-    "title" TEXT NOT NULL DEFAULT '',
-    "text" TEXT NOT NULL DEFAULT '',
-    "mediaType" TEXT NOT NULL DEFAULT '',
-    "attachment" TEXT NOT NULL DEFAULT '',
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "WorkLogEntry_logId_fkey" FOREIGN KEY ("logId") REFERENCES "WorkLog" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-);
-
--- CreateTable
-CREATE TABLE "WorkLogShare" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "logId" INTEGER NOT NULL,
-    "token" TEXT NOT NULL,
-    "headline" TEXT NOT NULL DEFAULT '',
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "WorkLogShare_logId_fkey" FOREIGN KEY ("logId") REFERENCES "WorkLog" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    PRIMARY KEY ("commentId", "userId"),
+    CONSTRAINT "CommentLike_commentId_fkey" FOREIGN KEY ("commentId") REFERENCES "Comment" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "CommentLike_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -528,53 +347,17 @@ CREATE TABLE "FormTemplate" (
     "isPublic" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "FormTemplate_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "FormTemplate_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
-CREATE TABLE "StaticPage" (
+CREATE TABLE "UploadedImage" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "authorId" INTEGER,
-    "slug" TEXT NOT NULL,
-    "title" TEXT NOT NULL,
-    "content" TEXT NOT NULL DEFAULT '',
-    "description" TEXT NOT NULL DEFAULT '',
-    "isPublished" BOOLEAN NOT NULL DEFAULT false,
-    "showInFooter" BOOLEAN NOT NULL DEFAULT false,
-    "order" INTEGER NOT NULL DEFAULT 0,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "StaticPage_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "auth_user" ("id") ON DELETE SET NULL ON UPDATE CASCADE
-);
-
--- CreateTable
-CREATE TABLE "SiteNotice" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "key" TEXT NOT NULL,
+    "path" TEXT NOT NULL,
+    "size" INTEGER NOT NULL,
     "userId" INTEGER,
-    "scope" TEXT NOT NULL,
-    "title" TEXT NOT NULL,
-    "url" TEXT NOT NULL DEFAULT '',
-    "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "order" INTEGER NOT NULL DEFAULT 0,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "SiteNotice_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-);
-
--- CreateTable
-CREATE TABLE "SiteBanner" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "userId" INTEGER,
-    "scope" TEXT NOT NULL,
-    "type" TEXT NOT NULL,
-    "position" TEXT NOT NULL,
-    "title" TEXT NOT NULL DEFAULT '',
-    "contentHtml" TEXT NOT NULL DEFAULT '',
-    "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "order" INTEGER NOT NULL DEFAULT 0,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "SiteBanner_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "UploadedImage_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -617,6 +400,52 @@ CREATE TABLE "IntegrationSetting" (
 );
 
 -- CreateTable
+CREATE TABLE "StaticPage" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "authorId" INTEGER,
+    "slug" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "content" TEXT NOT NULL DEFAULT '',
+    "description" TEXT NOT NULL DEFAULT '',
+    "isPublished" BOOLEAN NOT NULL DEFAULT false,
+    "showInFooter" BOOLEAN NOT NULL DEFAULT false,
+    "order" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "StaticPage_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "SiteNotice" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "userId" INTEGER,
+    "scope" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "url" TEXT NOT NULL DEFAULT '',
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "order" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "SiteNotice_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "SiteBanner" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "userId" INTEGER,
+    "scope" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "position" TEXT NOT NULL,
+    "title" TEXT NOT NULL DEFAULT '',
+    "contentHtml" TEXT NOT NULL DEFAULT '',
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "order" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "SiteBanner_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
 CREATE TABLE "AdminLog" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "userId" INTEGER NOT NULL,
@@ -626,7 +455,7 @@ CREATE TABLE "AdminLog" (
     "action" INTEGER NOT NULL,
     "message" TEXT NOT NULL DEFAULT '',
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "AdminLog_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "AdminLog_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -639,17 +468,119 @@ CREATE TABLE "CleanupConfirmation" (
     "expiresAt" DATETIME NOT NULL,
     "consumedAt" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "CleanupConfirmation_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "CleanupConfirmation_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
-CREATE TABLE "UploadedImage" (
+CREATE TABLE "Notification" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "userId" INTEGER NOT NULL,
     "key" TEXT NOT NULL,
+    "url" TEXT NOT NULL DEFAULT '',
+    "content" TEXT NOT NULL DEFAULT '',
+    "messageKey" TEXT NOT NULL DEFAULT '',
+    "messageParams" JSONB NOT NULL,
+    "isRead" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "NotificationDelivery" (
+    "notificationId" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "attempts" INTEGER NOT NULL DEFAULT 0,
+    "availableAt" DATETIME NOT NULL,
+    CONSTRAINT "NotificationDelivery_notificationId_fkey" FOREIGN KEY ("notificationId") REFERENCES "Notification" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "WebhookChannel" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "ownerId" INTEGER,
+    "scope" TEXT NOT NULL,
+    "name" TEXT NOT NULL DEFAULT '',
+    "url" TEXT NOT NULL,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "failureCount" INTEGER NOT NULL DEFAULT 0,
+    "lastSuccessAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "WebhookChannel_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "WebhookDelivery" (
+    "postId" INTEGER NOT NULL,
+    "channelId" INTEGER NOT NULL,
+    "availableAt" DATETIME NOT NULL,
+    "isDone" BOOLEAN NOT NULL DEFAULT false,
+
+    PRIMARY KEY ("postId", "channelId"),
+    CONSTRAINT "WebhookDelivery_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "WebhookDelivery_channelId_fkey" FOREIGN KEY ("channelId") REFERENCES "WebhookChannel" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "DeveloperToken" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "userId" INTEGER NOT NULL,
+    "name" TEXT NOT NULL,
+    "tokenPrefix" TEXT NOT NULL,
+    "tokenHash" TEXT NOT NULL,
+    "scopes" JSONB NOT NULL,
+    "expiresAt" DATETIME,
+    "revokedAt" DATETIME,
+    "lastUsedAt" DATETIME,
+    "lastUsedIp" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "DeveloperToken_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "DeveloperRequestLog" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "userId" INTEGER NOT NULL,
+    "tokenId" INTEGER,
+    "method" TEXT NOT NULL,
     "path" TEXT NOT NULL,
-    "size" INTEGER NOT NULL,
-    "userId" INTEGER,
-    CONSTRAINT "UploadedImage_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+    "statusCode" INTEGER NOT NULL,
+    "ipAddress" TEXT,
+    "userAgent" TEXT NOT NULL DEFAULT '',
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "DeveloperRequestLog_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "DeveloperRequestLog_tokenId_fkey" FOREIGN KEY ("tokenId") REFERENCES "DeveloperToken" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "WorkLog" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "ownerId" INTEGER NOT NULL,
+    "title" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "WorkLog_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "WorkLogEntry" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "logId" INTEGER NOT NULL,
+    "title" TEXT NOT NULL DEFAULT '',
+    "text" TEXT NOT NULL DEFAULT '',
+    "mediaType" TEXT NOT NULL DEFAULT '',
+    "attachment" TEXT NOT NULL DEFAULT '',
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "WorkLogEntry_logId_fkey" FOREIGN KEY ("logId") REFERENCES "WorkLog" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "WorkLogShare" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "logId" INTEGER NOT NULL,
+    "token" TEXT NOT NULL,
+    "headline" TEXT NOT NULL DEFAULT '',
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "WorkLogShare_logId_fkey" FOREIGN KEY ("logId") REFERENCES "WorkLog" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -669,37 +600,67 @@ CREATE TABLE "_WorkLogEntryToWorkLogShare" (
 );
 
 -- CreateIndex
-CREATE INDEX "blex_oauth_flow_expires_at_idx" ON "blex_oauth_flow"("expires_at");
+CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 
 -- CreateIndex
-CREATE INDEX "blex_oauth_challenge_social_auth_id_idx" ON "blex_oauth_challenge"("social_auth_id");
+CREATE INDEX "SocialLink_userId_order_idx" ON "SocialLink"("userId", "order");
 
 -- CreateIndex
-CREATE INDEX "blex_oauth_challenge_expires_at_idx" ON "blex_oauth_challenge"("expires_at");
+CREATE UNIQUE INDEX "SocialProvider_key_key" ON "SocialProvider"("key");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "auth_user_username_key" ON "auth_user"("username");
+CREATE INDEX "SocialAccount_userId_idx" ON "SocialAccount"("userId");
 
 -- CreateIndex
-CREATE INDEX "blex_session_user_id_idx" ON "blex_session"("user_id");
+CREATE UNIQUE INDEX "SocialAccount_providerId_uid_key" ON "SocialAccount"("providerId", "uid");
 
 -- CreateIndex
-CREATE INDEX "blex_session_expires_at_idx" ON "blex_session"("expires_at");
+CREATE UNIQUE INDEX "TwoFactorAuth_userId_key" ON "TwoFactorAuth"("userId");
 
 -- CreateIndex
-CREATE INDEX "NotificationDelivery_availableAt_idx" ON "NotificationDelivery"("availableAt");
+CREATE INDEX "UsernameChange_username_idx" ON "UsernameChange"("username");
 
 -- CreateIndex
-CREATE INDEX "ScheduledPublication_publishAt_idx" ON "ScheduledPublication"("publishAt");
+CREATE INDEX "UsernameChange_userId_idx" ON "UsernameChange"("userId");
 
 -- CreateIndex
-CREATE INDEX "WebhookDelivery_isDone_availableAt_idx" ON "WebhookDelivery"("isDone", "availableAt");
+CREATE UNIQUE INDEX "AuthorInvite_code_key" ON "AuthorInvite"("code");
 
 -- CreateIndex
-CREATE INDEX "board_usern_usernam_873004_idx" ON "board_usernamechangelog"("username");
+CREATE INDEX "AuthorInvite_createdById_idx" ON "AuthorInvite"("createdById");
 
 -- CreateIndex
-CREATE INDEX "board_usernamechangelog_user_id_42630b04" ON "board_usernamechangelog"("user_id");
+CREATE INDEX "AuthorInvite_claimedById_idx" ON "AuthorInvite"("claimedById");
+
+-- CreateIndex
+CREATE INDEX "LoginAttempt_window_idx" ON "LoginAttempt"("window");
+
+-- CreateIndex
+CREATE INDEX "Session_userId_idx" ON "Session"("userId");
+
+-- CreateIndex
+CREATE INDEX "Session_expiresAt_idx" ON "Session"("expiresAt");
+
+-- CreateIndex
+CREATE INDEX "OAuthFlow_expiresAt_idx" ON "OAuthFlow"("expiresAt");
+
+-- CreateIndex
+CREATE INDEX "OAuthChallenge_socialAccountId_idx" ON "OAuthChallenge"("socialAccountId");
+
+-- CreateIndex
+CREATE INDEX "OAuthChallenge_expiresAt_idx" ON "OAuthChallenge"("expiresAt");
+
+-- CreateIndex
+CREATE INDEX "AuthorSubscription_authorId_createdAt_idx" ON "AuthorSubscription"("authorId", "createdAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AuthorSubscription_subscriberId_authorId_key" ON "AuthorSubscription"("subscriberId", "authorId");
+
+-- CreateIndex
+CREATE INDEX "AuthorSubscriptionLog_authorId_createdAt_idx" ON "AuthorSubscriptionLog"("authorId", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "AuthorSubscriptionLog_subscriberId_idx" ON "AuthorSubscriptionLog"("subscriberId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Post_slug_key" ON "Post"("slug");
@@ -726,67 +687,37 @@ CREATE INDEX "Post_seriesId_idx" ON "Post"("seriesId");
 CREATE INDEX "Post_imageHash_idx" ON "Post"("imageHash");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "auth_group_name_key" ON "auth_group"("name");
+CREATE UNIQUE INDEX "Tag_name_key" ON "Tag"("name");
 
 -- CreateIndex
-CREATE INDEX "auth_group_permissions_permission_id_84c5c92e" ON "auth_group_permissions"("permission_id");
+CREATE INDEX "PostRevision_postId_createdAt_idx" ON "PostRevision"("postId", "createdAt");
 
 -- CreateIndex
-CREATE INDEX "auth_group_permissions_group_id_b120cbf9" ON "auth_group_permissions"("group_id");
+CREATE INDEX "PostRevision_restoredFromId_idx" ON "PostRevision"("restoredFromId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "auth_group_permissions_group_id_permission_id_0cd325b0_uniq" ON "auth_group_permissions"("group_id", "permission_id");
+CREATE INDEX "PostRevision_actorId_idx" ON "PostRevision"("actorId");
 
 -- CreateIndex
-CREATE INDEX "auth_permission_content_type_id_2f476e4b" ON "auth_permission"("content_type_id");
+CREATE INDEX "PostLike_userId_createdAt_idx" ON "PostLike"("userId", "createdAt");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "auth_permission_content_type_id_codename_01ab375a_uniq" ON "auth_permission"("content_type_id", "codename");
+CREATE INDEX "PinnedPost_postId_idx" ON "PinnedPost"("postId");
 
 -- CreateIndex
-CREATE INDEX "auth_user_groups_group_id_97559544" ON "auth_user_groups"("group_id");
+CREATE UNIQUE INDEX "PostShareLink_token_key" ON "PostShareLink"("token");
 
 -- CreateIndex
-CREATE INDEX "auth_user_groups_user_id_6a12ed8b" ON "auth_user_groups"("user_id");
+CREATE INDEX "PostShareLink_postId_idx" ON "PostShareLink"("postId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "auth_user_groups_user_id_group_id_94350c0c_uniq" ON "auth_user_groups"("user_id", "group_id");
+CREATE INDEX "ScheduledPublication_publishAt_idx" ON "ScheduledPublication"("publishAt");
 
 -- CreateIndex
-CREATE INDEX "auth_user_user_permissions_permission_id_1fbb5f2c" ON "auth_user_user_permissions"("permission_id");
+CREATE UNIQUE INDEX "Series_slug_key" ON "Series"("slug");
 
 -- CreateIndex
-CREATE INDEX "auth_user_user_permissions_user_id_a95ead1b" ON "auth_user_user_permissions"("user_id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "auth_user_user_permissions_user_id_permission_id_14a6b632_uniq" ON "auth_user_user_permissions"("user_id", "permission_id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "board_authorinvite_code_key" ON "board_authorinvite"("code");
-
--- CreateIndex
-CREATE INDEX "board_autho_claimed_0188bf_idx" ON "board_authorinvite"("claimed_by_id");
-
--- CreateIndex
-CREATE INDEX "board_autho_code_e7ed63_idx" ON "board_authorinvite"("code", "is_active");
-
--- CreateIndex
-CREATE INDEX "board_authorinvite_created_by_id_0cd57a38" ON "board_authorinvite"("created_by_id");
-
--- CreateIndex
-CREATE INDEX "board_authorinvite_claimed_by_id_7a8026eb" ON "board_authorinvite"("claimed_by_id");
-
--- CreateIndex
-CREATE INDEX "AuthorSubscription_authorId_createdAt_idx" ON "AuthorSubscription"("authorId", "createdAt");
-
--- CreateIndex
-CREATE UNIQUE INDEX "AuthorSubscription_subscriberId_authorId_key" ON "AuthorSubscription"("subscriberId", "authorId");
-
--- CreateIndex
-CREATE INDEX "AuthorSubscriptionLog_authorId_createdAt_idx" ON "AuthorSubscriptionLog"("authorId", "createdAt");
-
--- CreateIndex
-CREATE INDEX "AuthorSubscriptionLog_subscriberId_idx" ON "AuthorSubscriptionLog"("subscriberId");
+CREATE INDEX "Series_ownerId_idx" ON "Series"("ownerId");
 
 -- CreateIndex
 CREATE INDEX "Comment_authorId_createdAt_idx" ON "Comment"("authorId", "createdAt");
@@ -801,112 +732,16 @@ CREATE INDEX "Comment_parentId_idx" ON "Comment"("parentId");
 CREATE INDEX "CommentLike_userId_idx" ON "CommentLike"("userId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "board_config_user_id_key" ON "board_config"("user_id");
-
--- CreateIndex
-CREATE INDEX "DeveloperRequestLog_tokenId_createdAt_idx" ON "DeveloperRequestLog"("tokenId", "createdAt");
-
--- CreateIndex
-CREATE INDEX "DeveloperRequestLog_userId_createdAt_idx" ON "DeveloperRequestLog"("userId", "createdAt");
-
--- CreateIndex
-CREATE UNIQUE INDEX "DeveloperToken_tokenPrefix_key" ON "DeveloperToken"("tokenPrefix");
-
--- CreateIndex
-CREATE UNIQUE INDEX "DeveloperToken_tokenHash_key" ON "DeveloperToken"("tokenHash");
-
--- CreateIndex
-CREATE INDEX "DeveloperToken_userId_revokedAt_idx" ON "DeveloperToken"("userId", "revokedAt");
-
--- CreateIndex
-CREATE INDEX "PostRevision_postId_createdAt_idx" ON "PostRevision"("postId", "createdAt");
-
--- CreateIndex
-CREATE INDEX "PostRevision_restoredFromId_idx" ON "PostRevision"("restoredFromId");
-
--- CreateIndex
-CREATE INDEX "PostRevision_actorId_idx" ON "PostRevision"("actorId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "board_emailchange_user_id_key" ON "board_emailchange"("user_id");
-
--- CreateIndex
-CREATE INDEX "board_loginattempt_window_a08cc5bd" ON "board_loginattempt"("window");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Notification_key_key" ON "Notification"("key");
-
--- CreateIndex
-CREATE INDEX "Notification_userId_idx" ON "Notification"("userId");
-
--- CreateIndex
-CREATE INDEX "PinnedPost_postId_idx" ON "PinnedPost"("postId");
-
--- CreateIndex
-CREATE INDEX "PostLike_userId_createdAt_idx" ON "PostLike"("userId", "createdAt");
-
--- CreateIndex
-CREATE UNIQUE INDEX "PostShareLink_token_key" ON "PostShareLink"("token");
-
--- CreateIndex
-CREATE INDEX "PostShareLink_postId_idx" ON "PostShareLink"("postId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "board_profile_user_id_key" ON "board_profile"("user_id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Series_slug_key" ON "Series"("slug");
-
--- CreateIndex
-CREATE INDEX "Series_ownerId_idx" ON "Series"("ownerId");
-
--- CreateIndex
-CREATE INDEX "board_socialauth_user_id_92dc0ec9" ON "board_socialauth"("user_id");
-
--- CreateIndex
-CREATE INDEX "board_socialauth_provider_id_6d0024d4" ON "board_socialauth"("provider_id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "board_socialauth_provider_id_uid_key" ON "board_socialauth"("provider_id", "uid");
-
--- CreateIndex
-CREATE UNIQUE INDEX "board_socialauthprovider_key_key" ON "board_socialauthprovider"("key");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Tag_name_key" ON "Tag"("name");
-
--- CreateIndex
-CREATE UNIQUE INDEX "board_twofactorauth_user_id_key" ON "board_twofactorauth"("user_id");
-
--- CreateIndex
-CREATE INDEX "board_userconfigmeta_user_id_da67eecd" ON "board_userconfigmeta"("user_id");
-
--- CreateIndex
-CREATE INDEX "board_userlinkmeta_user_id_ba3f4047" ON "board_userlinkmeta"("user_id");
-
--- CreateIndex
-CREATE INDEX "WebhookChannel_ownerId_idx" ON "WebhookChannel"("ownerId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "WebhookChannel_scope_ownerId_url_key" ON "WebhookChannel"("scope", "ownerId", "url");
-
--- CreateIndex
-CREATE UNIQUE INDEX "django_content_type_app_label_model_76bd3d3b_uniq" ON "django_content_type"("app_label", "model");
-
--- CreateIndex
-CREATE INDEX "WorkLog_ownerId_idx" ON "WorkLog"("ownerId");
-
--- CreateIndex
-CREATE INDEX "WorkLogEntry_logId_createdAt_id_idx" ON "WorkLogEntry"("logId", "createdAt" DESC, "id" DESC);
-
--- CreateIndex
-CREATE UNIQUE INDEX "WorkLogShare_token_key" ON "WorkLogShare"("token");
-
--- CreateIndex
-CREATE INDEX "WorkLogShare_logId_idx" ON "WorkLogShare"("logId");
-
--- CreateIndex
 CREATE INDEX "FormTemplate_userId_idx" ON "FormTemplate"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "UploadedImage_key_key" ON "UploadedImage"("key");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "UploadedImage_path_key" ON "UploadedImage"("path");
+
+-- CreateIndex
+CREATE INDEX "UploadedImage_userId_idx" ON "UploadedImage"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "StaticPage_slug_key" ON "StaticPage"("slug");
@@ -942,13 +777,49 @@ CREATE INDEX "CleanupConfirmation_expiresAt_idx" ON "CleanupConfirmation"("expir
 CREATE INDEX "CleanupConfirmation_userId_idx" ON "CleanupConfirmation"("userId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "UploadedImage_key_key" ON "UploadedImage"("key");
+CREATE UNIQUE INDEX "Notification_key_key" ON "Notification"("key");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "UploadedImage_path_key" ON "UploadedImage"("path");
+CREATE INDEX "Notification_userId_idx" ON "Notification"("userId");
 
 -- CreateIndex
-CREATE INDEX "UploadedImage_userId_idx" ON "UploadedImage"("userId");
+CREATE INDEX "NotificationDelivery_availableAt_idx" ON "NotificationDelivery"("availableAt");
+
+-- CreateIndex
+CREATE INDEX "WebhookChannel_ownerId_idx" ON "WebhookChannel"("ownerId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "WebhookChannel_scope_ownerId_url_key" ON "WebhookChannel"("scope", "ownerId", "url");
+
+-- CreateIndex
+CREATE INDEX "WebhookDelivery_isDone_availableAt_idx" ON "WebhookDelivery"("isDone", "availableAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "DeveloperToken_tokenPrefix_key" ON "DeveloperToken"("tokenPrefix");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "DeveloperToken_tokenHash_key" ON "DeveloperToken"("tokenHash");
+
+-- CreateIndex
+CREATE INDEX "DeveloperToken_userId_revokedAt_idx" ON "DeveloperToken"("userId", "revokedAt");
+
+-- CreateIndex
+CREATE INDEX "DeveloperRequestLog_tokenId_createdAt_idx" ON "DeveloperRequestLog"("tokenId", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "DeveloperRequestLog_userId_createdAt_idx" ON "DeveloperRequestLog"("userId", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "WorkLog_ownerId_idx" ON "WorkLog"("ownerId");
+
+-- CreateIndex
+CREATE INDEX "WorkLogEntry_logId_createdAt_id_idx" ON "WorkLogEntry"("logId", "createdAt" DESC, "id" DESC);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "WorkLogShare_token_key" ON "WorkLogShare"("token");
+
+-- CreateIndex
+CREATE INDEX "WorkLogShare_logId_idx" ON "WorkLogShare"("logId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_PostToTag_AB_unique" ON "_PostToTag"("A", "B");

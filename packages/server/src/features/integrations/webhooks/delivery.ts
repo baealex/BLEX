@@ -52,11 +52,11 @@ export async function deliverPostWebhook(db: PrismaClient, siteUrl: URL, signal:
   });
   const stored = channel ? await db.post.findFirst({
     where: { id: job.postId, ...publicPostWhere(sentAt) },
-    select: { authorId: true, title: true, slug: true, author: { select: { username: true, first_name: true, board_profile: { select: { role: true } } } } },
+    select: { authorId: true, title: true, slug: true, author: { select: { username: true, name: true, profile: { select: { role: true } } } } },
   }) : null;
   const post = stored && {
     authorId: stored.authorId, title: stored.title, slug: stored.slug, username: stored.author.username,
-    name: stored.author.first_name, role: stored.author.board_profile?.role ?? null,
+    name: stored.author.name, role: stored.author.profile?.role ?? null,
   };
   const row = channel && post && (channel.scope === 'global' || (channel.ownerId === post.authorId && post.role === 'EDITOR'))
     ? { ...post, channelUrl: channel.url }

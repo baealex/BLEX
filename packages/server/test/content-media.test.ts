@@ -8,14 +8,15 @@ import { PrismaClient } from '@prisma/client';
 import Fastify from 'fastify';
 import sharp from 'sharp';
 import { registerContentMedia } from '../src/features/media/content-media.js';
-import { createMigratedTables } from './fixtures/migrated-database.js';
+import { accountTables, createMigratedTables, insertRow } from './fixtures/migrated-database.js';
 
 test('validates photo uploads, creates a preview, and deduplicates the same bytes', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'blex-content-media-'));
   const dbPath = join(directory, 'test.sqlite3');
   const fixture = new DatabaseSync(dbPath);
   createMigratedTables(fixture, 'UploadedImage');
-  fixture.exec('CREATE TABLE auth_user (id INTEGER PRIMARY KEY); INSERT INTO auth_user VALUES (7);');
+  createMigratedTables(fixture, ...accountTables);
+  insertRow(fixture, 'User', { id: 7, username: 'writer' });
   fixture.close();
   const db = new PrismaClient({ datasourceUrl: `file:${dbPath}` });
   const app = Fastify();

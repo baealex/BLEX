@@ -66,16 +66,13 @@ async function readViewerState(db: PrismaClient, userId: number, cipherKey: stri
     select: { telegramEnabled: true, telegramBotUsername: true, telegramBotToken: true },
   });
   const telegramToken = telegram?.telegramEnabled && telegram.telegramBotUsername.trim() ? telegram.telegramBotToken : '';
-  const [row] = await db.$queryRaw<Array<{
-    role: string | null; language: string | null; timeZone: string | null;
-  }>>`
-    SELECT (SELECT role FROM board_profile WHERE user_id = ${userId} LIMIT 1) AS role,
-           (SELECT language FROM board_config WHERE user_id = ${userId} LIMIT 1) AS language,
-           (SELECT time_zone FROM board_config WHERE user_id = ${userId} LIMIT 1) AS timeZone
-  `;
+  const row = await db.user.findUnique({
+    where: { id: userId },
+    select: { profile: { select: { role: true } }, preference: { select: { language: true, timeZone: true } } },
+  });
   const unread = await db.notification.count({ where: { userId, isRead: false } });
   const telegramConnected = await db.telegramConnection.count({ where: { userId, telegramId: { not: '' } } });
-  return { ...row, unread, telegramConnected, telegramConfigured: Boolean(telegramToken && decryptsToValue(telegramToken, cipherKey)) };
+  return { role: row?.profile?.role ?? null, language: row?.preference?.language ?? null, timeZone: row?.preference?.timeZone ?? null, unread, telegramConnected, telegramConfigured: Boolean(telegramToken && decryptsToValue(telegramToken, cipherKey)) };
 }
 
 type ViewerState = Awaited<ReturnType<typeof readViewerState>>;
@@ -225,7 +222,7 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
     const user = await options.currentUser(request);
     const account = user ? await readAdminAccess(db, user.id) : null;
     if (!user || !account?.active) return undefined;
-    const [profile] = await db.$queryRaw<Array<{ role: string }>>`SELECT role FROM board_profile WHERE user_id = ${user.id} LIMIT 1`;
+    const profile = await db.profile.findUnique({ where: { userId: user.id }, select: { role: true } });
     if (profile?.role !== 'EDITOR') return undefined;
     if (edit) {
       const [username, slug] = [decodeURIComponent(edit[1]), decodeURIComponent(edit[2])];
@@ -274,7 +271,7 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
       return reply.redirect(`/admin-settings/${rest}${query ? `?${query}` : ''}`, 302);
     }
     if (hasPrefix(rest, editorPrefixes)) {
-      const [profile] = await db.$queryRaw<Array<{ role: string }>>`SELECT role FROM board_profile WHERE user_id = ${user.id} LIMIT 1`;
+      const profile = await db.profile.findUnique({ where: { userId: user.id }, select: { role: true } });
       if (profile?.role !== 'EDITOR') return reply.callNotFound();
     }
     return sendHost(request, reply, 'user', '/settings', user, account.staff, account.superuser, account.canManageSiteSettings);

@@ -19,8 +19,8 @@ export async function subscriptionState(
 function authorSelect() {
   const publicPost = publicPostWhere();
   return {
-    id: true, username: true, first_name: true, is_active: true,
-    board_profile: { select: { bio: true, avatar: true, cover: true, homepage: true, about_html: true, about_md: true, role: true } },
+    id: true, username: true, name: true, isActive: true,
+    profile: { select: { bio: true, avatar: true, cover: true, homepage: true, aboutHtml: true, aboutMarkdown: true, role: true } },
     _count: { select: {
       posts: { where: publicPost },
       series: { where: { isHidden: false, posts: { some: publicPost } } },
@@ -29,11 +29,11 @@ function authorSelect() {
 }
 
 function authorRow(user: Prisma.UserGetPayload<{ select: ReturnType<typeof authorSelect> }>): AuthorRow {
-  const profile = user.board_profile;
+  const { profile } = user;
   return {
-    id: user.id, username: user.username, firstName: user.first_name, isActive: user.is_active,
+    id: user.id, username: user.username, firstName: user.name, isActive: user.isActive,
     bio: profile?.bio ?? '', avatar: profile?.avatar ?? '', cover: profile?.cover ?? '', homepage: profile?.homepage ?? '',
-    aboutHtml: profile?.about_html ?? '', aboutMarkdown: profile?.about_md ?? '', role: profile?.role ?? '',
+    aboutHtml: profile?.aboutHtml ?? '', aboutMarkdown: profile?.aboutMarkdown ?? '', role: profile?.role ?? '',
     publicPostCount: user._count.posts, publicSeriesCount: user._count.series,
   };
 }
@@ -43,26 +43,26 @@ export async function readAuthor(db: PrismaClient, username: string): Promise<Au
   if (current) return authorRow(current);
   const previous = await db.usernameChange.findFirst({
     where: { username },
-    orderBy: [{ created_date: 'desc' }, { id: 'desc' }],
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     select: { user: { select: authorSelect() } },
   });
   return previous ? authorRow(previous.user) : null;
 }
 
 export async function readAuthorSocialLinks(db: PrismaClient, authorId: number): Promise<AuthorSocialLink[]> {
-  const rows = await db.$queryRaw<Array<AuthorSocialLink>>`
-    SELECT id, name, value FROM board_userlinkmeta
-     WHERE user_id = ${authorId}
-     ORDER BY "order" ASC, id ASC
-  `;
+  const rows = await db.socialLink.findMany({
+    where: { userId: authorId },
+    orderBy: [{ order: 'asc' }, { id: 'asc' }],
+    select: { id: true, platform: true, url: true },
+  });
   return rows.flatMap((link) => {
-    const value = safeExternalUrl(link.value);
-    return value ? [{ ...link, value }] : [];
+    const value = safeExternalUrl(link.url);
+    return value ? [{ id: link.id, name: link.platform, value }] : [];
   });
 }
 
 export function isEditor(author: AuthorRow): boolean {
-  return Number(author.isActive) !== 0 && author.role === 'EDITOR';
+  return author.isActive && author.role === 'EDITOR';
 }
 
 export function authorPath(username: string, suffix = ''): string {

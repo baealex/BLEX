@@ -9,7 +9,7 @@ import { done, failure as error } from '../../platform/response.js';
 import { CommentRow, commentBodyLimit, commentForViewer, commentHtml, publicComments, serializeComment } from './services/comments.js';
 import { anonymizeComments } from './services/deletions.js';
 import { canSubscribe, mySubscriptions, subscriptionState } from './services/subscriptions.js';
-import { ReaderActionsOptions, activeEditor, activeUser, asBodyObject, bodyField, commentReturnTo, forbidden, isTrue, localReturnTo, missing, publicPost, requestCsrfAccepted, textValue, truthyBodyField } from './shared.js';
+import { ReaderActionsOptions, activeEditor, activeUser, asBodyObject, bodyField, commentReturnTo, forbidden, localReturnTo, missing, publicPost, requestCsrfAccepted, textValue, truthyBodyField } from './shared.js';
 
 export { ReaderActionUser, ReaderActionsOptions } from './shared.js';
 export { CommentPayload } from './services/comments.js';
@@ -97,7 +97,7 @@ export function registerReaderActions(
 
       const user = await activeUser(request, db, options);
       if (!user) return error('AT', 'Log in to continue.');
-      if (isTrue(post.blockComment)) return error('RJ', 'Comments are disabled for this post.');
+      if (post.blockComment) return error('RJ', 'Comments are disabled for this post.');
 
       const parentIdText = bodyField(body, 'parentId');
       let parent: CommentRow | null = null;
@@ -136,7 +136,7 @@ export function registerReaderActions(
       if (!created) return reply.code(500).send({ error: 'Could not complete the request' });
       const returnTo = commentReturnTo(body?.returnTo, created.id);
       if (returnTo) return reply.redirect(returnTo, 303);
-      return done(serializeComment(created, user.id, !isTrue(post.blockComment)));
+      return done(serializeComment(created, user.id, !post.blockComment));
     });
 
     routes.route<{ Params: { id: string } }>({

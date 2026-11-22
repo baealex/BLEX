@@ -7,7 +7,7 @@ import Fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import { after, beforeEach, test } from 'node:test';
 import { registerAuthorCollections } from '../src/features/series/index.js';
-import { migratedTableSql } from './fixtures/migrated-database.js';
+import { accountTables, migratedTableSql } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-author-collections-'));
 const databasePath = join(directory, 'synthetic-author-collections.sqlite3');
@@ -16,12 +16,7 @@ const csrfToken = 'c'.repeat(43);
 function createSchema() {
   const database = new DatabaseSync(databasePath);
   database.exec(`
-    CREATE TABLE auth_user (
-      id INTEGER PRIMARY KEY, username TEXT NOT NULL UNIQUE, is_active BOOLEAN NOT NULL DEFAULT 1
-    );
-    CREATE TABLE board_profile (
-      id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL UNIQUE, role TEXT NOT NULL
-    );
+  ${migratedTableSql(...accountTables)}
     ${migratedTableSql('Series')}
 ${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', 'PostLike', 'PinnedPost', 'PostShareLink', 'PostShareDailyCount', 'ScheduledPublication')}
 
@@ -37,12 +32,18 @@ function seed() {
     
     DELETE FROM "Post";
     DELETE FROM "Series";
-    DELETE FROM board_profile;
-    DELETE FROM auth_user;
-    INSERT INTO auth_user VALUES
-      (1, 'writer', 1), (2, 'other-writer', 1), (3, 'reader', 1), (4, 'inactive-writer', 0);
-    INSERT INTO board_profile VALUES
-      (1, 1, 'EDITOR'), (2, 2, 'EDITOR'), (3, 3, 'READER'), (4, 4, 'EDITOR');
+    DELETE FROM "Profile";
+    DELETE FROM "User";
+    INSERT INTO "User" ("id", "username", "isActive", "email", "passwordHash", "joinedAt") VALUES
+    (1, 'writer', 1, '', '', 1577836800000),
+    (2, 'other-writer', 1, '', '', 1577836800000),
+    (3, 'reader', 1, '', '', 1577836800000),
+    (4, 'inactive-writer', 0, '', '', 1577836800000);
+    INSERT INTO "Profile" ("userId", "role") VALUES
+    (1, 'EDITOR'),
+    (2, 'EDITOR'),
+    (3, 'READER'),
+    (4, 'EDITOR');
     INSERT INTO "Series" ("id", "order", "descriptionMarkdown", "descriptionHtml", "isHidden", "slug", "layout", "createdAt", "updatedAt", "ownerId", "name") VALUES
     (10, 0, '**series description**', '<p><strong>series description</strong></p>', 0, 'writer-series', 'list', 1704099600000, 1704099600000, 1, 'Writer Series'),
     (11, 1, '', '', 1, 'hidden-series', 'list', 1704186000000, 1704186000000, 1, 'Hidden Series'),

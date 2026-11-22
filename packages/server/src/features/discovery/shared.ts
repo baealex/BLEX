@@ -55,7 +55,7 @@ export interface AuthorRow {
   id: number;
   username: string;
   firstName: string;
-  isActive: DatabaseInteger | boolean;
+  isActive: boolean;
   bio: string;
   avatar: string;
   cover: string;

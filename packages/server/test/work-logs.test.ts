@@ -30,10 +30,10 @@ function createDatabaseSchema() {
 
 function seedDatabase() {
   const database = new DatabaseSync(databasePath);
-  database.exec('DELETE FROM WorkLog; DELETE FROM board_profile; DELETE FROM auth_user;');
+  database.exec('DELETE FROM WorkLog; DELETE FROM "Profile"; DELETE FROM "User";');
   for (const [id, username, isActive, role] of [[1, 'writer', 1, 'EDITOR'], [2, 'other', 1, 'EDITOR'], [3, 'reader', 1, 'READER'], [4, 'inactive', 0, 'EDITOR']] as const) {
-    insertRow(database, 'auth_user', { id, username, is_active: isActive });
-    insertRow(database, 'board_profile', { id, user_id: id, role });
+    insertRow(database, 'User', { id, username, isActive: isActive });
+    insertRow(database, 'Profile', { userId: id, role });
   }
   const log = database.prepare('INSERT INTO WorkLog (id, title, createdAt, ownerId) VALUES (?, ?, ?, ?)');
   log.run(1, 'Private notes', day(1), 1);
@@ -62,7 +62,7 @@ registerWorkLogs(app, prisma, {
     const id = Number(request.headers['x-test-user']);
     if (!Number.isSafeInteger(id) || id <= 0) return null;
     const database = new DatabaseSync(databasePath, { readOnly: true });
-    const user = database.prepare('SELECT id, username FROM auth_user WHERE id = ?').get(id) as { id: number; username: string } | undefined;
+    const user = database.prepare('SELECT id, username FROM "User" WHERE id = ?').get(id) as { id: number; username: string } | undefined;
     database.close();
     return user ?? null;
   },
@@ -237,7 +237,7 @@ test('creates immutable entry snapshots, rejects cross-log selections, and revok
   assert.equal((await app.inject(`/work-logs/share/${token}/`)).statusCode, 200);
 
   const database = new DatabaseSync(databasePath);
-  database.prepare("UPDATE board_profile SET role = 'READER' WHERE user_id = 1").run();
+  database.prepare("UPDATE \"Profile\" SET role = 'READER' WHERE userId = 1").run();
   database.close();
   const revoked = await app.inject({
     method: 'POST', url: `/work-logs/1/share/${token}/revoke/`, headers: formHeaders(1),
@@ -249,7 +249,7 @@ test('creates immutable entry snapshots, rejects cross-log selections, and revok
 
 test('disables shared pages and media when the log owner becomes inactive', async () => {
   const database = new DatabaseSync(databasePath);
-  database.prepare('UPDATE auth_user SET is_active = 0 WHERE id = 1').run();
+  database.prepare('UPDATE "User" SET isActive = 0 WHERE id = 1').run();
   database.close();
 
   assert.equal((await app.inject(`/work-logs/share/${shareToken}/`)).statusCode, 404);

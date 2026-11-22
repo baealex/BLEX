@@ -129,11 +129,11 @@ export async function readPublicPost(
         },
       ],
     },
-    select: { ...publicPostSelect, author: { select: { username: true, board_profile: { select: { avatar: true } } } } },
+    select: { ...publicPostSelect, author: { select: { username: true, profile: { select: { avatar: true } } } } },
   });
   if (!post) return null;
   return {
-    ...publicPostFields(post, post.author.username, post.author.board_profile?.avatar),
+    ...publicPostFields(post, post.author.username, post.author.profile?.avatar),
     publishedDate: storedDateText(post.publishedAt!),
     updatedDate: storedDateText(post.updatedAt),
     visibility: post.isHidden ? 'hidden' : post.publishedAt! > now ? 'scheduled' : 'public',
@@ -146,12 +146,12 @@ export async function readDraftPreview(db: PrismaClient, authorId: number, slug:
     where: { slug, authorId, publishedAt: null, deletedAt: null },
     select: {
       ...publicPostSelect,
-      author: { select: { username: true, is_staff: true, board_profile: { select: { avatar: true, bio: true, homepage: true } } } },
+      author: { select: { username: true, isStaff: true, profile: { select: { avatar: true, bio: true, homepage: true } } } },
     },
   });
   if (!post) return null;
   const unreadCount = await db.notification.count({ where: { userId: authorId, isRead: false } });
-  const profile = post.author.board_profile;
+  const profile = post.author.profile;
   const previewDate = storedDateText(post.updatedAt);
   return {
     ...publicPostFields(post, post.author.username, profile?.avatar),
@@ -160,7 +160,7 @@ export async function readDraftPreview(db: PrismaClient, authorId: number, slug:
     visibility: 'draft',
     authorBio: profile?.bio ?? '',
     authorHomepage: profile?.homepage ?? '',
-    isStaff: post.author.is_staff,
+    isStaff: post.author.isStaff,
     unreadCount,
   };
 }

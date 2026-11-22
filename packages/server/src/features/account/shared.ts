@@ -38,7 +38,8 @@ export function stringValue(value: unknown): string {
 
 export function positiveId(value: unknown): number | null {
   const parsed = typeof value === 'number' ? value : /^\d+$/.test(stringValue(value)) ? Number(value) : NaN;
-  return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : null;
+  // Prisma fails every later read of an Int column holding a wider number.
+  return Number.isInteger(parsed) && parsed > 0 && parsed <= 2_147_483_647 ? parsed : null;
 }
 
 export function loginRedirect(request: FastifyRequest, reply: FastifyReply) {
@@ -53,12 +54,11 @@ export async function authenticatedDatabaseUser(
 ): Promise<PersonalSettingsUser | null> {
   const supplied = await options.currentUser(request);
   if (!supplied || !Number.isSafeInteger(supplied.id) || supplied.id < 1 || !supplied.username) return null;
-  const [active] = await db.$queryRaw<Array<{ active: number | bigint | boolean }>>`
-    SELECT CAST(is_active AS INTEGER) AS active FROM auth_user
-     WHERE id = ${supplied.id} AND username = ${supplied.username}
-     LIMIT 1
-  `;
-  return active && Boolean(active.active) ? supplied : null;
+  const active = await db.user.findFirst({
+    where: { id: supplied.id, username: supplied.username, isActive: true },
+    select: { id: true },
+  });
+  return active ? supplied : null;
 }
 
 export function apiValidationError(reply: FastifyReply, result: Extract<UpdateResult, { ok: false }>) {

@@ -14,6 +14,12 @@ export const testSecretKey = 'migrated-database-secret';
 export const testCipherKey = '0123456789abcdef0123456789abcdef';
 export const testSiteUrl = new URL('http://site.test');
 
+/** Every account table, for fixtures that hand-write the rest of their schema. */
+export const accountTables = [
+  'User', 'Profile', 'UserPreference', 'SocialLink', 'SocialProvider', 'SocialAccount', 'TwoFactorAuth',
+  'UsernameChange', 'AuthorInvite', 'LoginAttempt', 'Session', 'FactorSetup', 'OAuthFlow', 'OAuthChallenge',
+];
+
 type Row = Record<string, SQLInputValue>;
 interface ColumnInfo { name: string; type: string; notnull: number; dflt_value: unknown; pk: number }
 
@@ -44,8 +50,8 @@ export function insertRow(db: DatabaseSync, table: string, values: Row) {
 }
 
 export function seedEditor(db: DatabaseSync, id: number, username: string) {
-  insertRow(db, 'auth_user', { id, username, password: `pbkdf2_sha256$fixture$${username}`, is_active: 1 });
-  insertRow(db, 'board_profile', { id, user_id: id, role: 'EDITOR' });
+  insertRow(db, 'User', { id, username, passwordHash: `pbkdf2_sha256$fixture$${username}`, isActive: 1 });
+  insertRow(db, 'Profile', { userId: id, role: 'EDITOR' });
 }
 
 export function seedPost(db: DatabaseSync, id: number, authorId: number, slug: string, values: Row = {}) {
@@ -54,14 +60,14 @@ export function seedPost(db: DatabaseSync, id: number, authorId: number, slug: s
 }
 
 export function signIn(db: DatabaseSync, userId: number) {
-  const { password } = db.prepare('SELECT password FROM auth_user WHERE id = ?').get(userId) as { password: string };
+  const { passwordHash } = db.prepare('SELECT passwordHash FROM "User" WHERE id = ?').get(userId) as { passwordHash: string };
   const session = createToken();
   const csrf = createToken();
-  insertRow(db, 'blex_session', {
-    token_hash: tokenHash(session) as string,
-    user_id: userId,
-    credential_tag: credentialTag(password, testSecretKey),
-    expires_at: BigInt(Date.now() + 3_600_000),
+  insertRow(db, 'Session', {
+    tokenHash: tokenHash(session) as string,
+    userId: userId,
+    credentialTag: credentialTag(passwordHash, testSecretKey),
+    expiresAt: Date.now() + 3_600_000,
   });
   return { cookie: `blexsessionid=${session}; csrftoken=${csrf}`, 'x-csrftoken': csrf, origin: testSiteUrl.origin };
 }

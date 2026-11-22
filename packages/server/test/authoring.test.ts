@@ -12,7 +12,7 @@ import {
   updateAuthorPost,
 } from '../src/features/posts/authoring/index.js';
 import { markdownToHtml } from '../src/features/posts/authoring/markdown.js';
-import { createMigratedTables, migratedTableSql, prismaDate } from './fixtures/migrated-database.js';
+import { accountTables, createMigratedTables, migratedTableSql, prismaDate } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-authoring-'));
 const databasePath = join(directory, 'Django authoring.sqlite3');
@@ -23,21 +23,7 @@ const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
 const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString().replace('T', ' ').replace('Z', '');
 const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString().replace('T', ' ').replace('Z', '');
 database.exec(`
-  CREATE TABLE auth_user (
-    id INTEGER PRIMARY KEY,
-    username TEXT NOT NULL UNIQUE,
-    first_name TEXT NOT NULL DEFAULT '',
-    is_active BOOLEAN NOT NULL DEFAULT 1,
-    is_staff BOOLEAN NOT NULL DEFAULT 0
-  );
-  CREATE TABLE board_profile (
-    id INTEGER PRIMARY KEY,
-    user_id INTEGER NOT NULL UNIQUE,
-    avatar TEXT NOT NULL DEFAULT '',
-    role TEXT NOT NULL DEFAULT 'READER',
-    bio TEXT NOT NULL DEFAULT '',
-    homepage TEXT NOT NULL DEFAULT ''
-  );
+  ${migratedTableSql(...accountTables)}
   ${migratedTableSql('Series')}
 ${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', 'PostLike', 'PinnedPost', 'PostShareLink', 'PostShareDailyCount', 'ScheduledPublication')}
 
@@ -48,28 +34,20 @@ ${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', '
 
   ${migratedTableSql('Comment', 'CommentLike')}
   ${migratedTableSql('AuthorSubscription')}
-  CREATE TABLE board_userconfigmeta (
-    id INTEGER PRIMARY KEY,
-    user_id INTEGER NOT NULL,
-    name TEXT NOT NULL,
-    value TEXT NOT NULL,
-    created_date DATETIME NOT NULL,
-    updated_date DATETIME NOT NULL
-  );
-
-  CREATE TABLE board_usernamechangelog (
-    id INTEGER PRIMARY KEY,
-    username TEXT NOT NULL,
-    created_date DATETIME NOT NULL,
-    user_id INTEGER NOT NULL
-  );
 
 
 
-  INSERT INTO auth_user (id, username, first_name, is_active) VALUES (1, 'writer', 'Writer', 1), (2, 'other-writer', 'Other Writer', 1),
-    (3, 'reader', 'Reader', 1), (4, 'inactive', 'Inactive', 0);
-  INSERT INTO board_profile (id, user_id, avatar, role) VALUES (1, 1, 'writer.png', 'EDITOR'), (2, 2, '', 'EDITOR'),
-    (3, 3, '', 'READER'), (4, 4, '', 'EDITOR');
+
+  INSERT INTO "User" ("id", "username", "name", "isActive", "email", "passwordHash", "joinedAt") VALUES
+    (1, 'writer', 'Writer', 1, '', '', 1577836800000),
+    (2, 'other-writer', 'Other Writer', 1, '', '', 1577836800000),
+    (3, 'reader', 'Reader', 1, '', '', 1577836800000),
+    (4, 'inactive', 'Inactive', 0, '', '', 1577836800000);
+  INSERT INTO "Profile" ("userId", "avatar", "role") VALUES
+    (1, 'writer.png', 'EDITOR'),
+    (2, '', 'EDITOR'),
+    (3, '', 'READER'),
+    (4, '', 'EDITOR');
   INSERT INTO "Series" ("id", "order", "descriptionMarkdown", "descriptionHtml", "isHidden", "slug", "layout", "createdAt", "updatedAt", "ownerId", "name") VALUES
     (1, 1, '', '', 0, 'learning', '', ${prismaDate(now)}, ${prismaDate(now)}, 1, 'Learning'),
     (2, 1, '', '', 0, 'other-series', '', ${prismaDate(now)}, ${prismaDate(now)}, 2, 'Other series');
@@ -121,7 +99,7 @@ registerAuthoring(app, db, {
     const id = Number(Array.isArray(rawId) ? rawId[0] : rawId);
     if (!Number.isSafeInteger(id) || id < 1) return null;
     const rows = await db.$queryRaw<Array<{ username: string }>>`
-      SELECT username FROM auth_user WHERE id = ${id} LIMIT 1
+      SELECT username FROM "User" WHERE id = ${id} LIMIT 1
     `;
     return rows[0] ? { id, username: rows[0].username } : null;
   },

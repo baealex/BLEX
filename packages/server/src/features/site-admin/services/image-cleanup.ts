@@ -75,7 +75,7 @@ async function readImageReferences(db: PrismaClient | Prisma.TransactionClient):
     db.postContent.findMany({ select: { html: true } }),
     db.postRevision.findMany({ select: { content: true } }),
     db.comment.findMany({ select: { markdown: true, html: true } }),
-    db.$queryRaw<Array<{ aboutMd: string | null; aboutHtml: string | null }>>`SELECT about_md AS aboutMd, about_html AS aboutHtml FROM board_profile`,
+    db.profile.findMany({ select: { aboutMarkdown: true, aboutHtml: true } }),
     db.series.findMany({ select: { descriptionMarkdown: true, descriptionHtml: true } }),
     db.staticPage.findMany({ select: { content: true } }),
     db.formTemplate.findMany({ select: { content: true } }),
@@ -88,7 +88,7 @@ async function readImageReferences(db: PrismaClient | Prisma.TransactionClient):
     ...content.map((row) => row.html),
     ...history.map((row) => row.content),
     ...comments.flatMap((row) => [row.markdown, row.html]),
-    ...profiles.flatMap((row) => [row.aboutMd, row.aboutHtml]),
+    ...profiles.flatMap((row) => [row.aboutMarkdown, row.aboutHtml]),
     ...series.flatMap((row) => [row.descriptionMarkdown, row.descriptionHtml]),
     ...pages.map((row) => row.content),
     ...forms.map((row) => row.content),
@@ -192,7 +192,7 @@ export async function buildImageCleanupPlan(
   const imageReferences = await readImageReferences(db);
   const [posts, profiles, cacheRows] = await Promise.all([
     db.post.findMany({ select: { image: true } }),
-    db.$queryRaw<Array<{ avatar: string | null; cover: string | null }>>`SELECT avatar, cover FROM board_profile`,
+    db.profile.findMany({ select: { avatar: true, cover: true } }),
     target === 'all' || target === 'content'
       ? db.uploadedImage.findMany({
           where: { path: { startsWith: 'images/content/' } },

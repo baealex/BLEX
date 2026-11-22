@@ -1,8 +1,9 @@
-import { Prisma, type PrismaClient } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyRequest } from 'fastify';
 import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import { buildImageCleanupPlan, executeImageCleanupPlan, imageCleanupPlanApi } from './image-cleanup.js';
 import { publicPostWhere } from '../../posts/data/visibility.js';
+import { readDatabaseBytes } from '../data/database-size.js';
 import { AdminSettingsOptions, ApiResult, Body, isRecord } from '../shared.js';
 
 export type UtilityAction = 'clean_tags' | 'clean_sessions' | 'clean_logs' | 'clean_images';
@@ -149,7 +150,6 @@ function retentionDays(name: string, defaultValue: number): number {
 
 export async function readUtilityStats(db: PrismaClient): Promise<Record<string, unknown>> {
   const now = new Date();
-  const epoch = BigInt(Date.now());
   const active = { deletedAt: null };
   const totalPosts = await db.post.count();
   const publicPosts = await db.post.count({ where: publicPostWhere(now) });
@@ -157,13 +157,10 @@ export async function readUtilityStats(db: PrismaClient): Promise<Record<string,
   const scheduledPosts = await db.post.count({ where: { ...active, publishedAt: { gt: now } } });
   const hiddenPosts = await db.post.count({ where: { isHidden: true } });
   const draftPosts = await db.post.count({ where: { ...active, publishedAt: null } });
-  const [accounts] = await db.$queryRaw<Array<Record<string, number | bigint>>>(Prisma.sql`
-    SELECT
-      (SELECT COUNT(*) FROM auth_user) AS totalUsers,
-      (SELECT COUNT(*) FROM board_profile) AS activeProfiles,
-      (SELECT COUNT(*) FROM blex_session) AS totalSessions,
-      (SELECT COUNT(*) FROM blex_session WHERE expires_at < ${epoch}) AS expiredSessions
-  `);
+  const totalUsers = await db.user.count();
+  const activeProfiles = await db.profile.count();
+  const totalSessions = await db.session.count();
+  const expiredSessions = await db.session.count({ where: { expiresAt: { lt: now } } });
   const totalComments = await db.comment.count();
   const totalSeries = await db.series.count();
   const imageCacheCount = await db.uploadedImage.count();
@@ -171,15 +168,11 @@ export async function readUtilityStats(db: PrismaClient): Promise<Record<string,
   const developerRequestLogCount = await db.developerRequestLog.count();
   let dbSize = 'N/A';
   try {
-    const [pageCount] = await db.$queryRaw<Array<{ page_count: number | bigint }>>`PRAGMA page_count`;
-    const [pageSize] = await db.$queryRaw<Array<{ page_size: number | bigint }>>`PRAGMA page_size`;
-    if (pageCount && pageSize) dbSize = `${Math.round(Number(pageCount.page_count) * Number(pageSize.page_size) / 1024 / 1024 * 100) / 100} MB`;
+    const bytes = await readDatabaseBytes(db);
+    if (bytes !== null) dbSize = `${Math.round(bytes / 1024 / 1024 * 100) / 100} MB`;
   } catch {
     // Some SQLite adapters disallow PRAGMA through prepared statements.
   }
-  const { totalUsers, activeProfiles, totalSessions, expiredSessions } = Object.fromEntries(
-    Object.entries(accounts ?? {}).map(([key, value]) => [key, Number(value)]),
-  );
   return {
     totalPosts,
     publicPosts,
@@ -233,21 +226,15 @@ async function runUtilityCleanup(
     };
   }
   if (action === 'clean_sessions') {
-    const now = BigInt(Date.now());
-    const [counts] = await db.$queryRaw<Array<{ total: number | bigint; expired: number | bigint }>>`
-      SELECT (SELECT COUNT(*) FROM blex_session) AS total,
-        (SELECT COUNT(*) FROM blex_session WHERE expires_at < ${now}) AS expired
-    `;
+    const expired = { expiresAt: { lt: new Date() } };
+    const totalSessions = await db.session.count();
+    const expiredSessions = await db.session.count({ where: expired });
     const cleanAll = parameters.cleanAll === true;
     let deleted = 0;
-    if (!dryRun) {
-      deleted = cleanAll
-        ? Number(await db.$executeRaw`DELETE FROM blex_session`)
-        : Number(await db.$executeRaw`DELETE FROM blex_session WHERE expires_at < ${now}`);
-    }
+    if (!dryRun) deleted = (await db.session.deleteMany({ where: cleanAll ? {} : expired })).count;
     return {
-      totalSessions: Number(counts?.total ?? 0),
-      expiredSessions: Number(counts?.expired ?? 0),
+      totalSessions,
+      expiredSessions,
       cleanedCount: deleted,
       cleanAll,
       dryRun,

@@ -30,14 +30,6 @@ export function stringValue(value: unknown): string {
   return '';
 }
 
-export function booleanValue(value: unknown): boolean {
-  return value === true || value === 1 || value === 1n;
-}
-
-export function djangoTimestamp(date = new Date()): string {
-  return date.toISOString().replace('T', ' ').replace(/Z$/, '000');
-}
-
 export function isoDate(value: string | Date | null): string {
   return djangoIso(value) ?? '';
 }
@@ -105,9 +97,7 @@ export async function editorApiAccess(
   if (!user) return { response: failure('NL') };
   const access = await readAdminAccess(db, user.id);
   if (!access?.active) return { response: failure('NL') };
-  const [profile] = await db.$queryRaw<Array<{ role: string }>>`
-    SELECT role FROM board_profile WHERE user_id = ${user.id} LIMIT 1
-  `;
+  const profile = await db.profile.findUnique({ where: { userId: user.id }, select: { role: true } });
   if (profile?.role !== 'EDITOR') {
     return { response: failure('RJ', 'Author access is required.') };
   }

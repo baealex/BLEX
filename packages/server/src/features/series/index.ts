@@ -139,9 +139,7 @@ export function registerAuthorCollections(app: FastifyInstance, db: PrismaClient
     });
 
     routes.delete<{ Params: { username: string; url: string } }>('/v1/users/@:username/series/:url', async (request, reply) => {
-      const [owner] = await db.$queryRaw<Array<{ id: number; username: string; active: number | bigint | boolean }>>`
-        SELECT id, username, CAST(is_active AS INTEGER) AS active FROM auth_user WHERE username = ${request.params.username} LIMIT 1
-      `;
+      const owner = await db.user.findUnique({ where: { username: request.params.username }, select: { id: true } });
       if (!owner) return reply.code(404).send('Not found');
       const { user, error } = await apiEditor(request);
       if (!user) return error;
@@ -188,20 +186,16 @@ export function registerAuthorCollections(app: FastifyInstance, db: PrismaClient
     routes.put('/v1/setting/pinned-posts/order', (request, reply) => settingPinnedMutation(request, reply, 'order'));
 
     routes.get<{ Params: { username: string } }>('/v1/users/@:username/pinned-posts', async (request, reply) => {
-      const [owner] = await db.$queryRaw<Array<{ id: number }>>`
-        SELECT id FROM auth_user WHERE username = ${request.params.username} LIMIT 1
-      `;
+      const owner = await db.user.findUnique({ where: { username: request.params.username }, select: { id: true } });
       if (!owner) return reply.code(404).send('Not found');
-      const pinnedPosts = await readPinnedPosts(db, Number(owner.id));
+      const pinnedPosts = await readPinnedPosts(db, owner.id);
       return apiDone({ pinnedPosts, maxCount: MAX_PINNED_POSTS });
     });
 
     const authorPinnedMutation = async (request: FastifyRequest, reply: FastifyReply, username: string, mode: 'add' | 'remove' | 'order' | 'available') => {
-      const [owner] = await db.$queryRaw<Array<{ id: number; username: string }>>`
-        SELECT id, username FROM auth_user WHERE username = ${username} LIMIT 1
-      `;
+      const owner = await db.user.findUnique({ where: { username }, select: { id: true, username: true } });
       if (!owner) return reply.code(404).send('Not found');
-      const { user, error } = await pinnedOwnerEditor(request, Number(owner.id));
+      const { user, error } = await pinnedOwnerEditor(request, owner.id);
       if (!user) return error;
       if (!options.validateCsrf(request)) return reply.code(403).send(apiError('RJ'));
       if (mode === 'available') {

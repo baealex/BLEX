@@ -4,10 +4,11 @@ import { join } from 'node:path';
 import { DatabaseSync, type SQLInputValue } from 'node:sqlite';
 import { verifyLegacyDatabase } from './legacy-database.js';
 
-// board_postconfig and board_postconfigmeta are read while copying board_post.
+// Settings, preference, and permission tables are read while copying the rows they describe.
 const discardedTables = new Set([
-  'django_migrations', 'django_session', 'django_site', 'board_oauthauthorization', 'board_seriesconfigmeta',
-  'board_editrequest', 'board_postconfig', 'board_postconfigmeta',
+  'django_migrations', 'django_session', 'django_site', 'django_content_type', 'board_oauthauthorization', 'board_seriesconfigmeta',
+  'board_editrequest', 'board_postconfig', 'board_postconfigmeta', 'board_userconfigmeta', 'board_emailchange',
+  'auth_group', 'auth_group_permissions', 'auth_permission', 'auth_user_groups', 'auth_user_user_permissions',
 ]);
 
 const quote = (name: string) => `"${name.replaceAll('"', '""')}"`;
@@ -22,6 +23,8 @@ type ColumnMapping = string | {
 interface TableMapping {
   to: string;
   columns: Record<string, ColumnMapping>;
+  /** Reads from this expression instead of the table of the same name. */
+  from?: string;
   where?: string;
 }
 
@@ -109,7 +112,89 @@ function reservationDate(value: SQLInputValue): SQLInputValue {
   }
 }
 
+const grantsSiteSettings = `
+  permission.codename = 'change_sitesetting' AND content_type.app_label = 'board' AND content_type.model = 'sitesetting'`;
+
+/** Django granted this directly or through a group. Superusers pass by rule and need neither. */
+const canManageSiteSettings = `
+  EXISTS (
+    SELECT 1 FROM auth_user_user_permissions AS direct
+    JOIN auth_permission AS permission ON permission.id = direct.permission_id
+    JOIN django_content_type AS content_type ON content_type.id = permission.content_type_id
+    WHERE direct.user_id = auth_user.id AND ${grantsSiteSettings}
+  ) OR EXISTS (
+    SELECT 1 FROM auth_user_groups AS membership
+    JOIN auth_group_permissions AS granted ON granted.group_id = membership.group_id
+    JOIN auth_permission AS permission ON permission.id = granted.permission_id
+    JOIN django_content_type AS content_type ON content_type.id = permission.content_type_id
+    WHERE membership.user_id = auth_user.id AND ${grantsSiteSettings}
+  )`;
+
+/** 3.x reads a preference's oldest row, and only the text "true" turns it on. No row stays unset. */
+const notifyPreference = (name: string, to: string): ColumnMapping => ({
+  to,
+  sql: `(SELECT value = 'true' FROM board_userconfigmeta WHERE user_id = preference.user_id AND name = '${name}' ORDER BY id LIMIT 1)`,
+});
+
 const tableMappings: Record<string, TableMapping> = {
+  auth_user: {
+    to: 'User',
+    columns: {
+      id: 'id', username: 'username', email: 'email', password: 'passwordHash', first_name: 'name',
+      is_active: 'isActive', is_staff: 'isStaff', is_superuser: 'isSuperuser',
+      can_manage_site_settings: { to: 'canManageSiteSettings', sql: canManageSiteSettings },
+      last_login: date('lastLoginAt'), date_joined: date('joinedAt'),
+    },
+  },
+  board_profile: {
+    to: 'Profile',
+    columns: {
+      user_id: 'userId', role: choice('role', ['READER', 'EDITOR']), bio: 'bio', avatar: 'avatar', cover: 'cover', homepage: 'homepage',
+      about_md: 'aboutMarkdown', about_html: 'aboutHtml',
+    },
+  },
+  board_config: {
+    to: 'UserPreference',
+    // A 3.x account can have notification rows without a config row, and the reverse.
+    from: '(SELECT user_id FROM board_config UNION SELECT user_id FROM board_userconfigmeta) AS preference',
+    columns: {
+      user_id: 'userId',
+      language: { to: 'language', sql: '(SELECT language FROM board_config WHERE user_id = preference.user_id)' },
+      time_zone: { to: 'timeZone', sql: `COALESCE((SELECT time_zone FROM board_config WHERE user_id = preference.user_id), '')` },
+      notify_post_like: notifyPreference('NOTIFY_POSTS_LIKE', 'notifyPostLike'),
+      notify_post_comment: notifyPreference('NOTIFY_POSTS_COMMENT', 'notifyPostComment'),
+      notify_comment_like: notifyPreference('NOTIFY_COMMENT_LIKE', 'notifyCommentLike'),
+      notify_mention: notifyPreference('NOTIFY_MENTION', 'notifyMention'),
+    },
+  },
+  board_userlinkmeta: {
+    to: 'SocialLink',
+    columns: {
+      id: 'id', user_id: 'userId', name: 'platform', value: 'url', order: int32('order'),
+      created_date: date('createdAt'), updated_date: date('updatedAt'),
+    },
+  },
+  board_socialauthprovider: {
+    to: 'SocialProvider',
+    columns: { id: 'id', key: 'key', client_id: 'clientId', client_secret: 'clientSecret', is_enabled: 'isEnabled' },
+  },
+  board_socialauth: {
+    to: 'SocialAccount',
+    columns: { id: 'id', provider_id: 'providerId', uid: 'uid', user_id: 'userId', extra_data: 'extraData', created_date: date('createdAt') },
+  },
+  board_twofactorauth: {
+    to: 'TwoFactorAuth',
+    columns: { id: 'id', user_id: 'userId', totp_secret: 'totpSecret', recovery_key: 'recoveryKey', created_date: date('createdAt') },
+  },
+  board_usernamechangelog: { to: 'UsernameChange', columns: { id: 'id', user_id: 'userId', username: 'username', created_date: date('createdAt') } },
+  board_authorinvite: {
+    to: 'AuthorInvite',
+    columns: {
+      id: 'id', code: 'code', note: 'note', is_active: 'isActive', created_by_id: 'createdById', claimed_by_id: 'claimedById',
+      created_date: date('createdAt'), claimed_date: date('claimedAt'),
+    },
+  },
+  board_loginattempt: { to: 'LoginAttempt', columns: { key: 'key', window: 'window', count: int32('count') } },
   board_worklog: { to: 'WorkLog', columns: { id: 'id', owner_id: 'ownerId', title: 'title', created_at: date('createdAt') } },
   board_worklogentry: {
     to: 'WorkLogEntry',
@@ -329,14 +414,14 @@ function copyTable(source: DatabaseSync, target: DatabaseSync, table: string) {
     const output = outputs[index];
     return typeof output !== 'string' && output.sql ? `${output.sql} AS ${quote(column)}` : quote(column);
   });
-  const read = source.prepare(`SELECT ${selected.join(', ')} FROM ${quote(table)}${mapping?.where ? ` WHERE ${mapping.where}` : ''}`);
+  const read = source.prepare(`SELECT ${selected.join(', ')} FROM ${mapping?.from ?? quote(table)}${mapping?.where ? ` WHERE ${mapping.where}` : ''}`);
   read.setReadBigInts(true);
   const write = target.prepare(`INSERT INTO ${quote(destination)} (${names.map(quote).join(', ')}) VALUES (${names.map(() => '?').join(', ')})`);
   let copied = 0;
   for (const row of read.iterate() as Iterable<Record<string, SQLInputValue>>) {
     write.run(...columns.map((column, index) => {
       const output = outputs[index];
-      return typeof output === 'string' || !output.convert ? row[column] : output.convert(row[column], `${table}.${column}`, row.id ?? null);
+      return typeof output === 'string' || !output.convert ? row[column] : output.convert(row[column], `${table}.${column}`, row.id ?? row.user_id ?? row.key ?? null);
     }));
     copied += 1;
   }

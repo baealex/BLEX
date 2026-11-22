@@ -129,10 +129,8 @@ export async function saveProfileImage(
     }
     await rename(temporary, target);
     await chmod(target, 0o644);
-    const updated = kind === 'avatar'
-      ? await db.$executeRaw`UPDATE board_profile SET avatar = ${relativePath} WHERE user_id = ${user.id}`
-      : await db.$executeRaw`UPDATE board_profile SET cover = ${relativePath} WHERE user_id = ${user.id}`;
-    if (Number(updated) !== 1) throw new Error('profile-row-not-found');
+    const { count } = await db.profile.updateMany({ where: { userId: user.id }, data: { [kind]: relativePath } });
+    if (count !== 1) throw new Error('profile-row-not-found');
     committed = true;
     return mediaUrl(siteUrl, relativePath);
   } finally {
@@ -164,10 +162,8 @@ async function removeScopedProfileImage(mediaRoot: string, path: string | null, 
 }
 
 export async function deleteProfileCover(db: PrismaClient, user: PersonalSettingsUser, mediaRoot: string): Promise<void> {
-  const [profile] = await db.$queryRaw<Array<{ cover: string | null }>>`
-    SELECT cover FROM board_profile WHERE user_id = ${user.id} LIMIT 1
-  `;
+  const profile = await db.profile.findUnique({ where: { userId: user.id }, select: { cover: true } });
   if (!profile) throw new Error('profile-row-not-found');
   await removeScopedProfileImage(mediaRoot, profile.cover, user.username);
-  await db.$executeRaw`UPDATE board_profile SET cover = '' WHERE user_id = ${user.id}`;
+  await db.profile.updateMany({ where: { userId: user.id }, data: { cover: '' } });
 }

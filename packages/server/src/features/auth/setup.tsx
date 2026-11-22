@@ -13,10 +13,8 @@ import { createSession, createToken } from './session.js';
 const setupCsp = "default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'";
 
 export async function hasAdministrator(db: PrismaClient | Prisma.TransactionClient): Promise<boolean> {
-  const [admin] = await db.$queryRaw<unknown[]>`
-    SELECT 1 FROM auth_user WHERE is_staff = 1 OR is_superuser = 1 LIMIT 1
-  `;
-  return admin !== undefined;
+  const admin = await db.user.findFirst({ where: { OR: [{ isStaff: true }, { isSuperuser: true }] }, select: { id: true } });
+  return admin !== null;
 }
 
 interface AccountInput {
@@ -31,26 +29,19 @@ interface AccountInput {
 }
 
 export async function insertAccount(db: Prisma.TransactionClient, input: AccountInput): Promise<number> {
-  const timestamp = new Date().toISOString().slice(0, -1).replace('T', ' ');
-  const admin = input.administrator ? 1 : 0;
-  const [user] = await db.$queryRaw<Array<{ id: number }>>`
-    INSERT INTO auth_user (username, password, first_name, last_name, email, date_joined, is_active, is_staff, is_superuser)
-    VALUES (${input.username}, ${input.passwordHash}, ${input.displayName}, '', ${input.email}, ${timestamp}, 1, ${admin}, ${admin})
-    RETURNING id
-  `;
-  await db.$executeRaw`
-    INSERT INTO board_profile (user_id, bio, cover, avatar, homepage, about_md, about_html, analytics_share_url, role)
-    VALUES (${user.id}, '', '', '', '', '', '', '', ${input.administrator || input.editor ? 'EDITOR' : 'READER'})
-  `;
-  await db.$executeRaw`
-    INSERT INTO board_config (user_id, language, time_zone) VALUES (${user.id}, ${input.language ?? null}, ${input.timeZone ?? ''})
-  `;
-  await db.$executeRaw`
-    INSERT INTO board_userconfigmeta (user_id, name, value, created_date, updated_date)
-    VALUES (${user.id}, 'NOTIFY_MENTION', 'true', ${timestamp}, ${timestamp}),
-           (${user.id}, 'NOTIFY_COMMENT_LIKE', 'true', ${timestamp}, ${timestamp})
-  `;
-  return user.id;
+  const administrator = Boolean(input.administrator);
+  const { id } = await db.user.create({
+    data: {
+      username: input.username, passwordHash: input.passwordHash, name: input.displayName, email: input.email,
+      isStaff: administrator, isSuperuser: administrator,
+      profile: { create: { role: administrator || input.editor ? 'EDITOR' : 'READER' } },
+      preference: {
+        create: { language: input.language ?? null, timeZone: input.timeZone ?? '', notifyMention: true, notifyCommentLike: true },
+      },
+    },
+    select: { id: true },
+  });
+  return id;
 }
 
 function matchesToken(left: string, right: string): boolean {

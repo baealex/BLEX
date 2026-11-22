@@ -58,15 +58,13 @@ class InvalidSignup extends Error {
   constructor(message: string, readonly code = 'VA') { super(message); }
 }
 
-interface Invite { id: number; active: bigint | number | boolean; owner: number | null }
+const usedInvite = '이미 사용되었거나 비활성화된 초대 코드입니다.';
 
-async function findInvite(db: PrismaClient | Prisma.TransactionClient, code: string): Promise<Invite | undefined> {
+async function findInvite(db: PrismaClient | Prisma.TransactionClient, code: string) {
   if (!code) return;
-  const [invite] = await db.$queryRaw<Invite[]>`
-    SELECT id, is_active AS active, claimed_by_id AS owner FROM board_authorinvite WHERE code = ${code}
-  `;
+  const invite = await db.authorInvite.findUnique({ where: { code }, select: { id: true, isActive: true, claimedById: true } });
   if (!invite) throw new InvalidSignup('유효하지 않은 초대 코드입니다.', 'RJ');
-  if (!invite.active || invite.owner !== null) throw new InvalidSignup('이미 사용되었거나 비활성화된 초대 코드입니다.', 'RJ');
+  if (!invite.isActive || invite.claimedById !== null) throw new InvalidSignup(usedInvite, 'RJ');
   return invite;
 }
 
@@ -116,18 +114,21 @@ async function createPasswordAccount(db: PrismaClient, request: FastifyRequest, 
 
   const passwordHash = await hashDjangoPassword(password);
   const { language, timeZone } = signupRegion(request, regularField(input, 'time_zone'));
-  const timestamp = new Date().toISOString().slice(0, -1).replace('T', ' ');
   const userId = await db.$transaction(async (tx) => {
     // Acquire the SQLite write lock before rechecking the username and invitation.
-    await tx.$executeRaw`UPDATE auth_user SET username = username WHERE username = ${username}`;
+    await tx.user.updateMany({ where: { username }, data: { username } });
     if (await tx.user.findUnique({ where: { username }, select: { id: true } })) throw new InvalidSignup('이미 사용중인 아이디입니다.');
     const invite = await findInvite(tx, inviteCode);
     const id = await insertAccount(tx, {
       username, displayName, email: normalizeAccountEmail(email), passwordHash, editor: Boolean(invite), language, timeZone,
     });
-    if (invite) await tx.$executeRaw`
-      UPDATE board_authorinvite SET claimed_by_id = ${id}, claimed_date = ${timestamp}, is_active = 0 WHERE id = ${invite.id}
-    `;
+    if (invite) {
+      const { count } = await tx.authorInvite.updateMany({
+        where: { id: invite.id, isActive: true, claimedById: null },
+        data: { claimedById: id, claimedAt: new Date(), isActive: false },
+      });
+      if (count !== 1) throw new InvalidSignup(usedInvite, 'RJ');
+    }
     if (settings?.welcome) {
       const createdAt = new Date();
       await tx.notification.create({

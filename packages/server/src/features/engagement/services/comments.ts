@@ -77,7 +77,7 @@ function commentSelect(viewerId: number | null) {
     authorId: true,
     parentId: true,
     postId: true,
-    author: { select: { username: true, board_profile: { select: { avatar: true } } } },
+    author: { select: { username: true, profile: { select: { avatar: true } } } },
     likes: { where: { userId: viewerId ?? -1 }, select: { userId: true } },
     _count: { select: { likes: true } },
   } satisfies Prisma.CommentSelect;
@@ -94,7 +94,7 @@ function commentRow(comment: SelectedComment, postPublic: boolean, postBlockComm
     createdAt: comment.createdAt,
     authorId: comment.authorId,
     username: comment.author?.username ?? null,
-    avatar: comment.author?.board_profile?.avatar ?? null,
+    avatar: comment.author?.profile?.avatar ?? null,
     parentId: comment.parentId,
     likeCount: comment._count.likes,
     isLiked: comment.likes.length > 0,

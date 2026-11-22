@@ -1,8 +1,8 @@
 import { type PrismaClient } from '@prisma/client';
-import { ActiveUserRow, AuthorRow, DEFAULT_AVATAR, absoluteMediaUrl, isTrue, localDateOnly } from '../shared.js';
+import { ActiveUserRow, AuthorRow, DEFAULT_AVATAR, absoluteMediaUrl, localDateOnly } from '../shared.js';
 
 export function canSubscribe(author: AuthorRow): boolean {
-  return isTrue(author.isActive) && author.profileRole === 'EDITOR';
+  return author.isActive && author.profileRole === 'EDITOR';
 }
 
 export async function subscriptionState(
@@ -25,17 +25,17 @@ export async function mySubscriptions(db: PrismaClient, viewerId: number) {
     orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     select: {
       createdAt: true,
-      author: { select: { username: true, first_name: true, is_active: true, board_profile: { select: { bio: true, avatar: true, role: true } } } },
+      author: { select: { username: true, name: true, isActive: true, profile: { select: { bio: true, avatar: true, role: true } } } },
     },
   });
   const telegram = await db.telegramConnection.findUnique({ where: { userId: viewerId }, select: { telegramId: true } });
   return {
     subscriptions: rows.map(({ author, createdAt }) => ({
       username: author.username,
-      name: author.first_name,
-      avatar: absoluteMediaUrl(author.board_profile?.avatar ?? null) ?? DEFAULT_AVATAR,
-      bio: author.board_profile?.bio ?? '',
-      isPublishing: author.is_active && author.board_profile?.role === 'EDITOR',
+      name: author.name,
+      avatar: absoluteMediaUrl(author.profile?.avatar ?? null) ?? DEFAULT_AVATAR,
+      bio: author.profile?.bio ?? '',
+      isPublishing: author.isActive && author.profile?.role === 'EDITOR',
       subscribedDate: localDateOnly(createdAt),
     })),
     isTelegramConnected: Boolean(telegram?.telegramId.trim()),

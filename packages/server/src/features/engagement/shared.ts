@@ -13,14 +13,12 @@ export interface ReaderActionsOptions {
   cipherKey?: string;
 }
 
-export type DbInteger = number | bigint | boolean | null;
-
 export type DbDate = string | Date | null;
 
 export interface ActiveUserRow {
   id: number;
   username: string;
-  isActive: DbInteger;
+  isActive: boolean;
 }
 
 interface PostRow {
@@ -29,26 +27,18 @@ interface PostRow {
   authorUsername: string;
   title: string;
   slug: string;
-  blockComment: DbInteger;
+  blockComment: boolean;
 }
 
 export interface AuthorRow {
   id: number;
   username: string;
   firstName: string;
-  isActive: DbInteger;
+  isActive: boolean;
   profileRole: string | null;
 }
 
 export const DEFAULT_AVATAR = '/resources/assets/images/default-avatar.jpg';
-
-export function numberValue(value: DbInteger | number | bigint): number {
-  return Number(value ?? 0);
-}
-
-export function isTrue(value: DbInteger): boolean {
-  return numberValue(value) !== 0;
-}
 
 export function absoluteMediaUrl(path: string | null | undefined): string | null {
   if (!path) return null;
@@ -112,14 +102,10 @@ export async function activeUser(
 ): Promise<ActiveUserRow | null> {
   const supplied = await options.currentUser(request);
   if (!supplied || !Number.isSafeInteger(supplied.id) || supplied.id < 1) return null;
-  const rows = await db.$queryRaw<ActiveUserRow[]>`
-    SELECT id, username, CAST(is_active AS INTEGER) AS isActive
-    FROM auth_user
-    WHERE id = ${supplied.id} AND username = ${supplied.username}
-    LIMIT 1
-  `;
-  const user = rows[0];
-  return user && isTrue(user.isActive) ? user : null;
+  return db.user.findFirst({
+    where: { id: supplied.id, username: supplied.username, isActive: true },
+    select: { id: true, username: true, isActive: true },
+  });
 }
 
 const readerPostSelect = {
@@ -143,18 +129,14 @@ export async function ownedPost(db: PrismaClient, slug: string, ownerId: number)
 }
 
 export async function activeEditor(db: PrismaClient, username: string): Promise<AuthorRow | null> {
-  const rows = await db.$queryRaw<AuthorRow[]>`
-    SELECT author.id AS id,
-           author.username AS username,
-           author.first_name AS firstName,
-           CAST(author.is_active AS INTEGER) AS isActive,
-           profile.role AS profileRole
-    FROM auth_user AS author
-    LEFT JOIN board_profile AS profile ON profile.user_id = author.id
-    WHERE author.username = ${username}
-    LIMIT 1
-  `;
-  return rows[0] ?? null;
+  const author = await db.user.findUnique({
+    where: { username },
+    select: { id: true, username: true, name: true, isActive: true, profile: { select: { role: true } } },
+  });
+  return author && {
+    id: author.id, username: author.username, firstName: author.name, isActive: author.isActive,
+    profileRole: author.profile?.role ?? null,
+  };
 }
 
 export function safeHttpUrl(value: string | null): string {

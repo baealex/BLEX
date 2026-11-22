@@ -10,7 +10,7 @@ import { readReaderPostView, registerReaderActions } from '../src/features/engag
 import { installNotificationTables } from './fixtures/notifications.js';
 import { ReaderActions } from '../src/features/engagement/ui/index.js';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { migratedTableSql } from './fixtures/migrated-database.js';
+import { accountTables, migratedTableSql } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-reader-ui-'));
 const databasePath = join(directory, 'synthetic-reader-ui.sqlite3');
@@ -19,31 +19,22 @@ const csrfToken = 'r'.repeat(43);
 function createSchema() {
   const fixture = new DatabaseSync(databasePath);
   fixture.exec(`
-    CREATE TABLE auth_user (
-      id INTEGER PRIMARY KEY, username TEXT NOT NULL UNIQUE, first_name TEXT NOT NULL,
-      is_active BOOLEAN NOT NULL DEFAULT 1
-    );
-    CREATE TABLE board_profile (
-      id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL UNIQUE, bio TEXT NOT NULL DEFAULT '',
-      avatar TEXT NOT NULL DEFAULT '', cover TEXT NOT NULL DEFAULT '', homepage TEXT NOT NULL DEFAULT '',
-      role TEXT NOT NULL DEFAULT 'READER'
-    );
+  ${migratedTableSql(...accountTables)}
 ${migratedTableSql('Series', 'Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', 'PostLike', 'PinnedPost', 'PostShareLink', 'PostShareDailyCount')}
 
 
     ${migratedTableSql('Comment', 'CommentLike')}
-        CREATE TABLE board_userlinkmeta (
-      id INTEGER PRIMARY KEY, name TEXT NOT NULL, value TEXT NOT NULL,
-      created_date DATETIME NOT NULL, updated_date DATETIME NOT NULL, user_id INTEGER NOT NULL, "order" INTEGER NOT NULL
-    );
     ${migratedTableSql('AuthorSubscription')}
     ${migratedTableSql('AuthorSubscriptionLog')}
 
-    INSERT INTO auth_user VALUES (1, 'writer', 'Writer', 1), (2, 'reader', 'Reader', 1), (3, 'inactive', 'Inactive', 0);
-    INSERT INTO board_profile VALUES
-      (1, 1, 'Author bio', 'avatars/writer.png', 'covers/writer.png', 'javascript:alert(1)', 'EDITOR'),
-      (2, 2, 'Reader bio', '', '', '', 'READER'),
-      (3, 3, '', '', '', '', 'EDITOR');
+    INSERT INTO "User" ("id", "username", "name", "isActive", "email", "passwordHash", "joinedAt") VALUES
+    (1, 'writer', 'Writer', 1, '', '', 1577836800000),
+    (2, 'reader', 'Reader', 1, '', '', 1577836800000),
+    (3, 'inactive', 'Inactive', 0, '', '', 1577836800000);
+    INSERT INTO "Profile" ("userId", "bio", "avatar", "cover", "homepage", "role") VALUES
+    (1, 'Author bio', 'avatars/writer.png', 'covers/writer.png', 'javascript:alert(1)', 'EDITOR'),
+    (2, 'Reader bio', '', '', '', 'READER'),
+    (3, '', '', '', '', 'EDITOR');
     INSERT INTO "Post" ("id", "title", "slug", "authorId", "publishedAt", "deletedAt", "createdAt", "updatedAt") VALUES
     (1, 'Public post', 'public-post', 1, 1767225600000, NULL, 946684800000, 946684800000);
     UPDATE "Post" SET isHidden = 0, commentsBlocked = 0 WHERE id = 1;
@@ -55,9 +46,9 @@ ${migratedTableSql('Series', 'Post', 'PostContent', 'Tag', '_PostToTag', 'PostRe
     (12, 'Deleted', '<p>Ignore deleted body</p>', 0, 0, 1767484800000, NULL, 1, NULL);
     INSERT INTO "CommentLike" ("commentId", "userId") VALUES
     (10, 2);
-    INSERT INTO board_userlinkmeta VALUES
-      (1, 'github', 'https://github.com/writer', '2026-01-01 00:00:00', '2026-01-01 00:00:00', 1, 1),
-      (2, 'unsafe', 'javascript:alert(1)', '2026-01-01 00:00:00', '2026-01-01 00:00:00', 1, 2);
+    INSERT INTO "SocialLink" ("id", "platform", "url", "createdAt", "updatedAt", "userId", "order") VALUES
+    (1, 'github', 'https://github.com/writer', 1767225600000, 1767225600000, 1, 1),
+    (2, 'unsafe', 'javascript:alert(1)', 1767225600000, 1767225600000, 1, 2);
     INSERT INTO "AuthorSubscription" ("id", "createdAt", "authorId", "subscriberId") VALUES
     (1, 1767225600000, 1, 2);
   `);
@@ -70,19 +61,22 @@ function seed() {
   fixture.exec(`
     DELETE FROM "AuthorSubscriptionLog";
     DELETE FROM "AuthorSubscription";
-    DELETE FROM board_userlinkmeta;
+    DELETE FROM "SocialLink";
     DELETE FROM "CommentLike";
     DELETE FROM "Comment";
     DELETE FROM "PostLike";
     
     DELETE FROM "Post";
-    DELETE FROM board_profile;
-    DELETE FROM auth_user;
-    INSERT INTO auth_user VALUES (1, 'writer', 'Writer', 1), (2, 'reader', 'Reader', 1), (3, 'inactive', 'Inactive', 0);
-    INSERT INTO board_profile VALUES
-      (1, 1, 'Author bio', 'avatars/writer.png', 'covers/writer.png', 'javascript:alert(1)', 'EDITOR'),
-      (2, 2, 'Reader bio', '', '', '', 'READER'),
-      (3, 3, '', '', '', '', 'EDITOR');
+    DELETE FROM "Profile";
+    DELETE FROM "User";
+    INSERT INTO "User" ("id", "username", "name", "isActive", "email", "passwordHash", "joinedAt") VALUES
+    (1, 'writer', 'Writer', 1, '', '', 1577836800000),
+    (2, 'reader', 'Reader', 1, '', '', 1577836800000),
+    (3, 'inactive', 'Inactive', 0, '', '', 1577836800000);
+    INSERT INTO "Profile" ("userId", "bio", "avatar", "cover", "homepage", "role") VALUES
+    (1, 'Author bio', 'avatars/writer.png', 'covers/writer.png', 'javascript:alert(1)', 'EDITOR'),
+    (2, 'Reader bio', '', '', '', 'READER'),
+    (3, '', '', '', '', 'EDITOR');
     INSERT INTO "Post" ("id", "title", "slug", "authorId", "publishedAt", "deletedAt", "createdAt", "updatedAt") VALUES
     (1, 'Public post', 'public-post', 1, 1767225600000, NULL, 946684800000, 946684800000);
     UPDATE "Post" SET isHidden = 0, commentsBlocked = 0 WHERE id = 1;
@@ -94,9 +88,9 @@ function seed() {
     (12, 'Deleted', '<p>Ignore deleted body</p>', 0, 0, 1767484800000, NULL, 1, NULL);
     INSERT INTO "CommentLike" ("commentId", "userId") VALUES
     (10, 2);
-    INSERT INTO board_userlinkmeta VALUES
-      (1, 'github', 'https://github.com/writer', '2026-01-01 00:00:00', '2026-01-01 00:00:00', 1, 1),
-      (2, 'unsafe', 'javascript:alert(1)', '2026-01-01 00:00:00', '2026-01-01 00:00:00', 1, 2);
+    INSERT INTO "SocialLink" ("id", "platform", "url", "createdAt", "updatedAt", "userId", "order") VALUES
+    (1, 'github', 'https://github.com/writer', 1767225600000, 1767225600000, 1, 1),
+    (2, 'unsafe', 'javascript:alert(1)', 1767225600000, 1767225600000, 1, 2);
     INSERT INTO "AuthorSubscription" ("id", "createdAt", "authorId", "subscriberId") VALUES
     (1, 1767225600000, 1, 2);
   `);
@@ -111,7 +105,7 @@ registerReaderActions(app, db, {
     const value = request.headers['x-user-id'];
     const id = typeof value === 'string' ? Number(value) : NaN;
     if (!Number.isSafeInteger(id) || id < 1) return null;
-    const [user] = await db.$queryRaw<Array<{ username: string }>>`SELECT username FROM auth_user WHERE id = ${id} LIMIT 1`;
+    const [user] = await db.$queryRaw<Array<{ username: string }>>`SELECT username FROM "User" WHERE id = ${id} LIMIT 1`;
     return user ? { id, username: user.username } : null;
   },
   validateCsrf: (request) => {

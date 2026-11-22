@@ -1,7 +1,7 @@
 import { type PrismaClient } from '@prisma/client';
 import { CommentPayload, publicComments } from './comments.js';
 import { subscriptionState } from './subscriptions.js';
-import { ActiveUserRow, AuthorRow, DEFAULT_AVATAR, DbInteger, absoluteMediaUrl, isTrue, numberValue, ownedPost, publicPost, safeHttpUrl } from '../shared.js';
+import { ActiveUserRow, AuthorRow, DEFAULT_AVATAR, absoluteMediaUrl, ownedPost, publicPost, safeHttpUrl } from '../shared.js';
 
 export interface ReaderAuthorHeader {
   id: number;
@@ -40,37 +40,21 @@ export async function readReaderPostView(
   const post = ownerView && viewerId !== null ? await ownedPost(db, slug, viewerId) : await publicPost(db, slug);
   if (!post) return null;
 
-  const [author] = await db.$queryRaw<Array<{
-    id: number;
-    username: string;
-    name: string;
-    isActive: DbInteger;
-    profileRole: string | null;
-    bio: string | null;
-    avatar: string | null;
-    cover: string | null;
-    homepage: string | null;
-  }>>`
-    SELECT author.id, author.username, author.first_name AS name,
-           CAST(author.is_active AS INTEGER) AS isActive,
-           profile.role AS profileRole, profile.bio AS bio, profile.avatar AS avatar,
-           profile.cover AS cover, profile.homepage AS homepage
-      FROM auth_user AS author
-      LEFT JOIN board_profile AS profile ON profile.user_id = author.id
-     WHERE author.id = ${post.authorId}
-     LIMIT 1
-  `;
+  const author = await db.user.findUnique({
+    where: { id: post.authorId },
+    select: {
+      id: true, username: true, name: true, isActive: true,
+      profile: { select: { role: true, bio: true, avatar: true, cover: true, homepage: true } },
+    },
+  });
   if (!author) return null;
 
   let viewer: ActiveUserRow | null = null;
   if (viewerId !== null && Number.isSafeInteger(viewerId) && viewerId > 0) {
-    const [active] = await db.$queryRaw<ActiveUserRow[]>`
-      SELECT id, username, CAST(is_active AS INTEGER) AS isActive
-        FROM auth_user
-       WHERE id = ${viewerId}
-       LIMIT 1
-    `;
-    if (active && isTrue(active.isActive)) viewer = active;
+    viewer = await db.user.findFirst({
+      where: { id: viewerId, isActive: true },
+      select: { id: true, username: true, isActive: true },
+    });
   }
 
   const authorRow: AuthorRow = {
@@ -78,19 +62,18 @@ export async function readReaderPostView(
     username: author.username,
     firstName: author.name,
     isActive: author.isActive,
-    profileRole: author.profileRole,
+    profileRole: author.profile?.role ?? null,
   };
   const subscription = await subscriptionState(db, viewer, authorRow);
   const [countLikes, viewerLike] = await Promise.all([
     db.postLike.count({ where: { postId: post.id } }),
     viewer ? db.postLike.findUnique({ where: { postId_userId: { postId: post.id, userId: viewer.id } }, select: { postId: true } }) : null,
   ]);
-  const socialRows = await db.$queryRaw<Array<{ id: number; name: string; value: string; order: number }>>`
-    SELECT id, name, value, "order" AS "order"
-      FROM board_userlinkmeta
-     WHERE user_id = ${author.id}
-     ORDER BY "order" ASC, id ASC
-  `;
+  const socialRows = await db.socialLink.findMany({
+    where: { userId: author.id },
+    orderBy: [{ order: 'asc' }, { id: 'asc' }],
+    select: { id: true, platform: true, url: true, order: true },
+  });
   const commentState = await publicComments(db, slug, viewer?.id ?? null);
 
   return {
@@ -105,13 +88,13 @@ export async function readReaderPostView(
       id: author.id,
       username: author.username,
       name: author.name || author.username,
-      avatar: absoluteMediaUrl(author.avatar) ?? DEFAULT_AVATAR,
-      cover: absoluteMediaUrl(author.cover),
-      bio: author.bio ?? '',
-      homepage: safeHttpUrl(author.homepage),
+      avatar: absoluteMediaUrl(author.profile?.avatar) ?? DEFAULT_AVATAR,
+      cover: absoluteMediaUrl(author.profile?.cover),
+      bio: author.profile?.bio ?? '',
+      homepage: safeHttpUrl(author.profile?.homepage ?? null),
       social: socialRows
-        .filter((link) => safeHttpUrl(link.value) !== '')
-        .map((link) => ({ ...link, value: safeHttpUrl(link.value), order: numberValue(link.order) })),
+        .filter((link) => safeHttpUrl(link.url) !== '')
+        .map((link) => ({ id: link.id, name: link.platform, value: safeHttpUrl(link.url), order: link.order })),
       canSubscribe: subscription.canSubscribe,
       isSubscribed: subscription.isSubscribed,
     },

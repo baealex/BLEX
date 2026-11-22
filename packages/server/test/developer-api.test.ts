@@ -8,17 +8,13 @@ import Fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import test from 'node:test';
 import { registerDeveloperApi } from '../src/features/developer-api/index.js';
-import { createMigratedTables, insertRow, migratedTableSql } from './fixtures/migrated-database.js';
+import { accountTables, createMigratedTables, insertRow, migratedTableSql } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-developer-api-'));
 const databasePath = join(directory, 'developer-api.sqlite3');
 const database = new DatabaseSync(databasePath);
 database.exec(`
-  CREATE TABLE auth_user (
-    id INTEGER PRIMARY KEY, username TEXT NOT NULL, first_name TEXT NOT NULL DEFAULT '',
-    email TEXT NOT NULL DEFAULT '', is_active BOOLEAN NOT NULL DEFAULT 1
-  );
-  CREATE TABLE board_profile (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, role TEXT NOT NULL);
+  ${migratedTableSql(...accountTables)}
   ${migratedTableSql('Series')}
 ${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', 'PostLike', 'PinnedPost', 'PostShareLink', 'PostShareDailyCount', 'ScheduledPublication')}
 
@@ -26,12 +22,16 @@ ${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', '
 
 
 
-  INSERT INTO auth_user VALUES
-    (1, 'writer', 'Writer', 'writer@example.test', 1),
-    (2, 'other', 'Other', 'other@example.test', 1),
-    (3, 'reader', 'Reader', 'reader@example.test', 1),
-    (4, 'inactive', 'Inactive', 'inactive@example.test', 0);
-  INSERT INTO board_profile VALUES (1, 1, 'EDITOR'), (2, 2, 'EDITOR'), (3, 3, 'READER'), (4, 4, 'EDITOR');
+  INSERT INTO "User" ("id", "username", "name", "email", "isActive", "passwordHash", "joinedAt") VALUES
+    (1, 'writer', 'Writer', 'writer@example.test', 1, '', 1577836800000),
+    (2, 'other', 'Other', 'other@example.test', 1, '', 1577836800000),
+    (3, 'reader', 'Reader', 'reader@example.test', 1, '', 1577836800000),
+    (4, 'inactive', 'Inactive', 'inactive@example.test', 0, '', 1577836800000);
+  INSERT INTO "Profile" ("userId", "role") VALUES
+    (1, 'EDITOR'),
+    (2, 'EDITOR'),
+    (3, 'READER'),
+    (4, 'EDITOR');
 `);
 createMigratedTables(database, 'DeveloperToken');
 

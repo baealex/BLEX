@@ -128,10 +128,8 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
         if (!user) return reply;
         const form = await readEditorForm(request);
         if (!options.validateCsrf(request)) return forbidden(reply);
-        const authors = await db.$queryRaw<Array<{ id: number }>>`
-          SELECT id FROM auth_user WHERE username = ${request.params.username} LIMIT 1
-        `;
-        if (!authors[0] || authors[0].id !== user.id) return notFound(reply);
+        const author = await db.user.findUnique({ where: { username: request.params.username }, select: { id: true } });
+        if (!author || author.id !== user.id) return notFound(reply);
         const post = await loadPost(db, { userId: user.id, slug: request.params.url });
         if (!post) return notFound(reply);
         const body = form.body;

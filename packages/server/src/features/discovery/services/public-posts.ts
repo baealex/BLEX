@@ -9,7 +9,7 @@ import { CardLikes } from '../pages/post-list.js';
 
 const postCardSelect = {
   id: true, slug: true, title: true, subtitle: true, image: true, readTime: true, description: true, publishedAt: true,
-  author: { select: { username: true, board_profile: { select: { avatar: true } } } },
+  author: { select: { username: true, profile: { select: { avatar: true } } } },
   series: { select: { slug: true, name: true, isHidden: true } },
   _count: { select: { likes: true, comments: true } },
 } satisfies Prisma.PostSelect;
@@ -21,7 +21,7 @@ function postCard(post: PostCard): PostRow {
   return {
     id: post.id, slug: post.slug, title: post.title, subtitle: post.subtitle, image: post.image, readTime: post.readTime,
     description: post.description, publishedDate: post.publishedAt && storedDateText(post.publishedAt),
-    authorUsername: post.author.username, authorAvatar: post.author.board_profile?.avatar ?? null,
+    authorUsername: post.author.username, authorAvatar: post.author.profile?.avatar ?? null,
     likeCount: post._count.likes, commentCount: post._count.comments,
     seriesUrl: series?.slug ?? null, seriesName: series?.name ?? null,
   };
@@ -40,14 +40,14 @@ export async function readFeaturedPosts(db: PrismaClient, author: AuthorRow): Pr
     orderBy: [{ order: 'asc' }, { createdAt: 'asc' }, { postId: 'asc' }],
     take: 6,
     select: {
-      user: { select: { username: true, board_profile: { select: { avatar: true } } } },
+      user: { select: { username: true, profile: { select: { avatar: true } } } },
       post: { select: postCardSelect },
     },
   });
   if (pinned.length) {
     return {
       kind: 'featured',
-      posts: pinned.map(({ user, post }) => ({ ...postCard(post), authorUsername: user.username, authorAvatar: user.board_profile?.avatar ?? null })),
+      posts: pinned.map(({ user, post }) => ({ ...postCard(post), authorUsername: user.username, authorAvatar: user.profile?.avatar ?? null })),
     };
   }
   const recent = await readPublicPosts(db, { where: { authorId: author.id }, limit: 6 });

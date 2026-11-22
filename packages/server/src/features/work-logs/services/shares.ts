@@ -16,7 +16,7 @@ const inShare = (shareId: number) => ({ shares: { some: { id: shareId } } }) sat
 
 export async function readShare(db: PrismaClient, token: string): Promise<ShareRow | null> {
   const share = await db.workLogShare.findFirst({
-    where: { token, log: { owner: { is_active: true } } },
+    where: { token, log: { owner: { isActive: true } } },
     select: {
       id: true, token: true, headline: true, createdAt: true, logId: true,
       log: { select: { ownerId: true, title: true, createdAt: true, owner: { select: { username: true } } } },

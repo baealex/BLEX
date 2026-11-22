@@ -11,14 +11,17 @@ export async function reserveLoginAttempt(db: PrismaClient, secretKey: string, i
     { hash: createHmac('sha256', key).update(`${window}:account:${username.normalize('NFKC').toLowerCase()}`).digest('hex'), limit: 10 },
   ];
   try {
+    // The opening delete takes SQLite's write lock, so each count check and increment below is atomic.
     await db.$transaction(async (transaction) => {
-      await transaction.$executeRaw`DELETE FROM board_loginattempt WHERE "window" < ${window - 1}`;
+      await transaction.loginAttempt.deleteMany({ where: { window: { lt: BigInt(window - 1) } } });
       for (const { hash, limit } of limits) {
-        const affected = await transaction.$executeRaw`
-          INSERT INTO board_loginattempt (key, "window", count) VALUES (${hash}, ${window}, 1)
-          ON CONFLICT(key) DO UPDATE SET count = count + 1 WHERE count < ${limit}
-        `;
-        if (!affected) throw new LoginLimitReached();
+        const { count } = await transaction.loginAttempt.updateMany({
+          where: { key: hash, count: { lt: limit } },
+          data: { count: { increment: 1 } },
+        });
+        if (count) continue;
+        if (await transaction.loginAttempt.findUnique({ where: { key: hash }, select: { key: true } })) throw new LoginLimitReached();
+        await transaction.loginAttempt.create({ data: { key: hash, window: BigInt(window), count: 1 }, select: { key: true } });
       }
     });
   } catch (error) {
@@ -27,8 +30,9 @@ export async function reserveLoginAttempt(db: PrismaClient, secretKey: string, i
   }
 
   return async () => {
-    await db.$executeRaw`
-      UPDATE board_loginattempt SET count = count - 1 WHERE key IN (${limits[0].hash}, ${limits[1].hash}) AND count > 0
-    `;
+    await db.loginAttempt.updateMany({
+      where: { key: { in: [limits[0].hash, limits[1].hash] }, count: { gt: 0 } },
+      data: { count: { decrement: 1 } },
+    });
   };
 }

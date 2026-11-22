@@ -29,9 +29,7 @@ async function prefersEnglish(request: FastifyRequest, db: PrismaClient, current
   if (process.env.ENABLE_ENGLISH_UI !== 'TRUE' && process.env.DEBUG !== 'TRUE') return false;
   const user = await currentUser(request);
   if (!user) return false;
-  const [config] = await db.$queryRaw<Array<{ language: string | null }>>`
-    SELECT language FROM board_config WHERE user_id = ${user.id} LIMIT 1
-  `;
+  const config = await db.userPreference.findUnique({ where: { userId: user.id }, select: { language: true } });
   return config?.language === 'en';
 }
 

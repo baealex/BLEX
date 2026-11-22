@@ -10,6 +10,7 @@ import { renderForbiddenPage, renderNotFoundPage, wantsNotFoundPage } from './fe
 import { startNotificationWorker } from './features/notifications/delivery.js';
 import { readPublicPost } from './features/posts/public-post.js';
 import { csrfCookie, requestCookies, sessionCookie } from './platform/cookies.js';
+import { makeConnectionReadOnly } from './platform/data/read-only-connection.js';
 import { applySecurityHeaders } from './platform/security-headers.js';
 import { registerRoutes } from './routes/index.js';
 
@@ -71,15 +72,18 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
   app.addHook('onReady', async () => {
     if (auth) {
       try {
-        // One LIMIT 0 statement proves every table the running server depends on exists.
-        await db.$queryRaw`
-          SELECT session.verified_until FROM blex_session AS session, blex_oauth_flow, blex_oauth_challenge,
-            blex_factor_setup, "NotificationDelivery", "ScheduledPublication", "WebhookDelivery" LIMIT 0
-        `;
+        // Each read fails if the running server's table or column is missing.
+        await db.session.findFirst({ select: { verifiedUntil: true } });
+        await db.oAuthFlow.findFirst({ select: { stateHash: true } });
+        await db.oAuthChallenge.findFirst({ select: { tokenHash: true } });
+        await db.factorSetup.findFirst({ select: { sessionHash: true } });
+        await db.notificationDelivery.findFirst({ select: { notificationId: true } });
+        await db.scheduledPublication.findFirst({ select: { postId: true } });
+        await db.webhookDelivery.findFirst({ select: { postId: true } });
       } catch (error) {
         throw new Error('Could not open the BLEX 4 schema. Apply the Prisma migrations and follow the BLEX 3.x upgrade guide for an existing database.', { cause: error });
       }
-    } else await db.$executeRaw`PRAGMA query_only = ON`;
+    } else await makeConnectionReadOnly(db);
     await readPublicPost(db, '__schema_check__', '__schema_check__');
     if (auth?.deliverNotifications) stopDelivery = startNotificationWorker(db, siteUrl, auth.cipherKey, auth.fetchProvider);
   });

@@ -8,15 +8,17 @@ import cookie from '@fastify/cookie';
 import { PrismaClient } from '@prisma/client';
 import { after, test } from 'node:test';
 import { registerAuthorForms } from '../src/features/posts/author-forms.js';
-import { createMigratedTables } from './fixtures/migrated-database.js';
+import { accountTables, createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-author-forms-'));
 const databasePath = join(directory, 'synthetic-author-forms.sqlite3');
 const database = new DatabaseSync(databasePath);
 createMigratedTables(database, 'FormTemplate');
 database.exec(`
-  CREATE TABLE auth_user (id INTEGER PRIMARY KEY);
-  INSERT INTO auth_user VALUES (1), (2);
+  ${migratedTableSql(...accountTables)}
+  INSERT INTO "User" ("id", "username", "email", "passwordHash", "joinedAt") VALUES
+    (1, 'writer', '', '', 1577836800000),
+    (2, 'other', '', '', 1577836800000);
   INSERT INTO FormTemplate (id, title, content, isPublic, userId, createdAt, updatedAt)
   VALUES (1, '첫 서식', '첫 번째 문단', 0, 1, ${Date.UTC(2024, 1, 1, 0, 30)}, ${Date.UTC(2024, 1, 1, 0, 30)});
 `);

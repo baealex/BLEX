@@ -1,7 +1,7 @@
 import { type PrismaClient } from '@prisma/client';
 import { descriptionFromHtml, mediaUrl, parseAuthoringPostInput, resolveContent } from './post-content.js';
 import { AuthoringSaveResult, PostValidationError, assertExpectedUpdatedAt, createPost, draftReservation, loadPost, postTags, trashPost, updatePost } from './post-store.js';
-import { AuthoringPostInput, AuthoringUser, StoredPost, UserRow, dateAsIso, numberValue } from '../shared.js';
+import { AuthoringPostInput, AuthoringUser, StoredPost, UserRow, dateAsIso } from '../shared.js';
 
 export function apiPostBase(post: StoredPost, contentHtml: string): Record<string, unknown> {
   return {
@@ -68,19 +68,14 @@ export async function preservePostOmissions(
 }
 
 async function verifiedEditor(db: PrismaClient, editor: AuthoringUser): Promise<UserRow> {
-  const rows = await db.$queryRaw<UserRow[]>`
-    SELECT author.id AS id, author.username AS username,
-           CAST(author.is_active AS INTEGER) AS isActive, profile.role AS role
-      FROM auth_user AS author
-      LEFT JOIN board_profile AS profile ON profile.user_id = author.id
-     WHERE author.id = ${editor.id} AND author.username = ${editor.username}
-     LIMIT 1
-  `;
-  const author = rows[0];
-  if (!author || numberValue(author.isActive) !== 1 || author.role !== 'EDITOR') {
+  const author = await db.user.findFirst({
+    where: { id: editor.id, username: editor.username },
+    select: { id: true, username: true, isActive: true, profile: { select: { role: true } } },
+  });
+  if (!author?.isActive || author.profile?.role !== 'EDITOR') {
     throw new PostValidationError('RJ', 'Author access is required.');
   }
-  return author;
+  return { id: author.id, username: author.username, isActive: author.isActive, role: author.profile.role };
 }
 
 async function ownedPostByReference(

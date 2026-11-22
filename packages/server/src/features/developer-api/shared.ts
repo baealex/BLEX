@@ -24,10 +24,6 @@ export function readScalar(value: string | string[] | undefined): string | undef
   return value;
 }
 
-export function asBoolean(value: number | bigint | boolean | null): boolean {
-  return value === true || value === 1 || value === 1n;
-}
-
 export function toIsoDateTime(value: string | Date | null): string | null {
   if (value === null) return null;
   const raw = value instanceof Date ? value.toISOString() : value;

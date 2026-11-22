@@ -33,7 +33,7 @@ export async function deliverTelegramNotification(db: PrismaClient, siteUrl: URL
     select: { telegramEnabled: true, telegramBotToken: true },
   });
   const notification = await db.notification.findFirst({
-    where: { id: job.notificationId, user: { is_active: true, telegram: { isNot: null } } },
+    where: { id: job.notificationId, user: { isActive: true, telegram: { isNot: null } } },
     select: {
       userId: true, content: true, url: true, messageKey: true, messageParams: true,
       user: { select: { telegram: { select: { telegramId: true } } } },
@@ -47,9 +47,7 @@ export async function deliverTelegramNotification(db: PrismaClient, siteUrl: URL
   if (message && token && /^\d+:[A-Za-z0-9_-]+$/.test(token) && chat && /^-?\d+$/.test(chat)) {
     const url = URL.parse(message.url, siteUrl);
     const safeUrl = url && ['https:', 'http:'].includes(url.protocol) && !url.username && !url.password ? url.href : '';
-    const [preferences] = await db.$queryRaw<Array<{ language: string | null }>>`
-      SELECT language FROM board_config WHERE user_id = ${message.userId} LIMIT 1
-    `;
+    const preferences = await db.userPreference.findUnique({ where: { userId: message.userId }, select: { language: true } });
     const language = preferences?.language === 'en' && process.env.ENABLE_ENGLISH_UI === 'TRUE' ? 'en' : 'ko';
     const text = notificationText(message.messageKey, notificationParams(message.messageParams), message.content, language);
     try {

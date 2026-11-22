@@ -9,7 +9,7 @@ import { PrismaClient } from '@prisma/client';
 import { after, beforeEach, test } from 'node:test';
 import { registerNotifications } from '../src/features/notifications/index.js';
 import { mySubscriptions } from '../src/features/engagement/services/subscriptions.js';
-import { createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
+import { accountTables, createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-settings-pages-'));
 const databasePath = join(directory, 'synthetic-settings.sqlite3');
@@ -20,18 +20,7 @@ function createSchema() {
   const fixture = new DatabaseSync(databasePath);
   createMigratedTables(fixture, 'IntegrationSetting', 'Notification', 'TelegramConnection');
   fixture.exec(`
-    CREATE TABLE auth_user (
-      id INTEGER PRIMARY KEY, username TEXT NOT NULL UNIQUE, first_name TEXT NOT NULL DEFAULT '', is_active BOOLEAN NOT NULL DEFAULT 1
-    );
-    CREATE TABLE board_profile (
-      id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL UNIQUE, bio TEXT NOT NULL DEFAULT '', avatar TEXT NOT NULL DEFAULT '',
-      role TEXT NOT NULL DEFAULT 'READER'
-    );
-    CREATE TABLE board_config (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL UNIQUE, language TEXT);
-    CREATE TABLE board_userconfigmeta (
-      id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, value TEXT NOT NULL,
-      created_date DATETIME NOT NULL, updated_date DATETIME NOT NULL, user_id INTEGER NOT NULL
-    );
+  ${migratedTableSql(...accountTables)}
     ${migratedTableSql('AuthorSubscription')}
   `);
   fixture.close();
@@ -40,17 +29,21 @@ function createSchema() {
 function seed() {
   const fixture = new DatabaseSync(databasePath);
   fixture.exec(`
-    DELETE FROM board_userconfigmeta;
     DELETE FROM Notification;
     DELETE FROM "AuthorSubscription";
     DELETE FROM TelegramConnection;
     DELETE FROM IntegrationSetting;
-    DELETE FROM board_config;
-    DELETE FROM board_profile;
-    DELETE FROM auth_user;
-    INSERT INTO auth_user VALUES (1, 'reader', 'Reader', 1), (2, 'author', 'Author Name', 1);
-    INSERT INTO board_profile VALUES (1, 1, 'Reader bio', '', 'READER'), (2, 2, '<unsafe bio>', 'author.png', 'EDITOR');
-    INSERT INTO board_config VALUES (1, 1, 'en');
+    DELETE FROM "UserPreference";
+    DELETE FROM "Profile";
+    DELETE FROM "User";
+    INSERT INTO "User" ("id", "username", "name", "isActive", "email", "passwordHash", "joinedAt") VALUES
+    (1, 'reader', 'Reader', 1, '', '', 1577836800000),
+    (2, 'author', 'Author Name', 1, '', '', 1577836800000);
+    INSERT INTO "Profile" ("userId", "bio", "avatar", "role") VALUES
+    (1, 'Reader bio', '', 'READER'),
+    (2, '<unsafe bio>', 'author.png', 'EDITOR');
+    INSERT INTO "UserPreference" ("userId", "language") VALUES
+    (1, 'en');
     INSERT INTO Notification (id, userId, key, url, content, messageKey, messageParams, isRead, createdAt, updatedAt) VALUES
       (1, 1, 'first', '/@author/post-one', 'Author posted a new article.', 'UNKNOWN', '{}', 0, ${Date.now()}, ${Date.now()}),
       (2, 1, 'second', 'javascript:alert(1)', 'A mention without a safe link.', 'UNKNOWN', '{}', 1, ${Date.now()}, ${Date.now()});
@@ -117,13 +110,11 @@ test('protects the notification API and keeps read and preference changes scoped
     payload: { NOTIFY_MENTION: true, NOTIFY_COMMENT_LIKE: false, NOTIFY_POSTS_LIKE: true },
   });
   assert.equal(saved.json().status, 'DONE');
-  const prefs = await db.$queryRaw<Array<{ name: string; value: string }>>`
-    SELECT name, value FROM board_userconfigmeta WHERE user_id = 1 ORDER BY name
-  `;
-  assert.deepEqual(prefs, [
-    { name: 'NOTIFY_COMMENT_LIKE', value: 'false' },
-    { name: 'NOTIFY_MENTION', value: 'true' },
-  ]);
+  const prefs = await db.userPreference.findUnique({
+    where: { userId: 1 },
+    select: { notifyCommentLike: true, notifyMention: true, notifyPostLike: true, notifyPostComment: true },
+  });
+  assert.deepEqual(prefs, { notifyCommentLike: false, notifyMention: true, notifyPostLike: null, notifyPostComment: null });
 });
 
 test('reads subscriptions with author details and the Telegram connection state', async () => {

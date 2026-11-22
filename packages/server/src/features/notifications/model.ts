@@ -6,6 +6,15 @@ import { queuePostWebhooks } from '../integrations/webhooks/delivery.js';
 
 export const notificationPreferences = ['NOTIFY_POSTS_LIKE', 'NOTIFY_POSTS_COMMENT', 'NOTIFY_COMMENT_LIKE', 'NOTIFY_MENTION'] as const;
 export type NotificationPreference = typeof notificationPreferences[number];
+export const notificationPreferenceColumns = {
+  NOTIFY_POSTS_LIKE: 'notifyPostLike',
+  NOTIFY_POSTS_COMMENT: 'notifyPostComment',
+  NOTIFY_COMMENT_LIKE: 'notifyCommentLike',
+  NOTIFY_MENTION: 'notifyMention',
+} as const satisfies Record<NotificationPreference, keyof Prisma.UserPreferenceSelect>;
+export const notificationPreferenceSelect = {
+  notifyPostLike: true, notifyPostComment: true, notifyCommentLike: true, notifyMention: true,
+} satisfies Prisma.UserPreferenceSelect;
 export type NotificationKey = 'post.commented' | 'comment.mentioned' | 'comment.liked' | 'comment.replied' | 'post.liked' | 'post.published';
 
 interface NotificationInput {
@@ -64,12 +73,13 @@ export async function queueNotification(tx: Prisma.TransactionClient, notificati
 }
 
 export async function createNotification(tx: Prisma.TransactionClient, input: NotificationInput, telegramEnabled?: boolean) {
-  const [user] = await tx.$queryRaw<Array<{ username: string; enabled: string | null }>>`
-    SELECT username, (SELECT value FROM board_userconfigmeta WHERE user_id = ${input.recipientId}
-      AND name = ${input.preference ?? ''} ORDER BY id LIMIT 1) AS enabled
-      FROM auth_user WHERE id = ${input.recipientId} AND is_active = 1
-  `;
-  if (!user || user.username === input.actor || (input.preference && user.enabled !== 'true')) return false;
+  const user = await tx.user.findFirst({ where: { id: input.recipientId, isActive: true }, select: { username: true } });
+  if (!user || user.username === input.actor) return false;
+  if (input.preference) {
+    // An unset preference stays off until the recipient turns it on.
+    const stored = await tx.userPreference.findUnique({ where: { userId: input.recipientId }, select: notificationPreferenceSelect });
+    if (stored?.[notificationPreferenceColumns[input.preference]] !== true) return false;
+  }
   const data = { actor: input.actor, ...(input.commentId ? { comment_id: input.commentId } : {}), post_title: input.title };
   const payload = JSON.stringify(data);
   const key = createHash('sha256').update(user.username + input.url + `${input.key}:${payload}` + (input.hiddenKey ?? '')).digest('base64');
@@ -94,7 +104,7 @@ export async function createNotification(tx: Prisma.TransactionClient, input: No
 
 export async function notifyPostSubscribers(tx: Prisma.TransactionClient, postId: number) {
   const post = await tx.post.findFirst({
-    where: { id: postId, ...publicPostWhere(), author: { is_active: true, board_profile: { role: 'EDITOR' } } },
+    where: { id: postId, ...publicPostWhere(), author: { isActive: true, profile: { role: 'EDITOR' } } },
     select: { authorId: true, title: true, slug: true, author: { select: { username: true } } },
   });
   if (!post) return 0;
@@ -102,9 +112,7 @@ export async function notifyPostSubscribers(tx: Prisma.TransactionClient, postId
   const { authorId, username, title, slug } = announcement;
   const subscribers = await tx.authorSubscription.findMany({ where: { authorId }, select: { subscriberId: true } });
   if (!subscribers.length) return 0;
-  const aliases = await tx.$queryRaw<Array<{ username: string }>>`
-    SELECT username FROM board_usernamechangelog WHERE user_id = ${authorId}
-  `;
+  const aliases = await tx.usernameChange.findMany({ where: { userId: authorId }, select: { username: true } });
   const url = publicPostPath(username, slug);
   const priorUrls = [url, ...aliases.map((entry) => publicPostPath(entry.username, slug))];
   const telegramEnabled = await telegramDeliveryEnabled(tx);
