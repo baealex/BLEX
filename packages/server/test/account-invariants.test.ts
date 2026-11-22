@@ -8,11 +8,11 @@ import { PrismaClient } from '@prisma/client';
 import { Secret, TOTP } from 'otpauth';
 import type { FastifyInstance } from 'fastify';
 import { buildApp } from '../src/app.js';
-import { decryptDjangoSecret, encryptDjangoSecret } from '../src/features/auth/django-secret.js';
+import { decryptSecret, encryptSecret } from '../src/features/auth/encrypted-secret.js';
 import { reserveLoginAttempt } from '../src/features/auth/login-attempts.js';
 import { consumePendingOAuth } from '../src/features/auth/oauth.js';
 import { createToken, tokenHash } from '../src/features/auth/session.js';
-import { verifyDjangoSecondFactor } from '../src/features/auth/two-factor.js';
+import { verifySecondFactor } from '../src/features/auth/two-factor.js';
 import { createMigratedDatabase, insertRow, testCipherKey, testSecretKey, testSiteUrl } from './fixtures/migrated-database.js';
 
 // Produced by Django for this password, so a passing login proves 3.14 hashes still verify.
@@ -171,7 +171,7 @@ test('an OAuth state and a pending OAuth challenge are each consumed once under 
   assert.equal(claims.filter(Boolean).length, 1);
 }, (fixture) => {
   seedUser(fixture, 1, 'social');
-  insertRow(fixture.db, 'SocialProvider', { id: 1, key: 'google', clientId: 'client', clientSecret: encryptDjangoSecret('oauth-secret', testCipherKey), isEnabled: 1 });
+  insertRow(fixture.db, 'SocialProvider', { id: 1, key: 'google', clientId: 'client', clientSecret: encryptSecret('oauth-secret', testCipherKey), isEnabled: 1 });
   insertRow(fixture.db, 'SocialAccount', { id: 1, providerId: 1, uid: 'uid-1', userId: 1 });
 }));
 
@@ -180,7 +180,7 @@ test('a factor setup activates once under concurrency, and only with a valid cod
   const setup = await app.inject({ method: 'POST', url: '/v1/auth/security', headers: verified });
   assert.equal(setup.json().status, 'DONE');
   const pending = await db.factorSetup.findFirstOrThrow({ select: { secret: true } });
-  const code = new TOTP({ secret: Secret.fromBase32(decryptDjangoSecret(pending.secret, testCipherKey)!) }).generate();
+  const code = new TOTP({ secret: Secret.fromBase32(decryptSecret(pending.secret, testCipherKey)!) }).generate();
   const wrongCode = code === '000000' ? '000001' : '000000';
   const wrong = await app.inject({ method: 'POST', url: '/v1/auth/security/verify', headers: verified, payload: { code: wrongCode } });
   assert.equal(wrong.json().errorCode, 'error:RJ');
@@ -200,14 +200,14 @@ test('stored 2FA secrets and recovery keys keep working, and a recovery key stay
   const totp = new TOTP({ secret: Secret.fromBase32(totpBase32) }).generate();
   assert.equal(await isSignedIn(app, await signIn(app, 'writer', totp)), true);
   const stored = await db.twoFactorAuth.findUniqueOrThrow({ where: { userId: 1 }, select: { totpSecret: true, recoveryKey: true } });
-  assert.equal(verifyDjangoSecondFactor(stored, 'wrong-recovery-code', testCipherKey), false);
+  assert.equal(verifySecondFactor(stored, 'wrong-recovery-code', testCipherKey), false);
   const login = await app.inject({ url: '/v1/auth/security', headers: first });
   assert.deepEqual(login.json().body, { isEnabled: true, hasRecoveryKey: true });
   assert.doesNotMatch(login.body, new RegExp(stored.recoveryKey));
 }, (fixture) => {
   seedUser(fixture, 1, 'writer');
   insertRow(fixture.db, 'TwoFactorAuth', {
-    userId: 1, totpSecret: encryptDjangoSecret(totpBase32, testCipherKey),
+    userId: 1, totpSecret: encryptSecret(totpBase32, testCipherKey),
     recoveryKey: '831c28715dcd5f61787dc41ad7bf1663f904ab40c6220da4630e7fddecae6fe8',
   });
 }));

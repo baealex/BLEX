@@ -7,7 +7,7 @@ import { AuthPanel, authField, authInput, authSubmit } from './ui/panel.js';
 import { accountEmailPattern, accountUsernamePattern, describeInvalidPassword, normalizeAccountEmail } from './account-validation.js';
 import { authCookieOptions, csrfCookie, sessionCookie, setSessionCookies } from '../../platform/cookies.js';
 import { formInput, validCsrf } from '../../platform/csrf.js';
-import { hashDjangoPassword } from './django-password.js';
+import { hashPassword } from './password-hash.js';
 import { createSession, createToken } from './session.js';
 
 const setupCsp = "default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'";
@@ -116,7 +116,7 @@ export function registerSetup(app: FastifyInstance, db: PrismaClient, siteUrl: U
     if (passwordError) return fail(passwordError);
     if (await db.user.findUnique({ where: { username }, select: { id: true } })) return fail('이미 사용중인 아이디입니다.');
 
-    const passwordHash = await hashDjangoPassword(password);
+    const passwordHash = await hashPassword(password);
     const userId = await db.$transaction(async (tx) => {
       await tx.siteSetting.upsert({ where: { id: 1 }, create: { id: 1 }, update: {}, select: { id: true } });
       if (await hasAdministrator(tx)) return null;

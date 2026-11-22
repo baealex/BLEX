@@ -2,7 +2,7 @@ import formBody from '@fastify/formbody';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { formInput } from '../../../platform/csrf.js';
-import { djangoJsonUtc } from '../../../compat/django-format.js';
+import { isoUtcMillis } from '../../../platform/date-format.js';
 import { parseWebhookUrl, sendWebhook, type SendWebhook } from './transport.js';
 import { done, failure } from '../../../platform/response.js';
 
@@ -24,7 +24,7 @@ async function channels(db: PrismaClient, scope: Scope, owner: number | null) {
     select: { id: true, name: true, url: true, isActive: true, failureCount: true, createdAt: true },
   });
   return rows.map(({ url, createdAt, ...channel }) => ({
-    ...channel, webhookUrl: url, createdDate: djangoJsonUtc(createdAt.toISOString()),
+    ...channel, webhookUrl: url, createdDate: isoUtcMillis(createdAt.toISOString()),
   }));
 }
 

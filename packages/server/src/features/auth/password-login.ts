@@ -1,6 +1,6 @@
 import type { PrismaClient } from '@prisma/client';
-import { verifyDjangoPassword } from './django-password.js';
-import { verifyDjangoSecondFactor } from './two-factor.js';
+import { verifyPassword } from './password-hash.js';
+import { verifySecondFactor } from './two-factor.js';
 
 type PasswordLoginResult =
   | { status: 'invalid-credentials' }
@@ -19,12 +19,12 @@ export async function authenticatePassword(
     where: { username, isActive: true },
     select: { id: true, username: true, passwordHash: true, twoFactor: { select: { totpSecret: true, recoveryKey: true } } },
   });
-  const verified = await verifyDjangoPassword(password, account?.passwordHash ?? '');
+  const verified = await verifyPassword(password, account?.passwordHash ?? '');
   if (!account || !verified) return { status: 'invalid-credentials' };
 
   if (account.twoFactor) {
     if (!code) return { status: 'second-factor-required', username: account.username };
-    if (!verifyDjangoSecondFactor(account.twoFactor, code, cipherKey)) return { status: 'invalid-second-factor' };
+    if (!verifySecondFactor(account.twoFactor, code, cipherKey)) return { status: 'invalid-second-factor' };
   }
   return { status: 'authenticated', userId: account.id, username: account.username, passwordHash: account.passwordHash };
 }

@@ -1,5 +1,5 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
-import { timeSince } from '../../../compat/django-format.js';
+import { timeSince } from '../../../platform/date-format.js';
 import { publicPostWhere } from '../../posts/data/visibility.js';
 import { sanitizeCommentHtml } from '../../posts/post-html.js';
 import { DEFAULT_AVATAR, absoluteMediaUrl } from '../shared.js';

@@ -7,10 +7,10 @@ import test from 'node:test';
 import { PrismaClient } from '@prisma/client';
 import { Secret, TOTP } from 'otpauth';
 import { buildApp } from '../src/app.js';
-import { verifyDjangoPassword } from '../src/features/auth/django-password.js';
-import { decryptDjangoSecret, encryptDjangoSecret } from '../src/features/auth/django-secret.js';
+import { verifyPassword } from '../src/features/auth/password-hash.js';
+import { decryptSecret, encryptSecret } from '../src/features/auth/encrypted-secret.js';
 import { authenticatePassword } from '../src/features/auth/password-login.js';
-import { verifyDjangoSecondFactor } from '../src/features/auth/two-factor.js';
+import { verifySecondFactor } from '../src/features/auth/two-factor.js';
 import { accountTables, insertRow, seedPost, migratedTableSql } from './fixtures/migrated-database.js';
 
 // Test values were produced by Django, cryptography's Fernet and PyOTP.
@@ -67,7 +67,7 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     assert.equal(page.statusCode, 200);
     assert.match(page.body, /value="synthetic-invite"/);
     const captchaDb = new DatabaseSync(path);
-    captchaDb.prepare('UPDATE LoginSetting SET hcaptchaEnabled = 1, hcaptchaSiteKey = ?, hcaptchaSecretKey = ? WHERE id = 1').run('synthetic-site-key', encryptDjangoSecret('synthetic-captcha-secret', cipherKey));
+    captchaDb.prepare('UPDATE LoginSetting SET hcaptchaEnabled = 1, hcaptchaSiteKey = ?, hcaptchaSecretKey = ? WHERE id = 1').run('synthetic-site-key', encryptSecret('synthetic-captcha-secret', cipherKey));
     captchaDb.close();
     const captchaPage = await app.inject('/sign');
     assert.equal(captchaPage.statusCode, 200, captchaPage.body);
@@ -236,7 +236,7 @@ test('requires recent verification for password and 2FA changes and rotates the 
     const stored = new DatabaseSync(path, { readOnly: true });
     const pending = stored.prepare('SELECT secret, recoveryHash FROM "FactorSetup"').get();
     assert.notEqual(pending?.recoveryHash, setup.json().body.recoveryKey);
-    const decrypted = decryptDjangoSecret(String(pending?.secret), cipherKey);
+    const decrypted = decryptSecret(String(pending?.secret), cipherKey);
     assert.ok(decrypted);
     stored.close();
     const TOTPCode = new TOTP({ secret: Secret.fromBase32(decrypted) }).generate();
@@ -257,11 +257,11 @@ test('requires recent verification for password and 2FA changes and rotates the 
 
 test('checks the stored PBKDF2 algorithm and iteration count without changing the password', async () => {
   for (const digest of [olderPasswordHash, recentPasswordHash, sha1PasswordHash]) {
-    assert.equal(await verifyDjangoPassword(password, digest), true);
+    assert.equal(await verifyPassword(password, digest), true);
   }
-  assert.equal(await verifyDjangoPassword(`${password}-wrong`, olderPasswordHash), false);
-  assert.equal(await verifyDjangoPassword(password, ''), false);
-  assert.equal(await verifyDjangoPassword(password, '!unusable'), false);
+  assert.equal(await verifyPassword(`${password}-wrong`, olderPasswordHash), false);
+  assert.equal(await verifyPassword(password, ''), false);
+  assert.equal(await verifyPassword(password, '!unusable'), false);
 });
 
 test('keeps the legacy login envelope and issues a new session only after CSRF, password and 2FA checks', async () => {
@@ -526,14 +526,14 @@ test('binds OAuth callbacks to the initiating browser and reuses an existing soc
 test('reads encrypted 2FA and verifies the same TOTP window and recovery code', () => {
   const timestamp = 1_700_000_000_000;
   const stored = { totpSecret, recoveryKey };
-  assert.equal(decryptDjangoSecret(totpSecret, cipherKey), 'JBSWY3DPEHPK3PXP');
-  assert.equal(decryptDjangoSecret(totpSecret, 'x'.repeat(32)), null);
-  assert.equal(decryptDjangoSecret(totpSecret.replace('VDlt', 'ADlt'), cipherKey), null);
-  assert.equal(verifyDjangoSecondFactor(stored, '324550', cipherKey, timestamp), true);
-  assert.equal(verifyDjangoSecondFactor(stored, '822542', cipherKey, timestamp), true);
-  assert.equal(verifyDjangoSecondFactor(stored, '968785', cipherKey, timestamp), false);
-  assert.equal(verifyDjangoSecondFactor(stored, recoveryCode, cipherKey, timestamp), true);
-  assert.equal(verifyDjangoSecondFactor(stored, 'wrong-recovery-code', cipherKey, timestamp), false);
+  assert.equal(decryptSecret(totpSecret, cipherKey), 'JBSWY3DPEHPK3PXP');
+  assert.equal(decryptSecret(totpSecret, 'x'.repeat(32)), null);
+  assert.equal(decryptSecret(totpSecret.replace('VDlt', 'ADlt'), cipherKey), null);
+  assert.equal(verifySecondFactor(stored, '324550', cipherKey, timestamp), true);
+  assert.equal(verifySecondFactor(stored, '822542', cipherKey, timestamp), true);
+  assert.equal(verifySecondFactor(stored, '968785', cipherKey, timestamp), false);
+  assert.equal(verifySecondFactor(stored, recoveryCode, cipherKey, timestamp), true);
+  assert.equal(verifySecondFactor(stored, 'wrong-recovery-code', cipherKey, timestamp), false);
 });
 
 test('requires 2FA for an active existing account and preserves the account ID upon verification', async () => {
@@ -607,7 +607,7 @@ test('creates a first administrator against an empty Prisma database once', asyn
     const db = new DatabaseSync(path, { readOnly: true });
     try {
       const user = db.prepare('SELECT passwordHash, isStaff, isSuperuser FROM "User" LIMIT 1').get();
-      assert.equal(await verifyDjangoPassword(password, String(user?.passwordHash)), true);
+      assert.equal(await verifyPassword(password, String(user?.passwordHash)), true);
       assert.equal(user?.isSuperuser, 1);
       assert.equal(user?.isStaff, 1);
       assert.deepEqual({ ...db.prepare('SELECT notifyMention, notifyCommentLike, notifyPostLike, notifyPostComment FROM UserPreference').get() }, {

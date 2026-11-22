@@ -1,6 +1,6 @@
 import type { PrismaClient } from '@prisma/client';
 import { createHmac } from 'node:crypto';
-import { encryptDjangoSecret, decryptDjangoSecret } from '../../auth/django-secret.js';
+import { encryptSecret, decryptSecret } from '../../auth/encrypted-secret.js';
 import { type AdminIntegrationSettings } from '../types.js';
 import { AdminSettingsOptions, ApiResult, Body, isRecord, isoDate, recordAudit } from '../shared.js';
 
@@ -69,7 +69,7 @@ async function inspectTelegramConnection(
   setting: Omit<IntegrationRow, 'updatedAt'>,
   webhookUrl: string,
 ): Promise<AdminIntegrationSettings['telegramConnection']> {
-  const token = setting.telegramEnabled ? decryptDjangoSecret(setting.telegramBotToken, options.cipherKey) ?? '' : '';
+  const token = setting.telegramEnabled ? decryptSecret(setting.telegramBotToken, options.cipherKey) ?? '' : '';
   if (!token) return connection('disabled');
   if (!setting.telegramBotUsername.trim()) return connection('not_connected');
   const result = await callTelegramApi(options, token, 'getWebhookInfo');
@@ -93,7 +93,7 @@ export async function serializeIntegrationSettings(
   return {
     telegramEnabled: setting.telegramEnabled,
     telegramBotUsername: setting.telegramBotUsername.trim(),
-    telegramHasBotToken: Boolean(decryptDjangoSecret(setting.telegramBotToken, options.cipherKey)),
+    telegramHasBotToken: Boolean(decryptSecret(setting.telegramBotToken, options.cipherKey)),
     updatedDate: isoDate(setting.updatedAt),
     telegramConnection: await inspectTelegramConnection(options, setting, webhookUrl),
   };
@@ -121,12 +121,12 @@ export async function updateIntegrationSettings(
     if (!/^\d+:[A-Za-z0-9_-]+$/.test(submittedToken)) {
       return { ok: false, code: 'VA', message: 'Enter a valid Telegram bot token.' };
     }
-    const existingToken = decryptDjangoSecret(current?.telegramBotToken ?? '', options.cipherKey) ?? '';
+    const existingToken = decryptSecret(current?.telegramBotToken ?? '', options.cipherKey) ?? '';
     const isNewToken = submittedToken !== existingToken;
-    tokenCiphertext = encryptDjangoSecret(submittedToken, options.cipherKey);
+    tokenCiphertext = encryptSecret(submittedToken, options.cipherKey);
     if (isNewToken && !('telegramBotUsername' in input)) username = '';
   }
-  const botToken = decryptDjangoSecret(tokenCiphertext, options.cipherKey) ?? '';
+  const botToken = decryptSecret(tokenCiphertext, options.cipherKey) ?? '';
   if (enabled && !botToken) return { ok: false, code: 'VA', message: 'Enter a Telegram bot token.' };
 
   let botFailure: AdminIntegrationSettings['telegramConnection'] | null = null;

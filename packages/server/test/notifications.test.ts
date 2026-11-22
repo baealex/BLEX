@@ -7,7 +7,7 @@ import test from 'node:test';
 import cookie from '@fastify/cookie';
 import Fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
-import { decryptDjangoSecret, encryptDjangoSecret } from '../src/features/auth/django-secret.js';
+import { decryptSecret, encryptSecret } from '../src/features/auth/encrypted-secret.js';
 import { deleteAccountRows } from '../src/features/auth/services/deletions.js';
 import { registerTelegram, telegramWebhookSecret } from '../src/features/integrations/telegram.js';
 import { deliverPostWebhook, queuePostWebhooks } from '../src/features/integrations/webhooks/delivery.js';
@@ -39,9 +39,9 @@ test('delivers scheduled publication once, retains queued retries, and respects 
     VALUES (946684800000, 1, 2), (946684800000, 1, 3);
   `);
   raw.prepare(`INSERT INTO IntegrationSetting (id, telegramEnabled, telegramBotUsername, telegramBotToken, updatedAt)
-    VALUES (1, 1, 'synthetic-only', ?, 946684800000)`).run(encryptDjangoSecret('123:dummy-private-listener', cipher));
+    VALUES (1, 1, 'synthetic-only', ?, 946684800000)`).run(encryptSecret('123:dummy-private-listener', cipher));
   raw.prepare(`INSERT INTO TelegramConnection (telegramId, createdAt, userId)
-    VALUES (?, 946684800000, 2)`).run(encryptDjangoSecret('456', cipher));
+    VALUES (?, 946684800000, 2)`).run(encryptSecret('456', cipher));
   raw.close();
   const db = new PrismaClient({ datasourceUrl: `file:${dbPath}` });
   try {
@@ -116,7 +116,7 @@ async function deliveryFixture() {
   insertRow(fixture.db, 'Profile', { userId: 7, role: 'EDITOR' });
   insertRow(fixture.db, 'Profile', { userId: 70, role: 'EDITOR' });
   fixture.db.prepare(`INSERT INTO IntegrationSetting (id, telegramEnabled, telegramBotUsername, telegramBotToken, updatedAt)
-    VALUES (1, 1, 'synthetic_bot', ?, 946684800000)`).run(encryptDjangoSecret(botToken, cipherKey));
+    VALUES (1, 1, 'synthetic_bot', ?, 946684800000)`).run(encryptSecret(botToken, cipherKey));
   const db = new PrismaClient({ datasourceUrl: `file:${fixture.path}?connection_limit=1` });
   return { fixture, db, async close() { await db.$disconnect(); await fixture.cleanup(); } };
 }
@@ -124,7 +124,7 @@ async function deliveryFixture() {
 test('claims a Telegram job once, backs off, and stops at the attempt limit', async () => {
   const { fixture, db, close } = await deliveryFixture();
   try {
-    insertRow(fixture.db, 'TelegramConnection', { userId: 7, telegramId: encryptDjangoSecret('456', cipherKey) });
+    insertRow(fixture.db, 'TelegramConnection', { userId: 7, telegramId: encryptSecret('456', cipherKey) });
     insertRow(fixture.db, 'Notification', { id: 1, userId: 7, key: 'job', url: '/x', content: 'Hello', messageParams: '{}' });
     insertRow(fixture.db, 'NotificationDelivery', { notificationId: 1, availableAt: 0 });
     let calls = 0;
@@ -309,20 +309,20 @@ test('keeps pending, connected, and expired Telegram codes distinct', async () =
 
     await fromBot(555, `/start ${token}`);
     const linked = await connection();
-    assert.equal(decryptDjangoSecret(linked.telegramId, cipherKey), '555');
+    assert.equal(decryptSecret(linked.telegramId, cipherKey), '555');
     assert.deepEqual([linked.authToken, linked.authTokenExpiresAt], ['', null]);
     assert.equal(replies.at(-1), '텔레그램을 연결했습니다.');
 
     await fromBot(777, `/start ${token}`);
-    assert.equal(decryptDjangoSecret((await connection()).telegramId, cipherKey), '555');
+    assert.equal(decryptSecret((await connection()).telegramId, cipherKey), '555');
     assert.match(replies.at(-1) ?? '', /둘러보세요/);
 
     const reissued = (await app.inject({ method: 'POST', url: '/v1/telegram/makeToken' })).json().body.token;
-    assert.equal(decryptDjangoSecret((await connection()).telegramId, cipherKey), '555');
+    assert.equal(decryptSecret((await connection()).telegramId, cipherKey), '555');
     await db.telegramConnection.update({ where: { userId: 7 }, data: { authTokenExpiresAt: new Date(Date.now() - 1_000) } });
     await fromBot(999, reissued);
     const expired = await connection();
-    assert.equal(decryptDjangoSecret(expired.telegramId, cipherKey), '555');
+    assert.equal(decryptSecret(expired.telegramId, cipherKey), '555');
     assert.deepEqual([expired.authToken, expired.authTokenExpiresAt], ['', null]);
     assert.match(replies.at(-1) ?? '', /만료/);
 

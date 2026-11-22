@@ -68,6 +68,12 @@ export function csrfCookieValue(request: FastifyRequest): string {
   return '';
 }
 
+/** Names in rendered forms and pager links, which saved URLs depend on. */
+export const pageFields = {
+  selectedEntries: 'selected_entries', timelinePage: 'timeline_page', currentSelectionPage: 'current_selection_page',
+  selectionPage: 'selection_page', linksPage: 'links_page', previewPage: 'preview_page',
+} as const;
+
 export function toIsoDateTime(value: string | null): string {
   if (!value) return '';
   const match = value.replace('T', ' ').match(/^(.+\d{2}:\d{2}:\d{2})(?:\.(\d+))?(Z|[+-]\d{2}:\d{2})?$/);

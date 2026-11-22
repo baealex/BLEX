@@ -30,7 +30,7 @@ const getCsrfToken = (): string => {
 };
 
 interface PasswordStrength {
-    level: 'too_short' | 'weak' | 'fair' | 'strong';
+    level: 'tooShort' | 'weak' | 'fair' | 'strong';
     color: string;
 }
 
@@ -38,7 +38,7 @@ const getPasswordStrength = (pw: string): PasswordStrength | null => {
     if (!pw) return null;
     if (pw.length < 8) {
         return {
-            level: 'too_short',
+            level: 'tooShort',
             color: 'text-danger'
         };
     }
@@ -86,7 +86,7 @@ const Signup = () => {
     const passwordStrength = getPasswordStrength(password);
     const passwordStrengthLabel = passwordStrength
         ? {
-            too_short: t({
+            tooShort: t({
                 id: 'auth.signup.password_strength.too_short',
                 message: 'Too short'
             }),

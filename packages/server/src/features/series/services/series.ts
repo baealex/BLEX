@@ -2,7 +2,7 @@ import { Prisma, type PrismaClient } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
 import { publicPostWhere } from '../../posts/data/visibility.js';
 import { sanitizePostHtml } from '../../posts/post-html.js';
-import { storedDateText } from '../../../compat/django-format.js';
+import { storedDateText } from '../../../platform/date-format.js';
 import { type SeriesListItem, type SeriesPostOption, arrayValues, localDate, stringValue } from '../shared.js';
 
 interface StoredSeries extends SeriesListItem {

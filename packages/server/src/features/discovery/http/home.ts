@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { type PrismaClient } from '@prisma/client';
-import { djangoJsonUtc } from '../../../compat/django-format.js';
+import { isoUtcMillis } from '../../../platform/date-format.js';
 import { SiteIcon } from '../../../appearance/icons.js';
 import { sanitizePostHtml } from '../../posts/post-html.js';
 import { readCardLikes, readLikedPosts, readPublicPostCount, readPublicPosts } from '../services/public-posts.js';
@@ -127,8 +127,8 @@ export function registerHomeRoutes(app: FastifyInstance, db: PrismaClient, siteU
       canonical,
       page.title,
       metaDescription,
-      djangoJsonUtc(page.createdAt),
-      djangoJsonUtc(page.updatedAt),
+      isoUtcMillis(page.createdAt),
+      isoUtcMillis(page.updatedAt),
       page.author?.username ?? null,
       siteUrl,
     );

@@ -2,8 +2,8 @@ import { createHash, randomInt } from 'node:crypto';
 import type { PrismaClient } from '@prisma/client';
 import { Secret, TOTP } from 'otpauth';
 import QRCode from 'qrcode';
-import { decryptDjangoSecret, encryptDjangoSecret } from './django-secret.js';
-import { verifyDjangoSecondFactor } from './two-factor.js';
+import { decryptSecret, encryptSecret } from './encrypted-secret.js';
+import { verifySecondFactor } from './two-factor.js';
 import { acquireVerification, hasVerification, type VerificationAccount } from './verification.js';
 
 const recoveryCharacters = '0123456789abcdefghijklnmopqrstuvwxyzABCDEFGHIJKLNMOPQRSTUVWXYZ';
@@ -19,7 +19,7 @@ export async function beginFactorSetup(db: PrismaClient, account: VerificationAc
   const image = await QRCode.toDataURL(uri, { margin: 5 });
   const stored = await db.$transaction(async (tx) => {
     if (!await acquireVerification(tx, account)) return false;
-    const encrypted = encryptDjangoSecret(secret.base32, cipherKey);
+    const encrypted = encryptSecret(secret.base32, cipherKey);
     const recoveryHash = createHash('sha256').update(recovery).digest('hex');
     const setup = { secret: encrypted, recoveryHash, expiresAt: new Date(Date.now() + setupTimeout) };
     await tx.factorSetup.upsert({
@@ -44,8 +44,8 @@ export async function activateFactor(db: PrismaClient, account: VerificationAcco
     const entered = typeof code === 'string' ? code.trim() : '';
     if (!entered) return 'IP';
     if (!/^\d{6}$/.test(entered)) return 'RJ';
-    if (!decryptDjangoSecret(pending.secret, cipherKey) ||
-        !verifyDjangoSecondFactor({ totpSecret: pending.secret, recoveryKey: '' }, entered, cipherKey)) return 'RJ';
+    if (!decryptSecret(pending.secret, cipherKey) ||
+        !verifySecondFactor({ totpSecret: pending.secret, recoveryKey: '' }, entered, cipherKey)) return 'RJ';
     const { count: claimed } = await tx.factorSetup.deleteMany({ where: unexpired });
     if (claimed !== 1) return 'EP';
     await tx.twoFactorAuth.create({

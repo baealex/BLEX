@@ -5,13 +5,13 @@ import { accountUsernamePattern, describeInvalidPassword } from './account-valid
 import { authCookieOptions, csrfCookie, sessionCookie, setSessionCookies } from '../../platform/cookies.js';
 import { csrfPattern, formInput, validCsrf } from '../../platform/csrf.js';
 import { deleteAccount } from './delete-account.js';
-import { hashDjangoPassword, verifyDjangoPassword } from './django-password.js';
+import { hashPassword, verifyPassword } from './password-hash.js';
 import { activateFactor, beginFactorSetup, disableFactor } from './factor-management.js';
 import type { AuthConfig } from './http.js';
 import { reserveLoginAttempt } from './login-attempts.js';
 import { publicOAuthProviders, safeReturnPath } from './oauth.js';
 import { credentialTag, createToken, tokenHash } from './session.js';
-import { verifyDjangoSecondFactor } from './two-factor.js';
+import { verifySecondFactor } from './two-factor.js';
 import { acquireVerification, hasVerification, readVerificationAccount, recordVerification } from './verification.js';
 import { renderApplicationDocument } from '../../application/document.js';
 import { SiteFooter, SiteHeader, SiteTheme } from '../../appearance/shell.js';
@@ -86,7 +86,7 @@ export function passwordUpdater(db: PrismaClient, siteUrl: URL, config: AuthConf
     if ((newUsername !== account.username && !accountUsernamePattern.test(newUsername)) || newName.length > 150) return securityError('VA');
     const passwordError = submittedPasswordError(password, { username: newUsername, name: newName, email: account.email });
     if (passwordError) return securityError('VA', passwordError);
-    const newPasswordHash = await hashDjangoPassword(password);
+    const newPasswordHash = await hashPassword(password);
     const sessionToken = createToken();
     const revokedAt = new Date();
 
@@ -136,9 +136,9 @@ export function registerAccountSecurity(app: FastifyInstance, db: PrismaClient, 
       const attempt = await reserveLoginAttempt(db, config.secretKey, request.ip, account.username);
       if (!attempt) error = '너무 많은 실패로 인해 잠시 후 다시 시도해주세요.';
       else {
-        const isAccount = pendingFactor || (hasPassword && typeof input.password === 'string' && await verifyDjangoPassword(input.password, account.passwordHash));
+        const isAccount = pendingFactor || (hasPassword && typeof input.password === 'string' && await verifyPassword(input.password, account.passwordHash));
         const isFactor = account.factorId === null || (typeof input.code === 'string' && account.totpSecret !== null && account.recoveryKey !== null &&
-          verifyDjangoSecondFactor({ totpSecret: account.totpSecret, recoveryKey: account.recoveryKey }, input.code, config.cipherKey));
+          verifySecondFactor({ totpSecret: account.totpSecret, recoveryKey: account.recoveryKey }, input.code, config.cipherKey));
         if (!isAccount || !isFactor) error = '비밀번호 또는 인증 코드가 올바르지 않습니다.';
         else {
           const token = await recordVerification(db, account);

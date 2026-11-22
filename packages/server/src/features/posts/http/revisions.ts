@@ -1,6 +1,6 @@
 import { type PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
-import { storedDateText } from '../../../compat/django-format.js';
+import { storedDateText } from '../../../platform/date-format.js';
 import { sanitizePostHtml } from '../post-html.js';
 import { done, failure as failed } from '../../../platform/response.js';
 import { renderRevisionHistoryPage, renderTimelapsePage, sendPrivateHistoryPage } from '../pages/history-pages.js';

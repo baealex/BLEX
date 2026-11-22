@@ -1,5 +1,5 @@
 import type { PrismaClient } from '@prisma/client';
-import { decryptDjangoSecret } from '../auth/django-secret.js';
+import { decryptSecret } from '../auth/encrypted-secret.js';
 import { deliverPostWebhook } from '../integrations/webhooks/delivery.js';
 import { notificationParams, notificationText, processScheduledPublications } from './model.js';
 
@@ -40,8 +40,8 @@ export async function deliverTelegramNotification(db: PrismaClient, siteUrl: URL
     },
   });
   const message = settings?.telegramEnabled ? notification : null;
-  const token = message && settings && decryptDjangoSecret(settings.telegramBotToken, cipherKey);
-  const chat = message?.user.telegram && decryptDjangoSecret(message.user.telegram.telegramId, cipherKey);
+  const token = message && settings && decryptSecret(settings.telegramBotToken, cipherKey);
+  const chat = message?.user.telegram && decryptSecret(message.user.telegram.telegramId, cipherKey);
   let retry = false;
   let wait = Math.min(3_600_000, 15_000 * 2 ** (job.attempts - 1));
   if (message && token && /^\d+:[A-Za-z0-9_-]+$/.test(token) && chat && /^-?\d+$/.test(chat)) {

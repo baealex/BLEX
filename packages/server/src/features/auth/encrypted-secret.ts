@@ -1,6 +1,6 @@
 import { createCipheriv, createDecipheriv, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 
-export function encryptDjangoSecret(plaintext: string, cipherKey: string): string {
+export function encryptSecret(plaintext: string, cipherKey: string): string {
   const key = Buffer.from(cipherKey, 'utf8');
   if (key.length !== 32) throw new Error('CIPHER_KEY must encode to exactly 32 bytes.');
   const iv = randomBytes(16);
@@ -13,8 +13,8 @@ export function encryptDjangoSecret(plaintext: string, cipherKey: string): strin
   return Buffer.concat([message, signature]).toString('base64').replaceAll('+', '-').replaceAll('/', '_');
 }
 
-/** Reads Django's Fernet token with the original 32-byte BLEX CIPHER_KEY. */
-export function decryptDjangoSecret(encoded: string, cipherKey: string): string | null {
+/** Reads a Fernet token with the original 32-byte BLEX CIPHER_KEY. */
+export function decryptSecret(encoded: string, cipherKey: string): string | null {
   const key = Buffer.from(cipherKey, 'utf8');
   if (key.length !== 32 || !/^[a-zA-Z0-9_-]+={0,2}$/.test(encoded)) return null;
 

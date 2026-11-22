@@ -4,7 +4,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { signupRegion } from './account-validation.js';
 import { authCookieOptions, sessionCookie, setSessionCookies } from '../../platform/cookies.js';
 import { formInput, validCsrf } from '../../platform/csrf.js';
-import { decryptDjangoSecret } from './django-secret.js';
+import { decryptSecret } from './encrypted-secret.js';
 import type { AuthConfig } from './http.js';
 import { createSession, createToken, loginBody, readSession, tokenHash } from './session.js';
 import { hasAdministrator, insertAccount } from './setup.js';
@@ -69,7 +69,7 @@ async function configuredProviders(db: PrismaClient, cipherKey: string) {
     select: { id: true, key: true, clientId: true, clientSecret: true },
   });
   return rows.flatMap(({ id, key, clientId, clientSecret: stored }) => {
-    const clientSecret = decryptDjangoSecret(stored, cipherKey);
+    const clientSecret = decryptSecret(stored, cipherKey);
     return supportedProvider(key) && clientSecret ? [{ id, key, clientId, clientSecret }] : [];
   });
 }

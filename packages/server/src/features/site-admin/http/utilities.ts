@@ -1,7 +1,7 @@
 import { type PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import { done as success, failure } from '../../../platform/response.js';
-import { UtilityAction, readUtilityStats, runUtilityAction } from '../services/utilities.js';
+import { UtilityAction, readUtilityStats, runUtilityAction, utilityActions } from '../services/utilities.js';
 import { AdminSettingsOptions, apiAccess, csrfValid, isRecord, sendApiResult } from '../shared.js';
 
 export function registerUtilitiesRoutes(routes: FastifyInstance, db: PrismaClient, options: AdminSettingsOptions) {
@@ -12,14 +12,14 @@ export function registerUtilitiesRoutes(routes: FastifyInstance, db: PrismaClien
       return reply.send(success(await readUtilityStats(db)));
     });
 
-    const utilityActions: Array<{ path: string; action: UtilityAction }> = [
-      { path: '/v1/utilities/clean-tags', action: 'clean_tags' },
-      { path: '/v1/utilities/clean-sessions', action: 'clean_sessions' },
-      { path: '/v1/utilities/clean-logs', action: 'clean_logs' },
-        { path: '/v1/utilities/clean-images', action: 'clean_images' },
+    const utilityRoutes: Array<{ path: string; action: UtilityAction }> = [
+      { path: '/v1/utilities/clean-tags', action: utilityActions.cleanTags },
+      { path: '/v1/utilities/clean-sessions', action: utilityActions.cleanSessions },
+      { path: '/v1/utilities/clean-logs', action: utilityActions.cleanLogs },
+      { path: '/v1/utilities/clean-images', action: utilityActions.cleanImages },
     ];
 
-    for (const route of utilityActions) {
+    for (const route of utilityRoutes) {
       routes.post<{ Body: unknown }>(route.path, { bodyLimit: 64 * 1024 }, async (request, reply) => {
         if (!csrfValid(request, options)) return reply.code(403).type('text/plain; charset=utf-8').send('Forbidden');
         const permission = await apiAccess(request, db, options);

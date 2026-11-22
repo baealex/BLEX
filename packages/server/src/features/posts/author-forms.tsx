@@ -3,7 +3,7 @@ import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { formInput } from '../../platform/csrf.js';
 import { markdownToHtml } from './authoring/markdown.js';
-import { djangoJsonLocal } from '../../compat/django-format.js';
+import { isoLocalMillis } from '../../platform/date-format.js';
 import { sanitizePostHtml } from './post-html.js';
 import { done, failure } from '../../platform/response.js';
 
@@ -47,7 +47,7 @@ export function registerAuthorForms(app: FastifyInstance, db: PrismaClient, opti
       });
       if (request.method === 'GET') {
         if (selected) return done(selected);
-        return done({ forms: (await forms()).map(({ id, title, createdAt }) => ({ id, title, createdDate: djangoJsonLocal(createdAt) })) });
+        return done({ forms: (await forms()).map(({ id, title, createdAt }) => ({ id, title, createdDate: isoLocalMillis(createdAt) })) });
       }
       if (!options.validateCsrf(request)) return reply.code(403).send(failure('RJ'));
       if (request.method === 'DELETE' || input.action === 'delete') {

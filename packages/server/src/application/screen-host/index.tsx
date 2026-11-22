@@ -8,7 +8,7 @@ import { readAdminAccess } from '../../features/site-admin/access.js';
 import { SiteFooter, SiteHeader, SiteTheme } from '../../appearance/shell.js';
 import { applicationContentSecurityPolicy, scriptJson } from '../document.js';
 import { authCookieOptions, csrfCookie, requestCookies } from '../../platform/cookies.js';
-import { decryptDjangoSecret } from '../../features/auth/django-secret.js';
+import { decryptSecret } from '../../features/auth/encrypted-secret.js';
 import { safeReturnPath } from '../../features/auth/oauth.js';
 import { createToken } from '../../features/auth/session.js';
 import { hasAdministrator } from '../../features/auth/setup.js';
@@ -54,7 +54,7 @@ function manifestAsset(manifest: Manifest, entry: string): string {
 
 function decryptsToValue(encrypted: string, cipherKey: string): boolean {
   try {
-    return Boolean(decryptDjangoSecret(encrypted, cipherKey));
+    return Boolean(decryptSecret(encrypted, cipherKey));
   } catch {
     return false;
   }

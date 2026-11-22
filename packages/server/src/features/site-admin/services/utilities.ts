@@ -6,7 +6,12 @@ import { publicPostWhere } from '../../posts/data/visibility.js';
 import { readDatabaseBytes } from '../data/database-size.js';
 import { AdminSettingsOptions, ApiResult, Body, isRecord } from '../shared.js';
 
-export type UtilityAction = 'clean_tags' | 'clean_sessions' | 'clean_logs' | 'clean_images';
+/** Stored with each confirmation and signed into its token, so issued values stay valid. */
+export const utilityActions = {
+  cleanTags: 'clean_tags', cleanSessions: 'clean_sessions', cleanLogs: 'clean_logs', cleanImages: 'clean_images',
+} as const;
+
+export type UtilityAction = typeof utilityActions[keyof typeof utilityActions];
 
 export type UtilityParameters = Record<string, unknown>;
 
@@ -38,8 +43,8 @@ function utilitySessionFingerprint(request: FastifyRequest): string {
 }
 
 function utilityParameters(action: UtilityAction, body: Body): UtilityParameters {
-  if (action === 'clean_sessions') return { cleanAll: body.cleanAll === true };
-  if (action === 'clean_images') {
+  if (action === utilityActions.cleanSessions) return { cleanAll: body.cleanAll === true };
+  if (action === utilityActions.cleanImages) {
     const target = body.target ?? 'all';
     if (typeof target !== 'string' || !['all', 'content', 'title', 'avatar'].includes(target)) {
       throw new Error('유효한 정리 대상을 선택해주세요.');
@@ -200,11 +205,11 @@ async function runUtilityCleanup(
   dryRun: boolean,
   mediaRoot?: string,
 ): Promise<Record<string, unknown>> {
-  if (action === 'clean_images') {
+  if (action === utilityActions.cleanImages) {
     const plan = await buildImageCleanupPlan(db, mediaRoot, parameters);
     return imageCleanupPlanApi(plan, dryRun);
   }
-  if (action === 'clean_tags') {
+  if (action === utilityActions.cleanTags) {
     const total = await db.tag.count();
     const used = await db.tag.count({ where: { posts: { some: {} } } });
     const unusedRows = await db.tag.findMany({ where: { posts: { none: {} } }, orderBy: { id: 'asc' }, select: { name: true } });
@@ -225,7 +230,7 @@ async function runUtilityCleanup(
       dryRun,
     };
   }
-  if (action === 'clean_sessions') {
+  if (action === utilityActions.cleanSessions) {
     const expired = { expiresAt: { lt: new Date() } };
     const totalSessions = await db.session.count();
     const expiredSessions = await db.session.count({ where: expired });
@@ -270,10 +275,10 @@ async function recordUtilityAudit(
   phase: 'started' | 'completed' = 'completed',
 ): Promise<number> {
   const messages: Record<UtilityAction, string> = {
-    clean_tags: 'Executed unused tag cleanup',
-    clean_sessions: 'Executed session cleanup',
-    clean_logs: 'Executed expired log cleanup',
-    clean_images: phase === 'started' ? 'Started unused image cleanup' : 'Executed unused image cleanup',
+    [utilityActions.cleanTags]: 'Executed unused tag cleanup',
+    [utilityActions.cleanSessions]: 'Executed session cleanup',
+    [utilityActions.cleanLogs]: 'Executed expired log cleanup',
+    [utilityActions.cleanImages]: phase === 'started' ? 'Started unused image cleanup' : 'Executed unused image cleanup',
   };
   const log = await transaction.adminLog.create({
     data: { userId, target: 'logentry', objectName: 'System utilities', action: 2, message: messages[action] },
@@ -298,7 +303,7 @@ export async function runUtilityAction(
   } catch (error) {
     return { ok: false, code: 'VA', message: error instanceof Error ? error.message : 'Invalid cleanup parameters.' };
   }
-  if (action === 'clean_images') {
+  if (action === utilityActions.cleanImages) {
     if (!options.mediaRoot) return { ok: false, code: 'RJ', message: 'Image cleanup storage is unavailable.' };
     if (body.dryRun !== false) {
       try {

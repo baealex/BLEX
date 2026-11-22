@@ -4,7 +4,7 @@ import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { createHmac, randomInt, timingSafeEqual } from 'node:crypto';
 import QRCode from 'qrcode';
 import { formInput } from '../../platform/csrf.js';
-import { decryptDjangoSecret, encryptDjangoSecret } from '../auth/django-secret.js';
+import { decryptSecret, encryptSecret } from '../auth/encrypted-secret.js';
 import { done, failure } from '../../platform/response.js';
 
 interface TelegramOptions {
@@ -30,7 +30,7 @@ async function telegramConfig(db: PrismaClient, cipherKey: string) {
     where: { id: 1 },
     select: { telegramBotUsername: true, telegramBotToken: true, telegramEnabled: true },
   });
-  const decrypted = row?.telegramEnabled ? decryptDjangoSecret(row.telegramBotToken, cipherKey) : null;
+  const decrypted = row?.telegramEnabled ? decryptSecret(row.telegramBotToken, cipherKey) : null;
   const token = decrypted && /^\d+:[a-zA-Z0-9_-]+$/.test(decrypted) ? decrypted : '';
   const username = row?.telegramBotUsername.trim() ?? '';
   return { username, token, configured: Boolean(token && /^[a-zA-Z0-9_]{1,64}$/.test(username)) };
@@ -85,7 +85,7 @@ async function handleBotLink(db: PrismaClient, options: TelegramOptions, botToke
         where: { userId: pending.userId, authToken: message.code },
         data: {
           authToken: '', authTokenExpiresAt: null,
-          ...(isValid ? { telegramId: encryptDjangoSecret(message.chatId, options.cipherKey) } : {}),
+          ...(isValid ? { telegramId: encryptSecret(message.chatId, options.cipherKey) } : {}),
         },
       });
       if (count) text = isValid ? '텔레그램을 연결했습니다.' : '연결 코드가 만료되었습니다. 사이트에서 다시 발급해 주세요.';

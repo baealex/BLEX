@@ -8,8 +8,8 @@ import { updateAccountIdentity } from './account-identity.js';
 import { accountEmailPattern, accountUsernamePattern, describeInvalidPassword, normalizeAccountEmail, signupRegion } from './account-validation.js';
 import { authCookieOptions, csrfCookie, sessionCookie, setSessionCookies } from '../../platform/cookies.js';
 import { csrfPattern, formInput, validCsrf } from '../../platform/csrf.js';
-import { hashDjangoPassword } from './django-password.js';
-import { decryptDjangoSecret } from './django-secret.js';
+import { hashPassword } from './password-hash.js';
+import { decryptSecret } from './encrypted-secret.js';
 import type { AuthConfig } from './http.js';
 import { reserveLoginAttempt } from './login-attempts.js';
 import { publicOAuthProviders, safeReturnPath } from './oauth.js';
@@ -46,7 +46,7 @@ async function signupSettings(db: PrismaClient) {
 
 /** Like 3.x, a captcha without a usable secret is treated as switched off. */
 function activeCaptcha(settings: SignupSettings | undefined, cipherKey: string) {
-  const secret = settings?.captchaEnabled ? decryptDjangoSecret(settings.secretKey, cipherKey) : null;
+  const secret = settings?.captchaEnabled ? decryptSecret(settings.secretKey, cipherKey) : null;
   return secret ? { secret, siteKey: settings!.siteKey.trim() } : null;
 }
 
@@ -112,7 +112,7 @@ async function createPasswordAccount(db: PrismaClient, request: FastifyRequest, 
     }
   }
 
-  const passwordHash = await hashDjangoPassword(password);
+  const passwordHash = await hashPassword(password);
   const { language, timeZone } = signupRegion(request, regularField(input, 'timeZone'));
   const userId = await db.$transaction(async (tx) => {
     // Acquire the SQLite write lock before rechecking the username and invitation.

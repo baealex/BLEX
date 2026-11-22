@@ -4,7 +4,7 @@ import { readPageChrome } from '../../appearance/page-chrome.js';
 import { renderWorkLogDetail } from './pages.js';
 import { WorkLogRow, countEntries, readEntries } from './services/logs.js';
 import { countShares, readShares } from './services/shares.js';
-import { PAGE_SIZE, WorkLogOptions, WorkLogUser, csrfCookieValue, html, isActiveEditor, toIsoDateTime } from './shared.js';
+import { PAGE_SIZE, WorkLogOptions, WorkLogUser, csrfCookieValue, html, isActiveEditor, pageFields, toIsoDateTime } from './shared.js';
 
 export function pageChrome(db: PrismaClient, request: FastifyRequest, user: { id: number; username: string } | null) {
   return readPageChrome(db, user, csrfCookieValue(request));
@@ -56,8 +56,8 @@ export async function renderDetailPage(
     isActiveEditor(db, user.id),
   ]);
   const timelinePage = displayPage(state.timelinePage ?? (request.query as Record<string, string | undefined>).page, totalEntries);
-  const selectionPage = displayPage(state.selectionPage ?? (request.query as Record<string, string | undefined>).selection_page, totalEntries);
-  const linksPage = displayPage(state.linksPage ?? (request.query as Record<string, string | undefined>).links_page, totalShares);
+  const selectionPage = displayPage(state.selectionPage ?? (request.query as Record<string, string | undefined>)[pageFields.selectionPage], totalEntries);
+  const linksPage = displayPage(state.linksPage ?? (request.query as Record<string, string | undefined>)[pageFields.linksPage], totalShares);
   const [timeline, selector, shares] = await Promise.all([
     readEntries(db, log.id, timelinePage),
     readEntries(db, log.id, selectionPage),
@@ -75,9 +75,9 @@ export async function renderDetailPage(
     selector: selector.map((entry) => ({ ...entry, createdAt: toIsoDateTime(entry.createdAt) })),
     selectedIds: state.selectedIds ?? [],
     shares: shares.map((share) => ({ ...share, createdAt: toIsoDateTime(share.createdAt) })),
-    timelineLinks: pageLinks(url, timelinePage, entryPages, { links_page: linksPage, selection_page: selectionPage }),
-    selectionLinks: pageLinks(url, selectionPage, entryPages, { page: timelinePage, links_page: linksPage }, 'selection_page'),
-    shareLinks: pageLinks(url, linksPage, sharePages, { page: timelinePage, selection_page: selectionPage }, 'links_page'),
+    timelineLinks: pageLinks(url, timelinePage, entryPages, { [pageFields.linksPage]: linksPage, [pageFields.selectionPage]: selectionPage }),
+    selectionLinks: pageLinks(url, selectionPage, entryPages, { page: timelinePage, [pageFields.linksPage]: linksPage }, pageFields.selectionPage),
+    shareLinks: pageLinks(url, linksPage, sharePages, { page: timelinePage, [pageFields.selectionPage]: selectionPage }, pageFields.linksPage),
     timelinePage,
     selectionPage,
     linksPage,

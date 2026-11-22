@@ -10,7 +10,7 @@ import { PrismaClient } from '@prisma/client';
 import { Secret, TOTP } from 'otpauth';
 import { buildApp } from '../src/app.js';
 import { DatabaseSetupError, portMappingProblem, prepareDatabase } from '../src/startup/prepare-database.js';
-import { encryptDjangoSecret } from '../src/features/auth/django-secret.js';
+import { encryptSecret } from '../src/features/auth/encrypted-secret.js';
 import { insertRow } from './fixtures/migrated-database.js';
 
 const legacySchema = new URL('../../prisma/legacy/django-3.14.sql', import.meta.url);
@@ -577,9 +577,9 @@ test('imports 3.14 accounts with credentials, permissions, and preferences intac
   const cipherKey = '0123456789abcdef0123456789abcdef';
   const password = 'compatibility-비밀번호-2026';
   const passwordHash = 'pbkdf2_sha256$100000$TestOnlyBlexCompatibilitySalt$C7LHeNRVZX18ry19YwDvmo1l7q8hcL5jtbv2QGe2x8E=';
-  const totpSecret = encryptDjangoSecret('JBSWY3DPEHPK3PXP', cipherKey);
+  const totpSecret = encryptSecret('JBSWY3DPEHPK3PXP', cipherKey);
   const recoveryKey = '831c28715dcd5f61787dc41ad7bf1663f904ab40c6220da4630e7fddecae6fe8';
-  const clientSecret = encryptDjangoSecret('oauth-client-secret', cipherKey);
+  const clientSecret = encryptSecret('oauth-client-secret', cipherKey);
   try {
     const legacy = await createLegacyDatabase(source);
     insertRow(legacy, 'auth_user', {

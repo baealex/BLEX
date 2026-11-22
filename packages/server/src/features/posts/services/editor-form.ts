@@ -4,7 +4,7 @@ import { ContentUploadError, contentUploadTooLargeMessage, saveContentFile } fro
 import { postTags } from './post-store.js';
 import { AuthoringOptions, StoredPost, UserRow, bodyObject, booleanField, field } from '../shared.js';
 
-// The 3.x editor posts whole documents; Django accepted them up to the proxy limit.
+// The editor posts whole documents, accepted up to the proxy limit.
 export const editorBodyLimit = 13 * 1024 * 1024;
 
 export interface EditorForm {

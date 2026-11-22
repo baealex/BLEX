@@ -8,7 +8,7 @@ import { MAX_ATTACHMENT_SIZE, mediaResponse, removeAttachment, saveAttachment, v
 import { deleteWorkLog, deleteWorkLogEntry, revokeWorkLogShare } from './services/deletions.js';
 import { countEntriesByLog, countOwnedLogs, insertEntry, insertWorkLog, readEntry, readEntryInput, readOwnedLog, readOwnedLogs } from './services/logs.js';
 import { createShare, entryCountForShare, latestSharedEntry, pageEntryForShareMedia, readShare, readSnapshotEntries, selectedEntries, selectedEntryIds, sharePath, storedShareToken } from './services/shares.js';
-import { MAX_REQUEST_SIZE, PAGE_SIZE, WorkLogOptions, bodyRecord, csrfCookieValue, csrfValid, currentUser, html, isActiveEditor, notAllowed, notFound, parseId, scalar, toIsoDateTime } from './shared.js';
+import { MAX_REQUEST_SIZE, PAGE_SIZE, WorkLogOptions, bodyRecord, csrfCookieValue, csrfValid, currentUser, html, isActiveEditor, pageFields, notAllowed, notFound, parseId, scalar, toIsoDateTime } from './shared.js';
 
 export { removeAttachment } from './services/attachments.js';
 export { WorkLogUser, WorkLogOptions } from './shared.js';
@@ -134,7 +134,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
 
       const fields = bodyRecord(request.body);
       const action = scalar(fields.action) || 'preview';
-      const browsing = 'selection_page' in fields || action === 'edit';
+      const browsing = pageFields.selectionPage in fields || action === 'edit';
       const selection = selectedEntryIds(fields, browsing);
       const headline = scalar(fields.headline).trim();
       if (!selection.error && headline.length > 120) selection.error = '공유 제목은 120자 이내로 입력해 주세요.';
@@ -144,9 +144,9 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
 
       if (browsing || selection.error) {
         return renderDetailPage(request, reply, db, options, user, log, {
-          timelinePage: scalar(fields.timeline_page),
-          selectionPage: scalar(fields.selection_page) || scalar(fields.current_selection_page),
-          linksPage: scalar(fields.links_page),
+          timelinePage: scalar(fields[pageFields.timelinePage]),
+          selectionPage: scalar(fields[pageFields.selectionPage]) || scalar(fields[pageFields.currentSelectionPage]),
+          linksPage: scalar(fields[pageFields.linksPage]),
           selectedIds: selected.map((entry) => entry.id),
           shareError: selection.error,
           headline,
@@ -154,7 +154,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       }
 
       if (action === 'preview') {
-        const page = displayPage(scalar(fields.preview_page), selected.length);
+        const page = displayPage(scalar(fields[pageFields.previewPage]), selected.length);
         const start = (page - 1) * PAGE_SIZE;
         const entries = selected.slice(start, start + PAGE_SIZE);
         return html(reply, renderWorkLogShared({
@@ -171,9 +171,9 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
           preview: true,
           selectedIds: selected.map((entry) => entry.id),
           csrfToken: csrfCookieValue(request),
-          timelinePage: Number(scalar(fields.timeline_page)) || 1,
-          selectionPage: Number(scalar(fields.current_selection_page)) || 1,
-          linksPage: Number(scalar(fields.links_page)) || 1,
+          timelinePage: Number(scalar(fields[pageFields.timelinePage])) || 1,
+          selectionPage: Number(scalar(fields[pageFields.currentSelectionPage])) || 1,
+          linksPage: Number(scalar(fields[pageFields.linksPage])) || 1,
           mediaUrl: (entry) => `/work-logs/${logId}/media/${entry.id}/`,
         }));
       }
@@ -220,11 +220,11 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       return reply.redirect('/work-logs/', 302);
     });
 
-    routes.get<{ Params: { pk: string; entry_id: string } }>('/work-logs/:pk/entry/:entry_id/delete/', async (request, reply) => {
+    routes.get<{ Params: { pk: string; entryId: string } }>('/work-logs/:pk/entry/:entryId/delete/', async (request, reply) => {
       const user = await currentUser(request, reply, options);
       if (!user) return reply;
       const logId = parseId(request.params.pk);
-      const entryId = parseId(request.params.entry_id);
+      const entryId = parseId(request.params.entryId);
       if (logId === null || entryId === null) return notFound(reply);
       const log = await readOwnedLog(db, logId, user.id);
       if (!log) return notFound(reply);
@@ -238,12 +238,12 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       }));
     });
 
-    routes.post<{ Params: { pk: string; entry_id: string } }>('/work-logs/:pk/entry/:entry_id/delete/', { bodyLimit: 8 * 1024 }, async (request, reply) => {
+    routes.post<{ Params: { pk: string; entryId: string } }>('/work-logs/:pk/entry/:entryId/delete/', { bodyLimit: 8 * 1024 }, async (request, reply) => {
       if (!csrfValid(request, options)) return notAllowed(reply);
       const user = await currentUser(request, reply, options);
       if (!user) return reply;
       const logId = parseId(request.params.pk);
-      const entryId = parseId(request.params.entry_id);
+      const entryId = parseId(request.params.entryId);
       if (logId === null || entryId === null) return notFound(reply);
       const log = await readOwnedLog(db, logId, user.id);
       if (!log) return notFound(reply);
@@ -253,11 +253,11 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       return reply.redirect(`/work-logs/${logId}/`, 302);
     });
 
-    routes.get<{ Params: { pk: string; entry_id: string } }>('/work-logs/:pk/media/:entry_id/', async (request, reply) => {
+    routes.get<{ Params: { pk: string; entryId: string } }>('/work-logs/:pk/media/:entryId/', async (request, reply) => {
       const user = await currentUser(request, reply, options);
       if (!user) return reply;
       const logId = parseId(request.params.pk);
-      const entryId = parseId(request.params.entry_id);
+      const entryId = parseId(request.params.entryId);
       if (logId === null || entryId === null) return notFound(reply);
       if (!await readOwnedLog(db, logId, user.id)) return notFound(reply);
       const entry = await readEntry(db, logId, entryId, true);
@@ -300,11 +300,11 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       }));
     });
 
-    routes.get<{ Params: { token: string; entry_id: string } }>('/work-logs/share/:token/media/:entry_id/', async (request, reply) => {
+    routes.get<{ Params: { token: string; entryId: string } }>('/work-logs/share/:token/media/:entryId/', async (request, reply) => {
       const shareToken = storedShareToken(request.params.token);
       if (!shareToken) return notFound(reply);
       const share = await readShare(db, shareToken);
-      const entryId = parseId(request.params.entry_id);
+      const entryId = parseId(request.params.entryId);
       if (!share || entryId === null) return notFound(reply);
       const entry = await pageEntryForShareMedia(db, share.id, share.logId, entryId);
       if (!entry) return notFound(reply);

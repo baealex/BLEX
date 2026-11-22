@@ -1,7 +1,7 @@
 import { type PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { syncPostPublication } from '../../notifications/model.js';
-import { localDate, timeSince } from '../../../compat/django-format.js';
+import { localDate, timeSince } from '../../../platform/date-format.js';
 import { readDraftPreview, readPostPresentation } from '../public-post.js';
 import { postContentSecurityPolicy, renderPublicPostPage } from '../pages/public-post-page.js';
 import { sanitizePostHtml } from '../post-html.js';

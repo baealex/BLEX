@@ -11,7 +11,7 @@ import { createSession, deleteSession, loginBody, readSession } from './session.
 import { registerAccountSecurity } from './security.js';
 import { registerSetup } from './setup.js';
 import { registerSignup } from './signup.js';
-import { verifyDjangoSecondFactor } from './two-factor.js';
+import { verifySecondFactor } from './two-factor.js';
 import { done as success, failure } from '../../platform/response.js';
 
 export interface AuthConfig {
@@ -31,7 +31,7 @@ export function registerAuthentication(app: FastifyInstance, db: PrismaClient, s
   app.register(async (routes) => {
     await routes.register(formBody);
     routes.removeContentTypeParser('application/json');
-    // Django's v1 login handles invalid JSON as an empty authentication payload.
+    // The v1 login treats invalid JSON as an empty authentication payload.
     routes.addContentTypeParser('application/json', { parseAs: 'string' }, (_request, body, done) => {
       try {
         done(null, JSON.parse(body as string));
@@ -69,7 +69,7 @@ export function registerAuthentication(app: FastifyInstance, db: PrismaClient, s
         if (pending.totpSecret === null || pending.recoveryKey === null) return failure('RJ');
         const release = await reserveLoginAttempt(db, config.secretKey, request.ip, pending.username);
         if (!release) return failure('RJ', 'Too many failed attempts. Please try again later.');
-        const valid = verifyDjangoSecondFactor({ totpSecret: pending.totpSecret, recoveryKey: pending.recoveryKey }, code, config.cipherKey);
+        const valid = verifySecondFactor({ totpSecret: pending.totpSecret, recoveryKey: pending.recoveryKey }, code, config.cipherKey);
         if (!valid) return failure('RJ', 'The two-factor authentication code is incorrect.');
         if (!await consumePendingOAuth(db, challengeToken)) return failure('RJ', 'The authentication token has expired. Please log in again.');
 

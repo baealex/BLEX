@@ -6,7 +6,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { PrismaClient } from '@prisma/client';
 import Fastify from 'fastify';
 import test from 'node:test';
-import { encryptDjangoSecret } from '../src/features/auth/django-secret.js';
+import { encryptSecret } from '../src/features/auth/encrypted-secret.js';
 import { registerReaderActions } from '../src/features/engagement/index.js';
 import { accountTables, createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
 import { installNotificationTables } from './fixtures/notifications.js';
@@ -57,7 +57,7 @@ ${migratedTableSql('Series', 'Post', 'PostContent', 'Tag', '_PostToTag', 'PostRe
     (14, 'Blocked comment', '<p>kept visible</p>', 0, 0, 1767571200000, 2, 4, NULL);
   INSERT INTO "CommentLike" ("commentId", "userId") VALUES
     (11, 1);
-  INSERT INTO IntegrationSetting (id, telegramEnabled, telegramBotUsername, telegramBotToken, updatedAt) VALUES (1, 1, 'test_bot', '${encryptDjangoSecret('bot-token', readerCipherKey)}', 1767225600123);
+  INSERT INTO IntegrationSetting (id, telegramEnabled, telegramBotUsername, telegramBotToken, updatedAt) VALUES (1, 1, 'test_bot', '${encryptSecret('bot-token', readerCipherKey)}', 1767225600123);
   INSERT INTO "AuthorSubscription" ("id", "createdAt", "authorId", "subscriberId") VALUES
     (1, 1588345200654, 4, 2);
 `);

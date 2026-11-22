@@ -7,7 +7,7 @@ export async function anonymizeComments(db: Prisma.TransactionClient, authorId: 
 export async function deleteCommentsForPosts(tx: Prisma.TransactionClient, posts: Prisma.PostWhereInput) {
   const onDeletedPosts = { post: posts } satisfies Prisma.CommentWhereInput;
   // Legacy replies can point to a parent on a different post. Follow the
-  // thread across those posts, as Django did when deleting a parent.
+  // thread across those posts when a parent is deleted.
   const crossPostReplies = new Set<number>();
   let replies = await tx.comment.findMany({
     where: { NOT: onDeletedPosts, parent: onDeletedPosts },

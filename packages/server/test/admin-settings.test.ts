@@ -8,7 +8,7 @@ import sharp from 'sharp';
 import Fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import { after, beforeEach, test } from 'node:test';
-import { decryptDjangoSecret, encryptDjangoSecret } from '../src/features/auth/django-secret.js';
+import { decryptSecret, encryptSecret } from '../src/features/auth/encrypted-secret.js';
 import { registerAdminSettings } from '../src/features/site-admin/index.js';
 import { accountTables, createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
 
@@ -105,9 +105,9 @@ function seedDatabase() {
     INSERT INTO SiteSetting (id, headerScript, siteName, iconManifest, updatedAt)
       VALUES (1, '<script>hidden from delegated staff</script>', 'Test Blog', '{}', 1735689600000);
     INSERT INTO LoginSetting (id, welcomeNotificationMessage, welcomeNotificationUrl, hcaptchaEnabled, hcaptchaSiteKey, hcaptchaSecretKey, updatedAt)
-      VALUES (1, 'Welcome {name}', '/welcome', 1, 'captcha-site-key', '${encryptDjangoSecret('hs_test_secret_99', cipherKey)}', 1735689600000);
+      VALUES (1, 'Welcome {name}', '/welcome', 1, 'captcha-site-key', '${encryptSecret('hs_test_secret_99', cipherKey)}', 1735689600000);
     INSERT INTO "SocialProvider" ("id", "key", "clientId", "clientSecret", "isEnabled") VALUES
-    (1, 'google', 'google-id', '${encryptDjangoSecret('oauth_test_secret_17', cipherKey)}', 1),
+    (1, 'google', 'google-id', '${encryptSecret('oauth_test_secret_17', cipherKey)}', 1),
     (2, 'github', '', '', 0);
     INSERT INTO IntegrationSetting (id, updatedAt) VALUES (1, 1735689600000);
   `);
@@ -415,11 +415,11 @@ test('updates hCaptcha and social provider credentials atomically without echoin
   assert.equal(settings.hcaptchaHasSecretKey, true);
   const row = await prisma.$queryRaw<Array<{ hcaptchaSecretKey: string }>>`SELECT hcaptchaSecretKey FROM LoginSetting WHERE id = 1`;
   assert.notEqual(row[0]?.hcaptchaSecretKey, 'new-captcha-secret');
-  assert.equal(decryptDjangoSecret(row[0]?.hcaptchaSecretKey ?? '', cipherKey), 'new-captcha-secret');
+  assert.equal(decryptSecret(row[0]?.hcaptchaSecretKey ?? '', cipherKey), 'new-captcha-secret');
   const social = await prisma.$queryRaw<Array<{ key: string; clientSecret: string; isEnabled: number }>>`SELECT key, clientSecret, isEnabled FROM "SocialProvider" ORDER BY id`;
-  assert.equal(decryptDjangoSecret(social.find((item) => item.key === 'google')?.clientSecret ?? '', cipherKey), 'google-new-secret');
+  assert.equal(decryptSecret(social.find((item) => item.key === 'google')?.clientSecret ?? '', cipherKey), 'google-new-secret');
   assert.equal(Boolean(social.find((item) => item.key === 'github')?.isEnabled), true);
-  assert.equal(decryptDjangoSecret(social.find((item) => item.key === 'google')?.clientSecret ?? '', cipherKey), 'google-new-secret');
+  assert.equal(decryptSecret(social.find((item) => item.key === 'google')?.clientSecret ?? '', cipherKey), 'google-new-secret');
   const audit = await prisma.$queryRaw<Array<{ changeMessage: string }>>`SELECT message AS changeMessage FROM AdminLog ORDER BY id DESC LIMIT 1`;
   assert.equal(audit[0]?.changeMessage, 'Updated login and security settings');
   assert.doesNotMatch(audit[0]?.changeMessage ?? '', /secret/);
@@ -817,7 +817,7 @@ test('validates and encrypts Telegram tokens, confirms bots, and registers HMAC 
     FROM IntegrationSetting WHERE id = 1
   `;
   assert.notEqual(saved?.token, '123456:synthetic-token');
-  assert.equal(decryptDjangoSecret(saved?.token ?? '', cipherKey), '123456:synthetic-token');
+  assert.equal(decryptSecret(saved?.token ?? '', cipherKey), '123456:synthetic-token');
   assert.equal(saved?.username, 'verified_bot');
   assert.equal(Number(saved?.enabled), 1);
   const audit = await prisma.$queryRaw<Array<{ changeMessage: string }>>`SELECT message AS changeMessage FROM AdminLog ORDER BY id DESC LIMIT 1`;
@@ -838,7 +838,7 @@ test('reports Telegram webhook states, saves unreachable settings, and preserves
   const [savedToken] = await prisma.$queryRaw<Array<{ token: string }>>`
     SELECT telegramBotToken AS token FROM IntegrationSetting WHERE id = 1
   `;
-  assert.equal(decryptDjangoSecret(savedToken?.token ?? '', cipherKey), '123456:offline-token');
+  assert.equal(decryptSecret(savedToken?.token ?? '', cipherKey), '123456:offline-token');
 
   telegramUnreachable = false;
   configureTelegram({
@@ -861,7 +861,7 @@ test('reports Telegram webhook states, saves unreachable settings, and preserves
   const [stillSaved] = await prisma.$queryRaw<Array<{ token: string; enabled: number }>>`
     SELECT telegramBotToken AS token, telegramEnabled AS enabled FROM IntegrationSetting WHERE id = 1
   `;
-  assert.equal(decryptDjangoSecret(stillSaved?.token ?? '', cipherKey), '123456:offline-token');
+  assert.equal(decryptSecret(stillSaved?.token ?? '', cipherKey), '123456:offline-token');
   assert.equal(Number(stillSaved?.enabled), 0);
 });
 

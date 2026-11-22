@@ -115,7 +115,7 @@ export function comparableDate(value: DbDate): string | null {
   const epoch = Date.parse(`${match[1]}T${match[2]}${match[4] ?? 'Z'}`);
   if (Number.isNaN(epoch)) return raw;
   const second = new Date(epoch).toISOString().slice(0, 19).replace('T', ' ');
-  // API and page tokens carry milliseconds, while Django stored microseconds.
+  // API and page tokens carry milliseconds, while 3.x stored microseconds.
   return `${second}.${(match[3] ?? '').padEnd(3, '0').slice(0, 3)}`;
 }
 

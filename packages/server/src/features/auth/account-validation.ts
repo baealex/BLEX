@@ -28,7 +28,7 @@ export function signupRegion(request: FastifyRequest, timeZone: string) {
 let commonPasswords: Set<string> | undefined;
 
 function isCommon(password: string): boolean {
-  // Django's standard password denylist keeps new credentials compatible.
+  // The same common-password denylist as 3.x keeps new credentials compatible.
   commonPasswords ??= new Set(gunzipSync(readFileSync(
     new URL('../../../../data/common-passwords.txt.gz', import.meta.url),
   )).toString('utf8').trim().split(/\r?\n/));
@@ -48,7 +48,7 @@ function similarity(left: string, right: string): number {
   return (2 * matches) / ([...left].length + [...right].length);
 }
 
-// Django's own Korean validator wording, in the order callers pass the account fields.
+// The Korean validator wording from 3.x, in the order callers pass the account fields.
 const personalFieldLabels = ['사용자 이름', '이름', '이메일 주소'];
 
 export function describeInvalidPassword(password: string, personalFields: string[]): string | null {

@@ -1,6 +1,6 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
 import { syncPostPublication } from '../../notifications/model.js';
-import { localDate, localDateTimeText } from '../../../compat/django-format.js';
+import { localDate, localDateTimeText } from '../../../platform/date-format.js';
 import { deleteTrashedPost } from './deletions.js';
 import { mediaUrl } from './post-content.js';
 import { PostValidationError, comparableDate } from './post-store.js';

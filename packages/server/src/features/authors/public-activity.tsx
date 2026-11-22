@@ -3,7 +3,7 @@ import { renderApplicationDocument } from '../../application/document.js';
 import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { toIsoDateTime } from '../developer-api/index.js';
-import { storedDateText } from '../../compat/django-format.js';
+import { storedDateText } from '../../platform/date-format.js';
 import { publicPostWhere } from '../posts/data/visibility.js';
 import { sanitizePostHtml } from '../posts/post-html.js';
 import { publicPostPath } from '../posts/public-post.js';

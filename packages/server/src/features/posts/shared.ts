@@ -1,7 +1,7 @@
 import { createElement as h } from 'react';
 import { type PrismaClient } from '@prisma/client';
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { djangoIso } from '../../compat/django-format.js';
+import { isoWithOffset } from '../../platform/date-format.js';
 import { failure as failed } from '../../platform/response.js';
 
 export interface AuthoringUser {
@@ -142,7 +142,7 @@ export function queryObject(request: FastifyRequest): Record<string, unknown> {
 }
 
 export function dateAsIso(value: DbDate): string | null {
-  return djangoIso(value);
+  return isoWithOffset(value);
 }
 
 export function localDateTime(value: DbDate): string {

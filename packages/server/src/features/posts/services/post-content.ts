@@ -60,7 +60,7 @@ export function plainText(html: string): string {
     .trim();
 }
 
-/** Django's strip_tags followed by truncatewords(50). */
+/** Strips tags and keeps the first 50 words. */
 export function descriptionFromHtml(html: string): string {
   let text = '';
   const parser = new Parser({ ontext: (chunk) => { text += chunk; } }, { decodeEntities: false });

@@ -162,7 +162,7 @@ export async function publishAuthorDraft(
   });
 }
 
-/** Soft-delete an owned post, optionally rejecting a stale `updated_at` value. */
+/** Soft-delete an owned post, optionally rejecting a stale version. */
 export async function deleteAuthorPost(
   db: PrismaClient,
   editor: AuthoringUser,

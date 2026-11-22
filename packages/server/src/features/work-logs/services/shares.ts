@@ -2,7 +2,7 @@ import type { Prisma, PrismaClient } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
 import { type WorkLogShareView } from '../pages.js';
 import { EntryRow, entrySelect, newestFirst, oldestFirst, toEntryRow } from './logs.js';
-import { PAGE_SIZE, arrayValue } from '../shared.js';
+import { PAGE_SIZE, arrayValue, pageFields } from '../shared.js';
 
 interface ShareRow extends WorkLogShareView {
   logId: number;
@@ -90,7 +90,7 @@ export async function pageEntryForShareMedia(
 
 export function selectedEntryIds(fields: Record<string, unknown>, allowEmpty = false): { ids: number[]; error?: string } {
   const values = [
-    ...arrayValue(fields.selected_entries).flatMap((value) => value.split(',')),
+    ...arrayValue(fields[pageFields.selectedEntries]).flatMap((value) => value.split(',')),
     ...arrayValue(fields.entries),
   ];
   if (values.length > 997) return { ids: [], error: '링크 하나에 기록을 최대 997개까지 담을 수 있어요.' };
@@ -105,7 +105,7 @@ export function selectedEntryIds(fields: Record<string, unknown>, allowEmpty = f
   return { ids };
 }
 
-/** Django stores UUIDs as 32 hex characters in SQLite and publishes them with hyphens. */
+/** Share tokens are stored as 32 hex characters and published as hyphenated UUIDs. */
 export function storedShareToken(value: string): string | null {
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value)) return null;
   return value.replaceAll('-', '').toLowerCase();

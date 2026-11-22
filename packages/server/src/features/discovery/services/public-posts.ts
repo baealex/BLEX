@@ -1,6 +1,6 @@
 import type { FastifyRequest } from 'fastify';
 import type { Prisma, PrismaClient } from '@prisma/client';
-import { storedDateText } from '../../../compat/django-format.js';
+import { storedDateText } from '../../../platform/date-format.js';
 import { postIdsMatching } from '../../posts/data/text-match.js';
 import { publicPostWhere } from '../../posts/data/visibility.js';
 import { AuthorRow, PAGE_SIZE, PostQueryOptions, PostRow, PublicPageViewer } from '../shared.js';

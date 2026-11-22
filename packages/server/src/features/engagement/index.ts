@@ -2,8 +2,8 @@ import formBody from '@fastify/formbody';
 import { Prisma, type PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import { createNotification } from '../notifications/model.js';
-import { decryptDjangoSecret } from '../auth/django-secret.js';
-import { timeSince } from '../../compat/django-format.js';
+import { decryptSecret } from '../auth/encrypted-secret.js';
+import { timeSince } from '../../platform/date-format.js';
 import { publicPostPath } from '../posts/public-post.js';
 import { done, failure as error } from '../../platform/response.js';
 import { CommentRow, commentBodyLimit, commentForViewer, commentHtml, publicComments, serializeComment } from './services/comments.js';
@@ -265,7 +265,7 @@ export function registerReaderActions(
           const telegram = await db.telegramConnection.findUnique({ where: { userId: viewer.id }, select: { telegramId: true } });
           const suggestTelegramConnection = Boolean(setting?.telegramEnabled &&
             setting.telegramBotUsername.trim() !== '' &&
-            Boolean(options.cipherKey && decryptDjangoSecret(setting.telegramBotToken, options.cipherKey)) &&
+            Boolean(options.cipherKey && decryptSecret(setting.telegramBotToken, options.cipherKey)) &&
             !telegram?.telegramId.trim());
           const result = {
             canSubscribe: true,

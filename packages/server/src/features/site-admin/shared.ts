@@ -1,6 +1,6 @@
 import { Prisma, type PrismaClient } from '@prisma/client';
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { djangoIso } from '../../compat/django-format.js';
+import { isoWithOffset } from '../../platform/date-format.js';
 import { readAdminAccess, type UserAccess } from './access.js';
 import { type AdminSettingsUser } from './types.js';
 import { done as success, failure } from '../../platform/response.js';
@@ -31,7 +31,7 @@ export function stringValue(value: unknown): string {
 }
 
 export function isoDate(value: string | Date | null): string {
-  return djangoIso(value) ?? '';
+  return isoWithOffset(value) ?? '';
 }
 
 export async function recordAudit(

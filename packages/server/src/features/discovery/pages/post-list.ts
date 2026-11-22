@@ -1,4 +1,4 @@
-import { timeSince } from '../../../compat/django-format.js';
+import { timeSince } from '../../../platform/date-format.js';
 import { Fragment, type ReactNode } from 'react';
 import { SiteIcon, type SiteIconName } from '../../../appearance/icons.js';
 import { loginPromptProps } from '../../engagement/ui/login-prompt.js';

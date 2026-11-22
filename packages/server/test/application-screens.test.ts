@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import test from 'node:test';
 import sharp from 'sharp';
 import { buildApp } from '../src/app.js';
-import { djangoIso, djangoJsonLocal, djangoJsonUtc, localDate, localDateTimeText } from '../src/compat/django-format.js';
+import { isoWithOffset, isoLocalMillis, isoUtcMillis, localDate, localDateTimeText } from '../src/platform/date-format.js';
 import {
   createMigratedDatabase, insertRow, seedEditor, seedPost, signIn,
   testCipherKey, testSecretKey, testSiteUrl, prismaDate } from './fixtures/migrated-database.js';
@@ -107,11 +107,11 @@ test('returns camelCase keys from every /v1 endpoint family', async () => {
   }
 });
 
-test('formats stored dates like Django', () => {
-  assert.equal(djangoIso('2026-11-01 01:02:03.000000'), '2026-11-01T01:02:03+00:00');
-  assert.equal(djangoIso('2026-11-01 01:02:03.123456'), '2026-11-01T01:02:03.123456+00:00');
-  assert.equal(djangoJsonUtc('2026-02-22 19:16:06.827525'), '2026-02-22T19:16:06.827Z');
-  assert.equal(djangoJsonLocal('2022-04-01 04:39:30.157000'), '2022-04-01T13:39:30.157+09:00');
+test('keeps the stored date output formats', () => {
+  assert.equal(isoWithOffset('2026-11-01 01:02:03.000000'), '2026-11-01T01:02:03+00:00');
+  assert.equal(isoWithOffset('2026-11-01 01:02:03.123456'), '2026-11-01T01:02:03.123456+00:00');
+  assert.equal(isoUtcMillis('2026-02-22 19:16:06.827525'), '2026-02-22T19:16:06.827Z');
+  assert.equal(isoLocalMillis('2022-04-01 04:39:30.157000'), '2022-04-01T13:39:30.157+09:00');
   assert.equal(localDate('2026-10-31 15:30:00'), '2026-11-01');
   assert.equal(localDateTimeText('2029-12-31 15:00:00'), '2030-01-01 00:00');
 });

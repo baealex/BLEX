@@ -1,6 +1,6 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
 import { domainToASCII } from 'node:url';
-import { encryptDjangoSecret, decryptDjangoSecret } from '../../auth/django-secret.js';
+import { encryptSecret, decryptSecret } from '../../auth/encrypted-secret.js';
 import { type AdminLoginSettings } from '../types.js';
 import { ApiResult, Body, isRecord, isoDate, recordAudit, stringValue } from '../shared.js';
 
@@ -41,7 +41,7 @@ export async function serializeLoginSettings(db: PrismaClient, cipherKey: string
     accountDeletionRedirectUrl: row?.accountDeletionRedirectUrl ?? '',
     hcaptchaEnabled: row?.hcaptchaEnabled ?? false,
     hcaptchaSiteKey: row?.hcaptchaSiteKey.trim() ?? '',
-    hcaptchaHasSecretKey: Boolean(encryptedCaptchaSecret && decryptDjangoSecret(encryptedCaptchaSecret, cipherKey)),
+    hcaptchaHasSecretKey: Boolean(encryptedCaptchaSecret && decryptSecret(encryptedCaptchaSecret, cipherKey)),
     updatedDate: isoDate(row?.updatedAt ?? null),
     socialAuthProviders: SOCIAL_PROVIDERS.map(({ key, name }) => {
       const provider = providers.get(key);
@@ -84,9 +84,9 @@ function validateNotificationUrl(value: unknown): ApiResult<string> {
   }
 }
 
-function encryptSecret(value: string, cipherKey: string): string {
+function encryptUnlessEncrypted(value: string, cipherKey: string): string {
   if (!value) return '';
-  return decryptDjangoSecret(value, cipherKey) !== null ? value : encryptDjangoSecret(value, cipherKey);
+  return decryptSecret(value, cipherKey) !== null ? value : encryptSecret(value, cipherKey);
 }
 
 export async function updateLoginSettings(
@@ -108,12 +108,12 @@ export async function updateLoginSettings(
   if (typeof input.hcaptchaSiteKey === 'string') hcaptchaSiteKey = input.hcaptchaSiteKey.trim();
   if (input.clearHcaptchaSecretKey === true) hcaptchaSecretKey = '';
   if (typeof input.hcaptchaSecretKey === 'string' && input.hcaptchaSecretKey.trim()) {
-    hcaptchaSecretKey = encryptSecret(input.hcaptchaSecretKey.trim(), cipherKey);
+    hcaptchaSecretKey = encryptUnlessEncrypted(input.hcaptchaSecretKey.trim(), cipherKey);
   }
   if (hcaptchaEnabled && !hcaptchaSiteKey.trim()) {
     return { ok: false, code: 'VA', message: 'Enter an hCaptcha Site Key.' };
   }
-  if (hcaptchaEnabled && !decryptDjangoSecret(hcaptchaSecretKey, cipherKey)) {
+  if (hcaptchaEnabled && !decryptSecret(hcaptchaSecretKey, cipherKey)) {
     return { ok: false, code: 'VA', message: 'Enter an hCaptcha Secret Key.' };
   }
 
@@ -143,7 +143,7 @@ export async function updateLoginSettings(
         if (typeof item.clientId === 'string') clientId = item.clientId.trim();
         if (typeof item.clientSecret === 'string' && item.clientSecret) {
           const trimmed = item.clientSecret.trim();
-          clientSecret = trimmed ? encryptSecret(trimmed, cipherKey) : '';
+          clientSecret = trimmed ? encryptUnlessEncrypted(trimmed, cipherKey) : '';
         }
         if (item.clearClientSecret === true) clientSecret = '';
         await transaction.socialProvider.update({ where: { key }, data: { isEnabled, clientId, clientSecret }, select: { id: true } });
