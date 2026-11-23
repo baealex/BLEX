@@ -1,11 +1,8 @@
 import type { Prisma } from '@prisma/client';
 
-export async function anonymizeComments(
-  db: Prisma.TransactionClient,
-  authorId: number,
-  commentId: number,
-): Promise<void> {
-  await db.comment.updateMany({ where: { authorId, id: commentId }, data: { authorId: null } });
+/** Keeps the comment and its author in storage. Readers only see that it was deleted. */
+export async function softDeleteComment(db: Prisma.TransactionClient, commentId: number): Promise<void> {
+  await db.comment.updateMany({ where: { id: commentId, deletedAt: null }, data: { deletedAt: new Date() } });
 }
 
 export async function deleteCommentsForPosts(tx: Prisma.TransactionClient, posts: Prisma.PostWhereInput) {

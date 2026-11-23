@@ -340,10 +340,9 @@ test('gets, edits, likes and soft-deletes comments with owner checks', async () 
     canLike: false,
     canReply: false,
   });
-  const persisted = await db.$queryRaw<Array<{ authorId: number | null }>>`
-    SELECT authorId FROM "Comment" WHERE id = 11
-  `;
-  assert.equal(persisted[0]?.authorId, null);
+  const persisted = await db.comment.findUnique({ where: { id: 11 }, select: { authorId: true, deletedAt: true } });
+  assert.equal(persisted?.authorId, 2);
+  assert.ok(persisted?.deletedAt);
   const wrongOwnerDelete = await app.inject({ method: 'DELETE', url: '/v1/comments/10', headers: signedIn });
   assert.equal(wrongOwnerDelete.json().errorCode, 'error:AT');
 

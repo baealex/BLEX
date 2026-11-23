@@ -258,8 +258,8 @@ test('staff delete a comment and the audit log keeps no comment text', async () 
     );
 
     assert.deepEqual(
-      { ...fixture.db.prepare('SELECT authorId FROM "Comment" WHERE id = 20').get() },
-      { authorId: null },
+      { ...fixture.db.prepare('SELECT authorId, deletedAt IS NOT NULL AS deleted FROM "Comment" WHERE id = 20').get() },
+      { authorId: 4, deleted: 1 },
     );
     assert.doesNotMatch((await app.inject('/@writer/public-post')).body, /buy spam now/);
     const audit = fixture.db.prepare(`SELECT objectName, message FROM "AdminLog" WHERE target = 'comment'`).all();

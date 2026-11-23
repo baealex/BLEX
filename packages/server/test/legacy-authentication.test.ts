@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
@@ -39,7 +39,7 @@ function cookiesFrom(headers: string | string[] | undefined) {
 async function migratedFixture(path: string) {
   const db = new DatabaseSync(path);
   const migrations = new URL('../../prisma/migrations/', import.meta.url);
-  for (const migration of ['0001_init']) {
+  for (const migration of (await readdir(migrations)).filter((name) => /^\d/.test(name)).sort()) {
     db.exec(await readFile(new URL(`${migration}/migration.sql`, migrations), 'utf8'));
   }
   return db;

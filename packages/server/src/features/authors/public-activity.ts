@@ -42,7 +42,7 @@ async function heatmap(db: PrismaClient, userId: number, own: boolean) {
       select: { publishedAt: true },
     }),
     db.comment.findMany({
-      where: { authorId: userId, createdAt: { gte: lower, lte: upper }, post: eligible },
+      where: { authorId: userId, deletedAt: null, createdAt: { gte: lower, lte: upper }, post: eligible },
       orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
       select: { createdAt: true },
     }),
@@ -103,7 +103,7 @@ async function recentActivities(db: PrismaClient, userId: number): Promise<Recen
       select: { name: true, slug: true, createdAt: true, owner: { select: { username: true } } },
     }),
     db.comment.findMany({
-      where: { authorId: userId, createdAt: { gte: cutoff }, post: publicPost },
+      where: { authorId: userId, deletedAt: null, createdAt: { gte: cutoff }, post: publicPost },
       orderBy: { createdAt: 'desc' },
       take: 5,
       select: { createdAt: true, post: linkedPost },
@@ -279,6 +279,7 @@ export function registerPublicActivity(app: FastifyInstance, db: PrismaClient, o
     // A post that stopped being public keeps its title and address from its past commenters.
     const mine = {
       authorId: user.id,
+      deletedAt: null,
       post: { deletedAt: null, OR: [{ authorId: user.id }, publicPostWhere()] },
     };
     const lastPage = Math.max(1, Math.ceil((await db.comment.count({ where: mine })) / 10));

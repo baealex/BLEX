@@ -1,6 +1,6 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyRequest } from 'fastify';
-import { anonymizeComments } from '../../engagement/services/deletions.js';
+import { softDeleteComment } from '../../engagement/services/deletions.js';
 import { syncPostPublication } from '../../notifications/model.js';
 import { containsLiteral } from '../../posts/data/text-match.js';
 import { publicPostPath } from '../../posts/public-post.js';
@@ -189,8 +189,8 @@ export async function readModeratedComments(db: PrismaClient, request: FastifyRe
   const search: Prisma.CommentWhereInput = query
     ? { OR: [{ markdown: { contains: query } }, { author: { username: { contains: query } } }] }
     : {};
-  // Comments on drafts cannot exist, and a deleted comment has no author.
-  const where: Prisma.CommentWhereInput = { AND: [{ authorId: { not: null } }, search] };
+  // Comments on drafts cannot exist, and deleted comments stay out of the list.
+  const where: Prisma.CommentWhereInput = { AND: [{ authorId: { not: null }, deletedAt: null }, search] };
   const orderBy: Prisma.CommentOrderByWithRelationInput[] = [{ createdAt: 'desc' }, { id: 'desc' }];
 
   if (likeWildcard.test(query)) {
@@ -220,10 +220,11 @@ export async function deleteModeratedComment(
   return db.$transaction(async (tx) => {
     const comment = await tx.comment.findUnique({
       where: { id: commentId },
-      select: { id: true, authorId: true, author: { select: { username: true } } },
+      select: { id: true, authorId: true, deletedAt: true, author: { select: { username: true } } },
     });
-    if (!comment || comment.authorId === null) return { ok: false, code: 'NF', message: 'Comment not found.' };
-    await anonymizeComments(tx, comment.authorId, comment.id);
+    if (!comment || comment.authorId === null || comment.deletedAt)
+      return { ok: false, code: 'NF', message: 'Comment not found.' };
+    await softDeleteComment(tx, comment.id);
     await recordModeration(
       tx,
       actorId,

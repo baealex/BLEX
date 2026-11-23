@@ -95,10 +95,11 @@ test('a soft-deleted comment stays stored but never reaches readers', async () =
     const page = await app.inject('/v1/posts/open-post/comments');
     assert.doesNotMatch(page.body, /010-1234|own\.png|moderated\.png/);
 
-    const rows = await db.comment.findMany({ select: { authorId: true, markdown: true } });
+    const rows = await db.comment.findMany({ select: { authorId: true, deletedAt: true, markdown: true } });
     assert.equal(rows.length, 2);
     for (const row of rows) {
-      assert.equal(row.authorId, null);
+      assert.equal(row.authorId, 2);
+      assert.ok(row.deletedAt);
       assert.match(row.markdown, /010-1234-5678/);
     }
 
