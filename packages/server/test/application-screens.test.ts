@@ -62,12 +62,13 @@ async function screensApp({ assets = true } = {}) {
   const webAssetsRoot = await mkdtemp(join(tmpdir(), 'blex-v4-web-'));
   await mkdir(join(webAssetsRoot, '.vite'));
   const manifest = Object.fromEntries(
-    ['styles/main.scss', 'styles/post.scss', 'src/scripts/screen-loader.ts'].map((entry) => [
+    ['styles/main.scss', 'src/scripts/screen-loader.ts'].map((entry) => [
       entry,
-      { file: `${entry.split('/').pop()}.hash` },
+      { file: entry.endsWith('.scss') ? 'document.hash.css' : `${entry.split('/').pop()}.hash` },
     ]),
   );
   await writeFile(join(webAssetsRoot, '.vite/manifest.json'), JSON.stringify(manifest));
+  await writeFile(join(webAssetsRoot, 'document.hash.css'), '/* Screen document styles. */');
   const app = await buildApp(
     fixture.path,
     testSiteUrl,
@@ -241,6 +242,26 @@ test('keeps the stored date output formats', () => {
   assert.equal(isoLocalMillis('2022-04-01 04:39:30.157000'), '2022-04-01T13:39:30.157+09:00');
   assert.equal(localDate('2026-10-31 15:30:00'), '2026-11-01');
   assert.equal(localDateTimeText('2029-12-31 15:00:00'), '2030-01-01 00:00');
+});
+
+test('serves all stylesheets required by hosted screens', async () => {
+  const fixture = await screensApp();
+  try {
+    for (const url of ['/settings/posts', '/write', '/search']) {
+      const response = await fixture.app.inject({ url, headers: signIn(fixture.db, 1) });
+      assert.equal(response.statusCode, 200, url);
+      const styles = [...response.body.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((match) => match[1]);
+      assert.equal(styles.filter((href) => href === '/assets/blex/theme.css').length, 1, url);
+      assert.ok(styles.includes('/assets/web/document.hash.css'), url);
+      for (const href of styles) {
+        const asset = await fixture.app.inject(href);
+        assert.equal(asset.statusCode, 200, href);
+        assert.match(String(asset.headers['content-type']), /^text\/css/, href);
+      }
+    }
+  } finally {
+    await fixture.close();
+  }
 });
 
 test('applies 3.x access rules before mounting settings', async () => {

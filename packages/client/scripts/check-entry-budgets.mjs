@@ -101,17 +101,9 @@ const budgets = [
         entries: ['styles/main.scss'],
         label: 'base page styles',
         maxInitialFiles: 1,
-        maxInitialBytes: 225 * 1024,
-        maxInitialGzipBytes: 46 * 1024,
+        maxInitialBytes: 2 * 1024,
+        maxInitialGzipBytes: 1024,
         allowedInitialNames: ['styles/main.scss']
-    },
-    {
-        entries: ['styles/main.scss', 'styles/post.scss'],
-        label: 'post page styles',
-        maxInitialFiles: 2,
-        maxInitialBytes: 235 * 1024,
-        maxInitialGzipBytes: 49 * 1024,
-        allowedInitialNames: ['styles/main.scss', 'styles/post.scss']
     },
     {
         build: 'client',
@@ -149,10 +141,11 @@ const budgets = [
 
 const assetBudgets = [
     {
-        entry: 'styles/main.scss',
-        label: 'base page font assets',
-        maxAssets: 4,
-        maxBytes: 275 * 1024
+        entry: 'src/appearance/site-client.ts',
+        label: 'shared theme and post styles',
+        maxAssets: 1,
+        maxBytes: 146 * 1024,
+        maxGzipBytes: 24 * 1024
     }
 ];
 
@@ -293,18 +286,29 @@ for (const budget of budgets) {
 }
 
 for (const budget of assetBudgets) {
-    const item = builds.web.manifest[budget.entry];
+    const item = builds.client.manifest[budget.entry];
     if (!item) {
         throw new Error(`Missing manifest entry: ${budget.entry}`);
     }
 
-    const assets = item.assets ?? [];
-    const totalBytes = assets.reduce((sum, file) => sum + statSync(resolve(builds.web.outDir, file)).size, 0);
+    const assets = item.css ?? [];
+    const contents = assets.map((file) => readFileSync(resolve(builds.client.outDir, file)));
+    const totalBytes = contents.reduce((sum, source) => sum + source.length, 0);
+    const totalGzipBytes = contents.reduce((sum, source) => sum + gzipSync(source).length, 0);
     const violations = [];
 
     console.log(`Asset budget report: ${budget.label}`);
     console.log(`- Files: ${assets.length}`);
     console.log(`- Raw size: ${formatKiB(totalBytes)}`);
+    console.log(`- Gzip size: ${formatKiB(totalGzipBytes)}`);
+
+    if (assets.length === 0) violations.push(`${budget.label} is missing its stylesheet`);
+
+    if (totalGzipBytes > budget.maxGzipBytes) {
+        violations.push(
+            `${budget.label} gzip size is ${formatKiB(totalGzipBytes)}, limit is ${formatKiB(budget.maxGzipBytes)}`
+        );
+    }
 
     if (assets.length > budget.maxAssets) {
         violations.push(`${budget.label} includes ${assets.length} assets, limit is ${budget.maxAssets}`);
