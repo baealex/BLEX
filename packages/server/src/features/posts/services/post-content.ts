@@ -1,10 +1,10 @@
-import { type PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import { Parser } from 'htmlparser2';
 import { sanitizePostHtml } from '../post-html.js';
 import { markdownToHtml } from '../authoring/markdown.js';
 import { PostValidationError } from './post-store.js';
 import {
-  AuthoringPostInput,
+  type AuthoringPostInput,
   COVER_LAYOUTS,
   COVER_POSITIONS,
   COVER_RATIOS,

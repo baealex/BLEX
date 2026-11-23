@@ -1,4 +1,4 @@
-import { type ComponentProps } from 'react';
+import type { ComponentProps } from 'react';
 import { ConfirmProvider } from '~/contexts/ConfirmContext';
 import PostEditor from './PostEditor';
 

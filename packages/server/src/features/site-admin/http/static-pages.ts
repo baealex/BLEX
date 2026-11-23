@@ -1,8 +1,8 @@
-import { type PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import { done as success, failure } from '../../../platform/response.js';
 import { readStaticPage, readStaticPages, saveStaticPage, staticPagePayload } from '../services/static-pages.js';
-import { AdminSettingsOptions, apiAccess, apiJsonBody, csrfValid, validRouteId } from '../shared.js';
+import { type AdminSettingsOptions, apiAccess, apiJsonBody, csrfValid, validRouteId } from '../shared.js';
 
 export function registerStaticPagesRoutes(routes: FastifyInstance, db: PrismaClient, options: AdminSettingsOptions) {
   routes.get('/v1/static-pages', async (request, reply) => {

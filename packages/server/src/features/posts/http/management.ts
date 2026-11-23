@@ -1,4 +1,4 @@
-import { type PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import { done, failure as failed } from '../../../platform/response.js';
 import {
@@ -11,7 +11,15 @@ import {
   restoreTrashedPost,
 } from '../services/management.js';
 import { PostValidationError } from '../services/post-store.js';
-import { AuthoringOptions, bodyObject, editorAccount, field, forbidden, notFound, queryObject } from '../shared.js';
+import {
+  type AuthoringOptions,
+  bodyObject,
+  editorAccount,
+  field,
+  forbidden,
+  notFound,
+  queryObject,
+} from '../shared.js';
 
 export function registerManagementRoutes(routes: FastifyInstance, db: PrismaClient, options: AuthoringOptions) {
   routes.get('/v1/setting/posts', async (request, reply) => {

@@ -1,6 +1,6 @@
 import { Prisma, type PrismaClient } from '@prisma/client';
-import { type AdminStaticPage } from '../types.js';
-import { ApiResult, Body, isDatabaseInteger, isoDate, orderValue, stringValue } from '../shared.js';
+import type { AdminStaticPage } from '../types.js';
+import { type ApiResult, type Body, isDatabaseInteger, isoDate, orderValue, stringValue } from '../shared.js';
 
 const staticPageSelect = {
   id: true,

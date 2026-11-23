@@ -1,8 +1,15 @@
-import { type PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import { done as success, failure } from '../../../platform/response.js';
 import { noticePayload, readNotice, readNotices, saveNotice } from '../services/notices.js';
-import { AdminSettingsOptions, apiAccess, apiJsonBody, csrfValid, editorApiAccess, validRouteId } from '../shared.js';
+import {
+  type AdminSettingsOptions,
+  apiAccess,
+  apiJsonBody,
+  csrfValid,
+  editorApiAccess,
+  validRouteId,
+} from '../shared.js';
 
 export function registerNoticesRoutes(routes: FastifyInstance, db: PrismaClient, options: AdminSettingsOptions) {
   routes.get('/v1/notices', async (request, reply) => {

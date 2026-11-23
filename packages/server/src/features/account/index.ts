@@ -17,14 +17,14 @@ import {
 } from './services/profile.js';
 import {
   MAX_PROFILE_IMAGE_BYTES,
-  ProfileImageKind,
+  type ProfileImageKind,
   deleteProfileCover,
   saveProfileImage,
 } from './services/profile-images.js';
 import { updateRegionalPreferences } from './services/regional.js';
 import { applySocialMutation } from './services/social-links.js';
 import {
-  PersonalSettingsOptions,
+  type PersonalSettingsOptions,
   apiValidationError,
   authenticatedDatabaseUser,
   bodyRecord,

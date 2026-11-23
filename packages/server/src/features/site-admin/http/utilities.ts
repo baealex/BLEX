@@ -1,8 +1,8 @@
-import { type PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import { done as success, failure } from '../../../platform/response.js';
-import { UtilityAction, readUtilityStats, runUtilityAction, utilityActions } from '../services/utilities.js';
-import { AdminSettingsOptions, apiAccess, csrfValid, isRecord, sendApiResult } from '../shared.js';
+import { type UtilityAction, readUtilityStats, runUtilityAction, utilityActions } from '../services/utilities.js';
+import { type AdminSettingsOptions, apiAccess, csrfValid, isRecord, sendApiResult } from '../shared.js';
 
 export function registerUtilitiesRoutes(routes: FastifyInstance, db: PrismaClient, options: AdminSettingsOptions) {
   routes.get('/v1/utilities/stats', async (request, reply) => {

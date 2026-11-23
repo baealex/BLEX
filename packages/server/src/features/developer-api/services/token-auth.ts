@@ -1,6 +1,6 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
 import { createHash, timingSafeEqual } from 'node:crypto';
-import { DeveloperApiError, formatError } from '../shared.js';
+import { type DeveloperApiError, formatError } from '../shared.js';
 
 const TOKEN_PREFIX = 'blex_pat_';
 

@@ -3,9 +3,9 @@ import sharp from 'sharp';
 import { createHash } from 'node:crypto';
 import { lstat, mkdir, readFile, realpath, stat, unlink, writeFile } from 'node:fs/promises';
 import { isAbsolute, relative, resolve, sep } from 'node:path';
-import { type AdminSiteSettings } from '../types.js';
-import { SiteRow, parseManifest, readSiteRow, serializeSiteSettings, writeSiteSetting } from './site-settings.js';
-import { AdminSettingsOptions, ApiResult, isRecord, recordAudit } from '../shared.js';
+import type { AdminSiteSettings } from '../types.js';
+import { type SiteRow, parseManifest, readSiteRow, serializeSiteSettings, writeSiteSetting } from './site-settings.js';
+import { type AdminSettingsOptions, type ApiResult, isRecord, recordAudit } from '../shared.js';
 
 export const ICON_PNG_SIZES = [16, 32, 57, 72, 76, 96, 114, 120, 128, 144, 152, 192, 256, 512] as const;
 

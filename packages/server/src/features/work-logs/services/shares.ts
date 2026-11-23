@@ -1,7 +1,7 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
-import { type WorkLogShareView } from '../../../../../client/src/contracts/work-logs.js';
-import { EntryRow, entrySelect, newestFirst, oldestFirst, toEntryRow } from './logs.js';
+import type { WorkLogShareView } from '../../../../../client/src/contracts/work-logs.js';
+import { type EntryRow, entrySelect, newestFirst, oldestFirst, toEntryRow } from './logs.js';
 import { PAGE_SIZE, arrayValue, pageFields } from '../shared.js';
 
 interface ShareRow extends WorkLogShareView {

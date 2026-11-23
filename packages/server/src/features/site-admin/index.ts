@@ -1,9 +1,9 @@
 import formBody from '@fastify/formbody';
 import multipart from '@fastify/multipart';
-import { type PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import { BRAND_ICO_MAX_BYTES } from './services/brand-assets.js';
-import { AdminSettingsOptions } from './shared.js';
+import type { AdminSettingsOptions } from './shared.js';
 import { registerSiteSettingsRoutes } from './http/site-settings.js';
 import { registerUsersRoutes } from './http/users.js';
 import { registerModerationRoutes } from './http/moderation.js';

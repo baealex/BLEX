@@ -2,7 +2,7 @@ import type { Prisma, PrismaClient } from '@prisma/client';
 import { sanitizePostHtml } from '../post-html.js';
 import { readingTime } from './post-content.js';
 import {
-  EditorialSnapshot,
+  type EditorialSnapshot,
   PostValidationError,
   assertExpectedUpdatedAt,
   captureEditorialSnapshot,
@@ -10,7 +10,7 @@ import {
   sameEditorialSnapshot,
   setPostTags,
 } from './post-store.js';
-import { StoredPost, UserRow, dateAsIso } from '../shared.js';
+import { type StoredPost, type UserRow, dateAsIso } from '../shared.js';
 
 export interface StoredRevision {
   id: number;

@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { SiteIcon, type SiteIconName } from '../../appearance/icons';
 import { loginPromptProps } from '../engagement/ui/login-prompt';
 import type { AuthorRow, AuthorSocialLink, PostRow, PublicPageViewer, SubscriptionState } from '../../contracts/public';

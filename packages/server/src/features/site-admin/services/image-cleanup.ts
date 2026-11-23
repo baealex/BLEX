@@ -1,10 +1,10 @@
-import { Prisma, type PrismaClient } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
 import { createHash } from 'node:crypto';
 import { createReadStream } from 'node:fs';
 import { lstat, readdir, realpath, rmdir, unlink } from 'node:fs/promises';
 import { isAbsolute, relative, resolve, sep } from 'node:path';
 import { mediaRootRealPath } from './brand-assets.js';
-import { UtilityParameters } from './utilities.js';
+import type { UtilityParameters } from './utilities.js';
 
 type ImageCleanupTarget = 'all' | 'content' | 'title' | 'avatar';
 

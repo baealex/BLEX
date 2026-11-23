@@ -1,6 +1,6 @@
 import formBody from '@fastify/formbody';
 import multipart from '@fastify/multipart';
-import { type PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import { renderPage } from '../../platform/views.js';
 import { displayPage, pageChrome, pageLinks, renderDetailPage } from './detail-page.js';
@@ -37,7 +37,7 @@ import {
 import {
   MAX_REQUEST_SIZE,
   PAGE_SIZE,
-  WorkLogOptions,
+  type WorkLogOptions,
   bodyRecord,
   csrfCookieValue,
   csrfValid,

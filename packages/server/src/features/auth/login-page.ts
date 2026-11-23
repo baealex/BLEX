@@ -1,7 +1,7 @@
 import { renderPage } from '../../platform/views.js';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
-import { type LoginModel } from '../../platform/views.js';
+import type { LoginModel } from '../../platform/views.js';
 import { readPublicSiteBrand } from '../discovery/http/pages.js';
 import { readUiAsset } from '../../platform/ui-assets.js';
 import { authCookieOptions, csrfCookie, sessionCookie } from '../../platform/cookies.js';

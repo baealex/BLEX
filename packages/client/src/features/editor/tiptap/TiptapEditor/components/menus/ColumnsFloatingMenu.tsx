@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import type React from 'react';
+import { useState, useEffect } from 'react';
 import type { Editor } from '@tiptap/react';
 import { Fragment } from '@tiptap/pm/model';
 import * as Popover from '@radix-ui/react-popover';

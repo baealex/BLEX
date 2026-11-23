@@ -1,4 +1,4 @@
-import { type PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import type { FastifyRequest } from 'fastify';
 import {
   ContentUploadError,
@@ -7,7 +7,7 @@ import {
   saveContentFile,
 } from '../../media/content-media.js';
 import { postTags } from './post-store.js';
-import { AuthoringOptions, StoredPost, UserRow, bodyObject, booleanField, field } from '../shared.js';
+import { type AuthoringOptions, type StoredPost, type UserRow, bodyObject, booleanField, field } from '../shared.js';
 
 // The editor posts whole documents, accepted up to the proxy limit.
 export const editorBodyLimit = 13 * 1024 * 1024;

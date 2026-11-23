@@ -1,4 +1,4 @@
-import { type PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { syncPostPublication } from '../../notifications/model.js';
 import { localDate, timeSince } from '../../../platform/date-format.js';
@@ -28,7 +28,7 @@ import {
   updatePostSettings,
 } from '../services/post-store.js';
 import {
-  AuthoringOptions,
+  type AuthoringOptions,
   cookieValue,
   currentAccount,
   editorAccount,

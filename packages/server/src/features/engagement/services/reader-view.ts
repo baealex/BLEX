@@ -3,12 +3,12 @@ import type {
   ReaderPostLikeState,
   ReaderPostView,
 } from '../../../../../client/src/contracts/engagement.js';
-import { type PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import { publicComments } from './comments.js';
 import { subscriptionState } from './subscriptions.js';
 import {
-  ActiveUserRow,
-  AuthorRow,
+  type ActiveUserRow,
+  type AuthorRow,
   DEFAULT_AVATAR,
   absoluteMediaUrl,
   ownedPost,

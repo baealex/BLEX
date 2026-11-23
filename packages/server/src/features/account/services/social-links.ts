@@ -1,6 +1,6 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
 import { safeExternalUrl } from './profile.js';
-import { Body, UpdateResult, positiveId, stringValue } from '../shared.js';
+import { type Body, type UpdateResult, positiveId, stringValue } from '../shared.js';
 
 const MAX_LINK_ORDER = 2_147_483_647;
 /** A larger client id would push the shared AUTOINCREMENT counter past Prisma's Int range for every account. */
