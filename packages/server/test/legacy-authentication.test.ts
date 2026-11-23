@@ -259,7 +259,7 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     `)
       .get();
     assert.equal(account?.role, 'EDITOR');
-    assert.equal(account?.language, 'ko');
+    assert.equal(account?.language, '');
     assert.equal(account?.timeZone, 'Asia/Seoul');
     assert.equal(check.prepare('SELECT COUNT(*) AS count FROM WebhookDelivery').get()?.count, 1);
     check.close();

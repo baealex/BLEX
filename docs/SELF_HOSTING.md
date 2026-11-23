@@ -17,6 +17,7 @@ Create a `.env` file at the repository root.
 | `BLEX_TRUSTED_PROXIES` | Required behind an HTTPS proxy. Comma-separated IP addresses or CIDR ranges of proxies that connect directly to BLEX |
 | `DEVELOPER_API_MAX_UPLOAD_MB` | Optional. Upload size limit for post images and videos; defaults to 20 MB |
 | `TZ` | Optional. Local time zone |
+| `BLEX_DEFAULT_LANGUAGE` | Optional. Default UI language for visitors without a saved preference; defaults to `ko`. To use `en`, also set `ENABLE_ENGLISH_UI=TRUE`. Some pages still contain Korean text; see [Translation Guide](TRANSLATION_GUIDE.md) |
 
 ```sh
 docker compose up --build -d

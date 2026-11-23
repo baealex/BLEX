@@ -198,13 +198,13 @@ test('reads and updates account name and regional preferences using the legacy e
   });
   assert.equal(denied.statusCode, 403);
 
-  const browserLanguage = await app.inject({
+  const inheritedLanguage = await app.inject({
     method: 'PUT',
     url: '/v1/setting/regional-preferences',
     headers: { ...headers(1), 'content-type': 'application/json' },
     payload: { language: null, timeZone: 'Asia/Seoul' },
   });
-  assert.deepEqual(browserLanguage.json(), { status: 'DONE', body: {} });
+  assert.deepEqual(inheritedLanguage.json(), { status: 'DONE', body: {} });
   const pageRegionalRead = await app.inject({ url: '/v1/setting/account', headers: headers(1) });
   assert.equal(pageRegionalRead.json().body.name, 'Updated Name');
   assert.equal(pageRegionalRead.json().body.regionalPreferences.language, null);

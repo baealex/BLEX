@@ -1,4 +1,4 @@
-import { type PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { isIP } from 'node:net';
 import {
@@ -9,8 +9,8 @@ import {
 } from '../media/content-media.js';
 import { DeveloperMutationInputError, developerPostInput } from './mutation-input.js';
 import {
-  PaginationQuery,
-  SearchQuery,
+  type PaginationQuery,
+  type SearchQuery,
   listPosts,
   postDetail,
   postWriteReceipt,
@@ -20,12 +20,12 @@ import {
   summarizePost,
 } from './services/posts.js';
 import { createDeveloperRateLimiter, developerRequestKind } from './services/rate-limit.js';
-import { AuthenticatedToken, authenticate, requireScope } from './services/token-auth.js';
+import { type AuthenticatedToken, authenticate, requireScope } from './services/token-auth.js';
 import {
   API_PREFIX,
-  DeveloperApiOptions,
-  Editor,
-  QueryValue,
+  type DeveloperApiOptions,
+  type Editor,
+  type QueryValue,
   errorReply,
   formatError,
   parseDryRun,
@@ -154,7 +154,7 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
         const actual = await readOwnedPost(db, editor.id, postId);
         if (actual) return errorReply(reply, postVersionIssue(expected, actual));
       }
-      if (error.statusCode === 404) return postNotFound(reply);
+      if (error.statusCode === 404) return postNotFound(db, reply, editor.id);
       return errorReply(reply, error);
     };
     app.post(
@@ -167,7 +167,9 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
           const parsed = await developerPostInput(db, token.user.id, request.body, 'create');
           const added = await mutations.create(token.user, parsed.body, parsed.asDraft);
           const post = await readOwnedPost(db, token.user.id, added.id);
-          return post ? reply.code(201).send({ data: await postDetail(db, post) }) : postNotFound(reply);
+          return post
+            ? reply.code(201).send({ data: await postDetail(db, post) })
+            : postNotFound(db, reply, token.user.id);
         } catch (failure) {
           return mutationError(failure, token.user, reply);
         }
@@ -192,7 +194,7 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
           const id = parsePostId(request.params.postId);
           if (id === null) return parseValidationError(reply, 'post_id', request.params.postId);
           const original = await readOwnedPost(db, token.user.id, id);
-          if (!original) return postNotFound(reply);
+          if (!original) return postNotFound(db, reply, token.user.id);
           if (operation === 'publish' && original.publishedAt !== null) {
             return errorReply(
               reply,
@@ -216,7 +218,7 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
                     expected ? original.updatedAt.toISOString() : undefined,
                   );
             const post = result && (await readOwnedPost(db, token.user.id, result.id));
-            if (!post) return postNotFound(reply);
+            if (!post) return postNotFound(db, reply, token.user.id);
             return reply.send({ data: requireScope(token) ? postWriteReceipt(post) : await postDetail(db, post) });
           } catch (failure) {
             return mutationError(failure, token.user, reply, id, expected);
@@ -235,7 +237,7 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
         const { dryRun, invalid } = parseDryRun(request.query);
         if (invalid) return parseValidationError(reply, invalid.field, invalid.value);
         const original = await readOwnedPost(db, token.user.id, id);
-        if (!original) return postNotFound(reply);
+        if (!original) return postNotFound(db, reply, token.user.id);
         if (dryRun) {
           const post = requireScope(token) ? postWriteReceipt(original) : await summarizePost(db, original);
           return reply.send({ data: { canDelete: true, post } });
@@ -244,7 +246,7 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
           const deleted = await mutations.trash(token.user, id);
           return deleted
             ? reply.send({ data: { deleted: true, trashed: true, id, deletedAt: toIsoDateTime(deleted) } })
-            : postNotFound(reply);
+            : postNotFound(db, reply, token.user.id);
         } catch (failure) {
           return mutationError(failure, token.user, reply);
         }
@@ -316,7 +318,7 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
     if (postId === null) return parseValidationError(reply, 'post_id', request.params.postId);
 
     const post = await readOwnedPost(db, token.user.id, postId);
-    if (!post) return postNotFound(reply);
+    if (!post) return postNotFound(db, reply, token.user.id);
     return reply.send({ data: await postDetail(db, post) });
   });
 

@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { readFileSync } from 'node:fs';
+import { resolveUiLocale } from './locale.js';
 
 const koreanMessages = JSON.parse(
   readFileSync(new URL('../../../data/api-messages.ko.json', import.meta.url), 'utf8'),
@@ -15,11 +16,11 @@ async function prefersEnglish(
   db: PrismaClient,
   currentUser: ApiMessageOptions['currentUser'],
 ) {
-  if (process.env.ENABLE_ENGLISH_UI !== 'TRUE' && process.env.DEBUG !== 'TRUE') return false;
   const user = await currentUser(request);
-  if (!user) return false;
-  const config = await db.userPreference.findUnique({ where: { userId: user.id }, select: { language: true } });
-  return config?.language === 'en';
+  const config = user
+    ? await db.userPreference.findUnique({ where: { userId: user.id }, select: { language: true } })
+    : null;
+  return resolveUiLocale(config?.language) === 'en';
 }
 
 export interface ApiMessageOptions {

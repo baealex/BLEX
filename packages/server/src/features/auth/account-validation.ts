@@ -1,9 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { gunzipSync } from 'node:zlib';
 import type { FastifyRequest } from 'fastify';
+import { supportedUiLocale } from '../../platform/locale.js';
 
 export const accountUsernamePattern = /^[a-z0-9]{4,15}$/;
-export const accountEmailPattern = /^[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,64}$/i;
+export const accountEmailPattern = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,64}$/i;
 
 export function normalizeAccountEmail(email: string): string {
   const [local, domain] = email.split('@');
@@ -11,9 +12,7 @@ export function normalizeAccountEmail(email: string): string {
 }
 
 export function signupRegion(request: FastifyRequest, timeZone: string) {
-  const configuredLanguage = request.cookies.django_language;
-  const preferred = configuredLanguage || request.headers['accept-language']?.split(',')[0].split(/[;-]/)[0];
-  const language = preferred === 'en' && process.env.ENABLE_ENGLISH_UI === 'TRUE' ? 'en' : 'ko';
+  const language = supportedUiLocale(request.cookies.django_language) ?? '';
   try {
     if (timeZone && timeZone.length <= 64 && timeZone !== 'Factory' && !/^[+-]/.test(timeZone)) {
       new Intl.DateTimeFormat('en', { timeZone });

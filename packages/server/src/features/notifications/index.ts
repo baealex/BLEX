@@ -11,6 +11,7 @@ import {
   notificationText,
 } from './model.js';
 import { done, failure } from '../../platform/response.js';
+import { resolveUiLocale } from '../../platform/locale.js';
 
 interface NotificationUser {
   id: number;
@@ -44,7 +45,7 @@ function relativeTime(date: Date, language: string) {
 async function notificationList(db: PrismaClient, userId: number) {
   const since = new Date(Date.now() - 180 * 86_400_000);
   const config = await db.userPreference.findUnique({ where: { userId }, select: { language: true } });
-  const language = config?.language === 'en' && process.env.ENABLE_ENGLISH_UI === 'TRUE' ? 'en' : 'ko';
+  const language = resolveUiLocale(config?.language);
   const rows = await db.notification.findMany({
     where: { userId, OR: [{ createdAt: { gt: since } }, { isRead: false }] },
     orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],

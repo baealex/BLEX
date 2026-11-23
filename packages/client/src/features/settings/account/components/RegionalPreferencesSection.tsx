@@ -64,14 +64,9 @@ const RegionalPreferencesSection = ({ preferences }: RegionalPreferencesSectionP
                         <Trans id="settings.regional_preferences.language">Language</Trans>
                         <select
                             className={selectClassName}
-                            value={language ?? 'browser'}
-                            onChange={(event) =>
-                                setLanguage(event.target.value === 'browser' ? null : event.target.value)
-                            }
+                            value={language ?? ''}
+                            onChange={(event) => setLanguage(event.target.value)}
                         >
-                            <option value="browser">
-                                <Trans id="settings.regional_preferences.browser_language">Browser language</Trans>
-                            </option>
                             <option value="">
                                 <Trans id="settings.regional_preferences.site_default">
                                     Site default ({defaultLanguageLabel})
