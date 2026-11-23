@@ -219,7 +219,7 @@ test('creates a published Markdown post atomically with config, content, tags an
   const content = await db.$queryRaw<Array<{ html: string }>>`
     SELECT html FROM "PostContent" WHERE postId = ${post[0]!.id}
   `;
-  assert.match(content[0]!.html, /<h1>Hello<\/h1>/);
+  assert.match(content[0]!.html, /<h2 id="hello">Hello<\/h2>/);
   assert.match(content[0]!.html, /<strong>bold<\/strong>/);
   assert.doesNotMatch(content[0]!.html, /<script/i);
   assert.match(content[0]!.html, /&lt;script&gt;bad\(\)&lt;\/script&gt;/);
@@ -297,7 +297,7 @@ test('serves legacy create/edit/view contracts and keeps an existing post config
   const apiUrl = created.json().body.url;
   const editMode = await app.inject({ url: `/v1/users/@writer/posts/${apiUrl}?mode=edit`, headers: { 'x-user-id': '1' } });
   assert.equal(editMode.json().status, 'DONE');
-  assert.match(editMode.json().body.contentHtml, /<h1>API<\/h1>/);
+  assert.match(editMode.json().body.contentHtml, /<h2 id="api">API<\/h2>/);
   assert.deepEqual(editMode.json().body.tags, ['api', 'one']);
   const view = await app.inject({ url: `/v1/users/@writer/posts/${apiUrl}?mode=view` });
   assert.equal(view.json().status, 'DONE');
@@ -516,7 +516,7 @@ test('saves, previews, edits and publishes drafts while keeping only owner acces
   const slug = created.json().body.url;
   const detail = await app.inject({ url: `/v1/drafts/${slug}`, headers: { 'x-user-id': '1' } });
   assert.equal(detail.json().body.url, slug);
-  assert.match(detail.json().body.contentHtml, /<h1>Private draft<\/h1>/);
+  assert.match(detail.json().body.contentHtml, /<h2 id="private-draft">Private draft<\/h2>/);
   const list = await app.inject({ url: '/v1/drafts', headers: { 'x-user-id': '1' } });
   assert.ok(list.json().body.drafts.some((draft: { url: string }) => draft.url === slug));
   assert.equal((await app.inject({ url: `/v1/drafts/${slug}`, headers: { 'x-user-id': '2' } })).statusCode, 404);

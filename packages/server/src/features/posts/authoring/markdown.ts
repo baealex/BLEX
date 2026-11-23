@@ -1,5 +1,10 @@
 import MarkdownIt from 'markdown-it';
 import markdownItCjkFriendly from 'markdown-it-cjk-friendly';
+import markdownItDeflist from 'markdown-it-deflist';
+import markdownItFootnote from 'markdown-it-footnote';
+import markdownItMark from 'markdown-it-mark';
+import markdownItSub from 'markdown-it-sub';
+import { legacySyntax } from './markdown-syntax.js';
 import { sanitizePostHtml } from '../post-html.js';
 
 function escapeHtml(value: string): string {
@@ -44,10 +49,10 @@ function uploadedVideoFigure(caption: string, video: { url: string; type: string
 }
 
 const parser = new MarkdownIt({ html: false, breaks: true });
-parser.use(markdownItCjkFriendly);
-// Every reference repeats its definition's URL, which would let a short document expand without limit.
-parser.disable('reference');
-parser.validateLink = (url) => safeLink(url) !== null;
+parser.use(markdownItCjkFriendly).use(markdownItFootnote).use(markdownItDeflist).use(markdownItMark).use(markdownItSub);
+parser.use(legacySyntax);
+// As in 3.14, an unsafe URL keeps its element and the sanitizer removes only the attribute.
+parser.validateLink = () => true;
 parser.core.ruler.push('blex_blocks', (state) => {
   const tokens: typeof state.tokens = [];
   for (let index = 0; index < state.tokens.length; index += 1) {

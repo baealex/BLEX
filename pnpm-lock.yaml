@@ -220,6 +220,18 @@ importers:
       markdown-it-cjk-friendly:
         specifier: 3.0.0
         version: 3.0.0(@types/markdown-it@14.2.0)(markdown-it@15.0.3)
+      markdown-it-deflist:
+        specifier: 4.0.0
+        version: 4.0.0
+      markdown-it-footnote:
+        specifier: 4.0.0
+        version: 4.0.0
+      markdown-it-mark:
+        specifier: 4.0.0
+        version: 4.0.0
+      markdown-it-sub:
+        specifier: 2.0.0
+        version: 2.0.0
       otpauth:
         specifier: ^9.6.0
         version: 9.6.0
@@ -3839,6 +3851,18 @@ packages:
     peerDependenciesMeta:
       '@types/markdown-it':
         optional: true
+
+  markdown-it-deflist@4.0.0:
+    resolution: {integrity: sha512-06186ZWDwNLg638THD70MxBeFrDMF0+nL7IWU/qwCGHGOcUIm4MTYXbfjpv0ooWnVjkSnAjW8msKaOQmNRfY6Q==}
+
+  markdown-it-footnote@4.0.0:
+    resolution: {integrity: sha512-WYJ7urf+khJYl3DqofQpYfEYkZKbmXmwxQV8c8mO/hGIhgZ1wOe7R4HLFNwqx7TjILbnC98fuyeSsin19JdFcQ==}
+
+  markdown-it-mark@4.0.0:
+    resolution: {integrity: sha512-YLhzaOsU9THO/cal0lUjfMjrqSMPjjyjChYM7oyj4DnyaXEzA8gnW6cVJeyCrCVeyesrY2PlEdUYJSPFYL4Nkg==}
+
+  markdown-it-sub@2.0.0:
+    resolution: {integrity: sha512-iCBKgwCkfQBRg2vApy9vx1C1Tu6D8XYo8NvevI3OlwzBRmiMtsJ2sXupBgEA7PPxiDwNni3qIUkhZ6j5wofDUA==}
 
   markdown-it@15.0.3:
     resolution: {integrity: sha512-+Az7Ojz3iRGu8KYMvJ6xVhvrxP3eE+vEtJX75Ow88XBpcQNV/0lGX5ZynIIBftREo4DC2jsveAMDaeltmm8QvQ==}
@@ -8267,6 +8291,14 @@ snapshots:
       markdown-it: 15.0.3
     optionalDependencies:
       '@types/markdown-it': 14.2.0
+
+  markdown-it-deflist@4.0.0: {}
+
+  markdown-it-footnote@4.0.0: {}
+
+  markdown-it-mark@4.0.0: {}
+
+  markdown-it-sub@2.0.0: {}
 
   markdown-it@15.0.3:
     dependencies:
