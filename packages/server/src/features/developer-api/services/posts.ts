@@ -20,6 +20,7 @@ const postSelect = {
   slug: true,
   seriesId: true,
   isHidden: true,
+  moderation: true,
   isAdvertised: true,
   coverLayout: true,
   coverImagePosition: true,
@@ -64,7 +65,7 @@ function statusFilter(status: string, now: Date): Prisma.PostWhereInput | Develo
     case 'scheduled':
       return { publishedAt: { gt: now } };
     case 'hidden':
-      return { publishedAt: { lte: now }, isHidden: true };
+      return { publishedAt: { lte: now }, OR: [{ isHidden: true }, { moderation: { not: null } }] };
     default:
       return formatError('post.invalid_status', 'Unsupported status.', 400);
   }
@@ -85,7 +86,7 @@ function postSummary(row: PostRow, tags: string[], now: number) {
   let status: 'draft' | 'published' | 'scheduled' | 'hidden';
   if (publishedAtTime === null) status = 'draft';
   else if (publishedAtTime > now) status = 'scheduled';
-  else if (row.isHidden) status = 'hidden';
+  else if (row.isHidden || row.moderation) status = 'hidden';
   else status = 'published';
 
   return {

@@ -56,10 +56,14 @@ async function managedPost(db: PrismaClient, userId: number, parameters: PostPar
       publishedAt: { not: null },
       deletedAt: null,
     },
-    select: { id: true, title: true, publishedAt: true, isHidden: true },
+    select: { id: true, title: true, publishedAt: true, isHidden: true, moderation: true },
   });
   if (!post) return null;
-  return { id: post.id, title: post.title, canCreate: post.publishedAt! <= new Date() && !post.isHidden };
+  return {
+    id: post.id,
+    title: post.title,
+    canCreate: post.publishedAt! <= new Date() && !post.isHidden && !post.moderation,
+  };
 }
 
 async function listLinks(db: PrismaClient, postId: number, siteUrl: URL) {

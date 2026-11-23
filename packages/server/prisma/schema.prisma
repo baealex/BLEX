@@ -41,6 +41,11 @@ enum RevisionType {
   draft
 }
 
+enum PostModeration {
+  hidden
+  trash
+}
+
 enum BannerType {
   horizontal
   sidebar
@@ -329,6 +334,9 @@ model Post {
   publishedAt        DateTime?
   deletedAt          DateTime?
   draftScheduledAt   DateTime?
+  /// A staff decision, separate from the author's isHidden and deletedAt so neither side can undo the other.
+  moderation         PostModeration?
+  moderatedAt        DateTime?
 
   author               User                  @relation(fields: [authorId], references: [id], onDelete: Cascade)
   series               Series?               @relation(fields: [seriesId], references: [id], onDelete: SetNull)
@@ -347,6 +355,7 @@ model Post {
   @@index([publishedAt])
   @@index([createdAt])
   @@index([deletedAt])
+  @@index([moderation])
   @@index([seriesId])
   @@index([imageHash])
 }

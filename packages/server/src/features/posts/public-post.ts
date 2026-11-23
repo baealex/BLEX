@@ -21,7 +21,7 @@ export interface PublicPost {
   coverImageRatio: string;
   publishedDate: string;
   updatedDate: string;
-  visibility: 'public' | 'hidden' | 'scheduled' | 'draft';
+  visibility: 'public' | 'hidden' | 'moderated' | 'scheduled' | 'draft';
 }
 
 export interface DraftPreview extends PublicPost {
@@ -102,6 +102,7 @@ const publicPostSelect = {
   updatedAt: true,
   createdAt: true,
   isHidden: true,
+  moderation: true,
   content: { select: { html: true } },
 } satisfies Prisma.PostSelect;
 
@@ -157,7 +158,13 @@ export async function readPublicPost(
     ...publicPostFields(post, post.author.username, post.author.profile?.avatar),
     publishedDate: storedDateText(post.publishedAt!),
     updatedDate: storedDateText(post.updatedAt),
-    visibility: post.isHidden ? 'hidden' : post.publishedAt! > now ? 'scheduled' : 'public',
+    visibility: post.moderation
+      ? 'moderated'
+      : post.isHidden
+        ? 'hidden'
+        : post.publishedAt! > now
+          ? 'scheduled'
+          : 'public',
   };
 }
 

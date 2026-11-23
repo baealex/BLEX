@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import test from 'node:test';
 import { PrismaClient } from '@prisma/client';
 import { buildApp } from '../src/app.js';
@@ -139,6 +140,81 @@ test('staff hide, trash, and restore published posts without seeing drafts', asy
       .prepare(`SELECT COUNT(*) AS total FROM "AdminLog" WHERE target = 'post' AND userId = 2`)
       .get() as { total: number };
     assert.equal(logged.total, 4);
+  });
+});
+
+test('staff cannot publish a post its author made private', async () => {
+  await withApp(async ({ app, staff, fixture }) => {
+    seedPost(fixture.db, 13, 3, 'author-hidden', { title: 'Author hidden', isHidden: 1 });
+    seedPost(fixture.db, 14, 3, 'author-trash', { title: 'Author trash', deletedAt: Date.now() - 1000 });
+    for (const status of ['', '?status=hidden', '?status=trash']) {
+      const titles = parsed(await app.inject({ url: `/v1/admin/posts${status}`, headers: staff })).body.posts.map(
+        (post: { title: string }) => post.title,
+      );
+      assert.ok(!titles.includes('Author hidden'), status);
+      assert.ok(!titles.includes('Author trash'), status);
+    }
+    const show = await app.inject({
+      method: 'PATCH',
+      url: '/v1/admin/posts/13',
+      headers: json(staff),
+      payload: JSON.stringify({ isHidden: false }),
+    });
+    assert.equal(parsed(show).errorCode, 'error:NF');
+    const restore = await app.inject({ method: 'POST', url: '/v1/admin/posts/14/restore', headers: staff });
+    assert.equal(parsed(restore).errorCode, 'error:NF');
+    assert.equal((await app.inject('/@writer/author-hidden')).statusCode, 404);
+    assert.equal((await app.inject('/@writer/author-trash')).statusCode, 404);
+  });
+});
+
+test('an author cannot undo a staff decision', async () => {
+  await withApp(async ({ app, staff, fixture }) => {
+    const writer = signIn(fixture.db, 3);
+    const token = 'blex_pat_moderation01_test-secret';
+    insertRow(fixture.db, 'DeveloperToken', {
+      id: 1,
+      userId: 3,
+      name: 'Writer',
+      tokenPrefix: 'moderation01',
+      tokenHash: createHash('sha256').update(token).digest('hex'),
+      scopes: JSON.stringify(['posts:read', 'posts:write']),
+    });
+    const moderate = (isHidden: boolean) =>
+      app.inject({
+        method: 'PATCH',
+        url: '/v1/admin/posts/10',
+        headers: json(staff),
+        payload: JSON.stringify({ isHidden }),
+      });
+
+    assert.equal(parsed(await moderate(true)).body.status, 'hidden');
+    const update = await app.inject({
+      method: 'PATCH',
+      url: '/api/developer/v1/posts/10',
+      headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+      payload: JSON.stringify({ is_hidden: false }),
+    });
+    assert.equal(update.statusCode, 200);
+    assert.equal(update.json().data.status, 'hidden');
+    assert.equal((await app.inject('/@writer/public-post')).statusCode, 404);
+    const own = await app.inject({ url: '/@writer/public-post', headers: writer });
+    assert.match(own.body, /data-post-status-visibility="moderated"/);
+    assert.equal(parsed(await moderate(false)).body.status, 'public');
+    assert.equal((await app.inject('/@writer/public-post')).statusCode, 200);
+
+    const trash = await app.inject({ method: 'POST', url: '/v1/admin/posts/10/trash', headers: staff });
+    assert.equal(parsed(trash).body.status, 'trash');
+    await app.inject({
+      method: 'POST',
+      url: '/v1/setting/trash-posts/public-post/restore',
+      headers: json(writer),
+      payload: '{}',
+    });
+    assert.equal((await app.inject('/@writer/public-post')).statusCode, 404);
+    const restored = await app.inject({ method: 'POST', url: '/v1/admin/posts/10/restore', headers: staff });
+    assert.equal(parsed(restored).body.status, 'public');
+    assert.equal((await app.inject('/@writer/public-post')).statusCode, 200);
   });
 });
 

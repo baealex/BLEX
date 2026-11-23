@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { mkdir, mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -111,12 +111,18 @@ export function prismaDate(value: string): number {
 
 /** The real DDL and indexes for tables, for fixtures that still hand-write other domains in one script. */
 export function migratedTableSql(...tables: string[]): string {
-  const migration = readFileSync(new URL('0001_init/migration.sql', migrationsRoot), 'utf8');
+  const migration = readdirSync(migrationsRoot)
+    .filter((name) => /^\d/.test(name))
+    .sort()
+    .map((name) => readFileSync(new URL(`${name}/migration.sql`, migrationsRoot), 'utf8'))
+    .join('\n');
   return migration
     .split(/;\s*\n/)
     .filter((statement) => {
       const table =
-        /CREATE TABLE "(\w+)"/.exec(statement)?.[1] ?? /CREATE (?:UNIQUE )?INDEX "\w+" ON "(\w+)"/.exec(statement)?.[1];
+        /ALTER TABLE "(\w+)" ADD COLUMN/.exec(statement)?.[1] ??
+        /CREATE TABLE "(\w+)"/.exec(statement)?.[1] ??
+        /CREATE (?:UNIQUE )?INDEX "\w+" ON "(\w+)"/.exec(statement)?.[1];
       return table !== undefined && tables.includes(table);
     })
     .map((statement) => `${statement};\n`)

@@ -25,6 +25,9 @@ const day = (date: number, month = 1) => Date.UTC(2025, month - 1, date);
 function createDatabaseSchema() {
   const database = new DatabaseSync(databasePath);
   database.exec(readFileSync(new URL('../../prisma/migrations/0001_init/migration.sql', import.meta.url), 'utf8'));
+  database.exec(
+    readFileSync(new URL('../../prisma/migrations/0002_post_moderation/migration.sql', import.meta.url), 'utf8'),
+  );
   database.close();
 }
 
