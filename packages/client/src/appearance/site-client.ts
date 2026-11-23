@@ -1,5 +1,6 @@
 import './tailwind.css';
 import './site.scss';
+import { loadAboutEditors } from '../features/authors/about-editor-loader';
 import { rememberSearch } from './recent-searches';
 
 const root = document.documentElement;
@@ -122,11 +123,7 @@ function bindRouteElements() {
     const controller = new AbortController();
     routeController = controller;
     const { signal } = controller;
-    if (document.querySelector('[data-about-page], [data-about-editor]')) {
-        void import('../features/authors/about-editor-client').then(({ mountAboutEditors }) => {
-            if (!signal.aborted) mountAboutEditors(signal);
-        });
-    }
+    loadAboutEditors(signal);
 
     for (const form of document.querySelectorAll<HTMLFormElement>('[data-settings-brand-upload]')) {
         const input = form.querySelector<HTMLInputElement>('input[type="file"]');
