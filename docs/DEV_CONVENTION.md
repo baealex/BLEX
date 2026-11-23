@@ -20,7 +20,7 @@ pnpm install
 pnpm dev
 ```
 
-The development command builds the app and starts the server at `http://localhost:8040`. It also initializes a local SQLite database and generates secrets under `packages/server/.local/`. It does not watch source files; restart it after changes. Settings and editor pages are React screens, so run `pnpm build:web` first; without those assets they answer 503. FFmpeg is needed for local GIF conversion and video previews.
+The development command builds the app and starts the server at `http://localhost:8040`. It also initializes a local SQLite database and generates secrets under `packages/server/.local/`. It does not watch source files; restart it after changes. Settings and editor pages are React screens, so run `pnpm build:client` first; without those assets they answer 503. FFmpeg is needed for local GIF conversion and video previews.
 
 ## Backend
 
@@ -40,7 +40,7 @@ Read [Backend Guide](BACKEND_GUIDE.md) and [Testing Guide](TESTING_GUIDE.md).
 Read [Frontend Guide](FRONTEND_GUIDE.md), [Design Guide](DESIGN_GUIDE.md), and [UI Change Style Guide](UI_CHANGE_STYLE_GUIDE.md).
 
 - Use `renderApplicationDocument` for app pages. Include initial page data in the SSR response and clean up browser features when navigating away.
-- The main application and browser entry points live in `packages/server/src/`. React screens live in `packages/web/`; shared controls and the reusable Tiptap editor live in `packages/ui/` and `packages/editor/`.
+- The main application and browser entry points live in `packages/server/src/`. React screens live in `packages/client/`; shared controls and the reusable Tiptap editor live in `packages/client/src/ui/` and `packages/client/src/features/editor/tiptap/`.
 - Follow the existing screen's component and data-fetching patterns. Run the checks for the workspace you changed.
 
 ## Internationalization

@@ -38,9 +38,6 @@ importers:
       glob:
         specifier: ^14.0.6
         version: 14.0.6
-      tsup:
-        specifier: ^8.5.1
-        version: 8.5.1(jiti@2.7.0)(postcss@8.5.31)(supports-color@7.2.0)(typescript@5.9.3)(yaml@2.9.0)
       turbo:
         specifier: ^2.10.4
         version: 2.10.4
@@ -51,14 +48,71 @@ importers:
         specifier: ^2.9.0
         version: 2.9.0
 
-  packages/editor:
+  packages/client:
     dependencies:
-      '@blex/ui':
-        specifier: workspace:^
-        version: link:../ui
+      '@baejino/handy':
+        specifier: ^0.2.3
+        version: 0.2.3
+      '@baejino/style':
+        specifier: ^0.2.2
+        version: 0.2.2
+      '@dnd-kit/core':
+        specifier: ^6.3.1
+        version: 6.3.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@dnd-kit/modifiers':
+        specifier: ^9.0.0
+        version: 9.0.0(@dnd-kit/core@6.3.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)
+      '@dnd-kit/sortable':
+        specifier: ^10.0.0
+        version: 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)
+      '@dnd-kit/utilities':
+        specifier: ^3.2.2
+        version: 3.2.2(react@19.2.7)
+      '@hookform/resolvers':
+        specifier: ^5.4.0
+        version: 5.4.0(react-hook-form@7.81.0(react@19.2.7))
+      '@lingui/core':
+        specifier: ^6.6.0
+        version: 6.6.0(@babel/core@7.29.6(supports-color@7.2.0))(@babel/types@7.29.7)
+      '@lingui/react':
+        specifier: ^6.6.0
+        version: 6.6.0(@babel/core@7.29.6(supports-color@7.2.0))(@babel/types@7.29.7)(react@19.2.7)
+      '@radix-ui/react-checkbox':
+        specifier: ^1.3.7
+        version: 1.3.7(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@radix-ui/react-dialog':
+        specifier: ^1.1.19
+        version: 1.1.19(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@radix-ui/react-dropdown-menu':
+        specifier: ^2.1.20
+        version: 2.1.20(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@radix-ui/react-popover':
         specifier: ^1.1.19
         version: 1.1.19(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@radix-ui/react-select':
+        specifier: ^2.3.3
+        version: 2.3.3(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@radix-ui/react-switch':
+        specifier: ^1.3.3
+        version: 1.3.3(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@radix-ui/react-tabs':
+        specifier: ^1.1.17
+        version: 1.1.17(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@radix-ui/react-tooltip':
+        specifier: ^1.2.12
+        version: 1.2.12(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@tabler/icons-react':
+        specifier: ^3.52.0
+        version: 3.52.0(react@19.2.7)
+      '@tanstack/react-query':
+        specifier: ^5.101.2
+        version: 5.101.2(react@19.2.7)
+      '@tanstack/react-query-persist-client':
+        specifier: ^5.101.2
+        version: 5.101.2(@tanstack/react-query@5.101.2(react@19.2.7))(react@19.2.7)
+      '@tanstack/react-router':
+        specifier: ^1.170.17
+        version: 1.170.17(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@tiptap/extension-blockquote':
         specifier: ^3.30.5
         version: 3.31.3(@tiptap/core@3.31.3(@tiptap/pm@3.31.3))(@tiptap/pm@3.31.3)
@@ -167,28 +221,112 @@ importers:
       '@tiptap/suggestion':
         specifier: ^3.30.5
         version: 3.31.3(@floating-ui/dom@1.7.6)(@tiptap/core@3.31.3(@tiptap/pm@3.31.3))(@tiptap/pm@3.31.3)
+      axios:
+        specifier: ^1.20.0
+        version: 1.20.0(debug@4.4.3(supports-color@7.2.0))(supports-color@7.2.0)
+      driver.js:
+        specifier: ^1.6.0
+        version: 1.6.0
+      frappe-charts:
+        specifier: ^1.6.2
+        version: 1.6.2
       highlight.js:
         specifier: ^11.11.1
         version: 11.11.1
       lowlight:
         specifier: ^3.3.0
         version: 3.3.0
+      react:
+        specifier: ^19.2.7
+        version: 19.2.7
+      react-day-picker:
+        specifier: ^10.0.1
+        version: 10.0.1(@types/react@19.2.17)(react@19.2.7)
+      react-dom:
+        specifier: ^19.2.7
+        version: 19.2.7(react@19.2.7)
+      react-easy-crop:
+        specifier: ^6.2.2
+        version: 6.2.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      react-hook-form:
+        specifier: ^7.81.0
+        version: 7.81.0(react@19.2.7)
+      sonner:
+        specifier: ^2.0.7
+        version: 2.0.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      styled-jsx:
+        specifier: ^5.1.7
+        version: 5.1.7(@babel/core@7.29.6(supports-color@7.2.0))(react@19.2.7)
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
     devDependencies:
+      '@babel/core':
+        specifier: 7.29.6
+        version: 7.29.6(supports-color@7.2.0)
+      '@baejino/eslint-config':
+        specifier: ^0.1.1
+        version: 0.1.1(eslint@9.39.5(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3)
+      '@baejino/eslint-config-react':
+        specifier: ^0.1.1
+        version: 0.1.1(eslint@9.39.5(jiti@2.7.0)(supports-color@7.2.0))
+      '@lingui/babel-plugin-lingui-macro':
+        specifier: ^6.6.0
+        version: 6.6.0(@babel/core@7.29.6(supports-color@7.2.0))(@babel/types@7.29.7)
+      '@lingui/cli':
+        specifier: ^6.6.0
+        version: 6.6.0(esbuild@0.28.1)(rolldown@1.2.14)(supports-color@7.2.0)
+      '@lingui/vite-plugin':
+        specifier: ^6.6.0
+        version: 6.6.0(@babel/core@7.29.6(supports-color@7.2.0))(@lingui/babel-plugin-lingui-macro@6.6.0(@babel/core@7.29.6(supports-color@7.2.0))(@babel/types@7.29.7))(@rolldown/plugin-babel@0.2.3(@babel/core@7.29.6(supports-color@7.2.0))(rolldown@1.2.14)(vite@8.3.5(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(yaml@2.9.0)))(esbuild@0.28.1)(rolldown@1.2.14)(supports-color@7.2.0)(vite@8.3.5(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(yaml@2.9.0))
+      '@playwright/test':
+        specifier: ^1.61.1
+        version: 1.61.1
+      '@rolldown/plugin-babel':
+        specifier: ^0.2.3
+        version: 0.2.3(@babel/core@7.29.6(supports-color@7.2.0))(rolldown@1.2.14)(vite@8.3.5(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(yaml@2.9.0))
+      '@types/babel__core':
+        specifier: ^7.20.5
+        version: 7.20.5
       '@types/react':
         specifier: ^19.2.17
         version: 19.2.17
       '@types/react-dom':
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.17)
-      react:
-        specifier: ^19.2.7
-        version: 19.2.7
-      react-dom:
-        specifier: ^19.2.7
-        version: 19.2.7(react@19.2.7)
+      '@vitejs/plugin-react':
+        specifier: ^6.0.3
+        version: 6.0.3(@rolldown/plugin-babel@0.2.3(@babel/core@7.29.6(supports-color@7.2.0))(rolldown@1.2.14)(vite@8.3.5(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(yaml@2.9.0)))(babel-plugin-react-compiler@1.0.0)(vite@8.3.5(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(yaml@2.9.0))
+      babel-plugin-react-compiler:
+        specifier: ^1.0.0
+        version: 1.0.0
+      chokidar:
+        specifier: ^5.0.0
+        version: 5.0.0
+      eslint:
+        specifier: ^9.39.5
+        version: 9.39.5(jiti@2.7.0)(supports-color@7.2.0)
+      eslint-plugin-react-hooks:
+        specifier: ^7.1.1
+        version: 7.1.1(eslint@9.39.5(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)
+      glob:
+        specifier: ^14.0.6
+        version: 14.0.6
+      rollup-plugin-visualizer:
+        specifier: ^7.0.1
+        version: 7.0.1(rolldown@1.2.14)(rollup@4.62.2)
+      sass:
+        specifier: ^1.101.0
+        version: 1.101.0
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
+      vite:
+        specifier: ^8.3.5
+        version: 8.3.5(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(yaml@2.9.0)
+      yaml:
+        specifier: ^2.9.0
+        version: 2.9.0
 
   packages/server:
     dependencies:
@@ -283,197 +421,6 @@ importers:
       vite:
         specifier: ^8.3.5
         version: 8.3.5(@types/node@24.19.2)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.108.2)(yaml@2.9.0)
-
-  packages/ui:
-    dependencies:
-      '@radix-ui/react-checkbox':
-        specifier: ^1.3.7
-        version: 1.3.7(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@radix-ui/react-dialog':
-        specifier: ^1.1.19
-        version: 1.1.19(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@radix-ui/react-dropdown-menu':
-        specifier: ^2.1.20
-        version: 2.1.20(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@radix-ui/react-popover':
-        specifier: ^1.1.19
-        version: 1.1.19(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@radix-ui/react-select':
-        specifier: ^2.3.3
-        version: 2.3.3(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@radix-ui/react-switch':
-        specifier: ^1.3.3
-        version: 1.3.3(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@radix-ui/react-tabs':
-        specifier: ^1.1.17
-        version: 1.1.17(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@radix-ui/react-tooltip':
-        specifier: ^1.2.12
-        version: 1.2.12(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@tabler/icons-react':
-        specifier: ^3.52.0
-        version: 3.52.0(react@19.2.7)
-      frappe-charts:
-        specifier: ^1.6.2
-        version: 1.6.2
-      sonner:
-        specifier: ^2.0.7
-        version: 2.0.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-    devDependencies:
-      '@types/react':
-        specifier: ^19.2.17
-        version: 19.2.17
-      '@types/react-dom':
-        specifier: ^19.2.3
-        version: 19.2.3(@types/react@19.2.17)
-      react:
-        specifier: ^19.2.7
-        version: 19.2.7
-      react-dom:
-        specifier: ^19.2.7
-        version: 19.2.7(react@19.2.7)
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-
-  packages/web:
-    dependencies:
-      '@baejino/handy':
-        specifier: ^0.2.3
-        version: 0.2.3
-      '@baejino/style':
-        specifier: ^0.2.2
-        version: 0.2.2
-      '@blex/editor':
-        specifier: workspace:^
-        version: link:../editor
-      '@blex/ui':
-        specifier: workspace:^
-        version: link:../ui
-      '@dnd-kit/core':
-        specifier: ^6.3.1
-        version: 6.3.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@dnd-kit/modifiers':
-        specifier: ^9.0.0
-        version: 9.0.0(@dnd-kit/core@6.3.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)
-      '@dnd-kit/sortable':
-        specifier: ^10.0.0
-        version: 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)
-      '@dnd-kit/utilities':
-        specifier: ^3.2.2
-        version: 3.2.2(react@19.2.7)
-      '@hookform/resolvers':
-        specifier: ^5.4.0
-        version: 5.4.0(react-hook-form@7.81.0(react@19.2.7))
-      '@lingui/core':
-        specifier: ^6.6.0
-        version: 6.6.0(@babel/core@7.29.6(supports-color@7.2.0))(@babel/types@7.29.7)
-      '@lingui/react':
-        specifier: ^6.6.0
-        version: 6.6.0(@babel/core@7.29.6(supports-color@7.2.0))(@babel/types@7.29.7)(react@19.2.7)
-      '@tanstack/react-query':
-        specifier: ^5.101.2
-        version: 5.101.2(react@19.2.7)
-      '@tanstack/react-query-persist-client':
-        specifier: ^5.101.2
-        version: 5.101.2(@tanstack/react-query@5.101.2(react@19.2.7))(react@19.2.7)
-      '@tanstack/react-router':
-        specifier: ^1.170.17
-        version: 1.170.17(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      axios:
-        specifier: ^1.20.0
-        version: 1.20.0(debug@4.4.3(supports-color@7.2.0))(supports-color@7.2.0)
-      driver.js:
-        specifier: ^1.6.0
-        version: 1.6.0
-      react:
-        specifier: ^19.2.7
-        version: 19.2.7
-      react-day-picker:
-        specifier: ^10.0.1
-        version: 10.0.1(@types/react@19.2.17)(react@19.2.7)
-      react-dom:
-        specifier: ^19.2.7
-        version: 19.2.7(react@19.2.7)
-      react-easy-crop:
-        specifier: ^6.2.2
-        version: 6.2.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      react-hook-form:
-        specifier: ^7.81.0
-        version: 7.81.0(react@19.2.7)
-      styled-jsx:
-        specifier: ^5.1.7
-        version: 5.1.7(@babel/core@7.29.6(supports-color@7.2.0))(react@19.2.7)
-      zod:
-        specifier: ^4.6.7
-        version: 4.6.7
-    devDependencies:
-      '@babel/core':
-        specifier: 7.29.6
-        version: 7.29.6(supports-color@7.2.0)
-      '@baejino/eslint-config':
-        specifier: ^0.1.1
-        version: 0.1.1(eslint@9.39.5(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3)
-      '@baejino/eslint-config-react':
-        specifier: ^0.1.1
-        version: 0.1.1(eslint@9.39.5(jiti@2.7.0)(supports-color@7.2.0))
-      '@lingui/babel-plugin-lingui-macro':
-        specifier: ^6.6.0
-        version: 6.6.0(@babel/core@7.29.6(supports-color@7.2.0))(@babel/types@7.29.7)
-      '@lingui/cli':
-        specifier: ^6.6.0
-        version: 6.6.0(esbuild@0.28.1)(rolldown@1.2.14)(supports-color@7.2.0)
-      '@lingui/vite-plugin':
-        specifier: ^6.6.0
-        version: 6.6.0(@babel/core@7.29.6(supports-color@7.2.0))(@lingui/babel-plugin-lingui-macro@6.6.0(@babel/core@7.29.6(supports-color@7.2.0))(@babel/types@7.29.7))(@rolldown/plugin-babel@0.2.3(@babel/core@7.29.6(supports-color@7.2.0))(rolldown@1.2.14)(vite@8.3.5(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(yaml@2.9.0)))(esbuild@0.28.1)(rolldown@1.2.14)(supports-color@7.2.0)(vite@8.3.5(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(yaml@2.9.0))
-      '@playwright/test':
-        specifier: ^1.61.1
-        version: 1.61.1
-      '@rolldown/plugin-babel':
-        specifier: ^0.2.3
-        version: 0.2.3(@babel/core@7.29.6(supports-color@7.2.0))(rolldown@1.2.14)(vite@8.3.5(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(yaml@2.9.0))
-      '@types/babel__core':
-        specifier: ^7.20.5
-        version: 7.20.5
-      '@types/react':
-        specifier: ^19.2.17
-        version: 19.2.17
-      '@types/react-dom':
-        specifier: ^19.2.3
-        version: 19.2.3(@types/react@19.2.17)
-      '@vitejs/plugin-react':
-        specifier: ^6.0.3
-        version: 6.0.3(@rolldown/plugin-babel@0.2.3(@babel/core@7.29.6(supports-color@7.2.0))(rolldown@1.2.14)(vite@8.3.5(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(yaml@2.9.0)))(babel-plugin-react-compiler@1.0.0)(vite@8.3.5(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(yaml@2.9.0))
-      babel-plugin-react-compiler:
-        specifier: ^1.0.0
-        version: 1.0.0
-      chokidar:
-        specifier: ^5.0.0
-        version: 5.0.0
-      eslint:
-        specifier: ^9.39.5
-        version: 9.39.5(jiti@2.7.0)(supports-color@7.2.0)
-      eslint-plugin-react-hooks:
-        specifier: ^7.1.1
-        version: 7.1.1(eslint@9.39.5(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)
-      glob:
-        specifier: ^14.0.6
-        version: 14.0.6
-      rollup-plugin-visualizer:
-        specifier: ^7.0.1
-        version: 7.0.1(rolldown@1.2.14)(rollup@4.62.2)
-      sass:
-        specifier: ^1.101.0
-        version: 1.101.0
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-      vite:
-        specifier: ^8.3.5
-        version: 8.3.5(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(yaml@2.9.0)
-      yaml:
-        specifier: ^2.9.0
-        version: 2.9.0
 
 packages:
 
@@ -2563,9 +2510,6 @@ packages:
     resolution: {integrity: sha512-4Dj6M28JB+oAH8kFkTLUo+a2jwOFkuqb3yucU0CANcRRUbxS0cP0nZYCGjcc3BNXwRIsUVmDGgzawme7zvJHvg==}
     engines: {node: '>=12'}
 
-  any-promise@1.3.0:
-    resolution: {integrity: sha512-7UvmKalWRt1wgjL1RrGxoSJW/0QZFIegpeGvZG9kjp8vrRu55XTHbwnqq2GpXm9uLbcuhxm3IqX9OB4MZR1b2A==}
-
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
 
@@ -2657,12 +2601,6 @@ packages:
     resolution: {integrity: sha512-tjwM5exMg6BGRI+kNmTntNsvdZS1X8BFYS6tnJ2hdH0kVxM6/eVZ2xy+FqStSWvYmtfFMDLIxurorHwDKfDz5Q==}
     engines: {node: '>=18'}
 
-  bundle-require@5.1.0:
-    resolution: {integrity: sha512-3WrrOuZiyaaZPWiEt4G3+IffISVC9HYlWueJEBWED4ZH4aIAC2PnkdnuRrR94M+w6yGWn4AglWtJtBI8YqvgoA==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-    peerDependencies:
-      esbuild: 0.28.1
-
   c12@3.1.0:
     resolution: {integrity: sha512-uWoS8OU1MEIsOv8p/5a82c3H31LsWVR5qiyXVfBNOzfffjUWtPnhAb4BYI2uG2HfGmZmFjCtui5XNWaps+iFuw==}
     peerDependencies:
@@ -2670,10 +2608,6 @@ packages:
     peerDependenciesMeta:
       magicast:
         optional: true
-
-  cac@6.7.14:
-    resolution: {integrity: sha512-b6Ilus+c3RrdDk+JhLKUAQfzzgLEPy6wcXqS7f/xe1EETvsDP6GORG7SFuOs6cID5YkqchW/LXZbX5bc8j7ZcQ==}
-    engines: {node: '>=8'}
 
   call-bind-apply-helpers@1.0.2:
     resolution: {integrity: sha512-Sp1ablJ0ivDkSzjcaJdxEunN5/XvksFJ2sMBFfq6x0ryhQV/2b/KwFe21cMpmHtPOSij8K99/wSfoEuTObmuMQ==}
@@ -2768,13 +2702,6 @@ packages:
   commander@14.0.3:
     resolution: {integrity: sha512-H+y0Jo/T1RZ9qPP4Eh1pkcQcLRglraJaSLoyOtHxu6AapkjWVCy2Sit1QQ4x3Dng8qDlSsZEet7g5Pq06MvTgw==}
     engines: {node: '>=20'}
-
-  commander@4.1.1:
-    resolution: {integrity: sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==}
-    engines: {node: '>= 6'}
-
-  confbox@0.1.8:
-    resolution: {integrity: sha512-RMtmw0iFkeR4YV+fUOSucriAQNb9g8zFR52MWCtl+cCZOFRNL6zeB395vPzFhEjjn4fMxXudmELnl/KF/WrK6w==}
 
   confbox@0.2.4:
     resolution: {integrity: sha512-ysOGlgTFbN2/Y6Cg3Iye8YKulHw+R2fNXHrgSmXISQdMnomY6eNDprVdW9R5xBguEqI954+S6709UyiO7B+6OQ==}
@@ -3155,9 +3082,6 @@ packages:
     resolution: {integrity: sha512-78/PXT1wlLLDgTzDs7sjq9hzz0vXD+zn+7wypEe4fXQxCmdmqfGsEPQxmiCSQI3ajFV91bVSsvNtrJRiW6nGng==}
     engines: {node: '>=10'}
 
-  fix-dts-default-cjs-exports@1.0.1:
-    resolution: {integrity: sha512-pVIECanWFC61Hzl2+oOCtoJ3F17kglZC/6N94eRWycFgBH35hHx0Li604ZIzhseh97mf2p0cv7vVrOZGoqhlEg==}
-
   flat-cache@4.0.1:
     resolution: {integrity: sha512-f7ccFPK3SXFHpx15UIGyRJ/FJQctuKZ0zVuN3frBo4HnK3cay9VEW0R6yPYFHC0AgqhukPzKjq22t5DmAyqGyw==}
     engines: {node: '>=16'}
@@ -3515,10 +3439,6 @@ packages:
     resolution: {integrity: sha512-AC/7JofJvZGrrneWNaEnJeOLUx+JlGt7tNa0wZiRPT4MY1wmfKjt2+6O2p2uz2+skll8OZZmJMNqeke7kKbNgQ==}
     hasBin: true
 
-  joycon@3.1.1:
-    resolution: {integrity: sha512-34wB/Y7MW7bzjKRjUKTa46I2Z7eV62Rkhva+KkopW7Qvv/OSWBqvkSY7vusOPrNuZcUG3tApvdVgNB8POj3SPw==}
-    engines: {node: '>=10'}
-
   js-sha256@0.10.1:
     resolution: {integrity: sha512-5obBtsz9301ULlsgggLg542s/jqtddfOpV5KJc4hajc9JV8GeY2gZHSVpYBn4nWqAUTJ9v+xwtbJ1mIBgIH5Vw==}
 
@@ -3727,15 +3647,8 @@ packages:
     resolution: {integrity: sha512-/vlFKAoH5Cgt3Ie+JLhRbwOsCQePABiU3tJ1egGvyQ+33R/vcwM2Zl2QR/LzjsBeItPt3oSVXapn+m4nQDvpzw==}
     engines: {node: '>=14'}
 
-  lines-and-columns@1.2.4:
-    resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
-
   linkifyjs@4.3.3:
     resolution: {integrity: sha512-P8aEP5U/D1/IlTY2OeYsErdwh9bGuLE30NcXtKEjgdHcahveQoQwM2yZNsioQHsWFz0P7KKudisbrzCgR0sDHg==}
-
-  load-tsconfig@0.2.5:
-    resolution: {integrity: sha512-IXO6OCs9yg8tMKzfPZ1YmheJbZCiEsnBdcB03l0OcfK9prKnJb96siuHCr5Fl37/yo9DnKU+TLpxzTUspw9shg==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
   locate-path@5.0.0:
     resolution: {integrity: sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g==}
@@ -3806,17 +3719,11 @@ packages:
     resolution: {integrity: sha512-KZxYo1BUkWD2TVFLr0MQoM8vUUigWD3LlD83a/75BqC+4qE0Hb1Vo5v1FgcfaNXvfXzr+5EhQ6ing/CaBijTlw==}
     engines: {node: '>= 18'}
 
-  mlly@1.8.2:
-    resolution: {integrity: sha512-d+ObxMQFmbt10sretNDytwt85VrbkhhUA/JBGm1MPaWJ65Cl4wOgLaB1NYvJSZ0Ef03MMEU/0xpPMXUIQ29UfA==}
-
   moo@0.5.3:
     resolution: {integrity: sha512-m2fmM2dDm7GZQsY7KK2cme8agi+AAljILjQnof7p1ZMDe6dQ4bdnSMx0cPppudoeNv5hEFQirN6u+O4fDE0IWA==}
 
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
-
-  mz@2.7.0:
-    resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
 
   nanoid@3.3.18:
     resolution: {integrity: sha512-DTg4MJbGMWkfi6VZFdNt2/caMbQy4Ou+Op/hJQvGEWcnVfoA1QA+xzRKAzw9jD6+GVOOeYr/mIcuDSdug6F6+w==}
@@ -4004,13 +3911,6 @@ packages:
     resolution: {integrity: sha512-bk1ZMTwG/Vymx+zPoa28MhNzucFvXJWp3csrSuxuHPSMeUettaCoQ5Jvg07mtC4JGNpcfTwz41oVCnNgBK9+vA==}
     hasBin: true
 
-  pirates@4.0.7:
-    resolution: {integrity: sha512-TfySrs/5nm8fQJDcBDuUng3VOUKsd7S+zqvbOTiGXHfxX4wK31ard+hoNuvkicM/2YFzlpDgABOevKSsB4G/FA==}
-    engines: {node: '>= 6'}
-
-  pkg-types@1.3.1:
-    resolution: {integrity: sha512-/Jm5M4RvtBFVkKWRu2BLUTNP8/M2a+UwuAX+ae4770q1qVGtfjG+WTCupoZixokjmHiry8uI+dlY8KXYV5HVVQ==}
-
   pkg-types@2.4.0:
     resolution: {integrity: sha512-07Fys7iVx0X6TcviMOgogM1Lk33ZyqOezMnU79S+kffWqwolG/5W9V8EgQSeYCIfFTYVgssRbnH630Oa2+soBA==}
 
@@ -4035,24 +3935,6 @@ packages:
   possible-typed-array-names@1.1.0:
     resolution: {integrity: sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==}
     engines: {node: '>= 0.4'}
-
-  postcss-load-config@6.0.1:
-    resolution: {integrity: sha512-oPtTM4oerL+UXmx+93ytZVN82RrlY/wPUV8IeDxFrzIjXOLF1pN+EmKPLbubvKHT2HC20xXsCAH2Z+CKV6Oz/g==}
-    engines: {node: '>= 18'}
-    peerDependencies:
-      jiti: '>=1.21.0'
-      postcss: '>=8.0.9'
-      tsx: ^4.8.1
-      yaml: ^2.4.2
-    peerDependenciesMeta:
-      jiti:
-        optional: true
-      postcss:
-        optional: true
-      tsx:
-        optional: true
-      yaml:
-        optional: true
 
   postcss@8.5.31:
     resolution: {integrity: sha512-YUbWYCgErwnMAVkjUnYa+KlMBzGpHwiIt/DE7f0G33AuX2LH9UcTk6KgWxd3zRU+pN3u/C+Xl3EnMLM4Hea7Sg==}
@@ -4525,11 +4407,6 @@ packages:
       babel-plugin-macros:
         optional: true
 
-  sucrase@3.35.1:
-    resolution: {integrity: sha512-DhuTmvZWux4H1UOnWMB3sk0sbaCVOoQZjv8u1rDoTV0HTdGem9hkAZtl4JZy8P2z4Bg0nT+YMeOFyVr4zcG5Tw==}
-    engines: {node: '>=16 || 14 >=14.17'}
-    hasBin: true
-
   supports-color@7.2.0:
     resolution: {integrity: sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==}
     engines: {node: '>=8'}
@@ -4554,19 +4431,9 @@ packages:
     resolution: {integrity: sha512-lkukzdoGngZHJZXxW4S/E4Fp9ghTDlyZXrQGRNoJ/LXvDKcXUTq2sg5yQe74po7Voea6n/IN09+wE/QvJMiifA==}
     engines: {node: '>=18'}
 
-  thenify-all@1.6.0:
-    resolution: {integrity: sha512-RNxQH/qI8/t3thXJDwcstUO4zeqo64+Uy/+sNVRBx4Xn2OX+OZ9oP+iJnNFqplFra2ZUVeKCSa2oVWi3T4uVmA==}
-    engines: {node: '>=0.8'}
-
-  thenify@3.3.1:
-    resolution: {integrity: sha512-RVZSIV5IG10Hk3enotrhvz0T9em6cyHBLkH/YAZuKqd8hRkKhSfCGIcP2KUY0EPxndzANBmNllzWPwak+bheSw==}
-
   thread-stream@4.2.1:
     resolution: {integrity: sha512-Stg6edJXC/6/xqGwSXwFokrUhChJ18amEjpKH89WrQQ0oVFDF+pUUcTpiwWhFUrE89Vf16FBOlwhaw+lescxMQ==}
     engines: {node: '>=20'}
-
-  tinyexec@0.3.2:
-    resolution: {integrity: sha512-KQQR9yN7R5+OSwaK0XQoj22pwHoTlgYqmUscPYoknOoWCWfj/5/ABTMRi69FrKU5ffPVh5QcFikpWJI/P1ocHA==}
 
   tinyexec@1.3.1:
     resolution: {integrity: sha512-GCvB3aoys96IuDFBMcTB46JOR6mdMtAToqwiW8JlWhsoh1mhHi/xn9ss/Dg7N555GiJyEt2qzoG/NHCwM6h1EA==}
@@ -4595,40 +4462,14 @@ packages:
   tr46@0.0.3:
     resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
 
-  tree-kill@1.2.2:
-    resolution: {integrity: sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==}
-    hasBin: true
-
   ts-api-utils@2.5.0:
     resolution: {integrity: sha512-OJ/ibxhPlqrMM0UiNHJ/0CKQkoKF243/AEmplt3qpRgkW8VG7IfOS41h7V8TjITqdByHzrjcS/2si+y4lIh8NA==}
     engines: {node: '>=18.12'}
     peerDependencies:
       typescript: '>=4.8.4'
 
-  ts-interface-checker@0.1.13:
-    resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
-
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
-
-  tsup@8.5.1:
-    resolution: {integrity: sha512-xtgkqwdhpKWr3tKPmCkvYmS9xnQK3m3XgxZHwSUjvfTjp7YfXe5tT3GgWi0F2N+ZSMsOeWeZFh7ZZFg5iPhing==}
-    engines: {node: '>=18'}
-    hasBin: true
-    peerDependencies:
-      '@microsoft/api-extractor': ^7.36.0
-      '@swc/core': ^1
-      postcss: ^8.4.12
-      typescript: '>=4.5.0'
-    peerDependenciesMeta:
-      '@microsoft/api-extractor':
-        optional: true
-      '@swc/core':
-        optional: true
-      postcss:
-        optional: true
-      typescript:
-        optional: true
 
   turbo@2.10.4:
     resolution: {integrity: sha512-GQpduILaKjoaGljw097ScsSyKTtZSY7cZ3bJktzfTkPMyCf3ShKLuXK2IaOEN2Plziml+ArR7WJ1m+V4VbnaKQ==}
@@ -4670,9 +4511,6 @@ packages:
     resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
     engines: {node: '>=14.17'}
     hasBin: true
-
-  ufo@1.6.4:
-    resolution: {integrity: sha512-JFNbkD1Svwe0KvGi8GOeLcP4kAWQ609twvCdcHxq1oSL8svv39ZuSvajcD8B+5D0eL4+s1Is2D/O6KN3qcTeRA==}
 
   unbox-primitive@1.1.0:
     resolution: {integrity: sha512-nWJ91DjeOkej/TA8pXQ3myruKpKEYgqvpw9lz4OPHj/NWFNluYrjbz9j01CJ8yKQd2g4jFoOkINCTW2I5LEEyw==}
@@ -6786,8 +6624,6 @@ snapshots:
 
   ansi-styles@6.2.3: {}
 
-  any-promise@1.3.0: {}
-
   argparse@2.0.1: {}
 
   aria-hidden@1.2.6:
@@ -6910,11 +6746,6 @@ snapshots:
     dependencies:
       run-applescript: 7.1.0
 
-  bundle-require@5.1.0(esbuild@0.28.1):
-    dependencies:
-      esbuild: 0.28.1
-      load-tsconfig: 0.2.5
-
   c12@3.1.0:
     dependencies:
       chokidar: 4.0.3
@@ -6929,8 +6760,6 @@ snapshots:
       perfect-debounce: 1.0.0
       pkg-types: 2.4.0
       rc9: 2.1.2
-
-  cac@6.7.14: {}
 
   call-bind-apply-helpers@1.0.2:
     dependencies:
@@ -7019,10 +6848,6 @@ snapshots:
   commander@10.0.1: {}
 
   commander@14.0.3: {}
-
-  commander@4.1.1: {}
-
-  confbox@0.1.8: {}
 
   confbox@0.2.4: {}
 
@@ -7521,12 +7346,6 @@ snapshots:
       locate-path: 6.0.0
       path-exists: 4.0.0
 
-  fix-dts-default-cjs-exports@1.0.1:
-    dependencies:
-      magic-string: 0.30.21
-      mlly: 1.8.2
-      rollup: 4.62.2
-
   flat-cache@4.0.1:
     dependencies:
       flatted: 3.4.2
@@ -7882,8 +7701,6 @@ snapshots:
 
   jiti@2.7.0: {}
 
-  joycon@3.1.1: {}
-
   js-sha256@0.10.1: {}
 
   js-tokens@4.0.0: {}
@@ -8037,11 +7854,7 @@ snapshots:
 
   lilconfig@3.1.3: {}
 
-  lines-and-columns@1.2.4: {}
-
   linkifyjs@4.3.3: {}
-
-  load-tsconfig@0.2.5: {}
 
   locate-path@5.0.0:
     dependencies:
@@ -8106,22 +7919,9 @@ snapshots:
     dependencies:
       minipass: 7.1.3
 
-  mlly@1.8.2:
-    dependencies:
-      acorn: 8.17.0
-      pathe: 2.0.3
-      pkg-types: 1.3.1
-      ufo: 1.6.4
-
   moo@0.5.3: {}
 
   ms@2.1.3: {}
-
-  mz@2.7.0:
-    dependencies:
-      any-promise: 1.3.0
-      object-assign: 4.1.1
-      thenify-all: 1.6.0
 
   nanoid@3.3.18: {}
 
@@ -8313,14 +8113,6 @@ snapshots:
       sonic-boom: 4.2.1
       thread-stream: 4.2.1
 
-  pirates@4.0.7: {}
-
-  pkg-types@1.3.1:
-    dependencies:
-      confbox: 0.1.8
-      mlly: 1.8.2
-      pathe: 2.0.3
-
   pkg-types@2.4.0:
     dependencies:
       confbox: 0.3.2
@@ -8340,14 +8132,6 @@ snapshots:
   pofile-ts@4.0.3: {}
 
   possible-typed-array-names@1.1.0: {}
-
-  postcss-load-config@6.0.1(jiti@2.7.0)(postcss@8.5.31)(yaml@2.9.0):
-    dependencies:
-      lilconfig: 3.1.3
-    optionalDependencies:
-      jiti: 2.7.0
-      postcss: 8.5.31
-      yaml: 2.9.0
 
   postcss@8.5.31:
     dependencies:
@@ -8930,16 +8714,6 @@ snapshots:
     optionalDependencies:
       '@babel/core': 7.29.6(supports-color@7.2.0)
 
-  sucrase@3.35.1:
-    dependencies:
-      '@jridgewell/gen-mapping': 0.3.13
-      commander: 4.1.1
-      lines-and-columns: 1.2.4
-      mz: 2.7.0
-      pirates: 4.0.7
-      tinyglobby: 0.2.17
-      ts-interface-checker: 0.1.13
-
   supports-color@7.2.0:
     dependencies:
       has-flag: 4.0.0
@@ -8962,19 +8736,9 @@ snapshots:
       minizlib: 3.1.0
       yallist: 5.0.0
 
-  thenify-all@1.6.0:
-    dependencies:
-      thenify: 3.3.1
-
-  thenify@3.3.1:
-    dependencies:
-      any-promise: 1.3.0
-
   thread-stream@4.2.1:
     dependencies:
       real-require: 1.0.0
-
-  tinyexec@0.3.2: {}
 
   tinyexec@1.3.1: {}
 
@@ -8995,43 +8759,11 @@ snapshots:
 
   tr46@0.0.3: {}
 
-  tree-kill@1.2.2: {}
-
   ts-api-utils@2.5.0(typescript@5.9.3):
     dependencies:
       typescript: 5.9.3
 
-  ts-interface-checker@0.1.13: {}
-
   tslib@2.8.1: {}
-
-  tsup@8.5.1(jiti@2.7.0)(postcss@8.5.31)(supports-color@7.2.0)(typescript@5.9.3)(yaml@2.9.0):
-    dependencies:
-      bundle-require: 5.1.0(esbuild@0.28.1)
-      cac: 6.7.14
-      chokidar: 4.0.3
-      consola: 3.4.2
-      debug: 4.4.3(supports-color@7.2.0)
-      esbuild: 0.28.1
-      fix-dts-default-cjs-exports: 1.0.1
-      joycon: 3.1.1
-      picocolors: 1.1.1
-      postcss-load-config: 6.0.1(jiti@2.7.0)(postcss@8.5.31)(yaml@2.9.0)
-      resolve-from: 5.0.0
-      rollup: 4.62.2
-      source-map: 0.7.6
-      sucrase: 3.35.1
-      tinyexec: 0.3.2
-      tinyglobby: 0.2.17
-      tree-kill: 1.2.2
-    optionalDependencies:
-      postcss: 8.5.31
-      typescript: 5.9.3
-    transitivePeerDependencies:
-      - jiti
-      - supports-color
-      - tsx
-      - yaml
 
   turbo@2.10.4:
     optionalDependencies:
@@ -9093,8 +8825,6 @@ snapshots:
   typescript@5.9.3: {}
 
   typescript@6.0.3: {}
-
-  ufo@1.6.4: {}
 
   unbox-primitive@1.1.0:
     dependencies:

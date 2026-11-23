@@ -4,14 +4,10 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 COPY patches/ ./patches/
 COPY packages/server/package.json ./packages/server/package.json
-COPY packages/web/package.json ./packages/web/package.json
-COPY packages/ui/package.json ./packages/ui/package.json
-COPY packages/editor/package.json ./packages/editor/package.json
-RUN npm i -g pnpm@${PNPM_VERSION} && pnpm i --frozen-lockfile --filter . --filter '@blex/web...'
-COPY packages/web ./packages/web
-COPY packages/ui ./packages/ui
-COPY packages/editor ./packages/editor
-RUN pnpm exec turbo run build --filter=@blex/web && find /app/packages/server/dist/web -name '*.map' -delete
+COPY packages/client/package.json ./packages/client/package.json
+RUN npm i -g pnpm@${PNPM_VERSION} && pnpm i --frozen-lockfile --filter . --filter '@blex/client...'
+COPY packages/client ./packages/client
+RUN pnpm exec turbo run build --filter=@blex/client && find /app/packages/server/dist/web -name '*.map' -delete
 
 FROM node:24.22.1-alpine AS node-base
 WORKDIR /app
@@ -25,18 +21,14 @@ RUN npm i -g pnpm@${PNPM_VERSION}
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY patches/ ./patches/
 COPY packages/server/package.json ./packages/server/package.json
-COPY packages/web/package.json ./packages/web/package.json
-COPY packages/ui/package.json ./packages/ui/package.json
-COPY packages/editor/package.json ./packages/editor/package.json
+COPY packages/client/package.json ./packages/client/package.json
 COPY packages/server/prisma ./packages/server/prisma
 RUN pnpm i --frozen-lockfile --filter @blex/server
 COPY packages/server/tsconfig.json packages/server/vite.config.ts ./packages/server/
 COPY packages/server/src ./packages/server/src
 COPY packages/server/scripts ./packages/server/scripts
-# The shared Tailwind stylesheet scans these screens for class names.
-COPY packages/web/src ./packages/web/src
-COPY packages/ui/src ./packages/ui/src
-COPY packages/editor/src ./packages/editor/src
+# The shared Tailwind stylesheet scans the client for class names.
+COPY packages/client/src ./packages/client/src
 RUN pnpm --filter @blex/server run build
 
 FROM build AS traced-files

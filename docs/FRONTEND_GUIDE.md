@@ -1,6 +1,6 @@
 # Frontend Guide
 
-BLEX renders pages with React on the server and uses a shared TanStack Router application for browser navigation. Additional React screens are loaded from `packages/web/` through the server screen host.
+BLEX renders pages with React on the server and uses a shared TanStack Router application for browser navigation. Additional React screens are loaded from `packages/client/` through the server screen host.
 
 ## Code layout
 
@@ -10,9 +10,9 @@ BLEX renders pages with React on the server and uses a shared TanStack Router ap
 | Public layout, theme, and styles | `packages/server/src/appearance/` |
 | Login and reader interactions | `packages/server/src/features/auth/ui/`, `packages/server/src/features/engagement/ui/` |
 | Web host and browser configuration | `packages/server/src/application/screen-host/` |
-| Additional screens and their API client | `packages/web/` |
-| Shared UI primitives | `packages/ui/` |
-| Reusable Tiptap editor | `packages/editor/` |
+| Additional screens and their API client | `packages/client/` |
+| Shared UI primitives | `packages/client/src/ui/` |
+| Reusable Tiptap editor | `packages/client/src/features/editor/tiptap/` |
 
 `packages/server/vite.config.ts` builds the main browser entry points into `packages/server/dist/client/`. The web package writes its build output to `packages/server/dist/web/`; the Docker build includes both. The web package's `screen-loader.ts` loads the React runtime when a `data-screen` element appears, and `screen-runtime.tsx` mounts the requested screen after activating its locale.
 
@@ -45,6 +45,6 @@ pnpm install
 pnpm dev
 ```
 
-This builds and starts the main app at `http://localhost:8040`; restart after source changes. Use the pnpm version declared in the root `package.json`. Run `pnpm build:web` to build the additional screens and their UI/editor dependencies. Restart the app after the first web build so it finds the assets.
+This builds and starts the main app at `http://localhost:8040`; restart after source changes. Use the pnpm version declared in the root `package.json`. Run `pnpm build:client` to build the additional screens and their UI/editor dependencies. Restart the app after the first web build so it finds the assets.
 
 Run `pnpm test` and `pnpm type-check` for changes to the main application. For web changes, use the workspace commands in the [Testing Guide](TESTING_GUIDE.md).

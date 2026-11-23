@@ -170,7 +170,7 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
   ) => {
     if (!webAssetsRoot) {
       return reply.code(503).type('text/plain; charset=utf-8').header('Cache-Control', 'no-store')
-        .send('The web screens are not built. Run `pnpm build:web` and restart the server.');
+        .send('The web screens are not built. Run `pnpm build:client` and restart the server.');
     }
     const state = await readViewerState(db, user.id, options.cipherKey);
     return sendDocument(request, reply, { user, isStaff, state }, {

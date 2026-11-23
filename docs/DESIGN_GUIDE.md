@@ -102,7 +102,7 @@ Treat dark mode as a supported rendering mode throughout the interface.
 ### Token files
 
 - Tokens and Tailwind mappings live in `packages/server/src/appearance/variables.css` and `packages/server/src/appearance/tailwind.css`.
-- That one stylesheet covers public pages and React screens. It scans `packages/server`, `packages/web`, `packages/ui`, and `packages/editor` for class names.
+- That one stylesheet covers public pages and React screens. It scans `packages/server`, `packages/client`, `packages/client/src/ui`, and `packages/client/src/features/editor/tiptap` for class names.
 - Tailwind mappings must stay mapping-only (`@theme inline`), not duplicate token values.
 - Legacy aliases (`--color-bg-*`, `--color-text-*`, `--color-border-*`, `--color-interactive-*`, `--glass-*`) are deprecated and must not be reintroduced.
 

@@ -8,17 +8,17 @@
     },
     "scripts": {
         "dev": "pnpm --filter @blex/server run dev",
-        "dev:web": "turbo run build --filter=@blex/ui --filter=@blex/editor && turbo run dev --parallel --filter=@blex/ui --filter=@blex/editor --filter=@blex/web",
+        "dev:client": "pnpm --filter @blex/client run dev",
         "build": "pnpm --filter @blex/server run build",
-        "build:web": "turbo run build --filter=@blex/web",
+        "build:client": "turbo run build --filter=@blex/client",
         "start": "pnpm --filter @blex/server start",
         "test": "pnpm --filter @blex/server test",
-        "test:web": "pnpm --filter @blex/editor --filter @blex/web run test",
-        "test:smoke": "pnpm --filter @blex/web run test:smoke",
+        "test:client": "pnpm --filter @blex/client run test",
+        "test:smoke": "pnpm --filter @blex/client run test:smoke",
         "lint": "turbo run lint",
         "type-check": "turbo run type-check",
-        "i18n:check": "pnpm --filter @blex/web run i18n:check",
-        "check:entry-budgets": "pnpm --filter @blex/web run check:entry-budgets",
+        "i18n:check": "pnpm --filter @blex/client run i18n:check",
+        "check:entry-budgets": "pnpm --filter @blex/client run check:entry-budgets",
         "db:migrate": "pnpm --filter @blex/server run db:migrate"
     },
     "repository": {
@@ -36,7 +36,6 @@
         "@baejino/eslint-config-react": "^0.1.1",
         "eslint": "^9.39.5",
         "glob": "^14.0.6",
-        "tsup": "^8.5.1",
         "turbo": "^2.10.4",
         "typescript": "^5.9.3",
         "yaml": "^2.9.0"

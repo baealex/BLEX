@@ -1,0 +1,125 @@
+import {
+    useState,
+    useEffect,
+    useCallback,
+    type ReactNode
+} from 'react';
+import { useLingui } from '@lingui/react/macro';
+import { Modal } from '~/components/shared';
+import { LoginPromptContext } from './internal/LoginPromptContextDef';
+import { UserRound } from '~/ui/icons';
+
+interface LoginPromptDialogState {
+    isOpen: boolean;
+    action: string;
+}
+
+export const LoginPromptProvider = ({ children }: { children: ReactNode }) => {
+    const { i18n, t } = useLingui();
+    const [dialogState, setDialogState] = useState<LoginPromptDialogState>({
+        isOpen: false,
+        action: ''
+    });
+
+    const isLoggedIn = !!window.configuration?.user?.username;
+
+    const showLoginPrompt = useCallback((action: string) => {
+        if (isLoggedIn) {
+            return;
+        }
+
+        setDialogState({
+            isOpen: true,
+            action
+        });
+    }, [isLoggedIn]);
+
+    // 전역 커스텀 이벤트로 모달 열기
+    // 중복 방지: 같은 페이지에 여러 화면이 있어도 한 번만 모달 표시
+    useEffect(() => {
+        const handleShowLoginPrompt = (event: CustomEvent<{ action: string }>) => {
+            // 이미 모달이 열려있으면 무시
+            if (dialogState.isOpen) {
+                return;
+            }
+
+            const action = event.detail?.action || '';
+            showLoginPrompt(action);
+        };
+
+        window.addEventListener('showLoginPrompt', handleShowLoginPrompt as EventListener);
+    }, [showLoginPrompt, dialogState.isOpen]);
+
+    const handleClose = () => {
+        setDialogState({
+            isOpen: false,
+            action: ''
+        });
+    };
+
+    const handleLogin = () => {
+        const currentPath = window.location.pathname + window.location.search;
+        window.location.assign(`/login?next=${encodeURIComponent(currentPath)}`);
+    };
+    const action = dialogState.action || t({
+        id: 'login_prompt.action.generic',
+        message: 'this action'
+    });
+
+    return (
+        <LoginPromptContext.Provider value={{ showLoginPrompt }}>
+            {children}
+
+            {/* Login Prompt Dialog using Modal component */}
+            <Modal
+                isOpen={dialogState.isOpen}
+                onClose={handleClose}
+                maxWidth="sm"
+                showCloseButton={false}>
+                <Modal.Body className="p-8 text-center">
+                    {/* Icon */}
+                    <div className="mx-auto w-16 h-16 bg-gradient-to-br from-surface-subtle to-surface-subtle rounded-full flex items-center justify-center mb-6 ring-4 ring-line-light">
+                        <UserRound aria-hidden="true" className="w-8 h-8 text-content" />
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="text-xl font-semibold text-content mb-2">
+                        {t({
+                            id: 'login_prompt.title',
+                            message: 'Login required'
+                        })}
+                    </h3>
+
+                    {/* Description */}
+                    <p className="text-content-secondary mb-8">
+                        {i18n._({
+                            id: 'login_prompt.description.action',
+                            message: 'Log in to continue with {action}.',
+                            values: { action }
+                        })}
+                    </p>
+                </Modal.Body>
+                <Modal.Footer className="flex-col px-8 pt-0 pb-8 border-t-0 bg-transparent">
+                    <Modal.FooterAction
+                        variant="primary"
+                        onClick={handleLogin}
+                        className="w-full">
+                        {t({
+                            id: 'login_prompt.login',
+                            message: 'Log in'
+                        })}
+                    </Modal.FooterAction>
+                    <Modal.FooterAction
+                        variant="secondary"
+                        onClick={handleClose}
+                        className="w-full">
+                        {t({
+                            id: 'login_prompt.cancel',
+                            message: 'Cancel'
+                        })}
+                    </Modal.FooterAction>
+                </Modal.Footer>
+            </Modal>
+        </LoginPromptContext.Provider>
+    );
+};

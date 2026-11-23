@@ -1,0 +1,150 @@
+import { useEffect, useState } from 'react';
+import type { Editor } from '@tiptap/react';
+import { Popover } from '~/ui/popover';
+import ToolbarButton from '../ui/ToolbarButton';
+import { useEditorI18n } from '../../i18n';
+import {
+    InlineIcon,
+    Bold,
+    Italic,
+    Underline,
+    Strikethrough,
+    Highlighter,
+    Link
+} from '~/ui/icons';
+
+interface FloatingMenuBarProps {
+    editor: Editor | null;
+}
+
+const FloatingMenuBar = ({ editor }: FloatingMenuBarProps) => {
+    const { t } = useEditorI18n();
+    const [isOpen, setIsOpen] = useState(false);
+    const [virtualElement, setVirtualElement] = useState<HTMLElement | null>(null);
+
+    useEffect(() => {
+        if (!editor) return;
+
+        const updateMenu = () => {
+            const { state } = editor;
+            const { selection } = state;
+            const { empty, from, to } = selection;
+
+            // 선택이 비어있으면 숨김
+            if (empty) {
+                setIsOpen(false);
+                setVirtualElement(null);
+                return;
+            }
+
+            // 이미지나 비디오가 선택된 경우 숨김
+            const node = state.doc.nodeAt(from);
+            if (node && (node.type.name === 'image' || node.type.name === 'video')) {
+                setIsOpen(false);
+                setVirtualElement(null);
+                return;
+            }
+
+            // 가상 요소 생성 (매번 최신 좌표를 계산하도록)
+            const newVirtualElement = {
+                getBoundingClientRect: () => {
+                    // getBoundingClientRect가 호출될 때마다 최신 좌표 계산
+                    const currentStart = editor.view.coordsAtPos(from);
+                    const currentEnd = editor.view.coordsAtPos(to);
+
+                    const rect = {
+                        top: Math.min(currentStart.top, currentEnd.top),
+                        right: Math.max(currentStart.right, currentEnd.right),
+                        bottom: Math.max(currentStart.bottom, currentEnd.bottom),
+                        left: Math.min(currentStart.left, currentEnd.left),
+                        width: Math.abs(currentEnd.right - currentStart.left),
+                        height: Math.abs(currentEnd.bottom - currentStart.top),
+                        x: Math.min(currentStart.left, currentEnd.left),
+                        y: Math.min(currentStart.top, currentEnd.top)
+                    };
+
+                    return {
+                        ...rect,
+                        toJSON: () => rect
+                    };
+                }
+            } as unknown as HTMLElement;
+
+            setVirtualElement(newVirtualElement);
+            setIsOpen(true);
+        };
+
+        editor.on('selectionUpdate', updateMenu);
+        editor.on('transaction', updateMenu);
+
+        return () => {
+            editor.off('selectionUpdate', updateMenu);
+            editor.off('transaction', updateMenu);
+        };
+    }, [editor]);
+
+    if (!editor || !isOpen || !virtualElement) return null;
+
+    return (
+        <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
+            <Popover.Anchor virtualRef={{ current: virtualElement }} />
+            <Popover.Portal>
+                <Popover.Content
+                    className="floating-glass-surface rounded-lg p-2 transition-all duration-200 z-50 outline-none"
+                    side="top"
+                    sideOffset={10}
+                    onOpenAutoFocus={(e) => e.preventDefault()}
+                    onCloseAutoFocus={(e) => e.preventDefault()}>
+                    <div className="flex gap-1">
+                        <ToolbarButton
+                            onClick={() => editor.chain().focus().toggleBold().run()}
+                            isActive={editor.isActive('bold')}
+                            title={t('toolbar.bold')}>
+                            <InlineIcon icon={Bold} className="text-sm" />
+                        </ToolbarButton>
+                        <ToolbarButton
+                            onClick={() => editor.chain().focus().toggleItalic().run()}
+                            isActive={editor.isActive('italic')}
+                            title={t('toolbar.italic')}>
+                            <InlineIcon icon={Italic} className="text-sm" />
+                        </ToolbarButton>
+                        <ToolbarButton
+                            onClick={() => editor.chain().focus().toggleUnderline().run()}
+                            isActive={editor.isActive('underline')}
+                            title={t('toolbar.underline')}>
+                            <InlineIcon icon={Underline} className="text-sm" />
+                        </ToolbarButton>
+                        <ToolbarButton
+                            onClick={() => editor.chain().focus().toggleStrike().run()}
+                            isActive={editor.isActive('strike')}
+                            title={t('toolbar.strike')}>
+                            <InlineIcon icon={Strikethrough} className="text-sm" />
+                        </ToolbarButton>
+                        <ToolbarButton
+                            onClick={() => editor.chain().focus().toggleHighlight().run()}
+                            isActive={editor.isActive('highlight')}
+                            title={t('toolbar.highlight')}>
+                            <InlineIcon icon={Highlighter} className="text-sm" />
+                        </ToolbarButton>
+
+                        <div className="w-px bg-gray-300 mx-1" />
+
+                        <ToolbarButton
+                            onClick={() => {
+                                const url = window.prompt(t('toolbar.link_prompt'));
+                                if (url) {
+                                    editor.chain().focus().setLink({ href: url }).run();
+                                }
+                            }}
+                            isActive={editor.isActive('link')}
+                            title={t('toolbar.link')}>
+                            <InlineIcon icon={Link} className="text-sm" />
+                        </ToolbarButton>
+                    </div>
+                </Popover.Content>
+            </Popover.Portal>
+        </Popover.Root>
+    );
+};
+
+export default FloatingMenuBar;

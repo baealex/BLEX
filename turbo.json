@@ -12,7 +12,7 @@
         "@blex/server#build": {
             "cache": false
         },
-        "@blex/web#build": {
+        "@blex/client#build": {
             "dependsOn": [
                 "^build"
             ],

@@ -203,7 +203,7 @@ test('answers settings and editor pages with 503 when the web screens are not bu
     for (const url of ['/settings/account', '/settings/posts', '/write', '/@writer/kept/edit']) {
       const response = await fixture.app.inject({ url, headers: writer });
       assert.equal(response.statusCode, 503, url);
-      assert.match(response.body, /pnpm build:web/);
+      assert.match(response.body, /pnpm build:client/);
     }
     const anonymous = await fixture.app.inject('/settings/account');
     assert.equal(anonymous.statusCode, 302);
