@@ -123,22 +123,26 @@ export function registerTelegram(app: FastifyInstance, db: PrismaClient, options
     routes.addHook('onRequest', async (_request, reply) => {
       reply.header('Cache-Control', 'private, no-store');
     });
-    routes.post('/v1/telegram/webHook', { bodyLimit: 64 * 1024 }, async (request, reply) => {
-      const config = await telegramConfig(db, options.cipherKey);
-      if (!config.token) return done();
-      const supplied = request.headers['x-telegram-bot-api-secret-token'];
-      const expected = telegramWebhookSecret(options.secretKey, config.token);
-      if (
-        typeof supplied !== 'string' ||
-        !/^[a-f0-9]{64}$/.test(supplied) ||
-        !timingSafeEqual(Buffer.from(supplied), Buffer.from(expected))
-      ) {
-        return reply.code(403).send('Forbidden');
-      }
-      const message = extractMessage(formInput(request));
-      if (message) await handleBotLink(db, options, config.token, message);
-      return done();
-    });
+    routes.post(
+      '/v1/telegram/webHook',
+      { bodyLimit: 64 * 1024, config: { bodyAccess: 'public' } },
+      async (request, reply) => {
+        const config = await telegramConfig(db, options.cipherKey);
+        if (!config.token) return done();
+        const supplied = request.headers['x-telegram-bot-api-secret-token'];
+        const expected = telegramWebhookSecret(options.secretKey, config.token);
+        if (
+          typeof supplied !== 'string' ||
+          !/^[a-f0-9]{64}$/.test(supplied) ||
+          !timingSafeEqual(Buffer.from(supplied), Buffer.from(expected))
+        ) {
+          return reply.code(403).send('Forbidden');
+        }
+        const message = extractMessage(formInput(request));
+        if (message) await handleBotLink(db, options, config.token, message);
+        return done();
+      },
+    );
 
     routes.get('/v1/setting/integration-telegram', async (request) => {
       const user = await options.currentUser(request);

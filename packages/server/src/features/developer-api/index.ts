@@ -114,17 +114,21 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
   if (options.writable && options.mediaRoot) {
     app.register(async (routes) => {
       await registerContentMultipart(routes);
-      routes.post(`${API_PREFIX}/images`, { bodyLimit: contentUploadLimit + 8192 }, async (request, reply) => {
-        const token = await writeToken(request, reply);
-        if (!token) return reply;
-        try {
-          const url = await saveContentUpload(db, options.mediaRoot, token.user.id, request);
-          return reply.code(201).send({ data: { url } });
-        } catch (error) {
-          if (!(error instanceof ContentUploadError)) throw error;
-          return errorReply(reply, formatError(error.code, error.message, error.status));
-        }
-      });
+      routes.post(
+        `${API_PREFIX}/images`,
+        { bodyLimit: contentUploadLimit + 8192, config: { bodyAccess: 'token' } },
+        async (request, reply) => {
+          const token = await writeToken(request, reply);
+          if (!token) return reply;
+          try {
+            const url = await saveContentUpload(db, options.mediaRoot, token.user.id, request);
+            return reply.code(201).send({ data: { url } });
+          } catch (error) {
+            if (!(error instanceof ContentUploadError)) throw error;
+            return errorReply(reply, formatError(error.code, error.message, error.status));
+          }
+        },
+      );
     });
   }
 
@@ -152,18 +156,22 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
       if (error.statusCode === 404) return postNotFound(reply);
       return errorReply(reply, error);
     };
-    app.post(`${API_PREFIX}/posts`, { bodyLimit: 1024 * 1024 }, async (request, reply) => {
-      const token = await writeToken(request, reply);
-      if (!token) return reply;
-      try {
-        const parsed = await developerPostInput(db, token.user.id, request.body, 'create');
-        const added = await mutations.create(token.user, parsed.body, parsed.asDraft);
-        const post = await readOwnedPost(db, token.user.id, added.id);
-        return post ? reply.code(201).send({ data: await postDetail(db, post) }) : postNotFound(reply);
-      } catch (failure) {
-        return mutationError(failure, token.user, reply);
-      }
-    });
+    app.post(
+      `${API_PREFIX}/posts`,
+      { bodyLimit: 1024 * 1024, config: { bodyAccess: 'token' } },
+      async (request, reply) => {
+        const token = await writeToken(request, reply);
+        if (!token) return reply;
+        try {
+          const parsed = await developerPostInput(db, token.user.id, request.body, 'create');
+          const added = await mutations.create(token.user, parsed.body, parsed.asDraft);
+          const post = await readOwnedPost(db, token.user.id, added.id);
+          return post ? reply.code(201).send({ data: await postDetail(db, post) }) : postNotFound(reply);
+        } catch (failure) {
+          return mutationError(failure, token.user, reply);
+        }
+      },
+    );
 
     for (const operation of ['update', 'publish'] as const) {
       const route = `${API_PREFIX}/posts/:postId${operation === 'publish' ? '/publish' : ''}`;
@@ -171,6 +179,7 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
         method: operation === 'publish' ? 'POST' : 'PATCH',
         url: route,
         bodyLimit: 1024 * 1024,
+        config: { bodyAccess: 'token' },
         // The publish body is optional, so an empty JSON request must still reach the handler.
         onRequest: async (request) => {
           if (operation === 'publish' && request.headers['content-length'] === '0')

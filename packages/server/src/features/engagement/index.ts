@@ -11,9 +11,11 @@ import {
   commentBodyLimit,
   commentForViewer,
   commentHtml,
+  commentTooLong,
   publicComments,
   serializeComment,
 } from './services/comments.js';
+import { createCommentRateLimiter } from './services/comment-rate-limit.js';
 import { anonymizeComments } from './services/deletions.js';
 import { canSubscribe, mySubscriptions, subscriptionState } from './services/subscriptions.js';
 import {
@@ -57,6 +59,7 @@ function telegramHintCookie(username: string, siteUrl?: URL): string {
 }
 
 export function registerReaderActions(app: FastifyInstance, db: PrismaClient, options: ReaderActionsOptions): void {
+  const takeComment = createCommentRateLimiter();
   app.register(async (routes) => {
     await routes.register(formBody);
     routes.removeContentTypeParser('application/json');
@@ -111,10 +114,21 @@ export function registerReaderActions(app: FastifyInstance, db: PrismaClient, op
       };
     });
 
-    routes.get<{ Params: { url: string } }>('/v1/posts/:url/comments', async (request) => {
-      const user = await activeUser(request, db, options);
-      return done(await publicComments(db, request.params.url, user?.id ?? null));
-    });
+    routes.get<{ Params: { url: string }; Querystring: { before?: unknown } }>(
+      '/v1/posts/:url/comments',
+      async (request) => {
+        const user = await activeUser(request, db, options);
+        const rawBefore = request.query.before;
+        const before =
+          rawBefore === undefined
+            ? null
+            : typeof rawBefore === 'string' && /^\d{1,10}$/.test(rawBefore)
+              ? Number(rawBefore)
+              : 0;
+        if (before !== null && (before < 1 || before > 2_147_483_647)) return error('VA', 'Check the comment page.');
+        return done(await publicComments(db, request.params.url, user?.id ?? null, before));
+      },
+    );
 
     routes.post('/v1/comments', { bodyLimit: commentBodyLimit }, async (request, reply) => {
       if (!requestCsrfAccepted(request, options)) return forbidden(reply);
@@ -142,6 +156,14 @@ export function registerReaderActions(app: FastifyInstance, db: PrismaClient, op
       }
 
       const markdown = bodyField(body, 'commentMd');
+      if (commentTooLong(markdown)) return error('VA', 'Comments can be up to 10,000 characters.');
+      const retryAfter = takeComment(user.id);
+      if (retryAfter !== null) {
+        return reply
+          .code(429)
+          .header('Retry-After', String(retryAfter))
+          .send(error('RJ', 'You are commenting too quickly. Try again in a moment.'));
+      }
       const html = commentHtml(markdown);
       const commentId = await db.$transaction(async (tx) => {
         const inserted = await tx.comment.create({
@@ -253,6 +275,7 @@ export function registerReaderActions(app: FastifyInstance, db: PrismaClient, op
               return error('AT', 'You do not have permission to edit this comment.');
             }
             const markdown = bodyField(body, 'commentMd');
+            if (commentTooLong(markdown)) return error('VA', 'Comments can be up to 10,000 characters.');
             await db.comment.updateMany({
               where: { id: comment.id, authorId: viewer.id },
               data: { markdown, html: commentHtml(markdown), isEdited: true },

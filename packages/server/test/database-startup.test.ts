@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
@@ -1950,6 +1950,38 @@ test('imports retired 3.x roles as readers and oversized social links without br
       await db.$disconnect();
     }
   } finally {
+    await space.cleanup();
+  }
+});
+
+test('an unreadable 3.14 media folder stops the import with the command that fixes it', {
+  skip: process.getuid?.() === 0,
+}, async () => {
+  const space = await workspace();
+  const source = join(space.legacyRoot, 'db.sqlite3');
+  const privateFolder = join(space.legacyRoot, 'resources', 'media', '_work_logs');
+  try {
+    (await createLegacyDatabase(source)).close();
+    await mkdir(privateFolder, { mode: 0o700 });
+    await writeFile(join(privateFolder, 'attachment.txt'), 'private');
+    const before = await fileHash(source);
+    await chmod(privateFolder, 0o000);
+
+    await assert.rejects(prepareDatabase(space.options), (error: Error) => {
+      assert.ok(error instanceof DatabaseSetupError);
+      assert.match(error.message, /sudo chown -R 1000:1000 backend\/src\/resources\/media\/_work_logs/);
+      return true;
+    });
+    assert.equal(existsSync(space.databasePath), false);
+    assert.equal(existsSync(`${space.databasePath}.importing`), false);
+
+    await chmod(privateFolder, 0o700);
+    assert.equal(await fileHash(source), before);
+    await prepareDatabase(space.options);
+    assert.equal(existsSync(space.databasePath), true);
+    assert.equal(await readFile(join(space.mediaRoot, '_work_logs', 'attachment.txt'), 'utf8'), 'private');
+  } finally {
+    await chmod(privateFolder, 0o700).catch(() => undefined);
     await space.cleanup();
   }
 });

@@ -487,7 +487,7 @@ test('restricts about editing to the active editor owner and sanitizes stored an
   const [savedProfile] = await db.$queryRaw<
     Array<{ aboutMarkdown: string; aboutHtml: string }>
   >`SELECT aboutMarkdown, aboutHtml FROM "Profile" WHERE userId = 1`;
-  assert.match(savedProfile.aboutHtml, /<h1[^>]*>Hello<\/h1>/);
+  assert.match(savedProfile.aboutHtml, /<h2 id="hello">Hello<\/h2>/);
   assert.doesNotMatch(savedProfile.aboutHtml, /<script>/);
 
   const apiSave = await app.inject({

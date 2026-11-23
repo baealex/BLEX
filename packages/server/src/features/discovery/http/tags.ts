@@ -17,6 +17,8 @@ import {
   validPublicPage,
 } from '../shared.js';
 import { getLayoutContext, renderHtml } from '../page-context.js';
+import { searchTerm } from '../../../platform/search-term.js';
+
 export function registerTagsRoutes(
   app: FastifyInstance,
   db: PrismaClient,
@@ -28,7 +30,7 @@ export function registerTagsRoutes(
     const query = url.searchParams;
     const page = pageFrom(query);
     if (page === null) return sendNotFound(reply);
-    const searchText = (query.get('q') ?? '').trim();
+    const searchText = searchTerm(query.get('q'));
     const requestedSort = query.get('sort') ?? 'popular';
     const sort = ['popular', 'name', 'recent'].includes(requestedSort) ? requestedSort : 'popular';
     const { brand, siteName, viewer } = await getLayoutContext(request, reply, db, options);

@@ -1,3 +1,10 @@
+import MarkdownIt from 'markdown-it';
+import markdownItCjkFriendly from 'markdown-it-cjk-friendly';
+import markdownItDeflist from 'markdown-it-deflist';
+import markdownItFootnote from 'markdown-it-footnote';
+import markdownItMark from 'markdown-it-mark';
+import markdownItSub from 'markdown-it-sub';
+import { legacySyntax } from './markdown-syntax.js';
 import { sanitizePostHtml } from '../post-html.js';
 
 function escapeHtml(value: string): string {
@@ -51,122 +58,34 @@ function uploadedVideoFigure(caption: string, video: { url: string; type: string
   return `<figure><video controls playsinline preload="metadata"><source src="${escapeHtml(video.url)}" type="${video.type}"></video>${figcaption}</figure>`;
 }
 
-function inlineMarkdown(raw: string): string {
-  const tokens: string[] = [];
-  const protect = (html: string) => {
-    const token = `\u0000${tokens.length}\u0000`;
-    tokens.push(html);
-    return token;
-  };
-
-  let prepared = raw.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_match, alt: string, target: string) => {
-    const safe = safeLink(target);
-    return protect(safe ? `<img src="${escapeHtml(safe)}" alt="${escapeHtml(alt)}">` : escapeHtml(alt));
-  });
-  prepared = prepared.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, label: string, target: string) => {
-    const safe = safeLink(target);
-    return protect(safe ? `<a href="${escapeHtml(safe)}">${escapeHtml(label)}</a>` : escapeHtml(label));
-  });
-  prepared = prepared.replace(/`([^`]+)`/g, (_match, code: string) => protect(`<code>${escapeHtml(code)}</code>`));
-
-  let html = escapeHtml(prepared)
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/__(.+?)__/g, '<strong>$1</strong>')
-    .replace(/~~(.+?)~~/g, '<del>$1</del>')
-    .replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, '$1<em>$2</em>')
-    .replace(/(^|[^_])_([^_\n]+)_(?!_)/g, '$1<em>$2</em>');
-  html = html.replace(/\u0000(\d+)\u0000/g, (_match, index: string) => tokens[Number(index)] ?? '');
-  return html;
-}
-
-function isBlockStart(lines: string[], index: number): boolean {
-  const line = lines[index] ?? '';
-  return /^\s{0,3}(?:#{1,6}\s|```|~~~|>|[-*+]\s|\d+\.\s|(?:---+|___+|\*\*\*+)\s*$)/.test(line);
-}
+const parser = new MarkdownIt({ html: false, breaks: true });
+parser.use(markdownItCjkFriendly).use(markdownItFootnote).use(markdownItDeflist).use(markdownItMark).use(markdownItSub);
+parser.use(legacySyntax);
+// An unsafe URL keeps its element, and the sanitizer removes only the attribute.
+parser.validateLink = () => true;
+parser.core.ruler.push('blex_blocks', (state) => {
+  const tokens: typeof state.tokens = [];
+  for (let index = 0; index < state.tokens.length; index += 1) {
+    const token = state.tokens[index]!;
+    if (token.type === 'fence') {
+      const language = token.info.trim().split(/\s+/)[0] ?? '';
+      token.info = /^[a-zA-Z0-9_-]{1,32}$/.test(language) ? language : '';
+    }
+    const inline = token.type === 'paragraph_open' ? state.tokens[index + 1] : undefined;
+    const image = inline?.children?.length === 1 && inline.children[0]!.type === 'image' ? inline.children[0]! : null;
+    const video = image ? safeUploadedVideo(String(image.attrGet('src') ?? '')) : null;
+    if (image && video) {
+      const figure = new state.Token('html_block', '', 0);
+      figure.content = uploadedVideoFigure(image.content, video);
+      tokens.push(figure);
+      index += 2;
+      continue;
+    }
+    tokens.push(token);
+  }
+  state.tokens = tokens;
+});
 
 export function markdownToHtml(markdown: string): string {
-  const lines = markdown.replace(/\r\n?/g, '\n').split('\n');
-  const blocks: string[] = [];
-  let index = 0;
-
-  while (index < lines.length) {
-    const line = lines[index] ?? '';
-    if (!line.trim()) {
-      index += 1;
-      continue;
-    }
-
-    const videoImage = line.match(/^\s{0,3}!\[([^\]]*)\]\(([^)]+)\)\s*$/);
-    const video = videoImage ? safeUploadedVideo(videoImage[2] ?? '') : null;
-    if (videoImage && video) {
-      blocks.push(uploadedVideoFigure(videoImage[1] ?? '', video));
-      index += 1;
-      continue;
-    }
-
-    const fence = line.match(/^\s{0,3}(```+|~~~+)(.*)$/);
-    if (fence) {
-      const marker = fence[1]![0];
-      index += 1;
-      const code: string[] = [];
-      while (index < lines.length && !new RegExp(`^\\s{0,3}${marker}{3,}\\s*$`).test(lines[index] ?? '')) {
-        code.push(lines[index] ?? '');
-        index += 1;
-      }
-      if (index < lines.length) index += 1;
-      const language = (fence[2] ?? '').trim().split(/\s+/)[0];
-      const className = /^[a-zA-Z0-9_-]{1,32}$/.test(language) ? ` class="language-${escapeHtml(language)}"` : '';
-      blocks.push(`<pre><code${className}>${escapeHtml(code.join('\n'))}</code></pre>`);
-      continue;
-    }
-
-    const heading = line.match(/^\s{0,3}(#{1,6})\s+(.+?)\s*#*\s*$/);
-    if (heading) {
-      const level = heading[1]!.length;
-      blocks.push(`<h${level}>${inlineMarkdown(heading[2]!)}</h${level}>`);
-      index += 1;
-      continue;
-    }
-
-    if (/^\s{0,3}(?:---+|___+|\*\*\*+)\s*$/.test(line)) {
-      blocks.push('<hr>');
-      index += 1;
-      continue;
-    }
-
-    if (/^\s{0,3}>/.test(line)) {
-      const quote: string[] = [];
-      while (index < lines.length && /^\s{0,3}>/.test(lines[index] ?? '')) {
-        quote.push((lines[index] ?? '').replace(/^\s{0,3}>\s?/, ''));
-        index += 1;
-      }
-      blocks.push(`<blockquote><p>${quote.map(inlineMarkdown).join('<br>')}</p></blockquote>`);
-      continue;
-    }
-
-    const unordered = line.match(/^\s{0,3}[-*+]\s+(.+)$/);
-    const ordered = line.match(/^\s{0,3}\d+\.\s+(.+)$/);
-    if (unordered || ordered) {
-      const kind = unordered ? 'ul' : 'ol';
-      const items: string[] = [];
-      while (index < lines.length) {
-        const match = (lines[index] ?? '').match(kind === 'ul' ? /^\s{0,3}[-*+]\s+(.+)$/ : /^\s{0,3}\d+\.\s+(.+)$/);
-        if (!match) break;
-        items.push(`<li>${inlineMarkdown(match[1]!)}</li>`);
-        index += 1;
-      }
-      blocks.push(`<${kind}>${items.join('')}</${kind}>`);
-      continue;
-    }
-
-    const paragraph = [line];
-    index += 1;
-    while (index < lines.length && (lines[index] ?? '').trim() && !isBlockStart(lines, index)) {
-      paragraph.push(lines[index] ?? '');
-      index += 1;
-    }
-    blocks.push(`<p>${paragraph.map(inlineMarkdown).join('<br>')}</p>`);
-  }
-
-  return sanitizePostHtml(blocks.join('\n'));
+  return sanitizePostHtml(parser.render(markdown)).trimEnd();
 }

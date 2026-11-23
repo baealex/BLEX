@@ -145,14 +145,25 @@ export async function saveBannerOrder(
 ): Promise<void> {
   if (!Array.isArray(order)) return;
   await db.$transaction(async (tx) => {
+    const banners = await tx.siteBanner.findMany({
+      where: bannersIn(scope, ownerId),
+      select: { id: true, order: true },
+    });
+    const current = new Map(banners.map((banner) => [banner.id, banner.order]));
+    const requested = new Map<number, number>();
     for (const item of order) {
       if (!Array.isArray(item) || item.length !== 2) continue;
       const [rawId, rawOrder] = item;
       const id = typeof rawId === 'number' ? rawId : /^\d+$/.test(String(rawId)) ? Number(rawId) : NaN;
       const position =
         typeof rawOrder === 'number' ? rawOrder : /^-?\d+$/.test(String(rawOrder)) ? Number(rawOrder) : NaN;
-      if (!isDatabaseInteger(id) || !isDatabaseInteger(position)) continue;
-      await tx.siteBanner.updateMany({ where: { ...bannersIn(scope, ownerId), id }, data: { order: position } });
+      if (isDatabaseInteger(id) && isDatabaseInteger(position) && current.has(id)) requested.set(id, position);
+    }
+    // The request size no longer decides how long this transaction holds the single database connection.
+    for (const [id, position] of requested) {
+      if (current.get(id) !== position) {
+        await tx.siteBanner.updateMany({ where: { ...bannersIn(scope, ownerId), id }, data: { order: position } });
+      }
     }
   });
 }

@@ -160,16 +160,29 @@ export async function createNotification(
   return true;
 }
 
-export async function notifyPostSubscribers(tx: Prisma.TransactionClient, postId: number) {
+/** Notifies one page of subscribers in id order, and returns where the next page starts. */
+async function notifySubscriberPage(
+  tx: Prisma.TransactionClient,
+  postId: number,
+  afterSubscriber: number,
+  pageSize?: number,
+): Promise<{ delivered: number; next: number | null }> {
   const post = await tx.post.findFirst({
     where: { id: postId, ...publicPostWhere(), author: { isActive: true, profile: { role: 'EDITOR' } } },
     select: { authorId: true, title: true, slug: true, author: { select: { username: true } } },
   });
-  if (!post) return 0;
+  if (!post) return { delivered: 0, next: null };
   const announcement = { authorId: post.authorId, username: post.author.username, title: post.title, slug: post.slug };
   const { authorId, username, title, slug } = announcement;
-  const subscribers = await tx.authorSubscription.findMany({ where: { authorId }, select: { subscriberId: true } });
-  if (!subscribers.length) return 0;
+  const found = await tx.authorSubscription.findMany({
+    where: { authorId, subscriberId: { gt: afterSubscriber } },
+    orderBy: { subscriberId: 'asc' },
+    ...(pageSize ? { take: pageSize + 1 } : {}),
+    select: { subscriberId: true },
+  });
+  const subscribers = pageSize ? found.slice(0, pageSize) : found;
+  const next = pageSize && found.length > pageSize ? (subscribers.at(-1)?.subscriberId ?? null) : null;
+  if (!subscribers.length) return { delivered: 0, next: null };
   const aliases = await tx.usernameChange.findMany({ where: { userId: authorId }, select: { username: true } });
   const url = publicPostPath(username, slug);
   const priorUrls = [url, ...aliases.map((entry) => publicPostPath(entry.username, slug))];
@@ -202,11 +215,19 @@ export async function notifyPostSubscribers(tx: Prisma.TransactionClient, postId
     )
       delivered += 1;
   }
-  return delivered;
+  return { delivered, next };
+}
+
+export async function notifyPostSubscribers(tx: Prisma.TransactionClient, postId: number) {
+  return (await notifySubscriberPage(tx, postId, 0)).delivered;
 }
 
 /** Keeps the publication queue current. Only a first publication may notify readers and webhooks. */
-export async function syncPostPublication(tx: Prisma.TransactionClient, postId: number, { announce = false } = {}) {
+export async function syncPostPublication(
+  tx: Prisma.TransactionClient,
+  postId: number,
+  { announce = false, subscribersNotified = false } = {},
+) {
   const post = await tx.post.findFirst({
     where: { id: postId, deletedAt: null, isHidden: false },
     select: { publishedAt: true },
@@ -220,24 +241,56 @@ export async function syncPostPublication(tx: Prisma.TransactionClient, postId: 
   } else {
     await tx.scheduledPublication.deleteMany({ where: { postId } });
     if (announce && post?.publishedAt) {
-      await notifyPostSubscribers(tx, postId);
+      if (!subscribersNotified) await notifyPostSubscribers(tx, postId);
       await queuePostWebhooks(tx, postId);
     }
   }
 }
 
-export async function processScheduledPublications(db: PrismaClient) {
-  const now = new Date();
-  await db.$transaction(
-    async (tx) => {
-      const ready = await tx.scheduledPublication.findMany({
-        where: { publishAt: { lte: now } },
-        orderBy: { publishAt: 'asc' },
-        take: 20,
-        select: { postId: true },
+// A due post keeps its queue row until every subscriber is notified, so a restart resumes it without duplicates.
+const SUBSCRIBER_PAGE_SIZE = 200;
+const MAX_SUBSCRIBER_PAGES_PER_RUN = 10;
+const announcementProgress = new WeakMap<PrismaClient, Map<number, number>>();
+
+async function announceScheduledPost(db: PrismaClient, postId: number, progress: Map<number, number>, pages: number) {
+  let afterSubscriber = progress.get(postId) ?? 0;
+  let remaining = pages;
+  while (remaining > 0) {
+    remaining -= 1;
+    const page = await db.$transaction(
+      (tx) => notifySubscriberPage(tx, postId, afterSubscriber, SUBSCRIBER_PAGE_SIZE),
+      { timeout: 15_000 },
+    );
+    if (page.next === null) {
+      await db.$transaction((tx) => syncPostPublication(tx, postId, { announce: true, subscribersNotified: true }), {
+        timeout: 15_000,
       });
-      for (const { postId } of ready) await syncPostPublication(tx, postId, { announce: true });
-    },
-    { timeout: 15_000 },
-  );
+      progress.delete(postId);
+      return remaining;
+    }
+    afterSubscriber = page.next;
+    progress.set(postId, afterSubscriber);
+  }
+  return 0;
+}
+
+export async function processScheduledPublications(db: PrismaClient) {
+  const ready = await db.scheduledPublication.findMany({
+    where: { publishAt: { lte: new Date() } },
+    orderBy: { publishAt: 'asc' },
+    take: 20,
+    select: { postId: true },
+  });
+  const progress = announcementProgress.get(db) ?? new Map<number, number>();
+  announcementProgress.set(db, progress);
+  let pages = MAX_SUBSCRIBER_PAGES_PER_RUN;
+  for (const { postId } of ready) {
+    if (pages <= 0) break;
+    pages -= 1;
+    try {
+      pages = await announceScheduledPost(db, postId, progress, pages + 1);
+    } catch (error) {
+      console.error(`BLEX could not publish scheduled post ${postId}.`, error);
+    }
+  }
 }

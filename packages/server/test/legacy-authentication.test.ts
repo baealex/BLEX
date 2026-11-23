@@ -150,7 +150,7 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     assert.equal(createdDraft.statusCode, 201, createdDraft.body);
     const draft = createdDraft.json().data;
     assert.equal(draft.status, 'draft');
-    assert.match(draft.content_html, /<h1>API draft<\/h1>/);
+    assert.match(draft.content_html, /<h2 id="api-draft">API draft<\/h2>/);
     const updateUrl = `${postsUrl}/${draft.id}`;
     const stale = await app.inject({
       method: 'PATCH',

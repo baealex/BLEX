@@ -42,6 +42,8 @@ import {
   renderHtml,
 } from '../../discovery/page-context.js';
 import { publicPostPath } from '../../posts/public-post.js';
+import { searchTerm } from '../../../platform/search-term.js';
+
 export function registerProfileRoutes(
   app: FastifyInstance,
   db: PrismaClient,
@@ -170,7 +172,7 @@ export function registerProfileRoutes(
     const query = url.searchParams;
     const page = pageFrom(query);
     if (page === null) return sendNotFound(reply);
-    const searchText = (query.get('q') ?? '').trim();
+    const searchText = searchTerm(query.get('q'));
     const tagFilter = (query.get('tag') ?? '').trim();
     const where: Prisma.PostWhereInput = {
       authorId: author.id,
@@ -247,7 +249,7 @@ export function registerProfileRoutes(
     const query = url.searchParams;
     const page = pageFrom(query);
     if (page === null) return sendNotFound(reply);
-    const searchText = (query.get('q') ?? '').trim();
+    const searchText = searchTerm(query.get('q'));
     const requestedSort = query.get('sort') ?? 'custom';
     const sort = ['custom', 'newest', 'oldest', 'posts'].includes(requestedSort) ? requestedSort : 'custom';
     const publicPost = publicPostWhere();

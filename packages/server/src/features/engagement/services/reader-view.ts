@@ -95,5 +95,7 @@ export async function readReaderPostView(
     },
     canComment: commentState.canComment,
     comments: commentState.comments,
+    totalComments: commentState.totalComments,
+    olderCommentsCursor: commentState.olderCommentsCursor,
   };
 }

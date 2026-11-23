@@ -919,6 +919,13 @@ export default function renderPage({
                                         itemProp="articleBody"
                                         dangerouslySetInnerHTML={{ __html: outline.html }}
                                     />
+                                    {outline.html.includes('class="language-') && (
+                                        <script
+                                            type="module"
+                                            src="/assets/blex/code-blocks.js"
+                                            data-blex-page-module="code-blocks"
+                                        />
+                                    )}
                                     {presentation.tags.length > 0 && (
                                         <div className="mb-16 flex flex-wrap gap-2" itemProp="keywords">
                                             {presentation.tags.map((tag) => (

@@ -21,6 +21,9 @@ interface ChannelOptions {
 
 type Scope = 'user' | 'global';
 
+// Every channel adds a delivery to the queue that all authors share.
+const MAX_USER_CHANNELS = 20;
+
 async function channels(db: PrismaClient, scope: Scope, owner: number | null) {
   const rows = await db.webhookChannel.findMany({
     where: { scope, ownerId: owner },
@@ -48,6 +51,12 @@ async function saveChannel(db: PrismaClient, scope: Scope, owner: number | null,
         data: { ...(name ? { name } : {}), isActive: true, failureCount: 0 },
       });
       return existing.id;
+    }
+    if (
+      scope === 'user' &&
+      (await tx.webhookChannel.count({ where: { scope, ownerId: owner } })) >= MAX_USER_CHANNELS
+    ) {
+      return null;
     }
     const created = await tx.webhookChannel.create({
       data: { name, url, ownerId: owner, scope, createdAt: new Date() },
@@ -100,6 +109,7 @@ export function registerWebhooks(app: FastifyInstance, db: PrismaClient, options
         if (!parseWebhookUrl(url)) return failure(url ? 'VA' : 'RE', 'Webhook URL을 확인해 주세요.');
         const name = typeof body.name === 'string' ? body.name.trim().slice(0, 100) : '';
         const channelId = await saveChannel(db, scope, owner, url, name);
+        if (channelId === null) return failure('VA', `웹훅 채널은 ${MAX_USER_CHANNELS}개까지 등록할 수 있습니다.`);
         return done({ success: true, channelId });
       };
       routes.route<Params>({ method: ['GET', 'POST'], url: apiPath, handler });

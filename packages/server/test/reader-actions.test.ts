@@ -163,7 +163,12 @@ test('serves anonymous and signed-in public comments with nested permissions and
   assert.equal(writerView.json().body.comments[0].replies[0].permissions.canLike, true);
 
   const hidden = await app.inject('/v1/posts/hidden-post/comments');
-  assert.deepEqual(hidden.json().body, { canComment: false, comments: [] });
+  assert.deepEqual(hidden.json().body, {
+    canComment: false,
+    comments: [],
+    totalComments: 0,
+    olderCommentsCursor: null,
+  });
   const blocked = await app.inject('/v1/posts/blocked-comments/comments');
   assert.equal(blocked.json().body.canComment, false);
   assert.equal(blocked.json().body.comments.length, 1);

@@ -26,6 +26,9 @@ export function registerAdminSettings(app: FastifyInstance, db: PrismaClient, op
         .header('X-Robots-Tag', 'noindex, nofollow, noarchive')
         .header('Referrer-Policy', 'same-origin');
     });
+    routes.addHook('onRoute', (route) => {
+      route.config = { ...route.config, bodyAccess: 'author' };
+    });
     registerSiteSettingsRoutes(routes, db, options);
     registerUsersRoutes(routes, db, options);
     registerModerationRoutes(routes, db, options);

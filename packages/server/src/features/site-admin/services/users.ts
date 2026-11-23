@@ -4,6 +4,7 @@ import { randomBytes } from 'node:crypto';
 import { containsLiteral } from '../../posts/data/text-match.js';
 import { removeAccountAttachments, removeAccountData } from '../../auth/delete-account.js';
 import { createPasswordResetToken } from '../../auth/password-reset.js';
+import { revokeAccountTokens } from '../../developer-api/services/token-auth.js';
 import { type AdminManagedUser, type AdminUserList, type AdminInvite } from '../types.js';
 import { ApiResult, isoDate, positiveInteger, recordModeration } from '../shared.js';
 
@@ -259,6 +260,7 @@ export async function updateManagedUserRole(
       });
       if (profile.role === 'EDITOR' && roleValue === 'READER') {
         const now = new Date();
+        await revokeAccountTokens(transaction, targetId, now);
         await transaction.post.updateMany({
           where: { authorId: targetId, publishedAt: { gt: now } },
           data: { publishedAt: null, updatedAt: now },
@@ -306,7 +308,10 @@ export async function setMemberActive(
     if (!target.ok) return target;
     if (target.row.isActive === isActive) return { ok: true, body: managedUser(target.row, actor) };
     await transaction.user.update({ where: { id: targetId }, data: { isActive }, select: { id: true } });
-    if (!isActive) await transaction.session.deleteMany({ where: { userId: targetId } });
+    if (!isActive) {
+      await transaction.session.deleteMany({ where: { userId: targetId } });
+      await revokeAccountTokens(transaction, targetId);
+    }
     await recordModeration(
       transaction,
       actor.id,
@@ -356,6 +361,7 @@ export async function resetMemberTwoFactor(
     if (!target.ok) return target;
     await transaction.twoFactorAuth.deleteMany({ where: { userId: targetId } });
     await transaction.session.deleteMany({ where: { userId: targetId } });
+    await revokeAccountTokens(transaction, targetId);
     await recordModeration(
       transaction,
       actor.id,

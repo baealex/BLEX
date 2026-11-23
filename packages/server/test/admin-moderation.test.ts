@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import test from 'node:test';
 import { PrismaClient } from '@prisma/client';
 import { buildApp } from '../src/app.js';
@@ -139,6 +140,82 @@ test('staff hide, trash, and restore published posts without seeing drafts', asy
       .prepare(`SELECT COUNT(*) AS total FROM "AdminLog" WHERE target = 'post' AND userId = 2`)
       .get() as { total: number };
     assert.equal(logged.total, 4);
+  });
+});
+
+test('losing access or recovering an account revokes developer tokens', async () => {
+  await withApp(async ({ app, staff, owner, fixture }) => {
+    let nextToken = 1;
+    const issue = () => {
+      const prefix = `revoke${String(nextToken).padStart(6, '0')}`;
+      const token = `blex_pat_${prefix}_test-secret`;
+      insertRow(fixture.db, 'DeveloperToken', {
+        id: nextToken,
+        userId: 3,
+        name: 'Writer',
+        tokenPrefix: prefix,
+        tokenHash: createHash('sha256').update(token).digest('hex'),
+        scopes: JSON.stringify(['posts:read']),
+      });
+      nextToken += 1;
+      return token;
+    };
+    const status = async (token: string) =>
+      (await app.inject({ url: '/api/developer/v1/me', headers: { authorization: `Bearer ${token}` } })).statusCode;
+    const patch = (path: string, body: object) =>
+      app.inject({
+        method: 'PATCH',
+        url: `/v1/admin/users/3/${path}`,
+        headers: json(staff),
+        payload: JSON.stringify(body),
+      });
+
+    const beforeDemotion = issue();
+    assert.equal(await status(beforeDemotion), 200);
+    await patch('role', { role: 'READER' });
+    await patch('role', { role: 'EDITOR' });
+    assert.equal(await status(beforeDemotion), 401);
+
+    const beforeDeactivation = issue();
+    assert.equal(await status(beforeDeactivation), 200);
+    await patch('status', { isActive: false });
+    await patch('status', { isActive: true });
+    assert.equal(await status(beforeDeactivation), 401);
+
+    insertRow(fixture.db, 'TwoFactorAuth', { id: 1, userId: 3, totpSecret: 'x', recoveryKey: 'y' });
+    const beforeFactorReset = issue();
+    assert.equal(await status(beforeFactorReset), 200);
+    await app.inject({ method: 'DELETE', url: '/v1/admin/users/3/two-factor', headers: owner });
+    assert.equal(await status(beforeFactorReset), 401);
+
+    fixture.db
+      .prepare('UPDATE "User" SET passwordHash = ? WHERE id = 3')
+      .run(await hashPassword('Old-Passw0rd!-value'));
+    const beforeReset = issue();
+    assert.equal(await status(beforeReset), 200);
+    const link = new URL(
+      parsed(await app.inject({ method: 'POST', url: '/v1/admin/users/3/password-link', headers: owner })).body.url,
+    );
+    const csrf = 'c'.repeat(43);
+    await app.inject({
+      method: 'POST',
+      url: link.pathname,
+      headers: {
+        origin: testSiteUrl.origin,
+        cookie: `csrftoken=${csrf}`,
+        'content-type': 'application/x-www-form-urlencoded',
+      },
+      payload: new URLSearchParams({
+        csrfmiddlewaretoken: csrf,
+        password: newPassword,
+        passwordConfirm: newPassword,
+      }).toString(),
+    });
+    assert.equal(await status(beforeReset), 401);
+
+    const unrelated = issue();
+    await patch('role', { role: 'EDITOR' });
+    assert.equal(await status(unrelated), 200);
   });
 });
 

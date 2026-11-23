@@ -86,6 +86,25 @@ export function commentAuthors(comments: CommentPayload[]): string[] {
     return [...authors].sort();
 }
 
+/** Adds an older page. A thread already on screen keeps its live state and gains only the replies it lacks. */
+export function mergeOlderComments(current: CommentPayload[], older: CommentPayload[]): CommentPayload[] {
+    const byId = new Map(current.map((comment) => [comment.id, comment]));
+    for (const comment of older) {
+        const existing = byId.get(comment.id);
+        if (!existing) {
+            byId.set(comment.id, comment);
+            continue;
+        }
+        const known = new Set((existing.replies ?? []).map((reply) => reply.id));
+        const replies = [
+            ...(existing.replies ?? []),
+            ...(comment.replies ?? []).filter((reply) => !known.has(reply.id))
+        ];
+        byId.set(comment.id, { ...existing, replies: replies.sort((a, b) => a.id - b.id) });
+    }
+    return [...byId.values()].sort((a, b) => a.id - b.id);
+}
+
 export function countComments(comments: CommentPayload[]): number {
     return comments.reduce((total, comment) => total + 1 + countComments(comment.replies ?? []), 0);
 }

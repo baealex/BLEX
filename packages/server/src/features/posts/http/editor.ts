@@ -8,6 +8,7 @@ import { sanitizePostHtml } from '../post-html.js';
 import { done, failure as failed } from '../../../platform/response.js';
 import {
   editorBodyLimit,
+  editorMultipartLimit,
   editorKeepsOriginalTags,
   isMultipartRequest,
   prepareEditorFields,
@@ -88,7 +89,7 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
       );
   });
 
-  routes.post('/v1/posts', async (request, reply) => {
+  routes.post('/v1/posts', { config: { multipartLimit: editorMultipartLimit } }, async (request, reply) => {
     // A multipart body carries its token inside, so it is read only after the author is known.
     if (!isMultipartRequest(request) && !options.validateCsrf(request)) return forbidden(reply);
     const user = await currentAccount(request, db, options);
@@ -127,6 +128,7 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
   routes.route<{ Params: { username: string; url: string } }>({
     method: ['GET', 'POST', 'PUT', 'DELETE'],
     url: '/v1/users/@:username/posts/:url',
+    config: { multipartLimit: editorMultipartLimit },
     handler: async (request, reply) => {
       if (request.method === 'GET') {
         const post = await loadPost(db, { username: request.params.username, slug: request.params.url });
@@ -235,6 +237,7 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
     method: ['GET', 'POST'],
     url: '/v1/drafts',
     bodyLimit: editorBodyLimit,
+    config: { bodyAccess: 'author', multipartLimit: editorMultipartLimit },
     onRequest: sessionBeforeBody,
     handler: async (request, reply) => {
       const user = await editorAccount(request, reply, db, options, true);
@@ -274,6 +277,7 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
     method: ['GET', 'PUT', 'DELETE'],
     url: '/v1/drafts/:url',
     bodyLimit: editorBodyLimit,
+    config: { bodyAccess: 'author', multipartLimit: editorMultipartLimit },
     onRequest: sessionBeforeBody,
     handler: async (request, reply) => {
       const user = await editorAccount(request, reply, db, options, true);

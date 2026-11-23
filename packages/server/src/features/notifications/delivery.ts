@@ -103,6 +103,10 @@ export function startNotificationWorker(db: PrismaClient, siteUrl: URL, cipherKe
   const tick = async () => {
     try {
       await processScheduledPublications(db);
+    } catch {
+      console.error('BLEX scheduled publishing failed.');
+    }
+    try {
       for (let count = 0; count < 4 && !controller.signal.aborted; count += 1) {
         if (!(await deliverTelegramNotification(db, siteUrl, cipherKey, send, controller.signal))) break;
       }

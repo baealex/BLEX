@@ -9,4 +9,5 @@ export const {
   isMentionQuery,
   isMentionStart,
   mergeCommentInTree,
+  mergeOlderComments,
 } = commentModel;

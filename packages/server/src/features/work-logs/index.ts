@@ -134,7 +134,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
 
     routes.post<{ Params: { pk: string }; Body: unknown }>(
       '/work-logs/:pk/entry/',
-      { bodyLimit: MAX_REQUEST_SIZE },
+      { bodyLimit: MAX_REQUEST_SIZE, config: { bodyAccess: 'author' } },
       async (request, reply) => {
         if (!csrfValid(request, options)) return notAllowed(reply);
         const user = await currentUser(request, reply, options);

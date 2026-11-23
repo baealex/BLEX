@@ -330,6 +330,7 @@ export function postOutline(html: string, naming: { maxLength?: number; fallback
   const document = parseDocument(html, { withStartIndices: true });
   const elements = DomUtils.getElementsByTagName((name) => /^h[1-6]$/.test(name), document.children);
   const used = new Set(elements.flatMap((element) => element.attribs.id || []));
+  const nextSuffix = new Map<string, number>();
   let body = '';
   let cursor = 0;
   const headings = elements.flatMap((element) => {
@@ -345,7 +346,12 @@ export function postOutline(html: string, naming: { maxLength?: number; fallback
         .replace(/^-|-$/g, '');
       const base = (naming.maxLength ? Array.from(slug).slice(0, naming.maxLength).join('') : slug) || naming.fallback;
       id = base;
-      for (let suffix = 1; used.has(id); suffix += 1) id = `${base}-${suffix}`;
+      let suffix = nextSuffix.get(base) ?? 1;
+      while (used.has(id)) {
+        id = `${base}-${suffix}`;
+        suffix += 1;
+      }
+      nextSuffix.set(base, suffix);
       used.add(id);
       const offset = (element.startIndex ?? 0) + element.name.length + 1;
       body += html.slice(cursor, offset) + ` id="${id}"`;

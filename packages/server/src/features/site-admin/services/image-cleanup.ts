@@ -8,6 +8,9 @@ import { UtilityParameters } from './utilities.js';
 
 type ImageCleanupTarget = 'all' | 'content' | 'title' | 'avatar';
 
+// Each batch rechecks references and deletes inside one short transaction on the single database connection.
+const CLEANUP_BATCH_FILES = 25;
+
 interface ImageCleanupFile {
   category: 'content' | 'title' | 'avatar';
   path: string;
@@ -106,6 +109,30 @@ async function readImageReferences(
     content: collectImageReferences(values, 'content'),
     title: collectImageReferences(values, 'title'),
     avatar: collectImageReferences(values, 'avatar'),
+  };
+}
+
+async function readUsedImageNames(
+  db: PrismaClient | Prisma.TransactionClient,
+): Promise<Record<ImageCleanupFile['category'], Set<string>>> {
+  const imageReferences = await readImageReferences(db);
+  const [posts, profiles] = await Promise.all([
+    db.post.findMany({ select: { image: true } }),
+    db.profile.findMany({ select: { avatar: true, cover: true } }),
+  ]);
+  return {
+    content: imageReferences.content,
+    title: new Set([
+      ...imageReferences.title,
+      ...posts.map((row) => filenameFromStoredPath(row.image ?? '')).filter(Boolean),
+    ]),
+    avatar: new Set([
+      ...imageReferences.avatar,
+      ...profiles
+        .flatMap((row) => [row.avatar, row.cover])
+        .filter((path): path is string => Boolean(path))
+        .map(filenameFromStoredPath),
+    ]),
   };
 }
 
@@ -210,40 +237,18 @@ export async function buildImageCleanupPlan(
     targetValue === 'content' || targetValue === 'title' || targetValue === 'avatar' ? targetValue : 'all';
   const removeDuplicates = parameters.removeDuplicates === true;
   const root = await mediaRootRealPath(mediaRoot);
-  const imageReferences = await readImageReferences(db);
-  const [posts, profiles, cacheRows] = await Promise.all([
-    db.post.findMany({ select: { image: true } }),
-    db.profile.findMany({ select: { avatar: true, cover: true } }),
+  const usedNames = await readUsedImageNames(db);
+  const cacheRows =
     target === 'all' || target === 'content'
-      ? db.uploadedImage.findMany({
+      ? await db.uploadedImage.findMany({
           where: { path: { startsWith: 'images/content/' } },
           orderBy: { id: 'asc' },
           select: { id: true, path: true },
         })
-      : Promise.resolve([] as Array<{ id: number; path: string }>),
-  ]);
-  const usedTitle = new Set([
-    ...imageReferences.title,
-    ...posts.map((row) => filenameFromStoredPath(row.image ?? '')).filter(Boolean),
-  ]);
-  const usedAvatar = new Set([
-    ...imageReferences.avatar,
-    ...profiles
-      .flatMap((row) => [row.avatar, row.cover])
-      .filter((path): path is string => Boolean(path))
-      .map(filenameFromStoredPath),
-  ]);
+      : [];
   const categories: ImageCleanupFile['category'][] = target === 'all' ? ['content', 'title', 'avatar'] : [target];
   const allFiles = (
-    await Promise.all(
-      categories.map((category) =>
-        scanImageCategory(
-          root,
-          category,
-          category === 'content' ? imageReferences.content : category === 'title' ? usedTitle : usedAvatar,
-        ),
-      ),
-    )
+    await Promise.all(categories.map((category) => scanImageCategory(root, category, usedNames[category])))
   ).flat();
   const unusedFiles = allFiles.filter((file) => !file.isUsed);
   const duplicateFiles: ImageCleanupPlan['duplicateFiles'] = [];
@@ -255,7 +260,7 @@ export async function buildImageCleanupPlan(
       else seen.set(file.contentHash, file);
     }
   }
-  const referencedContentNames = imageReferences.content;
+  const referencedContentNames = usedNames.content;
   const unusedCacheRows = cacheRows.filter(
     (row) => !referencedContentNames.has(cleanLegacyImageName(filenameFromStoredPath(row.path))),
   );
@@ -372,8 +377,9 @@ async function removeEmptyDirectories(directory: string): Promise<number> {
   return removed;
 }
 
+/** Hashes files without the database, then deletes in short batches after checking nothing started using them. */
 export async function executeImageCleanupPlan(
-  db: Prisma.TransactionClient,
+  db: PrismaClient,
   mediaRoot: string,
   plan: ImageCleanupPlan,
 ): Promise<Record<string, unknown>> {
@@ -381,26 +387,44 @@ export async function executeImageCleanupPlan(
   const messages: string[] = [];
   const errors: string[] = [];
   let deletedFiles = 0;
-  const deletedByCategory: Record<ImageCleanupFile['category'], number> = { content: 0, title: 0, avatar: 0 };
-  const deletedRelativePaths = new Set<string>();
-  for (const file of plan.unusedFiles) {
-    if (!(await verifyImageCandidate(root, file))) {
-      errors.push(`Skipped a changed file: ${file.relativePath}`);
-      continue;
-    }
-    try {
-      await unlink(file.path);
-      deletedFiles += 1;
-      deletedByCategory[file.category] += 1;
-      deletedRelativePaths.add(file.relativePath);
-    } catch {
-      errors.push(`Could not delete: ${file.relativePath}`);
-    }
-  }
   let deletedCaches = 0;
+  let filesNowInUse = 0;
+  const deletedByCategory: Record<ImageCleanupFile['category'], number> = { content: 0, title: 0, avatar: 0 };
+  const candidates: ImageCleanupFile[] = [];
+  for (const file of plan.unusedFiles) {
+    if (await verifyImageCandidate(root, file)) candidates.push(file);
+    else errors.push(`Skipped a changed file: ${file.relativePath}`);
+  }
+  const cacheByPath = new Map<string, Array<{ id: number; path: string }>>();
   for (const cache of plan.cacheRows) {
-    if (!deletedRelativePaths.has(relativeImagePathFromStoredPath(cache.path))) continue;
-    deletedCaches += (await db.uploadedImage.deleteMany({ where: { id: cache.id, path: cache.path } })).count;
+    const path = relativeImagePathFromStoredPath(cache.path);
+    cacheByPath.set(path, [...(cacheByPath.get(path) ?? []), cache]);
+  }
+  for (let start = 0; start < candidates.length; start += CLEANUP_BATCH_FILES) {
+    const batch = candidates.slice(start, start + CLEANUP_BATCH_FILES);
+    await db.$transaction(
+      async (tx) => {
+        const usedNames = await readUsedImageNames(tx);
+        for (const file of batch) {
+          if (usedNames[file.category].has(cleanLegacyImageName(file.filename))) {
+            filesNowInUse += 1;
+            continue;
+          }
+          try {
+            await unlink(file.path);
+          } catch {
+            errors.push(`Could not delete: ${file.relativePath}`);
+            continue;
+          }
+          deletedFiles += 1;
+          deletedByCategory[file.category] += 1;
+          for (const cache of cacheByPath.get(file.relativePath) ?? []) {
+            deletedCaches += (await tx.uploadedImage.deleteMany({ where: { id: cache.id, path: cache.path } })).count;
+          }
+        }
+      },
+      { timeout: 15_000 },
+    );
   }
   const categories: ImageCleanupFile['category'][] =
     plan.target === 'all' ? ['content', 'title', 'avatar'] : [plan.target as ImageCleanupFile['category']];
@@ -414,6 +438,7 @@ export async function executeImageCleanupPlan(
     }
   }
   if (deletedCaches) messages.push(`이미지 캐시 ${deletedCaches}개를 삭제했습니다.`);
+  if (filesNowInUse) messages.push(`정리 중 새로 사용된 이미지 ${filesNowInUse}개는 남겨 두었습니다.`);
   let emptyDirectories = 0;
   for (const category of categories) {
     const directory = await safeImageCategoryDirectory(root, category);

@@ -9,6 +9,9 @@ import { hasAdministrator } from '../features/auth/setup.js';
 import { registerPublicActivity } from '../features/authors/public-activity.js';
 import { registerDeveloperDocumentation } from '../features/developer-api/docs.js';
 import { registerDeveloperApi } from '../features/developer-api/index.js';
+import { authenticate, requireScope } from '../features/developer-api/services/token-auth.js';
+import { errorReply, formatError } from '../features/developer-api/shared.js';
+import { isMultipart, registerBodyGuard } from '../platform/request-body.js';
 import { registerDeveloperTokens } from '../features/developer-api/tokens.js';
 import { registerPublicDiscovery } from '../features/discovery/feeds/index.js';
 import { registerPublicPages } from '../features/discovery/http/pages.js';
@@ -17,7 +20,6 @@ import { registerTelegram } from '../features/integrations/telegram.js';
 import { registerWebhooks } from '../features/integrations/webhooks/index.js';
 import { registerContentMedia } from '../features/media/content-media.js';
 import { registerPublicMedia } from '../features/media/public-media.js';
-import { registerUploadGuard } from '../features/media/upload-guard.js';
 import { registerNotifications } from '../features/notifications/index.js';
 import { registerAuthorForms } from '../features/posts/author-forms.js';
 import {
@@ -60,7 +62,20 @@ export async function registerRoutes(
   };
   if (auth) {
     await app.register(cookie);
-    registerUploadGuard(app, currentUser);
+    registerBodyGuard(app, {
+      currentUser,
+      tokenAccount: async (request, reply) => {
+        const { token, error } = await authenticate(db, request.headers.authorization);
+        const denied =
+          error ??
+          (token ? requireScope(token, 'posts:write') : formatError('auth.invalid_token', 'Invalid token.', 401));
+        if (!denied && token) return token.user.id;
+        // The handler records a refused upload in the audit log before it reads the body.
+        if (!isMultipart(request))
+          errorReply(reply, denied ?? formatError('auth.invalid_token', 'Invalid token.', 401));
+        return null;
+      },
+    });
     registerScreenHost(app, db, { currentUser, siteUrl, webAssetsRoot: auth.webAssetsRoot, cipherKey: auth.cipherKey });
     registerAuthentication(app, db, siteUrl, { ...auth, mediaRoot });
     registerPersonalSettings(app, db, { ...routeOptions, updatePassword: passwordUpdater(db, siteUrl, auth) });
@@ -117,7 +132,7 @@ export async function registerRoutes(
   registerPostShare(app, db, { ...routeOptions, writable: Boolean(auth) });
   registerReaderActions(app, db, { ...routeOptions, cipherKey: auth?.cipherKey });
   registerWorkLogs(app, db, routeOptions);
-  app.post('/v1/report/error', { bodyLimit: 64 * 1024 }, async (request, reply) => {
+  app.post('/v1/report/error', { bodyLimit: 64 * 1024, config: { bodyAccess: 'public' } }, async (request, reply) => {
     if (!routeOptions.validateCsrf(request)) return reply.code(403).send();
     return reply.code(200).send();
   });

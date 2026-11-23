@@ -22,6 +22,9 @@ const supported = new Set(['jpg', 'jpeg', 'png', 'gif', 'mp4', 'webm']);
 const configuredLimit = Number(process.env.DEVELOPER_API_MAX_UPLOAD_MB ?? 20);
 export const contentUploadLimit =
   (Number.isSafeInteger(configuredLimit) && configuredLimit >= 1 ? configuredLimit : 20) * 1024 * 1024;
+// FFmpeg decodes each GIF frame at full size, so the canvas bounds the memory one upload can claim.
+const MAX_GIF_FRAME_PIXELS = 8_000_000;
+const MAX_GIF_OUTPUT_SIDE = 1920;
 let uploading = 0;
 
 export const contentUploadTooLargeMessage = `Image files must be ${contentUploadLimit / 1_048_576} MiB or smaller.`;
@@ -119,6 +122,17 @@ function ffmpeg(args: string[]) {
   });
 }
 
+function gifScaleFilter(input: Buffer): string {
+  const width = input.readUInt16LE(6);
+  const height = input.readUInt16LE(8);
+  if (width * height > MAX_GIF_FRAME_PIXELS) {
+    throw new ContentUploadError('image.gif_too_large', 'GIF frames must be 8 megapixels or smaller.', 422);
+  }
+  const ratio = Math.min(1, MAX_GIF_OUTPUT_SIDE / Math.max(width, height));
+  const evenSize = (size: number) => Math.max(2, Math.floor((size * ratio) / 2) * 2);
+  return `scale=${evenSize(width)}:${evenSize(height)}`;
+}
+
 async function prepFiles(input: Buffer, extension: string, working: string) {
   const video = extension === 'mp4' || extension === 'webm';
   const animated = extension === 'gif';
@@ -147,6 +161,7 @@ async function prepFiles(input: Buffer, extension: string, working: string) {
 
   if (extension === 'mp4' && input.subarray(4, 8).toString('ascii') !== 'ftyp') throw failed();
   if (extension === 'webm' && !input.subarray(0, 4).equals(Buffer.from([0x1a, 0x45, 0xdf, 0xa3]))) throw failed();
+  const gifScale = animated ? gifScaleFilter(input) : '';
   const source = resolve(working, `original.${extension}`);
   await writeFile(source, input, { flag: 'wx' });
   const output = video ? source : resolve(working, 'asset.mp4');
@@ -158,9 +173,11 @@ async function prepFiles(input: Buffer, extension: string, working: string) {
       '-i',
       source,
       '-vf',
-      'scale=trunc(iw/2)*2:trunc(ih/2)*2',
+      gifScale,
       '-c:v',
       'libx264',
+      '-preset',
+      'veryfast',
       '-pix_fmt',
       'yuv420p',
       '-threads',
@@ -197,30 +214,31 @@ export function saveContentFile(
   userId: number,
   file: { buffer: Buffer; filename: string },
 ) {
-  return storeContent(db, mediaRoot, userId, async () => file);
+  return storeContent(db, mediaRoot, userId, file);
 }
 
-export function saveContentUpload(
+export async function saveContentUpload(
   db: PrismaClient,
   mediaRoot: string | undefined,
   userId: number,
   request: FastifyRequest,
 ) {
-  return storeContent(db, mediaRoot, userId, () => parseContentUpload(request));
+  if (!mediaRoot) throw failed();
+  // The body arrives at the client's pace, so only the processing below takes a slot.
+  return storeContent(db, mediaRoot, userId, await parseContentUpload(request));
 }
 
 async function storeContent(
   db: PrismaClient,
   mediaRoot: string | undefined,
   userId: number,
-  readFile: () => Promise<{ buffer: Buffer; filename: string }>,
+  file: { buffer: Buffer; filename: string },
 ) {
   if (!mediaRoot) throw failed();
   if (uploading >= 2)
     throw new ContentUploadError('image.upload_busy', 'Image uploads are busy. Try again in a moment.', 429);
   uploading += 1;
   try {
-    const file = await readFile();
     const root = await realpath(mediaRoot);
     const key = createHash('sha256').update(file.buffer).digest('base64');
     const cached = await db.uploadedImage.findUnique({ where: { key }, select: { path: true } });
@@ -284,25 +302,29 @@ interface ContentMediaOptions {
 export function registerContentMedia(app: FastifyInstance, db: PrismaClient, options: ContentMediaOptions) {
   app.register(async (routes) => {
     await registerContentMultipart(routes);
-    routes.post('/v1/image', { bodyLimit: contentUploadLimit + 8192 }, async (request, reply) => {
-      const user = await options.currentUser(request);
-      if (!user) return reply.code(404).send('Not found');
-      const error = failure;
-      if (!user.hasEditorRole) return error('AT');
-      if (!options.validateCsrf(request)) return reply.code(403).send(error('RJ'));
-      try {
-        const url = await saveContentUpload(db, options.mediaRoot, user.id, request);
-        return { status: 'DONE', body: { url } };
-      } catch (failure) {
-        if (!(failure instanceof ContentUploadError)) throw failure;
-        const code =
-          failure.code === 'image.too_large'
-            ? 'OF'
-            : ['image.missing', 'image.invalid_extension'].includes(failure.code)
-              ? 'VA'
-              : 'RJ';
-        return error(code, failure.message);
-      }
-    });
+    routes.post(
+      '/v1/image',
+      { bodyLimit: contentUploadLimit + 8192, config: { bodyAccess: 'author' } },
+      async (request, reply) => {
+        const user = await options.currentUser(request);
+        if (!user) return reply.code(404).send('Not found');
+        const error = failure;
+        if (!user.hasEditorRole) return error('AT');
+        if (!options.validateCsrf(request)) return reply.code(403).send(error('RJ'));
+        try {
+          const url = await saveContentUpload(db, options.mediaRoot, user.id, request);
+          return { status: 'DONE', body: { url } };
+        } catch (failure) {
+          if (!(failure instanceof ContentUploadError)) throw failure;
+          const code =
+            failure.code === 'image.too_large'
+              ? 'OF'
+              : ['image.missing', 'image.invalid_extension'].includes(failure.code)
+                ? 'VA'
+                : 'RJ';
+          return error(code, failure.message);
+        }
+      },
+    );
   });
 }

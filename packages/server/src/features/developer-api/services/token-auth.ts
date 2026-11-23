@@ -21,6 +21,14 @@ export interface AuthenticatedToken {
   user: UserRow;
 }
 
+/** Used when an account is recovered or loses access, so a leaked token cannot outlive that decision. */
+export function revokeAccountTokens(tx: Prisma.TransactionClient, userId: number, revokedAt = new Date()) {
+  return tx.developerToken.updateMany({
+    where: { userId, revokedAt: null },
+    data: { revokedAt, updatedAt: revokedAt },
+  });
+}
+
 export function parseScopes(scopes: Prisma.JsonValue): string[] {
   return Array.isArray(scopes) ? scopes.filter((scope): scope is string => typeof scope === 'string') : [];
 }
