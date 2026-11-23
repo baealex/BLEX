@@ -1,3 +1,4 @@
+import { systemMessage } from '../../platform/messages.js';
 import formBody from '@fastify/formbody';
 import multipart from '@fastify/multipart';
 import type { PrismaClient } from '@prisma/client';
@@ -112,7 +113,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
             canWrite: true,
             csrfToken: csrfCookieValue(request),
             ...(await pageChrome(db, request, user)),
-            error: '작업 일지 제목을 100자 이내로 입력해 주세요.',
+            error: systemMessage('Work log titles must be 100 characters or fewer.'),
             title,
             links: {},
           }),
@@ -150,7 +151,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
         const text = scalar(input.fields.text).trim();
         if (title.length > 100 || text.length > 5000 || (!title && !text && !input.attachment)) {
           return renderDetailPage(request, reply, db, options, user, log, {
-            error: '메모를 작성하거나 파일을 첨부해 주세요.',
+            error: systemMessage('Write a note or add an attachment.'),
             entryTitle: title,
             entryText: text,
           });
@@ -161,7 +162,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
         if (input.attachment) {
           if (!options.mediaRoot)
             return renderDetailPage(request, reply, db, options, user, log, {
-              error: '첨부 파일을 사용할 수 없습니다.',
+              error: systemMessage('This attachment is unavailable.'),
               entryTitle: title,
               entryText: text,
             });
@@ -170,7 +171,8 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
             mediaType = kind.mediaType;
             attachment = await saveAttachment(input.attachment, kind.extension, options.mediaRoot);
           } catch (error) {
-            const message = error instanceof Error ? error.message : 'PNG, JPEG, WebP, MP4, WebM 파일을 선택해 주세요.';
+            const message =
+              error instanceof Error ? error.message : systemMessage('Choose a PNG, JPEG, WebP, MP4, or WebM file.');
             return renderDetailPage(request, reply, db, options, user, log, {
               error: message,
               entryTitle: title,
@@ -207,11 +209,12 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
         const browsing = pageFields.selectionPage in fields || action === 'edit';
         const selection = selectedEntryIds(fields, browsing);
         const headline = scalar(fields.headline).trim();
-        if (!selection.error && headline.length > 120) selection.error = '공유 제목은 120자 이내로 입력해 주세요.';
-        if (!browsing && !headline) selection.error = '무엇이 달라졌는지 입력해 주세요.';
+        if (!selection.error && headline.length > 120)
+          selection.error = systemMessage('Share titles must be 120 characters or fewer.');
+        if (!browsing && !headline) selection.error = systemMessage('Describe what changed.');
         const selected = selection.error ? [] : await selectedEntries(db, logId, selection.ids);
         if (!selection.error && selected.length !== selection.ids.length)
-          selection.error = '이 작업 일지의 기록을 선택해 주세요.';
+          selection.error = systemMessage('Choose entries from this work log.');
 
         if (browsing || selection.error) {
           return renderDetailPage(request, reply, db, options, user, log, {
@@ -258,7 +261,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
 
         if (action !== 'publish')
           return renderDetailPage(request, reply, db, options, user, log, {
-            shareError: '공유 화면을 미리 본 뒤 링크를 만들어 주세요.',
+            shareError: systemMessage('Preview the shared page before creating a link.'),
             headline,
           });
         const token = await createShare(db, logId, headline, selected);

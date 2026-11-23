@@ -1,3 +1,4 @@
+import { ui } from '../../i18n/public-ui.js';
 import { SiteIcon } from '../../appearance/icons.js';
 
 const stepButtonClass =
@@ -20,7 +21,7 @@ export function NoticeControls({
                 type="button"
                 className={stepButtonClass}
                 data-notice-step="-1"
-                aria-label="이전 공지"
+                aria-label={ui('Previous notice')}
                 onClick={() => onStep?.(-1)}
             >
                 <SiteIcon name="chevron-left" className="text-xs" />
@@ -33,7 +34,7 @@ export function NoticeControls({
                         type="button"
                         className="blex-notice-dot h-1.5 rounded-full transition-colors duration-150"
                         data-notice-index={index}
-                        aria-label={`${index + 1}번째 공지 보기`}
+                        aria-label={ui('Show notice {value0}', { value0: index + 1 })}
                         aria-pressed={index === current}
                         onClick={() => onSelect?.(index)}
                     />
@@ -43,7 +44,7 @@ export function NoticeControls({
                 type="button"
                 className={stepButtonClass}
                 data-notice-step="1"
-                aria-label="다음 공지"
+                aria-label={ui('Next notice')}
                 onClick={() => onStep?.(1)}
             >
                 <SiteIcon name="chevron-right" className="text-xs" />

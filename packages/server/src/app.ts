@@ -13,6 +13,7 @@ import { csrfCookie, requestCookies, sessionCookie } from './platform/cookies.js
 import { makeConnectionReadOnly } from './platform/data/read-only-connection.js';
 import { applySecurityHeaders } from './platform/security-headers.js';
 import { registerRoutes } from './routes/index.js';
+import { requestLocale } from './platform/request-locale.js';
 
 const indexableContentType = /^(?:text\/(?:html|markdown|plain)|application\/(?:rss\+)?xml)/;
 
@@ -53,6 +54,7 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
       if (cookies[sessionCookie] || cookies[csrfCookie]) reply.header('Cache-Control', 'private, no-store');
     }
     const contentType = String(reply.getHeader('Content-Type') ?? '');
+    if (contentType.startsWith('text/html')) reply.header('Content-Language', requestLocale());
     if (
       (reply.statusCode === 404 || reply.statusCode === 403) &&
       !contentType.startsWith('text/html') &&
@@ -63,6 +65,7 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
         const page = await render(db, await currentUser(request), requestCookies(request)[csrfCookie] ?? '');
         reply
           .type('text/html; charset=utf-8')
+          .header('Content-Language', requestLocale())
           .header('Content-Security-Policy', applicationContentSecurityPolicy)
           .removeHeader('Content-Length');
         return page;

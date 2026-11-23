@@ -1,3 +1,4 @@
+import { systemMessage } from '../../../platform/messages.js';
 import { renderPage } from '../../../platform/views.js';
 import type { FastifyInstance } from 'fastify';
 import type { Prisma, PrismaClient } from '@prisma/client';
@@ -71,8 +72,8 @@ export function registerTagsRoutes(
       reply,
       renderPage('tags', {
         meta: {
-          title: `${siteName} - 태그`,
-          description: '태그를 살펴보고 관심 있는 주제의 글을 찾아보세요.',
+          title: systemMessage('{value0} - Tags', { value0: siteName }),
+          description: systemMessage('Explore tags to find posts on topics that interest you.'),
           canonical,
           siteName,
           brand,
@@ -118,7 +119,7 @@ export function registerTagsRoutes(
       renderPage('tag/$name', {
         meta: {
           title: `${siteName} - #${tagName}`,
-          description: `#${tagName} 태그가 붙은 공개 글을 읽어보세요.`,
+          description: systemMessage('Read public posts tagged #{value0}.', { value0: tagName }),
           canonical: noindex ? makeAbsolute(siteUrl, path) : canonicalPageUrl(siteUrl, path, checkedPage),
           siteName,
           brand,

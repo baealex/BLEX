@@ -1,3 +1,5 @@
+import { getDocumentLocale } from '../../../i18n/locale.js';
+import { ui } from '../../../i18n/public-ui.js';
 import { SiteIcon, type SiteIconName } from '~/appearance/icons';
 import { SiteFooter, SiteHeader, SiteTheme } from '~/appearance/shell';
 import { renderApplicationDocument, scriptJson } from '~/application/document';
@@ -40,13 +42,14 @@ const coverRatios = new Map([
 
 type Outline = Array<{ id: string; text: string; level: number }>;
 
-const publicationDate = new Intl.DateTimeFormat('ko-KR', {
-    dateStyle: 'long',
-    timeZone: 'Asia/Seoul'
-});
+const publicationDate = () =>
+    new Intl.DateTimeFormat(getDocumentLocale(), {
+        dateStyle: 'long',
+        timeZone: 'Asia/Seoul'
+    });
 
 function formatDate(iso: string): string {
-    return publicationDate.format(new Date(iso));
+    return publicationDate().format(new Date(iso));
 }
 
 function PostCover({
@@ -126,7 +129,7 @@ function PostCover({
                         <>
                             <span className={separator}>·</span>
                             <time className={metadataColor} dateTime={published}>
-                                {formatDate(published)} {post.visibility === 'draft' ? '미리보기' : '발행'}
+                                {formatDate(published)} {post.visibility === 'draft' ? ui('Preview') : ui('Publish')}
                             </time>
                         </>
                     )}
@@ -134,20 +137,20 @@ function PostCover({
                         <>
                             <span className={separator}>·</span>
                             <time className={metadataColor} dateTime={updated}>
-                                {formatDate(updated)} 수정
+                                {formatDate(updated)} {ui('Update')}
                             </time>
                         </>
                     )}
                     <span className={separator}>·</span>
                     <span className={metadataColor}>
-                        <span className="sr-only">읽는 시간: </span>
-                        {post.readTime}분 소요
+                        <span className="sr-only">{ui('Reading time:')} </span>
+                        {ui('{minutes} min read', { minutes: post.readTime })}
                     </span>
                     {timelapsePath && (
                         <>
                             <span className={separator}>·</span>
                             <a href={timelapsePath} className={`${metadataColor} underline-offset-2 hover:underline`}>
-                                쓰인 과정 보기
+                                {ui('See how it was written')}
                             </a>
                         </>
                     )}
@@ -202,7 +205,7 @@ function PostCover({
 
 function OutlineLinks({ headings, mobile }: { headings: Outline; mobile?: boolean }) {
     return (
-        <nav className="px-4 py-4" aria-label="목차" data-site-outline>
+        <nav className="px-4 py-4" aria-label={ui('Table of contents')} data-site-outline>
             <ul className="space-y-1">
                 {headings.map((heading, index) => (
                     <li key={`${heading.id}:${index}`}>
@@ -242,10 +245,10 @@ function PostSeriesCard({
                     <a href={seriesPath}>{name}</a>
                 </h2>
                 <p className="mb-6 text-sm text-content-secondary">
-                    이 포스트는 숨김 처리되어 시리즈 목록에 표시되지 않습니다.
+                    {ui('This hidden post does not appear in the series list.')}
                 </p>
                 <a href={seriesPath} className={allPosts}>
-                    시리즈 전체 보기
+                    {ui('View all series')}
                 </a>
             </section>
         );
@@ -253,7 +256,7 @@ function PostSeriesCard({
     const link = (entry: PostSeriesEntry) => publicPostPath(author, entry.url);
     const step = (entry: PostSeriesEntry | null, label: string) =>
         entry ? (
-            <a href={link(entry)} rel={label === '이전' ? 'prev' : 'next'} className={allPosts}>
+            <a href={link(entry)} rel={label === ui('Previous') ? 'prev' : 'next'} className={allPosts}>
                 {label}
             </a>
         ) : (
@@ -285,7 +288,7 @@ function PostSeriesCard({
                                     {entry.title}
                                 </span>
                                 <span className="rounded-md bg-action px-2.5 py-1 text-xs font-bold text-content-inverted">
-                                    읽는 중
+                                    {ui('Reading')}
                                 </span>
                             </>
                         ) : (
@@ -301,14 +304,14 @@ function PostSeriesCard({
             </ol>
             {navigation.total > 1 && (
                 <nav
-                    aria-label="시리즈 이동"
+                    aria-label={ui('Navigate series')}
                     className="mt-8 flex items-center justify-between gap-4 border-t border-line-light pt-6"
                 >
-                    {step(navigation.previous, '이전')}
+                    {step(navigation.previous, ui('Previous'))}
                     <a href={seriesPath} className={allPosts}>
-                        전체 포스트
+                        {ui('All posts')}
                     </a>
-                    {step(navigation.next, '다음')}
+                    {step(navigation.next, ui('Next'))}
                 </nav>
             )}
         </section>
@@ -348,24 +351,24 @@ function ArticleInfo({
                 <button
                     type="submit"
                     className="shrink-0 rounded-full border border-line px-3 py-1.5 text-xs font-semibold hover:bg-surface-subtle"
-                    aria-label={`${author.username}님의 새 글 구독`}
+                    aria-label={ui('Subscribe to new posts by {value0}', { value0: author.username })}
                     aria-pressed={author.isSubscribed}
                 >
-                    {author.isSubscribed ? '구독 중' : '구독'}
+                    {author.isSubscribed ? ui('Subscribed') : ui('Subscribe')}
                 </button>
             </form>
         ) : (
             <a
                 {...loginPromptProps(postPath, 'subscribe')}
-                aria-label={`${author.username}님의 새 글 구독`}
+                aria-label={ui('Subscribe to new posts by {value0}', { value0: author.username })}
                 className="shrink-0 rounded-full border border-line px-3 py-1.5 text-xs font-semibold hover:bg-surface-subtle"
             >
-                구독
+                {ui('Subscribe')}
             </a>
         ));
     const entries: Array<[string, ReactNode]> = [
         [
-            '작성자',
+            ui('Author'),
             <div className="flex items-start justify-between gap-4">
                 <div>
                     <a href={authorPath} className="font-semibold hover:text-content-secondary">
@@ -379,14 +382,14 @@ function ArticleInfo({
     ];
     if (published)
         entries.push([
-            post.visibility === 'draft' ? '미리보기 기준' : '최초 발행',
+            post.visibility === 'draft' ? ui('Preview source') : ui('First published'),
             <time dateTime={published}>{formatDate(published)}</time>
         ]);
     if (updated && published && formatDate(updated) !== formatDate(published))
-        entries.push(['수정일', <time dateTime={updated}>{formatDate(updated)}</time>]);
+        entries.push([ui('Updated'), <time dateTime={updated}>{formatDate(updated)}</time>]);
     if (homepage)
         entries.push([
-            '저자 홈페이지',
+            ui('Author website'),
             <a href={homepage} target="_blank" rel="noopener noreferrer" className="break-words hover:text-content">
                 {homepage}
             </a>
@@ -400,7 +403,7 @@ function ArticleInfo({
                 id="post-info-heading"
                 className="mb-6 border-b border-line-light pb-4 text-lg font-bold leading-snug text-content"
             >
-                포스트 정보
+                {ui('Post information')}
             </h2>
             <dl className="grid gap-4 text-sm">
                 {entries.map(([label, value]) => (
@@ -424,13 +427,13 @@ function RelatedPosts({ posts, username }: { posts: RelatedPost[]; username: str
                 <div className="mb-4 inline-flex size-16 items-center justify-center rounded-full bg-surface-subtle">
                     <SiteIcon name="compass" className="text-2xl text-content-hint" />
                 </div>
-                <h3 className="mb-2 text-lg font-semibold">{username}의 다른 포스트 둘러보기</h3>
-                <p className="mb-6 text-sm text-content-secondary">프로필에서 더 많은 포스트를 확인할 수 있습니다.</p>
+                <h3 className="mb-2 text-lg font-semibold">{ui('Browse more posts by {username}', { username })}</h3>
+                <p className="mb-6 text-sm text-content-secondary">{ui('Find more posts on this profile.')}</p>
                 <a
                     href={`/@${encodeURIComponent(username)}`}
                     className="inline-flex items-center gap-2 rounded-full bg-action px-5 py-2.5 text-sm font-medium text-content-inverted hover:bg-action-hover"
                 >
-                    <span>프로필 보기</span>
+                    <span>{ui('View profile')}</span>
                     <SiteIcon name="arrow-right" className="text-xs opacity-70" />
                 </a>
             </div>
@@ -440,7 +443,7 @@ function RelatedPosts({ posts, username }: { posts: RelatedPost[]; username: str
             <div className="mb-8 flex items-center gap-3">
                 <span className="h-6 w-1.5 rounded-full bg-action" />
                 <h3 id="related-post-heading" className="text-xl font-bold sm:text-2xl">
-                    관련 포스트
+                    {ui('Related posts')}
                 </h3>
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -469,7 +472,7 @@ function RelatedPosts({ posts, username }: { posts: RelatedPost[]; username: str
                                 </h4>
                                 <div className="mb-3 flex gap-3 text-xs text-content-secondary">
                                     {date && <time dateTime={date}>{formatDate(date)}</time>}
-                                    <span>{post.readTime}분</span>
+                                    <span>{ui('{minutes} min', { minutes: post.readTime })}</span>
                                 </div>
                                 <p className="mb-4 line-clamp-3 flex-1 text-sm leading-relaxed text-content-secondary">
                                     <a href={href}>{post.description}</a>
@@ -512,23 +515,27 @@ function ShareItem({ icon, label, hint }: { icon: SiteIconName; label: string; h
     );
 }
 
-const statusNotices: Record<string, [string, string]> = {
+const statusNotices = (): Record<string, [string, string]> => ({
     draft: [
-        '임시 포스트 미리보기입니다.',
-        '마지막으로 저장된 내용을 실제 포스트 화면으로 표시합니다. 이 페이지는 작성자에게만 보이며 공개 목록과 검색에 노출되지 않습니다.'
+        ui('This is a draft preview.'),
+        ui(
+            'This preview shows the last saved content as a post. Only the author can view it, and it is excluded from public lists and search.'
+        )
     ],
     hidden: [
-        '비공개 포스트입니다.',
-        '이 포스트는 작성자만 볼 수 있습니다. 공개하려면 포스트 설정에서 비공개를 해제하세요.'
+        ui('This post is private.'),
+        ui('Only the author can view this post. Turn off private visibility in post settings to publish it.')
     ],
     scheduled: [
-        '예약 발행 포스트입니다.',
-        '예약 시각 전에는 작성자만 볼 수 있습니다. 예약 시각이 되면 공개 URL, RSS, Sitemap, Markdown URL에 반영됩니다.'
+        ui('This post is scheduled.'),
+        ui(
+            'Only the author can view this post before its scheduled time. It will then appear at its public URL and in RSS, sitemaps, and Markdown.'
+        )
     ]
-};
+});
 
 function PostStatusNotice({ visibility, editPath }: { visibility: string; editPath?: string }) {
-    const [title, message] = statusNotices[visibility];
+    const [title, message] = statusNotices()[visibility];
     return (
         <section
             data-post-status-notice
@@ -537,7 +544,7 @@ function PostStatusNotice({ visibility, editPath }: { visibility: string; editPa
         >
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
-                    <p className="text-xs font-semibold uppercase text-content-hint">포스트 상태</p>
+                    <p className="text-xs font-semibold uppercase text-content-hint">{ui('Post status')}</p>
                     <h2 className="mt-1 text-lg font-semibold text-content">{title}</h2>
                     <p className="mt-1 text-sm leading-relaxed text-content-secondary">{message}</p>
                 </div>
@@ -546,7 +553,7 @@ function PostStatusNotice({ visibility, editPath }: { visibility: string; editPa
                         href={editPath}
                         className="inline-flex min-h-11 items-center justify-center rounded-lg border border-line px-4 py-2 text-sm font-semibold text-content-secondary transition-all duration-150 hover:bg-surface hover:text-content active:scale-95"
                     >
-                        수정하기
+                        {ui('Edit')}
                     </a>
                 )}
             </div>
@@ -575,8 +582,8 @@ function PostDock({
 }) {
     const share: Array<[string, string, SiteIconName, string]> = [
         [
-            'X에 공유',
-            '새 창에서 공유 포스트 작성',
+            ui('Share on X'),
+            ui('Write a shared post in a new window'),
             'brand-x',
             `https://twitter.com/intent/tweet?${new URLSearchParams({
                 text: post.title,
@@ -584,8 +591,8 @@ function PostDock({
             })}`
         ],
         [
-            'Threads에 공유',
-            'Threads 팔로워에게 공유',
+            ui('Share on Threads'),
+            ui('Share with your Threads followers'),
             'brand-threads',
             `https://www.threads.com/intent/post?${new URLSearchParams({
                 text: post.title,
@@ -593,20 +600,20 @@ function PostDock({
             })}`
         ],
         [
-            'Bluesky에 공유',
-            'Bluesky 팔로워에게 공유',
+            ui('Share on Bluesky'),
+            ui('Share with your Bluesky followers'),
             'brand-bluesky',
             `https://bsky.app/intent/compose?${new URLSearchParams({ text: `${post.title} ${canonical}` })}`
         ],
         [
-            'LinkedIn에 공유',
-            '전문 네트워크에 공유',
+            ui('Share on LinkedIn'),
+            ui('Share with your professional network'),
             'brand-linkedin',
             `https://www.linkedin.com/sharing/share-offsite/?${new URLSearchParams({ url: canonical })}`
         ],
         [
-            'Facebook에 공유',
-            '피드 또는 메시지로 공유',
+            ui('Share on Facebook'),
+            ui('Share in a feed or message'),
             'brand-facebook',
             `https://www.facebook.com/sharer/sharer.php?${new URLSearchParams({ u: canonical })}`
         ]
@@ -624,7 +631,7 @@ function PostDock({
                                     <button
                                         type="submit"
                                         className={`${dockButton} px-2 text-sm font-medium`}
-                                        aria-label={`${reader.postLike.isLiked ? '좋아요 취소' : '좋아요'} (${reader.postLike.countLikes})`}
+                                        aria-label={`${reader.postLike.isLiked ? ui('Unlike') : ui('Like')} (${reader.postLike.countLikes})`}
                                         aria-pressed={reader.postLike.isLiked}
                                     >
                                         <SiteIcon
@@ -640,7 +647,7 @@ function PostDock({
                                 <a
                                     {...loginPromptProps(postPath, 'like')}
                                     className={`${dockButton} px-2 text-sm font-medium`}
-                                    aria-label={`좋아요 (${reader?.postLike.countLikes ?? 0})`}
+                                    aria-label={ui('Like ({value0})', { value0: reader?.postLike.countLikes ?? 0 })}
                                 >
                                     <SiteIcon name="heart" className="size-4" />
                                     {reader?.postLike.countLikes ?? 0}
@@ -654,7 +661,7 @@ function PostDock({
                             type="button"
                             className={`${dockButton} xl:hidden`}
                             data-open-dialog="post-toc"
-                            aria-label="목차 보기"
+                            aria-label={ui('Show table of contents')}
                         >
                             <SiteIcon name="list" className="size-4" />
                         </button>
@@ -664,20 +671,20 @@ function PostDock({
                             <details className="blex-user-menu relative" data-account-menu>
                                 <summary
                                     className={`${dockButton} cursor-pointer`}
-                                    aria-label="포스트 공유 또는 링크 복사"
+                                    aria-label={ui('Share post or copy link')}
                                 >
                                     <SiteIcon name="share" className="size-4" />
                                 </summary>
                                 <div className="absolute bottom-full left-1/2 z-40 mb-3 w-72 -translate-x-1/2 rounded-xl border border-line bg-surface-elevated p-2 text-left shadow-floating">
                                     <div className="px-2 pb-1 text-[11px] font-bold uppercase tracking-wider text-content-hint">
-                                        공유
+                                        {ui('Share')}
                                     </div>
                                     <button
                                         type="button"
                                         data-copy-link={canonical}
                                         className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content active:scale-[0.98]"
                                     >
-                                        <ShareItem icon="link" label="일반 링크" hint="브라우저에서 여는 주소" />
+                                        <ShareItem icon="link" label={ui('Standard link')} hint={ui('Browser URL')} />
                                     </button>
                                     {share.map(([label, hint, icon, href]) => (
                                         <a
@@ -696,10 +703,14 @@ function PostDock({
                                             <button
                                                 type="button"
                                                 data-copy-link={markdown}
-                                                data-copy-message="에이전트용 링크가 복사되었습니다."
+                                                data-copy-message={ui('Agent link copied.')}
                                                 className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content active:scale-[0.98]"
                                             >
-                                                <ShareItem icon="code" label="에이전트용 링크" hint="*.md 참조 주소" />
+                                                <ShareItem
+                                                    icon="code"
+                                                    label={ui('Link for agents')}
+                                                    hint={ui('Markdown reference URL')}
+                                                />
                                             </button>
                                         </>
                                     )}
@@ -709,7 +720,7 @@ function PostDock({
                         </>
                     )}
                     {canManage && (
-                        <a href={`${postPath}/edit`} className={dockButton} aria-label="수정하기">
+                        <a href={`${postPath}/edit`} className={dockButton} aria-label={ui('Edit')}>
                             <SiteIcon name="pencil" className="size-4" />
                         </a>
                     )}
@@ -721,9 +732,9 @@ function PostDock({
                     className="blex-toc-sheet fixed inset-x-0 top-auto bottom-0 m-0 max-h-[70vh] w-full max-w-none overflow-y-auto rounded-t-3xl bg-surface-elevated p-0 text-content shadow-xl"
                 >
                     <div className="flex items-center justify-between border-b border-line-light px-6 py-3">
-                        <h2 className="text-lg font-bold">목차</h2>
+                        <h2 className="text-lg font-bold">{ui('Table of contents')}</h2>
                         <form method="dialog">
-                            <button type="submit" className={dockButton} aria-label="목차 닫기">
+                            <button type="submit" className={dockButton} aria-label={ui('Close table of contents')}>
                                 <SiteIcon name="x" className="size-4" />
                             </button>
                         </form>
@@ -832,7 +843,7 @@ export default function renderPage({
     );
 
     return renderApplicationDocument(
-        <html lang="ko">
+        <html lang={getDocumentLocale()}>
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -972,7 +983,9 @@ export default function renderPage({
                                     {outline.headings.length > 0 && (
                                         <div className="max-h-[400px] overscroll-contain overflow-y-auto rounded-2xl bg-surface ring-1 ring-line/60">
                                             <div className="sticky top-0 z-10 border-b border-line-light bg-surface px-6 py-4">
-                                                <h2 className="text-sm font-bold tracking-wider">목차</h2>
+                                                <h2 className="text-sm font-bold tracking-wider">
+                                                    {ui('Table of contents')}
+                                                </h2>
                                             </div>
                                             <OutlineLinks headings={outline.headings} />
                                         </div>

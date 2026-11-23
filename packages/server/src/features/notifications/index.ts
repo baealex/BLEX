@@ -1,3 +1,4 @@
+import { systemMessage } from '../../platform/messages.js';
 import formBody from '@fastify/formbody';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
@@ -138,7 +139,9 @@ export function registerNotifications(app: FastifyInstance, db: PrismaClient, op
       const user = await options.currentUser(request);
       if (!user) return failure('NL');
       if (!options.validateCsrf(request)) return reply.code(403).send(failure('RJ'));
-      return (await markRead(db, user.id, formInput(request).id)) ? done() : failure('NF', '알림을 찾을 수 없습니다.');
+      return (await markRead(db, user.id, formInput(request).id))
+        ? done()
+        : failure('NF', systemMessage('Notification not found.'));
     });
   });
 }

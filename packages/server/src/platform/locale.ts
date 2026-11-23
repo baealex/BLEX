@@ -2,7 +2,7 @@ export type UiLocale = 'ko' | 'en';
 
 const languages = [
   { code: 'ko', label: '한국어' },
-  { code: 'en', label: '영어' },
+  { code: 'en', label: 'English' },
 ] satisfies Array<{ code: UiLocale; label: string }>;
 
 export function uiLanguageChoices(): Array<{ code: UiLocale; label: string }> {

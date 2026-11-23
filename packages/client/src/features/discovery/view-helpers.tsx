@@ -1,3 +1,4 @@
+import { getDocumentLocale } from '../../i18n/locale.js';
 import { createHash } from 'node:crypto';
 import type { ReactNode } from 'react';
 import type { PostRow, StoredDate } from '../../contracts/public';
@@ -46,7 +47,7 @@ export function dateLabel(value: StoredDate | null): string {
     if (!value) return '';
     const date = new Date(dateValue(value) ?? value);
     if (!Number.isNaN(date.valueOf())) {
-        return new Intl.DateTimeFormat('ko-KR', {
+        return new Intl.DateTimeFormat(getDocumentLocale(), {
             dateStyle: 'long',
             timeZone: 'Asia/Seoul'
         }).format(date);

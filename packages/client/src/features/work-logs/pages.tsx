@@ -1,3 +1,5 @@
+import { getDocumentLocale } from '../../i18n/locale.js';
+import { ui } from '../../i18n/public-ui.js';
 import { SiteIcon } from '../../appearance/icons';
 import { SiteFooter, SiteHeader, SiteTheme } from '../../appearance/shell';
 import { renderApplicationDocument } from '../../application/document';
@@ -31,7 +33,7 @@ const primaryButton =
 
 function shell(options: PageOptions, content: React.ReactNode): string {
     return renderApplicationDocument(
-        <html lang="ko">
+        <html lang={getDocumentLocale()}>
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -80,15 +82,15 @@ function pager(pagerView: PagerView) {
     if (!pagerView.previous && !pagerView.next) return null;
     const suffix = pagerView.anchor ? `#${pagerView.anchor}` : '';
     return (
-        <nav aria-label="페이지 이동" className="mt-4 flex flex-wrap gap-2 text-sm">
+        <nav aria-label={ui('Navigate pages')} className="mt-4 flex flex-wrap gap-2 text-sm">
             {pagerView.previous && (
                 <a className={pagerLink} href={`${pagerView.previous}${suffix}`}>
-                    이전 페이지
+                    {ui('Previous page')}
                 </a>
             )}
             {pagerView.next && (
                 <a className={pagerLink} href={`${pagerView.next}${suffix}`}>
-                    다음 페이지
+                    {ui('Next page')}
                 </a>
             )}
         </nav>
@@ -98,13 +100,13 @@ function pager(pagerView: PagerView) {
 export function renderWorkLogIndex(props: WorkLogIndexProps): string {
     return shell(
         {
-            title: `작업 일지 · ${props.brand?.siteName ?? 'BLEX'}`,
+            title: ui('Work logs · {value0}', { value0: props.brand?.siteName ?? 'BLEX' }),
             className: 'mx-auto max-w-3xl px-5 py-12 sm:px-8 sm:py-20',
             brand: props.brand,
             viewer: props.viewer
         },
         <>
-            <h1 className="text-4xl font-bold tracking-tight">작업 일지</h1>
+            <h1 className="text-4xl font-bold tracking-tight">{ui('Work logs')}</h1>
             {props.canWrite && (
                 <form
                     method="post"
@@ -113,7 +115,7 @@ export function renderWorkLogIndex(props: WorkLogIndexProps): string {
                 >
                     {csrfInput(props.csrfToken)}
                     <label htmlFor="work-log-title" className="text-sm font-semibold">
-                        새 작업 일지
+                        {ui('New work log')}
                     </label>
                     <div className="mt-2 flex flex-col gap-2 sm:flex-row">
                         <input
@@ -122,14 +124,14 @@ export function renderWorkLogIndex(props: WorkLogIndexProps): string {
                             required
                             maxLength={100}
                             defaultValue={props.title}
-                            placeholder="어떤 작업을 기록할까요?"
+                            placeholder={ui('What are you working on?')}
                             className="min-h-12 min-w-0 flex-1 rounded-lg border border-line bg-surface px-3 text-content placeholder:text-content-hint"
                         />
                         <button
                             type="submit"
                             className="min-h-12 rounded-lg bg-action px-5 text-sm font-semibold text-content-inverted transition hover:bg-action-hover active:scale-95"
                         >
-                            일지 만들기
+                            {ui('Create work log')}
                         </button>
                     </div>
                     {props.error && (
@@ -150,7 +152,11 @@ export function renderWorkLogIndex(props: WorkLogIndexProps): string {
                                 >
                                     <div className="min-w-0">
                                         <p className="break-words font-semibold">{log.title}</p>
-                                        <p className="mt-1 text-sm text-content-secondary">{`기록 ${log.entryCount ?? 0}개`}</p>
+                                        <p className="mt-1 text-sm text-content-secondary">
+                                            {ui('{value0, plural, one{# entry} other{# entries}}', {
+                                                value0: log.entryCount ?? 0
+                                            })}
+                                        </p>
                                     </div>
                                     <SiteIcon
                                         name="arrow-right"
@@ -163,7 +169,7 @@ export function renderWorkLogIndex(props: WorkLogIndexProps): string {
                     {pager(props.links)}
                 </>
             ) : (
-                <p className="mt-6 text-sm text-content-secondary">아직 작업 일지가 없어요.</p>
+                <p className="mt-6 text-sm text-content-secondary">{ui('No work logs yet.')}</p>
             )}
         </>
     );
@@ -193,7 +199,7 @@ export function renderWorkLogDetail(props: WorkLogDetailProps): string {
         : null;
     return shell(
         {
-            title: `${props.log.title} · 작업 일지`,
+            title: ui('{value0} · Work log', { value0: props.log.title }),
             className: 'mx-auto max-w-6xl px-5 py-10 sm:px-8 sm:py-16',
             brand: props.brand,
             viewer: props.viewer
@@ -203,7 +209,7 @@ export function renderWorkLogDetail(props: WorkLogDetailProps): string {
                 href="/work-logs/"
                 className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-content-secondary hover:text-content"
             >
-                <SiteIcon name="arrow-left" className="text-xs" /> 작업 일지
+                <SiteIcon name="arrow-left" className="text-xs" /> {ui('Work logs')}
             </a>
             <header className="mt-2 flex flex-wrap items-end justify-between gap-3 border-b border-line pb-6">
                 <h1 className="max-w-full break-words text-4xl font-bold tracking-tight sm:text-5xl">
@@ -211,13 +217,13 @@ export function renderWorkLogDetail(props: WorkLogDetailProps): string {
                 </h1>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
                     <p className="inline-flex items-center gap-2 text-content-secondary">
-                        <SiteIcon name="lock" className="text-xs" /> 나만 보는 작업 일지
+                        <SiteIcon name="lock" className="text-xs" /> {ui('Your private work log')}
                     </p>
                     <a
                         className="inline-flex min-h-11 items-center text-danger hover:underline"
                         href={`/work-logs/${props.log.id}/delete/`}
                     >
-                        작업 일지 삭제
+                        {ui('Delete work log')}
                     </a>
                 </div>
             </header>
@@ -226,7 +232,7 @@ export function renderWorkLogDetail(props: WorkLogDetailProps): string {
                     {props.canWrite && (
                         <>
                             <h2 id="entry-heading" className="text-xl font-semibold">
-                                기록 남기기
+                                {ui('Add entry')}
                             </h2>
                             <form
                                 method="post"
@@ -236,30 +242,30 @@ export function renderWorkLogDetail(props: WorkLogDetailProps): string {
                             >
                                 {csrfInput(props.csrfToken)}
                                 <label className="sr-only" htmlFor="entry-title">
-                                    기록 제목
+                                    {ui('Entry title')}
                                 </label>
                                 <input
                                     id="entry-title"
                                     name="title"
                                     maxLength={100}
-                                    placeholder="제목 (선택)"
+                                    placeholder={ui('Title (optional)')}
                                     defaultValue={props.entryTitle}
                                     className="min-h-12 w-full rounded-lg border border-line bg-surface px-3 placeholder:text-content-hint"
                                 />
                                 <label className="sr-only" htmlFor="entry-text">
-                                    기록 내용
+                                    {ui('Entry content')}
                                 </label>
                                 <textarea
                                     id="entry-text"
                                     name="text"
                                     maxLength={5000}
                                     rows={3}
-                                    placeholder="오늘 시도한 일이나 새로 알게 된 내용을 남겨 보세요."
+                                    placeholder={ui('Record what you tried or learned today.')}
                                     defaultValue={props.entryText}
                                     className="w-full rounded-lg border border-line bg-surface p-3 placeholder:text-content-hint"
                                 />
                                 <p id="entry-attachment-help" className="text-sm text-content-secondary">
-                                    이미지 또는 영상 (최대 12MB)
+                                    {ui('Image or video (up to 12 MB)')}
                                 </p>
                                 <div className="flex flex-wrap items-center gap-3">
                                     <input
@@ -275,7 +281,7 @@ export function renderWorkLogDetail(props: WorkLogDetailProps): string {
                                         htmlFor="entry-attachment"
                                         className="inline-flex min-h-11 cursor-pointer items-center rounded-lg bg-surface-subtle px-3 text-sm font-medium transition hover:bg-surface-elevated peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2"
                                     >
-                                        파일 선택
+                                        {ui('Choose file')}
                                     </label>
                                     <span
                                         role="status"
@@ -289,13 +295,13 @@ export function renderWorkLogDetail(props: WorkLogDetailProps): string {
                                     </div>
                                 )}
                                 <button type="submit" className={primaryButton}>
-                                    기록 저장
+                                    {ui('Save entry')}
                                 </button>
                             </form>
                         </>
                     )}
                     <h2 id="entry-timeline" className={`${props.canWrite ? 'mt-9 ' : ''}text-xl font-semibold`}>
-                        남긴 기록
+                        {ui('Entries')}
                     </h2>
                     <ol className="mt-3 divide-y divide-line">
                         {props.timeline.length > 0 ? (
@@ -309,7 +315,7 @@ export function renderWorkLogDetail(props: WorkLogDetailProps): string {
                                             href={`/work-logs/${props.log.id}/entry/${entry.id}/delete/`}
                                             className="inline-flex min-h-11 items-center text-danger hover:underline"
                                         >
-                                            기록 삭제
+                                            {ui('Delete entry')}
                                         </a>
                                     </div>
                                     {entry.title && <h3 className="mt-1 break-words font-semibold">{entry.title}</h3>}
@@ -326,7 +332,9 @@ export function renderWorkLogDetail(props: WorkLogDetailProps): string {
                                 </li>
                             ))
                         ) : (
-                            <li className="py-4 text-sm text-content-secondary">기록을 남기면 여기에 표시돼요.</li>
+                            <li className="py-4 text-sm text-content-secondary">
+                                {ui('Your entries will appear here.')}
+                            </li>
                         )}
                     </ol>
                     {pager({
@@ -339,7 +347,7 @@ export function renderWorkLogDetail(props: WorkLogDetailProps): string {
                         {props.canWrite && (
                             <>
                                 <h2 id="share-heading" className="text-xl font-semibold">
-                                    기록 골라 공유하기
+                                    {ui('Select entries to share')}
                                 </h2>
                                 <div className="mt-4 rounded-2xl border border-line bg-surface p-4 sm:p-5">
                                     {props.selector.length > 0 ? (
@@ -366,7 +374,7 @@ export function renderWorkLogDetail(props: WorkLogDetailProps): string {
                                                 value={String(props.linksPage)}
                                             />
                                             <label htmlFor="share-headline" className="block text-sm font-medium">
-                                                무엇이 달라졌나요?
+                                                {ui('What changed?')}
                                             </label>
                                             <input
                                                 id="share-headline"
@@ -377,7 +385,9 @@ export function renderWorkLogDetail(props: WorkLogDetailProps): string {
                                                 className="mt-2 min-h-12 w-full rounded-lg border border-line bg-surface px-3"
                                             />
                                             <fieldset className="mt-5">
-                                                <legend className="text-sm font-medium">공유할 기록</legend>
+                                                <legend className="text-sm font-medium">
+                                                    {ui('Entries to share')}
+                                                </legend>
                                                 <div className="mt-2 max-h-72 divide-y divide-line overflow-y-auto border-y border-line">
                                                     {props.selector.map((entry) => (
                                                         <label
@@ -395,7 +405,7 @@ export function renderWorkLogDetail(props: WorkLogDetailProps): string {
                                                                 {entry.title ||
                                                                     (entry.text
                                                                         ? truncateChars(entry.text, 52)
-                                                                        : '첨부 파일')}
+                                                                        : ui('Attachments'))}
                                                             </span>
                                                         </label>
                                                     ))}
@@ -407,7 +417,7 @@ export function renderWorkLogDetail(props: WorkLogDetailProps): string {
                                                 </div>
                                             )}
                                             <p className="mt-4 text-sm leading-relaxed text-content-secondary">
-                                                링크가 있는 사람은 누구나 선택한 기록을 볼 수 있어요.
+                                                {ui('Anyone with the link can view the selected entries.')}
                                             </p>
                                             <button
                                                 type="submit"
@@ -415,12 +425,12 @@ export function renderWorkLogDetail(props: WorkLogDetailProps): string {
                                                 value="preview"
                                                 className="mt-4 min-h-11 w-full rounded-lg border border-line px-4 text-sm font-semibold transition hover:bg-surface-subtle active:scale-95"
                                             >
-                                                공유 화면 미리보기
+                                                {ui('Preview shared page')}
                                             </button>
                                             {(previousSelectionPage || nextSelectionPage) && (
                                                 <nav
                                                     className="mt-2 flex flex-wrap items-center gap-2 text-sm"
-                                                    aria-label="공유할 기록"
+                                                    aria-label={ui('Entries to share')}
                                                 >
                                                     {previousSelectionPage && (
                                                         <button
@@ -430,7 +440,7 @@ export function renderWorkLogDetail(props: WorkLogDetailProps): string {
                                                             value={previousSelectionPage}
                                                             className={pagerButton}
                                                         >
-                                                            최근 기록
+                                                            {ui('Recent entries')}
                                                         </button>
                                                     )}
                                                     {nextSelectionPage && (
@@ -441,18 +451,23 @@ export function renderWorkLogDetail(props: WorkLogDetailProps): string {
                                                             value={nextSelectionPage}
                                                             className={pagerButton}
                                                         >
-                                                            이전 기록
+                                                            {ui('Previous entry')}
                                                         </button>
                                                     )}
                                                     {props.selectedIds.length > 0 && (
-                                                        <span className="text-content-secondary">{`기록 ${props.selectedIds.length}개 선택`}</span>
+                                                        <span className="text-content-secondary">
+                                                            {ui(
+                                                                '{value0, plural, one{# entry selected} other{# entries selected}}',
+                                                                { value0: props.selectedIds.length }
+                                                            )}
+                                                        </span>
                                                     )}
                                                 </nav>
                                             )}
                                         </form>
                                     ) : (
                                         <p className="text-sm text-content-secondary">
-                                            기록을 남긴 뒤 공유 링크를 만들 수 있어요.
+                                            {ui('Add an entry before creating a share link.')}
                                         </p>
                                     )}
                                 </div>
@@ -464,7 +479,7 @@ export function renderWorkLogDetail(props: WorkLogDetailProps): string {
                                     id="share-links"
                                     className={`${props.canWrite ? 'mt-9 ' : ''}text-xl font-semibold`}
                                 >
-                                    공유 링크
+                                    {ui('Share links')}
                                 </h2>
                                 <ul className="mt-3 divide-y divide-line border-y border-line">
                                     {props.shares.map((share) => (
@@ -484,7 +499,7 @@ export function renderWorkLogDetail(props: WorkLogDetailProps): string {
                                                     type="submit"
                                                     className="min-h-11 whitespace-nowrap px-2 text-sm text-danger hover:underline"
                                                 >
-                                                    공유 중지
+                                                    {ui('Stop sharing')}
                                                 </button>
                                             </form>
                                         </li>
@@ -507,7 +522,7 @@ export function renderWorkLogDelete(props: WorkLogDeleteProps): string {
     const action = props.entry
         ? `/work-logs/${props.log.id}/entry/${props.entry.id}/delete/`
         : `/work-logs/${props.log.id}/delete/`;
-    const heading = props.entry ? '기록 삭제' : '작업 일지 삭제';
+    const heading = props.entry ? ui('Delete entry') : ui('Delete work log');
     return shell(
         {
             title: `${heading} · ${props.log.title}`,
@@ -529,12 +544,14 @@ export function renderWorkLogDelete(props: WorkLogDeleteProps): string {
                         </p>
                     )}
                     <p className="mt-5 leading-relaxed text-content-secondary">
-                        모든 공유 링크에서 이 기록과 첨부가 사라져요. 이 기록만 담긴 링크는 닫혀요.
+                        {ui(
+                            'This entry and its attachments will disappear from every share link. Links containing only this entry will close.'
+                        )}
                     </p>
                 </>
             ) : (
                 <p className="mt-5 leading-relaxed text-content-secondary">
-                    이 일지의 모든 기록과 첨부를 삭제하고 공유 링크를 닫아요.
+                    {ui('Delete all entries and attachments in this log and close its share links.')}
                 </p>
             )}
             <form method="post" action={action} className="mt-7 flex flex-wrap gap-2">
@@ -543,7 +560,7 @@ export function renderWorkLogDelete(props: WorkLogDeleteProps): string {
                     className="inline-flex min-h-11 items-center rounded-lg border border-line px-4 text-sm font-semibold hover:bg-surface-subtle"
                     href={`/work-logs/${props.log.id}/`}
                 >
-                    취소
+                    {ui('Cancel')}
                 </a>
                 <button
                     type="submit"
@@ -579,7 +596,7 @@ export function renderWorkLogShared(props: WorkLogSharedProps): string {
         <>
             {props.preview && (
                 <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-surface px-4 py-3">
-                    <p className="text-sm font-semibold">공유 화면 미리보기</p>
+                    <p className="text-sm font-semibold">{ui('Preview shared page')}</p>
                     <form
                         id="work-log-preview-form"
                         method="post"
@@ -606,10 +623,10 @@ export function renderWorkLogShared(props: WorkLogSharedProps): string {
                             value="edit"
                             className="min-h-11 rounded-lg px-3 text-sm font-semibold text-content-secondary transition hover:bg-surface-subtle active:scale-95"
                         >
-                            공유 내용 수정
+                            {ui('Edit share details')}
                         </button>
                         <button type="submit" name="action" value="publish" className={primaryButton}>
-                            공유 링크 만들기
+                            {ui('Create share link')}
                         </button>
                     </form>
                 </div>
@@ -617,7 +634,7 @@ export function renderWorkLogShared(props: WorkLogSharedProps): string {
             {!props.preview && props.newLink && (
                 <div className="mt-6 rounded-xl border border-line bg-surface p-4" data-work-log-share-link="">
                     <p className="mb-2 text-sm font-semibold" id="share-url-label">
-                        공유 링크가 준비됐어요
+                        {ui('Your share link is ready')}
                     </p>
                     <div className="flex flex-wrap gap-2">
                         <input
@@ -627,7 +644,7 @@ export function renderWorkLogShared(props: WorkLogSharedProps): string {
                             className="min-h-11 min-w-0 flex-[1_1_16rem] rounded-lg border border-line bg-surface px-3 text-sm text-content-secondary"
                         />
                         <button type="button" data-work-log-copy="" className={primaryButton}>
-                            링크 복사
+                            {ui('Copy link')}
                         </button>
                     </div>
                     <span className="sr-only" role="status" data-work-log-copied="" />
@@ -675,7 +692,7 @@ export function renderWorkLogShared(props: WorkLogSharedProps): string {
                     className="mx-auto mt-10 max-w-3xl border-t border-line pt-7 sm:mt-14 sm:pt-9"
                 >
                     <h2 id="timeline-heading" className="text-2xl font-bold tracking-tight">
-                        이렇게 만들었어요
+                        {ui('How it was made')}
                     </h2>
                     <ol className="ms-1.5 mt-7 border-s border-line">
                         {props.entries.map((entry) => (
@@ -708,7 +725,7 @@ export function renderWorkLogShared(props: WorkLogSharedProps): string {
                     </ol>
                     {props.preview
                         ? (previousPage || nextPage) && (
-                              <nav aria-label="페이지 이동" className="mt-4 flex flex-wrap gap-2 text-sm">
+                              <nav aria-label={ui('Navigate pages')} className="mt-4 flex flex-wrap gap-2 text-sm">
                                   {previousPage && (
                                       <button
                                           type="submit"
@@ -717,7 +734,7 @@ export function renderWorkLogShared(props: WorkLogSharedProps): string {
                                           value={previousPage}
                                           className={pagerButton}
                                       >
-                                          이전 페이지
+                                          {ui('Previous page')}
                                       </button>
                                   )}
                                   {nextPage && (
@@ -728,7 +745,7 @@ export function renderWorkLogShared(props: WorkLogSharedProps): string {
                                           value={nextPage}
                                           className={pagerButton}
                                       >
-                                          다음 페이지
+                                          {ui('Next page')}
                                       </button>
                                   )}
                               </nav>

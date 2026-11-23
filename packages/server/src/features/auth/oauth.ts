@@ -1,3 +1,4 @@
+import { systemMessage } from '../../platform/messages.js';
 import { createHash, randomBytes } from 'node:crypto';
 import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
@@ -351,11 +352,12 @@ export function registerOAuthRoutes(app: FastifyInstance, db: PrismaClient, site
     const { provider } = request.params;
     if (!supportedProvider(provider)) return reply.code(404).send('Not found');
     const isApi = request.method === 'POST';
-    const fail = (path = '/login', message = '소셜 로그인에 실패했습니다. 다시 시도해 주세요.') =>
+    const fail = (path = '/login', message = systemMessage('Social sign-in failed. Try again.')) =>
       isApi ? { status: 'ERROR', errorCode: 'error:RJ', errorMessage: message } : reply.redirect(path, 302);
     if (isApi && !validCsrf(request, siteUrl))
       return reply.code(403).send({ status: 'ERROR', errorCode: 'error:RJ', errorMessage: '' });
-    if (config.setupToken && !(await hasAdministrator(db))) return fail('/setup', '먼저 관리자 계정을 만들어 주세요.');
+    if (config.setupToken && !(await hasAdministrator(db)))
+      return fail('/setup', systemMessage('Create an administrator account first.'));
     const browser = request.cookies[`blex_oauth_${provider}`];
     const { state, code } = isApi ? formInput(request) : request.query;
     if (isApi && (typeof code !== 'string' || !code)) return reply.code(404).send('Not found');
@@ -386,7 +388,7 @@ export function registerOAuthRoutes(app: FastifyInstance, db: PrismaClient, site
     const verificationPath = `/reauthenticate?${new URLSearchParams({ next: flow.returnPath })}`;
     const failurePath = verified ? verificationPath : loginPath(flow.returnPath);
     const credentials = (await configuredProviders(db, config.cipherKey)).find((entry) => entry.key === provider);
-    if (!credentials) return fail(failurePath, '소셜 로그인 설정이 완료되지 않았습니다.');
+    if (!credentials) return fail(failurePath, systemMessage('Social sign-in has not been configured.'));
 
     const identity = await exchangeCode(
       fetchProvider,

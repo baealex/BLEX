@@ -1,3 +1,4 @@
+import { systemMessage } from '../../../platform/messages.js';
 import { renderPage } from '../../../platform/views.js';
 import type { FastifyInstance } from 'fastify';
 import type { Prisma, PrismaClient } from '@prisma/client';
@@ -80,7 +81,10 @@ export function registerProfileRoutes(
         meta: {
           authorFeed: isEditor(author) ? authorFeed(siteUrl, author.username) : undefined,
           title: `${author.username} - ${siteName}`,
-          description: description(author.bio || aboutHtml, `${author.username}의 공개 글과 소개를 확인해 보세요.`),
+          description: description(
+            author.bio || aboutHtml,
+            systemMessage("Explore {value0}'s public posts and introduction.", { value0: author.username }),
+          ),
           canonical,
           siteName,
           brand,
@@ -124,7 +128,8 @@ export function registerProfileRoutes(
       return reply.redirect(`/login?${new URLSearchParams({ next: new URL(request.url, siteUrl).pathname })}`, 302);
     const author = await readAuthor(db, request.params.username);
     if (!author) return sendNotFound(reply);
-    if (author.id !== viewer.id) return reply.code(403).type('text/plain; charset=utf-8').send('접근 권한이 없습니다.');
+    if (author.id !== viewer.id)
+      return reply.code(403).type('text/plain; charset=utf-8').send(systemMessage('Access denied.'));
     const [brand, socialLinks, subscription] = await Promise.all([
       readPublicSiteBrand(db),
       readAuthorSocialLinks(db, author.id),
@@ -136,8 +141,11 @@ export function registerProfileRoutes(
       reply,
       renderPage('@{$username}/about.edit', {
         meta: {
-          title: `${author.username}님의 소개글 수정 - ${brand.siteName}`,
-          description: '자신을 소개하는 글을 작성해 보세요.',
+          title: systemMessage("Edit {value0}'s introduction - {value1}", {
+            value0: author.username,
+            value1: brand.siteName,
+          }),
+          description: systemMessage('Write an introduction about yourself.'),
           canonical: makeAbsolute(siteUrl, path),
           siteName: brand.siteName,
           brand,
@@ -205,8 +213,8 @@ export function registerProfileRoutes(
     const noindex = hasUnexpected(query, ['page', 'q', 'tag']) || Boolean(searchText || tagFilter);
     const meta: PageMeta = {
       authorFeed: authorFeed(siteUrl, author.username),
-      title: `포스트 - ${author.username} | ${siteName}`,
-      description: `${author.username}님이 공개한 글을 모아봅니다.`,
+      title: systemMessage('Posts - {value0} | {value1}', { value0: author.username, value1: siteName }),
+      description: systemMessage('Browse public posts by {value0}.', { value0: author.username }),
       canonical: noindex ? makeAbsolute(siteUrl, path) : canonicalPageUrl(siteUrl, path, checkedPage),
       siteName,
       brand,
@@ -315,8 +323,8 @@ export function registerProfileRoutes(
       renderPage('@{$username}/series/index', {
         meta: {
           authorFeed: authorFeed(siteUrl, author.username),
-          title: `${author.username}님의 시리즈 - ${siteName}`,
-          description: `${author.username}님이 공개한 시리즈를 둘러보세요.`,
+          title: systemMessage("{value0}'s series - {value1}", { value0: author.username, value1: siteName }),
+          description: systemMessage('Explore public series by {value0}.', { value0: author.username }),
           canonical: noindex ? makeAbsolute(siteUrl, path) : canonicalPageUrl(siteUrl, path, checkedPage),
           siteName,
           brand,
@@ -395,7 +403,11 @@ export function registerProfileRoutes(
       const pages = totalPages(count, 10);
       const metaDescription = description(
         series.textHtml || series.textMarkdown,
-        `${author.username}님의 ${siteName} 시리즈: ${series.name}`,
+        systemMessage("{value0}'s series on {value1}: {value2}", {
+          value0: author.username,
+          value1: siteName,
+          value2: series.name,
+        }),
       );
       const canonicalQuery = new URLSearchParams();
       if (sortOrder === 'asc' && checkedPage > 1) canonicalQuery.set('sort', 'asc');

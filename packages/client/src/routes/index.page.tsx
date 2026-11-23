@@ -1,3 +1,4 @@
+import { ui } from '../i18n/public-ui.js';
 import { SiteIcon } from '~/appearance/icons';
 import { NoticeSection, PageLayout } from '~/features/discovery/layout';
 import { EmptyState, Pagination, PostGrid } from '~/features/discovery/post-list';
@@ -20,7 +21,7 @@ export default function renderPage({
         children: (
             <ReactFragment>
                 <div className="mx-auto mt-6 max-w-7xl px-4 md:px-6">
-                    <h1 className="sr-only">최신 포스트</h1>
+                    <h1 className="sr-only">{ui('Latest posts')}</h1>
                     {viewer ? (
                         <div className="mb-6 flex justify-end">
                             <a
@@ -28,7 +29,7 @@ export default function renderPage({
                                 className="inline-flex items-center gap-2 rounded-full bg-surface px-4 py-2 text-sm font-semibold text-content-secondary ring-1 ring-line/60 transition-colors duration-150 hover:bg-surface-subtle hover:text-content"
                             >
                                 <SiteIcon name="heart" className="text-xs text-content-hint" />
-                                <span>관심 포스트</span>
+                                <span>{ui('Liked posts')}</span>
                             </a>
                         </div>
                     ) : null}
@@ -42,11 +43,11 @@ export default function renderPage({
                         </ReactFragment>
                     ) : (
                         <EmptyState
-                            title="아직 포스트가 없어요"
-                            message="공개된 포스트가 발행되면 이곳에 표시됩니다."
+                            title={ui('No posts yet')}
+                            message={ui('Published posts will appear here.')}
                             icon="writing"
                             actionUrl={viewer?.hasEditorRole ? '/write' : undefined}
-                            actionLabel={viewer?.hasEditorRole ? '포스트 작성하기' : undefined}
+                            actionLabel={viewer?.hasEditorRole ? ui('Write a post') : undefined}
                             actionIcon={viewer?.hasEditorRole ? 'edit' : undefined}
                         />
                     )}

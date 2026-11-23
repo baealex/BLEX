@@ -4,11 +4,26 @@ import { readFileSync } from 'node:fs';
 import { describe, test } from 'node:test';
 
 import { formatDateOnly, formatDateTime, formatLocalDateTime, formatPublishedDate } from '../src/i18n/formatters.ts';
-import { normalizeLocale } from '../src/i18n/locale.ts';
+import { getDocumentLocale, normalizeLocale, withDocumentLocale } from '../src/i18n/locale.ts';
 import { formatScheduleDateTime, toReservedDateValue } from '../src/features/editor/utils/scheduleDate.ts';
 import { buildQueryCacheKey } from '../src/lib/query-cache-key.ts';
 
 describe('locale normalization', () => {
+    test('restores synchronous SSR locale scopes, including nested and failed renders', () => {
+        assert.equal(getDocumentLocale(), 'ko');
+        withDocumentLocale('en', () => {
+            assert.equal(getDocumentLocale(), 'en');
+            withDocumentLocale('ko', () => assert.equal(getDocumentLocale(), 'ko'));
+            assert.equal(getDocumentLocale(), 'en');
+            assert.throws(() =>
+                withDocumentLocale('ko', () => {
+                    throw new Error('render failed');
+                })
+            );
+            assert.equal(getDocumentLocale(), 'en');
+        });
+        assert.equal(getDocumentLocale(), 'ko');
+    });
     test('normalizes supported BCP 47 language tags and safely defaults to Korean', () => {
         assert.equal(normalizeLocale('en-US'), 'en');
         assert.equal(normalizeLocale('ko_KR'), 'ko');

@@ -1,3 +1,4 @@
+import { ui } from '../../../i18n/public-ui.js';
 import type { ReaderAuthorHeader, ReaderPostView } from '../../../contracts/engagement';
 import { PostCommentsApp, type PostCommentsModel } from './comments.js';
 import { loginPromptProps } from './login-prompt.js';
@@ -54,7 +55,7 @@ function socialLabel(name: string): string {
     if (normalized === 'twitter' || normalized === 'x') return 'X';
     if (normalized === 'github') return 'GitHub';
     if (normalized === 'linkedin') return 'LinkedIn';
-    return name || '링크';
+    return name || ui('Link');
 }
 
 function commentsModel(view: ReaderPostView, csrfToken: string, postPath: string): PostCommentsModel {
@@ -84,27 +85,27 @@ export function AuthorHeader(props: AuthorHeaderProps) {
                 {hiddenReturnTo(props.returnTo)}
                 {author.isSubscribed ? [<input key="action" type="hidden" name="action" value="unsubscribe" />] : []}
                 <button className="reader-action-button" type="submit" aria-pressed={author.isSubscribed}>
-                    {author.isSubscribed ? '구독 중' : '구독'}
+                    {author.isSubscribed ? ui('Subscribed') : ui('Subscribe')}
                 </button>
             </form>
         ) : (
             <a
                 {...loginPromptProps(props.returnTo, 'subscribe')}
                 className="reader-action-button"
-                aria-label={`${author.username} 구독`}
+                aria-label={ui('Subscribe to {value0}', { value0: author.username })}
             >
-                구독
+                {ui('Subscribe')}
             </a>
         )
     ) : null;
 
     return (
-        <section className="reader-card" aria-label={`${author.username} 작성자 정보`}>
+        <section className="reader-card" aria-label={ui('About {value0}', { value0: author.username })}>
             {author.cover ? (
                 <img
                     className="reader-author-cover"
                     src={author.cover}
-                    alt={`${author.username}님의 커버`}
+                    alt={ui("{value0}'s cover", { value0: author.username }, "public.{value0}'s cover.d419acb3")}
                     loading="lazy"
                 />
             ) : null}
@@ -118,7 +119,7 @@ export function AuthorHeader(props: AuthorHeaderProps) {
                     <div className="reader-author-links">
                         {author.homepage ? (
                             <a href={author.homepage} target="_blank" rel="noopener noreferrer">
-                                홈페이지
+                                {ui('Homepage')}
                             </a>
                         ) : null}
                         {author.social.map((link) => (
@@ -162,10 +163,10 @@ export function ReaderActions(props: ReaderActionsProps) {
             <button
                 type="submit"
                 aria-pressed={view.postLike.isLiked}
-            >{`${view.postLike.isLiked ? '좋아요 취소' : '좋아요'} · ${view.postLike.countLikes}`}</button>
+            >{`${view.postLike.isLiked ? ui('Unlike') : ui('Like')} · ${view.postLike.countLikes}`}</button>
         </form>
     ) : (
-        <a {...loginPromptProps(returnTo, 'like')}>{`좋아요 · ${view.postLike.countLikes}`}</a>
+        <a {...loginPromptProps(returnTo, 'like')}>{ui('Like · {value0}', { value0: view.postLike.countLikes })}</a>
     );
 
     return (
@@ -177,8 +178,12 @@ export function ReaderActions(props: ReaderActionsProps) {
                 csrfToken={props.csrfToken}
                 returnTo={returnTo}
             />
-            <section className="reader-card reader-post-like" aria-label="글 공감">
-                <span className="reader-count">{`${view.postLike.countLikes}명이 이 글에 공감했습니다.`}</span>
+            <section className="reader-card reader-post-like" aria-label={ui('Like this post')}>
+                <span className="reader-count">
+                    {ui('{value0, plural, one{# person liked this post.} other{# people liked this post.}}', {
+                        value0: view.postLike.countLikes
+                    })}
+                </span>
                 {like}
             </section>
             <PostCommentsApp model={commentsModel(view, props.csrfToken, returnTo)} />

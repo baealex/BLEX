@@ -1,3 +1,4 @@
+import { ui } from '../../i18n/public-ui.js';
 import type { ReactNode } from 'react';
 import { SiteIcon } from '../../appearance/icons';
 import type { PostRow } from '../../contracts/public';
@@ -48,14 +49,14 @@ export function QueryFilter({
                 />
                 <a
                     href={withQuery(path, others)}
-                    aria-label="검색어 지우기"
+                    aria-label={ui('Clear search')}
                     className="absolute top-1/2 right-3 -translate-y-1/2 text-content-hint transition-colors hover:text-content-secondary peer-placeholder-shown:hidden"
                 >
                     <SiteIcon name="x" />
                 </a>
                 <button
                     type="submit"
-                    aria-label="검색"
+                    aria-label={ui('Search')}
                     className="absolute top-1/2 right-3 hidden -translate-y-1/2 text-content-hint peer-placeholder-shown:block"
                 >
                     <SiteIcon name="search" />
@@ -128,8 +129,8 @@ export function searchForm(query: string, username: string): ReactNode {
                     name="q"
                     type="search"
                     defaultValue={query}
-                    placeholder="검색어를 입력하세요"
-                    aria-label="포스트 검색"
+                    placeholder={ui('Enter a search term')}
+                    aria-label={ui('Search posts')}
                     autoComplete="off"
                     maxLength={100}
                     className="min-w-0 flex-1 bg-transparent text-sm text-content placeholder:text-content-hint focus:outline-none"
@@ -137,21 +138,21 @@ export function searchForm(query: string, username: string): ReactNode {
                 <button
                     type="submit"
                     className="inline-flex size-11 items-center justify-center rounded-full text-content-hint transition-all duration-150 hover:bg-surface-subtle hover:text-content active:scale-95"
-                    aria-label="검색"
+                    aria-label={ui('Search')}
                 >
                     <SiteIcon name="arrow-right" className="text-xs" />
                 </button>
             </div>
             {username ? (
                 <p className="mt-2 text-xs text-content-secondary">
-                    {'작성자 필터: '}
+                    {ui('Author filter:')}
                     <a
                         className="font-semibold text-content"
                         href={`/@${encodeURIComponent(username)}`}
                     >{`@${username}`}</a>
                     <span>{' · '}</span>
                     <a href={`/search${query ? `?q=${encodeURIComponent(query)}` : ''}`} className="hover:text-content">
-                        필터 지우기
+                        {ui('Clear filters')}
                     </a>
                 </p>
             ) : null}
@@ -180,10 +181,10 @@ function highlightText(text: string, query: string): ReactNode {
 
 export function SearchResultCard({ post, query }: { post: PostRow; query: string }): ReactNode {
     const matched = [
-        (post.titleScore ?? 0) > 0 ? '제목' : null,
-        (post.descriptionScore ?? 0) > 0 ? '설명' : null,
-        (post.tagScore ?? 0) > 0 ? '태그' : null,
-        (post.contentScore ?? 0) > 0 ? '내용' : null
+        (post.titleScore ?? 0) > 0 ? ui('Title') : null,
+        (post.descriptionScore ?? 0) > 0 ? ui('Description') : null,
+        (post.tagScore ?? 0) > 0 ? ui('Tag') : null,
+        (post.contentScore ?? 0) > 0 ? ui('Content') : null
     ].filter((value): value is string => value !== null);
     const hasImage = Boolean(post.image && post.image !== 'None' && post.image !== 'null');
     return (
@@ -227,7 +228,7 @@ export function SearchResultCard({ post, query }: { post: PostRow; query: string
                             {post.readTime > 0 ? (
                                 <ReactFragment>
                                     <span aria-hidden={true}>·</span>
-                                    <span>{`${post.readTime}분 읽기`}</span>
+                                    <span>{ui('{value0} min read', { value0: post.readTime })}</span>
                                 </ReactFragment>
                             ) : null}
                         </div>
@@ -279,14 +280,14 @@ export function SearchPagination({
             ...(next > 1 ? { page: String(next) } : {})
         })}`;
     return (
-        <nav className="flex items-center justify-center gap-2 pt-2" aria-label="검색 결과 페이지">
+        <nav className="flex items-center justify-center gap-2 pt-2" aria-label={ui('Search results pages')}>
             <a
                 href={page > 1 ? href(page - 1) : undefined}
                 aria-disabled={page === 1}
                 className="inline-flex h-11 min-h-11 items-center rounded-lg border border-line bg-surface px-4 text-sm font-medium text-content transition-all duration-150 hover:bg-surface-subtle active:scale-95 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
                 {...(page === 1 ? { tabIndex: -1 } : { rel: 'prev' })}
             >
-                이전
+                {ui('Previous')}
             </a>
             <div className="flex items-center gap-1">
                 {numbers.map((number) => (
@@ -294,7 +295,7 @@ export function SearchPagination({
                         href={href(number)}
                         key={number}
                         aria-current={number === page ? 'page' : undefined}
-                        aria-label={`${number}페이지`}
+                        aria-label={ui('Page {value0}', { value0: number })}
                         className={`inline-flex size-11 items-center justify-center rounded-lg text-sm font-semibold transition-all duration-150 active:scale-95 ${number === page ? 'bg-action text-content-inverted hover:bg-action-hover' : 'border border-line bg-surface text-content-secondary hover:bg-surface-subtle'}`}
                     >
                         {String(number)}
@@ -307,7 +308,7 @@ export function SearchPagination({
                 className="inline-flex h-11 min-h-11 items-center rounded-lg border border-line bg-surface px-4 text-sm font-medium text-content transition-all duration-150 hover:bg-surface-subtle active:scale-95 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
                 {...(page === pages ? { tabIndex: -1 } : { rel: 'next' })}
             >
-                다음
+                {ui('Next')}
             </a>
         </nav>
     );

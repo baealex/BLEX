@@ -1,3 +1,4 @@
+import { ui } from '../../i18n/public-ui.js';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { SiteIcon } from '../../appearance/icons.js';
 
@@ -24,18 +25,18 @@ async function saveAbout(url: string, content: string) {
         if (response.ok && data.status === 'success')
             return {
                 ok: true as const,
-                message: data.message ?? '소개글을 저장했습니다.',
+                message: data.message ?? ui('Introduction saved.'),
                 markdown: data.aboutMarkdown ?? '',
                 html: data.aboutHtml ?? ''
             };
         return {
             ok: false as const,
-            message: data.message ?? '소개글을 저장하지 못했습니다.'
+            message: data.message ?? ui('Could not save your introduction.')
         };
     } catch {
         return {
             ok: false as const,
-            message: '네트워크 오류로 저장하지 못했습니다.'
+            message: ui('Could not save because of a network error.')
         };
     }
 }
@@ -43,7 +44,7 @@ async function saveAbout(url: string, content: string) {
 export function AboutHeading() {
     return (
         <div className="mb-6">
-            <h2 className="text-2xl font-bold text-content">소개</h2>
+            <h2 className="text-2xl font-bold text-content">{ui('Bio')}</h2>
         </div>
     );
 }
@@ -127,20 +128,20 @@ export function AboutEditor({
                 className="rounded-2xl border border-dashed border-line bg-surface px-5 py-6"
             >
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <p className="min-w-0 text-sm font-semibold text-content">아직 소개가 없습니다</p>
-                    {editLink('소개글 작성')}
+                    <p className="min-w-0 text-sm font-semibold text-content">{ui('No introduction yet')}</p>
+                    {editLink(ui('Write an introduction'))}
                 </div>
             </div>
             <div data-about-actions="" hidden={editing || !hasContent} className="mt-6">
-                {editLink('소개글 수정')}
+                {editLink(ui('Edit introduction'))}
             </div>
             <div data-about-form="" hidden={!editing} className="rounded-2xl border border-line bg-surface p-4">
                 <textarea
                     ref={input}
                     data-about-input=""
                     defaultValue={aboutMarkdown}
-                    placeholder="소개글을 작성하세요"
-                    aria-label="소개"
+                    placeholder={ui('Write your introduction')}
+                    aria-label={ui('Bio')}
                     className="min-h-64 w-full resize-y rounded-xl border border-line bg-surface-subtle p-4 text-sm leading-relaxed text-content placeholder-content-hint focus:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/10"
                 />
                 <div className="mt-4 flex justify-end gap-2">
@@ -154,7 +155,7 @@ export function AboutEditor({
                         }}
                         className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold text-content-secondary transition-colors hover:bg-surface-subtle hover:text-content disabled:opacity-50"
                     >
-                        취소
+                        {ui('Cancel')}
                     </button>
                     <button
                         type="button"
@@ -163,7 +164,7 @@ export function AboutEditor({
                         onClick={save}
                         className="inline-flex items-center justify-center rounded-lg bg-action px-4 py-2 text-sm font-semibold text-content-inverted transition-colors hover:bg-action-hover disabled:opacity-50"
                     >
-                        {saving ? '저장 중...' : '저장'}
+                        {saving ? ui('Saving...') : ui('Save')}
                     </button>
                 </div>
             </div>
@@ -210,8 +211,8 @@ export function AboutPageEditor({
                 ref={input}
                 data-about-input=""
                 defaultValue={aboutMarkdown}
-                placeholder="마크다운으로 작성해 보세요."
-                aria-label="소개"
+                placeholder={ui('Write in Markdown.')}
+                aria-label={ui('Bio')}
                 className="h-64 w-full rounded-lg border border-line p-4 focus:outline-none focus:ring-2 focus:ring-line-strong/70"
             />
             <button
@@ -221,7 +222,7 @@ export function AboutPageEditor({
                 onClick={save}
                 className="mt-4 rounded-lg bg-action px-6 py-3 text-content-inverted hover:bg-action-hover focus:outline-none focus:ring-2 focus:ring-line-strong/70 focus:ring-offset-2 disabled:opacity-50"
             >
-                {saving ? '저장 중...' : '저장'}
+                {saving ? ui('Saving...') : ui('Save')}
             </button>
             <div data-about-message="" hidden={!message} className="mt-4 text-sm">
                 {message}

@@ -2,6 +2,7 @@ import { Children, cloneElement, isValidElement, type ReactElement, type ReactNo
 import { renderToStaticMarkup, renderToString } from 'react-dom/server';
 import { SiteHeader, SiteTheme, type SiteHeaderProps } from '../appearance/shell.js';
 import { ApplicationFrame } from './frame.js';
+import { getDocumentLocale } from '../i18n/locale.js';
 
 type Element = ReactElement<{ children?: ReactNode }>;
 
@@ -58,7 +59,7 @@ function clientHeader({
     searchPage,
     editorPage,
     hideAuthLinks,
-    locale
+    locale = getDocumentLocale()
 }: SiteHeaderProps): SiteHeaderProps {
     return {
         brand: brand && {

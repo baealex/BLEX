@@ -1,3 +1,4 @@
+import { systemMessage } from '../../platform/messages.js';
 import { renderPage } from '../../platform/views.js';
 import formBody from '@fastify/formbody';
 import { Prisma, type PrismaClient } from '@prisma/client';
@@ -199,7 +200,7 @@ export function registerPostShare(app: FastifyInstance, db: PrismaClient, option
       const hasLabel = Object.hasOwn(input, 'label');
       const hasPause = Object.hasOwn(input, 'isPaused');
       if ((!editing || hasLabel) && !name) {
-        const message = `공유 링크 이름을 ${labelLimit}자 이하로 입력해 주세요.`;
+        const message = systemMessage('Share link names must be {value0} characters or fewer.', { value0: labelLimit });
         return html
           ? sendPage(message)
           : failure('VA', message, 'post_share_links.invalid_label', { limit: labelLimit });
@@ -210,13 +211,17 @@ export function registerPostShare(app: FastifyInstance, db: PrismaClient, option
           (editing && !hasLabel && !hasPause) ||
           (hasPause && typeof input.isPaused !== 'boolean'))
       )
-        return failure('VA', '올바른 요청이 아닙니다.');
+        return failure('VA', systemMessage('Invalid request.'));
       if (!editing) {
         const id = post.canCreate && name ? await createLink(db, post.id, user.id, name) : null;
         if (!id)
           return html
-            ? sendPage('공개 글에만 공유 링크를 만들 수 있습니다.')
-            : failure('RJ', '공개 글에만 공유 링크를 만들 수 있습니다.', 'post_share_links.public_post_required');
+            ? sendPage(systemMessage('Share links can only be created for public posts.'))
+            : failure(
+                'RJ',
+                systemMessage('Share links can only be created for public posts.'),
+                'post_share_links.public_post_required',
+              );
         return html ? reply.redirect(`${path}/share-links`, 303) : done({ id });
       }
       if (typeof linkId !== 'string' || !/^\d+$/.test(linkId) || !Number.isSafeInteger(Number(linkId)))

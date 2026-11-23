@@ -1,3 +1,4 @@
+import { requestLocale } from '../../platform/request-locale.js';
 import { createHash } from 'node:crypto';
 import type { Prisma } from '@prisma/client';
 import type { FastifyReply, FastifyRequest } from 'fastify';
@@ -123,7 +124,7 @@ export function dateLabel(value: StoredDate | null): string {
   if (!value) return '';
   const date = new Date(dateValue(value) ?? value);
   if (!Number.isNaN(date.valueOf())) {
-    return new Intl.DateTimeFormat('ko-KR', { dateStyle: 'long', timeZone: 'Asia/Seoul' }).format(date);
+    return new Intl.DateTimeFormat(requestLocale(), { dateStyle: 'long', timeZone: 'Asia/Seoul' }).format(date);
   }
   return value instanceof Date ? value.toISOString().slice(0, 10) : value.slice(0, 10);
 }

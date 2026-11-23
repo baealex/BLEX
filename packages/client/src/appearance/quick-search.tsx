@@ -1,4 +1,5 @@
 import { siteText, type SiteLocale } from './messages.js';
+import { getDocumentLocale } from '../i18n/locale.js';
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { SiteIcon } from './icons.js';
 import { escapeAction } from './quick-search-escape.js';
@@ -41,7 +42,7 @@ function resultRows(matches: unknown): SearchRow[] {
 export function QuickSearch({
     onReady,
     startClosed,
-    locale = 'ko'
+    locale = getDocumentLocale()
 }: {
     onReady?: () => void;
     startClosed?: () => boolean;

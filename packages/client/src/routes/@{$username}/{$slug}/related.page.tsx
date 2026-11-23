@@ -1,3 +1,5 @@
+import { getDocumentLocale } from '../../../i18n/locale.js';
+import { ui } from '../../../i18n/public-ui.js';
 import { renderApplicationDocument } from '~/application/document';
 import { publicPostPath } from '~/features/posts/paths';
 import type { PageProps } from '~/contracts/pages';
@@ -9,20 +11,20 @@ export default function renderPage({
     items
 }: PageProps['@{$username}/{$slug}/related']): string {
     return renderApplicationDocument(
-        <html lang="ko">
+        <html lang={getDocumentLocale()}>
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <meta name="robots" content="noindex,follow" />
-                <title>관련 글 · {source.title}</title>
+                <title>{ui('Related posts · {title}', { title: source.title })}</title>
                 <style>
                     {'body{margin:3rem auto;max-width:44rem;padding:0 1rem;font:1rem/1.65 system-ui}li{margin:1rem 0}'}
                 </style>
             </head>
             <body>
                 <main>
-                    <a href={publicPostPath(username, slug)}>글로 돌아가기</a>
-                    <h1>관련 글</h1>
+                    <a href={publicPostPath(username, slug)}>{ui('Back to post')}</a>
+                    <h1>{ui('Related posts', {}, 'public.Related posts.f333fc06')}</h1>
                     {items.length ? (
                         <ul>
                             {items.map((item) => (
@@ -33,7 +35,7 @@ export default function renderPage({
                             ))}
                         </ul>
                     ) : (
-                        <p>공통 태그가 붙은 글이 없습니다.</p>
+                        <p>{ui('No posts share these tags.')}</p>
                     )}
                 </main>
             </body>

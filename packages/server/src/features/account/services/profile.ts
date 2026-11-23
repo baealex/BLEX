@@ -1,3 +1,4 @@
+import { systemMessage } from '../../../platform/messages.js';
 import type { PrismaClient } from '@prisma/client';
 import { postOutline, sanitizeAboutHtml } from '../../posts/post-html.js';
 import { markdownToHtml } from '../../posts/authoring/markdown.js';
@@ -124,14 +125,14 @@ export function safeExternalUrl(input: string): string {
 
 function validateHomepage(value: string): UpdateResult {
   if (value && !safeExternalUrl(value)) {
-    return { ok: false, message: '홈페이지 주소는 HTTP 또는 HTTPS URL이어야 합니다.' };
+    return { ok: false, message: systemMessage('Homepage URLs must use HTTP or HTTPS.') };
   }
   return { ok: true };
 }
 
 export async function updateDisplayName(db: PrismaClient, userId: number, value: unknown): Promise<UpdateResult> {
-  if (typeof value !== 'string') return { ok: false, message: '이름을 입력해 주세요.' };
-  if (value.length > 30) return { ok: false, message: '이름은 30자 이하여야 합니다.' };
+  if (typeof value !== 'string') return { ok: false, message: systemMessage('Enter your name.') };
+  if (value.length > 30) return { ok: false, message: systemMessage('Names must be 30 characters or fewer.') };
   if (value) {
     await db.user.updateMany({ where: { id: userId }, data: { name: value } });
   }
@@ -142,10 +143,11 @@ export async function updateProfile(db: PrismaClient, userId: number, body: Body
   const bio = body.bio === undefined ? '' : body.bio;
   const homepage = body.homepage === undefined ? '' : body.homepage;
   if (typeof bio !== 'string' || typeof homepage !== 'string') {
-    return { ok: false, message: '프로필 정보를 확인해 주세요.' };
+    return { ok: false, message: systemMessage('Check your profile details.') };
   }
-  if (bio.length > 500) return { ok: false, message: '소개는 500자 이하여야 합니다.' };
-  if (homepage.length > 100) return { ok: false, message: '홈페이지 주소는 100자 이하여야 합니다.' };
+  if (bio.length > 500) return { ok: false, message: systemMessage('Introductions must be 500 characters or fewer.') };
+  if (homepage.length > 100)
+    return { ok: false, message: systemMessage('Homepage URLs must be 100 characters or fewer.') };
   const homepageValidation = validateHomepage(homepage);
   if (!homepageValidation.ok) return homepageValidation;
   // A missing profile stays absent; this operation only updates existing rows.

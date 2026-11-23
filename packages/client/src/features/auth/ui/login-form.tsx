@@ -1,3 +1,5 @@
+import { getDocumentLocale } from '../../../i18n/locale.js';
+import { ui } from '../../../i18n/public-ui.js';
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { navigateTo } from '../../../application/navigation.js';
 import { recoveredAccountPath } from '../recovery-path.js';
@@ -48,7 +50,7 @@ export function LoginForm({ model }: LoginFormProps) {
 
         setIsSubmitting(true);
         setError(null);
-        setStatusMessage(showCode ? '인증 코드를 확인하고 있습니다.' : '로그인 정보를 확인하고 있습니다.');
+        setStatusMessage(showCode ? ui('Checking your authentication code.') : ui('Checking your sign-in details.'));
         const controller = new AbortController();
         requestController.current = controller;
 
@@ -77,7 +79,9 @@ export function LoginForm({ model }: LoginFormProps) {
             if (controller.signal.aborted) return;
             const result: unknown = await response.json().catch(() => null);
             if (!isLoginApiResponse(result)) {
-                setError({ message: `로그인 응답을 확인할 수 없습니다. (HTTP ${response.status})` });
+                setError({
+                    message: ui('Could not read the sign-in response. (HTTP {value0})', { value0: response.status })
+                });
                 setStatusMessage('');
                 return;
             }
@@ -90,7 +94,9 @@ export function LoginForm({ model }: LoginFormProps) {
             if (result.body?.security === true && !isOAuthChallenge) {
                 setShowCode(true);
                 setCode('');
-                setStatusMessage('2단계 인증을 완료해 주세요. 계정 정보는 유지됩니다.');
+                setStatusMessage(
+                    ui('Complete two-factor authentication to continue. Your account details are preserved.')
+                );
                 return;
             }
 
@@ -101,8 +107,8 @@ export function LoginForm({ model }: LoginFormProps) {
             setError({
                 message:
                     cause instanceof Error
-                        ? `로그인 요청에 실패했습니다: ${cause.message}`
-                        : '로그인 요청에 실패했습니다. 네트워크 연결을 확인해 주세요.'
+                        ? ui('The sign-in request failed: {value0}', { value0: cause.message })
+                        : ui('The sign-in request failed. Check your network connection.')
             });
             setStatusMessage('');
         } finally {
@@ -132,36 +138,46 @@ export function LoginForm({ model }: LoginFormProps) {
         setStatusMessage('');
     }
 
-    const title = isOAuthChallenge ? '2단계 인증' : showCode ? '인증 코드 확인' : '로그인';
+    const title = isOAuthChallenge
+        ? ui('Two-factor authentication')
+        : showCode
+          ? ui('Verify authentication code')
+          : ui('Log in');
     const description = showCode
-        ? `@${isOAuthChallenge ? oauthUsername : username} 계정의 인증 코드 또는 복구 코드를 입력해 주세요.`
-        : '돌아오신 것을 환영해요';
+        ? ui('Enter the authentication code or recovery code for @{value0}.', {
+              value0: isOAuthChallenge ? oauthUsername : username
+          })
+        : ui('Welcome back');
 
     return (
-        <main className="blex-login" lang="ko">
+        <main className="blex-login" lang={getDocumentLocale()}>
             <AuthPanel title={title} description={description} id="blex-login-title" lock={showCode}>
                 {!showCode && model.providers.length > 0 && (
                     <>
-                        <nav className="blex-login__providers" aria-label="소셜 계정으로 로그인">
+                        <nav className="blex-login__providers" aria-label={ui('Sign in with a social account')}>
                             {model.providers.map((provider) => (
                                 <a
                                     className="blex-login__provider"
                                     href={`/login/start/${provider.key}?${new URLSearchParams({ next: model.next })}`}
                                     key={provider.key}
                                 >
-                                    {provider.name}로 계속하기
+                                    {ui('Continue with {value0}', { value0: provider.name })}
                                 </a>
                             ))}
                         </nav>
                         <div className="blex-login__separator">
-                            <span>또는</span>
+                            <span>{ui('or')}</span>
                         </div>
                     </>
                 )}
                 {error && (
                     <div className="blex-login__error" role="alert">
                         <span>{error.message}</span>
-                        {error.code && <small>오류 코드: {error.code}</small>}
+                        {error.code && (
+                            <small>
+                                {ui('Error code:')} {error.code}
+                            </small>
+                        )}
                     </div>
                 )}
 
@@ -177,7 +193,7 @@ export function LoginForm({ model }: LoginFormProps) {
                     {isOAuthChallenge ? (
                         <>
                             <label className="blex-login__label" htmlFor="blex-login-oauth-code">
-                                인증 코드
+                                {ui('Authentication code')}
                             </label>
                             <input
                                 id="blex-login-oauth-code"
@@ -193,17 +209,18 @@ export function LoginForm({ model }: LoginFormProps) {
                                 disabled={isSubmitting}
                             />
                             <p className="blex-login__hint" id="blex-login-code-help">
-                                인증 앱의 코드 또는 복구 코드를 사용할 수 있습니다. 복구 코드는 한 번만 쓸 수 있고,
-                                사용하면 2단계 인증이 해제됩니다.
+                                {ui(
+                                    'Use a code from your authenticator app or a recovery code. A recovery code works only once and disables two-factor authentication when used.'
+                                )}
                             </p>
                         </>
                     ) : showCode ? (
                         <>
                             <p className="blex-login__account">
-                                로그인 계정 <strong>@{username}</strong>
+                                {ui('Account')} <strong>@{username}</strong>
                             </p>
                             <label className="blex-login__label" htmlFor="blex-login-code">
-                                인증 코드
+                                {ui('Authentication code')}
                             </label>
                             <input
                                 id="blex-login-code"
@@ -219,8 +236,9 @@ export function LoginForm({ model }: LoginFormProps) {
                                 disabled={isSubmitting}
                             />
                             <p className="blex-login__hint" id="blex-login-code-help">
-                                인증 앱의 코드 또는 복구 코드를 사용할 수 있습니다. 복구 코드는 한 번만 쓸 수 있고,
-                                사용하면 2단계 인증이 해제됩니다.
+                                {ui(
+                                    'Use a code from your authenticator app or a recovery code. A recovery code works only once and disables two-factor authentication when used.'
+                                )}
                             </p>
                             <button
                                 className="blex-login__text-button"
@@ -228,13 +246,13 @@ export function LoginForm({ model }: LoginFormProps) {
                                 onClick={handleReturnToCredentials}
                                 disabled={isSubmitting}
                             >
-                                계정 정보 수정
+                                {ui('Edit account details')}
                             </button>
                         </>
                     ) : (
                         <>
                             <label className="blex-login__label" htmlFor="blex-login-username">
-                                사용자 이름
+                                {ui('Username')}
                             </label>
                             <input
                                 id="blex-login-username"
@@ -242,7 +260,7 @@ export function LoginForm({ model }: LoginFormProps) {
                                 name="username"
                                 type="text"
                                 value={username}
-                                placeholder="사용자 이름을 입력해 주세요"
+                                placeholder={ui('Enter your username')}
                                 onChange={handleUsernameChange}
                                 autoComplete="username"
                                 autoCapitalize="none"
@@ -252,7 +270,7 @@ export function LoginForm({ model }: LoginFormProps) {
                             />
 
                             <label className="blex-login__label" htmlFor="blex-login-password">
-                                비밀번호
+                                {ui('Password')}
                             </label>
                             <input
                                 id="blex-login-password"
@@ -260,7 +278,7 @@ export function LoginForm({ model }: LoginFormProps) {
                                 name="password"
                                 type="password"
                                 value={password}
-                                placeholder="비밀번호를 입력해 주세요"
+                                placeholder={ui('Enter your password')}
                                 onChange={handlePasswordChange}
                                 autoComplete="current-password"
                                 required
@@ -270,7 +288,7 @@ export function LoginForm({ model }: LoginFormProps) {
                     )}
 
                     <button className="blex-login__submit" type="submit" disabled={isSubmitting}>
-                        {isSubmitting ? '확인 중…' : isOAuthChallenge || showCode ? '인증 확인' : '로그인'}
+                        {isSubmitting ? ui('Checking…') : isOAuthChallenge || showCode ? ui('Verify') : ui('Log in')}
                     </button>
                     <p className="blex-login__status" role="status" aria-live="polite">
                         {statusMessage}
@@ -279,17 +297,17 @@ export function LoginForm({ model }: LoginFormProps) {
 
                 {isOAuthChallenge && (
                     <a className="blex-login__restart" href="/login?restart=1">
-                        다른 계정으로 로그인
+                        {ui('Sign in with a different account')}
                     </a>
                 )}
                 {!isOAuthChallenge && !showCode && (
                     <p className="mt-2 pt-8 text-center text-sm font-medium text-content-secondary">
-                        계정이 없으신가요?{' '}
+                        {ui("Don't have an account?")}{' '}
                         <a
                             className="ml-1 font-bold text-content hover:underline"
                             href={`/sign?${new URLSearchParams({ next: model.next })}`}
                         >
-                            회원가입
+                            {ui('Sign up')}
                         </a>
                     </p>
                 )}
@@ -313,17 +331,17 @@ function isLoginApiResponse(value: unknown): value is LoginApiResponse {
 function toLoginError(result: LoginApiResponse, statusCode: number): LoginError {
     const code = result.errorCode;
     const knownMessages: Record<string, string> = {
-        'error:AT': '사용자 이름 또는 비밀번호를 확인해 주세요.',
-        'error:RJ': '요청을 확인할 수 없습니다. 인증 코드를 다시 확인해 주세요.',
-        'error:VA': '인증 코드를 입력해 주세요.',
-        'error:NL': '로그인이 필요합니다.'
+        'error:AT': ui('Check your username and password.'),
+        'error:RJ': ui('Could not verify the request. Check your authentication code.'),
+        'error:VA': ui('Enter your authentication code.'),
+        'error:NL': ui('Sign in to continue.')
     };
     return {
         message:
             result.errorMessage?.trim() ||
             (code
-                ? (knownMessages[code] ?? `로그인에 실패했습니다. (${code})`)
-                : `로그인에 실패했습니다. (HTTP ${statusCode})`),
+                ? (knownMessages[code] ?? ui('Sign-in failed. ({value0})', { value0: code }))
+                : ui('Sign-in failed. (HTTP {value0})', { value0: statusCode })),
         ...(code ? { code } : {})
     };
 }

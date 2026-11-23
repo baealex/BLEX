@@ -1,3 +1,5 @@
+import { getDocumentLocale } from '../../i18n/locale.js';
+import { ui } from '../../i18n/public-ui.js';
 import { SiteHeader, SiteTheme } from '~/appearance/shell';
 import { renderApplicationDocument } from '~/application/document';
 import { floatStyles } from '~/features/discovery/not-found-parts';
@@ -5,12 +7,12 @@ import type { PageProps } from '~/contracts/pages';
 
 export default function renderPage({ brand, viewer }: PageProps['errors/forbidden']): string {
     return renderApplicationDocument(
-        <html lang="ko">
+        <html lang={getDocumentLocale()}>
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <meta name="robots" content="noindex,nofollow" />
-                <title>403 - 접근 권한이 없습니다</title>
+                <title>{ui('403 - Access denied')}</title>
                 <link rel="icon" href={brand.faviconUrl} />
                 <SiteTheme />
                 <style>{floatStyles}</style>
@@ -34,12 +36,12 @@ export default function renderPage({ brand, viewer }: PageProps['errors/forbidde
                             </div>
                             <div className="mx-auto mb-8 max-w-2xl rounded-2xl bg-surface-elevated p-8 shadow-floating ring-1 ring-line/60 md:p-12">
                                 <h2 className="mb-4 text-3xl font-bold text-content md:text-4xl">
-                                    접근 권한이 없습니다
+                                    {ui('Access denied')}
                                 </h2>
                                 <p className="text-xl leading-relaxed text-content-secondary">
-                                    이 페이지에 접근할 권한이 없습니다.
+                                    {ui('You do not have permission to access this page.')}
                                     <br />
-                                    로그인 후 다시 시도해주세요.
+                                    {ui('Sign in and try again.')}
                                 </p>
                             </div>
                             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -48,13 +50,13 @@ export default function renderPage({ brand, viewer }: PageProps['errors/forbidde
                                     data-history-back=""
                                     className="rounded-full border border-line bg-surface-elevated px-8 py-4 font-semibold text-content transition-all duration-150 hover:border-line-strong hover:bg-surface-subtle"
                                 >
-                                    뒤로 가기
+                                    {ui('Go back')}
                                 </button>
                                 <a
                                     href="/"
                                     className="rounded-full bg-action px-8 py-4 font-semibold text-content-inverted transition-all duration-150 hover:bg-action-hover"
                                 >
-                                    홈으로 이동
+                                    {ui('Go home')}
                                 </a>
                             </div>
                         </div>

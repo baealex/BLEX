@@ -1,3 +1,4 @@
+import { systemMessage } from '../../../platform/messages.js';
 import { renderPage } from '../../../platform/views.js';
 import type { FastifyInstance } from 'fastify';
 import type { PrismaClient } from '@prisma/client';
@@ -59,8 +60,8 @@ export function registerHomeRoutes(
       readCardLikes(db, request, viewer, posts),
     ]);
     const meta: PageMeta = {
-      title: `${siteName} - 최신 포스트`,
-      description: `${siteName}에 공개된 최신 글을 둘러보세요.`,
+      title: systemMessage('{value0} - Latest posts', { value0: siteName }),
+      description: systemMessage('Browse the latest public posts on {value0}.', { value0: siteName }),
       canonical,
       siteName,
       brand,
@@ -94,7 +95,7 @@ export function registerHomeRoutes(
       reply,
       renderPage('interests', {
         meta: {
-          title: `${siteName} - 관심 포스트`,
+          title: systemMessage('{value0} - Liked posts', { value0: siteName }),
           description: '',
           canonical: makeAbsolute(siteUrl, path),
           siteName,
