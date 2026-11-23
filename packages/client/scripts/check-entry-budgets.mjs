@@ -20,8 +20,7 @@ const budgets = [
         allowedInitialNames: [
             'src/scripts/screen-loader.ts',
             'preload-helper',
-            'theme',
-            'loginPrompt'
+            'theme'
         ],
         requiredDynamicNames: [
             'src/screen-runtime.tsx',
@@ -66,13 +65,6 @@ const budgets = [
         ]
     },
     {
-        entries: ['src/screen-runtime.tsx', 'src/components/remotes/Login/index.ts'],
-        label: 'login screen experience',
-        // Axios 1.20 security fixes add 5.1 KiB raw / 1.7 KiB gzip to request clients.
-        maxInitialBytes: 360 * 1024,
-        maxInitialGzipBytes: 120 * 1024
-    },
-    {
         entries: ['src/screen-runtime.tsx', 'src/components/remotes/Signup/index.ts'],
         label: 'signup screen experience',
         maxInitialBytes: 350 * 1024,
@@ -95,12 +87,6 @@ const budgets = [
         label: 'post editor screen experience',
         maxInitialBytes: 1475 * 1024,
         maxInitialGzipBytes: 478 * 1024
-    },
-    {
-        entries: ['src/screen-runtime.tsx', 'src/components/remotes/Comments/index.ts'],
-        label: 'comments screen experience',
-        maxInitialBytes: 520 * 1024,
-        maxInitialGzipBytes: 175 * 1024
     },
     {
         entries: ['styles/main.scss'],

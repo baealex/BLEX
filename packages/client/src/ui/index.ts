@@ -14,7 +14,6 @@ export * from './select';
 export * from './toggle';
 export * from './tooltip';
 
-export * from './heatmap';
 export * from './dialog';
 export * from './popover';
 export * from './tabs';

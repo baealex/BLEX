@@ -9,19 +9,10 @@ interface AppProps {
 
 const LazyComponents = {
     // Screen components
-    Comments: lazy(() => import('./remotes/Comments')),
-    SocialLogin: lazy(() => import('./remotes/SocialLogin')),
-    RelatedPosts: lazy(() => import('./remotes/RelatedPosts')),
-    PostTimelapse: lazy(() => import('./remotes/PostTimelapse')),
     SearchPage: lazy(() => import('./remotes/SearchPage')),
-    LoginPrompt: lazy(() => import('./remotes/LoginPrompt')),
-    SubscriptionTelegramHint: lazy(() => import('./remotes/SubscriptionTelegramHint')),
     Toaster: lazy(() => import('./remotes/Toaster')),
-    Heatmap: lazy(() => import('./remotes/Author/Heatmap')),
-    PinnedPostQuickAction: lazy(() => import('./remotes/Author/PinnedPostQuickAction')),
 
     // Pages
-    Login: lazy(() => import('./remotes/Login')),
     Signup: lazy(() => import('./remotes/Signup')),
     PostEditor: lazy(() => import('./remotes/PostEditor')),
     // Unified Settings App

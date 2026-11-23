@@ -12,7 +12,6 @@ import {
 import { normalizeLocale } from '../src/i18n/locale.ts';
 import { formatScheduleDateTime, toReservedDateValue } from '../src/components/remotes/PostEditor/utils/scheduleDate.ts';
 import { buildQueryCacheKey } from '../src/lib/query-cache-key.ts';
-import { normalizeLoginPromptAction } from '../src/utils/loginPrompt.ts';
 
 describe('locale normalization', () => {
     test('normalizes supported BCP 47 language tags and safely defaults to Korean', () => {
@@ -128,10 +127,4 @@ describe('localized publication dates', () => {
 });
 
 describe('localized login prompt actions', () => {
-    test('uses stable action identifiers and safely falls back to generic copy', () => {
-        assert.equal(normalizeLoginPromptAction('like'), 'like');
-        assert.equal(normalizeLoginPromptAction('comment'), 'comment');
-        assert.equal(normalizeLoginPromptAction('좋아요'), 'generic');
-        assert.equal(normalizeLoginPromptAction(undefined), 'generic');
-    });
 });

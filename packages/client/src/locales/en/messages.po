@@ -44,7 +44,6 @@ msgid "auth.fields.email_placeholder"
 msgstr "Enter your email address"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:138
 #: src/components/remotes/Signup/Signup.tsx:432
 msgid "auth.fields.password"
 msgstr "Password"
@@ -55,12 +54,6 @@ msgid "auth.fields.password_new_placeholder"
 msgstr "Enter a secure password"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:151
-msgid "auth.fields.password_placeholder"
-msgstr "Enter your password"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:111
 #: src/components/remotes/Signup/Signup.tsx:342
 msgid "auth.fields.username"
 msgstr "Username"
@@ -72,46 +65,9 @@ msgid "auth.fields.username_hint"
 msgstr "4–15 lowercase letters or numbers"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:124
-msgid "auth.fields.username_placeholder"
-msgstr "Enter your username"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Login/hooks/useLoginState.ts:92
-msgid "auth.login.blocked_remaining"
-msgstr "Too many attempts. Try again in {seconds, plural, one {# second} other {# seconds}}."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Login/hooks/useLoginState.ts:122
-msgid "auth.login.failed_blocked_remaining"
-msgstr "Too many failed attempts. Try again in {seconds, plural, one {# second} other {# seconds}}."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:150
-msgid "auth.login.invalid_credentials"
-msgstr "The username or password is incorrect."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:318
-msgid "auth.login.no_account"
-msgstr "Don't have an account?"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:189
-msgid "auth.login.submitting"
-msgstr "Logging in..."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:191
-#: src/components/remotes/Login/Login.tsx:270
 #: src/components/remotes/Signup/Signup.tsx:545
 msgid "auth.login.title"
 msgstr "Log in"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:277
-msgid "auth.login.welcome_back"
-msgstr "Welcome back"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Signup/Signup.tsx:543
@@ -176,11 +132,6 @@ msgid "auth.signup.reader_description"
 msgstr "Discover stories from independent authors"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:320
-msgid "auth.signup.title"
-msgstr "Sign up"
-
-#. js-lingui-explicit-id
 #: src/components/remotes/SocialLogin/SocialLogin.tsx:69
 msgid "auth.social.continue_with"
 msgstr "Continue with {providerName}"
@@ -194,76 +145,6 @@ msgstr "Your first social sign-in creates a BLEX account."
 #: src/components/remotes/SocialLogin/SocialLogin.tsx:83
 msgid "auth.social.password_divider"
 msgstr "Or use a username and password"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:87
-msgid "auth.two_factor.back_to_login"
-msgstr "Back to login"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:275
-msgid "auth.two_factor.description"
-msgstr "Use your authenticator app or a recovery key to sign in."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorCodeInput.tsx:60
-msgid "auth.two_factor.digit_label"
-msgstr "Verification code digit {position}"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Login/hooks/useLoginState.ts:138
-msgid "auth.two_factor.failed_blocked"
-msgstr "Too many failed attempts. Try again in 5 minutes."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:232
-msgid "auth.two_factor.incorrect_code"
-msgstr "The verification code is incorrect."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:189
-msgid "auth.two_factor.invalid_format"
-msgstr "Enter a valid 6-digit code."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:193
-msgid "auth.two_factor.invalid_recovery_key"
-msgstr "Enter a valid recovery key."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:50
-msgid "auth.two_factor.recovery_key"
-msgstr "Recovery key"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:220
-msgid "auth.two_factor.success_redirect"
-msgstr "Verification complete. Redirecting you to the home page."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:268
-msgid "auth.two_factor.title"
-msgstr "Two-factor authentication"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:77
-msgid "auth.two_factor.use_authenticator"
-msgstr "Use an authenticator code"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:79
-msgid "auth.two_factor.use_recovery_key"
-msgstr "Use a recovery key"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:120
-msgid "auth.two_factor.verify"
-msgstr "Verify"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:118
-msgid "auth.two_factor.verifying"
-msgstr "Verifying..."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Signup/Signup.tsx:231
@@ -293,7 +174,6 @@ msgid "auth.validation.password_mismatch"
 msgstr "Passwords do not match."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:113
 #: src/components/remotes/Signup/Signup.tsx:218
 msgid "auth.validation.password_required"
 msgstr "Password is required."
@@ -315,7 +195,6 @@ msgid "auth.validation.username_length"
 msgstr "Username must be 4–15 lowercase letters or numbers."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:106
 #: src/components/remotes/Signup/Signup.tsx:179
 msgid "auth.validation.username_required"
 msgstr "Username is required."
@@ -324,314 +203,6 @@ msgstr "Username is required."
 #: src/components/remotes/Signup/Signup.tsx:362
 msgid "auth.validation.username_too_long"
 msgstr "Username cannot exceed 15 characters."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Author/Heatmap.tsx:233
-msgid "author.heatmap.activity_count"
-msgstr "{activityCount, plural, one {# activity} other {# activities}}"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Author/Heatmap.tsx:251
-msgid "author.heatmap.count_label"
-msgstr "activity"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Author/Heatmap.tsx:230
-msgid "author.heatmap.past_year"
-msgstr "Activity in the past year"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Author/Heatmap.tsx:242
-msgid "author.heatmap.unit"
-msgstr "Unit: activity"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Author/PinnedPostQuickAction.tsx:104
-msgid "author.pinned_posts.action"
-msgstr "Manage pinned posts"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Author/PinnedPostQuickAction.tsx:120
-msgid "author.pinned_posts.loading"
-msgstr "Loading pinned posts..."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Author/PinnedPostQuickAction.tsx:110
-msgid "author.pinned_posts.modal_title"
-msgstr "Manage pinned posts"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentHeader.tsx:29
-msgid "comments.author_avatar"
-msgstr "Profile image for {author}"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentHeader.tsx:52
-msgid "comments.author_profile"
-msgstr "View profile for {author}"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/Comments.tsx:186
-msgid "comments.closed"
-msgstr "The author is not accepting new comments or replies on this post."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentItem.tsx:112
-msgid "comments.comment_by_author"
-msgstr "Comment by {author}"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/Comments.tsx:43
-msgid "comments.count"
-msgstr "{count, plural, one {# comment} other {# comments}}"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:193
-msgid "comments.create.error"
-msgstr "Something went wrong while posting the comment."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:188
-msgid "comments.create.failed"
-msgstr "Could not post the comment."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:181
-msgid "comments.create.success"
-msgstr "Comment posted."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:275
-msgid "comments.delete.confirm"
-msgstr "Delete this comment?"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:309
-msgid "comments.delete.error"
-msgstr "Something went wrong while deleting the comment."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:304
-msgid "comments.delete.failed"
-msgstr "Could not delete the comment."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:297
-msgid "comments.delete.success"
-msgstr "Comment deleted."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:271
-msgid "comments.delete.title"
-msgstr "Delete comment"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentHeader.tsx:21
-#: src/components/remotes/Comments/components/CommentItem.tsx:69
-msgid "comments.deleted_author"
-msgstr "Deleted user"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentEditForm.tsx:65
-msgid "comments.edit.cancel"
-msgstr "Cancel editing"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentEditForm.tsx:54
-msgid "comments.edit.content_label"
-msgstr "Edited comment content"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:260
-msgid "comments.edit.error"
-msgstr "Something went wrong while updating the comment."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:255
-msgid "comments.edit.failed"
-msgstr "Could not update the comment."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:218
-msgid "comments.edit.load_error"
-msgstr "Something went wrong while loading the comment."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:212
-msgid "comments.edit.load_failed"
-msgstr "Could not load the comment."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentEditForm.tsx:48
-msgid "comments.edit.placeholder"
-msgstr "Edit your comment..."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentEditForm.tsx:80
-msgid "comments.edit.save"
-msgstr "Save comment"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:248
-msgid "comments.edit.success"
-msgstr "Comment updated."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentHeader.tsx:79
-msgid "comments.edited"
-msgstr "Edited"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/EmptyState.tsx:9
-msgid "comments.empty"
-msgstr "No comments yet"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:178
-msgid "comments.form.content_label"
-msgstr "Comment content"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:35
-msgid "comments.form.placeholder"
-msgstr "Write a comment..."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:39
-msgid "comments.form.submit"
-msgstr "Post comment"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:214
-msgid "comments.form.submit_label"
-msgstr "Post comment"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:221
-msgid "comments.form.submitting"
-msgstr "Posting..."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:210
-msgid "comments.form.submitting_label"
-msgstr "Posting comment"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/Comments.tsx:167
-msgid "comments.leave_comment"
-msgstr "Leave a comment"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentActions.tsx:53
-msgid "comments.like.add"
-msgstr "Like"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentActions.tsx:69
-msgid "comments.like.count"
-msgstr "{count, plural, one {# like} other {# likes}}"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:147
-msgid "comments.like.error"
-msgstr "Something went wrong while updating this like."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:142
-msgid "comments.like.failed"
-msgstr "Could not update this like."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentActions.tsx:49
-msgid "comments.like.remove"
-msgstr "Remove like"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/Comments.tsx:106
-msgid "comments.load_error_description"
-msgstr "Try again in a moment."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/Comments.tsx:103
-msgid "comments.load_error_title"
-msgstr "Could not load comments"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/Comments.tsx:127
-msgid "comments.loading"
-msgstr "Loading comments..."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:43
-msgid "comments.login_required"
-msgstr "Log in to comment"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentItem.tsx:124
-msgid "comments.options.open"
-msgstr "Open comment options"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentItem.tsx:107
-msgid "comments.reply_by_author"
-msgstr "Reply by {author}"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentActions.tsx:88
-msgid "comments.reply.action"
-msgstr "Reply"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:379
-msgid "comments.reply.error"
-msgstr "Something went wrong while posting the reply."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:374
-msgid "comments.reply.failed"
-msgstr "Could not post the reply."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:346
-msgid "comments.reply.parent_missing"
-msgstr "Could not find the comment to reply to."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentItem.tsx:191
-msgid "comments.reply.placeholder"
-msgstr "Write a reply..."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentActions.tsx:83
-#: src/components/remotes/Comments/components/CommentItem.tsx:197
-msgid "comments.reply.submit"
-msgstr "Post reply"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:367
-msgid "comments.reply.success"
-msgstr "Reply posted."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentItem.tsx:176
-msgid "comments.replying_to"
-msgstr "Replying to {author}"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/Comments.tsx:38
-msgid "comments.title"
-msgstr "Comments"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:161
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:232
-msgid "comments.validation.comment_required"
-msgstr "Enter a comment."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:338
-msgid "comments.validation.reply_required"
-msgstr "Enter a reply."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:162
@@ -649,8 +220,6 @@ msgid "common.apply"
 msgstr "Apply"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentEditForm.tsx:69
-#: src/components/remotes/Comments/components/CommentForm.tsx:202
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:600
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:618
 #: src/components/remotes/PostEditor/components/PublishChecklist.tsx:139
@@ -717,8 +286,6 @@ msgid "common.create"
 msgstr "Create"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentItem.tsx:84
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:279
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:608
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:639
 #: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:336
@@ -764,11 +331,6 @@ msgid "common.disable"
 msgstr "Disable"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/ErrorAlert.tsx:41
-msgid "common.dismiss_error"
-msgstr "Dismiss error message"
-
-#. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:620
 #: src/components/remotes/PostEditor/utils/firstPublishTour.ts:114
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:677
@@ -776,7 +338,6 @@ msgid "common.done"
 msgstr "Done"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentItem.tsx:76
 #: src/components/remotes/SettingsApp/pages/BannerSetting/components/BannerList.tsx:103
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:348
 #: src/components/remotes/SettingsApp/pages/GlobalBannerSetting/components/GlobalBannerList.tsx:103
@@ -791,8 +352,6 @@ msgid "common.enable"
 msgstr "Enable"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:159
-#: src/components/remotes/Login/Login.tsx:247
 #: src/components/remotes/Signup/Signup.tsx:294
 msgid "common.error.try_again"
 msgstr "Something went wrong. Please try again."
@@ -815,7 +374,7 @@ msgstr "Load more"
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/components/SettingsLayout.tsx:23
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:141
-#: src/components/remotes/SettingsApp/SettingsApp.tsx:106
+#: src/components/remotes/SettingsApp/SettingsApp.tsx:107
 msgid "common.loading"
 msgstr "Loading"
 
@@ -897,7 +456,6 @@ msgid "common.restore"
 msgstr "Restore"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/Comments.tsx:112
 #: src/components/remotes/PostEditor/components/DraftsPanel.tsx:147
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:380
 #: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:125
@@ -906,14 +464,12 @@ msgid "common.retry"
 msgstr "Try again"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentEditForm.tsx:90
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/RegionalPreferencesSection.tsx:100
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:193
 msgid "common.save"
 msgstr "Save"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentEditForm.tsx:76
 #: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:290
 #: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:825
 #: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:577
@@ -923,7 +479,6 @@ msgid "common.saving"
 msgstr "Saving"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentEditForm.tsx:87
 #: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:606
 #: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:743
 msgid "common.saving_ellipsis"
@@ -2195,60 +1750,6 @@ msgid "editor.validation.url_required"
 msgstr "Enter a post URL."
 
 #. js-lingui-explicit-id
-#: src/contexts/LoginPromptContext.tsx:64
-msgid "login_prompt.action.generic"
-msgstr "this action"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:116
-#: src/contexts/LoginPromptContext.tsx:116
-msgid "login_prompt.cancel"
-msgstr "Cancel"
-
-#. js-lingui-explicit-id
-#: src/contexts/LoginPromptContext.tsx:95
-msgid "login_prompt.description.action"
-msgstr "Log in to continue with {action}."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:62
-msgid "login_prompt.description.comment"
-msgstr "Log in to leave a comment."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:54
-msgid "login_prompt.description.generic"
-msgstr "Log in to continue."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:58
-msgid "login_prompt.description.like"
-msgstr "Log in to like this post."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:66
-msgid "login_prompt.description.reply"
-msgstr "Log in to reply."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:70
-msgid "login_prompt.description.subscribe"
-msgstr "Log in to get notified about new posts from this author."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:110
-#: src/contexts/LoginPromptContext.tsx:107
-msgid "login_prompt.login"
-msgstr "Log in"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:76
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:96
-#: src/contexts/LoginPromptContext.tsx:87
-msgid "login_prompt.title"
-msgstr "Login required"
-
-#. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostsPager.tsx:69
 msgid "pagination.first"
 msgstr "First page"
@@ -2267,184 +1768,6 @@ msgstr "Next page"
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostsPager.tsx:82
 msgid "pagination.previous"
 msgstr "Previous page"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:253
-msgid "post_timelapse.badge.after_publishing"
-msgstr "After publishing"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:243
-msgid "post_timelapse.badge.current"
-msgstr "Current post"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:248
-msgid "post_timelapse.badge.draft"
-msgstr "Draft"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:215
-msgid "post_timelapse.change.added_paragraphs"
-msgstr "{count, plural, one {Added # paragraph} other {Added # paragraphs}}"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:201
-msgid "post_timelapse.change.added_section"
-msgstr "Added the “{name}” section"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:195
-msgid "post_timelapse.change.added_sections"
-msgstr "{count, plural, one {Added # section} other {Added # sections}}"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:181
-msgid "post_timelapse.change.first_save"
-msgstr "First save"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:235
-msgid "post_timelapse.change.formatting"
-msgstr "Adjusted the formatting"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:230
-msgid "post_timelapse.change.polished"
-msgstr "Polished the wording"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:223
-msgid "post_timelapse.change.removed_paragraphs"
-msgstr "{count, plural, one {Removed # paragraph} other {Removed # paragraphs}}"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:208
-msgid "post_timelapse.change.rewrote_paragraphs"
-msgstr "{count, plural, one {Rewrote # paragraph} other {Rewrote # paragraphs}}"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:188
-msgid "post_timelapse.change.title"
-msgstr "Changed the title"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapseDialog.tsx:90
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:381
-msgid "post_timelapse.close"
-msgstr "Close"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:318
-msgid "post_timelapse.controls"
-msgstr "Replay controls"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:356
-msgid "post_timelapse.deleted_characters"
-msgstr "{count, plural, one {−# char} other {−# chars}}"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:305
-msgid "post_timelapse.empty"
-msgstr "There are no text changes to replay yet."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapseDialog.tsx:77
-msgid "post_timelapse.error.load"
-msgstr "Could not load how this post was written."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:348
-msgid "post_timelapse.inserted_characters"
-msgstr "{count, plural, one {+# char} other {+# chars}}"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapseDialog.tsx:68
-msgid "post_timelapse.loading"
-msgstr "Loading the saved versions…"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/PostTimelapse.tsx:32
-msgid "post_timelapse.open"
-msgstr "How it was written"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:277
-msgid "post_timelapse.pause"
-msgstr "Pause"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:272
-msgid "post_timelapse.play"
-msgstr "Play"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:403
-msgid "post_timelapse.published_marker"
-msgstr "Published"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:282
-msgid "post_timelapse.replay"
-msgstr "Replay from the first save"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapseDialog.tsx:84
-msgid "post_timelapse.retry"
-msgstr "Try again"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:414
-msgid "post_timelapse.sampled"
-msgstr "Showing {shown} of {total} saves"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:261
-msgid "post_timelapse.save_position"
-msgstr "Save {current} of {total}"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:367
-msgid "post_timelapse.speed"
-msgstr "Playback speed"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:399
-msgid "post_timelapse.timeline"
-msgstr "Saved versions"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapseDialog.tsx:56
-msgid "post_timelapse.title"
-msgstr "How this post was written"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:178
-msgid "related_posts.empty.body"
-msgstr "Find more posts on this profile."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:175
-msgid "related_posts.empty.title"
-msgstr "Explore more posts by {username}"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:183
-msgid "related_posts.profile"
-msgstr "View profile"
-
-#. js-lingui-explicit-id
-#. placeholder {0}: relatedPost.readTime
-#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:86
-msgid "related_posts.read_time"
-msgstr "{0, plural, one {# min} other {# mins}}"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:151
-#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:195
-msgid "related_posts.title"
-msgstr "Related posts"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SearchPage/SearchPage.tsx:417
@@ -4724,7 +4047,6 @@ msgid "settings.pinned_posts.empty"
 msgstr "No pinned posts yet"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Author/PinnedPostQuickAction.tsx:58
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:50
 msgid "settings.pinned_posts.error.load"
 msgstr "Could not load pinned posts."
@@ -8507,33 +7829,3 @@ msgstr "Enter a valid URL."
 #: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:205
 msgid "settings.webhooks.validation.url_required"
 msgstr "Enter a webhook URL."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:55
-msgid "subscription_telegram_hint.aria_label"
-msgstr "Telegram suggestion"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:66
-msgid "subscription_telegram_hint.close"
-msgstr "Close"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:89
-msgid "subscription_telegram_hint.connect"
-msgstr "Connect Telegram"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:80
-msgid "subscription_telegram_hint.headline"
-msgstr "Get new posts on Telegram"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:95
-msgid "subscription_telegram_hint.later"
-msgstr "Later"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:77
-msgid "subscription_telegram_hint.title"
-msgstr "Subscribed"
