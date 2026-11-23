@@ -1,4 +1,4 @@
-import { hydrateRoot } from 'react-dom/client';
+import { hydrateIsland } from '../../../application/island.js';
 import { PostCommentsApp, type PostCommentsModel } from './comments.js';
 
 const activeMounts = new WeakMap<HTMLElement, () => void>();
@@ -15,12 +15,11 @@ export function mountPage(scope: ParentNode): (() => void) | undefined {
         console.error('Could not hydrate comments because their server model is invalid.');
         return undefined;
     }
-    const reactRoot = hydrateRoot(root, <PostCommentsApp model={model} />);
-    let mounted = true;
+    const controller = new AbortController();
+    hydrateIsland(root, <PostCommentsApp model={model} />, controller.signal);
     const cleanup = () => {
-        if (!mounted) return;
-        mounted = false;
-        reactRoot.unmount();
+        if (controller.signal.aborted) return;
+        controller.abort();
         activeMounts.delete(root);
     };
     activeMounts.set(root, cleanup);
