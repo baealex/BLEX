@@ -82,9 +82,8 @@ const PostPreviewDialog = ({ isOpen, previewUrl, returnFocusTo, onClose }: PostP
                         </div>
 
                         <div className="flex items-center justify-between gap-2 sm:justify-end">
-                            <div
-                                className="inline-flex rounded-xl border border-line bg-surface-subtle p-1"
-                                role="group"
+                            <fieldset
+                                className="inline-flex min-w-0 rounded-xl border border-line bg-surface-subtle p-1"
                                 aria-label={t({
                                     id: 'editor.preview.viewport',
                                     message: 'Preview viewport'
@@ -109,7 +108,7 @@ const PostPreviewDialog = ({ isOpen, previewUrl, returnFocusTo, onClose }: PostP
                                         </button>
                                     );
                                 })}
-                            </div>
+                            </fieldset>
                             <IconButton
                                 size="sm"
                                 aria-label={t({

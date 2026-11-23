@@ -440,7 +440,7 @@ async function removeBrandAssetFiles(mediaRoot: string, paths: string[]): Promis
   for (const path of paths) {
     if (!isManagedBrandPath(path)) continue;
     const parts = path.split('/');
-    let target = resolve(root, ...parts);
+    const target = resolve(root, ...parts);
     const fromRoot = relative(root, target);
     if (fromRoot === '..' || fromRoot.startsWith(`..${sep}`) || isAbsolute(fromRoot)) continue;
     try {
@@ -477,7 +477,7 @@ export async function uploadBrandAsset(
   if (!options.mediaRoot) return { ok: false, code: 'RJ', message: 'Brand asset storage is unavailable.' };
   let svg: Buffer;
   let manifestSource: Record<string, unknown> | null = null;
-  let pngContent = new Map<number, Buffer>();
+  const pngContent = new Map<number, Buffer>();
   let ico: Buffer | null = null;
   try {
     svg = validateSvg(input.svg);

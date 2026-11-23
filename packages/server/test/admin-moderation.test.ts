@@ -5,6 +5,12 @@ import { PrismaClient } from '@prisma/client';
 import { buildApp } from '../src/app.js';
 import { createPasswordResetToken } from '../src/features/auth/password-reset.js';
 import { hashPassword } from '../src/features/auth/password-hash.js';
+import type {
+  AdminManagedUser,
+  AdminModeratedComment,
+  AdminModeratedPost,
+  AdminPostStatus,
+} from '../src/features/site-admin/types.js';
 import {
   createMigratedDatabase,
   insertRow,
@@ -80,19 +86,21 @@ async function withApp(
 }
 
 const json = (headers: Record<string, string>) => ({ ...headers, 'content-type': 'application/json' });
-const parsed = (response: { body: string }) =>
-  JSON.parse(response.body) as { status: string; errorCode?: string; body: any };
+const parsed = <Body = unknown>(response: { body: string }) =>
+  JSON.parse(response.body) as { status: string; errorCode?: string; body: Body };
 
 test('staff hide, trash, and restore published posts without seeing drafts', async () => {
   await withApp(async ({ app, staff, reader, fixture }) => {
     assert.equal(parsed(await app.inject({ url: '/v1/admin/posts', headers: reader })).errorCode, 'error:RJ');
 
-    const list = parsed(await app.inject({ url: '/v1/admin/posts', headers: staff }));
+    const list = parsed<{ posts: AdminModeratedPost[] }>(await app.inject({ url: '/v1/admin/posts', headers: staff }));
     assert.deepEqual(
       list.body.posts.map((post: { title: string }) => post.title),
       ['Public post'],
     );
-    const search = parsed(await app.inject({ url: '/v1/admin/posts?q=Private', headers: staff }));
+    const search = parsed<{ posts: AdminModeratedPost[] }>(
+      await app.inject({ url: '/v1/admin/posts?q=Private', headers: staff }),
+    );
     assert.equal(search.body.posts.length, 0);
 
     const noCsrf = await app.inject({
@@ -115,7 +123,7 @@ test('staff hide, trash, and restore published posts without seeing drafts', asy
       headers: json(staff),
       payload: JSON.stringify({ isHidden: true }),
     });
-    assert.equal(parsed(hidden).body.status, 'hidden');
+    assert.equal(parsed<{ status: AdminPostStatus }>(hidden).body.status, 'hidden');
     assert.equal((await app.inject('/@writer/public-post')).statusCode, 404);
     assert.deepEqual({ ...fixture.db.prepare('SELECT updatedAt FROM "Post" WHERE id = 10').get() }, { ...before });
 
@@ -128,13 +136,15 @@ test('staff hide, trash, and restore published posts without seeing drafts', asy
     assert.equal((await app.inject('/@writer/public-post')).statusCode, 200);
 
     const trashed = await app.inject({ method: 'POST', url: '/v1/admin/posts/10/trash', headers: staff });
-    assert.equal(parsed(trashed).body.status, 'trash');
+    assert.equal(parsed<{ status: AdminPostStatus }>(trashed).body.status, 'trash');
     assert.equal((await app.inject('/@writer/public-post')).statusCode, 404);
-    const trashList = parsed(await app.inject({ url: '/v1/admin/posts?status=trash', headers: staff }));
+    const trashList = parsed<{ posts: AdminModeratedPost[] }>(
+      await app.inject({ url: '/v1/admin/posts?status=trash', headers: staff }),
+    );
     assert.equal(trashList.body.posts.length, 1);
 
     const restored = await app.inject({ method: 'POST', url: '/v1/admin/posts/10/restore', headers: staff });
-    assert.equal(parsed(restored).body.status, 'public');
+    assert.equal(parsed<{ status: AdminPostStatus }>(restored).body.status, 'public');
     assert.equal((await app.inject('/@writer/public-post')).statusCode, 200);
     const logged = fixture.db
       .prepare(`SELECT COUNT(*) AS total FROM "AdminLog" WHERE target = 'post' AND userId = 2`)
@@ -194,7 +204,9 @@ test('losing access or recovering an account revokes developer tokens', async ()
     const beforeReset = issue();
     assert.equal(await status(beforeReset), 200);
     const link = new URL(
-      parsed(await app.inject({ method: 'POST', url: '/v1/admin/users/3/password-link', headers: owner })).body.url,
+      parsed<{ url: string; expiresDate: string }>(
+        await app.inject({ method: 'POST', url: '/v1/admin/users/3/password-link', headers: owner }),
+      ).body.url,
     );
     const csrf = 'c'.repeat(43);
     await app.inject({
@@ -236,7 +248,9 @@ test('staff delete a comment and the audit log keeps no comment text', async () 
       html: '<p>already removed</p>',
     });
 
-    const list = parsed(await app.inject({ url: '/v1/admin/comments', headers: staff }));
+    const list = parsed<{ comments: AdminModeratedComment[] }>(
+      await app.inject({ url: '/v1/admin/comments', headers: staff }),
+    );
     assert.deepEqual(
       list.body.comments.map((comment: { id: number }) => comment.id),
       [20],
@@ -283,7 +297,7 @@ test('deactivation signs a member out and only applies to non-administrators', a
     assert.equal(parsed(await setStatus(2, false)).errorCode, 'error:RJ');
     assert.equal(parsed(await setStatus(5, false, owner)).errorCode, 'error:RJ');
 
-    const off = parsed(await setStatus(3, false));
+    const off = parsed<{ user: AdminManagedUser }>(await setStatus(3, false));
     assert.equal(off.body.user.isActive, false);
     assert.equal(off.body.user.canChangeRole, false);
     assert.equal(off.body.user.canChangeStatus, true);
@@ -294,7 +308,7 @@ test('deactivation signs a member out and only applies to non-administrators', a
     assert.equal(parsed(await app.inject({ url: '/v1/login', headers: writer })).errorCode, 'error:NL');
     assert.equal((await app.inject('/@writer/public-post')).statusCode, 404);
 
-    assert.equal(parsed(await setStatus(3, true)).body.user.isActive, true);
+    assert.equal(parsed<{ user: AdminManagedUser }>(await setStatus(3, true)).body.user.isActive, true);
     assert.equal((await app.inject('/@writer/public-post')).statusCode, 200);
   });
 });
@@ -316,7 +330,7 @@ test('only a superuser deletes a member, after typing the username', async () =>
     assert.equal(parsed(await remove(1, 'owner')).errorCode, 'error:RJ');
     assert.equal(parsed(await remove(2, 'moderator')).errorCode, 'error:RJ');
 
-    assert.equal(parsed(await remove(4, 'reader')).body.username, 'reader');
+    assert.equal(parsed<{ username: string }>(await remove(4, 'reader')).body.username, 'reader');
     assert.equal(fixture.db.prepare('SELECT id FROM "User" WHERE id = 4').get(), undefined);
     assert.equal(fixture.db.prepare('SELECT id FROM "Post" WHERE id = 13').get(), undefined);
     assert.deepEqual(
@@ -340,10 +354,14 @@ test("only a superuser turns off another member's two-factor authentication", as
     ])
       insertRow(fixture.db, 'TwoFactorAuth', { id, userId, totpSecret: 'x', recoveryKey: 'y' });
 
-    const listed = parsed(await app.inject({ url: '/v1/admin/users?q=writer', headers: owner }));
+    const listed = parsed<{ users: AdminManagedUser[] }>(
+      await app.inject({ url: '/v1/admin/users?q=writer', headers: owner }),
+    );
     assert.equal(listed.body.users[0].hasTwoFactor, true);
     assert.equal(listed.body.users[0].canResetTwoFactor, true);
-    const asStaff = parsed(await app.inject({ url: '/v1/admin/users?q=writer', headers: staff }));
+    const asStaff = parsed<{ users: AdminManagedUser[] }>(
+      await app.inject({ url: '/v1/admin/users?q=writer', headers: staff }),
+    );
     assert.equal(asStaff.body.users[0].canResetTwoFactor, false);
 
     assert.equal(
@@ -354,7 +372,9 @@ test("only a superuser turns off another member's two-factor authentication", as
       parsed(await app.inject({ method: 'DELETE', url: '/v1/admin/users/5/two-factor', headers: owner })).errorCode,
       'error:RJ',
     );
-    const reset = parsed(await app.inject({ method: 'DELETE', url: '/v1/admin/users/3/two-factor', headers: owner }));
+    const reset = parsed<{ user: AdminManagedUser }>(
+      await app.inject({ method: 'DELETE', url: '/v1/admin/users/3/two-factor', headers: owner }),
+    );
     assert.equal(reset.body.user.hasTwoFactor, false);
     assert.equal(parsed(await app.inject({ url: '/v1/login', headers: member })).errorCode, 'error:NL');
     assert.notEqual(fixture.db.prepare('SELECT id FROM "TwoFactorAuth" WHERE userId = 5').get(), undefined);
@@ -376,13 +396,17 @@ test('a password link works once, keeps two-factor, and is never logged', async 
       parsed(await app.inject({ method: 'POST', url: '/v1/admin/users/5/password-link', headers: owner })).errorCode,
       'error:RJ',
     );
-    const issued = parsed(await app.inject({ method: 'POST', url: '/v1/admin/users/3/password-link', headers: owner }));
+    const issued = parsed<{ url: string; expiresDate: string }>(
+      await app.inject({ method: 'POST', url: '/v1/admin/users/3/password-link', headers: owner }),
+    );
     const link = new URL(issued.body.url);
     assert.equal(link.origin, testSiteUrl.origin);
     assert.ok(new Date(issued.body.expiresDate).getTime() > Date.now());
+    const tokenSegment = link.pathname.split('/').at(-1);
+    assert.ok(tokenSegment);
     assert.doesNotMatch(
       JSON.stringify(fixture.db.prepare('SELECT * FROM "AdminLog"').all()),
-      new RegExp(link.pathname.split('/').at(-1)!.replaceAll('.', '\\.')),
+      new RegExp(tokenSegment.replaceAll('.', '\\.')),
     );
 
     const page = await app.inject(link.pathname);

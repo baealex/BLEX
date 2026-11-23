@@ -58,7 +58,7 @@ async function heatmap(db: PrismaClient, userId: number, own: boolean) {
   const days: Record<string, number> = {};
   // Day keys keep their first-seen order in the JSON: posts, then comments, then likes.
   const entries = [
-    ...posts.map(({ publishedAt }) => publishedAt!),
+    ...posts.flatMap(({ publishedAt }) => (publishedAt ? [publishedAt] : [])),
     ...comments.map(({ createdAt }) => createdAt),
     ...likes.map(({ createdAt }) => createdAt),
   ];
@@ -128,13 +128,17 @@ async function recentActivities(db: PrismaClient, userId: number): Promise<Recen
     username: post.author.username,
     date: createdAt,
   });
-  const posts = postRows.map(
-    (row): PostActivity => ({
-      title: row.title,
-      slug: row.slug,
-      username: row.author.username,
-      date: row.publishedAt!,
-    }),
+  const posts = postRows.flatMap((row): PostActivity[] =>
+    row.publishedAt
+      ? [
+          {
+            title: row.title,
+            slug: row.slug,
+            username: row.author.username,
+            date: row.publishedAt,
+          },
+        ]
+      : [],
   );
   const series = seriesRows.map(
     (row): PostActivity => ({ title: row.name, slug: row.slug, username: row.owner.username, date: row.createdAt }),
@@ -195,19 +199,24 @@ export async function relatedPosts(db: PrismaClient, sourceId: number, sourceAut
     },
   });
   const ranked = candidates
-    .map((post) => {
+    .flatMap((post) => {
+      if (!post.publishedAt) return [];
       const overlap = post.tags.length;
-      const age = (now.getTime() - post.publishedAt!.getTime()) / 86_400_000;
-      return {
-        id: post.id,
-        published: post.publishedAt!.getTime(),
-        overlap,
-        tagScore: Math.min(overlap * 3, 10),
-        similarity: overlap / (sourceTags.length + post._count.tags - overlap),
-        sameAuthor: post.authorId === sourceAuthor ? 1 : 0,
-        quality:
-          Math.min(post._count.likes * 2 + post._count.comments, 10) + (age < 7 ? 5 : age < 30 ? 3 : age < 90 ? 1 : 0),
-      };
+      const published = post.publishedAt.getTime();
+      const age = (now.getTime() - published) / 86_400_000;
+      return [
+        {
+          id: post.id,
+          published,
+          overlap,
+          tagScore: Math.min(overlap * 3, 10),
+          similarity: overlap / (sourceTags.length + post._count.tags - overlap),
+          sameAuthor: post.authorId === sourceAuthor ? 1 : 0,
+          quality:
+            Math.min(post._count.likes * 2 + post._count.comments, 10) +
+            (age < 7 ? 5 : age < 30 ? 3 : age < 90 ? 1 : 0),
+        },
+      ];
     })
     .sort(
       (left, right) =>
@@ -221,7 +230,7 @@ export async function relatedPosts(db: PrismaClient, sourceId: number, sourceAut
     )
     .slice(0, 8);
   const rows = await db.post.findMany({
-    where: { id: { in: ranked.map(({ id }) => id) } },
+    where: { AND: [publicPostWhere(now), { id: { in: ranked.map(({ id }) => id) } }] },
     select: {
       id: true,
       slug: true,
@@ -234,19 +243,22 @@ export async function relatedPosts(db: PrismaClient, sourceId: number, sourceAut
     },
   });
   const byId = new Map(rows.map((row) => [row.id, row]));
-  return ranked.map(({ id }) => {
-    const post = byId.get(id)!;
-    return {
-      slug: post.slug,
-      title: post.title,
-      image: post.image,
-      description: post.description,
-      readTime: post.readTime,
-      published: post.publishedAt!,
-      username: post.author.username,
-      name: post.author.name,
-      avatar: post.author.profile?.avatar ?? '',
-    };
+  return ranked.flatMap(({ id }) => {
+    const post = byId.get(id);
+    if (!post?.publishedAt) return [];
+    return [
+      {
+        slug: post.slug,
+        title: post.title,
+        image: post.image,
+        description: post.description,
+        readTime: post.readTime,
+        published: post.publishedAt,
+        username: post.author.username,
+        name: post.author.name,
+        avatar: post.author.profile?.avatar ?? '',
+      },
+    ];
   });
 }
 

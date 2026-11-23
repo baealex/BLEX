@@ -221,13 +221,15 @@ export async function reorderPinnedPosts(
     });
     const rows = pins.map((pin) => ({ postId: pin.postId, order: pin.order, url: pin.post.slug }));
     const byUrl = new Map(rows.map((row) => [row.url, row]));
+    const ordered: typeof rows = [];
     for (const url of postUrls) {
-      if (!byUrl.has(url)) return { code: 'RJ', key: 'pinned_posts.reorder_contains_unpinned', params: { url } };
+      const row = byUrl.get(url);
+      if (!row) return { code: 'RJ', key: 'pinned_posts.reorder_contains_unpinned', params: { url } };
+      ordered.push(row);
     }
     const requested = new Set(postUrls);
-    const ordered = [...postUrls.map((url) => byUrl.get(url)!), ...rows.filter((row) => !requested.has(row.url))];
-    for (let index = 0; index < ordered.length; index += 1) {
-      const row = ordered[index]!;
+    ordered.push(...rows.filter((row) => !requested.has(row.url)));
+    for (const [index, row] of ordered.entries()) {
       if (row.order !== index)
         await tx.pinnedPost.update({
           where: { userId_postId: { userId, postId: row.postId } },

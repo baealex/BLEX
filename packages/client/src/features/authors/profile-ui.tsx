@@ -1,7 +1,7 @@
 import { ui } from '../../i18n/public-ui.js';
 import type { ReactNode } from 'react';
 import { SiteIcon, type SiteIconName } from '../../appearance/icons';
-import { loginPromptProps } from '../engagement/ui/login-prompt';
+import { LoginPromptLink } from '../engagement/ui/login-prompt-link';
 import type { AuthorRow, AuthorSocialLink, PostRow, PublicPageViewer, SubscriptionState } from '@blex/contracts/public';
 import { avatarUrl, dateLabel, dateValue, mediaUrl, postCover, safeExternalUrl } from '../discovery/view-helpers';
 import { EmptyState, postPath } from '../discovery/post-list';
@@ -26,14 +26,15 @@ function subscriptionControl(
     const subscribeLabel = ui('Subscribe to new posts by {value0}', { value0: author.username });
     if (!viewer) {
         return (
-            <a
-                {...loginPromptProps(path, 'subscribe')}
+            <LoginPromptLink
+                returnTo={path}
+                action="subscribe"
                 aria-label={subscribeLabel}
                 className="inline-flex items-center gap-2 rounded-full bg-action px-5 py-2.5 text-sm font-semibold text-content-inverted transition-colors duration-150 hover:bg-action-hover active:scale-[0.98]"
             >
                 <SiteIcon name="bell" className="text-xs" />
                 {ui('Subscribe')}
-            </a>
+            </LoginPromptLink>
         );
     }
     return (

@@ -24,7 +24,8 @@ export async function createSession(
   previousToken: string | undefined,
 ): Promise<string | null> {
   const token = createToken();
-  const storedToken = tokenHash(token)!;
+  const storedToken = tokenHash(token);
+  if (!storedToken) throw new Error('Invalid generated session token.');
   const previous = tokenHash(previousToken);
   const now = new Date();
   const expiresAt = new Date(now.getTime() + SESSION_DURATION_SECONDS * 1_000);

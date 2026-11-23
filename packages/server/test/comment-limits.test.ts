@@ -138,8 +138,9 @@ test('an older page merges into the threads on screen without duplicates', () =>
     merged.map(({ id }) => id),
     [1, 5, 7],
   );
+  assert.ok(merged[1]);
   assert.deepEqual(
-    merged[1]!.replies.map(({ id }) => id),
+    merged[1].replies.map(({ id }) => id),
     [6, 9],
   );
   assert.equal(countComments(merged as never), 5);

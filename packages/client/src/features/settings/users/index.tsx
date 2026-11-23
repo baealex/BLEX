@@ -267,9 +267,8 @@ const MobileUserRow = ({ user, isExpanded, isRoleUpdating, onToggle, onRoleChang
             </button>
 
             {isExpanded && (
-                <div
+                <section
                     id={detailsId}
-                    role="region"
                     aria-labelledby={toggleId}
                     className="border-t border-line bg-surface-subtle/40 px-4 py-4"
                 >
@@ -328,7 +327,7 @@ const MobileUserRow = ({ user, isExpanded, isRoleUpdating, onToggle, onRoleChang
                     </div>
 
                     <MemberActions user={user} />
-                </div>
+                </section>
             )}
         </div>
     );

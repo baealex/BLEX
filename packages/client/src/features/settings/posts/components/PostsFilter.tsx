@@ -153,6 +153,7 @@ const PostsFilter = ({
                         </button>
                     }
                     items={POSTS_ORDER.map((orderOption) => ({
+                        id: orderOption.order,
                         label: getOrderLabel(orderOption.order),
                         onClick: () => onFilterChange('order', orderOption.order),
                         checked: filters.order === orderOption.order,

@@ -130,7 +130,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       if (logId === null) return notFound(reply);
       const log = await readOwnedLog(db, logId, user.id);
       if (!log) return notFound(reply);
-      return renderDetailPage(request, reply, db, options, user, log);
+      return renderDetailPage(request, reply, db, user, log);
     });
 
     routes.post<{ Params: { pk: string }; Body: unknown }>(
@@ -150,7 +150,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
         const title = scalar(input.fields.title).trim();
         const text = scalar(input.fields.text).trim();
         if (title.length > 100 || text.length > 5000 || (!title && !text && !input.attachment)) {
-          return renderDetailPage(request, reply, db, options, user, log, {
+          return renderDetailPage(request, reply, db, user, log, {
             error: systemMessage('Write a note or add an attachment.'),
             entryTitle: title,
             entryText: text,
@@ -161,7 +161,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
         let attachment = '';
         if (input.attachment) {
           if (!options.mediaRoot)
-            return renderDetailPage(request, reply, db, options, user, log, {
+            return renderDetailPage(request, reply, db, user, log, {
               error: systemMessage('This attachment is unavailable.'),
               entryTitle: title,
               entryText: text,
@@ -173,7 +173,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
           } catch (error) {
             const message =
               error instanceof Error ? error.message : systemMessage('Choose a PNG, JPEG, WebP, MP4, or WebM file.');
-            return renderDetailPage(request, reply, db, options, user, log, {
+            return renderDetailPage(request, reply, db, user, log, {
               error: message,
               entryTitle: title,
               entryText: text,
@@ -217,7 +217,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
           selection.error = systemMessage('Choose entries from this work log.');
 
         if (browsing || selection.error) {
-          return renderDetailPage(request, reply, db, options, user, log, {
+          return renderDetailPage(request, reply, db, user, log, {
             timelinePage: scalar(fields[pageFields.timelinePage]),
             selectionPage: scalar(fields[pageFields.selectionPage]) || scalar(fields[pageFields.currentSelectionPage]),
             linksPage: scalar(fields[pageFields.linksPage]),
@@ -260,7 +260,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
         }
 
         if (action !== 'publish')
-          return renderDetailPage(request, reply, db, options, user, log, {
+          return renderDetailPage(request, reply, db, user, log, {
             shareError: systemMessage('Preview the shared page before creating a link.'),
             headline,
           });

@@ -72,7 +72,8 @@ export async function postIdsMatching(
       const texts = (read as (value: unknown) => string[])(row);
       if (texts.some((text) => wildcards.some((keyword) => containsLiteral(text, keyword)))) ids.add(row.id);
     }
-    if (batch.length < confirmBatch) return ids;
-    cursor = batch.at(-1)!.id;
+    const last = batch.at(-1);
+    if (batch.length < confirmBatch || !last) return ids;
+    cursor = last.id;
   }
 }

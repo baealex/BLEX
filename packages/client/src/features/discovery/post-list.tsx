@@ -2,7 +2,7 @@ import { ui } from '../../i18n/public-ui.js';
 import { timeSince } from '../../lib/date-format';
 import type { ReactNode } from 'react';
 import { SiteIcon, type SiteIconName } from '../../appearance/icons';
-import { loginPromptProps } from '../engagement/ui/login-prompt';
+import { LoginPromptLink } from '../engagement/ui/login-prompt-link';
 import type { CardLikes, PostRow } from '@blex/contracts/public';
 import { avatarUrl, dateLabel, dateValue, mediaUrl, pageUrl } from './view-helpers';
 
@@ -27,13 +27,14 @@ function PostCardLike({ post, likes }: { post: PostRow; likes?: CardLikes }): Re
     );
     if (!likes?.csrfToken)
         return (
-            <a
-                {...loginPromptProps(likes?.returnTo ?? postPath(post), 'like')}
+            <LoginPromptLink
+                returnTo={likes?.returnTo ?? postPath(post)}
+                action="like"
                 className={className}
                 aria-label={label}
             >
                 {content}
-            </a>
+            </LoginPromptLink>
         );
     return (
         <form method="post" action={`/like/${encodeURIComponent(post.slug)}`}>

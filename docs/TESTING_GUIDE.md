@@ -31,6 +31,7 @@ node --test --test-name-pattern='sitemap' packages/server/dist/test/public-disco
 - Assert status codes, bodies, headers, and persisted state. Cover unauthenticated access, another user's resources, and invalid input where relevant.
 - `application-screens.test.ts` walks representative `/v1` responses and fails on any snake_case key. Add a new endpoint family there, and list a key in its allowlist only when an external service defines it.
 - Keep tests independent of execution order. Avoid assertions about private calls, incidental markup, visual spacing, or CSS classes.
+- Related-post race tests change a ranked winner before its details load and verify that private posts, deleted posts, and inactive authors are omitted.
 
 See [Backend Compatibility](BACKEND_COMPATIBILITY.md) for the test files covering each public contract. Visibility changes must cover HTML, Markdown, discovery endpoints, and RSS together.
 
@@ -67,7 +68,7 @@ pnpm --filter @blex/client exec playwright install --only-shell chromium
 BLEX_SETUP_TOKEN=your-setup-token pnpm test:smoke
 ```
 
-The test creates the first administrator account, then checks signing out, signing back in, opening the mobile menu, keyboard editor commands, and keeping the author's text when the server rejects a publish. It also verifies that late draft responses cannot replace newer results, media controls retain keyboard focus, and settings labels activate their controls.
+The test creates the first administrator account, then checks signing out, signing back in, opening the mobile menu, keyboard editor commands, and keeping the author's text when the server rejects a publish. It also verifies that late draft responses cannot replace newer results, media controls retain keyboard focus, and settings labels activate their controls. Invalid screen names, malformed JSON, and incorrectly typed props must fail at bootstrap without inserting HTML or disrupting other screens. A lazy-loaded screen that throws must show its error fallback and leave other screens mounted. Pinned-post choices support native radio arrow-key navigation and clear the selection when the search changes.
 
 The writing journey saves a draft with inline and cover images, reloads it, publishes it, recovers unsaved edits after a reload, updates the published post, and moves it to the trash and back. It also delays a real autosave request and verifies that edits typed while it is pending are subsequently saved. The checks cover mobile and desktop widths and reopen saved states to verify the content and images. These requests use the real server and database. `BLEX_SMOKE_URL` overrides the default `http://127.0.0.1:8040` target for `pnpm test:smoke`.
 

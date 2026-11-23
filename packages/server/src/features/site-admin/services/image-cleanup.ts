@@ -2,6 +2,7 @@ import { systemMessage } from '../../../platform/messages.js';
 import type { Prisma, PrismaClient } from '@prisma/client';
 import { createHash } from 'node:crypto';
 import { createReadStream } from 'node:fs';
+import type { Dirent } from 'node:fs';
 import { lstat, readdir, realpath, rmdir, unlink } from 'node:fs/promises';
 import { isAbsolute, relative, resolve, sep } from 'node:path';
 import { mediaRootRealPath } from './brand-assets.js';
@@ -368,7 +369,7 @@ async function verifyImageCandidate(
 }
 
 async function removeEmptyDirectories(directory: string): Promise<number> {
-  let entries;
+  let entries: Dirent[];
   try {
     entries = await readdir(directory, { withFileTypes: true });
   } catch {

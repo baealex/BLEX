@@ -216,7 +216,7 @@ function bindRouteElements() {
         const updateSave = () => {
             siteSettingsSave.disabled = fields.every((field) => field.value === field.defaultValue);
         };
-        fields.forEach((field) => field.addEventListener('input', updateSave, { signal }));
+        for (const field of fields) field.addEventListener('input', updateSave, { signal });
         updateSave();
     }
 

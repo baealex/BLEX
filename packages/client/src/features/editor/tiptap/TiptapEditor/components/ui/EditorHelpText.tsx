@@ -37,12 +37,7 @@ const EditorHelpText = ({ showPostLinkHelp = false }: EditorHelpTextProps) => {
             </button>
 
             {isExpanded && (
-                <div
-                    id={panelId}
-                    role="region"
-                    aria-labelledby={triggerId}
-                    className="px-6 pb-4 pt-2 border-t border-line"
-                >
+                <section id={panelId} aria-labelledby={triggerId} className="px-6 pb-4 pt-2 border-t border-line">
                     <div className="space-y-2">
                         <div className="flex items-center gap-3 text-sm text-content-secondary">
                             <div className="flex items-center gap-2">
@@ -91,7 +86,7 @@ const EditorHelpText = ({ showPostLinkHelp = false }: EditorHelpTextProps) => {
                             <span>{t('help.drop.description')}</span>
                         </div>
                     </div>
-                </div>
+                </section>
             )}
         </div>
     );

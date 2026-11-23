@@ -129,7 +129,7 @@ test('renders only same-site uploaded MP4 and WebM links as video embeds', () =>
   assert.match(mp4, /<source src="\/resources\/media\/images\/content\/2026\/11\/21\/clip\.mp4" type="video\/mp4"/);
   assert.match(mp4, /<figcaption>A short clip<\/figcaption>/);
   assert.doesNotMatch(mp4, /<p><\/p>/);
-  const webm = markdownToHtml('![](\/resources\/media\/images\/content\/2026\/11\/21\/clip.webm)');
+  const webm = markdownToHtml('![](/resources/media/images/content/2026/11/21/clip.webm)');
   assert.match(webm, /type="video\/webm"/);
   assert.doesNotMatch(markdownToHtml('![remote](https://media.example/clip.mp4)'), /<video/);
   assert.doesNotMatch(markdownToHtml('![traversal](/resources/media/%2e%2e/private/clip.mp4)'), /<video/);
@@ -235,28 +235,30 @@ test('creates a published Markdown post with config, content, tags and series', 
     SELECT id, publishedAt AS publishedDate, seriesId, title, readTime
     FROM "Post" WHERE slug = 'hello-world'
   `;
-  assert.equal(post[0]?.title, 'Markdown launch');
+  assert.ok(post[0]);
+  assert.equal(post[0].title, 'Markdown launch');
   assert.ok(post[0]?.publishedDate);
   assert.equal(post[0]?.seriesId, 1);
   assert.equal(post[0]?.readTime, 1);
   const content = await db.$queryRaw<Array<{ html: string }>>`
-    SELECT html FROM "PostContent" WHERE postId = ${post[0]!.id}
+    SELECT html FROM "PostContent" WHERE postId = ${post[0].id}
   `;
-  assert.match(content[0]!.html, /<h2 id="hello">Hello<\/h2>/);
-  assert.match(content[0]!.html, /<strong>bold<\/strong>/);
-  assert.doesNotMatch(content[0]!.html, /<script/i);
-  assert.match(content[0]!.html, /&lt;script&gt;bad\(\)&lt;\/script&gt;/);
+  assert.ok(content[0]);
+  assert.match(content[0].html, /<h2 id="hello">Hello<\/h2>/);
+  assert.match(content[0].html, /<strong>bold<\/strong>/);
+  assert.doesNotMatch(content[0].html, /<script/i);
+  assert.match(content[0].html, /&lt;script&gt;bad\(\)&lt;\/script&gt;/);
   const config = await db.$queryRaw<
     Array<{ hide: number | bigint; coverLayout: string; blockComment: number | bigint }>
   >`
     SELECT CAST(isHidden AS INTEGER) AS hide, coverLayout, CAST(commentsBlocked AS INTEGER) AS blockComment
-    FROM "Post" WHERE id = ${post[0]!.id}
+    FROM "Post" WHERE id = ${post[0].id}
   `;
   assert.equal(Number(config[0]?.hide), 0);
   assert.equal(config[0]?.coverLayout, 'split');
   assert.equal(Number(config[0]?.blockComment), 0);
   const tags = await db.$queryRaw<Array<{ value: string }>>`
-    SELECT tag.name AS value FROM "Tag" AS tag JOIN "_PostToTag" AS link ON link.B = tag.id WHERE link.A = ${post[0]!.id} ORDER BY tag.name
+    SELECT tag.name AS value FROM "Tag" AS tag JOIN "_PostToTag" AS link ON link.B = tag.id WHERE link.A = ${post[0].id} ORDER BY tag.name
   `;
   assert.deepEqual(
     tags.map((tag) => tag.value),
@@ -283,9 +285,10 @@ test('creates and reschedules future posts from an ISO reservedDate', async () =
   const created = await db.$queryRaw<Array<{ id: number; published: string }>>`
     SELECT id, publishedAt AS published FROM "Post" WHERE slug = 'scheduled-through-editor'
   `;
-  assert.equal(Number(created[0]?.published), Date.parse(initialAt));
+  assert.ok(created[0]);
+  assert.equal(Number(created[0].published), Date.parse(initialAt));
   const initialQueue = await db.$queryRaw<Array<{ date: string }>>`
-    SELECT publishAt AS date FROM "ScheduledPublication" WHERE postId = ${created[0]!.id}
+    SELECT publishAt AS date FROM "ScheduledPublication" WHERE postId = ${created[0].id}
   `;
   assert.equal(Number(initialQueue[0]?.date), Number(created[0]?.published));
 
@@ -298,7 +301,7 @@ test('creates and reschedules future posts from an ISO reservedDate', async () =
   });
   assert.equal(reschedule.json().status, 'DONE', reschedule.body);
   const queued = await db.$queryRaw<Array<{ date: string }>>`
-    SELECT publishAt AS date FROM "ScheduledPublication" WHERE postId = ${created[0]!.id}
+    SELECT publishAt AS date FROM "ScheduledPublication" WHERE postId = ${created[0].id}
   `;
   assert.equal(Number(queued[0]?.date), Date.parse(laterAt));
 
@@ -311,7 +314,7 @@ test('creates and reschedules future posts from an ISO reservedDate', async () =
   assert.equal(
     (
       await db.$queryRaw<Array<{ total: number }>>`
-    SELECT COUNT(*) AS total FROM "ScheduledPublication" WHERE postId = ${created[0]!.id}
+    SELECT COUNT(*) AS total FROM "ScheduledPublication" WHERE postId = ${created[0].id}
   `
     )[0]?.total,
     0n,
@@ -406,7 +409,8 @@ test('serves legacy create/edit/view contracts and keeps an existing post config
   const updatedContent = await db.$queryRaw<Array<{ html: string }>>`
     SELECT html FROM "PostContent" WHERE postId = (SELECT id FROM "Post" WHERE slug = ${apiUrl})
   `;
-  assert.match(updatedContent[0]!.html, /<strong>new<\/strong>/);
+  assert.ok(updatedContent[0]);
+  assert.match(updatedContent[0].html, /<strong>new<\/strong>/);
   const updatedTags = await db.$queryRaw<Array<{ value: string }>>`
     SELECT tag.name AS value FROM "Tag" AS tag JOIN "_PostToTag" AS link ON link.B = tag.id
     WHERE link.A = (SELECT id FROM "Post" WHERE slug = ${apiUrl}) ORDER BY tag.name
@@ -439,7 +443,8 @@ test('serves legacy create/edit/view contracts and keeps an existing post config
 test('serves settings management lists, filters and restores expired scheduled trash', async () => {
   await db.$executeRaw`INSERT INTO "Tag" (name) VALUES ('popular') ON CONFLICT(name) DO NOTHING`;
   const popular = await db.$queryRaw<Array<{ id: number }>>`SELECT id FROM "Tag" WHERE name = 'popular'`;
-  await db.$executeRaw`INSERT INTO "_PostToTag" (A, B) VALUES (3, ${popular[0]!.id}), (4, ${popular[0]!.id})`;
+  assert.ok(popular[0]);
+  await db.$executeRaw`INSERT INTO "_PostToTag" (A, B) VALUES (3, ${popular[0].id}), (4, ${popular[0].id})`;
 
   const published = await app.inject({ url: '/v1/setting/posts?order=title', headers: { 'x-user-id': '1' } });
   assert.equal(published.json().status, 'DONE', published.body);
@@ -614,24 +619,26 @@ test('serves owner-only revision and timelapse pages with restore and delete act
   assert.match(staleDelete.headers.location ?? '', /conflict=1/);
 
   const current = await db.post.findMany({ where: { id: 1 }, select: { updatedAt: true } });
+  assert.ok(current[0]);
   const restore = await app.inject({
     method: 'POST',
     url: `${historyPath}/${restoreId}/restore`,
     headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
-    payload: new URLSearchParams({ expectedUpdatedDate: current[0]!.updatedAt.toISOString() }).toString(),
+    payload: new URLSearchParams({ expectedUpdatedDate: current[0].updatedAt.toISOString() }).toString(),
   });
   assert.equal(restore.statusCode, 303, restore.body);
   assert.match(restore.headers.location ?? '', /restored=1/);
 
   const afterRestore = await db.post.findMany({ where: { id: 1 }, select: { updatedAt: true, title: true } });
-  assert.equal(afterRestore[0]?.title, 'Existing');
+  assert.ok(afterRestore[0]);
+  assert.equal(afterRestore[0].title, 'Existing');
   const remove = await app.inject({
     method: 'POST',
     url: `${historyPath}/${restoreId}/delete`,
     headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
     payload: new URLSearchParams({
       confirmDelete: 'yes',
-      expectedUpdatedDate: afterRestore[0]!.updatedAt.toISOString(),
+      expectedUpdatedDate: afterRestore[0].updatedAt.toISOString(),
     }).toString(),
   });
   assert.equal(remove.statusCode, 303, remove.body);

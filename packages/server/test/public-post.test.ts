@@ -76,7 +76,8 @@ test('serves the shared application entry in read-only mode', async () => {
   const redirect = await app.inject('/assets/blex/app.js');
   assert.equal(redirect.statusCode, 302);
   const location = redirect.headers.location;
-  assert.ok(location && location.startsWith('/assets/ui/'));
+  assert.ok(location);
+  assert.ok(location.startsWith('/assets/ui/'));
   const asset = await app.inject(location);
   assert.equal(asset.statusCode, 200);
   assert.match(String(asset.headers['content-type']), /javascript/);

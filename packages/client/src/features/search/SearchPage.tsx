@@ -112,16 +112,19 @@ const highlightText = (text: string, query: string): ReactNode => {
         return text;
     }
 
+    let offset = 0;
     return parts.map((part, index) => {
+        const start = offset;
+        offset += part.length;
         if (index % 2 === 1) {
             return (
-                <mark key={`${part}-${index}`} className="bg-warning-surface text-content rounded px-0.5">
+                <mark key={`match:${start}`} className="bg-warning-surface text-content rounded px-0.5">
                     {part}
                 </mark>
             );
         }
 
-        return <span key={`${part}-${index}`}>{part}</span>;
+        return <span key={`text:${start}`}>{part}</span>;
     });
 };
 

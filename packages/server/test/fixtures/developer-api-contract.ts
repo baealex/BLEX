@@ -186,9 +186,9 @@ function seed(db: DatabaseSync, store: ContractTokenStore) {
     UPDATE "Post" SET isAdvertised = 1, coverLayout = 'split', coverImagePosition = 'left', coverImageRatio = '16:9' WHERE id = 1;
     UPDATE "Post" SET isHidden = 1, coverLayout = 'overlay', coverImageRatio = '4:3' WHERE id = 4;
   `);
-  ['api', 'snake_tag', 'other-only', 'trashed-only'].forEach((value, index) =>
-    insertRow(db, 'Tag', { id: index + 1, name: value }),
-  );
+  ['api', 'snake_tag', 'other-only', 'trashed-only'].forEach((value, index) => {
+    insertRow(db, 'Tag', { id: index + 1, name: value });
+  });
   (
     [
       [1, 1],
@@ -198,7 +198,7 @@ function seed(db: DatabaseSync, store: ContractTokenStore) {
       [3, 2],
       [6, 4],
     ] as const
-  ).forEach(([postId, tagId], index) => {
+  ).forEach(([postId, tagId]) => {
     insertRow(db, '_PostToTag', { A: postId, B: tagId });
   });
 }
