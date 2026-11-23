@@ -74,6 +74,46 @@ function showLoadError(page: HTMLElement, input: HTMLTextAreaElement, signal: Ab
     );
 }
 
+/**
+ * Hydration rewrites the textarea, which would break a Hangul syllable still being composed.
+ * Once it starts outside a composition, the next key press hydrates before the IME begins a new one.
+ */
+function outsideComposition(input: HTMLTextAreaElement | null | undefined, signal: AbortSignal) {
+    let composing = false;
+    let pending: (() => void) | undefined;
+    input?.addEventListener(
+        'compositionstart',
+        () => {
+            composing = true;
+        },
+        { signal }
+    );
+    input?.addEventListener(
+        'input',
+        (event) => {
+            if (event instanceof InputEvent && event.isComposing) composing = true;
+        },
+        { signal }
+    );
+    input?.addEventListener(
+        'compositionend',
+        () => {
+            composing = false;
+            // Fast typing ends one syllable and starts the next together.
+            window.setTimeout(() => {
+                if (composing || signal.aborted) return;
+                pending?.();
+                pending = undefined;
+            }, 0);
+        },
+        { signal }
+    );
+    return (run: () => void) => {
+        if (composing) pending = run;
+        else run();
+    };
+}
+
 export function loadAboutEditors(signal: AbortSignal): void {
     if (!document.querySelector('[data-about-page], [data-about-editor]')) return;
     const page = document.querySelector<HTMLElement>('[data-about-page]');
@@ -82,11 +122,14 @@ export function loadAboutEditors(signal: AbortSignal): void {
         const draft = readDraft();
         if (draft !== null) input.value = draft;
     }
+    const whenSafe = outsideComposition(input, signal);
     void import('./about-editor-client').then(
         ({ mountAboutEditors }) => {
-            if (signal.aborted) return;
-            mountAboutEditors(signal);
-            if (input) clearDraft();
+            whenSafe(() => {
+                if (signal.aborted) return;
+                mountAboutEditors(signal);
+                if (input) clearDraft();
+            });
         },
         () => {
             // Without the edit page, the profile's edit links still lead there.
