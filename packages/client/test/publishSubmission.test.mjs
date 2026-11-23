@@ -4,8 +4,8 @@ import { describe, test } from 'node:test';
 import {
     buildPublishPayload,
     submitPublish
-} from '../src/components/remotes/PostEditor/utils/publishSubmission.ts';
-import { resolveRecoveredSeries } from '../src/components/remotes/PostEditor/utils/postEditRecovery.ts';
+} from '../src/features/editor/utils/publishSubmission.ts';
+import { resolveRecoveredSeries } from '../src/features/editor/utils/postEditRecovery.ts';
 
 const fields = {
     title: 'Title',

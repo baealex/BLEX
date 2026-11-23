@@ -10,7 +10,7 @@ import {
     formatPublishedDate
 } from '../src/i18n/formatters.ts';
 import { normalizeLocale } from '../src/i18n/locale.ts';
-import { formatScheduleDateTime, toReservedDateValue } from '../src/components/remotes/PostEditor/utils/scheduleDate.ts';
+import { formatScheduleDateTime, toReservedDateValue } from '../src/features/editor/utils/scheduleDate.ts';
 import { buildQueryCacheKey } from '../src/lib/query-cache-key.ts';
 
 describe('locale normalization', () => {

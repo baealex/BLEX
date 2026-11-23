@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { normalizeTagInput } from '../src/components/remotes/PostEditor/utils/tagInput.ts';
+import { normalizeTagInput } from '../src/features/editor/utils/tagInput.ts';
 
 test('keeps hyphens the author typed and cleans the rest of the tag', () => {
     assert.equal(normalizeTagInput('legacy-tag'), 'legacy-tag');

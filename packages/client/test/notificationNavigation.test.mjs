@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 
-import { getSafeNotificationNavigationUrl } from '../src/components/remotes/SettingsApp/pages/NotifySetting/notificationNavigation.ts';
+import { getSafeNotificationNavigationUrl } from '../src/features/settings/notify/notificationNavigation.ts';
 
 const BASE_URL = 'https://blex.example/settings/notify';
 

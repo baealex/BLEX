@@ -9,14 +9,14 @@ interface AppProps {
 
 const LazyComponents = {
     // Screen components
-    SearchPage: lazy(() => import('./remotes/SearchPage')),
-    Toaster: lazy(() => import('./remotes/Toaster')),
+    SearchPage: lazy(() => import('../features/search')),
+    Toaster: lazy(() => import('../features/toaster')),
 
     // Pages
-    Signup: lazy(() => import('./remotes/Signup')),
-    PostEditor: lazy(() => import('./remotes/PostEditor')),
+    Signup: lazy(() => import('../features/auth/signup')),
+    PostEditor: lazy(() => import('../features/editor')),
     // Unified Settings App
-    SettingsApp: lazy(() => import('./remotes/SettingsApp'))
+    SettingsApp: lazy(() => import('../features/settings'))
 };
 
 const MountNotifier = ({ onMounted }: { onMounted?: () => void }) => {

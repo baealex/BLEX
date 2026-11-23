@@ -65,25 +65,25 @@ const budgets = [
         ]
     },
     {
-        entries: ['src/screen-runtime.tsx', 'src/components/remotes/Signup/index.ts'],
+        entries: ['src/screen-runtime.tsx', 'src/features/auth/signup/index.ts'],
         label: 'signup screen experience',
         maxInitialBytes: 350 * 1024,
         maxInitialGzipBytes: 117 * 1024
     },
     {
-        entries: ['src/screen-runtime.tsx', 'src/components/remotes/SearchPage/index.tsx'],
+        entries: ['src/screen-runtime.tsx', 'src/features/search/index.tsx'],
         label: 'search screen experience',
         maxInitialBytes: 345 * 1024,
         maxInitialGzipBytes: 114 * 1024
     },
     {
-        entries: ['src/screen-runtime.tsx', 'src/components/remotes/SettingsApp/index.tsx'],
+        entries: ['src/screen-runtime.tsx', 'src/features/settings/index.tsx'],
         label: 'settings screen experience',
         maxInitialBytes: 530 * 1024,
         maxInitialGzipBytes: 176 * 1024
     },
     {
-        entries: ['src/screen-runtime.tsx', 'src/components/remotes/PostEditor/index.ts'],
+        entries: ['src/screen-runtime.tsx', 'src/features/editor/index.ts'],
         label: 'post editor screen experience',
         maxInitialBytes: 1475 * 1024,
         maxInitialGzipBytes: 478 * 1024

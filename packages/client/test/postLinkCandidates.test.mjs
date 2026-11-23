@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
-import { toPostLinkCandidates } from '../src/components/remotes/PostEditor/utils/postLinkCandidates.ts';
+import { toPostLinkCandidates } from '../src/features/editor/utils/postLinkCandidates.ts';
 
 describe('toPostLinkCandidates', () => {
     const result = {
