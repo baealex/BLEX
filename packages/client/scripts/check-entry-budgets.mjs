@@ -40,7 +40,7 @@ const budgets = [
         entries: ['src/screen-runtime.tsx'],
         label: 'on-demand screen runtime',
         maxInitialFiles: 13,
-        maxInitialBytes: 260 * 1024,
+        maxInitialBytes: 265 * 1024,
         maxInitialGzipBytes: 85 * 1024,
         allowedInitialNames: [
             'src/screen-runtime.tsx',

@@ -42,7 +42,10 @@ export const activateLocale = async (locale: AppLocale): Promise<AppLocale> => {
 let documentLocaleActivation: Promise<AppLocale> | undefined;
 
 export const activateDocumentLocale = (): Promise<AppLocale> => {
-    documentLocaleActivation ??= activateLocale(getDocumentLocale());
+    documentLocaleActivation ??= activateLocale(getDocumentLocale()).catch((error: unknown) => {
+        document.dispatchEvent(new Event('blex:catalog-failed'));
+        throw error;
+    });
     return documentLocaleActivation;
 };
 

@@ -112,6 +112,21 @@ test('keeps replies one level deep in the comment tree', () => {
   );
 });
 
+test('a comment written this minute reads as past in English', () => {
+  const previous = { flag: process.env.ENABLE_ENGLISH_UI, language: process.env.BLEX_DEFAULT_LANGUAGE };
+  process.env.ENABLE_ENGLISH_UI = 'TRUE';
+  process.env.BLEX_DEFAULT_LANGUAGE = 'en';
+  try {
+    const now = new Date('2026-11-22T12:00:00.000Z');
+    assert.equal(timeSince(new Date(now.valueOf() - 5_000).toISOString(), now), '0 minutes ago');
+  } finally {
+    if (previous.flag === undefined) delete process.env.ENABLE_ENGLISH_UI;
+    else process.env.ENABLE_ENGLISH_UI = previous.flag;
+    if (previous.language === undefined) delete process.env.BLEX_DEFAULT_LANGUAGE;
+    else process.env.BLEX_DEFAULT_LANGUAGE = previous.language;
+  }
+});
+
 test('formats comment dates like the 3.x Korean interface', () => {
   const now = new Date('2026-11-22T12:00:00.000Z');
   const ago = (ms: number) => new Date(now.valueOf() - ms).toISOString();

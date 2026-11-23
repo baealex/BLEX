@@ -38,7 +38,11 @@ function findLoginRoot(scope: ParentNode): HTMLElement | null {
 }
 
 if (typeof document !== 'undefined' && !document.getElementById('blex-application')) {
-    void activateDocumentLocale().then(() => mountPage(document));
+    void activateDocumentLocale()
+        .then(() => mountPage(document))
+        .catch((error: unknown) => {
+            console.error('BLEX could not start the sign-in form.', error);
+        });
 }
 
 function parseLoginModel(serialized: string): LoginModel | null {

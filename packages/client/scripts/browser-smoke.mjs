@@ -63,6 +63,30 @@ const logIn = async () => {
     await page.waitForURL((url) => url.pathname !== '/login');
 };
 
+const recoverFromFailedCatalog = async () => {
+    const catalog = /\/messages[-.][^/]*\.js/;
+    let documents = 0;
+    const countDocument = (request) => {
+        if (request.isNavigationRequest() && request.frame() === page.mainFrame()) documents += 1;
+    };
+    page.on('request', countDocument);
+    await page.route(catalog, (route) => (documents === 1 ? route.abort() : route.continue()));
+    try {
+        await page.goto(`${origin}/tags`, { waitUntil: 'commit' });
+        await expect.poll(() => documents).toBe(2);
+        await page.waitForLoadState('networkidle');
+        await page.evaluate(() => {
+            window.__smokeSameDocument = true;
+        });
+        await page.locator('a[href="/"]').first().click();
+        await page.waitForURL(`${origin}/`);
+        expect(await page.evaluate(() => window.__smokeSameDocument)).toBe(true);
+    } finally {
+        page.off('request', countDocument);
+        await page.unroute(catalog);
+    }
+};
+
 const openMobileMenu = async () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await open('/');
@@ -315,6 +339,7 @@ try {
         ['first admin', createFirstAdmin],
         ['account menu and logout', logOutFromAccountMenu],
         ['login', logIn],
+        ['a failed translation file recovers with one reload', recoverFromFailedCatalog],
         ['mobile menu', openMobileMenu],
         ['invalid screen data fails safely without interpreting names as HTML', rejectInvalidScreenData],
         ['a screen render error leaves other screens mounted', isolateScreenRenderError],

@@ -244,6 +244,50 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
   }
 });
 
+test('a sign-in form posted before the client starts lands on a page', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'blex-form-login-'));
+  const path = join(directory, 'login.sqlite3');
+  const fixture = await migratedFixture(path);
+  fixture
+    .prepare(`
+    INSERT INTO "User" (id, username, passwordHash, email, name, joinedAt, isActive, isStaff, isSuperuser)
+    VALUES (42, 'formuser', ?, 'form@example.invalid', 'Reader', 946684800000, 1, 0, 0)
+  `)
+    .run(olderPasswordHash);
+  fixture.close();
+  const siteUrl = new URL('https://blex.example');
+  const app = await buildApp(path, siteUrl, { secretKey: 'form-login-test-secret', cipherKey });
+  try {
+    const headers = headersFor(await app.inject('/v1/login'), siteUrl);
+    const post = (extra: Record<string, string>, secret: string) =>
+      app.inject({
+        method: 'POST',
+        url: '/v1/login',
+        headers: { ...headers, ...extra },
+        payload: { username: 'formuser', password: secret },
+      });
+    const navigation = { 'sec-fetch-dest': 'document' };
+
+    const rejected = await post(navigation, 'not-the-password');
+    assert.equal(rejected.statusCode, 303);
+    assert.equal(rejected.headers.location, '/login');
+    assert.doesNotMatch(String(rejected.headers['set-cookie']), /blexsessionid=[^;]/);
+
+    const accepted = await post(navigation, password);
+    assert.equal(accepted.statusCode, 303);
+    assert.equal(accepted.headers.location, '/');
+    assert.match(String(accepted.headers['set-cookie']), /blexsessionid=[^;]/);
+    assert.equal(accepted.body, '');
+
+    const fetched = await post({ 'sec-fetch-dest': 'empty' }, password);
+    assert.equal(fetched.statusCode, 200);
+    assert.equal(fetched.json().status, 'DONE');
+  } finally {
+    await app.close();
+    await rm(directory, { recursive: true });
+  }
+});
+
 test('requires recent verification for password and 2FA changes and rotates the existing session', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'blex-security-test-'));
   const path = join(directory, 'security.sqlite3');

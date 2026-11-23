@@ -154,7 +154,8 @@ export function timeSince(value: StoredDate, now = new Date()): string {
             [1, 'minute']
         ];
         for (const [size, unit] of units) if (minutes >= size) return format.format(-Math.floor(minutes / size), unit);
-        return format.format(0, 'minute');
+        // Negative zero keeps a moment ago in the past tense.
+        return format.format(-0, 'minute');
     }
     if (now.valueOf() - date.valueOf() > 365 * 24 * 60 * 60 * 1000) {
         const { year, month, day } = localParts(date);

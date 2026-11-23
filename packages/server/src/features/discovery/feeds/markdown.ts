@@ -25,6 +25,8 @@ const voidTags = new Set([
 const structuralTags = new Set(['article', 'section', 'main', 'aside', 'div', 'html', 'body']);
 const inlineRawTags = new Set(['figcaption', 'mark', 'u', 'sub', 'sup']);
 const inlinePassthroughTags = new Set(['span']);
+/** Deeper tags keep their text in the enclosing block, because conversion recurses once per level. */
+const maxNesting = 256;
 
 export function htmlToMarkdown(html: string): string {
   if (!html) return '';
@@ -90,6 +92,7 @@ function parseHtml(html: string): HtmlNode {
   const tokens = tokenizeHtml(html);
   const openTags = new Map<string, number>();
   const openCount = (tag: string) => openTags.get(tag) ?? 0;
+  const flattenedTags = new Map<string, number>();
   let skippedTag: string | null = null;
 
   for (const token of tokens) {
@@ -108,7 +111,13 @@ function parseHtml(html: string): HtmlNode {
         .slice(2)
         .match(/^\s*([\w:-]+)/)?.[1]
         ?.toLowerCase();
-      if (!closingTag || !openCount(closingTag)) continue;
+      if (!closingTag) continue;
+      const flattened = flattenedTags.get(closingTag) ?? 0;
+      if (flattened > 0) {
+        flattenedTags.set(closingTag, flattened - 1);
+        continue;
+      }
+      if (!openCount(closingTag)) continue;
       while (stack.length > 1) {
         const closed = stack.pop();
         if (!closed) break;
@@ -126,9 +135,14 @@ function parseHtml(html: string): HtmlNode {
         continue;
       }
       const { tag } = start;
+      const staysOpen = !voidTags.has(tag) && !/\/\s*>$/.test(token);
+      if (staysOpen && stack.length > maxNesting) {
+        flattenedTags.set(tag, (flattenedTags.get(tag) ?? 0) + 1);
+        continue;
+      }
       const node: HtmlNode = { tag, attrs: parseAttributes(start.attributes), children: [], parent };
       parent.children.push(node);
-      if (!voidTags.has(tag) && !/\/\s*>$/.test(token)) {
+      if (staysOpen) {
         stack.push(node);
         openTags.set(tag, openCount(tag) + 1);
       }
