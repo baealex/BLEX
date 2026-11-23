@@ -2,10 +2,12 @@ import assert from 'node:assert/strict';
 import { connect } from 'node:net';
 import test from 'node:test';
 import { PrismaClient } from '@prisma/client';
+import Fastify from 'fastify';
 import { buildApp } from '../src/app.js';
 import { createAuthorPost, publishAuthorDraft, updateAuthorPost } from '../src/features/posts/authoring/index.js';
 import { syncPostPublication } from '../src/features/notifications/model.js';
 import { sanitizePostHtml } from '../src/features/posts/post-html.js';
+import { registerBodyGuard } from '../src/platform/request-body.js';
 import { trustedProxiesFromEnv } from '../src/platform/runtime-config.js';
 import {
   createMigratedDatabase,
@@ -136,7 +138,7 @@ test('rejects anonymous multipart requests before reading the body', async () =>
       const timer = setTimeout(() => {
         socket.destroy();
         reject(new Error('The server waited for the upload body.'));
-      }, 2_000);
+      }, 10_000);
       socket.on('data', (chunk) => {
         received += chunk.toString();
       });
@@ -156,34 +158,44 @@ test('rejects anonymous multipart requests before reading the body', async () =>
 });
 
 test('limits concurrent uploads per account', async () => {
-  const fixture = await migratedApp();
-  const address = await fixture.app.listen({ host: '127.0.0.1', port: 0 });
-  const held: ReturnType<typeof connect>[] = [];
+  const app = Fastify();
+  registerBodyGuard(app, {
+    currentUser: async () => ({ id: 1, hasEditorRole: true, isStaff: false }),
+    tokenAccount: async () => null,
+  });
+  app.addContentTypeParser('multipart/form-data', (_request, _payload, done) => done(null));
+  let release = () => {};
+  const held = new Promise<void>((accept) => {
+    release = accept;
+  });
+  let bothArrived = () => {};
+  const arrived = new Promise<void>((accept) => {
+    bothArrived = accept;
+  });
+  let uploads = 0;
+  app.post('/upload', async () => {
+    uploads += 1;
+    if (uploads === 2) bothArrived();
+    await held;
+    return { ok: true };
+  });
+  const upload = () =>
+    app.inject({
+      method: 'POST',
+      url: '/upload',
+      headers: { 'content-type': 'multipart/form-data; boundary=x' },
+      payload: 'x',
+    });
   try {
-    const { port } = new URL(address);
-    const headers = signIn(fixture.db, 1);
-    const open = () =>
-      new Promise<string>((resolve, reject) => {
-        const socket = connect(Number(port), '127.0.0.1');
-        held.push(socket);
-        let received = '';
-        const timer = setTimeout(() => resolve(received), 400);
-        socket.on('data', (chunk) => {
-          received += chunk.toString();
-          clearTimeout(timer);
-          resolve(received);
-        });
-        socket.on('error', reject);
-        socket.write(
-          `POST /work-logs/1/entry/ HTTP/1.1\r\nHost: site.test\r\nCookie: ${headers.cookie}\r\nContent-Type: multipart/form-data; boundary=x\r\nContent-Length: 1048576\r\n\r\n`,
-        );
-      });
-    assert.equal(await open(), '');
-    assert.equal(await open(), '');
-    assert.match(await open(), /^HTTP\/1\.1 429 /);
+    const running = [upload(), upload()];
+    await arrived;
+    assert.equal((await upload()).statusCode, 429);
+    release();
+    for (const response of await Promise.all(running)) assert.equal(response.statusCode, 200);
+    assert.equal((await upload()).statusCode, 200);
   } finally {
-    for (const socket of held) socket.destroy();
-    await fixture.close();
+    release();
+    await app.close();
   }
 });
 

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { existsSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { chmod, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -12,6 +12,10 @@ import { buildApp } from '../src/app.js';
 import { DatabaseSetupError, portMappingProblem, prepareDatabase } from '../src/startup/prepare-database.js';
 import { encryptSecret } from '../src/features/auth/encrypted-secret.js';
 import { insertRow } from './fixtures/migrated-database.js';
+
+const shippedMigrations = readdirSync(new URL('../../prisma/migrations/', import.meta.url)).filter((name) =>
+  /^\d/.test(name),
+).length;
 
 const legacySchema = new URL('../../prisma/legacy/django-3.14.sql', import.meta.url);
 
@@ -74,7 +78,7 @@ test('creates a new database and leaves it in place on the next start', async ()
     await prepareDatabase(space.options);
     const second = new DatabaseSync(space.databasePath, { readOnly: true });
     assert.equal(count(second, 'User'), 1);
-    assert.equal(count(second, '_prisma_migrations'), 2);
+    assert.equal(count(second, '_prisma_migrations'), shippedMigrations);
     second.close();
   } finally {
     await space.cleanup();
@@ -280,7 +284,7 @@ test('imports a 3.14 installation once and leaves the original unchanged', async
       Number((imported.prepare(`SELECT seq FROM sqlite_sequence WHERE name = 'Post'`).get() as { seq: number }).seq),
       40,
     );
-    assert.equal(count(imported, '_prisma_migrations'), 2);
+    assert.equal(count(imported, '_prisma_migrations'), shippedMigrations);
     assert.equal(
       Number((imported.prepare('SELECT createdAt FROM WorkLog WHERE id = 3').get() as { createdAt: number }).createdAt),
       Date.UTC(2024, 1, 3, 4, 5, 6, 789),

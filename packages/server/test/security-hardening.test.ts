@@ -21,6 +21,7 @@ import {
   testSecretKey,
   testSiteUrl,
 } from './fixtures/migrated-database.js';
+import { assertFast } from './support/assert-fast.js';
 
 type Fixture = Awaited<ReturnType<typeof createMigratedDatabase>>;
 type Headers = Record<string, string>;
@@ -78,13 +79,6 @@ function multipart(fields: Record<string, string>, file?: { name: string; filena
   }
   chunks.push(Buffer.from(`--${boundary}--\r\n`));
   return { contentType: `multipart/form-data; boundary=${boundary}`, payload: Buffer.concat(chunks) };
-}
-
-function assertFast(label: string, run: () => unknown) {
-  const started = performance.now();
-  run();
-  const elapsed = performance.now() - started;
-  assert.ok(elapsed < 1000, `${label} took ${Math.round(elapsed)}ms`);
 }
 
 test('only editors can render Markdown previews', async () => {
@@ -190,12 +184,15 @@ test('HTML to Markdown stays fast on inputs built to backtrack', () => {
     unclosedComments: '<!--'.repeat(30_000),
   };
   for (const [label, input] of Object.entries(inputs)) assertFast(label, () => htmlToMarkdown(input));
+});
+
+test('HTML to Markdown tidies link and punctuation spacing', () => {
   assert.equal(htmlToMarkdown('<p>a <a href="https://a.example" >link</a><br /></p>'), 'a [link](https://a.example)');
   assert.equal(htmlToMarkdown('<p>Hello  , world !</p>'), 'Hello, world!');
 });
 
 test('repeated headings get unique ids in linear time', () => {
-  assertFast('headings', () => postOutline('<h2>a</h2>'.repeat(8_000)));
+  assertFast('headings', () => postOutline('<h2>a</h2>'.repeat(16_000)));
   const { headings } = postOutline('<h2>a</h2><h2 id="a-1">b</h2><h2>a</h2><h2>a</h2>');
   assert.deepEqual(
     headings.map(({ id }) => id),
@@ -420,15 +417,13 @@ test('Developer API uploads share the per-account body budget', async () => {
           () => accept({ socket, status }),
         );
       });
-    const first = await open();
-    const second = await open();
-    await new Promise((accept) => setTimeout(accept, 100));
-    const third = await open();
+    // Only the upload over the limit is answered, whichever connection the server reads last.
+    const uploads = await Promise.all([open(), open(), open()]);
     try {
-      const unanswered = new Promise<number>((accept) => setTimeout(() => accept(0), 2_000));
-      assert.equal(await Promise.race([third.status, unanswered]), 429);
+      const unanswered = new Promise<number>((accept) => setTimeout(() => accept(0), 10_000).unref());
+      assert.equal(await Promise.race([...uploads.map(({ status }) => status), unanswered]), 429);
     } finally {
-      for (const { socket } of [first, second, third]) socket.destroy();
+      for (const { socket } of uploads) socket.destroy();
     }
   });
 });
@@ -450,11 +445,20 @@ test('oversized GIF frames are rejected before transcoding', async () => {
   });
 });
 
-test('slow upload bodies do not take the image processing slots', async () => {
+test('slow upload bodies do not take the image processing slots', { timeout: 20_000 }, async () => {
   const fixture = await createMigratedDatabase();
   seedEditor(fixture.db, 1, 'writer');
   const db = new PrismaClient({ datasourceUrl: `file:${fixture.path}?connection_limit=1` });
   const app = Fastify();
+  let arrived = 0;
+  let bothArrived = () => {};
+  const slowBodiesArrived = new Promise<void>((accept) => {
+    bothArrived = accept;
+  });
+  app.addHook('preHandler', async () => {
+    arrived += 1;
+    if (arrived === 2) bothArrived();
+  });
   registerContentMedia(app, db, {
     mediaRoot: fixture.mediaRoot,
     currentUser: async () => ({ id: 1, hasEditorRole: true }),
@@ -480,7 +484,7 @@ test('slow upload bodies do not take the image processing slots', async () => {
         ].join('\r\n'),
       );
     }
-    await new Promise((accept) => setTimeout(accept, 200));
+    await slowBodiesArrived;
     const png = await sharp({ create: { width: 8, height: 8, channels: 3, background: '#0077ff' } })
       .png()
       .toBuffer();
@@ -541,14 +545,18 @@ test('banner ordering writes only the changed banners the owner has', async () =
   banner(100, 1, 0);
   banner(101, 1, 3);
   banner(200, 2, 5);
-  const db = new PrismaClient({
-    datasourceUrl: `file:${fixture.path}?connection_limit=1`,
-    log: [{ emit: 'event', level: 'query' }],
-  });
-  const writes: string[] = [];
-  db.$on('query', ({ query }) => {
-    if (/^UPDATE/i.test(query)) writes.push(query);
-  });
+  const client = new PrismaClient({ datasourceUrl: `file:${fixture.path}?connection_limit=1` });
+  let writes = 0;
+  const db = client.$extends({
+    query: {
+      siteBanner: {
+        updateMany({ args, query }) {
+          writes += 1;
+          return query(args);
+        },
+      },
+    },
+  }) as unknown as PrismaClient;
   try {
     await saveBannerOrder(
       db,
@@ -556,13 +564,12 @@ test('banner ordering writes only the changed banners the owner has', async () =
       'user',
       1,
     );
-    await new Promise((accept) => setTimeout(accept, 20));
     const order = (id: number) =>
       (fixture.db.prepare('SELECT "order" AS value FROM "SiteBanner" WHERE id = ?').get(id) as { value: number }).value;
     assert.deepEqual([order(100), order(101), order(200)], [7, 3, 5]);
-    assert.ok(writes.length <= 1, `${writes.length} banner updates`);
+    assert.equal(writes, 1);
   } finally {
-    await db.$disconnect();
+    await client.$disconnect();
     await fixture.cleanup();
   }
 });

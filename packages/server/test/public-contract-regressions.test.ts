@@ -17,6 +17,7 @@ import {
   testSiteUrl,
   prismaDate,
 } from './fixtures/migrated-database.js';
+import { assertFast } from './support/assert-fast.js';
 
 const daysAgo = (days: number) => new Date(Date.now() - days * 86_400_000).toISOString().slice(0, -1).replace('T', ' ');
 const future = new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, -1).replace('T', ' ');
@@ -318,9 +319,10 @@ test('renders raw HTML in Markdown with the 3.x whitespace and sorted attributes
     '<img alt="&lt;ruby&gt; tag" class="x" src="/a.png"/>',
   );
   assert.equal(htmlToMarkdown("<p title=it's>one</p><p>two</p>"), 'one\n\ntwo');
-  const started = Date.now();
-  htmlToMarkdown("<br '\"><br '>".repeat(40_000));
-  assert.ok(Date.now() - started < 3_000, 'unbalanced quotes must not make parsing quadratic');
+});
+
+test('HTML to Markdown stays fast on unbalanced quotes', () => {
+  assertFast('unbalanced quotes', () => htmlToMarkdown("<br '\"><br '>".repeat(40_000)));
 });
 
 test('an inactive author disappears from every public surface, and returns untouched when reactivated', async () => {

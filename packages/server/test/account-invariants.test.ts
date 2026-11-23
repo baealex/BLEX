@@ -45,13 +45,14 @@ function browser(response: { headers: { 'set-cookie'?: string | string[] } }, pr
 async function withApp(
   run: (app: FastifyInstance, db: PrismaClient, path: string, mediaRoot: string) => Promise<void>,
   seed?: (fixture: Awaited<ReturnType<typeof createMigratedDatabase>>) => void,
+  auth: { fetchProvider?: typeof fetch } = {},
 ) {
   const fixture = await createMigratedDatabase();
   seed?.(fixture);
   const app = await buildApp(
     fixture.path,
     testSiteUrl,
-    { secretKey: testSecretKey, cipherKey: testCipherKey },
+    { secretKey: testSecretKey, cipherKey: testCipherKey, ...auth },
     fixture.mediaRoot,
   );
   const db = new PrismaClient({ datasourceUrl: `file:${fixture.path}?connection_limit=1` });
@@ -247,8 +248,14 @@ test('a reused invite signs up exactly one editor under concurrency', () =>
     },
   ));
 
-test('an OAuth state and a pending OAuth challenge are each consumed once under concurrency', () =>
-  withApp(
+test('an OAuth state and a pending OAuth challenge are each consumed once under concurrency', () => {
+  let tokenRequests = 0;
+  const fetchProvider: typeof fetch = async (url) => {
+    if (!String(url).endsWith('/token')) return Response.json({ id: 'uid-1' });
+    tokenRequests += 1;
+    return Response.json({ access_token: 'synthetic-token' });
+  };
+  return withApp(
     async (app, db) => {
       const started = await app.inject('/login/start/google');
       const state = new URL(started.headers.location!).searchParams.get('state')!;
@@ -262,6 +269,7 @@ test('an OAuth state and a pending OAuth challenge are each consumed once under 
         ),
       );
       assert.equal(await db.oAuthFlow.count(), 0);
+      assert.equal(tokenRequests, 1);
 
       const token = createToken();
       await db.oAuthChallenge.create({
@@ -286,7 +294,9 @@ test('an OAuth state and a pending OAuth challenge are each consumed once under 
       });
       insertRow(fixture.db, 'SocialAccount', { id: 1, providerId: 1, uid: 'uid-1', userId: 1 });
     },
-  ));
+    { fetchProvider },
+  );
+});
 
 test('a factor setup activates once under concurrency, and only with a valid code', () =>
   withApp(
