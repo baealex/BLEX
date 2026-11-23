@@ -1,53 +1,30 @@
 # Social Login Setup
 
-Configure social login providers and credentials in the **admin settings**. BLEX stores these settings in the database. BLEX supports Google and GitHub.
+BLEX supports Google and GitHub sign-in. Store provider credentials in the admin settings.
 
 ## Setup
 
-1. Create an OAuth application in the provider's developer console.
-2. Register the redirect URI or callback URL:
-   - Google: `https://YOUR_DOMAIN/login/callback/google`
-   - GitHub: `https://YOUR_DOMAIN/login/callback/github`
-3. Open `/admin-settings/login` in BLEX.
-4. Enable the provider in the social login section.
-5. Enter its **Client ID** and **Client Secret**, then save.
-6. Sign out and check that the social login button appears on the login and signup screens.
+1. Create an OAuth app in the provider's developer console. For Google, select the **Web application** type.
+2. Register the callback below, replacing `https://blog.example.com` with your BLEX `SITE_URL`.
 
-For local development, use your local base URL in place of `https://YOUR_DOMAIN`, for example `http://localhost:8040`.
+   | Provider | Callback URL | Requested scopes |
+   | --- | --- | --- |
+   | Google | `https://blog.example.com/login/callback/google` | `openid email profile` |
+   | GitHub | `https://blog.example.com/login/callback/github` | `user:email` |
 
-## Google
+3. Open `/admin-settings/login`, enable the provider, and save its Client ID and Client Secret.
+4. Sign out and verify sign-in through the provider's button on the login or signup screen.
 
-In Google Cloud Console, create an OAuth client and select the **Web application** type.
+The local Node app uses `http://localhost:8040`; Docker Compose defaults to `http://localhost:20002`. Use the actual base URL, including its port, in the callback.
 
-- Authorized redirect URIs:
-  - Production: `https://YOUR_DOMAIN/login/callback/google`
-  - Local: `http://localhost:8040/login/callback/google`
+## Credentials and access
 
-BLEX requests the `openid`, `email`, and `profile` scopes.
-
-## GitHub
-
-Create an OAuth App in GitHub Developer settings.
-
-- Authorization callback URL:
-  - Production: `https://YOUR_DOMAIN/login/callback/github`
-  - Local: `http://localhost:8040/login/callback/github`
-
-BLEX requests the `user:email` scope.
-
-## Behavior
-
-- Disabled providers do not appear on the login or signup screens.
-- A provider also stays hidden if its Client ID or Client Secret is empty.
-- Login attempts through a disabled provider are rejected, including direct requests to its callback URL.
-- Leaving the Client Secret field blank when saving preserves the existing secret.
-- To delete a stored secret, select the option to clear the saved Client Secret, then save.
-- Client Secrets are encrypted with `CIPHER_KEY` before being stored in the database.
+- Leaving the Client Secret blank preserves the saved value. To delete it, select the option to clear the saved secret.
+- Secrets are encrypted with `CIPHER_KEY`. Back up this key with the environment file and database; changing or losing it prevents decryption.
+- Disabled providers or providers without valid credentials do not show a sign-in button. Disabled providers also reject direct callback requests.
 
 ## Troubleshooting
 
-- For `redirect_uri_mismatch`, check that the callback URL derived from `SITE_URL` matches the URL registered with the provider. Make sure the HTTPS reverse proxy forwards the public hostname and protocol.
-- If a button is missing, check that the provider is enabled and its Client ID is saved in BLEX.
-- If authentication fails after the provider redirects back, check that the Client Secret is saved.
-- Set `SITE_URL` to the base URL visitors use, including the scheme and port. Docker Compose defaults to `http://localhost:20002`, so callbacks must use that port too. See the [self-hosting guide](SELF_HOSTING.md) for HTTPS proxy setup.
-- If `CIPHER_KEY` is lost or changed, BLEX cannot decrypt stored Client Secrets. Back up the key along with the database.
+- `redirect_uri_mismatch`: check that the callback registered with the provider matches `SITE_URL`, including scheme, hostname, and port.
+- Missing button or failed authentication: check provider activation, Client ID, and Client Secret in the admin settings.
+- For HTTPS proxy configuration, follow the [self-hosting guide](SELF_HOSTING.md#https-reverse-proxy).

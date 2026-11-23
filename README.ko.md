@@ -22,80 +22,50 @@
   <a href="README.md">English</a> · 한국어
 </p>
 
-BLEX는 글을 쓰고, 정리하고, 발행하고, 오래 운영하는 흐름에 맞춰 만든
-오픈소스 블로그 플랫폼입니다. 하나의 TypeScript 서버에서 Fastify,
-React SSR, Prisma, SQLite로 블로그와 에디터, 관리 도구를 제공합니다.
+## 주요 기능
 
-## 프로젝트 방향
+- 시각 편집과 마크다운, 임시저장, 자동저장 복구, 수정 이력, 예약 발행
+- 시리즈, 태그, 검색, 정적 페이지, 댓글, 좋아요, 고정 글
+- 사이트 브랜딩, 사용자 역할, webhook, 텔레그램 연동
+- RSS, sitemap, 공개 Markdown, Developer API
+- GitHub·Google 로그인과 TOTP 2단계 인증
 
-- **글쓰기와 발행:** 시각 편집과 마크다운, 미리보기, 임시저장, 자동저장 복구, 수정
-  이력, 커버 이미지, 예약 발행
-- **콘텐츠 관리:** 작가, 시리즈, 태그, 검색, 정적 페이지, 댓글, 좋아요,
-  고정 글
-- **블로그 운영:** 브랜딩, 공지와 배너, 사용자와 역할, webhook, 텔레그램
-  연동
-- **외부 활용:** RSS, sitemap, canonical과 Open Graph 메타데이터, 공개
-  Markdown, 권한별 토큰을 제공하는 Developer API
+## Docker로 실행
 
-GitHub 및 Google 로그인과 TOTP 2단계 인증을 제공합니다.
-사용자가 작성한 콘텐츠는 번역하지 않고 원문 그대로 표시합니다.
+저장소 루트의 `.env`에 `SITE_URL=http://localhost:20002`, 무작위 `SECRET_KEY`
+(`openssl rand -hex 32`), 32바이트 `CIPHER_KEY`(`openssl rand -hex 16`)를 설정하세요.
 
-## Docker로 로컬 실행
-
-저장소 루트의 `.env`에 `SITE_URL=http://localhost:20002`, 충분히 긴 무작위
-`SECRET_KEY`, 32바이트 `CIPHER_KEY`를 설정하세요. `openssl rand -hex 16`으로
-32자 ASCII 암호화 키를 만들 수 있습니다.
-
-```bash
+```sh
 docker compose up --build -d
 docker compose logs blex
 ```
 
-로그에 출력되는 `/setup` 링크에서 최초 관리자를 만드세요. 컨테이너를
-교체해도 `blex-data` 볼륨에 데이터베이스와 업로드 파일이 유지됩니다.
+로그의 `/setup` 링크에서 최초 관리자를 만드세요.
+데이터베이스와 업로드 파일은 `blex-data` 볼륨에 저장됩니다.
 
-### 운영 배포
-
-고유한 비밀 키를 설정하고 `SITE_URL`에는 공개 HTTPS 주소를 지정하세요.
-BLEX 앞단에는 HTTPS 프록시를 두고 데이터 디렉터리를 백업합니다.
-[자체 호스팅 가이드](docs/SELF_HOSTING.md)
-
-## 발행 인터페이스
-
-| 경로 | 용도 |
-| --- | --- |
-| `/rss` | RSS 피드 |
-| `/sitemap.xml` | sitemap index |
-| `/llms.txt` | 선택형 AI 에이전트 진입점 |
-| `/@{username}/{post_url}.md` | 공개 글 Markdown |
-| `/api/developer/v1/docs` | Developer API 문서 |
+HTTPS, 백업, 환경 설정은 [자체 호스팅 가이드](docs/SELF_HOSTING.md)를 참고하세요.
+기존 3.x 설치는 BLEX 4를 시작하기 전에 [이관 절차](docs/UPGRADE_FROM_3.md)를 따라야 합니다.
 
 ## 개발
 
-요구사항:
+Node.js 24 LTS(24.22.1 이상) 또는 26(26.12.1 이상)과 `package.json`에 지정된 pnpm을 사용합니다.
 
-- Node.js 24 LTS(24.22.1 이상) 또는 26(26.12.1 이상)
-- pnpm 11.17.0 (`package.json` 기준)
-- 로컬에서 GIF 변환과 동영상 미리보기를 사용할 경우 FFmpeg
-
-```bash
+```sh
 pnpm install
 pnpm dev
 ```
 
-`http://localhost:8040`에 접속하세요. 개발 명령은 `packages/server/.local/`에 SQLite
-DB를 초기화하고 최초 관리자 설정 링크를 출력합니다.
+`http://localhost:8040`에 접속하세요. 로컬 데이터는 `packages/server/.local/`에 저장됩니다.
+화면 빌드와 검증 명령, 코드별 지침은 [개발 가이드](docs/DEV_CONVENTION.md)를 참고하세요.
 
 ## 문서
 
 상세 가이드는 영어로 제공합니다.
 
-- [설치와 운영](docs/SELF_HOSTING.md) · [소셜 로그인](docs/SOCIAL_LOGIN.md)
+- [자체 호스팅](docs/SELF_HOSTING.md)
+- [소셜 로그인 설정](docs/SOCIAL_LOGIN.md)
 - [BLEX 3.14에서 4로 이전](docs/UPGRADE_FROM_3.md)
-- [개발 규칙](docs/DEV_CONVENTION.md) · [테스트](docs/TESTING_GUIDE.md)
-- [백엔드](docs/BACKEND_GUIDE.md) · [프런트엔드](docs/FRONTEND_GUIDE.md) · [구조도](docs/blex4-architecture.html)
-- [디자인](docs/DESIGN_GUIDE.md) · [UI 변경 규칙](docs/UI_CHANGE_STYLE_GUIDE.md)
-- [번역](docs/TRANSLATION_GUIDE.md) · [의존성 관리](docs/DEPENDENCY_SECURITY.md)
+- [기여 및 개발 규칙](docs/DEV_CONVENTION.md)
 
 ## 라이선스
 

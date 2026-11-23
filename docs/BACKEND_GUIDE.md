@@ -42,6 +42,8 @@ BLEX uses Fastify, TypeScript, Prisma, and SQLite. `packages/server/src/main.ts`
 - Verify migrations against both an empty database and an upgraded database copy. Preserve valid data and relationships when adding constraints.
 - Apply migrations with `DATABASE_URL=file:/absolute/path/to/db.sqlite3 pnpm db:migrate`. Build first when using the database verification CLI.
 
+The Developer API reference is served at `/api/developer/v1/docs`.
+
 ## Refactoring and testing
 
 Preserve routes, response envelopes, URLs, and session behavior during refactors; see [Backend Compatibility](BACKEND_COMPATIBILITY.md). Test observable outcomes, including persisted state and denied access. Mock external services used to deliver notifications or webhooks.
