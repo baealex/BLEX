@@ -1,9 +1,10 @@
-import { StrictMode, useEffect } from 'react';
+import { StrictMode, Suspense } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { I18nProvider } from '@lingui/react';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
-import App from './components/App';
+import { MountNotifier, renderScreen } from './components/screen-content';
 import ErrorBoundary from './components/ErrorBoundary';
+import { parseScreen } from './components/screen-props';
 import { activateDocumentLocale, i18n } from './i18n';
 import { createQueryClient, sessionStoragePersister, shouldPersistQuery } from './lib/query-client';
 
@@ -15,24 +16,19 @@ const markScreenFailed = (element: HTMLElement, reason: string) => {
     element.dataset.screenError = reason;
 };
 
-const ScreenErrorFallback = ({ element, name }: { element: HTMLElement; name: string }) => {
-    useEffect(() => {
-        markScreenFailed(element, 'render_error');
-    }, [element]);
-
-    return <div>Component Error: {name}</div>;
-};
-
 const mountScreen = async (element: HTMLElement, name: string): Promise<void> => {
     try {
+        const encodedProps = element.dataset.screenProps;
+        const props: unknown = encodedProps ? JSON.parse(decodeURIComponent(encodedProps)) : {};
+        const screen = parseScreen(name, props);
+        if (!screen) throw new Error();
+
         await activateDocumentLocale();
         if (!element.isConnected) {
             element.dataset.screenStatus = 'pending';
             return;
         }
 
-        const encodedProps = element.dataset.screenProps;
-        const props = encodedProps ? JSON.parse(decodeURIComponent(encodedProps)) : {};
         const queryClient = createQueryClient();
         const root = createRoot(element);
         mountedScreens.set(element, root);
@@ -41,7 +37,10 @@ const mountScreen = async (element: HTMLElement, name: string): Promise<void> =>
         };
         root.render(
             <StrictMode>
-                <ErrorBoundary fallback={<ScreenErrorFallback element={element} name={name} />}>
+                <ErrorBoundary
+                    fallback={<div>Component Error: {name}</div>}
+                    onError={() => markScreenFailed(element, 'render_error')}
+                >
                     <I18nProvider i18n={i18n}>
                         <PersistQueryClientProvider
                             client={queryClient}
@@ -51,7 +50,10 @@ const mountScreen = async (element: HTMLElement, name: string): Promise<void> =>
                                 dehydrateOptions: { shouldDehydrateQuery: shouldPersistQuery }
                             }}
                         >
-                            <App __name={name} __onMounted={handleMounted} {...props} />
+                            <Suspense>
+                                {renderScreen(screen)}
+                                <MountNotifier onMounted={handleMounted} />
+                            </Suspense>
                         </PersistQueryClientProvider>
                     </I18nProvider>
                 </ErrorBoundary>
@@ -59,7 +61,7 @@ const mountScreen = async (element: HTMLElement, name: string): Promise<void> =>
         );
     } catch {
         markScreenFailed(element, 'bootstrap_error');
-        element.innerHTML = `<div>Component Error: ${name}</div>`;
+        element.textContent = `Component Error: ${name}`;
     }
 };
 

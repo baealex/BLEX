@@ -115,7 +115,7 @@ export function registerPersonalSettings(app: FastifyInstance, db: PrismaClient,
     });
 
     routes.get('/v1/setting/account', async (request, reply) => {
-      const user = await currentUser(request, reply, options);
+      const user = await currentUser(request, options);
       if (!user) return needLogin();
       const account = await readAccount(db, user.id);
       if (!account) return reply.code(404).send('Not found');
@@ -124,7 +124,7 @@ export function registerPersonalSettings(app: FastifyInstance, db: PrismaClient,
     });
 
     routes.put('/v1/setting/account', async (request, reply) => {
-      const user = await currentUser(request, reply, options);
+      const user = await currentUser(request, options);
       if (!user) return needLogin();
       if (!options.validateCsrf(request)) return reply.code(403).send(failure('RJ'));
       const body = bodyRecord(request.body);
@@ -147,7 +147,7 @@ export function registerPersonalSettings(app: FastifyInstance, db: PrismaClient,
     });
 
     routes.put('/v1/setting/regional-preferences', async (request, reply) => {
-      const user = await currentUser(request, reply, options);
+      const user = await currentUser(request, options);
       if (!user) return needLogin();
       if (!options.validateCsrf(request)) return reply.code(403).send(failure('RJ'));
       const result = await updateRegionalPreferences(db, user.id, bodyRecord(request.body));
@@ -156,14 +156,14 @@ export function registerPersonalSettings(app: FastifyInstance, db: PrismaClient,
     });
 
     routes.get('/v1/setting/profile', async (request, reply) => {
-      const user = await currentUser(request, reply, options);
+      const user = await currentUser(request, options);
       if (!user) return needLogin();
       const profile = await readProfile(db, user.id, options.siteUrl);
       return profile ? success(profile) : reply.code(404).send('Not found');
     });
 
     routes.put('/v1/setting/profile', async (request, reply) => {
-      const user = await currentUser(request, reply, options);
+      const user = await currentUser(request, options);
       if (!user) return needLogin();
       if (!options.validateCsrf(request)) return reply.code(403).send(failure('RJ'));
       const result = await updateProfile(db, user.id, bodyRecord(request.body));
@@ -172,7 +172,7 @@ export function registerPersonalSettings(app: FastifyInstance, db: PrismaClient,
     });
 
     routes.put('/v1/setting/social', async (request, reply) => {
-      const user = await currentUser(request, reply, options);
+      const user = await currentUser(request, options);
       if (!user) return needLogin();
       if (!options.validateCsrf(request)) return reply.code(403).send(failure('RJ'));
       const result = await applySocialMutation(db, user.id, bodyRecord(request.body), 'legacy');

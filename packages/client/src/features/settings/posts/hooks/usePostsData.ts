@@ -239,7 +239,7 @@ const syncFiltersToURL = (filters: FilterOptions) => {
     if (typeof window === 'undefined') return;
 
     const params = new URLSearchParams(window.location.search);
-    FILTER_KEYS.forEach((key) => params.delete(key));
+    for (const key of FILTER_KEYS) params.delete(key);
 
     Object.entries(filters).forEach(([key, value]) => {
         // Keep the URL concise by omitting defaults.
@@ -425,7 +425,7 @@ export const usePostsQuery = (filters: FilterOptions, source: PostsSource = 'pub
 
     useEffect(() => {
         if (!postsData?.username) return;
-        posts.forEach((post) => syncPostClassificationDraft(postsData.username, post));
+        for (const post of posts) syncPostClassificationDraft(postsData.username, post);
     }, [posts, postsData?.username]);
 
     return {

@@ -59,7 +59,7 @@ export function cleanupOldCaches(): void {
 
     for (let i = 0; i < sessionStorage.length; i++) {
         const key = sessionStorage.key(i);
-        if (key && key.startsWith('rq-cache-') && key !== currentCacheKey) {
+        if (key?.startsWith('rq-cache-') && key !== currentCacheKey) {
             keysToRemove.push(key);
         }
     }

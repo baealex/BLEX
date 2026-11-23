@@ -642,14 +642,17 @@ test('binds OAuth callbacks to the initiating browser and reuses an existing soc
     assert.deepEqual(providers.json().body, [{ key: 'google', name: 'Google', clientId: 'synthetic-client' }]);
     const authorization = await app.inject('/login/start/google?next=%2Fsettings%2Faccount');
     assert.equal(authorization.statusCode, 302);
-    const redirect = new URL(authorization.headers.location!);
+    assert.ok(authorization.headers.location);
+    const redirect = new URL(authorization.headers.location);
     assert.equal(redirect.origin, 'https://accounts.google.com');
     assert.equal(redirect.searchParams.get('code_challenge_method'), 'S256');
-    assert.ok(redirect.searchParams.get('state'));
+    const state = redirect.searchParams.get('state');
+    assert.ok(state);
     const browser = cookiesFrom(authorization.headers['set-cookie']).find((item) =>
       item.startsWith('blex_oauth_google='),
-    )!;
-    const callback = `/login/callback/google?${new URLSearchParams({ state: redirect.searchParams.get('state')!, code: 'synthetic-code' })}`;
+    );
+    assert.ok(browser);
+    const callback = `/login/callback/google?${new URLSearchParams({ state, code: 'synthetic-code' })}`;
     assert.equal((await app.inject(callback)).headers.location, '/login');
     assert.equal(providerRequests, 0);
 
@@ -657,7 +660,8 @@ test('binds OAuth callbacks to the initiating browser and reuses an existing soc
     assert.equal(pending.headers.location, '/login');
     const challenge = cookiesFrom(pending.headers['set-cookie']).find((item) =>
       item.startsWith('blex_oauth_challenge='),
-    )!;
+    );
+    assert.ok(challenge);
     assert.match(challenge, /^blex_oauth_challenge=.+/);
     assert.equal((await app.inject({ url: callback, headers: { cookie: browser } })).headers.location, '/login');
     assert.equal(providerRequests, 2);
@@ -693,8 +697,11 @@ test('binds OAuth callbacks to the initiating browser and reuses an existing soc
     const followAuthorization = (headers: ReturnType<typeof headersFor>, authorize: typeof authorization) => {
       const providerBrowser = cookiesFrom(authorize.headers['set-cookie']).find((entry) =>
         entry.startsWith('blex_oauth_google='),
-      )!;
-      const state = new URL(authorize.headers.location!).searchParams.get('state')!;
+      );
+      assert.ok(providerBrowser);
+      assert.ok(authorize.headers.location);
+      const state = new URL(authorize.headers.location).searchParams.get('state');
+      assert.ok(state);
       return app.inject({
         url: `/login/callback/google?${new URLSearchParams({ state, code: 'synthetic-code' })}`,
         headers: { ...headers, cookie: `${providerBrowser}; ${headers.cookie}` },
@@ -706,7 +713,8 @@ test('binds OAuth callbacks to the initiating browser and reuses an existing soc
       headers: sessionHeaders,
       payload: {},
     });
-    assert.equal(new URL(startReauth.headers.location!).searchParams.get('prompt'), 'select_account');
+    assert.ok(startReauth.headers.location);
+    assert.equal(new URL(startReauth.headers.location).searchParams.get('prompt'), 'select_account');
     nextIdentity = { id: 'another-social-user', email: 'new-social@example.invalid' };
     const mismatch = await followAuthorization(sessionHeaders, startReauth);
     assert.equal(mismatch.headers.location, verifyUrl);

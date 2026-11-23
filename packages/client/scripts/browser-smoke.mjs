@@ -87,6 +87,76 @@ const openEditor = async () => {
     await expect(search).toHaveCount(0);
 };
 
+const rejectInvalidScreenData = async () => {
+    await open('/settings/profile');
+    const settings = page.locator('[data-screen="SettingsApp"]:not([data-smoke-invalid-screen])');
+    await expect(settings).toHaveAttribute('data-screen-status', 'mounted');
+    const cases = [
+        { id: 'malformed-screen', name: '<img data-bootstrap-injection="">', encodedProps: '%' },
+        {
+            id: 'invalid-settings-screen',
+            name: 'SettingsApp',
+            encodedProps: encodeURIComponent(JSON.stringify({ isEditor: false, isStaff: 'false' }))
+        },
+        { id: 'unknown-screen', name: 'MissingScreen', encodedProps: encodeURIComponent('{}') }
+    ];
+    try {
+        await page.evaluate((cases) => {
+            for (const { id, name, encodedProps } of cases) {
+                const element = document.createElement('div');
+                element.id = id;
+                element.dataset.smokeInvalidScreen = '';
+                element.dataset.screen = name;
+                element.dataset.screenStatus = 'pending';
+                element.dataset.screenProps = encodedProps;
+                document.body.append(element);
+            }
+        }, cases);
+        for (const { id, name } of cases) {
+            const screen = page.locator(`#${id}`);
+            await expect(screen).toHaveAttribute('data-screen-status', 'error');
+            await expect(screen).toHaveAttribute('data-screen-error', 'bootstrap_error');
+            await expect(screen).toHaveText(`Component Error: ${name}`);
+            await expect(screen.locator('img')).toHaveCount(0);
+        }
+        await expect(settings).toHaveAttribute('data-screen-status', 'mounted');
+    } finally {
+        await page.evaluate(() => {
+            for (const element of document.querySelectorAll('[data-smoke-invalid-screen]')) element.remove();
+        });
+    }
+};
+
+const isolateScreenRenderError = async () => {
+    await open('/settings/profile');
+    const settings = page.locator('[data-screen="SettingsApp"]');
+    await expect(settings).toHaveAttribute('data-screen-status', 'mounted');
+    const toasterChunk = '**/assets/web/chunks/toaster.*.js';
+    await page.route(toasterChunk, (route) =>
+        route.fulfill({
+            contentType: 'text/javascript',
+            body: 'export default function BrokenScreen() { throw new Error("smoke-screen-render-error"); }'
+        })
+    );
+    try {
+        await page.evaluate(() => {
+            const element = document.createElement('div');
+            element.id = 'broken-screen';
+            element.dataset.screen = 'Toaster';
+            element.dataset.screenStatus = 'pending';
+            document.body.append(element);
+        });
+        const brokenScreen = page.locator('#broken-screen');
+        await expect(brokenScreen).toHaveAttribute('data-screen-status', 'error');
+        await expect(brokenScreen).toHaveAttribute('data-screen-error', 'render_error');
+        await expect(brokenScreen).toHaveText('Component Error: Toaster');
+        await expect(settings).toHaveAttribute('data-screen-status', 'mounted');
+    } finally {
+        await page.evaluate(() => document.querySelector('#broken-screen')?.remove());
+        await page.unroute(toasterChunk);
+    }
+};
+
 const keepLatestDraftList = async () => {
     await open('/write');
     let requests = 0;
@@ -133,6 +203,57 @@ const keepLatestDraftList = async () => {
     } finally {
         releaseFirst();
         await page.unroute(draftsUrl);
+    }
+};
+
+const selectPinnedPostWithKeyboard = async () => {
+    const pinnableUrl = '**/v1/setting/pinnable-posts*';
+    await page.route(pinnableUrl, (route) =>
+        route.fulfill({
+            json: {
+                status: 'DONE',
+                body: {
+                    posts: ['First', 'Second'].map((title) => ({
+                        url: title.toLowerCase(),
+                        title,
+                        image: null,
+                        createdDate: '2026-01-01'
+                    })),
+                    page: 1,
+                    limit: 30,
+                    lastPage: 1,
+                    totalCount: 2,
+                    hasNext: false,
+                    hasPrevious: false
+                }
+            }
+        })
+    );
+    try {
+        await open('/settings/pinned-posts');
+        await page.getByRole('button', { name: '포스트 고정하기', exact: true }).click();
+        const dialog = page.getByRole('dialog');
+        const first = dialog.getByRole('radio', { name: '고정할 포스트 선택: First', exact: true });
+        const second = dialog.getByRole('radio', { name: '고정할 포스트 선택: Second', exact: true });
+        const pin = dialog.getByRole('button', { name: '포스트 고정', exact: true });
+        await expect(pin).toBeDisabled();
+        await first.focus();
+        await first.press('Space');
+        await expect(first).toBeChecked();
+        await first.press('ArrowDown');
+        await expect(second).toBeFocused();
+        await expect(second).toBeChecked();
+        await expect(first).not.toBeChecked();
+        await expect(pin).toBeEnabled();
+        await second.press('ArrowUp');
+        await expect(first).toBeChecked();
+        await dialog.getByRole('searchbox').fill('Second');
+        await expect(first).not.toBeChecked();
+        await expect(second).not.toBeChecked();
+        await expect(pin).toBeDisabled();
+        await dialog.getByRole('button', { name: '취소', exact: true }).click();
+    } finally {
+        await page.unroute(pinnableUrl);
     }
 };
 
@@ -195,6 +316,9 @@ try {
         ['account menu and logout', logOutFromAccountMenu],
         ['login', logIn],
         ['mobile menu', openMobileMenu],
+        ['invalid screen data fails safely without interpreting names as HTML', rejectInvalidScreenData],
+        ['a screen render error leaves other screens mounted', isolateScreenRenderError],
+        ['pinned post selection supports arrow keys and resets after a search', selectPinnedPostWithKeyboard],
         ['editor', openEditor],
         ['latest draft list survives an older response', keepLatestDraftList],
         ['media keyboard controls keep focus and settings labels activate their controls', keepMediaControlFocus],

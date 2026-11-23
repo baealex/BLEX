@@ -569,7 +569,8 @@ test('publishes a new post from the editor form with every field', async () => {
       payload: form.payload,
     });
     assert.deepEqual(created.json(), { status: 'DONE', body: { url: 'editor-post' } });
-    const row = postRow(fixture.db, 'editor-post')!;
+    const row = postRow(fixture.db, 'editor-post');
+    assert.ok(row);
     assert.ok(String(row.image).startsWith('images/content/'));
     assert.ok(Buffer.byteLength(String(row.html)) > 1024 * 1024);
     assert.deepEqual(
@@ -661,7 +662,8 @@ test('publishes and schedules an owned draft from the editor form', async () => 
       payload: form.payload,
     });
     assert.deepEqual(published.json(), { status: 'DONE', body: { url: 'draft' } });
-    const row = postRow(fixture.db, 'draft')!;
+    const row = postRow(fixture.db, 'draft');
+    assert.ok(row);
     assert.deepEqual(
       [row.published, row.image, row.series, row.advertise, row.layout, row.tags],
       [Date.parse(publishAt), '', null, 1, 'split', 'one,two'],
@@ -740,7 +742,8 @@ test('edits a post from the editor form and keeps what it leaves out', async () 
       payload: form.payload,
     });
     assert.deepEqual(saved.json(), { status: 'DONE', body: {} });
-    const row = postRow(fixture.db, 'kept')!;
+    const row = postRow(fixture.db, 'kept');
+    assert.ok(row);
     assert.deepEqual(
       [row.title, row.series, row.tags, row.advertise, row.layout],
       ['Kept edited', 7, 'kept-tag', 1, 'split'],
@@ -790,7 +793,8 @@ test('clears series and tags only when the editor sends them empty', async () =>
       fixture.db.prepare('INSERT INTO "_PostToTag" (A, B) VALUES (?, 3)').run(id);
     };
     const placement = (slug: string) => {
-      const row = postRow(fixture.db, slug)!;
+      const row = postRow(fixture.db, slug);
+      assert.ok(row);
       return [row.series, row.tags];
     };
     insertRow(fixture.db, 'Tag', { id: 3, name: 'keptword' });

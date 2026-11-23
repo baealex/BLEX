@@ -54,7 +54,7 @@ export function registerAuthorCollections(
 
     const apiEditor = async (request: FastifyRequest) => {
       const user = await requireActiveEditor(db, request, options);
-      if (!user || !user.active) return { user: null, error: unauthorizedLogin() };
+      if (!user?.active) return { user: null, error: unauthorizedLogin() };
       if (!isActiveEditor(user)) return { user: null, error: apiError('RJ', 'Author access is required.') };
       return { user, error: null };
     };
@@ -65,13 +65,13 @@ export function registerAuthorCollections(
         return { user: null, error: unauthorizedLogin() };
       }
       const user = await readDatabaseUser(db, sessionUser.id, sessionUser.username);
-      if (!user || !user.active) return { user: null, error: unauthorizedLogin() };
+      if (!user?.active) return { user: null, error: unauthorizedLogin() };
       if (user.id !== ownerId) return { user: null, error: apiError('AT', 'Permission denied.') };
       if (!isActiveEditor(user)) return { user: null, error: apiError('RJ', 'Author access is required.') };
       return { user, error: null };
     };
 
-    routes.get('/v1/setting/series', async (request, reply) => {
+    routes.get('/v1/setting/series', async (request) => {
       const { user, error } = await apiEditor(request);
       if (!user) return error;
       const rows = await readSeriesRows(db, user.id, 'active');
@@ -81,7 +81,7 @@ export function registerAuthorCollections(
       });
     });
 
-    routes.get('/v1/series', async (request, reply) => {
+    routes.get('/v1/series', async (request) => {
       const { user, error } = await apiEditor(request);
       if (!user) return error;
       const rows = await readSeriesRows(db, user.id, 'public');
@@ -119,7 +119,7 @@ export function registerAuthorCollections(
       }
     });
 
-    routes.get('/v1/series/valid-posts', async (request, reply) => {
+    routes.get('/v1/series/valid-posts', async (request) => {
       const { user, error } = await apiEditor(request);
       if (!user) return error;
       const rawId = queryValue(request, 'seriesId');
@@ -234,7 +234,7 @@ export function registerAuthorCollections(
       },
     );
 
-    routes.get('/v1/setting/pinned-posts', async (request, reply) => {
+    routes.get('/v1/setting/pinned-posts', async (request) => {
       const { user, error } = await apiEditor(request);
       if (!user) return error;
       const [pinnedPosts, reservedCount] = await Promise.all([
@@ -249,7 +249,7 @@ export function registerAuthorCollections(
       });
     });
 
-    routes.get('/v1/setting/pinnable-posts', async (request, reply) => {
+    routes.get('/v1/setting/pinnable-posts', async (request) => {
       const { user, error } = await apiEditor(request);
       if (!user) return error;
       const result = await readPinnablePosts(

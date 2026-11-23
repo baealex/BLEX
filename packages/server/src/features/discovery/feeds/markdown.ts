@@ -110,21 +110,24 @@ function parseHtml(html: string): HtmlNode {
         ?.toLowerCase();
       if (!closingTag || !openCount(closingTag)) continue;
       while (stack.length > 1) {
-        const { tag } = stack.pop()!;
+        const closed = stack.pop();
+        if (!closed) break;
+        const { tag } = closed;
         if (tag) openTags.set(tag, openCount(tag) - 1);
         if (tag === closingTag) break;
       }
       continue;
     }
+    const parent = stack.at(-1) ?? root;
     if (token.startsWith('<')) {
       const start = parseStartTag(token);
       if (!start) {
-        stack.at(-1)!.children.push({ tag: null, attrs: {}, text: token, children: [], parent: stack.at(-1) });
+        parent.children.push({ tag: null, attrs: {}, text: token, children: [], parent });
         continue;
       }
       const { tag } = start;
-      const node: HtmlNode = { tag, attrs: parseAttributes(start.attributes), children: [], parent: stack.at(-1) };
-      stack.at(-1)!.children.push(node);
+      const node: HtmlNode = { tag, attrs: parseAttributes(start.attributes), children: [], parent };
+      parent.children.push(node);
       if (!voidTags.has(tag) && !/\/\s*>$/.test(token)) {
         stack.push(node);
         openTags.set(tag, openCount(tag) + 1);
@@ -133,12 +136,12 @@ function parseHtml(html: string): HtmlNode {
     }
     const text = decodeEntities(token);
     const preservesWhitespace = openCount('pre') > 0 || openCount('textarea') > 0;
-    stack.at(-1)!.children.push({
+    parent.children.push({
       tag: null,
       attrs: {},
       text: preservesWhitespace ? text : collapseWhitespaceNode(text),
       children: [],
-      parent: stack.at(-1),
+      parent,
     });
   }
   return root;

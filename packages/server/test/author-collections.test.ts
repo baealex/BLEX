@@ -92,7 +92,8 @@ registerAuthorCollections(app, db, {
     const raw = request.headers['x-test-user'];
     const id = Number(Array.isArray(raw) ? raw.at(-1) : raw);
     const users: Record<number, string> = { 1: 'writer', 2: 'other-writer', 3: 'reader', 4: 'inactive-writer' };
-    return Number.isSafeInteger(id) && users[id] ? { id, username: users[id]! } : null;
+    const username = users[id];
+    return Number.isSafeInteger(id) && username ? { id, username } : null;
   },
   validateCsrf: (request) =>
     request.headers.origin === 'https://blog.example' &&

@@ -61,6 +61,11 @@ export async function registerDeveloperDocumentation(
   );
 
   const locales = new WeakMap<FastifyRequest, DeveloperLocale>();
+  const requestLocale = (request: FastifyRequest): DeveloperLocale => {
+    const locale = locales.get(request);
+    if (!locale) throw new Error('The authenticated documentation request has no locale.');
+    return locale;
+  };
   const checkEditor = async (request: FastifyRequest, reply: FastifyReply) => {
     const user = await options.currentUser(request);
     if (!user) return reply.redirect(`/login?${new URLSearchParams({ next: request.url })}`, 302);
@@ -70,7 +75,7 @@ export async function registerDeveloperDocumentation(
     developerLanguageHeaders(reply, locale);
   };
   app.get(`${apiRoot}/openapi.json`, { preHandler: checkEditor }, (request, reply) =>
-    reply.type('application/json; charset=utf-8').send(localizeDeveloperOpenApi(app.swagger(), locales.get(request)!)),
+    reply.type('application/json; charset=utf-8').send(localizeDeveloperOpenApi(app.swagger(), requestLocale(request))),
   );
   for (const path of ['/docs/developer-api', '/docs/developer-api/:operationId']) {
     app.get(path, { preHandler: checkEditor }, (_request, reply) => reply.redirect(`${apiRoot}/docs`, 302));
@@ -93,15 +98,15 @@ export async function registerDeveloperDocumentation(
       .send(
         renderPage('docs/developer-api/reference', {
           assetRoot,
-          locale: locales.get(request)!,
-          settingsJson: scriptJson(swaggerSettings(locales.get(request)!)),
+          locale: requestLocale(request),
+          settingsJson: scriptJson(swaggerSettings(requestLocale(request))),
         }),
       ),
   );
 
   app.get('/docs/developer-api/quickstart', { preHandler: checkEditor }, async (request, reply) => {
     const { brand, viewer } = await readPageChrome(db, await options.currentUser(request), csrfCookie(request));
-    const locale = locales.get(request)!;
+    const locale = requestLocale(request);
     const commands = Object.fromEntries(
       Object.entries(apiExamples).map(([name, example]) => [name, exampleCommand(example, locale)]),
     ) as Record<keyof typeof apiExamples, string>;

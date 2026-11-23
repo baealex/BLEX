@@ -110,7 +110,7 @@ test('publishes sitemap sections and excludes non-public content everywhere', as
   assert.equal(index.headers['x-robots-tag'], 'noindex, nofollow');
   assert.match(index.body, /<sitemapindex xmlns="http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9">/);
   for (const section of ['site', 'user', 'posts', 'series', 'staticpages']) {
-    assert.match(index.body, new RegExp(`https:\/\/blog\\.example\/${section}\/sitemap\\.xml`));
+    assert.match(index.body, new RegExp(`https://blog\\.example/${section}/sitemap\\.xml`));
   }
 
   const posts = await app.inject('/posts/sitemap.xml');

@@ -66,7 +66,9 @@ function draw(target: HTMLElement, signal: AbortSignal) {
 
 export function mountAuthorHeatmaps(signal: AbortSignal) {
     const targets = [...document.querySelectorAll<HTMLElement>('[data-heatmap-days]')];
-    const render = () => targets.forEach((target) => draw(target, signal));
+    const render = () => {
+        for (const target of targets) draw(target, signal);
+    };
     render();
     const observer = new MutationObserver(render);
     observer.observe(document.documentElement, {

@@ -31,8 +31,7 @@ const BannerPreviewFrame = ({
 
         if (selected) {
             return (
-                <div
-                    role="group"
+                <section
                     className="min-h-11"
                     aria-label={i18n._({
                         id: 'settings.banners.preview.position_selected',
@@ -53,7 +52,7 @@ const BannerPreviewFrame = ({
                             })}
                         </div>
                     )}
-                </div>
+                </section>
             );
         }
 
@@ -88,8 +87,7 @@ const BannerPreviewFrame = ({
 
         if (selected) {
             return (
-                <div
-                    role="group"
+                <section
                     className="min-h-11"
                     aria-label={i18n._({
                         id: 'settings.banners.preview.position_selected',
@@ -110,7 +108,7 @@ const BannerPreviewFrame = ({
                             })}
                         </div>
                     )}
-                </div>
+                </section>
             );
         }
 

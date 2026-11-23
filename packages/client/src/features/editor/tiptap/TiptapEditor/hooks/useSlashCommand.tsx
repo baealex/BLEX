@@ -35,7 +35,7 @@ export const useSlashCommand = (editor: Editor | null) => {
     }, []);
 
     useEffect(() => {
-        if (!editor || !editor.isEditable) return;
+        if (!editor?.isEditable) return;
 
         let editorElement: HTMLElement | null = null;
         try {

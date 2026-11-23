@@ -89,12 +89,12 @@ export async function deliverPostWebhook(
       : null;
     const locale = resolveUiLocale(preference?.language);
     const postUrl = new URL(publicPostPath(row.username, row.slug), siteUrl).href;
-    const escape = (value: string) => value.replace(/[[\]<>\\]/g, '\\$&');
+    const escapeMarkdown = (value: string) => value.replace(/[[\]<>\\]/g, '\\$&');
     sent = await send(
       target,
       systemMessage(
         '[{value0}] published a new post. [{value1}]({value2})',
-        { value0: escape(row.name || row.username), value1: escape(row.title), value2: postUrl },
+        { value0: escapeMarkdown(row.name || row.username), value1: escapeMarkdown(row.title), value2: postUrl },
         undefined,
         locale,
       ),

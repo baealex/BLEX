@@ -17,7 +17,7 @@ const TwoFactorModal = ({ isOpen, qrCode, recoveryKey, onClose, onVerify }: TwoF
     const [verificationError, setVerificationError] = useState('');
 
     const handleVerify = async () => {
-        if (!verificationCode || verificationCode.length !== 6) {
+        if (verificationCode?.length !== 6) {
             setVerificationError(
                 t({
                     id: 'settings.account.two_factor.validation.six_digits',

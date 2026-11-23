@@ -94,15 +94,21 @@ const recording = await recordDeveloperApiContract(store);
 function documentedNames() {
   const names = new Set<string>();
   const walk = (node: unknown): void => {
-    if (Array.isArray(node)) return node.forEach(walk);
+    if (Array.isArray(node)) {
+      for (const item of node) walk(item);
+      return;
+    }
     if (!node || typeof node !== 'object') return;
     for (const [key, value] of Object.entries(node)) {
-      if (key === 'properties' && value && typeof value === 'object')
-        Object.keys(value).forEach((name) => names.add(name));
-      if (key === 'required' && Array.isArray(value))
-        value.forEach((name) => typeof name === 'string' && names.add(name));
-      if (key === 'parameters' && Array.isArray(value))
-        value.forEach((parameter: { name: string }) => names.add(parameter.name));
+      if (key === 'properties' && value && typeof value === 'object') {
+        for (const name of Object.keys(value)) names.add(name);
+      }
+      if (key === 'required' && Array.isArray(value)) {
+        for (const name of value) if (typeof name === 'string') names.add(name);
+      }
+      if (key === 'parameters' && Array.isArray(value)) {
+        for (const parameter of value) names.add(parameter.name);
+      }
       walk(value);
     }
   };

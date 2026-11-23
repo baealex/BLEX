@@ -999,7 +999,7 @@ async function mountPageModules(
         if (!url) continue;
         try {
             const module = (await import(/* @vite-ignore */ url.href)) as {
-                mountPage?: (scope: ParentNode) => void | (() => void);
+                mountPage?: (scope: ParentNode) => undefined | (() => void);
             };
             if (generation !== pageModuleGeneration) break;
             if (typeof module.mountPage !== 'function') continue;

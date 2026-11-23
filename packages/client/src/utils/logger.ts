@@ -23,7 +23,7 @@ class Logger {
     }
 
     public debug(message: string, ...args: unknown[]) {
-        if ((import.meta as any).env.DEV) {
+        if (import.meta.env.DEV) {
             console.debug(message, ...args);
         }
     }

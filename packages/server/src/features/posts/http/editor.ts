@@ -59,7 +59,7 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
 
   routes.get<{ Params: { slug: string } }>('/write/preview/:slug', async (request, reply) => {
     const account = await currentAccount(request, db, options);
-    if (!account || account.role !== 'EDITOR') return notFound(reply);
+    if (account?.role !== 'EDITOR') return notFound(reply);
     const post = await readDraftPreview(db, account.id, request.params.slug);
     if (!post) return notFound(reply);
     const presentation = await readPostPresentation(db, post);
@@ -136,7 +136,7 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
         const viewer = await currentAccount(request, db, options);
         const mode = field(queryObject(request).mode);
         if (mode === 'edit') {
-          if (!viewer || viewer.role !== 'EDITOR' || viewer.id !== post.authorId) return notFound(reply);
+          if (viewer?.role !== 'EDITOR' || viewer.id !== post.authorId) return notFound(reply);
           const content = sanitizePostHtml(post.contentHtml);
           const tags = await postTags(db, post.id);
           return done({ ...apiPostBase(post, content), tags });

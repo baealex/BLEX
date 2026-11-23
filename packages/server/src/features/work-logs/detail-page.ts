@@ -6,7 +6,6 @@ import { type WorkLogRow, countEntries, readEntries } from './services/logs.js';
 import { countShares, readShares } from './services/shares.js';
 import {
   PAGE_SIZE,
-  type WorkLogOptions,
   type WorkLogUser,
   csrfCookieValue,
   html,
@@ -48,7 +47,6 @@ export async function renderDetailPage(
   request: FastifyRequest,
   reply: FastifyReply,
   db: PrismaClient,
-  options: WorkLogOptions,
   user: WorkLogUser,
   log: WorkLogRow,
   state: {
