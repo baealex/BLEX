@@ -168,7 +168,7 @@ test('renders the comment application with 3.x login and owner controls', async 
   try {
     const anonymous = (await fixture.app.inject('/@writer/open-post')).body;
     assert.ok(anonymous.includes('data-blex-post-comments'));
-    assert.ok(anonymous.includes('src="/assets/blex/comments.js"'));
+    assert.ok(anonymous.includes('id="blex-post-page-data"'));
     assert.ok(
       anonymous.includes('data-blex-login-next="/@writer/open-post?reply_to=11#post-comments"'),
       'a reply can target another reply',

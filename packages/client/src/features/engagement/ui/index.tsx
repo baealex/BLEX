@@ -142,18 +142,6 @@ export function AuthorHeader(props: AuthorHeaderProps) {
     );
 }
 
-export function PostComments(props: ReaderActionsProps) {
-    const model = commentsModel(props.view, props.csrfToken, props.returnTo ?? defaultPostPath(props.view));
-    return (
-        <>
-            <div data-blex-post-comments="" data-model={JSON.stringify(model)}>
-                <PostCommentsApp model={model} />
-            </div>
-            <script type="module" src="/assets/blex/comments.js" data-blex-page-module="comments" />
-        </>
-    );
-}
-
 export function ReaderActions(props: ReaderActionsProps) {
     const { view } = props;
     const returnTo = props.returnTo ?? defaultPostPath(view);

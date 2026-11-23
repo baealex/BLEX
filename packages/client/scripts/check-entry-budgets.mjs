@@ -114,11 +114,7 @@ const budgets = [
     },
     {
         build: 'client',
-        entries: [
-            ...publicPageEntries,
-            'src/features/engagement/ui/comments-client.tsx',
-            'src/features/posts/code-blocks-client.ts'
-        ],
+        entries: [...publicPageEntries, 'src/features/posts/post-page.tsx', 'src/features/posts/code-blocks-client.ts'],
         label: 'public post page scripts',
         maxInitialBytes: 430 * 1024,
         maxInitialGzipBytes: 141 * 1024
@@ -324,6 +320,20 @@ for (const budget of assetBudgets) {
         for (const violation of violations) {
             console.error(`- ${violation}`);
         }
+    }
+}
+
+// These entries load through redirecting /assets/blex aliases, and browsers key modules by the requested URL.
+// A chunk that imports one by its hashed file would run it a second time.
+const redirectedEntries = new Set([...publicPageEntries, 'src/application/screen-host/client.ts']);
+
+for (const [key, item] of Object.entries(builds.client.manifest)) {
+    const imported = [...(item.imports ?? []), ...(item.dynamicImports ?? [])].filter((name) =>
+        redirectedEntries.has(name)
+    );
+    if (imported.length > 0) {
+        hasFailure = true;
+        console.error(`${key} imports a redirected entry and would run it twice: ${imported.join(', ')}`);
     }
 }
 

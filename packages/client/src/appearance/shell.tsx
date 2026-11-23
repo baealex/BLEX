@@ -306,7 +306,16 @@ export function SiteHeader({
     );
 }
 
-export function SiteFooter({ brand, locale = getDocumentLocale() }: { brand?: Brand; locale?: SiteLocale }) {
+export function SiteFooter({
+    brand,
+    locale = getDocumentLocale(),
+    year = new Date().getFullYear()
+}: {
+    brand?: Brand;
+    locale?: SiteLocale;
+    /** Set by pages that hydrate, so the browser's clock cannot change the server's text. */
+    year?: number;
+}) {
     return (
         <footer className="mt-auto border-t border-line-light bg-surface">
             <div className="mx-auto max-w-7xl px-4 py-12 md:px-6">
@@ -329,7 +338,7 @@ export function SiteFooter({ brand, locale = getDocumentLocale() }: { brand?: Br
                 <div className="flex flex-col items-center gap-3">
                     <SiteLogo brand={brand} small />
                     <p className="text-xs text-content-hint">
-                        © {new Date().getFullYear()} {brand?.siteName ?? 'BLEX'}. All rights reserved.
+                        {`© ${year} ${brand?.siteName ?? 'BLEX'}. All rights reserved.`}
                     </p>
                 </div>
             </div>

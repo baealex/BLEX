@@ -304,15 +304,19 @@ function bindRouteElements() {
             if (!signal.aborted) mountAuthorHeatmaps(signal);
         });
     }
-    if (/(?:^|; )blex_telegram_hint=/.test(document.cookie)) {
-        // The prompt is optional, and its cookie stays so the next page can try again.
-        void import('../features/engagement/ui/telegram-hint').then(
-            ({ showTelegramHint }) => {
-                if (!signal.aborted) showTelegramHint(signal);
-            },
-            () => undefined
-        );
-    }
+    // A mounted post page shows this prompt from its own tree, and reports when it could not mount.
+    if (!document.querySelector('[data-blex-post-page]')) offerTelegramHint(signal);
+}
+
+function offerTelegramHint(signal: AbortSignal) {
+    if (!/(?:^|; )blex_telegram_hint=/.test(document.cookie)) return;
+    // The prompt is optional, and its cookie stays so the next page can try again.
+    void import('../features/engagement/ui/telegram-hint').then(
+        ({ showTelegramHint }) => {
+            if (!signal.aborted) showTelegramHint(signal);
+        },
+        () => undefined
+    );
 }
 
 function handleGlobalClick(event: MouseEvent) {
@@ -402,6 +406,9 @@ function activateClientBindings() {
 systemTheme.addEventListener('change', () => setTheme(undefined, hydrated && localeReady));
 document.addEventListener('blex:before-page-change', handleBeforePageChange);
 document.addEventListener('blex:page-change', handlePageChange);
+document.addEventListener('blex:post-page-unmounted', () => {
+    if (routeController) offerTelegramHint(routeController.signal);
+});
 
 let localeReady = false;
 setTheme(undefined, false);

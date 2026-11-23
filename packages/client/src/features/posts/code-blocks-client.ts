@@ -1,15 +1,17 @@
-import { createElement } from 'react';
-import { renderIsland } from '../../application/island';
 import {
     getLanguageLabel,
     getLanguageLoader,
     highlightElement,
     registerLanguage
 } from '../editor/tiptap/utils/languages';
-import { CodeBlockHeader } from './code-block-header';
+
+export interface DecoratedCodeBlock {
+    code: HTMLElement;
+    header: HTMLElement;
+    label: string;
+}
 
 const loadedLanguages = new Set<string>();
-const activeMounts = new WeakMap<ParentNode, () => void>();
 const decoratedHeaders = new WeakMap<HTMLElement, HTMLElement>();
 
 function languageOf(code: HTMLElement) {
@@ -49,33 +51,22 @@ function headerFor(code: HTMLElement): HTMLElement | null {
     return header;
 }
 
-async function decorateAll(blocks: HTMLElement[], signal: AbortSignal) {
+/** Highlights the blocks in `body` and returns the header each one needs its controls rendered into. */
+export async function decorateCodeBlocks(body: ParentNode, signal: AbortSignal): Promise<DecoratedCodeBlock[]> {
+    const blocks = Array.from(body.querySelectorAll<HTMLElement>('pre > code[class*="language-"]'));
     const languages = new Set(blocks.map(languageOf).filter((language): language is string => language !== null));
     await Promise.all(Array.from(languages, loadLanguage));
-    if (signal.aborted) return;
+    if (signal.aborted) return [];
+    const decorated: DecoratedCodeBlock[] = [];
     for (const code of blocks) {
         const language = languageOf(code);
         const header = language ? headerFor(code) : null;
         if (language && header)
-            renderIsland(header, createElement(CodeBlockHeader, { code, label: getLanguageLabel(language) }), signal);
+            decorated.push({
+                code,
+                header,
+                label: getLanguageLabel(language)
+            });
     }
-}
-
-export function mountPage(scope: ParentNode): (() => void) | undefined {
-    const active = activeMounts.get(scope);
-    if (active) return active;
-    const blocks = Array.from(scope.querySelectorAll<HTMLElement>('.blog-post-content pre > code[class*="language-"]'));
-    if (!blocks.length) return undefined;
-    const controller = new AbortController();
-    const cleanup = () => {
-        controller.abort();
-        activeMounts.delete(scope);
-    };
-    activeMounts.set(scope, cleanup);
-    void decorateAll(blocks, controller.signal);
-    return cleanup;
-}
-
-if (typeof document !== 'undefined' && !document.getElementById('blex-application')) {
-    mountPage(document);
+    return decorated;
 }

@@ -9,11 +9,13 @@ import {
     createRouter,
     type RouterHistory
 } from '@tanstack/react-router';
-import { useLayoutEffect, useState } from 'react';
+import { use, useEffect, useLayoutEffect, useState } from 'react';
 import { ApplicationFrame, type ApplicationView } from './frame.js';
 import { openLoginPromptFrom } from './login-prompt.js';
 import { opensOutsideApplication, type BlexNavigateDetail } from './navigation.js';
+import { postBodySelector, postPageDataSelector } from './route-data.js';
 import type { SiteHeaderProps } from '../appearance/shell.js';
+import type { PostPageData } from '../features/posts/post-page-data';
 
 interface HeadLink {
     attributes: Array<[string, string]>;
@@ -52,10 +54,25 @@ interface ApplicationDocument {
     url: string;
     head: PageHead;
     bodyAttributes: Array<[string, string]>;
-    pageModules: Array<{ name: 'login' | 'editor' | 'comments' | 'code-blocks' | 'screen'; source: string }>;
+    pageModules: Array<{ name: 'login' | 'editor' | 'screen'; source: string }>;
     needsHcaptcha: boolean;
     screen: ScreenData | null;
+    post: PostDocument | null;
 }
+
+/** A post's client data and the sanitized body read back from the server markup. */
+interface PostDocument {
+    data: PostPageData;
+    bodyHtml: string;
+    revision: number;
+    /** True once this document's post page has committed in the React tree. */
+    mounted: boolean;
+    /** Resolves when the page has mounted or can no longer mount. */
+    settled: Promise<void>;
+    settle: () => void;
+}
+
+type PostPageComponent = typeof import('../features/posts/post-page')['PostPage'];
 
 interface PageChangeDetail {
     from: string;
@@ -78,9 +95,12 @@ let currentHistoryKey = 'default';
 let hasCommittedInitialDocument = false;
 let router: ApplicationRouter | null = null;
 let navigationType: PageChangeDetail['navigationType'] = 'PUSH';
-let showApplicationPage: ((page: ApplicationDocument) => void) | null = null;
+let showApplicationPage: ((view: ApplicationView) => void) | null = null;
 let visitingFromApplication = false;
 let screenGlobalNames: string[] = [];
+let postRevision = 0;
+let postPageRequest: Promise<PostPageComponent> | null = null;
+const postPageWaitMs = 3000;
 const stagedDocuments = new Map<string, ApplicationDocument>();
 const pendingPostForms = new WeakSet<HTMLFormElement>();
 const activePostRequests = new Set<AbortController>();
@@ -212,15 +232,7 @@ function pageModuleSources(source: Document): ApplicationDocument['pageModules']
         .map((script): ApplicationDocument['pageModules'][number] | null => {
             const name = script.dataset.blexPageModule;
             const src = script.getAttribute('src');
-            if (
-                (name !== 'login' &&
-                    name !== 'editor' &&
-                    name !== 'comments' &&
-                    name !== 'code-blocks' &&
-                    name !== 'screen') ||
-                !src
-            )
-                return null;
+            if ((name !== 'login' && name !== 'editor' && name !== 'screen') || !src) return null;
             return {
                 name,
                 source: src
@@ -234,7 +246,11 @@ function bodyAttributes(source: Document): Array<[string, string]> {
 }
 
 function readScriptJson(source: Document, id: string): unknown {
-    const text = source.getElementById(id)?.textContent;
+    return parseElementJson(source.getElementById(id));
+}
+
+function parseElementJson(element: Element | null): unknown {
+    const text = element?.textContent;
     if (!text) return undefined;
     try {
         return JSON.parse(text);
@@ -264,6 +280,113 @@ function applyScreenData(screen: ScreenData | null): void {
     }
 }
 
+function readPostDocument(source: Document, content: Element): PostDocument | null {
+    const data = parseElementJson(source.querySelector(postPageDataSelector));
+    const body = content.querySelector(postBodySelector);
+    if (!isRecord(data) || typeof data.postPath !== 'string' || !body) return null;
+    postRevision += 1;
+    let settle = () => {};
+    const settled = new Promise<void>((resolve) => {
+        settle = resolve;
+    });
+    return {
+        data: data as unknown as PostPageData,
+        bodyHtml: body.innerHTML,
+        revision: postRevision,
+        mounted: false,
+        settled,
+        settle
+    };
+}
+
+function loadPostPage(): Promise<PostPageComponent> {
+    postPageRequest ??= import('../features/posts/post-page').then(
+        ({ PostPage }) => PostPage,
+        (error: unknown) => {
+            postPageRequest = null;
+            throw error;
+        }
+    );
+    return postPageRequest;
+}
+
+function PostRoute({ post, PostPage }: { post: PostDocument; PostPage: PostPageComponent }) {
+    useEffect(() => {
+        post.mounted = true;
+        post.settle();
+    }, [post]);
+
+    return <PostPage data={post.data} bodyHtml={post.bodyHtml} revision={post.revision} />;
+}
+
+function LoadingPostRoute({ post, loading }: { post: PostDocument; loading: Promise<PostPageComponent> }) {
+    return <PostRoute post={post} PostPage={use(loading)} />;
+}
+
+/** The first post hydrates whenever its code arrives, so the router and header never wait for it. */
+function hydratePostWhenLoaded(page: ApplicationDocument): void {
+    const { post } = page;
+    if (!post) return;
+    const request = loadPostPage();
+    // A rejection must not reach React, which would discard the readable server markup.
+    const loading = request.catch(() => new Promise<PostPageComponent>(() => {}));
+    page.view = {
+        ...page.view,
+        content: <LoadingPostRoute post={post} loading={loading} />
+    };
+    request.catch((error: unknown) => {
+        console.error('The post page could not be loaded.', error);
+        if (currentDocument && currentDocument !== page) return;
+        page.view = {
+            ...page.view,
+            content: undefined
+        };
+        showApplicationPage?.(page.view);
+        post.settle();
+    });
+}
+
+/** After a navigation, a post that cannot load in time stays as server markup and ignores its late code. */
+async function preparePostContent(page: ApplicationDocument): Promise<void> {
+    const { post } = page;
+    if (!post || page.view.content !== undefined) return;
+    let timer: number | undefined;
+    const PostPage = await Promise.race([
+        loadPostPage().catch((error: unknown) => {
+            console.error('The post page could not be loaded.', error);
+            return null;
+        }),
+        new Promise<null>((resolve) => {
+            timer = window.setTimeout(() => resolve(null), postPageWaitMs);
+        })
+    ]);
+    window.clearTimeout(timer);
+    if (!PostPage) return;
+    page.view = {
+        ...page.view,
+        html: '',
+        content: <PostRoute post={post} PostPage={PostPage} />
+    };
+}
+
+/** Hands browser-only prompts back to the site script when this document's post page did not mount. */
+async function announceUnmountedPost(page: ApplicationDocument): Promise<void> {
+    const { post } = page;
+    if (!post) return;
+    if (page.view.content !== undefined) {
+        await Promise.race([
+            post.settled,
+            new Promise((resolve) => {
+                window.setTimeout(resolve, postPageWaitMs);
+            })
+        ]);
+    }
+    // A page about to be replaced leaves the one-time prompt for the next document.
+    const replacing = activePostRequests.size > 0 || router?.state.isLoading;
+    if (currentDocument === page && !post.mounted && !replacing)
+        document.dispatchEvent(new CustomEvent('blex:post-page-unmounted'));
+}
+
 function readApplicationDocument(source: Document, url: string): ApplicationDocument | null {
     if (!source.head.querySelector('meta[name="blex-application"][content="1"]')) return null;
     const root = source.getElementById('blex-application');
@@ -278,18 +401,20 @@ function readApplicationDocument(source: Document, url: string): ApplicationDocu
         return null;
     }
     const screen = readScreenData(source, content);
+    const post = readPostDocument(source, content);
     return {
         view: {
             header,
             html: content.innerHTML,
-            contentKey: screen ? pageRequestKey(pageUrl) : undefined
+            contentKey: post ? `post:${post.data.postPath}` : screen ? pageRequestKey(pageUrl) : undefined
         },
         url: pageUrl.href,
         head: collectHead(source, pageUrl),
         bodyAttributes: bodyAttributes(source),
         pageModules: pageModuleSources(source),
         needsHcaptcha: hasTrustedHcaptchaScript(source, pageUrl),
-        screen
+        screen,
+        post
     };
 }
 
@@ -322,7 +447,7 @@ async function loadApplicationDocument({
     const staged = stagedDocuments.get(pageRequestKey(requestUrl));
     if (staged) {
         stagedDocuments.delete(pageRequestKey(requestUrl));
-        await loadPageStylesheets(staged);
+        await Promise.all([preparePostContent(staged), loadPageStylesheets(staged)]);
         if (signal.aborted) throw new DOMException('Navigation was cancelled.', 'AbortError');
         beginPageChange(staged.url);
         return staged;
@@ -370,7 +495,7 @@ async function loadApplicationDocument({
         throw new DOMException('Navigation was redirected.', 'AbortError');
     }
 
-    await loadPageStylesheets(page);
+    await Promise.all([preparePostContent(page), loadPageStylesheets(page)]);
     if (signal.aborted) throw new DOMException('Navigation was cancelled.', 'AbortError');
     beginPageChange(page.url);
     return page;
@@ -1195,6 +1320,7 @@ function commitApplicationPage(page: ApplicationDocument, hash: string): void {
                 to: page.url,
                 navigationType: changeType
             });
+            void announceUnmountedPost(page);
         });
     }
     hasCommittedInitialDocument = true;
@@ -1221,19 +1347,21 @@ async function renderLoadedPage(activeRouter: ApplicationRouter): Promise<void> 
     }
     if (!isCurrentPage()) return;
     if (page.head.lang) document.documentElement.lang = page.head.lang;
-    flushSync(() => showApplicationPage?.(page));
+    flushSync(() => showApplicationPage?.(page.view));
     commitApplicationPage(page, window.location.hash);
 }
 
 function ApplicationRoute({ initialPage }: { initialPage: ApplicationDocument }) {
-    const [page, setPage] = useState(initialPage);
+    const [view, setView] = useState(initialPage.view);
 
     useLayoutEffect(() => {
-        showApplicationPage = setPage;
+        showApplicationPage = setView;
+        // The post chunk may have failed while this first render was in progress.
+        setView(initialPage.view);
         if (!hasCommittedInitialDocument) commitApplicationPage(initialPage, window.location.hash);
     }, [initialPage]);
 
-    return <ApplicationFrame view={page.view} />;
+    return <ApplicationFrame view={view} />;
 }
 
 declare global {
@@ -1278,10 +1406,11 @@ if (appRoot && initialDocument) {
     history.scrollRestoration = initialDocument.screen ? 'auto' : 'manual';
     const appRouter = createApplicationRouter();
     router = appRouter;
+    hydratePostWhenLoaded(initialDocument);
     void activateDocumentLocale()
         .then(() => appRouter.load())
         .then(() => {
-            // The page body is server HTML, so this router owns history and loading while React renders one stable frame.
+            // Most page bodies are server HTML, so this router owns history and loading while React renders one stable frame.
             appRouter.history.subscribe(({ location, action }) => {
                 navigationType = action.type === 'PUSH' || action.type === 'REPLACE' ? action.type : 'POP';
                 if (!appRouter.state.isLoading && staysInActiveScreen(location.pathname)) {

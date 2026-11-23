@@ -4,7 +4,7 @@ export { SiteIcon } from './appearance/icons';
 export { SiteFooter, SiteHeader, SiteTheme } from './appearance/shell';
 export { LoginForm } from './features/auth/ui/login-form';
 export { AuthPanel, authField, authInput, authSubmit } from './features/auth/ui/panel';
-export { AuthorHeader, PostComments, ReaderActions } from './features/engagement/ui';
+export { AuthorHeader, ReaderActions } from './features/engagement/ui';
 export { loginPromptProps } from './features/engagement/ui/login-prompt';
 export * as commentModel from './features/engagement/ui/comment-model';
 import { i18n } from '@lingui/core';

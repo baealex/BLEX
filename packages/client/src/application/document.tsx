@@ -10,8 +10,15 @@ export function scriptJson(value: unknown): string {
     return JSON.stringify(value).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
 }
 
+/**
+ * How the browser takes over a page's content:
+ * `static` keeps it as server markup, `island` hydrates part of it from a separate root,
+ * and `tree` hydrates all of it inside the application root.
+ */
+export type ContentMode = 'static' | 'island' | 'tree';
+
 // A page supplies its React head, header and content once, for direct visits and router loads.
-export function renderApplicationDocument(page: ReactElement, hydrateContent = false): string {
+export function renderApplicationDocument(page: ReactElement, mode: ContentMode = 'static'): string {
     const siblings = Children.toArray((page as Element).props.children);
     const head = siblings.find((node): node is Element => isValidElement(node) && node.type === 'head');
     const body = siblings.find((node): node is Element => isValidElement(node) && node.type === 'body');
@@ -26,7 +33,17 @@ export function renderApplicationDocument(page: ReactElement, hydrateContent = f
         else content.push(node);
     }
 
-    const html = hydrateContent ? renderToString(<>{content}</>) : renderToStaticMarkup(<>{content}</>);
+    const view =
+        mode === 'tree'
+            ? {
+                  header,
+                  html: '',
+                  content: <>{content}</>
+              }
+            : {
+                  header,
+                  html: mode === 'island' ? renderToString(<>{content}</>) : renderToStaticMarkup(<>{content}</>)
+              };
     const headContent = Children.toArray(head.props.children);
     if (!headContent.some((node) => isValidElement(node) && node.type === SiteTheme))
         headContent.unshift(<SiteTheme key="site-theme" />);
@@ -41,12 +58,7 @@ export function renderApplicationDocument(page: ReactElement, hydrateContent = f
         body,
         {},
         <div id="blex-application" className="contents" data-header={JSON.stringify(header)}>
-            <ApplicationFrame
-                view={{
-                    header,
-                    html
-                }}
-            />
+            <ApplicationFrame view={view} />
         </div>,
         ...scripts
     );

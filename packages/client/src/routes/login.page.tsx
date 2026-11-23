@@ -27,6 +27,6 @@ export default function renderPage({ brand, loginAssets, model }: PageProps['log
                 <script type="module" src={loginAssets.script} data-blex-page-module="login" />
             </body>
         </html>,
-        true
+        'island'
     );
 }

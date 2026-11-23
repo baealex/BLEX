@@ -37,7 +37,17 @@ function claimShowing(username: string): boolean {
     }
 }
 
-function TelegramHint({ raised, onClose }: { raised: boolean; onClose: () => void }) {
+export interface TelegramHintProps {
+    raised: boolean;
+    onClose: () => void;
+}
+
+/** Reads the server's note and reserves its single showing. */
+export function claimTelegramHint(): boolean {
+    return claimShowing(takeHintUsername());
+}
+
+export function TelegramHint({ raised, onClose }: TelegramHintProps) {
     useEffect(() => {
         const onKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Escape') onClose();
@@ -102,7 +112,7 @@ function TelegramHint({ raised, onClose }: { raised: boolean; onClose: () => voi
 }
 
 export function showTelegramHint(signal: AbortSignal): void {
-    if (!claimShowing(takeHintUsername())) return;
+    if (!claimTelegramHint()) return;
     const raised = document.querySelector('.post-action-dock') !== null;
     const close = renderBodyIsland(<TelegramHint raised={raised} onClose={() => close()} />, signal);
 }
