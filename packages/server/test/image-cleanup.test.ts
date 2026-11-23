@@ -73,7 +73,9 @@ test('image cleanup leaves the database free while it reads a file', async () =>
   });
   try {
     const plan = await buildImageCleanupPlan(db, fixture.mediaRoot, { target: 'content' });
-    const { contentHash } = plan.unusedFiles[0]!;
+    const candidate = plan.unusedFiles[0];
+    assert.ok(candidate);
+    const { contentHash } = candidate;
     const cleanup = executeImageCleanupPlan(db, fixture.mediaRoot, plan, async () => {
       reading();
       await held;
