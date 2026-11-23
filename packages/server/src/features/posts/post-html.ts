@@ -227,6 +227,45 @@ export function sanitizePostHtml(html: string): string {
   return sanitizeHtml(html, postHtmlOptions);
 }
 
+/**
+ * Any member can write an about section, while posts need the editor role. Site classes and free-form styles would
+ * let a member turn a link into a page-wide overlay, so this keeps only the markup the Markdown renderer writes.
+ */
+const aboutHtmlOptions: sanitizeHtml.IOptions = {
+  ...postHtmlOptions,
+  allowedClasses: {
+    '*': [],
+    a: ['footnote-ref', 'footnote-backref'],
+    code: ['language-*'],
+    div: ['footnote'],
+    figure: ['col-1', 'col-2', 'col-3'],
+    li: ['task-list-item'],
+    ol: ['task-list'],
+    ul: ['task-list'],
+    video: ['lazy'],
+  },
+  allowedStyles: {
+    '*': {},
+    div: { 'text-align': [/^center$/] },
+    figure: {
+      'align-items': [/^center$/],
+      display: [/^flex$/],
+      'flex-direction': [/^column$/],
+      'justify-content': [/^center$/],
+      'text-align': [/^center$/],
+    },
+    iframe: {
+      'aspect-ratio': [/^\d{1,3}(?: \/ \d{1,3})?$/],
+      border: [/^0$/],
+      width: [/^100%$/],
+    },
+  },
+};
+
+export function sanitizeAboutHtml(html: string): string {
+  return sanitizeHtml(html, aboutHtmlOptions);
+}
+
 /** Author banners keep the declaration spacing 3.x wrote when it cleaned their inline styles. */
 export function sanitizeBannerHtml(html: string): string {
   return sanitizePostHtml(html)
