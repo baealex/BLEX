@@ -3,7 +3,7 @@ import { SiteIcon } from '~/appearance/icons';
 import { PageLayout } from '~/features/discovery/layout';
 import { EmptyState, Pagination } from '~/features/discovery/post-list';
 import { DropdownFilter, QueryFilter } from '~/features/discovery/search-ui';
-import type { PageProps } from '~/contracts/pages';
+import type { PageProps } from '@blex/contracts/pages';
 
 export default function renderPage({
     meta,

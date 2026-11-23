@@ -1,7 +1,7 @@
 import { getDocumentLocale } from '../../i18n/locale.js';
 import { createHash } from 'node:crypto';
 import type { ReactNode } from 'react';
-import type { PostRow, StoredDate } from '../../contracts/public';
+import type { PostRow, StoredDate } from '@blex/contracts/public';
 
 export function pageUrl(path: string, params: URLSearchParams, keys: string[], page: number): string {
     const next = new URLSearchParams();

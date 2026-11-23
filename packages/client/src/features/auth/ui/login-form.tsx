@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'r
 import { navigateTo } from '../../../application/navigation.js';
 import { recoveredAccountPath } from '../recovery-path.js';
 import { AuthPanel } from './panel.js';
-import type { LoginModel } from '../../../contracts/views';
+import type { LoginModel } from '@blex/contracts/views';
 
 export type { LoginModel };
 

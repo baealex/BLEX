@@ -2,7 +2,7 @@ import { ui } from '../i18n/public-ui.js';
 import { PageLayout } from '~/features/discovery/layout';
 import { EmptyState } from '~/features/discovery/post-list';
 import { SearchPagination, SearchResultCard, searchForm } from '~/features/discovery/search-ui';
-import type { PageProps } from '~/contracts/pages';
+import type { PageProps } from '@blex/contracts/pages';
 
 export default function renderPage({
     meta,

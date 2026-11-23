@@ -11,7 +11,7 @@ BLEX renders pages with React on the server and uses a shared TanStack Router ap
 | Login and reader interactions | `packages/client/src/features/auth/ui/`, `packages/client/src/features/engagement/ui/` |
 | Web host and browser configuration | `packages/server/src/application/screen-host/` |
 | Client routes, where each URL is a file | `packages/client/src/routes/` |
-| Data each server-rendered page receives | `packages/client/src/contracts/` |
+| Types for the data each server-rendered page receives | `packages/contracts/src/` |
 | Screens and feature code | `packages/client/src/features/<domain>/` |
 | Shared UI primitives | `packages/client/src/ui/` |
 | Tiptap editor | `packages/client/src/features/editor/tiptap/` |
@@ -22,7 +22,7 @@ Public pages and React screens share the theme, prose, and syntax styles in `pac
 
 ## Routes
 
-Add a client URL by adding a file under `packages/client/src/routes/`. A `*.page.tsx` file renders on the server and ships no JavaScript of its own: its server route loads the data and calls `renderPage` with the file's path as the id, and `contracts/pages.d.ts` types those props. Any other route file is a browser route. Keep browser route files thin: they declare the path, access guard, and lazy page, and the page itself lives in `features/<domain>`. The Vite plugin regenerates `src/routeTree.gen.ts`; commit that file and do not edit it by hand.
+Add a client URL by adding a file under `packages/client/src/routes/`. A `*.page.tsx` file renders on the server and ships no JavaScript of its own: its server route loads the data and calls `renderPage` with the file's path as the id, and `packages/contracts/src/pages.d.ts` types those props. Any other route file is a browser route. Keep browser route files thin: they declare the path, access guard, and lazy page, and the page itself lives in `features/<domain>`. The Vite plugin regenerates `src/routeTree.gen.ts`; commit that file and do not edit it by hand.
 
 ## Pages and browser behavior
 

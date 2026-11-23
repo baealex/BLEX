@@ -1,8 +1,4 @@
-import type {
-  ReaderAuthorHeader,
-  ReaderPostLikeState,
-  ReaderPostView,
-} from '../../../../../client/src/contracts/engagement.js';
+import type { ReaderAuthorHeader, ReaderPostLikeState, ReaderPostView } from '@blex/contracts/engagement';
 import type { PrismaClient } from '@prisma/client';
 import { publicComments } from './comments.js';
 import { subscriptionState } from './subscriptions.js';

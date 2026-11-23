@@ -2,7 +2,7 @@ import { AuthorActivitySection } from '~/features/authors/activity-ui';
 import { AboutSection, authorTabs, featuredPostsSection, profileHeader } from '~/features/authors/profile-ui';
 import { NoticeSection, PageLayout } from '~/features/discovery/layout';
 import { ReactFragment } from '~/features/discovery/search-ui';
-import type { PageProps } from '~/contracts/pages';
+import type { PageProps } from '@blex/contracts/pages';
 
 export default function renderPage({
     meta,

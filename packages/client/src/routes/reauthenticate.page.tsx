@@ -2,7 +2,7 @@ import { getDocumentLocale } from '../i18n/locale.js';
 import { ui } from '../i18n/public-ui.js';
 import { SiteFooter, SiteHeader, SiteTheme } from '~/appearance/shell';
 import { renderApplicationDocument } from '~/application/document';
-import type { PageProps } from '~/contracts/pages';
+import type { PageProps } from '@blex/contracts/pages';
 
 function reauthenticationPath(next: string) {
     return `/reauthenticate?${new URLSearchParams({ next })}`;

@@ -3,20 +3,20 @@ import { ui } from '../../../i18n/public-ui.js';
 import { SiteIcon, type SiteIconName } from '~/appearance/icons';
 import { SiteFooter, SiteHeader, SiteTheme } from '~/appearance/shell';
 import { renderApplicationDocument, scriptJson } from '~/application/document';
-import type { ReaderPostView } from '~/contracts/engagement';
+import type { ReaderPostView } from '@blex/contracts/engagement';
 import type {
     PostPresentation,
     PostSeriesEntry,
     PostSeriesNavigation,
     PublicPost,
     RelatedPost
-} from '~/contracts/pages';
+} from '@blex/contracts/pages';
 import { PostComments } from '~/features/engagement/ui';
 import { loginPromptProps } from '~/features/engagement/ui/login-prompt';
 import { publicPostPath } from '~/features/posts/paths';
 import { storedDateText } from '~/lib/date-format';
 import type { ReactNode } from 'react';
-import type { PageProps } from '~/contracts/pages';
+import type { PageProps } from '@blex/contracts/pages';
 
 function articleImage(path: string): string | undefined {
     if (!path || /[\\\u0000-\u001f\u007f]/.test(path) || path.startsWith('//')) return;

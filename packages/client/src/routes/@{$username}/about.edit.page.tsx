@@ -3,7 +3,7 @@ import { AboutPageEditor } from '~/features/authors/about-editor';
 import { authorPath, authorTabs, profileHeader } from '~/features/authors/profile-ui';
 import { PageLayout } from '~/features/discovery/layout';
 import { ReactFragment } from '~/features/discovery/search-ui';
-import type { PageProps } from '~/contracts/pages';
+import type { PageProps } from '@blex/contracts/pages';
 
 export default function renderPage({
     meta,

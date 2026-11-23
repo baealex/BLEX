@@ -4,7 +4,7 @@ import { authorPath } from '~/features/authors/profile-ui';
 import { PageLayout } from '~/features/discovery/layout';
 import { EmptyState, Pagination, postPath } from '~/features/discovery/post-list';
 import { avatarUrl, dateLabel, formatPostDate } from '~/features/discovery/view-helpers';
-import type { PageProps } from '~/contracts/pages';
+import type { PageProps } from '@blex/contracts/pages';
 
 export default function renderPage({
     meta,

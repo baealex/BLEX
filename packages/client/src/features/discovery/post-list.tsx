@@ -3,7 +3,7 @@ import { timeSince } from '../../lib/date-format';
 import type { ReactNode } from 'react';
 import { SiteIcon, type SiteIconName } from '../../appearance/icons';
 import { loginPromptProps } from '../engagement/ui/login-prompt';
-import type { CardLikes, PostRow } from '../../contracts/public';
+import type { CardLikes, PostRow } from '@blex/contracts/public';
 import { avatarUrl, dateLabel, dateValue, mediaUrl, pageUrl } from './view-helpers';
 
 export function postPath(post: Pick<PostRow, 'authorUsername' | 'slug'>): string {

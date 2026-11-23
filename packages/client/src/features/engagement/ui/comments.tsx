@@ -1,7 +1,7 @@
 import { ui } from '../../../i18n/public-ui.js';
 import { SiteIcon, type SiteIconName } from '../../../appearance/icons.js';
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type RefObject } from 'react';
-import type { CommentPayload } from '../../../contracts/engagement';
+import type { CommentPayload } from '@blex/contracts/engagement';
 import {
     appendCommentToTree,
     buildReplySubmissionText,

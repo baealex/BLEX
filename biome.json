@@ -62,7 +62,7 @@
   },
   "overrides": [
     {
-      "includes": ["packages/client/**"],
+      "includes": ["packages/client/**", "packages/contracts/**"],
       "formatter": {
         "indentWidth": 4
       },

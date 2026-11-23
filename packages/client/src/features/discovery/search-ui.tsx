@@ -1,7 +1,7 @@
 import { ui } from '../../i18n/public-ui.js';
 import type { ReactNode } from 'react';
 import { SiteIcon } from '../../appearance/icons';
-import type { PostRow } from '../../contracts/public';
+import type { PostRow } from '@blex/contracts/public';
 import { avatarUrl, dateLabel, dateValue, mediaUrl } from './view-helpers';
 import { postPath } from './post-list';
 
