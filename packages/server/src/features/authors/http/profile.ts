@@ -14,11 +14,11 @@ import {
 } from '../../discovery/services/public-posts.js';
 import {
   PAGE_SIZE,
-  PageMeta,
-  PublicPageOptions,
-  SeriesDetailRow,
-  SeriesRow,
-  SubscriptionState,
+  type PageMeta,
+  type PublicPageOptions,
+  type SeriesDetailRow,
+  type SeriesRow,
+  type SubscriptionState,
   canonicalPageUrl,
   dateValue,
   description,

@@ -1,13 +1,13 @@
-import { type PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { readPageChrome } from '../../platform/page-chrome.js';
 import { renderPage } from '../../platform/views.js';
-import { WorkLogRow, countEntries, readEntries } from './services/logs.js';
+import { type WorkLogRow, countEntries, readEntries } from './services/logs.js';
 import { countShares, readShares } from './services/shares.js';
 import {
   PAGE_SIZE,
-  WorkLogOptions,
-  WorkLogUser,
+  type WorkLogOptions,
+  type WorkLogUser,
   csrfCookieValue,
   html,
   isActiveEditor,

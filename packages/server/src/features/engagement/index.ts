@@ -7,7 +7,7 @@ import { timeSince } from '../../platform/date-format.js';
 import { publicPostPath } from '../posts/public-post.js';
 import { done, failure as error } from '../../platform/response.js';
 import {
-  CommentRow,
+  type CommentRow,
   commentBodyLimit,
   commentForViewer,
   commentHtml,
@@ -19,7 +19,7 @@ import { createCommentRateLimiter } from './services/comment-rate-limit.js';
 import { softDeleteComment } from './services/deletions.js';
 import { canSubscribe, mySubscriptions, subscriptionState } from './services/subscriptions.js';
 import {
-  ReaderActionsOptions,
+  type ReaderActionsOptions,
   activeEditor,
   activeUser,
   asBodyObject,

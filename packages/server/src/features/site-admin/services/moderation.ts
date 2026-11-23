@@ -4,7 +4,7 @@ import { softDeleteComment } from '../../engagement/services/deletions.js';
 import { syncPostPublication } from '../../notifications/model.js';
 import { containsLiteral } from '../../posts/data/text-match.js';
 import { publicPostPath } from '../../posts/public-post.js';
-import { ApiResult, isoDate, positiveInteger, recordModeration } from '../shared.js';
+import { type ApiResult, isoDate, positiveInteger, recordModeration } from '../shared.js';
 import type { AdminModeratedComment, AdminModeratedPost, AdminPagination, AdminPostStatus } from '../types.js';
 
 const pageSize = 20;

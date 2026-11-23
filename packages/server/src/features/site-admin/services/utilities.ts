@@ -4,7 +4,7 @@ import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypt
 import { buildImageCleanupPlan, executeImageCleanupPlan, imageCleanupPlanApi } from './image-cleanup.js';
 import { publicPostWhere } from '../../posts/data/visibility.js';
 import { readDatabaseBytes } from '../data/database-size.js';
-import { AdminSettingsOptions, ApiResult, Body, isRecord } from '../shared.js';
+import { type AdminSettingsOptions, type ApiResult, type Body, isRecord } from '../shared.js';
 
 /** Stored with each confirmation and signed into its token, so issued values stay valid. */
 export const utilityActions = {

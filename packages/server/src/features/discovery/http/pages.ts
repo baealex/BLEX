@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
-import { type PrismaClient } from '@prisma/client';
-import { PublicPageOptions } from '../shared.js';
+import type { PrismaClient } from '@prisma/client';
+import type { PublicPageOptions } from '../shared.js';
 import { registerSearchRoutes } from './search.js';
 import { registerHomeRoutes } from './home.js';
 import { registerTagsRoutes } from './tags.js';

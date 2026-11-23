@@ -5,8 +5,8 @@ import { containsLiteral } from '../../posts/data/text-match.js';
 import { removeAccountAttachments, removeAccountData } from '../../auth/delete-account.js';
 import { createPasswordResetToken } from '../../auth/password-reset.js';
 import { revokeAccountTokens } from '../../developer-api/services/token-auth.js';
-import { type AdminManagedUser, type AdminUserList, type AdminInvite } from '../types.js';
-import { ApiResult, isoDate, positiveInteger, recordModeration } from '../shared.js';
+import type { AdminManagedUser, AdminUserList, AdminInvite } from '../types.js';
+import { type ApiResult, isoDate, positiveInteger, recordModeration } from '../shared.js';
 
 /** Posts in the trash do not count toward a member's post total. */
 const countedPosts = { deletedAt: null } satisfies Prisma.PostWhereInput;

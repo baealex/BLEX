@@ -1,9 +1,9 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
 import {
-  AuthorRow,
-  AuthorSocialLink,
-  PublicPageViewer,
-  SubscriptionState,
+  type AuthorRow,
+  type AuthorSocialLink,
+  type PublicPageViewer,
+  type SubscriptionState,
   safeExternalUrl,
 } from '../../discovery/shared.js';
 import { publicPostWhere } from '../../posts/data/visibility.js';

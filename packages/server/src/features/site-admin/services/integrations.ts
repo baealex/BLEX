@@ -1,8 +1,8 @@
 import type { PrismaClient } from '@prisma/client';
 import { createHmac } from 'node:crypto';
 import { encryptSecret, decryptSecret } from '../../auth/encrypted-secret.js';
-import { type AdminIntegrationSettings } from '../types.js';
-import { AdminSettingsOptions, ApiResult, Body, isRecord, isoDate, recordAudit } from '../shared.js';
+import type { AdminIntegrationSettings } from '../types.js';
+import { type AdminSettingsOptions, type ApiResult, type Body, isRecord, isoDate, recordAudit } from '../shared.js';
 
 function readIntegrationRow(db: PrismaClient) {
   return db.integrationSetting.findUnique({

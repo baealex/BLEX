@@ -1,5 +1,5 @@
-import { type PrismaClient } from '@prisma/client';
-import { ActiveUserRow, AuthorRow, DEFAULT_AVATAR, absoluteMediaUrl, localDateOnly } from '../shared.js';
+import type { PrismaClient } from '@prisma/client';
+import { type ActiveUserRow, type AuthorRow, DEFAULT_AVATAR, absoluteMediaUrl, localDateOnly } from '../shared.js';
 
 export function canSubscribe(author: AuthorRow): boolean {
   return author.isActive && author.profileRole === 'EDITOR';

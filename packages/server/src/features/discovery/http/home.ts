@@ -1,13 +1,13 @@
 import { renderPage } from '../../../platform/views.js';
 import type { FastifyInstance } from 'fastify';
-import { type PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import { isoUtcMillis } from '../../../platform/date-format.js';
 import { sanitizePostHtml } from '../../posts/post-html.js';
 import { readCardLikes, readLikedPosts, readPublicPostCount, readPublicPosts } from '../services/public-posts.js';
 import {
   PAGE_SIZE,
-  PageMeta,
-  PublicPageOptions,
+  type PageMeta,
+  type PublicPageOptions,
   canonicalPageUrl,
   description,
   hasUnexpected,

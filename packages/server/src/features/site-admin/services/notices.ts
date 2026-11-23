@@ -1,7 +1,7 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
-import { type AdminNotice } from '../types.js';
+import type { AdminNotice } from '../types.js';
 import { safeNavigationUrl } from './static-pages.js';
-import { ApiResult, Body, isoDate, stringValue } from '../shared.js';
+import { type ApiResult, type Body, isoDate, stringValue } from '../shared.js';
 
 const noticeSelect = {
   id: true,

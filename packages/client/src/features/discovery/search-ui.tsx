@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { SiteIcon } from '../../appearance/icons';
 import type { PostRow } from '../../contracts/public';
 import { avatarUrl, dateLabel, dateValue, mediaUrl } from './view-helpers';

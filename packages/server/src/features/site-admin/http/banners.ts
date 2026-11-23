@@ -1,8 +1,15 @@
-import { type PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import { done as success, failure } from '../../../platform/response.js';
 import { bannerApi, bannerPayload, readBanner, readBanners, saveBanner, saveBannerOrder } from '../services/banners.js';
-import { AdminSettingsOptions, apiAccess, apiJsonBody, csrfValid, editorApiAccess, validRouteId } from '../shared.js';
+import {
+  type AdminSettingsOptions,
+  apiAccess,
+  apiJsonBody,
+  csrfValid,
+  editorApiAccess,
+  validRouteId,
+} from '../shared.js';
 
 export function registerBannersRoutes(routes: FastifyInstance, db: PrismaClient, options: AdminSettingsOptions) {
   routes.get('/v1/banners', async (request, reply) => {

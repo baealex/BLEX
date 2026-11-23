@@ -1,4 +1,4 @@
-import { type PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import { done as success, failure } from '../../../platform/response.js';
 import { deleteBrandAsset, uploadBrandAsset, validateBrandTarget } from '../services/brand-assets.js';
@@ -7,8 +7,8 @@ import { serializeLoginSettings, updateLoginSettings } from '../services/login-s
 import { readSiteRow, serializeSiteSettings, updateSiteSettings } from '../services/site-settings.js';
 import { userListQuery } from '../services/users.js';
 import {
-  AdminSettingsOptions,
-  Body,
+  type AdminSettingsOptions,
+  type Body,
   apiAccess,
   apiJsonBody,
   csrfValid,

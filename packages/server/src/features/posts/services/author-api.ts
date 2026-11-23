@@ -1,7 +1,7 @@
-import { type PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import { descriptionFromHtml, mediaUrl, parseAuthoringPostInput, resolveContent } from './post-content.js';
 import {
-  AuthoringSaveResult,
+  type AuthoringSaveResult,
   PostValidationError,
   assertExpectedUpdatedAt,
   createPost,
@@ -11,7 +11,7 @@ import {
   trashPost,
   updatePost,
 } from './post-store.js';
-import { AuthoringPostInput, AuthoringUser, StoredPost, UserRow, dateAsIso } from '../shared.js';
+import { type AuthoringPostInput, type AuthoringUser, type StoredPost, type UserRow, dateAsIso } from '../shared.js';
 
 export function apiPostBase(post: StoredPost, contentHtml: string): Record<string, unknown> {
   return {

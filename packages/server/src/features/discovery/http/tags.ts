@@ -5,8 +5,8 @@ import { publicPostWhere } from '../../posts/data/visibility.js';
 import { readCardLikes, readPublicPostCount, readPublicPosts } from '../services/public-posts.js';
 import {
   PAGE_SIZE,
-  PublicPageOptions,
-  TagRow,
+  type PublicPageOptions,
+  type TagRow,
   canonicalPageUrl,
   hasUnexpected,
   makeAbsolute,

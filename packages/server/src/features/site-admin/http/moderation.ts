@@ -1,4 +1,4 @@
-import { type PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { done as success, failure } from '../../../platform/response.js';
 import {
@@ -10,8 +10,8 @@ import {
   setModeratedPostHidden,
 } from '../services/moderation.js';
 import {
-  AdminSettingsOptions,
-  ApiResult,
+  type AdminSettingsOptions,
+  type ApiResult,
   apiAccess,
   apiJsonBody,
   csrfValid,

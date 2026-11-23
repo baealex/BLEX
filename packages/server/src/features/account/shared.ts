@@ -1,6 +1,6 @@
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { type PersonalSettingsUser } from './types.js';
+import type { PersonalSettingsUser } from './types.js';
 import { failure } from '../../platform/response.js';
 
 export interface PersonalSettingsOptions {

@@ -12,12 +12,12 @@ import {
   validatePostInput,
 } from './post-content.js';
 import {
-  AuthoringPostInput,
-  DbDate,
+  type AuthoringPostInput,
+  type DbDate,
   POST_URL_MAX,
   RESERVED_URLS,
-  StoredPost,
-  UserRow,
+  type StoredPost,
+  type UserRow,
   dateAsIso,
   field,
 } from '../shared.js';
