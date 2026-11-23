@@ -1,8 +1,6 @@
 import { createHash } from 'node:crypto';
-import { createElement, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import type { PostRow, StoredDate } from '../../contracts/public';
-
-export const h = createElement;
 
 export function pageUrl(path: string, params: URLSearchParams, keys: string[], page: number): string {
     const next = new URLSearchParams();
@@ -69,5 +67,5 @@ export function safeExternalUrl(value: string): string | null {
 
 export function formatPostDate(post: PostRow): ReactNode {
     if (!post.publishedDate) return null;
-    return h('time', { dateTime: dateValue(post.publishedDate) ?? undefined }, dateLabel(post.publishedDate));
+    return <time dateTime={dateValue(post.publishedDate) ?? undefined}>{dateLabel(post.publishedDate)}</time>;
 }

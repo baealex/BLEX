@@ -76,7 +76,7 @@ const budgets = [
         maxInitialGzipBytes: 176 * 1024
     },
     {
-        entries: ['src/screen-runtime.tsx', 'src/features/editor/index.ts'],
+        entries: ['src/screen-runtime.tsx', 'src/features/editor/index.tsx'],
         label: 'post editor screen experience',
         maxInitialBytes: 1475 * 1024,
         maxInitialGzipBytes: 478 * 1024
