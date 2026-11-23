@@ -1,6 +1,6 @@
 import formBody from '@fastify/formbody';
 import type { PrismaClient } from '@prisma/client';
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import type { DeveloperRateLimit } from '../developer-api/services/rate-limit.js';
 import {
   authCookieOptions,
@@ -39,6 +39,23 @@ function signedInBody(user: Parameters<typeof loginBody>[0], spentRecoveryKey: s
   return spentRecoveryKey === undefined ? loginBody(user) : { ...loginBody(user), recoveryKeyUsed: true };
 }
 
+/** A sign-in form posted before the client starts lands on a page instead of the raw JSON response. */
+async function sendFormLoginToPage(request: FastifyRequest, reply: FastifyReply, payload: unknown) {
+  if (request.headers['sec-fetch-dest'] !== 'document' || typeof payload !== 'string') return payload;
+  let result: { status?: string; body?: { security?: boolean } };
+  try {
+    result = JSON.parse(payload);
+  } catch {
+    return payload;
+  }
+  const signedIn = reply.statusCode === 200 && result.status === 'DONE' && !result.body?.security;
+  reply
+    .code(303)
+    .header('Location', signedIn ? '/' : '/login')
+    .removeHeader('Content-Type');
+  return '';
+}
+
 export function registerAuthentication(app: FastifyInstance, db: PrismaClient, siteUrl: URL, config: AuthConfig) {
   const cookieOptions = authCookieOptions(siteUrl);
 
@@ -72,7 +89,7 @@ export function registerAuthentication(app: FastifyInstance, db: PrismaClient, s
       return success(loginBody(user));
     });
 
-    routes.post('/v1/login', async (request, reply) => {
+    routes.post('/v1/login', { onSend: sendFormLoginToPage }, async (request, reply) => {
       if (!validCsrf(request, siteUrl)) return reply.code(403).send(failure('RJ'));
       const { username = '', password = '', code = '', oauth2fa: oauthTwoFactor, oauthToken } = formInput(request);
       const oauthRequest = oauthTwoFactor === true || oauthTwoFactor === 'true' || Boolean(oauthToken);

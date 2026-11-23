@@ -1431,6 +1431,9 @@ if (appRoot && initialDocument) {
                     console.error('BLEX application hydration recovered from an error.', error);
                 }
             });
+        })
+        .catch((error: unknown) => {
+            console.error('BLEX could not start its client, so the page stays as server HTML.', error);
         });
 } else {
     console.error('BLEX client routing was skipped because the application document marker is missing.');

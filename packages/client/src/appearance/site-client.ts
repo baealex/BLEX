@@ -1,5 +1,6 @@
 import { ui } from '../i18n/public-ui.js';
 import { activateDocumentLocale } from '../i18n';
+import { reloadAfterCatalogFailure } from './catalog-recovery';
 import { siteText } from './messages.js';
 import './tailwind.css';
 import './site.scss';
@@ -406,13 +407,18 @@ function activateClientBindings() {
 systemTheme.addEventListener('change', () => setTheme(undefined, hydrated && localeReady));
 document.addEventListener('blex:before-page-change', handleBeforePageChange);
 document.addEventListener('blex:page-change', handlePageChange);
+document.addEventListener('blex:catalog-failed', reloadAfterCatalogFailure);
 document.addEventListener('blex:post-page-unmounted', () => {
     if (routeController) offerTelegramHint(routeController.signal);
 });
 
 let localeReady = false;
 setTheme(undefined, false);
-void activateDocumentLocale().then(() => {
-    localeReady = true;
-    if (hydrated) activateClientBindings();
-});
+void activateDocumentLocale()
+    .then(() => {
+        localeReady = true;
+        if (hydrated) activateClientBindings();
+    })
+    .catch((error: unknown) => {
+        console.error('BLEX could not load the site controls.', error);
+    });
