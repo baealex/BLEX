@@ -1,5 +1,4 @@
 import { getDocumentLocale } from '../../i18n/locale.js';
-import { createHash } from 'node:crypto';
 import type { ReactNode } from 'react';
 import type { PostRow, StoredDate } from '@blex/contracts/public';
 
@@ -20,15 +19,8 @@ export function mediaUrl(path: string | null | undefined): string | null {
     return `/resources/media/${path.replace(/^\/+/, '')}`;
 }
 
-function resourceUrl(path: string): string {
+export function resourceUrl(path: string): string {
     return `/resources/${path.replace(/^\/+/, '')}`;
-}
-
-export function postCover(post: PostRow): string {
-    if (post.image) return mediaUrl(post.image) ?? resourceUrl('assets/images/default-cover-1.jpg');
-    const digest = createHash('md5').update(post.slug).digest('hex');
-    const index = (Number.parseInt(digest.slice(0, 8), 16) % 6) + 1;
-    return resourceUrl(`assets/images/default-cover-${index}.jpg`);
 }
 
 export function avatarUrl(path: string | null | undefined): string {
@@ -61,6 +53,22 @@ export function safeExternalUrl(value: string): string | null {
     try {
         const url = new URL(trimmed);
         return url.protocol === 'https:' || url.protocol === 'http:' ? url.href : null;
+    } catch {
+        return null;
+    }
+}
+
+export function noticeLink(value: string): string | null {
+    const candidate = value.trim();
+    if (!candidate || /[\x00-\x20\x7f\\]/.test(candidate)) return null;
+    const normalized = candidate.replace(/&(?:#0*58|#x0*3a|colon);/gi, ':').replace(/&(?:#0*47|#x0*2f|sol);/gi, '/');
+    if (/^\/\//.test(normalized)) return null;
+    try {
+        const parsed = new URL(normalized, 'https://blex.invalid');
+        if (parsed.username || parsed.password) return null;
+        if (!['http:', 'https:', 'mailto:'].includes(parsed.protocol)) return null;
+        if ((parsed.protocol === 'http:' || parsed.protocol === 'https:') && !parsed.hostname) return null;
+        return normalized;
     } catch {
         return null;
     }
