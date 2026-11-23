@@ -3,9 +3,12 @@ import { ui } from '../../i18n/public-ui.js';
 import type { ReactNode } from 'react';
 import { SiteIcon } from '../../appearance/icons';
 import { SiteFooter, SiteHeader, SiteTheme } from '../../appearance/shell';
-import { renderApplicationDocument, scriptJson } from '../../application/document';
+import { type ContentMode, renderApplicationDocument, scriptJson } from '../../application/document';
+import { discoveryPageDataId } from '../../application/route-data';
 import type { NoticeRow, PageMeta, SiteBrand } from '@blex/contracts/public';
-import { NoticeControls } from './notice-controls';
+import { DiscoveryPage } from './discovery-page';
+import type { DiscoveryPageData } from './discovery-page-data';
+import { noticeLink } from './view-helpers';
 
 export function PublicSiteMark({
     brand,
@@ -49,6 +52,32 @@ export function PublicFooterLinks({ brand }: { brand?: SiteBrand }): ReactNode {
 }
 
 export function PageLayout({ meta, children }: { meta: PageMeta; children: ReactNode }): string {
+    return renderPublicDocument(
+        meta,
+        <>
+            <main>{children}</main>
+            <SiteFooter brand={meta.brand} />
+        </>
+    );
+}
+
+export function renderDiscoveryPage(meta: PageMeta, data: DiscoveryPageData): string {
+    return renderPublicDocument(
+        meta,
+        [
+            <DiscoveryPage key="page" data={data} />,
+            <script
+                key="data"
+                type="application/json"
+                id={discoveryPageDataId}
+                dangerouslySetInnerHTML={{ __html: scriptJson(data) }}
+            />
+        ],
+        'tree'
+    );
+}
+
+function renderPublicDocument(meta: PageMeta, content: ReactNode, mode?: ContentMode): string {
     const robots = meta.brand?.seoEnabled === false ? 'noindex,nofollow' : meta.robots;
     const structuredData = meta.structuredData ? (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: scriptJson(meta.structuredData) }} />
@@ -97,79 +126,15 @@ export function PageLayout({ meta, children }: { meta: PageMeta; children: React
             </head>
             <body>
                 <SiteHeader brand={meta.brand} viewer={meta.viewer} searchPage={meta.searchPage} />
-                <main>{children}</main>
-                <SiteFooter brand={meta.brand} />
+                {content}
             </body>
-        </html>
+        </html>,
+        mode
     );
 }
 
-function noticeLink(value: string): string | null {
-    const candidate = value.trim();
-    if (!candidate || /[\x00-\x20\x7f\\]/.test(candidate)) return null;
-    const normalized = candidate.replace(/&(?:#0*58|#x0*3a|colon);/gi, ':').replace(/&(?:#0*47|#x0*2f|sol);/gi, '/');
-    if (/^\/\//.test(normalized)) return null;
-    try {
-        const parsed = new URL(normalized, 'https://blex.invalid');
-        if (parsed.username || parsed.password) return null;
-        if (!['http:', 'https:', 'mailto:'].includes(parsed.protocol)) return null;
-        if ((parsed.protocol === 'http:' || parsed.protocol === 'https:') && !parsed.hostname) return null;
-        return normalized;
-    } catch {
-        return null;
-    }
-}
-
-export function NoticeSection({ notices, scope }: { notices: NoticeRow[]; scope: 'global' | 'user' }): ReactNode {
+export function NoticeSection({ notices }: { notices: NoticeRow[] }): ReactNode {
     if (!notices.length) return null;
-    if (scope === 'global') {
-        return (
-            <section className="mb-6" aria-label={ui('Site notices')} data-notice-carousel="">
-                {notices.map((notice, index) => {
-                    const href = noticeLink(notice.url);
-                    const content = (
-                        <div className="flex items-center gap-4">
-                            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-surface-subtle text-content-secondary">
-                                <SiteIcon name="speakerphone" className="text-sm" />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                                <div className="mb-1.5 flex items-center gap-2">
-                                    <span className="rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider text-content-hint">
-                                        {ui('Site notice')}
-                                    </span>
-                                    {notices.length > 1 ? (
-                                        <span className="text-[10px] font-medium tabular-nums text-content-hint">{`${index + 1}/${notices.length}`}</span>
-                                    ) : null}
-                                </div>
-                                <h2 className="truncate text-base font-semibold leading-snug text-content">
-                                    {notice.title}
-                                </h2>
-                            </div>
-                            <span className="flex size-9 shrink-0 items-center justify-center rounded-full text-content-hint">
-                                <SiteIcon name="arrow-right" className="text-sm" />
-                            </span>
-                        </div>
-                    );
-                    const props = {
-                        className:
-                            'group block rounded-2xl border border-line/50 bg-transparent px-5 py-4 transition-colors duration-150 hover:border-line/70 active:bg-surface-subtle/40',
-                        'data-notice-slide': ''
-                    };
-                    const Tag = href ? 'a' : 'div';
-                    return (
-                        <Tag key={notice.id} {...props} {...(href ? { href } : {})}>
-                            {content}
-                        </Tag>
-                    );
-                })}
-                {notices.length > 1 ? (
-                    <div className="mt-3 flex items-center justify-center gap-2" data-notice-controls="" hidden={true}>
-                        <NoticeControls count={notices.length} />
-                    </div>
-                ) : null}
-            </section>
-        );
-    }
     return (
         <section className="mb-14" aria-label={ui('Author notices')}>
             <div className="mb-4 flex items-end justify-between gap-4">

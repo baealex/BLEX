@@ -19,6 +19,7 @@ export default defineConfig({
                 fileURLToPath(new URL('./src/features/auth/ui/login-client.tsx', import.meta.url)),
                 // Separate entries keep their shared code out of the application entry, which must run only once.
                 fileURLToPath(new URL('./src/features/posts/post-page.tsx', import.meta.url)),
+                fileURLToPath(new URL('./src/features/discovery/discovery-page.tsx', import.meta.url)),
                 fileURLToPath(new URL('./src/features/posts/code-blocks-client.ts', import.meta.url)),
                 fileURLToPath(new URL('./src/application/screen-host/client.ts', import.meta.url)),
                 fileURLToPath(new URL('./src/appearance/site-client.ts', import.meta.url))

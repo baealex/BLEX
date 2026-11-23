@@ -114,6 +114,13 @@ const budgets = [
     },
     {
         build: 'client',
+        entries: [...publicPageEntries, 'src/features/discovery/discovery-page.tsx'],
+        label: 'public discovery page scripts',
+        maxInitialBytes: 380 * 1024,
+        maxInitialGzipBytes: 123 * 1024
+    },
+    {
+        build: 'client',
         entries: [...publicPageEntries, 'src/features/posts/post-page.tsx', 'src/features/posts/code-blocks-client.ts'],
         label: 'public post page scripts',
         maxInitialBytes: 430 * 1024,

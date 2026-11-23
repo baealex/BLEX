@@ -26,7 +26,7 @@ export default function renderPage({
                 {authorTabs(author, 'overview')}
                 <div className={`${isAuthorEditor ? 'max-w-4xl' : 'max-w-7xl'} mx-auto mb-20 w-full px-4 sm:px-6`}>
                     <div className="space-y-14">
-                        {isAuthorEditor ? <NoticeSection notices={userNotices} scope="user" /> : null}
+                        {isAuthorEditor ? <NoticeSection notices={userNotices} /> : null}
                         <AboutSection author={author} aboutHtml={aboutHtml} isOwner={isOwner} />
                         {isAuthorEditor ? featuredPostsSection(author, featured, viewer?.id === author.id) : null}
                         <AuthorActivitySection {...activity} />

@@ -10,9 +10,63 @@ export function postPath(post: Pick<PostRow, 'authorUsername' | 'slug'>): string
     return `/@${encodeURIComponent(post.authorUsername)}/${encodeURIComponent(post.slug)}`;
 }
 
-function PostCardLike({ post, likes }: { post: PostRow; likes?: CardLikes }): ReactNode {
-    const liked = likes?.likedIds.has(post.id) ?? false;
-    const count = post.likeCount ?? 0;
+/** A post card's display values. Pages that hydrate publish this in their HTML, so each field is listed by hand. */
+export interface PostCardView {
+    href: string;
+    title: string;
+    image: string | null;
+    date: { iso: string; text: string } | null;
+    readTime: number;
+    summary: string;
+    author: { username: string; href: string; avatar: string } | null;
+    series: { name: string; href: string } | null;
+    likeAction: string;
+    likeCount: number;
+    liked: boolean;
+    commentCount: number;
+}
+
+export type PostCardLikes = Pick<CardLikes, 'csrfToken' | 'returnTo'>;
+
+// Dates are formatted once on the server, so a browser's clock or locale data cannot break hydration.
+export function postCardView(
+    post: PostRow,
+    {
+        showAuthor = true,
+        likes,
+        relativeDate = false
+    }: { showAuthor?: boolean; likes?: CardLikes; relativeDate?: boolean } = {}
+): PostCardView {
+    const authorHref = `/@${encodeURIComponent(post.authorUsername)}`;
+    const hasImage = Boolean(post.image && post.image !== 'None' && post.image !== 'null');
+    const published = post.publishedDate;
+    const iso = dateValue(published);
+    return {
+        href: postPath(post),
+        title: post.title,
+        image: hasImage ? mediaUrl(post.image) : null,
+        date: published && iso ? { iso, text: relativeDate ? timeSince(published) : dateLabel(published) } : null,
+        readTime: post.readTime,
+        summary: post.description || post.subtitle,
+        author: showAuthor
+            ? { username: post.authorUsername, href: authorHref, avatar: avatarUrl(post.authorAvatar) }
+            : null,
+        series:
+            !showAuthor && post.seriesUrl
+                ? {
+                      name: post.seriesName ?? ui('Series'),
+                      href: `${authorHref}/series/${encodeURIComponent(post.seriesUrl)}`
+                  }
+                : null,
+        likeAction: `/like/${encodeURIComponent(post.slug)}`,
+        likeCount: post.likeCount ?? 0,
+        liked: likes?.likedIds.has(post.id) ?? false,
+        commentCount: post.commentCount ?? 0
+    };
+}
+
+function PostCardLike({ card, likes }: { card: PostCardView; likes?: PostCardLikes }): ReactNode {
+    const { liked, likeCount: count } = card;
     const className = `inline-flex h-7 min-w-[51px] items-center justify-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium transition-all duration-300 active:scale-95 ${
         liked
             ? 'border-danger-line bg-danger-surface text-danger'
@@ -28,7 +82,7 @@ function PostCardLike({ post, likes }: { post: PostRow; likes?: CardLikes }): Re
     if (!likes?.csrfToken)
         return (
             <LoginPromptLink
-                returnTo={likes?.returnTo ?? postPath(post)}
+                returnTo={likes?.returnTo ?? card.href}
                 action="like"
                 className={className}
                 aria-label={label}
@@ -37,7 +91,7 @@ function PostCardLike({ post, likes }: { post: PostRow; likes?: CardLikes }): Re
             </LoginPromptLink>
         );
     return (
-        <form method="post" action={`/like/${encodeURIComponent(post.slug)}`}>
+        <form method="post" action={card.likeAction}>
             <input type="hidden" name="csrfmiddlewaretoken" value={likes.csrfToken} />
             <input type="hidden" name="returnTo" value={likes.returnTo} />
             <button type="submit" className={`cursor-pointer ${className}`} aria-label={label} aria-pressed={liked}>
@@ -48,42 +102,24 @@ function PostCardLike({ post, likes }: { post: PostRow; likes?: CardLikes }): Re
 }
 
 function PostCard({
-    post,
-    showAuthor,
-    priority = false,
-    likes,
-    relativeDate = false
+    card,
+    priority,
+    likes
 }: {
-    post: PostRow;
-    showAuthor: boolean;
-    priority?: boolean;
-    relativeDate?: boolean;
-    likes?: CardLikes;
+    card: PostCardView;
+    priority: boolean;
+    likes?: PostCardLikes;
 }): ReactNode {
-    const titleHref = postPath(post);
-    const authorHref = `/@${encodeURIComponent(post.authorUsername)}`;
-    const hasImage = Boolean(post.image && post.image !== 'None' && post.image !== 'null');
-    const series = post.seriesUrl ? (
-        <a
-            href={`${authorHref}/series/${encodeURIComponent(post.seriesUrl)}`}
-            className="inline-flex max-w-32 items-center truncate rounded-full bg-surface-subtle px-3 py-1.5 text-xs font-semibold text-content transition-all duration-150 hover:bg-line-light"
-        >
-            <SiteIcon name="stack-2" className="mr-1.5" />
-            <span className="truncate">{post.seriesName ?? ui('Series')}</span>
-        </a>
-    ) : null;
+    const { href, author, series } = card;
     return (
-        <article
-            className="group flex flex-col overflow-hidden rounded-2xl bg-surface ring-1 ring-line/60 transition-all duration-150 hover:ring-line-strong/70 active:scale-[0.98]"
-            key={post.id}
-        >
-            {hasImage ? (
+        <article className="group flex flex-col overflow-hidden rounded-2xl bg-surface ring-1 ring-line/60 transition-all duration-150 hover:ring-line-strong/70 active:scale-[0.98]">
+            {card.image ? (
                 <div className="aspect-[16/9] overflow-hidden">
-                    <a href={titleHref} className="block h-full">
+                    <a href={href} className="block h-full">
                         <img
                             className="h-full w-full object-cover transition-transform duration-500 motion-safe:group-hover:scale-105"
-                            src={mediaUrl(post.image) ?? undefined}
-                            alt={post.title}
+                            src={card.image}
+                            alt={card.title}
                             loading={priority ? 'eager' : 'lazy'}
                         />
                     </a>
@@ -91,64 +127,65 @@ function PostCard({
             ) : null}
             <div className="flex flex-grow flex-col p-5">
                 <h2 className="mb-3 line-clamp-2 text-md font-bold leading-snug text-content">
-                    <a href={titleHref} className="transition-colors duration-150 hover:text-content-secondary">
-                        {post.title}
+                    <a href={href} className="transition-colors duration-150 hover:text-content-secondary">
+                        {card.title}
                     </a>
                 </h2>
                 <div className="mb-3 flex items-center gap-3 text-xs text-content-secondary">
                     <div className="flex items-center gap-1.5">
                         <SiteIcon name="calendar" className="text-content-hint" />
-                        {post.publishedDate ? (
-                            <time dateTime={dateValue(post.publishedDate) ?? undefined}>
-                                {relativeDate ? timeSince(post.publishedDate) : dateLabel(post.publishedDate)}
-                            </time>
-                        ) : null}
+                        {card.date ? <time dateTime={card.date.iso}>{card.date.text}</time> : null}
                     </div>
                     <div className="flex items-center gap-1.5">
                         <SiteIcon name="clock" className="text-content-hint" />
-                        <span>{ui('{value0} min', { value0: post.readTime })}</span>
+                        <span>{ui('{value0} min', { value0: card.readTime })}</span>
                     </div>
                 </div>
                 <p
-                    className={`mb-4 text-sm leading-relaxed text-content-secondary ${hasImage ? 'line-clamp-3' : 'flex-grow'}`}
+                    className={`mb-4 text-sm leading-relaxed text-content-secondary ${card.image ? 'line-clamp-3' : 'flex-grow'}`}
                 >
-                    <a href={titleHref}>{post.description || post.subtitle}</a>
+                    <a href={href}>{card.summary}</a>
                 </p>
                 <footer className="mt-auto flex items-center justify-between border-t border-line-light pt-4">
-                    {showAuthor ? (
+                    {author ? (
                         <div className="flex min-w-0 items-center gap-2">
-                            <a href={authorHref} className="shrink-0">
+                            <a href={author.href} className="shrink-0">
                                 <img
                                     className="size-6 rounded-full object-cover ring-2 ring-line-light"
-                                    src={avatarUrl(post.authorAvatar)}
-                                    alt={post.authorUsername}
+                                    src={author.avatar}
+                                    alt={author.username}
                                     loading="lazy"
                                 />
                             </a>
                             <a
-                                href={authorHref}
+                                href={author.href}
                                 className="truncate text-xs font-semibold text-content transition-colors hover:text-content-secondary"
                             >
-                                {post.authorUsername}
+                                {author.username}
                             </a>
                         </div>
+                    ) : series ? (
+                        <a
+                            href={series.href}
+                            className="inline-flex max-w-32 items-center truncate rounded-full bg-surface-subtle px-3 py-1.5 text-xs font-semibold text-content transition-all duration-150 hover:bg-line-light"
+                        >
+                            <SiteIcon name="stack-2" className="mr-1.5" />
+                            <span className="truncate">{series.name}</span>
+                        </a>
                     ) : (
-                        (series ?? <div />)
+                        <div />
                     )}
                     <div className="flex items-center gap-4 text-content-secondary">
                         <span className="flex items-center gap-1.5 text-xs">
                             <SiteIcon name="message-circle" />
-                            <span aria-hidden="true">{String(post.commentCount ?? 0)}</span>
+                            <span aria-hidden="true">{String(card.commentCount)}</span>
                             <span className="sr-only">
                                 {ui('{value0, plural, one{# comment} other{# comments}}', {
-                                    value0: post.commentCount ?? 0
+                                    value0: card.commentCount
                                 })}
                             </span>
                         </span>
-                        {PostCardLike({
-                            post,
-                            likes
-                        })}
+                        <PostCardLike card={card} likes={likes} />
                     </div>
                 </footer>
             </div>
@@ -205,6 +242,26 @@ export function EmptyState({
     );
 }
 
+export function PostCardGrid({
+    cards,
+    likes,
+    priorityFirst = true,
+    className = ''
+}: {
+    cards: PostCardView[];
+    likes?: PostCardLikes;
+    priorityFirst?: boolean;
+    className?: string;
+}): ReactNode {
+    return (
+        <div className={`masonry-grid ${className}`.trim()}>
+            {cards.map((card, index) => (
+                <PostCard key={card.href} card={card} priority={priorityFirst && index === 0} likes={likes} />
+            ))}
+        </div>
+    );
+}
+
 export function PostGrid({
     posts,
     showAuthor = true,
@@ -223,17 +280,12 @@ export function PostGrid({
     if (!posts.length)
         return <EmptyState title={ui('No public posts yet.')} message={ui('Published posts will appear here.')} />;
     return (
-        <div className={`masonry-grid ${className}`.trim()}>
-            {posts.map((post, index) =>
-                PostCard({
-                    post,
-                    showAuthor,
-                    priority: priorityFirst && index === 0,
-                    likes,
-                    relativeDate
-                })
-            )}
-        </div>
+        <PostCardGrid
+            cards={posts.map((post) => postCardView(post, { showAuthor, likes, relativeDate }))}
+            likes={likes}
+            priorityFirst={priorityFirst}
+            className={className}
+        />
     );
 }
 

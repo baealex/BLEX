@@ -9,12 +9,13 @@ import {
     createRouter,
     type RouterHistory
 } from '@tanstack/react-router';
-import { use, useEffect, useLayoutEffect, useState } from 'react';
+import { type ReactNode, use, useEffect, useLayoutEffect, useState } from 'react';
 import { ApplicationFrame, type ApplicationView } from './frame.js';
 import { openLoginPromptFrom } from './login-prompt.js';
 import { opensOutsideApplication, type BlexNavigateDetail } from './navigation.js';
-import { postBodySelector, postPageDataSelector } from './route-data.js';
+import { discoveryPageDataSelector, postBodySelector, postPageDataSelector } from './route-data.js';
 import type { SiteHeaderProps } from '../appearance/shell.js';
+import type { DiscoveryPageData } from '../features/discovery/discovery-page-data';
 import type { PostPageData } from '../features/posts/post-page-data';
 
 interface HeadLink {
@@ -57,22 +58,21 @@ interface ApplicationDocument {
     pageModules: Array<{ name: 'login' | 'editor' | 'screen'; source: string }>;
     needsHcaptcha: boolean;
     screen: ScreenData | null;
-    post: PostDocument | null;
+    treePage: TreePage | null;
 }
 
-/** A post's client data and the sanitized body read back from the server markup. */
-interface PostDocument {
-    data: PostPageData;
-    bodyHtml: string;
-    revision: number;
-    /** True once this document's post page has committed in the React tree. */
+/** A page that renders in the React tree from the data its server document carries. */
+interface TreePage {
+    key: string;
+    load: () => Promise<ReactNode>;
+    /** Post pages hand their browser-only prompts back to the site script when they cannot mount. */
+    announcesUnmounted: boolean;
+    /** True once this document's page has committed in the React tree. */
     mounted: boolean;
     /** Resolves when the page has mounted or can no longer mount. */
     settled: Promise<void>;
     settle: () => void;
 }
-
-type PostPageComponent = typeof import('../features/posts/post-page')['PostPage'];
 
 interface PageChangeDetail {
     from: string;
@@ -99,8 +99,7 @@ let showApplicationPage: ((view: ApplicationView) => void) | null = null;
 let visitingFromApplication = false;
 let screenGlobalNames: string[] = [];
 let postRevision = 0;
-let postPageRequest: Promise<PostPageComponent> | null = null;
-const postPageWaitMs = 3000;
+const treePageWaitMs = 3000;
 const stagedDocuments = new Map<string, ApplicationDocument>();
 const pendingPostForms = new WeakSet<HTMLFormElement>();
 const activePostRequests = new Set<AbortController>();
@@ -280,110 +279,115 @@ function applyScreenData(screen: ScreenData | null): void {
     }
 }
 
-function readPostDocument(source: Document, content: Element): PostDocument | null {
-    const data = parseElementJson(source.querySelector(postPageDataSelector));
-    const body = content.querySelector(postBodySelector);
-    if (!isRecord(data) || typeof data.postPath !== 'string' || !body) return null;
-    postRevision += 1;
+function createTreePage(key: string, load: TreePage['load'], announcesUnmounted = false): TreePage {
     let settle = () => {};
     const settled = new Promise<void>((resolve) => {
         settle = resolve;
     });
-    return {
-        data: data as unknown as PostPageData,
-        bodyHtml: body.innerHTML,
-        revision: postRevision,
-        mounted: false,
-        settled,
-        settle
-    };
+    return { key, load, announcesUnmounted, mounted: false, settled, settle };
 }
 
-function loadPostPage(): Promise<PostPageComponent> {
-    postPageRequest ??= import('../features/posts/post-page').then(
-        ({ PostPage }) => PostPage,
-        (error: unknown) => {
-            postPageRequest = null;
-            throw error;
-        }
+function readPostPage(source: Document, content: Element): TreePage | null {
+    const value = parseElementJson(source.querySelector(postPageDataSelector));
+    const body = content.querySelector(postBodySelector);
+    if (!isRecord(value) || typeof value.postPath !== 'string' || !body) return null;
+    const data = value as unknown as PostPageData;
+    const bodyHtml = body.innerHTML;
+    postRevision += 1;
+    const revision = postRevision;
+    return createTreePage(
+        `post:${data.postPath}`,
+        () =>
+            import('../features/posts/post-page').then(({ PostPage }) => (
+                <PostPage data={data} bodyHtml={bodyHtml} revision={revision} />
+            )),
+        true
     );
-    return postPageRequest;
 }
 
-function PostRoute({ post, PostPage }: { post: PostDocument; PostPage: PostPageComponent }) {
+function readDiscoveryPage(source: Document, pageUrl: URL): TreePage | null {
+    const value = parseElementJson(source.querySelector(discoveryPageDataSelector));
+    if (!isRecord(value) || !['home', 'tags', 'tag'].includes(String(value.page))) return null;
+    const data = value as unknown as DiscoveryPageData;
+    return createTreePage(`discovery:${pageRequestKey(pageUrl)}`, () =>
+        import('../features/discovery/discovery-page').then(({ DiscoveryPage }) => <DiscoveryPage data={data} />)
+    );
+}
+
+function TreeRoute({ page, children }: { page: TreePage; children: ReactNode }) {
     useEffect(() => {
-        post.mounted = true;
-        post.settle();
-    }, [post]);
+        page.mounted = true;
+        page.settle();
+    }, [page]);
 
-    return <PostPage data={post.data} bodyHtml={post.bodyHtml} revision={post.revision} />;
+    return children;
 }
 
-function LoadingPostRoute({ post, loading }: { post: PostDocument; loading: Promise<PostPageComponent> }) {
-    return <PostRoute post={post} PostPage={use(loading)} />;
+function LoadingTreeRoute({ page, loading }: { page: TreePage; loading: Promise<ReactNode> }) {
+    return <TreeRoute page={page}>{use(loading)}</TreeRoute>;
 }
 
-/** The first post hydrates whenever its code arrives, so the router and header never wait for it. */
-function hydratePostWhenLoaded(page: ApplicationDocument): void {
-    const { post } = page;
-    if (!post) return;
-    const request = loadPostPage();
+/** The first page hydrates whenever its code arrives, so the router and header never wait for it. */
+function hydrateTreePageWhenLoaded(page: ApplicationDocument): void {
+    const { treePage } = page;
+    if (!treePage) return;
+    const request = treePage.load();
     // A rejection must not reach React, which would discard the readable server markup.
-    const loading = request.catch(() => new Promise<PostPageComponent>(() => {}));
+    const loading = request.catch(() => new Promise<ReactNode>(() => {}));
     page.view = {
         ...page.view,
-        content: <LoadingPostRoute post={post} loading={loading} />
+        content: <LoadingTreeRoute page={treePage} loading={loading} />
     };
     request.catch((error: unknown) => {
-        console.error('The post page could not be loaded.', error);
+        console.error('The page could not be loaded.', error);
         if (currentDocument && currentDocument !== page) return;
         page.view = {
             ...page.view,
             content: undefined
         };
         showApplicationPage?.(page.view);
-        post.settle();
+        treePage.settle();
     });
 }
 
-/** After a navigation, a post that cannot load in time stays as server markup and ignores its late code. */
-async function preparePostContent(page: ApplicationDocument): Promise<void> {
-    const { post } = page;
-    if (!post || page.view.content !== undefined) return;
+/** After a navigation, a page that cannot load in time stays as server markup and ignores its late code. */
+async function prepareTreeContent(page: ApplicationDocument): Promise<void> {
+    const { treePage } = page;
+    if (!treePage || page.view.content !== undefined) return;
     let timer: number | undefined;
-    const PostPage = await Promise.race([
-        loadPostPage().catch((error: unknown) => {
-            console.error('The post page could not be loaded.', error);
+    const content = await Promise.race([
+        treePage.load().catch((error: unknown) => {
+            console.error('The page could not be loaded.', error);
             return null;
         }),
         new Promise<null>((resolve) => {
-            timer = window.setTimeout(() => resolve(null), postPageWaitMs);
+            timer = window.setTimeout(() => resolve(null), treePageWaitMs);
         })
     ]);
     window.clearTimeout(timer);
-    if (!PostPage) return;
+    if (content === null) return;
     page.view = {
         ...page.view,
         html: '',
-        content: <PostRoute post={post} PostPage={PostPage} />
+        content: <TreeRoute page={treePage}>{content}</TreeRoute>
     };
 }
 
 /** Hands browser-only prompts back to the site script when this document's post page did not mount. */
 async function announceUnmountedPost(page: ApplicationDocument): Promise<void> {
-    const { post } = page;
-    if (!post) return;
+    const { treePage } = page;
+    if (!treePage?.announcesUnmounted) return;
     if (page.view.content !== undefined) {
         await Promise.race([
-            post.settled,
+            treePage.settled,
             new Promise((resolve) => {
-                window.setTimeout(resolve, postPageWaitMs);
+                window.setTimeout(resolve, treePageWaitMs);
             })
         ]);
     }
     // A page about to be replaced leaves the one-time prompt for the next document.
     const replacing = activePostRequests.size > 0 || router?.state.isLoading;
-    if (currentDocument === page && !post.mounted && !replacing)
+    if (currentDocument === page && !treePage.mounted && !replacing)
         document.dispatchEvent(new CustomEvent('blex:post-page-unmounted'));
 }
 
@@ -401,12 +405,12 @@ function readApplicationDocument(source: Document, url: string): ApplicationDocu
         return null;
     }
     const screen = readScreenData(source, content);
-    const post = readPostDocument(source, content);
+    const treePage = readPostPage(source, content) ?? readDiscoveryPage(source, pageUrl);
     return {
         view: {
             header,
             html: content.innerHTML,
-            contentKey: post ? `post:${post.data.postPath}` : screen ? pageRequestKey(pageUrl) : undefined
+            contentKey: treePage?.key ?? (screen ? pageRequestKey(pageUrl) : undefined)
         },
         url: pageUrl.href,
         head: collectHead(source, pageUrl),
@@ -414,7 +418,7 @@ function readApplicationDocument(source: Document, url: string): ApplicationDocu
         pageModules: pageModuleSources(source),
         needsHcaptcha: hasTrustedHcaptchaScript(source, pageUrl),
         screen,
-        post
+        treePage
     };
 }
 
@@ -447,7 +451,7 @@ async function loadApplicationDocument({
     const staged = stagedDocuments.get(pageRequestKey(requestUrl));
     if (staged) {
         stagedDocuments.delete(pageRequestKey(requestUrl));
-        await Promise.all([preparePostContent(staged), loadPageStylesheets(staged)]);
+        await Promise.all([prepareTreeContent(staged), loadPageStylesheets(staged)]);
         if (signal.aborted) throw new DOMException('Navigation was cancelled.', 'AbortError');
         beginPageChange(staged.url);
         return staged;
@@ -495,7 +499,7 @@ async function loadApplicationDocument({
         throw new DOMException('Navigation was redirected.', 'AbortError');
     }
 
-    await Promise.all([preparePostContent(page), loadPageStylesheets(page)]);
+    await Promise.all([prepareTreeContent(page), loadPageStylesheets(page)]);
     if (signal.aborted) throw new DOMException('Navigation was cancelled.', 'AbortError');
     beginPageChange(page.url);
     return page;
@@ -1356,7 +1360,7 @@ function ApplicationRoute({ initialPage }: { initialPage: ApplicationDocument })
 
     useLayoutEffect(() => {
         showApplicationPage = setView;
-        // The post chunk may have failed while this first render was in progress.
+        // The page chunk may have failed while this first render was in progress.
         setView(initialPage.view);
         if (!hasCommittedInitialDocument) commitApplicationPage(initialPage, window.location.hash);
     }, [initialPage]);
@@ -1406,7 +1410,7 @@ if (appRoot && initialDocument) {
     history.scrollRestoration = initialDocument.screen ? 'auto' : 'manual';
     const appRouter = createApplicationRouter();
     router = appRouter;
-    hydratePostWhenLoaded(initialDocument);
+    hydrateTreePageWhenLoaded(initialDocument);
     void activateDocumentLocale()
         .then(() => appRouter.load())
         .then(() => {

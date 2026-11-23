@@ -221,15 +221,6 @@ function bindRouteElements() {
         updateSave();
     }
 
-    if (document.querySelector('[data-notice-carousel]')) {
-        // Without the carousel, every notice stays visible in the server markup.
-        void import('../features/discovery/notice-carousel-client').then(
-            ({ mountNoticeCarousels }) => {
-                if (!signal.aborted) mountNoticeCarousels(signal);
-            },
-            () => undefined
-        );
-    }
     for (const details of document.querySelectorAll<HTMLDetailsElement>('[data-comment-edit]')) {
         const id = details.dataset.commentEdit ?? '';
         const field = details.querySelector<HTMLTextAreaElement>('textarea');

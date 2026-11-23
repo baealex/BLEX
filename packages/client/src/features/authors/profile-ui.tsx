@@ -1,11 +1,19 @@
 import { ui } from '../../i18n/public-ui.js';
+import { createHash } from 'node:crypto';
 import type { ReactNode } from 'react';
 import { SiteIcon, type SiteIconName } from '../../appearance/icons';
 import { LoginPromptLink } from '../engagement/ui/login-prompt-link';
 import type { AuthorRow, AuthorSocialLink, PostRow, PublicPageViewer, SubscriptionState } from '@blex/contracts/public';
-import { avatarUrl, dateLabel, dateValue, mediaUrl, postCover, safeExternalUrl } from '../discovery/view-helpers';
+import { avatarUrl, dateLabel, dateValue, mediaUrl, resourceUrl, safeExternalUrl } from '../discovery/view-helpers';
 import { EmptyState, postPath } from '../discovery/post-list';
 import { AboutEditor, AboutHeading } from './about-editor';
+
+function postCover(post: PostRow): string {
+    if (post.image) return mediaUrl(post.image) ?? resourceUrl('assets/images/default-cover-1.jpg');
+    const digest = createHash('md5').update(post.slug).digest('hex');
+    const index = (Number.parseInt(digest.slice(0, 8), 16) % 6) + 1;
+    return resourceUrl(`assets/images/default-cover-${index}.jpg`);
+}
 
 export function isEditor(author: AuthorRow): boolean {
     return author.isActive && author.role === 'EDITOR';
