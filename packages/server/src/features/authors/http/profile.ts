@@ -2,7 +2,7 @@ import { renderPage } from '../../../platform/views.js';
 import type { FastifyInstance } from 'fastify';
 import type { Prisma, PrismaClient } from '@prisma/client';
 import { storedDateText } from '../../../platform/date-format.js';
-import { sanitizePostHtml } from '../../posts/post-html.js';
+import { sanitizeAboutHtml, sanitizePostHtml } from '../../posts/post-html.js';
 import { readAuthorActivity } from '../public-activity.js';
 import { authorPath, isEditor, readAuthor, readAuthorSocialLinks, subscriptionState } from '../services/profile.js';
 import { publicPostWhere } from '../../posts/data/visibility.js';
@@ -70,7 +70,7 @@ export function registerProfileRoutes(
     const noindex = hasUnexpected(query, []);
     const path = authorPath(author.username);
     const canonical = makeAbsolute(siteUrl, path);
-    const aboutHtml = sanitizePostHtml(author.aboutHtml);
+    const aboutHtml = sanitizeAboutHtml(author.aboutHtml);
     const isOwner = viewer?.id === author.id;
     const activity = await readAuthorActivity(db, author.id);
     const csrfToken = csrfCookie(request);
