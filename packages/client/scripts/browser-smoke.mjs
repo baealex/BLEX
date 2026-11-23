@@ -1,4 +1,5 @@
 import { chromium, expect } from '@playwright/test';
+import { editorPublishingChecks } from './editor-publishing-smoke.mjs';
 
 const origin = process.env.BLEX_SMOKE_URL ?? 'http://127.0.0.1:8040';
 const setupToken = process.env.BLEX_SETUP_TOKEN;
@@ -197,6 +198,7 @@ try {
         ['editor', openEditor],
         ['latest draft list survives an older response', keepLatestDraftList],
         ['media keyboard controls keep focus and settings labels activate their controls', keepMediaControlFocus],
+        ...editorPublishingChecks({ page, open, username: account.username }),
         ['rejected publish keeps the post', keepRejectedPublishInEditor]
     ]) {
         await step();
