@@ -99,7 +99,6 @@ let showApplicationPage: ((view: ApplicationView) => void) | null = null;
 let visitingFromApplication = false;
 let screenGlobalNames: string[] = [];
 let postRevision = 0;
-let loadedPostPage: PostPageComponent | null = null;
 let postPageRequest: Promise<PostPageComponent> | null = null;
 const postPageWaitMs = 3000;
 const stagedDocuments = new Map<string, ApplicationDocument>();
@@ -302,10 +301,7 @@ function readPostDocument(source: Document, content: Element): PostDocument | nu
 
 function loadPostPage(): Promise<PostPageComponent> {
     postPageRequest ??= import('../features/posts/post-page').then(
-        ({ PostPage }) => {
-            loadedPostPage = PostPage;
-            return PostPage;
-        },
+        ({ PostPage }) => PostPage,
         (error: unknown) => {
             postPageRequest = null;
             throw error;
@@ -314,15 +310,17 @@ function loadPostPage(): Promise<PostPageComponent> {
     return postPageRequest;
 }
 
-function PostRoute({ post, loading }: { post: PostDocument; loading: Promise<PostPageComponent> }) {
-    const PostPage = loadedPostPage ?? use(loading);
-
+function PostRoute({ post, PostPage }: { post: PostDocument; PostPage: PostPageComponent }) {
     useEffect(() => {
         post.mounted = true;
         post.settle();
     }, [post]);
 
     return <PostPage data={post.data} bodyHtml={post.bodyHtml} revision={post.revision} />;
+}
+
+function LoadingPostRoute({ post, loading }: { post: PostDocument; loading: Promise<PostPageComponent> }) {
+    return <PostRoute post={post} PostPage={use(loading)} />;
 }
 
 /** The first post hydrates whenever its code arrives, so the router and header never wait for it. */
@@ -334,7 +332,7 @@ function hydratePostWhenLoaded(page: ApplicationDocument): void {
     const loading = request.catch(() => new Promise<PostPageComponent>(() => {}));
     page.view = {
         ...page.view,
-        content: <PostRoute post={post} loading={loading} />
+        content: <LoadingPostRoute post={post} loading={loading} />
     };
     request.catch((error: unknown) => {
         console.error('The post page could not be loaded.', error);
@@ -367,7 +365,7 @@ async function preparePostContent(page: ApplicationDocument): Promise<void> {
     page.view = {
         ...page.view,
         html: '',
-        content: <PostRoute post={post} loading={Promise.resolve(PostPage)} />
+        content: <PostRoute post={post} PostPage={PostPage} />
     };
 }
 
