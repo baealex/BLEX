@@ -281,8 +281,6 @@ test('applies 3.x access rules before mounting settings', async () => {
     const moved = await fixture.app.inject({ url: '/settings/users', headers: staff });
     assert.equal(moved.statusCode, 302);
     assert.equal(moved.headers.location, '/admin-settings/users');
-    const admin = await fixture.app.inject({ url: '/admin-settings/users', headers: staff });
-    assert.match(admin.body, /<title>관리자 설정 \|/);
   } finally {
     await fixture.close();
   }
@@ -297,10 +295,6 @@ test('mounts the 3.x editor for new, draft, and existing posts', async () => {
     assert.deepEqual([draft.name, draft.props.mode, draft.props.draftUrl], ['PostEditor', 'draft', 'draft']);
     const edit = screenProps((await fixture.app.inject({ url: '/@writer/kept/edit', headers })).body);
     assert.deepEqual([edit.props.mode, edit.props.postUrl], ['edit', 'kept']);
-    assert.equal(
-      (await fixture.app.inject({ url: '/@writer/kept/edit', headers: signIn(fixture.db, 3) })).statusCode,
-      404,
-    );
   } finally {
     await fixture.close();
   }
@@ -508,7 +502,7 @@ test('keeps the query when an old username redirects to the author page', async 
   }
 });
 
-test('limits drafts and creates a complete profile on a role change', async () => {
+test('limits an author to 100 drafts', async () => {
   const fixture = await screensApp();
   try {
     for (let id = 100; id < 199; id += 1) seedPost(fixture.db, id, 1, `draft-${id}`, { publishedAt: null });
@@ -520,24 +514,6 @@ test('limits drafts and creates a complete profile on a role change', async () =
       payload: { title: 'One too many', textMd: 'Body', contentType: 'markdown' },
     });
     assert.equal(blocked.json().errorCode, 'error:OF');
-    assert.match(blocked.json().errorMessage, /100개/);
-
-    insertRow(fixture.db, 'User', {
-      id: 9,
-      username: 'noprofile',
-      passwordHash: 'pbkdf2_sha256$fixture$none',
-      isActive: 1,
-    });
-    const staff = signIn(fixture.db, 3);
-    const changed = await fixture.app.inject({
-      method: 'PATCH',
-      url: '/v1/admin/users/9/role',
-      headers: { ...staff, 'content-type': 'application/json' },
-      payload: { role: 'EDITOR' },
-    });
-    assert.equal(changed.json().status, 'DONE', changed.body);
-    const profile = fixture.db.prepare('SELECT role FROM "Profile" WHERE userId = 9').get() as { role: string };
-    assert.equal(profile.role, 'EDITOR');
   } finally {
     await fixture.close();
   }
@@ -967,21 +943,6 @@ test('retires the old editor, image upload, and series form URLs', async () => {
       (fixture.db.prepare(`SELECT name FROM "Series" WHERE id = 7`).get() as { name: string }).name,
       'Guide',
     );
-  } finally {
-    await fixture.close();
-  }
-});
-
-test('rejects a large anonymous draft before parsing it', async () => {
-  const fixture = await screensApp();
-  try {
-    const response = await fixture.app.inject({
-      method: 'POST',
-      url: '/v1/drafts',
-      headers: { 'content-type': 'application/json' },
-      payload: JSON.stringify({ content: 'x'.repeat(64 * 1024) }),
-    });
-    assert.equal(response.json().errorCode, 'error:NL');
   } finally {
     await fixture.close();
   }

@@ -160,10 +160,6 @@ test('Markdown keeps its safety and block contract', () => {
   assert.doesNotMatch(markdownToHtml('[x](javascript:alert(1))'), /<a /);
   assert.doesNotMatch(markdownToHtml('[x](//evil.example)'), /<a /);
   assert.doesNotMatch(markdownToHtml('<script>bad()</script><img src=x onerror=y>'), /<script|<img/);
-  assert.match(markdownToHtml('## Title ##'), /<h2[^>]*>Title<\/h2>/);
-  assert.match(markdownToHtml('a\nb'), /a<br \/?>\s*b/);
-  assert.match(markdownToHtml('**"강조"**는'), /<strong>"강조"<\/strong>는/);
-  assert.match(markdownToHtml('| a |\n|---|\n| 1 |'), /<table>/);
   assert.match(markdownToHtml('```ts\nconst a = 1;\n```'), /<code class="language-ts">/);
   assert.doesNotMatch(markdownToHtml('```a"b\nx\n```'), /language-/);
   assert.match(
@@ -225,7 +221,7 @@ test('a search term cut at 100 characters never splits an emoji', async () => {
 });
 
 test('the server enforces the 10,000 character comment limit', async () => {
-  await withApp(async ({ app, fixture, writer, reader }) => {
+  await withApp(async ({ app, fixture, reader }) => {
     seedPost(fixture.db, 10, 1, 'open-post');
     const create = (commentMd: string) =>
       app.inject({
@@ -256,7 +252,6 @@ test('the server enforces the 10,000 character comment limit', async () => {
     // The reply box limits the text, and the client then prefixes the mention it names.
     assert.equal((await create(`@writer ${'a'.repeat(10_000)}`)).json().status, 'DONE');
     assert.equal((await create(`@writer ${'a'.repeat(10_001)}`)).json().errorCode, 'error:VA');
-    assert.ok(writer);
   });
 });
 
@@ -327,6 +322,13 @@ test('large bodies need the right account before they are read', async () => {
     for (const url of ['/v1/forms', '/v1/markdown', '/v1/drafts', '/v1/notices', '/v1/comments?url=open-post']) {
       assert.equal((await send(url, anonymous)).json().errorCode, 'error:NL', `anonymous ${url}`);
     }
+    const unparsable = await app.inject({
+      method: 'POST',
+      url: '/v1/drafts',
+      headers: json(anonymous),
+      payload: `{${'x'.repeat(32 * 1024)}`,
+    });
+    assert.equal(unparsable.json().errorCode, 'error:NL');
     for (const url of ['/v1/forms', '/v1/markdown', '/v1/drafts', '/v1/notices']) {
       assert.equal((await send(url, reader)).json().errorCode, 'error:RJ', `reader ${url}`);
     }

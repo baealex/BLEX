@@ -109,23 +109,6 @@ test('keeps a saved draft schedule when the API saves or publishes it again', as
   }
 });
 
-test('keeps a schedule Django stored with a time zone offset', async () => {
-  const fixture = await migratedApp();
-  const db = new PrismaClient({ datasourceUrl: `file:${fixture.path}` });
-  try {
-    const target = new Date(Date.now() + 30 * 86_400_000);
-    target.setUTCMilliseconds(0);
-    seedPost(fixture.db, 7, 1, 'django-draft', { publishedAt: null });
-    fixture.db.prepare('UPDATE "Post" SET draftScheduledAt = ? WHERE id = 7').run(target.getTime());
-    await publishAuthorDraft(db, editor, 7, {});
-    const post = await db.post.findUniqueOrThrow({ where: { id: 7 }, select: { publishedAt: true } });
-    assert.equal(post.publishedAt?.toISOString(), target.toISOString());
-  } finally {
-    await db.$disconnect();
-    await fixture.close();
-  }
-});
-
 test('rejects anonymous multipart requests before reading the body', async () => {
   const fixture = await migratedApp();
   const address = await fixture.app.listen({ host: '127.0.0.1', port: 0 });

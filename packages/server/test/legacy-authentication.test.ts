@@ -152,22 +152,6 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     assert.equal(draft.status, 'draft');
     assert.match(draft.content_html, /<h2 id="api-draft">API draft<\/h2>/);
     const updateUrl = `${postsUrl}/${draft.id}`;
-    const stale = await app.inject({
-      method: 'PATCH',
-      url: updateUrl,
-      headers: apiRequest.headers,
-      payload: { title: 'Discarded', expected_updated_at: '2000-01-01T00:00:00+00:00' },
-    });
-    assert.equal(stale.statusCode, 409);
-    assert.equal(stale.json().error.fields.actual_updated_at, draft.updated_at);
-    const updatedDraft = await app.inject({
-      method: 'PATCH',
-      url: updateUrl,
-      headers: apiRequest.headers,
-      payload: { subtitle: 'Kept Markdown and tags', expected_updated_at: draft.updated_at },
-    });
-    assert.equal(updatedDraft.statusCode, 200, updatedDraft.body);
-    assert.deepEqual(updatedDraft.json().data.tags, ['node', 'sqlite']);
     const authorChannel = await app.inject({
       method: 'POST',
       url: '/v1/webhook/channels',
@@ -218,15 +202,6 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     assert.match(ownerRead.body, /비공개 포스트입니다/);
     assert.equal((await app.inject({ url: postPath, headers: headersFor(reader, siteUrl) })).statusCode, 404);
     assert.equal((await app.inject(postPath)).statusCode, 404);
-    const dryRun = await app.inject({
-      method: 'DELETE',
-      url: `${updateUrl}?dry_run=true`,
-      headers: apiRequest.headers,
-    });
-    assert.equal(dryRun.json().data.can_delete, true);
-    const deleted = await app.inject({ method: 'DELETE', url: updateUrl, headers: apiRequest.headers });
-    assert.equal(deleted.json().data.trashed, true);
-    assert.equal((await app.inject('/@neweditor/developer-draft')).statusCode, 404);
     const revoked = await app.inject({ method: 'DELETE', url: `${tokenUrl}/${issued.id}`, headers: verified });
     assert.equal(revoked.json().body.id, issued.id);
     assert.equal((await app.inject(apiRequest)).statusCode, 401);

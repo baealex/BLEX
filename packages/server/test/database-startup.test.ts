@@ -938,7 +938,7 @@ test('imports the 3.14 post domain with merged settings, keys, and counters', as
       id: 2,
       post_id: 9,
       name: 'draft_reserved_date',
-      value: '2099-02-02 00:00:00',
+      value: '2099-02-02T09:00:00+09:00',
       created_date: '2024-01-01',
       updated_date: '2024-01-01',
     });

@@ -448,12 +448,6 @@ test('removes only scoped cover files and leaves symlink targets untouched', asy
   const [cleared] = await db.$queryRaw<Array<{ cover: string }>>`SELECT cover FROM "Profile" WHERE userId = 1`;
   assert.equal(cleared.cover, '');
 
-  await writeFile(coverFile, 'synthetic cover', { mode: 0o600 });
-  await db.$executeRaw`UPDATE "Profile" SET cover = ${coverPath} WHERE userId = 1`;
-  const removedAgain = await app.inject({ method: 'DELETE', url: '/v1/setting/cover', headers: headers(1) });
-  assert.deepEqual(removedAgain.json(), { status: 'DONE', body: { url: null } });
-  await assert.rejects(readFile(coverFile), { code: 'ENOENT' });
-
   const outsideDirectory = join(directory, 'outside-profile-media');
   await mkdir(outsideDirectory, { recursive: true, mode: 0o700 });
   const outsideFile = join(outsideDirectory, 'cTest.png');

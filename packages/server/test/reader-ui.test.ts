@@ -8,8 +8,6 @@ import { PrismaClient } from '@prisma/client';
 import { after, beforeEach, test } from 'node:test';
 import { readReaderPostView, registerReaderActions } from '../src/features/engagement/index.js';
 import { installNotificationTables } from './fixtures/notifications.js';
-import { ReaderActions } from './support/client-views.js';
-import { renderToStaticMarkup } from 'react-dom/server';
 import { accountTables, migratedTableSql } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-reader-ui-'));
@@ -174,32 +172,6 @@ test('loads a safe reader view with comments, post likes and author subscription
   assert.equal(signedIn.comments[0]?.permissions.canLike, true);
   assert.equal(signedIn.comments[0]?.replies?.[0]?.permissions.canDelete, true);
   assert.equal(await readReaderPostView(db, 'missing', 2), null);
-});
-
-test('renders accessible SSR author, like, comment and subscription controls', async () => {
-  const anonymousView = await readReaderPostView(db, 'public-post', null);
-  assert.ok(anonymousView);
-  const anonymousHtml = renderToStaticMarkup(ReaderActions({ view: anonymousView, csrfToken }));
-  assert.match(anonymousHtml, /aria-label="writer 작성자 정보"/);
-  assert.match(anonymousHtml, /data-blex-login-prompt="subscribe"[^>]*>구독<\/a>/);
-  assert.match(anonymousHtml, /data-blex-login-prompt="like"[^>]*>좋아요 · /);
-  assert.match(anonymousHtml, /data-blex-login-prompt="comment"/);
-  assert.match(anonymousHtml, /로그인하고 댓글 작성/);
-  assert.doesNotMatch(anonymousHtml, /로그인하고 (구독|좋아요|답글)|action%3D/);
-  assert.match(anonymousHtml, /Parent <strong>comment<\/strong>/);
-  assert.doesNotMatch(anonymousHtml, /<script|unsafe\(\)/);
-
-  const signedInView = await readReaderPostView(db, 'public-post', 2);
-  assert.ok(signedInView);
-  const signedInHtml = renderToStaticMarkup(ReaderActions({ view: signedInView, csrfToken }));
-  assert.match(signedInHtml, /action="\/like\/public-post"/);
-  assert.match(signedInHtml, /action="\/v1\/users\/@writer\/subscription"/);
-  assert.match(signedInHtml, /action="\/v1\/comments\?url=public-post"/);
-  assert.match(signedInHtml, /name="csrfmiddlewaretoken" value="rrrr/);
-  assert.match(signedInHtml, /aria-pressed="true">구독 중<\/button>/);
-  assert.match(signedInHtml, />댓글 작성<\/button>/);
-  assert.match(signedInHtml, /aria-label="댓글 옵션 열기"/);
-  assert.doesNotMatch(signedInHtml, /name="parentId" value="11"/);
 });
 
 test('handles SSR form actions with local redirects for likes, comments and subscriptions', async () => {

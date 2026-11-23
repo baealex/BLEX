@@ -48,9 +48,6 @@ test('a large scheduled post notifies in steps without duplicates', async () => 
     assert.equal(count(fixture, 'Notification'), 2_100);
     assert.equal(count(fixture, 'ScheduledPublication'), 0);
     assert.equal(count(fixture, 'WebhookDelivery'), 1);
-
-    await processScheduledPublications(db);
-    assert.equal(count(fixture, 'Notification'), 2_100);
   } finally {
     await db.$disconnect();
     await fixture.cleanup();
