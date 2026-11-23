@@ -4,8 +4,6 @@ import './site.scss';
 const root = document.documentElement;
 const systemTheme = matchMedia('(prefers-color-scheme: dark)');
 const themeButtons = new WeakSet<HTMLButtonElement>();
-const routeTimeouts = new Set<number>();
-const routeIntervals = new Set<number>();
 
 let routeController: AbortController | undefined;
 let routeGeneration = 0;
@@ -39,45 +37,9 @@ function setTheme(preference = readCookie('blex_theme'), updateControls = hydrat
     if (changed) window.dispatchEvent(new CustomEvent('blex:theme-change', { detail: { theme } }));
 }
 
-function scheduleRouteTimeout(callback: () => void, delay: number): number | undefined {
-    const owner = routeController;
-    if (!owner) return undefined;
-    let id = 0;
-    id = window.setTimeout(() => {
-        routeTimeouts.delete(id);
-        if (!owner.signal.aborted) callback();
-    }, delay);
-    routeTimeouts.add(id);
-    return id;
-}
-
-function clearRouteInterval(id: number | undefined) {
-    if (id === undefined) return;
-    window.clearInterval(id);
-    routeIntervals.delete(id);
-}
-
-function startRouteInterval(callback: () => void, delay: number): number | undefined {
-    const owner = routeController;
-    if (!owner) return undefined;
-    const id = window.setInterval(() => {
-        if (owner.signal.aborted) {
-            clearRouteInterval(id);
-            return;
-        }
-        callback();
-    }, delay);
-    routeIntervals.add(id);
-    return id;
-}
-
 function disposeRouteBindings() {
     routeController?.abort();
     routeController = undefined;
-    for (const id of routeTimeouts) window.clearTimeout(id);
-    for (const id of routeIntervals) window.clearInterval(id);
-    routeTimeouts.clear();
-    routeIntervals.clear();
 }
 
 function closeTransientUi() {
@@ -110,53 +72,6 @@ function updateHeader() {
     if (!header) return;
     header.classList.toggle('border-line-light', scrollY > 0);
     header.classList.toggle('border-transparent', scrollY === 0);
-}
-
-function bindNoticeCarousels(signal: AbortSignal) {
-    for (const carousel of document.querySelectorAll<HTMLElement>('[data-notice-carousel]')) {
-        const slides = [...carousel.querySelectorAll<HTMLElement>('[data-notice-slide]')];
-        const controls = carousel.querySelector<HTMLElement>('[data-notice-controls]');
-        if (!controls || slides.length < 2) continue;
-        const dots = [...controls.querySelectorAll<HTMLButtonElement>('[data-notice-index]')];
-        const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
-        let current = 0;
-        let timer: number | undefined;
-        const select = (index: number) => {
-            current = (index + slides.length) % slides.length;
-            slides.forEach((slide, position) => {
-                slide.hidden = position !== current;
-            });
-            dots.forEach((dot, position) => dot.setAttribute('aria-pressed', String(position === current)));
-        };
-        const stop = () => {
-            clearRouteInterval(timer);
-            timer = undefined;
-        };
-        const start = () => {
-            stop();
-            if (!signal.aborted && !reducedMotion.matches && !carousel.matches(':hover, :focus-within')) {
-                timer = startRouteInterval(() => select(current + 1), 5000);
-            }
-        };
-        dots.forEach((dot, position) => dot.addEventListener('click', () => select(position), { signal }));
-        for (const button of controls.querySelectorAll<HTMLButtonElement>('[data-notice-step]')) {
-            button.addEventListener('click', () => select(current + Number(button.dataset.noticeStep)), { signal });
-        }
-        carousel.addEventListener('pointerenter', stop, { signal });
-        carousel.addEventListener('pointerleave', start, { signal });
-        carousel.addEventListener('focusin', stop, { signal });
-        carousel.addEventListener(
-            'focusout',
-            () => {
-                scheduleRouteTimeout(start, 0);
-            },
-            { signal }
-        );
-        reducedMotion.addEventListener('change', start, { signal });
-        select(0);
-        controls.hidden = false;
-        start();
-    }
 }
 
 /** Outside the application frame, React for the search box loads only once the reader reaches for it. */
@@ -262,7 +177,11 @@ function bindRouteElements() {
         updateSave();
     }
 
-    bindNoticeCarousels(signal);
+    if (document.querySelector('[data-notice-carousel]')) {
+        void import('../features/discovery/notice-carousel-client').then(({ mountNoticeCarousels }) => {
+            if (!signal.aborted) mountNoticeCarousels(signal);
+        });
+    }
     for (const details of document.querySelectorAll<HTMLDetailsElement>('[data-comment-edit]')) {
         const id = details.dataset.commentEdit ?? '';
         const field = details.querySelector<HTMLTextAreaElement>('textarea');
