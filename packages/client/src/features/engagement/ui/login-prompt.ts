@@ -1,4 +1,10 @@
-export type LoginPromptAction = 'like' | 'comment' | 'reply' | 'subscribe';
+const loginPromptActions = ['like', 'comment', 'reply', 'subscribe'] as const;
+
+export type LoginPromptAction = (typeof loginPromptActions)[number];
+
+export function isLoginPromptAction(value: string): value is LoginPromptAction {
+    return (loginPromptActions as readonly string[]).includes(value);
+}
 
 /** Links keep working without JavaScript; the application client opens them as a modal. */
 export function loginPromptProps(returnTo: string, action: LoginPromptAction) {

@@ -3,6 +3,7 @@ import { SiteIcon } from '../../appearance/icons';
 import { SiteFooter, SiteHeader, SiteTheme } from '../../appearance/shell';
 import { renderApplicationDocument, scriptJson } from '../../application/document';
 import type { NoticeRow, PageMeta, SiteBrand } from '../../contracts/public';
+import { NoticeControls } from './notice-controls';
 
 export function PublicSiteMark({
     brand,
@@ -164,34 +165,7 @@ export function NoticeSection({ notices, scope }: { notices: NoticeRow[]; scope:
                 })}
                 {notices.length > 1 ? (
                     <div className="mt-3 flex items-center justify-center gap-2" data-notice-controls="" hidden={true}>
-                        <button
-                            type="button"
-                            className="flex size-8 items-center justify-center rounded-full text-content-hint hover:text-content-secondary"
-                            data-notice-step="-1"
-                            aria-label="이전 공지"
-                        >
-                            <SiteIcon name="chevron-left" className="text-xs" />
-                        </button>
-                        <div className="flex items-center gap-1.5">
-                            {notices.map((notice, index) => (
-                                <button
-                                    key={notice.id}
-                                    type="button"
-                                    className="blex-notice-dot h-1.5 rounded-full transition-colors duration-150"
-                                    data-notice-index={index}
-                                    aria-label={`${index + 1}번째 공지 보기`}
-                                    aria-pressed={index === 0}
-                                />
-                            ))}
-                        </div>
-                        <button
-                            type="button"
-                            className="flex size-8 items-center justify-center rounded-full text-content-hint hover:text-content-secondary"
-                            data-notice-step="1"
-                            aria-label="다음 공지"
-                        >
-                            <SiteIcon name="chevron-right" className="text-xs" />
-                        </button>
+                        <NoticeControls count={notices.length} />
                     </div>
                 ) : null}
             </section>
