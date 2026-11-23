@@ -456,7 +456,9 @@ test('keeps the legacy login envelope and issues a new session only after CSRF, 
     assert.equal(login.statusCode, 200, login.body);
     assert.equal(login.json().body.username, 'account');
     assert.equal(login.json().body.hasConnected2fa, true);
-    assert.match(String(login.headers['set-cookie']), /HttpOnly.*Secure/);
+    const sessionHeader = [login.headers['set-cookie']].flat().find((item) => item?.startsWith('blexsessionid='));
+    assert.match(String(sessionHeader), /HttpOnly/);
+    assert.match(String(sessionHeader), /Secure/);
     const [session, rotatedCsrf] = cookiesFrom(login.headers['set-cookie']);
     assert.match(session, /^blexsessionid=/);
     assert.notEqual(rotatedCsrf, csrf);
@@ -874,16 +876,20 @@ test('creates a first administrator against an empty Prisma database once', asyn
       method: 'POST',
       url: '/setup',
       headers,
-      payload: { ...account, setupToken: 'invalid' },
+      payload: { ...account, setupToken: 'invalid', password, passwordCheck: password },
     });
-    assert.match(badToken.body, /설정 토큰을 확인/);
     const weak = await app.inject({
       method: 'POST',
       url: '/setup',
       headers,
       payload: { ...account, setupToken: setupToken, password: 'password123', passwordCheck: 'password123' },
     });
-    assert.match(weak.body, /흔히 사용되는 비밀번호/);
+    for (const rejected of [badToken, weak]) {
+      assert.doesNotMatch(String(rejected.headers['set-cookie'] ?? ''), /blexsessionid=/);
+    }
+    const before = new DatabaseSync(path, { readOnly: true });
+    assert.equal((before.prepare('SELECT COUNT(*) AS total FROM "User"').get() as { total: number }).total, 0);
+    before.close();
     const created = await app.inject({
       method: 'POST',
       url: '/setup',

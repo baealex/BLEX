@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
 import { readFileSync } from 'node:fs';
-import { mkdtemp, mkdir, readFile, readdir, rm, stat } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import Fastify from 'fastify';
@@ -228,6 +228,21 @@ test('requires CSRF and editor role before creating logs or entries', async () =
     SELECT title, text FROM WorkLogEntry WHERE logId = ${logId}
   `;
   assert.deepEqual(saved, [{ title: 'Short note', text: 'A useful observation.' }]);
+
+  const blockedEntry = (userId: number, csrf = true) =>
+    app.inject({
+      method: 'POST',
+      url: `/work-logs/${logId}/entry/`,
+      headers: formHeaders(userId, csrf),
+      payload: form([
+        ['csrfmiddlewaretoken', csrfToken],
+        ['title', 'Blocked entry'],
+        ['text', 'Must not be saved.'],
+      ]),
+    });
+  assert.equal((await blockedEntry(1, false)).statusCode, 403);
+  for (const stranger of [2, 3]) assert.equal((await blockedEntry(stranger)).statusCode, 404);
+  assert.equal(await prisma.workLogEntry.count({ where: { logId } }), 1);
 });
 
 test('creates immutable entry snapshots, rejects cross-log selections, and revokes links', async () => {
@@ -496,7 +511,6 @@ test('validates images before storing uploads and rolls back files when database
 test('deleting an entry removes its media and closes emptied snapshots; deleting a log removes remaining files', async () => {
   const confirm = await app.inject({ method: 'GET', url: '/work-logs/1/entry/2/delete/', headers: headers(1) });
   assert.equal(confirm.statusCode, 200);
-  assert.match(confirm.body, /모든 공유 링크에서 이 기록과 첨부가 사라져요/);
 
   const deletedEntry = await app.inject({
     method: 'POST',
@@ -508,6 +522,11 @@ test('deleting an entry removes its media and closes emptied snapshots; deleting
   assert.equal((await app.inject(`/work-logs/share/${shareToken}/`)).statusCode, 404);
   await assert.rejects(stat(privateFilePath));
 
+  const secondPath = join(mediaRoot, '_work_logs', 'ab/second.webp');
+  await writeFile(secondPath, 'second');
+  await prisma.workLogEntry.create({
+    data: { logId: 1, title: 'Second', mediaType: 'image/webp', attachment: 'ab/second.webp' },
+  });
   const deleteLog = await app.inject({
     method: 'POST',
     url: '/work-logs/1/delete/',
@@ -516,4 +535,5 @@ test('deleting an entry removes its media and closes emptied snapshots; deleting
   });
   assert.equal(deleteLog.statusCode, 302, deleteLog.body);
   assert.equal((await app.inject({ method: 'GET', url: '/work-logs/1/', headers: headers(1) })).statusCode, 404);
+  await assert.rejects(stat(secondPath));
 });

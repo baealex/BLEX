@@ -127,6 +127,15 @@ test('protects the notification API and keeps read and preference changes scoped
     payload: { id: 1 },
   });
   assert.equal(noCsrf.statusCode, 403);
+  await db.notification.create({ data: { id: 3, userId: 2, key: 'other-account', messageParams: {} } });
+  const foreign = await app.inject({
+    method: 'PUT',
+    url: '/v1/setting/notify',
+    headers: signedInHeaders,
+    payload: { id: 3 },
+  });
+  assert.equal(foreign.json().errorCode, 'error:NF', foreign.body);
+  assert.equal((await db.notification.findUnique({ where: { id: 3 } }))?.isRead, false);
   const marked = await app.inject({
     method: 'PUT',
     url: '/v1/setting/notify',

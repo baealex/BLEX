@@ -474,7 +474,8 @@ test('keeps return paths local after dot segments are resolved', async () => {
         headers,
         payload: new URLSearchParams({ csrfmiddlewaretoken: headers['x-csrftoken'], returnTo: returnTo }).toString(),
       });
-      assert.doesNotMatch(String(response.headers.location ?? ''), /^\/\//);
+      assert.equal(response.statusCode, 200, response.body);
+      assert.equal(response.headers.location, undefined);
     }
   } finally {
     await fixture.close();

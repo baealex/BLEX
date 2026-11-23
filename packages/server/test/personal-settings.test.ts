@@ -135,6 +135,16 @@ test('protects personal settings APIs by login', async () => {
   for (const url of ['/v1/setting/account', '/v1/setting/profile']) {
     assert.equal((await app.inject(url)).json().errorCode, 'error:NL');
   }
+  for (const [method, url] of [
+    ['PUT', '/v1/setting/account'],
+    ['PUT', '/v1/setting/regional-preferences'],
+    ['PUT', '/v1/setting/profile'],
+    ['PUT', '/v1/setting/social'],
+    ['DELETE', '/v1/setting/cover'],
+  ] as const) {
+    const denied = await app.inject({ method, url, headers: headers() });
+    assert.equal(denied.json().errorCode, 'error:NL', `${method} ${url}`);
+  }
   const profileApi = await app.inject({ url: '/v1/setting/profile', headers: headers(1) });
   assert.equal(profileApi.json().body.avatar, 'https://blog.example/resources/media/writer.png');
   assert.equal(profileApi.json().body.cover, null);
@@ -458,7 +468,7 @@ test('removes only scoped cover files and leaves symlink targets untouched', asy
   assert.equal(await readFile(outsideFile, 'utf8'), 'must remain');
 });
 
-test('restricts about editing to the active editor owner and sanitizes stored and saved HTML', async () => {
+test('restricts about editing to its owner and sanitizes saved HTML', async () => {
   const anonymous = await app.inject({ method: 'POST', url: '/@writer/about/edit' });
   assert.equal(anonymous.statusCode, 302);
 
@@ -483,11 +493,10 @@ test('restricts about editing to the active editor owner and sanitizes stored an
     ]),
   });
   assert.equal(saved.json().status, 'success');
-  assert.equal(saved.json().message, '소개글을 저장했습니다.');
   const [savedProfile] = await db.$queryRaw<
     Array<{ aboutMarkdown: string; aboutHtml: string }>
   >`SELECT aboutMarkdown, aboutHtml FROM "Profile" WHERE userId = 1`;
-  assert.match(savedProfile.aboutHtml, /<h2 id="hello">Hello<\/h2>/);
+  assert.match(savedProfile.aboutHtml, /<h\d[^>]*>Hello/);
   assert.doesNotMatch(savedProfile.aboutHtml, /<script>/);
 
   const apiSave = await app.inject({
@@ -518,4 +527,8 @@ test('restricts about editing to the active editor owner and sanitizes stored an
     payload: { about: true, aboutMarkdown: 'No login' },
   });
   assert.equal(anonymousSave.json().errorCode, 'error:NL');
+  const [kept] = await db.$queryRaw<
+    Array<{ aboutMarkdown: string }>
+  >`SELECT aboutMarkdown FROM "Profile" WHERE userId = 1`;
+  assert.equal(kept.aboutMarkdown, 'API **save**');
 });

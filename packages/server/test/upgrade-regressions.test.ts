@@ -5,7 +5,6 @@ import { PrismaClient } from '@prisma/client';
 import Fastify from 'fastify';
 import { buildApp } from '../src/app.js';
 import { createAuthorPost, publishAuthorDraft, updateAuthorPost } from '../src/features/posts/authoring/index.js';
-import { syncPostPublication } from '../src/features/notifications/model.js';
 import { sanitizePostHtml } from '../src/features/posts/post-html.js';
 import { registerBodyGuard } from '../src/platform/request-body.js';
 import { trustedProxiesFromEnv } from '../src/platform/runtime-config.js';
@@ -211,6 +210,7 @@ test('announces first publication but not hiding, unhiding, or restoring an old 
       url: 'https://hooks.test/a',
     });
     seedPost(fixture.db, 2, 1, 'old-post');
+    seedPost(fixture.db, 3, 1, 'trashed-post', { deletedAt: Date.UTC(2026, 0, 1) });
     const queued = () => db.webhookDelivery.count();
 
     const headers = signIn(fixture.db, 1);
@@ -222,7 +222,14 @@ test('announces first publication but not hiding, unhiding, or restoring an old 
       });
       assert.deepEqual(toggled.json().body, { isHide });
     }
-    await db.$transaction((tx) => syncPostPublication(tx, 2));
+    const trash = await fixture.app.inject({ url: '/v1/setting/trash-posts?page=1', headers });
+    const restored = await fixture.app.inject({
+      method: 'POST',
+      url: '/v1/setting/trash-posts/trashed-post/restore',
+      headers: { ...headers, 'content-type': 'application/json' },
+      payload: { expectedDeletedDate: trash.json().body.posts[0].deletedDate },
+    });
+    assert.equal(restored.json().body.restored, true, restored.body);
     assert.equal(await queued(), 0);
 
     const draft = await createAuthorPost(db, editor, { title: 'New', contentHtml: '<p>New</p>' }, true);

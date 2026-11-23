@@ -559,6 +559,14 @@ test('account deletion cascades owned rows, anonymizes comments, and removes wor
       assert.equal(existsSync(join(mediaRoot, '_work_logs', attachment)), true, 'a refused deletion keeps the file');
 
       const verified = await reauthenticate(app, reader);
+      await db.$executeRawUnsafe(
+        `CREATE TRIGGER keep_user BEFORE DELETE ON "User" BEGIN SELECT RAISE(ABORT, 'blocked'); END`,
+      );
+      const rolledBack = await app.inject({ method: 'DELETE', url: '/v1/sign', headers: verified });
+      assert.notEqual(rolledBack.json().status, 'DONE');
+      assert.equal(existsSync(join(mediaRoot, '_work_logs', attachment)), true, 'a rollback keeps the file');
+      await db.$executeRawUnsafe('DROP TRIGGER keep_user');
+
       assert.equal((await app.inject({ method: 'DELETE', url: '/v1/sign', headers: verified })).json().status, 'DONE');
       assert.equal(existsSync(join(mediaRoot, '_work_logs', attachment)), false);
       assert.equal(await db.user.count({ where: { id: 2 } }), 0);

@@ -377,6 +377,7 @@ test('serves legacy create/edit/view contracts and keeps an existing post config
   });
   assert.equal(wrongOwner.statusCode, 404);
 
+  await db.post.updateMany({ where: { slug: apiUrl }, data: { coverLayout: 'split', commentsBlocked: true } });
   const edited = await app.inject({
     method: 'POST',
     url: `/v1/users/@writer/posts/${apiUrl}`,
@@ -397,6 +398,13 @@ test('serves legacy create/edit/view contracts and keeps an existing post config
   `;
   assert.equal(updatedPost[0]?.title, 'API markdown updated');
   assert.equal(updatedPost[0]?.seriesId, 1);
+  assert.deepEqual(
+    await db.post.findFirstOrThrow({
+      where: { slug: apiUrl },
+      select: { coverLayout: true, commentsBlocked: true },
+    }),
+    { coverLayout: 'split', commentsBlocked: true },
+  );
   const updatedContent = await db.$queryRaw<Array<{ html: string }>>`
     SELECT html FROM "PostContent" WHERE postId = (SELECT id FROM "Post" WHERE slug = ${apiUrl})
   `;
