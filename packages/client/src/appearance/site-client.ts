@@ -639,6 +639,11 @@ function bindRouteElements() {
             if (!signal.aborted) mountAuthorHeatmaps(signal);
         });
     }
+    if (/(?:^|; )blex_telegram_hint=/.test(document.cookie)) {
+        void import('../features/engagement/ui/telegram-hint').then(({ showTelegramHint }) => {
+            if (!signal.aborted) showTelegramHint(signal);
+        });
+    }
 }
 
 function handleGlobalClick(event: MouseEvent) {
@@ -694,14 +699,8 @@ function handleGlobalKeydown(event: KeyboardEvent) {
     for (const details of document.querySelectorAll<HTMLDetailsElement>('[data-account-menu]')) details.open = false;
 }
 
-function showPendingTelegramHint() {
-    if (!/(?:^|; )blex_telegram_hint=/.test(document.cookie)) return;
-    void import('../application/telegram-hint').then(({ showTelegramHint }) => showTelegramHint());
-}
-
 function handleBeforePageChange() {
     routeGeneration += 1;
-    document.getElementById('blex-subscription-telegram-hint-root')?.remove();
     if (!hydrated) return;
     disposeRouteBindings();
     closeTransientUi();
@@ -729,7 +728,6 @@ function activateClientBindings() {
     setTheme();
     updateHeader();
     bindRouteElements();
-    showPendingTelegramHint();
 }
 
 systemTheme.addEventListener('change', () => setTheme(undefined, hydrated));
