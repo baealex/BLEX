@@ -61,7 +61,7 @@ function uploadedVideoFigure(caption: string, video: { url: string; type: string
 const parser = new MarkdownIt({ html: false, breaks: true });
 parser.use(markdownItCjkFriendly).use(markdownItFootnote).use(markdownItDeflist).use(markdownItMark).use(markdownItSub);
 parser.use(legacySyntax);
-// As in 3.14, an unsafe URL keeps its element and the sanitizer removes only the attribute.
+// An unsafe URL keeps its element, and the sanitizer removes only the attribute.
 parser.validateLink = () => true;
 parser.core.ruler.push('blex_blocks', (state) => {
   const tokens: typeof state.tokens = [];

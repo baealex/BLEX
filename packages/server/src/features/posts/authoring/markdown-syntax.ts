@@ -1,7 +1,7 @@
 import type { MarkdownIt, StateBlock, StateCore, StateInline, Token } from 'markdown-it';
 
 /**
- * BLEX 3.14 Markdown syntax on top of markdown-it. Scans remember what they found, because a document can repeat an
+ * BLEX Markdown syntax on top of markdown-it. Scans remember what they found, because a document can repeat an
  * opening marker many times and searching again from each one would take quadratic time.
  */
 
@@ -169,7 +169,7 @@ function allowedTagRule(state: StateInline, silent: boolean) {
   return true;
 }
 
-/** A backslash before a line break stays visible in 3.14, and the line break renders on its own. */
+/** A backslash before a line break stays visible, and the line break renders on its own. */
 function backslashBreakRule(state: StateInline, silent: boolean) {
   if (state.src.charCodeAt(state.pos) !== 0x5c || state.src.charCodeAt(state.pos + 1) !== 0x0a) return false;
   if (!silent) state.pending += '\\';
@@ -177,7 +177,7 @@ function backslashBreakRule(state: StateInline, silent: boolean) {
   return true;
 }
 
-/** Abbreviation titles do not survive the content sanitizer, so 3.14 only ever removed their definition lines. */
+/** Abbreviation titles do not survive the content sanitizer, so only their definition lines are removed. */
 function abbreviationRule(state: StateBlock, startLine: number, _endLine: number, silent: boolean) {
   if (state.sCount[startLine]! - state.blkIndent >= 4) return false;
   const line = state.src.slice(state.bMarks[startLine]! + state.tShift[startLine]!, state.eMarks[startLine]!);
@@ -186,7 +186,7 @@ function abbreviationRule(state: StateBlock, startLine: number, _endLine: number
   return true;
 }
 
-/** 3.14 reads `#title` as a heading, keeps a seventh `#` as text, and drops closing marks. */
+/** `#title` is a heading, a seventh `#` stays as text, and closing marks are dropped. */
 function hashHeadingRule(state: StateBlock, startLine: number, _endLine: number, silent: boolean) {
   if (state.sCount[startLine]! - state.blkIndent >= 4) return false;
   const start = state.bMarks[startLine]! + state.tShift[startLine]!;
@@ -273,7 +273,7 @@ function lastFenceLine(state: StateBlock, marker: number) {
   return last;
 }
 
-/** An unclosed fence is plain text in 3.14. */
+/** An unclosed fence is plain text. */
 function legacyFence(rule: BlockRule): BlockRule {
   return (state, startLine, endLine, silent) => {
     const marker = state.src.charCodeAt(state.bMarks[startLine]! + state.tShift[startLine]!);
@@ -381,7 +381,7 @@ function headingId(text: string, used: Set<string>, nextIndex: Map<string, numbe
   return base;
 }
 
-/** 3.14 moves odd heading levels down one step and names each heading from its Markdown source. */
+/** Odd heading levels move down one step, and each heading is named from its Markdown source. */
 function headingRule(state: StateCore) {
   const used = new Set<string>();
   const nextIndex = new Map<string, number>();
@@ -475,7 +475,7 @@ const inlineAttributeClosers = new Set([
   'sub_close',
 ]);
 
-/** Attributes follow an inline element. Only links, images, and code keep them through the 3.14 sanitizer. */
+/** Attributes follow an inline element. Only links, images, and code keep them. */
 function inlineAttributes(inline: Token) {
   const children = inline.children;
   if (!children) return;

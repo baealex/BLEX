@@ -13,7 +13,7 @@ All test paths below are relative to `packages/server/test/`.
 | Post editing, drafts, publishing, and collection management | `authoring.test.ts`, `author-collections.test.ts`, `upgrade-data-regressions.test.ts` |
 | Settings and administrator permissions | `personal-settings.test.ts`, `admin-settings.test.ts`, `application-screens.test.ts` |
 | Public visibility, Markdown, sitemaps, and RSS | `public-discovery.test.ts`, `public-post.test.ts`, `public-pages.test.ts` |
-| BLEX 3.14 Markdown syntax and rendered structure | `markdown-compat.test.ts` and its recorded 3.14 fixture |
+| Markdown syntax and rendered structure | `markdown-compat.test.ts` and its recorded 3.14 fixture |
 | Public and private media, uploads, and deletion | `public-media.test.ts`, `content-media.test.ts`, `work-logs.test.ts` |
 | `/v1` camelCase fields | `application-screens.test.ts` |
 | Developer API token scopes, write operations, and snake_case wire format | `developer-api.test.ts`, `developer-api-contract.test.ts` |

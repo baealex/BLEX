@@ -16,11 +16,11 @@ const golden = JSON.parse(
   readFileSync(new URL('../../test/fixtures/markdown-3.14.golden.json', import.meta.url), 'utf8'),
 ) as { cases: GoldenCase[] };
 
-// Each entry is a deliberate difference from 3.14 output.
+// Each entry is a deliberate difference from the recorded output.
 const knownDifferences: Record<string, string> = {
   'bold-italic': 'strong and em nest in the other order, with the same appearance',
   'fence-info': 'fence titles were a Pygments feature',
-  'gif-amp': '3.14 escaped the query twice and produced a broken video URL',
+  'gif-amp': 'the recorded output escaped the query twice and broke the video URL',
   'gif-code': 'code keeps the syntax as text instead of embedding a video',
   'kor-em': 'strikethrough and highlight also work next to Korean particles',
   'link-angle': 'spaces in link URLs are percent-encoded',
@@ -57,7 +57,7 @@ function canonical(html: string): string {
 
 for (const { name, markdown, html } of golden.cases) {
   if (knownDifferences[name]) continue;
-  test(`matches 3.14 Markdown: ${name}`, () => {
+  test(`matches recorded Markdown: ${name}`, () => {
     assert.equal(canonical(markdownToHtml(markdown)), canonical(sanitizePostHtml(html)));
   });
 }
