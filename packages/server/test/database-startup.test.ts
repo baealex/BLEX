@@ -74,7 +74,7 @@ test('creates a new database and leaves it in place on the next start', async ()
     await prepareDatabase(space.options);
     const second = new DatabaseSync(space.databasePath, { readOnly: true });
     assert.equal(count(second, 'User'), 1);
-    assert.equal(count(second, '_prisma_migrations'), 2);
+    assert.equal(count(second, '_prisma_migrations'), 1);
     second.close();
   } finally {
     await space.cleanup();
@@ -280,7 +280,7 @@ test('imports a 3.14 installation once and leaves the original unchanged', async
       Number((imported.prepare(`SELECT seq FROM sqlite_sequence WHERE name = 'Post'`).get() as { seq: number }).seq),
       40,
     );
-    assert.equal(count(imported, '_prisma_migrations'), 2);
+    assert.equal(count(imported, '_prisma_migrations'), 1);
     assert.equal(
       Number((imported.prepare('SELECT createdAt FROM WorkLog WHERE id = 3').get() as { createdAt: number }).createdAt),
       Date.UTC(2024, 1, 3, 4, 5, 6, 789),

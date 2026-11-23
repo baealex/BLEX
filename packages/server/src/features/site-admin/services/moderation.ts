@@ -1,6 +1,7 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyRequest } from 'fastify';
 import { anonymizeComments } from '../../engagement/services/deletions.js';
+import { syncPostPublication } from '../../notifications/model.js';
 import { containsLiteral } from '../../posts/data/text-match.js';
 import { publicPostPath } from '../../posts/public-post.js';
 import { ApiResult, isoDate, positiveInteger, recordModeration } from '../shared.js';
@@ -17,8 +18,6 @@ const moderatedPostSelect = {
   slug: true,
   title: true,
   isHidden: true,
-  moderation: true,
-  moderatedAt: true,
   publishedAt: true,
   deletedAt: true,
   author: { select: { username: true, isActive: true } },
@@ -50,10 +49,9 @@ function pageOf(requested: number, total: number): AdminPagination {
   return { page, pageSize, total, totalPages, hasNext: page < totalPages, hasPrevious: page > 1 };
 }
 
-function postStatus(row: Pick<ModeratedPostRow, 'moderation' | 'deletedAt' | 'isHidden'>): AdminPostStatus {
-  if (row.moderation) return row.moderation;
-  // Lifting a staff decision can reveal that the author has since made the post private.
-  return row.deletedAt || row.isHidden ? 'hidden' : 'public';
+function postStatus(row: { deletedAt: Date | null; isHidden: boolean }): AdminPostStatus {
+  if (row.deletedAt) return 'trash';
+  return row.isHidden ? 'hidden' : 'public';
 }
 
 function moderatedPost(row: ModeratedPostRow): AdminModeratedPost {
@@ -67,18 +65,17 @@ function moderatedPost(row: ModeratedPostRow): AdminModeratedPost {
     commentCount: row._count.comments,
     likeCount: row._count.likes,
     publishedDate: row.publishedAt ? isoDate(row.publishedAt) : null,
-    deletedDate: row.moderation === 'trash' && row.moderatedAt ? isoDate(row.moderatedAt) : null,
+    deletedDate: row.deletedAt ? isoDate(row.deletedAt) : null,
   };
 }
 
-// Drafts, scheduled posts, and anything the author made private stay with the author.
+// Drafts and scheduled posts stay private to their authors.
 function postFilter(filter: PostFilter, now: Date): Prisma.PostWhereInput {
   const published = { publishedAt: { lte: now } };
-  const authorPublic = { ...published, deletedAt: null, isHidden: false, moderation: null };
-  if (filter === 'trash') return { ...published, moderation: 'trash' };
-  if (filter === 'hidden') return { ...published, moderation: 'hidden' };
-  if (filter === 'public') return authorPublic;
-  return { OR: [authorPublic, { ...published, moderation: 'hidden' }] };
+  if (filter === 'trash') return { ...published, deletedAt: { not: null } };
+  if (filter === 'hidden') return { ...published, deletedAt: null, isHidden: true };
+  if (filter === 'public') return { ...published, deletedAt: null, isHidden: false };
+  return { ...published, deletedAt: null };
 }
 
 export async function readModeratedPosts(db: PrismaClient, request: FastifyRequest) {
@@ -91,7 +88,7 @@ export async function readModeratedPosts(db: PrismaClient, request: FastifyReque
     : {};
   const where = { AND: [postFilter(filter, new Date()), search] };
   const orderBy: Prisma.PostOrderByWithRelationInput[] =
-    filter === 'trash' ? [{ moderatedAt: 'desc' }, { id: 'desc' }] : [{ publishedAt: 'desc' }, { id: 'desc' }];
+    filter === 'trash' ? [{ deletedAt: 'desc' }, { id: 'desc' }] : [{ publishedAt: 'desc' }, { id: 'desc' }];
 
   // Prisma's `contains` cannot escape % or _, so those searches are confirmed here.
   if (likeWildcard.test(query)) {
@@ -123,20 +120,17 @@ export async function setModeratedPostHidden(
 ): Promise<ApiResult<AdminModeratedPost>> {
   if (typeof isHidden !== 'boolean') return { ok: false, code: 'VA', message: 'Check the post visibility.' };
   return db.$transaction(async (tx) => {
-    const now = new Date();
     const post = await tx.post.findFirst({
-      where: { id: postId, ...postFilter('all', now) },
+      where: { id: postId, ...postFilter('all', new Date()) },
       select: moderatedPostSelect,
     });
     if (!post) return postNotFound;
-    if ((post.moderation === 'hidden') === isHidden) return { ok: true, body: moderatedPost(post) };
+    if (post.isHidden === isHidden) return { ok: true, body: moderatedPost(post) };
     if (isHidden) await tx.pinnedPost.deleteMany({ where: { postId } });
-    const decision = isHidden
-      ? { moderation: 'hidden' as const, moderatedAt: now }
-      : { moderation: null, moderatedAt: null };
-    await tx.post.update({ where: { id: postId }, data: decision, select: { id: true } });
+    await tx.post.update({ where: { id: postId }, data: { isHidden }, select: { id: true } });
+    await syncPostPublication(tx, postId);
     await recordModeration(tx, actorId, 'post', postId, post.title, 2, isHidden ? 'Hid post' : 'Made post visible');
-    return { ok: true, body: moderatedPost({ ...post, ...decision }) };
+    return { ok: true, body: moderatedPost({ ...post, isHidden }) };
   });
 }
 
@@ -145,17 +139,17 @@ export async function moveModeratedPostToTrash(
   actorId: number,
   postId: number,
 ): Promise<ApiResult<AdminModeratedPost>> {
-  const moderatedAt = new Date();
+  const deletedAt = new Date();
   return db.$transaction(async (tx) => {
     const post = await tx.post.findFirst({
-      where: { id: postId, ...postFilter('all', moderatedAt) },
+      where: { id: postId, ...postFilter('all', deletedAt) },
       select: moderatedPostSelect,
     });
     if (!post) return postNotFound;
-    const decision = { moderation: 'trash' as const, moderatedAt };
-    await tx.post.update({ where: { id: postId }, data: decision, select: { id: true } });
+    await tx.post.update({ where: { id: postId }, data: { deletedAt }, select: { id: true } });
+    await syncPostPublication(tx, postId);
     await recordModeration(tx, actorId, 'post', postId, post.title, 2, 'Moved post to trash');
-    return { ok: true, body: moderatedPost({ ...post, ...decision }) };
+    return { ok: true, body: moderatedPost({ ...post, deletedAt }) };
   });
 }
 
@@ -170,10 +164,10 @@ export async function restoreModeratedPost(
       select: moderatedPostSelect,
     });
     if (!post) return postNotFound;
-    const decision = { moderation: null, moderatedAt: null };
-    await tx.post.update({ where: { id: postId }, data: decision, select: { id: true } });
+    await tx.post.update({ where: { id: postId }, data: { deletedAt: null }, select: { id: true } });
+    await syncPostPublication(tx, postId);
     await recordModeration(tx, actorId, 'post', postId, post.title, 2, 'Restored post from trash');
-    return { ok: true, body: moderatedPost({ ...post, ...decision }) };
+    return { ok: true, body: moderatedPost({ ...post, deletedAt: null }) };
   });
 }
 

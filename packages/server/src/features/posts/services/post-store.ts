@@ -23,7 +23,6 @@ import {
 } from '../shared.js';
 
 const storedPostSelect = {
-  moderation: true,
   id: true,
   title: true,
   subtitle: true,
@@ -80,7 +79,6 @@ export async function loadPost(
     seriesUrl: row.series?.slug ?? null,
     seriesHidden: row.series?.isHidden ?? false,
     contentHtml: row.content?.html ?? '',
-    moderated: row.moderation !== null,
     hide: row.isHidden,
     advertise: row.isAdvertised,
     blockComment: row.commentsBlocked,
@@ -495,8 +493,7 @@ export function postPublic(post: StoredPost): boolean {
     post.deletedDate === null &&
     post.publishedDate !== null &&
     post.publishedDate.valueOf() <= Date.now() &&
-    !post.hide &&
-    !post.moderated
+    !post.hide
   );
 }
 

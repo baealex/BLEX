@@ -26,7 +26,6 @@ export interface UserRow extends AuthoringUser {
 }
 
 export interface StoredPost {
-  moderated: boolean;
   id: number;
   title: string;
   subtitle: string;

@@ -117,7 +117,6 @@ export async function commentForViewer(
       deletedAt: true,
       publishedAt: true,
       isHidden: true,
-      moderation: true,
       author: { select: { username: true, isActive: true } },
     },
   });
@@ -127,8 +126,7 @@ export async function commentForViewer(
     post.deletedAt === null &&
     post.publishedAt !== null &&
     post.publishedAt <= new Date() &&
-    !post.isHidden &&
-    post.moderation === null;
+    !post.isHidden;
   return {
     ...commentRow(comment, postPublic, post.commentsBlocked),
     postTitle: post.title,

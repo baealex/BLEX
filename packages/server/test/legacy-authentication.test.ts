@@ -39,7 +39,7 @@ function cookiesFrom(headers: string | string[] | undefined) {
 async function migratedFixture(path: string) {
   const db = new DatabaseSync(path);
   const migrations = new URL('../../prisma/migrations/', import.meta.url);
-  for (const migration of ['0001_init', '0002_post_moderation']) {
+  for (const migration of ['0001_init']) {
     db.exec(await readFile(new URL(`${migration}/migration.sql`, migrations), 'utf8'));
   }
   return db;

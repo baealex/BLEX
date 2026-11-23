@@ -50,7 +50,7 @@ export type PublicPost = {
     coverImageRatio: string;
     publishedDate: string;
     updatedDate: string;
-    visibility: 'hidden' | 'moderated' | 'draft' | 'public' | 'scheduled';
+    visibility: 'hidden' | 'draft' | 'public' | 'scheduled';
 };
 export type PostPresentation = {
     aeoEnabled: boolean;
