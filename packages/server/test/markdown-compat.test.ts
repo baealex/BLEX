@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { parseDocument } from 'htmlparser2';
 import { markdownToHtml } from '../src/features/posts/authoring/markdown.js';
-import { sanitizePostHtml } from '../src/features/posts/post-html.js';
+import { sanitizeAboutHtml, sanitizePostHtml } from '../src/features/posts/post-html.js';
 
 interface GoldenCase {
   name: string;
@@ -61,6 +61,14 @@ for (const { name, markdown, html } of golden.cases) {
     assert.equal(canonical(markdownToHtml(markdown)), canonical(sanitizePostHtml(html)));
   });
 }
+
+test('about sections keep everything the Markdown renderer writes on its own', () => {
+  for (const { name, markdown } of golden.cases) {
+    if (name.includes('attr')) continue;
+    const html = markdownToHtml(markdown);
+    assert.equal(sanitizeAboutHtml(html), sanitizePostHtml(html), name);
+  }
+});
 
 test('every known difference names a recorded case', () => {
   const names = new Set(golden.cases.map(({ name }) => name));

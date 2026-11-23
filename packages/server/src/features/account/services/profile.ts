@@ -1,5 +1,5 @@
 import type { PrismaClient } from '@prisma/client';
-import { postOutline } from '../../posts/post-html.js';
+import { postOutline, sanitizeAboutHtml } from '../../posts/post-html.js';
 import { markdownToHtml } from '../../posts/authoring/markdown.js';
 import { type AccountSettingsView, type ProfileSettingsView } from '../types.js';
 import { accountDate, regionalPreferences } from './regional.js';
@@ -157,7 +157,7 @@ export async function updateProfile(db: PrismaClient, userId: number, body: Body
 }
 
 function renderAboutMarkdownToHtml(markdown: string): string {
-  return postOutline(markdownToHtml(markdown), { maxLength: 25, fallback: 'header' }).html;
+  return postOutline(sanitizeAboutHtml(markdownToHtml(markdown)), { maxLength: 25, fallback: 'header' }).html;
 }
 
 export interface AuthorAboutRow {

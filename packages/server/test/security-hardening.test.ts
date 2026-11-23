@@ -104,6 +104,36 @@ test('only editors can render Markdown previews', async () => {
   });
 });
 
+test('a member cannot use about text to cover the page', async () => {
+  await withApp(async ({ app, fixture, reader }) => {
+    const saved = await app.inject({
+      method: 'PUT',
+      url: '/v1/users/@reader',
+      headers: json(reader),
+      payload: JSON.stringify({
+        about: true,
+        aboutMarkdown:
+          '[Sign in](https://attacker.example/login){.fixed .inset-0 .z-50}\n\n' +
+          '![Cover](https://example.com/cover.png){style="width: 100vw; height: 100vh"}',
+      }),
+    });
+    assert.equal(saved.json().status, 'DONE');
+    const { aboutHtml } = fixture.db.prepare('SELECT aboutHtml FROM "Profile" WHERE userId = 3').get() as {
+      aboutHtml: string;
+    };
+    assert.match(aboutHtml, /<a href="https:\/\/attacker\.example\/login">Sign in<\/a>/);
+    assert.doesNotMatch(aboutHtml, /fixed|inset-0|z-50|100vw/);
+
+    fixture.db
+      .prepare('UPDATE "Profile" SET aboutHtml = ? WHERE userId = 3')
+      .run('<a class="fixed inset-0 z-50" href="https://attacker.example/stored">Stored</a>');
+    const page = await app.inject('/@reader');
+    assert.equal(page.statusCode, 200);
+    assert.match(page.body, /<a href="https:\/\/attacker\.example\/stored">Stored<\/a>/);
+    assert.doesNotMatch(page.body, /class="fixed inset-0 z-50" href="https:\/\/attacker/);
+  });
+});
+
 const lineSeparator = String.fromCharCode(0x2028);
 const nul = String.fromCharCode(0);
 
