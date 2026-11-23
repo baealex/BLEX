@@ -7,7 +7,6 @@ COPY packages/server/package.json ./packages/server/package.json
 COPY packages/client/package.json ./packages/client/package.json
 RUN npm i -g pnpm@${PNPM_VERSION} && pnpm i --frozen-lockfile --filter . --filter '@blex/client...'
 COPY packages/client ./packages/client
-COPY packages/server/src/features ./packages/server/src/features
 RUN pnpm exec turbo run build --filter=@blex/client && find /app/packages/server/dist -name '*.map' -delete
 
 FROM node:24.22.1-alpine AS node-base

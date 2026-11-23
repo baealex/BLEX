@@ -2,7 +2,7 @@ import formBody from '@fastify/formbody';
 import multipart from '@fastify/multipart';
 import { type PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
-import { renderWorkLogDelete, renderWorkLogIndex, renderWorkLogShared } from './pages.js';
+import { renderPage } from '../../platform/views.js';
 import { displayPage, pageChrome, pageLinks, renderDetailPage } from './detail-page.js';
 import { MAX_ATTACHMENT_SIZE, mediaResponse, removeAttachment, saveAttachment, validateAttachment } from './services/attachments.js';
 import { deleteWorkLog, deleteWorkLogEntry, revokeWorkLogShare } from './services/deletions.js';
@@ -40,7 +40,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       const logs = await readOwnedLogs(db, user.id, page);
       const entryCounts = await countEntriesByLog(db, logs.map((log) => log.id));
       const path = '/work-logs/';
-      const content = renderWorkLogIndex({
+      const content = renderPage('work-logs/index', {
         logs: logs.map((log) => ({ ...log, createdAt: toIsoDateTime(log.createdAt), entryCount: entryCounts.get(log.id) ?? 0 })),
         canWrite,
         csrfToken: csrfCookieValue(request),
@@ -58,7 +58,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       const title = scalar(bodyRecord(request.body).title).trim();
       if (!title || title.length > 100) {
         const logs = await readOwnedLogs(db, user.id, 1);
-        return html(reply, renderWorkLogIndex({
+        return html(reply, renderPage('work-logs/index', {
           logs: logs.map((log) => ({ ...log, createdAt: toIsoDateTime(log.createdAt) })),
           canWrite: true,
           csrfToken: csrfCookieValue(request),
@@ -157,7 +157,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
         const page = displayPage(scalar(fields[pageFields.previewPage]), selected.length);
         const start = (page - 1) * PAGE_SIZE;
         const entries = selected.slice(start, start + PAGE_SIZE);
-        return html(reply, renderWorkLogShared({
+        return html(reply, renderPage('work-logs/share/$token', {
           ...await pageChrome(db, request, user),
           log: { ...log, createdAt: toIsoDateTime(log.createdAt) },
           ownerUsername: user.username,
@@ -204,7 +204,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       if (logId === null) return notFound(reply);
       const log = await readOwnedLog(db, logId, user.id);
       if (!log) return notFound(reply);
-      return html(reply, renderWorkLogDelete({ ...await pageChrome(db, request, user), log: { ...log, createdAt: toIsoDateTime(log.createdAt) }, csrfToken: csrfCookieValue(request) }));
+      return html(reply, renderPage('work-logs/$id/delete', { ...await pageChrome(db, request, user), log: { ...log, createdAt: toIsoDateTime(log.createdAt) }, csrfToken: csrfCookieValue(request) }));
     });
 
     routes.post<{ Params: { pk: string } }>('/work-logs/:pk/delete/', { bodyLimit: 8 * 1024 }, async (request, reply) => {
@@ -230,7 +230,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       if (!log) return notFound(reply);
       const entry = await readEntry(db, logId, entryId);
       if (!entry) return notFound(reply);
-      return html(reply, renderWorkLogDelete({
+      return html(reply, renderPage('work-logs/$id/delete', {
         ...await pageChrome(db, request, user),
         log: { ...log, createdAt: toIsoDateTime(log.createdAt) },
         entry: { ...entry, createdAt: toIsoDateTime(entry.createdAt) },
@@ -283,7 +283,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       const shareUrl = new URL(path, options.siteUrl).href;
       const imageUrl = image ? new URL(`/work-logs/share/${share.token}/media/${image.id}/`, options.siteUrl).href : null;
       const user = await options.currentUser(request);
-      return html(reply, renderWorkLogShared({
+      return html(reply, renderPage('work-logs/share/$token', {
         ...await pageChrome(db, request, user),
         sharedAt: toIsoDateTime(share.createdAt),
         log: { id: share.logId, title: share.logTitle, createdAt: toIsoDateTime(share.logCreatedAt) },

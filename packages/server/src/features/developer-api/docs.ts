@@ -2,7 +2,6 @@ import { renderPage } from '../../platform/views.js';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { readFile } from 'node:fs/promises';
-import { renderToStaticMarkup } from 'react-dom/server';
 import { readPageChrome } from '../../platform/page-chrome.js';
 import { scriptJson } from '../../platform/document.js';
 import { quickstartHtml } from './quickstart-content.js';
@@ -60,16 +59,7 @@ export async function registerDeveloperDocumentation(app: FastifyInstance, db: P
     .type('text/html; charset=utf-8')
     .header('Cache-Control', 'private, no-store')
     .header('Content-Security-Policy', swaggerPolicy)
-    .send(`<!doctype html>${renderToStaticMarkup(<html lang="ko"><head>
-      <meta charSet="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-      <meta name="robots" content="noindex" /><title>BLEX 개발자 API</title>
-      <link rel="stylesheet" href={`${assetRoot}/swagger-ui.css`} />
-    </head><body>
-      <div id="swagger-ui" />
-      <script type="application/json" id="swagger-settings" dangerouslySetInnerHTML={{ __html: scriptJson(swaggerSettings) }} />
-      <script src={`${assetRoot}/swagger-ui-bundle.js`} />
-      <script src="/assets/blex/swagger-init.js" />
-    </body></html>)}`));
+    .send(renderPage('docs/developer-api/reference', { assetRoot, settingsJson: scriptJson(swaggerSettings) })));
 
   app.get('/docs/developer-api/quickstart', { preHandler: checkEditor }, async (request, reply) => {
     const { brand, viewer } = await readPageChrome(db, await options.currentUser(request), csrfCookie(request));

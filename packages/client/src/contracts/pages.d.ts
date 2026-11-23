@@ -1,8 +1,9 @@
-import type { CommentPayload, ReaderAuthorHeader, ReaderPostLikeState, ReaderPostView } from './engagement';
-import type { LoginModel } from './views';
+import type { CommentPayload, ReaderAuthorHeader, ReaderPostLikeState, ReaderPostView } from './engagement.js';
+import type { HeaderViewer, LoginModel } from './views.js';
+import type { WorkLogDeleteProps, WorkLogDetailProps, WorkLogIndexProps, WorkLogSharedProps } from './work-logs.js';
 import type {
  AuthorRow, AuthorSocialLink, NoticeRow, PageMeta, PostRow, PublicPageViewer, SeriesDetailRow, SeriesRow, SiteBrand, SubscriptionState, TagRow
-} from './public';
+} from './public.js';
 
 export type {
  CommentPayload, ReaderAuthorHeader, ReaderPostLikeState, ReaderPostView, AuthorRow, AuthorSocialLink, NoticeRow, PageMeta, PostRow, PublicPageViewer, SeriesDetailRow, SeriesRow, SiteBrand, SubscriptionState, TagRow
@@ -16,6 +17,12 @@ export type RelatedPost = { slug: string; title: string; image: string; descript
 
 /** Everything the server passes to each server-rendered route. */
 export interface PageProps {
+  'screen-host': { movesInApplication: boolean; lang: string; robots: string; title: string; canonical?: string; faviconUrl: string; rssUrl?: string; brand: SiteBrand; styleHrefs: string[]; configurationJson: string; globalsJson?: string; captcha: boolean; csrf: string; searchPage?: boolean; editorPage: boolean; viewer: HeaderViewer | null; contentClass?: string; screen: string; footer: boolean; loaderHref: string };
+  'docs/developer-api/reference': { assetRoot: string; settingsJson: string };
+  'work-logs/index': WorkLogIndexProps;
+  'work-logs/$id/index': WorkLogDetailProps;
+  'work-logs/$id/delete': WorkLogDeleteProps;
+  'work-logs/share/$token': WorkLogSharedProps;
   '@{$username}/partials/featured-posts': { author: AuthorRow; featured: { kind: 'featured' | 'recent'; posts: Array<PostRow> }; isOwner: boolean };
   'index': { meta: PageMeta; viewer: null | PublicPageViewer; globalNotices: Array<NoticeRow>; posts: Array<PostRow>; likes: CardLikes | undefined; path: '/'; query: URLSearchParams; checkedPage: number; pages: number };
   'interests': { meta: PageMeta; posts: Array<PostRow>; csrfToken: string; path: '/interests'; query: URLSearchParams; checkedPage: number; pages: number };
@@ -39,6 +46,6 @@ export interface PageProps {
   'errors/forbidden': { brand: SiteBrand; viewer: undefined | { username: string; hasEditorRole: boolean; isStaff: boolean; unreadCount: number; csrfToken: string } };
   '@{$username}/{$slug}/revisions': { username: string; slug: string; title: string; updatedDate: string; csrfToken: string; page: number; lastPage: number; totalCount: number; notice: string; revisions: Array<{ id: number; title: string; changeType: string; actor: string | null; contentExcerpt: string | null; contentHtml: string; date: string | null; savedLabel: string }> };
   '@{$username}/{$slug}/timelapse': { username: string; slug: string; title: string; totalCount: number; frames: Array<{ savedAt: string; title: string; stage: string; savedLabel: string; contentHtml: string }> };
-  'r/$token': { title: string; postPath: string; error: string; create: boolean; action: string; csrf: string; links: Array<{ id: number; label: string; url: string; isPaused: boolean; recentClicks: number; totalClicks: number }> };
+  '@{$username}/{$slug}/share-links': { title: string; postPath: string; error: string; create: boolean; action: string; csrf: string; links: Array<{ id: number; label: string; url: string; isPaused: boolean; recentClicks: number; totalClicks: number }> };
   '@{$username}/{$slug}/index': { post: PublicPost; siteUrl: URL; presentation: PostPresentation; hasTimelapse: boolean; viewer: null | { username?: string; hasEditorRole?: boolean; isStaff?: boolean; csrfToken?: string; unreadCount?: number }; csrfToken: string; canManage: boolean; reader: null | ReaderPostView; previewAuthor: undefined | { bio: string; homepage: string }; related: Array<RelatedPost>; outline: { html: string; headings: Array<{ id: string; text: string; level: number }> } };
 }

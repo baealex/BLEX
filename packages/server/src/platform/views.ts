@@ -2,19 +2,14 @@ import 'react';
 import 'react/jsx-runtime';
 import 'react-dom/server';
 import type { PageProps } from '../../../client/src/contracts/pages.js';
-import type { ClientViews } from '../../../client/src/contracts/views.js';
 
-export type { HeaderViewer, LoginModel, SiteHeaderProps, SiteIconName } from '../../../client/src/contracts/views.js';
+export type { HeaderViewer, LoginModel, SiteHeaderProps } from '../../../client/src/contracts/views.js';
 
-// The client package owns every view. This loads its server-rendering build beside the compiled server.
-const views = await import(new URL('../../ssr/entry-server.js', import.meta.url).href) as ClientViews;
-
-export const {
-  renderApplicationDocument, SiteHeader, SiteFooter, SiteTheme, SiteIcon, loginPromptProps,
-  AuthorHeader, PostComments, ReaderActions, LoginForm, AuthPanel, authField, authInput, authSubmit,
-  opensOutsideApplication, commentModel,
-} = views;
+// The client package owns every view. The server loads its build and hands each route its data.
+const client = await import(new URL('../../ssr/entry-server.js', import.meta.url).href) as {
+  renderPage(id: string, props: unknown): string;
+};
 
 export function renderPage<Id extends keyof PageProps>(id: Id, props: PageProps[Id]): string {
-  return views.renderPage(id, props);
+  return client.renderPage(id, props);
 }

@@ -1,7 +1,7 @@
 import { type PrismaClient } from '@prisma/client';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { readPageChrome } from '../../platform/page-chrome.js';
-import { renderWorkLogDetail } from './pages.js';
+import { renderPage } from '../../platform/views.js';
 import { WorkLogRow, countEntries, readEntries } from './services/logs.js';
 import { countShares, readShares } from './services/shares.js';
 import { PAGE_SIZE, WorkLogOptions, WorkLogUser, csrfCookieValue, html, isActiveEditor, pageFields, toIsoDateTime } from './shared.js';
@@ -60,7 +60,7 @@ export async function renderDetailPage(
   const url = `/work-logs/${log.id}/`;
   const entryPages = Math.max(1, Math.ceil(totalEntries / PAGE_SIZE));
   const sharePages = Math.max(1, Math.ceil(totalShares / PAGE_SIZE));
-  return html(reply, renderWorkLogDetail({
+  return html(reply, renderPage('work-logs/$id/index', {
     log: { ...log, createdAt: toIsoDateTime(log.createdAt) },
     canWrite,
     csrfToken: csrfCookieValue(request),

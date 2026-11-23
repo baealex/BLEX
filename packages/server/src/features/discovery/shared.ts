@@ -1,5 +1,4 @@
 import { createHash } from 'node:crypto';
-import { createElement, type ReactNode } from 'react';
 import type { Prisma } from '@prisma/client';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { sanitizePostHtml } from '../posts/post-html.js';
@@ -16,8 +15,6 @@ export interface PostQueryOptions {
   limit?: number;
   offset?: number;
 }
-
-export const h = createElement;
 
 export const PAGE_SIZE = 24;
 
@@ -152,11 +149,6 @@ export function makePaginationMeta(
     previous: page > 1 ? makeAbsolute(siteUrl, pageUrl(path, search, preserve, page - 1)) : undefined,
     next: page < pages ? makeAbsolute(siteUrl, pageUrl(path, search, preserve, page + 1)) : undefined,
   };
-}
-
-export function formatPostDate(post: PostRow): ReactNode {
-  if (!post.publishedDate) return null;
-  return h('time', { dateTime: dateValue(post.publishedDate) ?? undefined }, dateLabel(post.publishedDate));
 }
 
 export function safeStructuredPageData(

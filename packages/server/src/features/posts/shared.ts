@@ -1,4 +1,3 @@
-import { createElement as h } from 'react';
 import { type PrismaClient } from '@prisma/client';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { isoWithOffset } from '../../platform/date-format.js';
@@ -85,8 +84,6 @@ export interface AuthoringPostInput {
   removeCoverImage: boolean;
   reservedDate: string;
 }
-
-export const h1 = h;
 
 export const POST_TITLE_MAX = 65;
 

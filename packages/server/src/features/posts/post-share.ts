@@ -84,7 +84,7 @@ async function createLink(db: PrismaClient, postId: number, authorId: number, na
 
 function sharePage(postPath: string, title: string, csrf: string, create: boolean, links: Awaited<ReturnType<typeof listLinks>>, error = '') {
   const action = `${postPath}/share-links`;
-  return renderPage('r/$token', { title, postPath, error, create, action, csrf, links });
+  return renderPage('@{$username}/{$slug}/share-links', { title, postPath, error, create, action, csrf, links });
 }
 
 export function registerPostShare(app: FastifyInstance, db: PrismaClient, options: ShareOptions) {

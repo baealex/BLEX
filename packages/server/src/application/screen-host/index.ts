@@ -3,11 +3,9 @@ import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { access, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { renderToString } from 'react-dom/server';
 import { readAdminAccess } from '../../features/site-admin/access.js';
-import { SiteFooter, SiteHeader, SiteTheme } from '../../platform/views.js';
 import { applicationContentSecurityPolicy, scriptJson } from '../../platform/document.js';
-import { renderApplicationDocument } from '../../platform/views.js';
+import { renderPage } from '../../platform/views.js';
 import { authCookieOptions, csrfCookie, requestCookies } from '../../platform/cookies.js';
 import { decryptSecret } from '../../features/auth/encrypted-secret.js';
 import { safeReturnPath } from '../../features/auth/oauth.js';
@@ -131,33 +129,15 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
     const robots = page.robots ?? 'noindex,nofollow';
     // The editor keeps full page loads so its unsaved-changes warning covers every way of leaving.
     const movesInApplication = page.component !== 'PostEditor';
-    const documentPage = <html lang={configuration.locale}>
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="color-scheme" content="light dark" />
-        <meta name="robots" content={robots} />
-        <title>{page.title(brand.siteName)}</title>
-        {page.canonical && <link rel="canonical" href={page.canonical} />}
-        <link rel="icon" href={brand.faviconUrl} />
-        {page.searchPage && <link rel="alternate" type="application/rss+xml" title={`${brand.siteName} RSS`} href={new URL('/rss', options.siteUrl).href} />}
-        <SiteTheme />
-        {styleEntries.map((entry) => <link key={entry} rel="stylesheet" href={manifestAsset(assets, entry)} />)}
-        <script type="application/json" id="blex-screen-config" dangerouslySetInnerHTML={{ __html: scriptJson(configuration) }} />
-        {page.globals && <script type="application/json" id="blex-screen-globals" dangerouslySetInnerHTML={{ __html: scriptJson(page.globals) }} />}
-        {page.captcha && <script src="https://js.hcaptcha.com/1/api.js" async defer data-blex-trusted-script="hcaptcha" />}
-      </head>
-      <body className="antialiased bg-surface-page text-content selection:bg-action selection:text-content-inverted">
-        <input type="hidden" name="csrfmiddlewaretoken" value={csrf} />
-        <SiteHeader brand={brand} searchPage={page.searchPage} editorPage={page.component === 'PostEditor'}
-          viewer={viewer ? { username: viewer.user.username, hasEditorRole: viewer.state.role === 'EDITOR', isStaff: viewer.isStaff, csrfToken: csrf, unreadCount: Number(viewer.state.unread) } : null} />
-        <main className="min-h-[calc(100vh-10.5rem)]"><div className={page.contentClass} dangerouslySetInnerHTML={{ __html: screen }} /></main>
-        {page.footer && <SiteFooter brand={brand} />}
-        <script type="module" src="/assets/blex/screen-host.js" />
-        <script type="module" src={manifestAsset(assets, loaderEntry)} {...(movesInApplication ? { 'data-blex-page-module': 'screen' } : {})} />
-      </body>
-    </html>;
-    const html = movesInApplication ? renderApplicationDocument(documentPage) : `<!doctype html>${renderToString(documentPage)}`;
+    const html = renderPage('screen-host', {
+      movesInApplication, lang: configuration.locale, robots, title: page.title(brand.siteName), canonical: page.canonical,
+      faviconUrl: brand.faviconUrl, rssUrl: page.searchPage ? new URL('/rss', options.siteUrl).href : undefined, brand,
+      styleHrefs: styleEntries.map((entry) => manifestAsset(assets, entry)), configurationJson: scriptJson(configuration),
+      globalsJson: page.globals ? scriptJson(page.globals) : undefined, captcha: Boolean(page.captcha), csrf,
+      searchPage: page.searchPage, editorPage: page.component === 'PostEditor',
+      viewer: viewer ? { username: viewer.user.username, hasEditorRole: viewer.state.role === 'EDITOR', isStaff: viewer.isStaff, csrfToken: csrf, unreadCount: Number(viewer.state.unread) } : null,
+      contentClass: page.contentClass, screen, footer: Boolean(page.footer), loaderHref: manifestAsset(assets, loaderEntry),
+    });
     return reply.type('text/html; charset=utf-8')
       .header('Cache-Control', 'private, no-store')
       .header('Vary', 'Cookie')

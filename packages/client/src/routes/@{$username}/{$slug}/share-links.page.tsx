@@ -5,7 +5,7 @@ const labelLimit = 100;
 
 export default function renderPage({
  title, postPath, error, create, action, csrf, links
-}: PageProps['r/$token']): string {
+}: PageProps['@{$username}/{$slug}/share-links']): string {
   return renderApplicationDocument(<html lang="ko"><head>
       <meta charSet="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
       <meta name="robots" content="noindex" /><title>공유 링크 · {title}</title>

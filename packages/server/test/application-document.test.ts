@@ -2,10 +2,8 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createElement as h } from 'react';
 import { test } from 'node:test';
-import { renderApplicationDocument } from '../src/platform/views.js';
+import { renderApplicationDocument, opensOutsideApplication, SiteHeader, SiteTheme } from './support/client-views.js';
 import { isApplicationDocument } from '../src/platform/document.js';
-import { opensOutsideApplication } from '../src/platform/views.js';
-import { SiteHeader, SiteTheme } from '../src/platform/views.js';
 import { clientAssets, readUiAsset } from '../src/platform/ui-assets.js';
 
 test('renders the SSR page and its canonical metadata under one application root', () => {
