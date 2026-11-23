@@ -269,22 +269,7 @@ export interface PageProps {
     };
     reauthenticate: {
         brand: SiteBrand;
-        account: {
-            id: number;
-            username: string;
-            name: string;
-            email: string;
-            passwordHash: string;
-            sessionHash: string;
-            tag: string;
-            factorId: null | number;
-            totpSecret: null | string;
-            recoveryKey: null | string;
-            factorCreated: null | Date;
-            verifiedUntil: null | Date;
-            verifiedFactor: null | number;
-            requiresFactor: boolean;
-        };
+        account: { username: string; hasSecondFactor: boolean };
         viewer: null | { role: null | 'READER' | 'EDITOR'; isStaff: boolean; unreadCount: number };
         csrf: string;
         error: string;
