@@ -62,4 +62,4 @@ The test creates the first administrator account, then checks signing out, signi
 
 Verify schema changes on an empty SQLite database and a copy prepared with the [upgrade guide](UPGRADE_FROM_3.md). Cover constraint changes with representative data, including invalid duplicates where relevant. Until 4.0 ships, `0001_init` must match the output of the regeneration command in the [Backend Guide](BACKEND_GUIDE.md#database-changes).
 
-[CI](../.github/workflows/CI.yml) runs the server build and tests, Prisma validation, web checks, and container verification. The container job launches a new instance with a 512 MiB memory limit and runs the browser smoke test.
+[CI](../.github/workflows/CI.yml) runs the server build and tests, Prisma validation, and web checks on PRs and main pushes. [Release and manual builds](../.github/workflows/BUILD.yml) verify the candidate container image with a 512 MiB memory limit and run the browser smoke test before publishing release tags.

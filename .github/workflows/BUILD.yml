@@ -64,6 +64,9 @@ jobs:
 
       - run: pnpm test
 
+      - name: Install the smoke test browser
+        run: pnpm --filter @blex/client exec playwright install --with-deps --only-shell chromium
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
@@ -97,6 +100,36 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Launch with 512 MiB and run the browser smoke test
+        env:
+          RUNTIME_IMAGE: ${{ env.IMAGE }}@${{ steps.build.outputs.digest }}
+        run: |
+          docker pull --platform linux/amd64 "$RUNTIME_IMAGE"
+          docker run --rm --platform linux/amd64 --entrypoint ffmpeg "$RUNTIME_IMAGE" -version >/dev/null
+          docker volume create blex-release-data
+          cleanup() {
+            docker logs blex-release || true
+            docker rm -f blex-release || true
+            docker volume rm blex-release-data || true
+          }
+          trap cleanup EXIT
+          docker run -d --platform linux/amd64 --name blex-release -p 127.0.0.1:8040:8040 --memory=512m --cpus=1 \
+            -v blex-release-data:/var/lib/blex \
+            -e INITIAL_SETUP_TOKEN=ci-setup-token \
+            -e SITE_URL=http://127.0.0.1:8040 -e SECRET_KEY=ci-ephemeral-session-key \
+            -e CIPHER_KEY=0123456789abcdef0123456789abcdef "$RUNTIME_IMAGE"
+          docker exec blex-release node --input-type=module -e '
+            for (let attempt = 0; attempt < 120; attempt += 1) {
+              try {
+                const response = await fetch("http://127.0.0.1:8040/setup");
+                if (response.ok && (await response.text()).includes("첫 관리자 만들기")) process.exit(0);
+              } catch {}
+              await new Promise((resolve) => setTimeout(resolve, 250));
+            }
+            throw new Error("BLEX setup page did not become ready");
+          '
+          BLEX_SETUP_TOKEN=ci-setup-token pnpm test:smoke
 
       - name: Scan AMD64 candidate
         uses: ./.github/actions/image-security
