@@ -10,6 +10,9 @@ export function installNotificationTables(db: DatabaseSync) {
     const table = statements.find((statement) => statement.includes(`CREATE TABLE "${name}" `));
     if (!table) throw new Error(`Missing ${name} in the initial migration`);
     db.exec(table);
-    for (const index of statements.filter((statement) => /CREATE (?:UNIQUE )?INDEX /.test(statement) && statement.includes(` ON "${name}"(`))) db.exec(index);
+    for (const index of statements.filter(
+      (statement) => /CREATE (?:UNIQUE )?INDEX /.test(statement) && statement.includes(` ON "${name}"(`),
+    ))
+      db.exec(index);
   }
 }

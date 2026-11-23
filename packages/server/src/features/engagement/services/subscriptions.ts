@@ -25,10 +25,20 @@ export async function mySubscriptions(db: PrismaClient, viewerId: number) {
     orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     select: {
       createdAt: true,
-      author: { select: { username: true, name: true, isActive: true, profile: { select: { bio: true, avatar: true, role: true } } } },
+      author: {
+        select: {
+          username: true,
+          name: true,
+          isActive: true,
+          profile: { select: { bio: true, avatar: true, role: true } },
+        },
+      },
     },
   });
-  const telegram = await db.telegramConnection.findUnique({ where: { userId: viewerId }, select: { telegramId: true } });
+  const telegram = await db.telegramConnection.findUnique({
+    where: { userId: viewerId },
+    select: { telegramId: true },
+  });
   return {
     subscriptions: rows.map(({ author, createdAt }) => ({
       username: author.username,

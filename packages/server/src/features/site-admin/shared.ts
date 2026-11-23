@@ -54,7 +54,9 @@ export async function recordModeration(
   action: 2 | 3,
   message: string,
 ): Promise<void> {
-  await db.adminLog.create({ data: { userId, target, objectId: String(objectId), objectName: objectName.slice(0, 200), action, message } });
+  await db.adminLog.create({
+    data: { userId, target, objectId: String(objectId), objectName: objectName.slice(0, 200), action, message },
+  });
 }
 
 export function csrfValid(request: FastifyRequest, options: AdminSettingsOptions): boolean {
@@ -75,7 +77,9 @@ export function csrfValidWithBody(request: FastifyRequest, options: AdminSetting
   }
 }
 
-export async function readMultipartFields(request: FastifyRequest): Promise<{ fields: Body; files: Map<string, Buffer> }> {
+export async function readMultipartFields(
+  request: FastifyRequest,
+): Promise<{ fields: Body; files: Map<string, Buffer> }> {
   const fields: Body = {};
   const files = new Map<string, Buffer>();
   for await (const part of request.parts()) {
@@ -146,4 +150,3 @@ export function validRouteId(value: string): number | null {
 export function apiJsonBody(request: FastifyRequest): Body {
   return isRecord(request.body) ? request.body : {};
 }
-

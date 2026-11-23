@@ -98,7 +98,10 @@ export function localDate(value: string | Date | null): string {
   const timeZone = process.env.TZ || 'Asia/Seoul';
   try {
     const parts = new Intl.DateTimeFormat('en-CA', {
-      timeZone, year: 'numeric', month: '2-digit', day: '2-digit',
+      timeZone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
     }).formatToParts(date);
     const fields = Object.fromEntries(parts.map(({ type, value: field }) => [type, field]));
     return `${fields.year}-${fields.month}-${fields.day}`;
@@ -119,11 +122,23 @@ export function isActiveEditor(user: DatabaseUser | null): user is DatabaseUser 
   return user !== null && user.active && user.role === 'EDITOR';
 }
 
-export async function requireActiveEditor(db: PrismaClient, request: FastifyRequest, options: AuthorCollectionsOptions) {
+export async function requireActiveEditor(
+  db: PrismaClient,
+  request: FastifyRequest,
+  options: AuthorCollectionsOptions,
+) {
   const sessionUser = await options.currentUser(request);
-  if (!sessionUser || !Number.isSafeInteger(sessionUser.id) || sessionUser.id <= 0 || !sessionUser.username) return null;
+  if (!sessionUser || !Number.isSafeInteger(sessionUser.id) || sessionUser.id <= 0 || !sessionUser.username)
+    return null;
   const user = await readDatabaseUser(db, sessionUser.id, sessionUser.username);
-  return user && { ...user, isStaff: sessionUser.isStaff, notifyCount: sessionUser.notifyCount, hasConnectedTelegram: sessionUser.hasConnectedTelegram };
+  return (
+    user && {
+      ...user,
+      isStaff: sessionUser.isStaff,
+      notifyCount: sessionUser.notifyCount,
+      hasConnectedTelegram: sessionUser.hasConnectedTelegram,
+    }
+  );
 }
 
 export function queryValue(request: FastifyRequest, key: string): string | undefined {
@@ -132,6 +147,7 @@ export function queryValue(request: FastifyRequest, key: string): string | undef
 }
 
 export function errorMessage(error: unknown, fallback: string): string {
-  if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') return error.message;
+  if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string')
+    return error.message;
   return fallback;
 }

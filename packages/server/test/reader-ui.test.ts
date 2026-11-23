@@ -8,7 +8,7 @@ import { PrismaClient } from '@prisma/client';
 import { after, beforeEach, test } from 'node:test';
 import { readReaderPostView, registerReaderActions } from '../src/features/engagement/index.js';
 import { installNotificationTables } from './fixtures/notifications.js';
-import { ReaderActions } from '../src/features/engagement/ui/index.js';
+import { ReaderActions } from './support/client-views.js';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { accountTables, migratedTableSql } from './fixtures/migrated-database.js';
 
@@ -105,7 +105,9 @@ registerReaderActions(app, db, {
     const value = request.headers['x-user-id'];
     const id = typeof value === 'string' ? Number(value) : NaN;
     if (!Number.isSafeInteger(id) || id < 1) return null;
-    const [user] = await db.$queryRaw<Array<{ username: string }>>`SELECT username FROM "User" WHERE id = ${id} LIMIT 1`;
+    const [user] = await db.$queryRaw<
+      Array<{ username: string }>
+    >`SELECT username FROM "User" WHERE id = ${id} LIMIT 1`;
     return user ? { id, username: user.username } : null;
   },
   validateCsrf: (request) => {
@@ -142,10 +144,17 @@ test('loads a safe reader view with comments, post likes and author subscription
   assert.equal(anonymous.author.avatar, '/resources/media/avatars/writer.png');
   assert.equal(anonymous.author.cover, '/resources/media/covers/writer.png');
   assert.equal(anonymous.author.homepage, '');
-  assert.deepEqual(anonymous.author.social.map((link) => link.name), ['github']);
-  assert.deepEqual({ canSubscribe: anonymous.author.canSubscribe, isSubscribed: anonymous.author.isSubscribed }, {
-    canSubscribe: true, isSubscribed: false,
-  });
+  assert.deepEqual(
+    anonymous.author.social.map((link) => link.name),
+    ['github'],
+  );
+  assert.deepEqual(
+    { canSubscribe: anonymous.author.canSubscribe, isSubscribed: anonymous.author.isSubscribed },
+    {
+      canSubscribe: true,
+      isSubscribed: false,
+    },
+  );
   assert.equal(anonymous.canComment, true);
   assert.equal(anonymous.comments.length, 2);
   assert.equal(anonymous.comments[0]?.replies?.[0]?.isMine, false);
@@ -155,9 +164,13 @@ test('loads a safe reader view with comments, post likes and author subscription
   assert.ok(signedIn);
   assert.equal(signedIn.viewerAuthenticated, true);
   assert.deepEqual(signedIn.postLike, { countLikes: 1, isLiked: true, canLike: true });
-  assert.deepEqual({ canSubscribe: signedIn.author.canSubscribe, isSubscribed: signedIn.author.isSubscribed }, {
-    canSubscribe: true, isSubscribed: true,
-  });
+  assert.deepEqual(
+    { canSubscribe: signedIn.author.canSubscribe, isSubscribed: signedIn.author.isSubscribed },
+    {
+      canSubscribe: true,
+      isSubscribed: true,
+    },
+  );
   assert.equal(signedIn.comments[0]?.permissions.canLike, true);
   assert.equal(signedIn.comments[0]?.replies?.[0]?.permissions.canDelete, true);
   assert.equal(await readReaderPostView(db, 'missing', 2), null);
@@ -191,42 +204,74 @@ test('renders accessible SSR author, like, comment and subscription controls', a
 
 test('handles SSR form actions with local redirects for likes, comments and subscriptions', async () => {
   const like = await app.inject({
-    method: 'POST', url: '/like/public-post', headers: signedInHeaders,
-    payload: form([['csrfmiddlewaretoken', csrfToken], ['returnTo', '/@writer/public-post#post-comments']]),
+    method: 'POST',
+    url: '/like/public-post',
+    headers: signedInHeaders,
+    payload: form([
+      ['csrfmiddlewaretoken', csrfToken],
+      ['returnTo', '/@writer/public-post#post-comments'],
+    ]),
   });
   assert.equal(like.statusCode, 303);
   assert.equal(like.headers.location, '/@writer/public-post#post-comments');
-  const [postLike] = await db.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM "PostLike" WHERE postId = 1 AND userId = 2`;
+  const [postLike] = await db.$queryRaw<
+    Array<{ count: number | bigint }>
+  >`SELECT COUNT(*) AS count FROM "PostLike" WHERE postId = 1 AND userId = 2`;
   assert.equal(Number(postLike?.count), 0);
 
   const commentLike = await app.inject({
-    method: 'POST', url: '/v1/comments/10', headers: signedInHeaders,
-    payload: form([['csrfmiddlewaretoken', csrfToken], ['like', 'like'], ['returnTo', '/@writer/public-post#comment-10']]),
+    method: 'POST',
+    url: '/v1/comments/10',
+    headers: signedInHeaders,
+    payload: form([
+      ['csrfmiddlewaretoken', csrfToken],
+      ['like', 'like'],
+      ['returnTo', '/@writer/public-post#comment-10'],
+    ]),
   });
   assert.equal(commentLike.statusCode, 303);
   assert.equal(commentLike.headers.location, '/@writer/public-post#comment-10');
 
   const comment = await app.inject({
-    method: 'POST', url: '/v1/comments?url=public-post', headers: signedInHeaders,
-    payload: form([['csrfmiddlewaretoken', csrfToken], ['commentMd', 'New comment'], ['returnTo', '/@writer/public-post#post-comments']]),
+    method: 'POST',
+    url: '/v1/comments?url=public-post',
+    headers: signedInHeaders,
+    payload: form([
+      ['csrfmiddlewaretoken', csrfToken],
+      ['commentMd', 'New comment'],
+      ['returnTo', '/@writer/public-post#post-comments'],
+    ]),
   });
   assert.equal(comment.statusCode, 303);
   assert.match(comment.headers.location ?? '', /^\/@writer\/public-post#comment-\d+$/);
 
   const unsubscribe = await app.inject({
-    method: 'POST', url: '/v1/users/@writer/subscription', headers: signedInHeaders,
-    payload: form([['csrfmiddlewaretoken', csrfToken], ['action', 'unsubscribe'], ['returnTo', '/@writer/public-post']]),
+    method: 'POST',
+    url: '/v1/users/@writer/subscription',
+    headers: signedInHeaders,
+    payload: form([
+      ['csrfmiddlewaretoken', csrfToken],
+      ['action', 'unsubscribe'],
+      ['returnTo', '/@writer/public-post'],
+    ]),
   });
   assert.equal(unsubscribe.statusCode, 303);
   assert.equal(unsubscribe.headers.location, '/@writer/public-post');
-  const [subscription] = await db.$queryRaw<Array<{ count: number | bigint }>>`SELECT COUNT(*) AS count FROM "AuthorSubscription" WHERE subscriberId = 2 AND authorId = 1`;
+  const [subscription] = await db.$queryRaw<
+    Array<{ count: number | bigint }>
+  >`SELECT COUNT(*) AS count FROM "AuthorSubscription" WHERE subscriberId = 2 AND authorId = 1`;
   assert.equal(Number(subscription?.count), 0);
 });
 
 test('rejects open redirects from enhanced form fields and keeps legacy API envelopes', async () => {
   const response = await app.inject({
-    method: 'POST', url: '/like/public-post', headers: signedInHeaders,
-    payload: form([['csrfmiddlewaretoken', csrfToken], ['returnTo', '//evil.example/path']]),
+    method: 'POST',
+    url: '/like/public-post',
+    headers: signedInHeaders,
+    payload: form([
+      ['csrfmiddlewaretoken', csrfToken],
+      ['returnTo', '//evil.example/path'],
+    ]),
   });
   assert.equal(response.statusCode, 200);
   assert.deepEqual(response.json(), { status: 'done', countLikes: 0, hasLiked: false });

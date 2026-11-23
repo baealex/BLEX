@@ -16,18 +16,79 @@ const BRAND_PNG_MAX_BYTES = 512 * 1024;
 export const BRAND_ICO_MAX_BYTES = 1024 * 1024;
 
 const SVG_ALLOWED_TAGS = new Set([
-  'svg', 'g', 'defs', 'title', 'desc', 'style', 'path', 'rect', 'circle', 'ellipse',
-  'line', 'polyline', 'polygon', 'linearGradient', 'radialGradient', 'stop', 'text', 'tspan',
+  'svg',
+  'g',
+  'defs',
+  'title',
+  'desc',
+  'style',
+  'path',
+  'rect',
+  'circle',
+  'ellipse',
+  'line',
+  'polyline',
+  'polygon',
+  'linearGradient',
+  'radialGradient',
+  'stop',
+  'text',
+  'tspan',
 ]);
 
 const SVG_ALLOWED_ATTRIBUTES = new Set([
-  'xmlns', 'viewBox', 'width', 'height', 'class', 'style', 'type', 'fill', 'stroke', 'stroke-width',
-  'stroke-linecap', 'stroke-linejoin', 'stroke-miterlimit', 'stroke-dasharray', 'stroke-dashoffset',
-  'opacity', 'fill-opacity', 'stroke-opacity', 'd', 'points', 'x', 'y', 'x1', 'x2', 'y1', 'y2',
-  'cx', 'cy', 'r', 'rx', 'ry', 'transform', 'gradientUnits', 'gradientTransform', 'offset',
-  'stop-color', 'stop-opacity', 'id', 'role', 'aria-hidden', 'focusable', 'xml:space', 'font-family',
-  'font-size', 'font-weight', 'text-anchor', 'dominant-baseline', 'letter-spacing', 'fill-rule',
-  'clip-rule', 'version', 'preserveAspectRatio',
+  'xmlns',
+  'viewBox',
+  'width',
+  'height',
+  'class',
+  'style',
+  'type',
+  'fill',
+  'stroke',
+  'stroke-width',
+  'stroke-linecap',
+  'stroke-linejoin',
+  'stroke-miterlimit',
+  'stroke-dasharray',
+  'stroke-dashoffset',
+  'opacity',
+  'fill-opacity',
+  'stroke-opacity',
+  'd',
+  'points',
+  'x',
+  'y',
+  'x1',
+  'x2',
+  'y1',
+  'y2',
+  'cx',
+  'cy',
+  'r',
+  'rx',
+  'ry',
+  'transform',
+  'gradientUnits',
+  'gradientTransform',
+  'offset',
+  'stop-color',
+  'stop-opacity',
+  'id',
+  'role',
+  'aria-hidden',
+  'focusable',
+  'xml:space',
+  'font-family',
+  'font-size',
+  'font-weight',
+  'text-anchor',
+  'dominant-baseline',
+  'letter-spacing',
+  'fill-rule',
+  'clip-rule',
+  'version',
+  'preserveAspectRatio',
 ]);
 
 const REQUIRED_ICON_PNG_SIZES = [16, 32, 57, 72, 76, 96, 114, 120, 128, 144, 152, 192, 256, 512] as const;
@@ -55,10 +116,16 @@ function decodeXmlEntities(value: string): string {
     if (body === 'gt') return '>';
     if (body === 'quot') return '"';
     if (body === 'apos') return "'";
-    const codePoint = body.startsWith('#x') || body.startsWith('#X')
-      ? Number.parseInt(body.slice(2), 16)
-      : Number.parseInt(body.slice(1), 10);
-    if (!Number.isSafeInteger(codePoint) || codePoint <= 0 || codePoint > 0x10ffff || (codePoint >= 0xd800 && codePoint <= 0xdfff)) {
+    const codePoint =
+      body.startsWith('#x') || body.startsWith('#X')
+        ? Number.parseInt(body.slice(2), 16)
+        : Number.parseInt(body.slice(1), 10);
+    if (
+      !Number.isSafeInteger(codePoint) ||
+      codePoint <= 0 ||
+      codePoint > 0x10ffff ||
+      (codePoint >= 0xd800 && codePoint <= 0xdfff)
+    ) {
       throw new BrandAssetValidationError('This is not a valid SVG file.');
     }
     return String.fromCodePoint(codePoint);
@@ -68,7 +135,10 @@ function decodeXmlEntities(value: string): string {
 function validateSvg(content: Buffer | undefined): Buffer {
   if (!content?.length) throw new BrandAssetValidationError('SVG file is required.');
   if (content.length > BRAND_SVG_MAX_BYTES) throw new BrandAssetValidationError('SVG file is too large.');
-  const source = new TextDecoder('utf-8', { fatal: true }).decode(content).replace(/^\uFEFF/, '').trim();
+  const source = new TextDecoder('utf-8', { fatal: true })
+    .decode(content)
+    .replace(/^\uFEFF/, '')
+    .trim();
   if (/<!DOCTYPE/i.test(source) || /<\?(?!xml\s)[\s\S]*?\?>/i.test(source)) {
     throw new BrandAssetValidationError('SVG processing instructions and DOCTYPE declarations are not allowed.');
   }
@@ -93,11 +163,13 @@ function validateSvg(content: Buffer | undefined): Buffer {
     }
     if (xml.startsWith('<!--', index)) {
       const end = xml.indexOf('-->', index + 4);
-      if (end < 0 || xml.slice(index + 4, end).includes('--')) throw new BrandAssetValidationError('This is not a valid SVG file.');
+      if (end < 0 || xml.slice(index + 4, end).includes('--'))
+        throw new BrandAssetValidationError('This is not a valid SVG file.');
       index = end + 3;
       continue;
     }
-    if (xml.startsWith('<!', index) || xml.startsWith('<?', index)) throw new BrandAssetValidationError('This is not a valid SVG file.');
+    if (xml.startsWith('<!', index) || xml.startsWith('<?', index))
+      throw new BrandAssetValidationError('This is not a valid SVG file.');
 
     let end = index + 1;
     let quote = '';
@@ -125,7 +197,8 @@ function validateSvg(content: Buffer | undefined): Buffer {
     const selfClosing = /\/\s*$/.test(tagSource);
     if (selfClosing) tagSource = tagSource.replace(/\/\s*$/, '');
     const tag = (opening[1] ?? '').split(':').at(-1) ?? '';
-    if (!SVG_ALLOWED_TAGS.has(tag) || rootClosed) throw new BrandAssetValidationError(`Unsupported SVG element: ${tag}`);
+    if (!SVG_ALLOWED_TAGS.has(tag) || rootClosed)
+      throw new BrandAssetValidationError(`Unsupported SVG element: ${tag}`);
     const root = !rootSeen;
     if (root && tag !== 'svg') throw new BrandAssetValidationError('Check the SVG root element.');
     if (root) rootSeen = true;
@@ -143,12 +216,19 @@ function validateSvg(content: Buffer | undefined): Buffer {
       if (seenAttributes.has(name)) throw new BrandAssetValidationError('This is not a valid SVG file.');
       seenAttributes.add(name);
       const localName = name.split(':').at(-1) ?? name;
-      if (localName.toLowerCase().startsWith('on')) throw new BrandAssetValidationError('The SVG contains an event handler attribute.');
-      if (!SVG_ALLOWED_ATTRIBUTES.has(name) && !SVG_ALLOWED_ATTRIBUTES.has(localName) && !name.startsWith('data-') && !name.startsWith('aria-')) {
+      if (localName.toLowerCase().startsWith('on'))
+        throw new BrandAssetValidationError('The SVG contains an event handler attribute.');
+      if (
+        !SVG_ALLOWED_ATTRIBUTES.has(name) &&
+        !SVG_ALLOWED_ATTRIBUTES.has(localName) &&
+        !name.startsWith('data-') &&
+        !name.startsWith('aria-')
+      ) {
         throw new BrandAssetValidationError(`Unsupported SVG attribute: ${name}`);
       }
       if (name === 'xmlns' || name.startsWith('xmlns:')) {
-        if (value !== BRAND_SVG_NAMESPACE) throw new BrandAssetValidationError('The SVG contains an external reference or unsafe value.');
+        if (value !== BRAND_SVG_NAMESPACE)
+          throw new BrandAssetValidationError('The SVG contains an external reference or unsafe value.');
       } else if (dangerous(value)) {
         throw new BrandAssetValidationError('The SVG contains an external reference or unsafe value.');
       }
@@ -181,12 +261,14 @@ function parseBrandIconManifest(raw: string): Record<string, unknown> {
 
 async function validateBrandPng(content: Buffer | undefined, size: number): Promise<Buffer> {
   if (!content?.length) throw new BrandAssetValidationError(`${size}x${size} PNG file is required.`);
-  if (content.length > BRAND_PNG_MAX_BYTES) throw new BrandAssetValidationError(`${size}x${size} PNG file is too large.`);
+  if (content.length > BRAND_PNG_MAX_BYTES)
+    throw new BrandAssetValidationError(`${size}x${size} PNG file is too large.`);
   try {
     const image = sharp(content, { limitInputPixels: size * size, failOn: 'error' });
     const metadata = await image.metadata();
     if (metadata.format !== 'png') throw new BrandAssetValidationError('Check the PNG file format.');
-    if (metadata.width !== size || metadata.height !== size) throw new BrandAssetValidationError(`Check the dimensions of the ${size}x${size} PNG file.`);
+    if (metadata.width !== size || metadata.height !== size)
+      throw new BrandAssetValidationError(`Check the dimensions of the ${size}x${size} PNG file.`);
     await image.raw().toBuffer();
   } catch (error) {
     if (error instanceof BrandAssetValidationError) throw error;
@@ -202,7 +284,8 @@ async function validateBrandIco(content: Buffer | undefined): Promise<Buffer> {
     throw new BrandAssetValidationError('Check the ICO file format.');
   }
   const imageCount = content.readUInt16LE(4);
-  if (imageCount < 1 || imageCount > 128 || 6 + imageCount * 16 > content.length) throw new BrandAssetValidationError('Could not read the ICO file.');
+  if (imageCount < 1 || imageCount > 128 || 6 + imageCount * 16 > content.length)
+    throw new BrandAssetValidationError('Could not read the ICO file.');
   let validImage = false;
   for (let index = 0; index < imageCount; index += 1) {
     const entry = 6 + index * 16;
@@ -211,13 +294,15 @@ async function validateBrandIco(content: Buffer | undefined): Promise<Buffer> {
     const imageBytes = content.readUInt32LE(entry + 8);
     const imageOffset = content.readUInt32LE(entry + 12);
     const end = imageOffset + imageBytes;
-    if (imageBytes < 8 || imageOffset < 6 + imageCount * 16 || end > content.length) throw new BrandAssetValidationError('Could not read the ICO file.');
+    if (imageBytes < 8 || imageOffset < 6 + imageCount * 16 || end > content.length)
+      throw new BrandAssetValidationError('Could not read the ICO file.');
     const imageContent = content.subarray(imageOffset, end);
     if (imageContent.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) {
       try {
         const image = sharp(imageContent, { limitInputPixels: 65_536, failOn: 'error' });
         const metadata = await image.metadata();
-        if (metadata.format !== 'png' || metadata.width !== width || metadata.height !== height) throw new Error('invalid PNG icon');
+        if (metadata.format !== 'png' || metadata.width !== width || metadata.height !== height)
+          throw new Error('invalid PNG icon');
         await image.raw().toBuffer();
         validImage = true;
       } catch {
@@ -231,7 +316,14 @@ async function validateBrandIco(content: Buffer | undefined): Promise<Buffer> {
     const dibHeight = imageContent.readInt32LE(8);
     const planes = imageContent.readUInt16LE(12);
     const bitsPerPixel = imageContent.readUInt16LE(14);
-    if (headerSize < 40 || headerSize > imageContent.length || dibWidth !== width || Math.abs(dibHeight) !== height * 2 || planes !== 1 || ![1, 4, 8, 16, 24, 32].includes(bitsPerPixel)) {
+    if (
+      headerSize < 40 ||
+      headerSize > imageContent.length ||
+      dibWidth !== width ||
+      Math.abs(dibHeight) !== height * 2 ||
+      planes !== 1 ||
+      ![1, 4, 8, 16, 24, 32].includes(bitsPerPixel)
+    ) {
       throw new BrandAssetValidationError('Could not read the ICO file.');
     }
     validImage = true;
@@ -240,7 +332,10 @@ async function validateBrandIco(content: Buffer | undefined): Promise<Buffer> {
   return content;
 }
 
-function brandAssetField(assetType: BrandAssetType, theme: BrandAssetTheme): 'logoSvg' | 'logoSvgDark' | 'iconSvg' | 'iconSvgDark' {
+function brandAssetField(
+  assetType: BrandAssetType,
+  theme: BrandAssetTheme,
+): 'logoSvg' | 'logoSvgDark' | 'iconSvg' | 'iconSvgDark' {
   if (assetType === 'logo') return theme === 'default' ? 'logoSvg' : 'logoSvgDark';
   return theme === 'default' ? 'iconSvg' : 'iconSvgDark';
 }
@@ -272,9 +367,13 @@ function brandAssetPaths(row: SiteRow | null, type?: BrandAssetType, theme?: Bra
 }
 
 function isManagedBrandPath(path: string): boolean {
-  return !path.startsWith('/') && !path.includes('\\') && !path.includes('\0') &&
+  return (
+    !path.startsWith('/') &&
+    !path.includes('\\') &&
+    !path.includes('\0') &&
     !path.split('/').some((part) => part === '' || part === '.' || part === '..') &&
-    /^brand\/(?:logo|icon)\/(?:default|dark)\/[a-f0-9]{16}\/[a-z0-9_-]+\.(?:svg|png|ico)$/i.test(path);
+    /^brand\/(?:logo|icon)\/(?:default|dark)\/[a-f0-9]{16}\/[a-z0-9_-]+\.(?:svg|png|ico)$/i.test(path)
+  );
 }
 
 export async function mediaRootRealPath(mediaRoot: string | undefined): Promise<string> {
@@ -290,7 +389,8 @@ async function ensureMediaSubdirectory(root: string, parts: string[]): Promise<s
     current = resolve(current, part);
     try {
       const existing = await lstat(current);
-      if (!existing.isDirectory() || existing.isSymbolicLink()) throw new BrandAssetValidationError('Brand asset storage path is unsafe.');
+      if (!existing.isDirectory() || existing.isSymbolicLink())
+        throw new BrandAssetValidationError('Brand asset storage path is unsafe.');
     } catch (error) {
       if (error instanceof BrandAssetValidationError) throw error;
       if (error instanceof Error && 'code' in error && error.code === 'ENOENT') await mkdir(current, { mode: 0o750 });
@@ -300,7 +400,10 @@ async function ensureMediaSubdirectory(root: string, parts: string[]): Promise<s
   return current;
 }
 
-async function writeBrandAssetFiles(mediaRoot: string, files: Array<{ path: string; content: Buffer }>): Promise<string[]> {
+async function writeBrandAssetFiles(
+  mediaRoot: string,
+  files: Array<{ path: string; content: Buffer }>,
+): Promise<string[]> {
   const root = await mediaRootRealPath(mediaRoot);
   const created: string[] = [];
   try {
@@ -351,8 +454,10 @@ async function removeBrandAssetFiles(mediaRoot: string, paths: string[]): Promis
 
 export function validateBrandTarget(value: unknown): { assetType: BrandAssetType; theme: BrandAssetTheme } {
   const input = isRecord(value) ? value : {};
-  if (input.assetType !== 'logo' && input.assetType !== 'icon') throw new BrandAssetValidationError('Check the brand asset type.');
-  if (input.theme !== 'default' && input.theme !== 'dark') throw new BrandAssetValidationError('Check the brand asset theme.');
+  if (input.assetType !== 'logo' && input.assetType !== 'icon')
+    throw new BrandAssetValidationError('Check the brand asset type.');
+  if (input.theme !== 'default' && input.theme !== 'dark')
+    throw new BrandAssetValidationError('Check the brand asset theme.');
   return { assetType: input.assetType, theme: input.theme };
 }
 
@@ -360,7 +465,13 @@ export async function uploadBrandAsset(
   db: PrismaClient,
   userId: number,
   canManageScripts: boolean,
-  input: { assetType: BrandAssetType; theme: BrandAssetTheme; svg?: Buffer; files: Map<string, Buffer>; manifest: string },
+  input: {
+    assetType: BrandAssetType;
+    theme: BrandAssetTheme;
+    svg?: Buffer;
+    files: Map<string, Buffer>;
+    manifest: string;
+  },
   options: AdminSettingsOptions,
 ): Promise<ApiResult<AdminSiteSettings>> {
   if (!options.mediaRoot) return { ok: false, code: 'RJ', message: 'Brand asset storage is unavailable.' };
@@ -372,20 +483,32 @@ export async function uploadBrandAsset(
     svg = validateSvg(input.svg);
     if (input.theme === 'dark') {
       const current = await readSiteRow(db);
-      if (!siteRowBrandAsset(current, input.assetType, 'default')) throw new BrandAssetValidationError('Upload the default asset first.');
+      if (!siteRowBrandAsset(current, input.assetType, 'default'))
+        throw new BrandAssetValidationError('Upload the default asset first.');
     }
     if (input.assetType === 'icon' && input.theme === 'default') {
       manifestSource = parseBrandIconManifest(input.manifest);
-      for (const size of REQUIRED_ICON_PNG_SIZES) pngContent.set(size, await validateBrandPng(input.files.get(`png${size}`), size));
+      for (const size of REQUIRED_ICON_PNG_SIZES)
+        pngContent.set(size, await validateBrandPng(input.files.get(`png${size}`), size));
       ico = await validateBrandIco(input.files.get('faviconIco'));
     }
   } catch (error) {
-    return { ok: false, code: 'VA', message: error instanceof Error ? error.message : 'Check the uploaded brand asset.' };
+    return {
+      ok: false,
+      code: 'VA',
+      message: error instanceof Error ? error.message : 'Check the uploaded brand asset.',
+    };
   }
 
   const current = await readSiteRow(db);
   const digest = createHash('sha256');
-  const hashParts = [svg, ...REQUIRED_ICON_PNG_SIZES.map((size) => pngContent.get(size)).filter((content): content is Buffer => Boolean(content)), ico ?? Buffer.alloc(0)];
+  const hashParts = [
+    svg,
+    ...REQUIRED_ICON_PNG_SIZES.map((size) => pngContent.get(size)).filter((content): content is Buffer =>
+      Boolean(content),
+    ),
+    ico ?? Buffer.alloc(0),
+  ];
   for (const part of hashParts) {
     const length = Buffer.alloc(8);
     length.writeBigUInt64BE(BigInt(part.length));
@@ -394,7 +517,13 @@ export async function uploadBrandAsset(
   const assetHash = digest.digest('hex').slice(0, 16);
   const base = `brand/${input.assetType}/${input.theme}/${assetHash}`;
   const files: Array<{ path: string; content: Buffer }> = [{ path: `${base}/${input.assetType}.svg`, content: svg }];
-  const manifest: { version: number; hash: string; png: Record<string, string>; ico: string; source: Record<string, unknown> | null } | null =
+  const manifest: {
+    version: number;
+    hash: string;
+    png: Record<string, string>;
+    ico: string;
+    source: Record<string, unknown> | null;
+  } | null =
     input.assetType === 'icon' && input.theme === 'default'
       ? { version: 1, hash: assetHash, png: {}, ico: `${base}/favicon.ico`, source: manifestSource }
       : null;
@@ -438,17 +567,21 @@ export async function deleteBrandAsset(
   if (!options.mediaRoot) return { ok: false, code: 'RJ', message: 'Brand asset storage is unavailable.' };
   const current = await readSiteRow(db);
   const oldPaths = brandAssetPaths(current, target.assetType, target.theme);
-  const cleared: Prisma.SiteSettingCreateInput = target.theme !== 'default'
-    ? { [brandAssetField(target.assetType, target.theme)]: '' }
-    : target.assetType === 'logo'
-      ? { logoSvg: '', logoSvgDark: '' }
-      : { iconSvg: '', iconSvgDark: '', iconManifest: {} };
+  const cleared: Prisma.SiteSettingCreateInput =
+    target.theme !== 'default'
+      ? { [brandAssetField(target.assetType, target.theme)]: '' }
+      : target.assetType === 'logo'
+        ? { logoSvg: '', logoSvgDark: '' }
+        : { iconSvg: '', iconSvgDark: '', iconManifest: {} };
   await db.$transaction(async (transaction) => {
     await writeSiteSetting(transaction, cleared);
     await recordAudit(transaction, userId, 'sitesetting', 'Site settings', 'Deleted a brand asset');
   });
   const updated = await readSiteRow(db);
   const retained = new Set(brandAssetPaths(updated));
-  await removeBrandAssetFiles(options.mediaRoot, oldPaths.filter((path) => !retained.has(path)));
+  await removeBrandAssetFiles(
+    options.mediaRoot,
+    oldPaths.filter((path) => !retained.has(path)),
+  );
   return { ok: true, body: await serializeSiteSettings(updated, canManageScripts, options) };
 }

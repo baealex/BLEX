@@ -16,10 +16,15 @@ export async function verifyPassword(password: string, encoded: string): Promise
   const iterations = Number(rounds);
   const digest = encodedDigest ? Buffer.from(encodedDigest, 'base64') : dummyDigest;
   const sha1 = algorithm === 'pbkdf2_sha1';
-  const supported = (algorithm === 'pbkdf2_sha256' || sha1) &&
-    Number.isSafeInteger(iterations) && iterations > 0 && iterations <= 10_000_000 &&
-    Boolean(salt) && digest.length === (sha1 ? 20 : 32) &&
-    encodedDigest === digest.toString('base64') && extra === undefined;
+  const supported =
+    (algorithm === 'pbkdf2_sha256' || sha1) &&
+    Number.isSafeInteger(iterations) &&
+    iterations > 0 &&
+    iterations <= 10_000_000 &&
+    Boolean(salt) &&
+    digest.length === (sha1 ? 20 : 32) &&
+    encodedDigest === digest.toString('base64') &&
+    extra === undefined;
 
   const expected = supported ? digest : dummyDigest;
   const derived = await deriveKey(

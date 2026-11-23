@@ -17,6 +17,10 @@ export function refreshCsrf(reply: FastifyReply, siteUrl: URL) {
 }
 
 export function setSessionCookies(reply: FastifyReply, siteUrl: URL, token: string) {
-  reply.setCookie(sessionCookie, token, { ...authCookieOptions(siteUrl), httpOnly: true, maxAge: SESSION_DURATION_SECONDS });
+  reply.setCookie(sessionCookie, token, {
+    ...authCookieOptions(siteUrl),
+    httpOnly: true,
+    maxAge: SESSION_DURATION_SECONDS,
+  });
   return refreshCsrf(reply, siteUrl);
 }

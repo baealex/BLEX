@@ -28,7 +28,13 @@ test('serves legacy media URLs and video ranges while keeping work-log files pri
     assert.equal(streamed.headers['x-content-type-options'], 'nosniff');
     assert.match(streamed.headers['cache-control'] ?? '', /max-age=3600/);
 
-    for (const name of ['_work_logs', '_work_logs/private-file', 'public/private-alias', 'public/outside-alias', 'public']) {
+    for (const name of [
+      '_work_logs',
+      '_work_logs/private-file',
+      'public/private-alias',
+      'public/outside-alias',
+      'public',
+    ]) {
       assert.equal((await app.inject(`/resources/media/${name}`)).statusCode, 404, name);
     }
   } finally {

@@ -29,9 +29,12 @@ let commonPasswords: Set<string> | undefined;
 
 function isCommon(password: string): boolean {
   // The same common-password denylist as 3.x keeps new credentials compatible.
-  commonPasswords ??= new Set(gunzipSync(readFileSync(
-    new URL('../../../../data/common-passwords.txt.gz', import.meta.url),
-  )).toString('utf8').trim().split(/\r?\n/));
+  commonPasswords ??= new Set(
+    gunzipSync(readFileSync(new URL('../../../../data/common-passwords.txt.gz', import.meta.url)))
+      .toString('utf8')
+      .trim()
+      .split(/\r?\n/),
+  );
   return commonPasswords.has(password.toLowerCase().trim());
 }
 

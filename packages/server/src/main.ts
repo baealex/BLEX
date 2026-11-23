@@ -35,7 +35,10 @@ if (!readOnly) {
   }
 }
 const webAssetsRoot = await resolveWebAssetsRoot();
-const auth = !readOnly && secretKey && cipherKey ? { secretKey, cipherKey, setupToken, trustedProxies, deliverNotifications: true, webAssetsRoot } : undefined;
+const auth =
+  !readOnly && secretKey && cipherKey
+    ? { secretKey, cipherKey, setupToken, trustedProxies, deliverNotifications: true, webAssetsRoot }
+    : undefined;
 const app = await buildApp(dbPath, siteUrl, auth, process.env.BLEX_V4_MEDIA_PATH);
 
 for (const signal of ['SIGINT', 'SIGTERM'] as const) {
@@ -46,7 +49,9 @@ try {
   const address = await app.listen({ host: process.env.HOST ?? '127.0.0.1', port });
   console.info(`BLEX listening at ${address}`);
   if (auth && (await app.inject('/setup')).statusCode === 200) {
-    console.info(`Open ${new URL('/setup?' + new URLSearchParams({ token: setupToken }), siteUrl).href} to create the first administrator.`);
+    console.info(
+      `Open ${new URL('/setup?' + new URLSearchParams({ token: setupToken }), siteUrl).href} to create the first administrator.`,
+    );
   }
 } catch (error) {
   await app.close();

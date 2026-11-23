@@ -23,17 +23,29 @@ export interface VerificationAccount {
   requiresFactor: boolean;
 }
 
-export async function readVerificationAccount(db: PrismaClient, request: FastifyRequest, secretKey: string): Promise<VerificationAccount | null> {
+export async function readVerificationAccount(
+  db: PrismaClient,
+  request: FastifyRequest,
+  secretKey: string,
+): Promise<VerificationAccount | null> {
   const token = request.cookies[sessionCookie];
   const hash = tokenHash(token);
-  if (!hash || !await readSession(db, token, secretKey)) return null;
+  if (!hash || !(await readSession(db, token, secretKey))) return null;
   const session = await db.session.findFirst({
     where: { tokenHash: hash, expiresAt: { gt: new Date() }, user: { isActive: true } },
     select: {
-      tokenHash: true, credentialTag: true, verifiedUntil: true, verifiedFactorId: true, requiresFactor: true,
+      tokenHash: true,
+      credentialTag: true,
+      verifiedUntil: true,
+      verifiedFactorId: true,
+      requiresFactor: true,
       user: {
         select: {
-          id: true, username: true, email: true, passwordHash: true, name: true,
+          id: true,
+          username: true,
+          email: true,
+          passwordHash: true,
+          name: true,
           twoFactor: { select: { id: true, totpSecret: true, recoveryKey: true, createdAt: true } },
         },
       },
@@ -42,28 +54,48 @@ export async function readVerificationAccount(db: PrismaClient, request: Fastify
   if (!session || session.credentialTag !== credentialTag(session.user.passwordHash, secretKey)) return null;
   const { user } = session;
   return {
-    id: user.id, username: user.username, name: user.name, email: user.email, passwordHash: user.passwordHash,
-    sessionHash: session.tokenHash, tag: session.credentialTag,
-    factorId: user.twoFactor?.id ?? null, totpSecret: user.twoFactor?.totpSecret ?? null,
-    recoveryKey: user.twoFactor?.recoveryKey ?? null, factorCreated: user.twoFactor?.createdAt ?? null,
-    verifiedUntil: session.verifiedUntil, verifiedFactor: session.verifiedFactorId, requiresFactor: session.requiresFactor,
+    id: user.id,
+    username: user.username,
+    name: user.name,
+    email: user.email,
+    passwordHash: user.passwordHash,
+    sessionHash: session.tokenHash,
+    tag: session.credentialTag,
+    factorId: user.twoFactor?.id ?? null,
+    totpSecret: user.twoFactor?.totpSecret ?? null,
+    recoveryKey: user.twoFactor?.recoveryKey ?? null,
+    factorCreated: user.twoFactor?.createdAt ?? null,
+    verifiedUntil: session.verifiedUntil,
+    verifiedFactor: session.verifiedFactorId,
+    requiresFactor: session.requiresFactor,
   };
 }
 
 export function hasVerification(account: VerificationAccount, pendingFactor = false): boolean {
-  return account.verifiedUntil !== null && account.verifiedUntil.getTime() > Date.now() &&
-    account.verifiedFactor === account.factorId && account.requiresFactor === pendingFactor;
+  return (
+    account.verifiedUntil !== null &&
+    account.verifiedUntil.getTime() > Date.now() &&
+    account.verifiedFactor === account.factorId &&
+    account.requiresFactor === pendingFactor
+  );
 }
 
 /** The account as this proof saw it. Any change to its password, status, or factor voids the proof. */
 function unchangedAccount(account: VerificationAccount): Prisma.UserWhereInput {
   return {
-    id: account.id, isActive: true, passwordHash: account.passwordHash,
+    id: account.id,
+    isActive: true,
+    passwordHash: account.passwordHash,
     twoFactor: account.factorId === null ? { is: null } : { is: { id: account.factorId } },
   };
 }
 
-export async function recordVerification(db: PrismaClient, account: VerificationAccount, requireFactor = false, spentRecoveryKey?: string) {
+export async function recordVerification(
+  db: PrismaClient,
+  account: VerificationAccount,
+  requireFactor = false,
+  spentRecoveryKey?: string,
+) {
   const token = createToken();
   const storedToken = tokenHash(token)!;
   const now = new Date();
@@ -72,9 +104,11 @@ export async function recordVerification(db: PrismaClient, account: Verification
       const { count } = await tx.session.updateMany({
         where: { tokenHash: account.sessionHash, expiresAt: { gt: now }, user: unchangedAccount(account) },
         data: {
-          tokenHash: storedToken, verifiedUntil: new Date(now.getTime() + verificationLifetime),
+          tokenHash: storedToken,
+          verifiedUntil: new Date(now.getTime() + verificationLifetime),
           // Spending the key removes the factor, so this proof must describe an account without one.
-          verifiedFactorId: spentRecoveryKey === undefined ? account.factorId : null, requiresFactor: requireFactor,
+          verifiedFactorId: spentRecoveryKey === undefined ? account.factorId : null,
+          requiresFactor: requireFactor,
         },
       });
       if (count !== 1) return false;
@@ -93,8 +127,12 @@ export async function acquireVerification(tx: Prisma.TransactionClient, account:
   // A write, so the transaction holds SQLite's write lock from this check until it commits.
   const { count } = await tx.session.updateMany({
     where: {
-      tokenHash: account.sessionHash, expiresAt: { gt: now }, verifiedUntil: { gt: now },
-      requiresFactor: false, verifiedFactorId: account.factorId, user: unchangedAccount(account),
+      tokenHash: account.sessionHash,
+      expiresAt: { gt: now },
+      verifiedUntil: { gt: now },
+      requiresFactor: false,
+      verifiedFactorId: account.factorId,
+      user: unchangedAccount(account),
     },
     data: { requiresFactor: false },
   });

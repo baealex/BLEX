@@ -1,6 +1,16 @@
 import { type PrismaClient } from '@prisma/client';
 import { descriptionFromHtml, mediaUrl, parseAuthoringPostInput, resolveContent } from './post-content.js';
-import { AuthoringSaveResult, PostValidationError, assertExpectedUpdatedAt, createPost, draftReservation, loadPost, postTags, trashPost, updatePost } from './post-store.js';
+import {
+  AuthoringSaveResult,
+  PostValidationError,
+  assertExpectedUpdatedAt,
+  createPost,
+  draftReservation,
+  loadPost,
+  postTags,
+  trashPost,
+  updatePost,
+} from './post-store.js';
 import { AuthoringPostInput, AuthoringUser, StoredPost, UserRow, dateAsIso } from '../shared.js';
 
 export function apiPostBase(post: StoredPost, contentHtml: string): Record<string, unknown> {
@@ -13,9 +23,10 @@ export function apiPostBase(post: StoredPost, contentHtml: string): Record<strin
     publishedDate: dateAsIso(post.publishedDate),
     updatedDate: dateAsIso(post.updatedDate),
     isScheduled: Boolean(post.publishedDate && post.publishedDate.valueOf() > Date.now()),
-    series: post.seriesId !== null && post.seriesUrl
-      ? { id: String(post.seriesId), name: post.seriesName ?? '', url: post.seriesUrl }
-      : null,
+    series:
+      post.seriesId !== null && post.seriesUrl
+        ? { id: String(post.seriesId), name: post.seriesName ?? '', url: post.seriesUrl }
+        : null,
     contentHtml,
     textHtml: contentHtml,
     isHide: post.hide,
@@ -28,8 +39,9 @@ export function apiPostBase(post: StoredPost, contentHtml: string): Record<strin
 }
 
 function hasPostContent(body: Record<string, unknown>): boolean {
-  return ['contentHtml', 'content', 'textHtml', 'textMd', 'contentMarkdown', 'markdown']
-    .some((key) => Object.hasOwn(body, key));
+  return ['contentHtml', 'content', 'textHtml', 'textMd', 'contentMarkdown', 'markdown'].some((key) =>
+    Object.hasOwn(body, key),
+  );
 }
 
 export async function preservePostOmissions(
@@ -45,20 +57,26 @@ export async function preservePostOmissions(
     ? input.reservedDate
     : post.publishedDate === null
       ? await draftReservation(db, post.id)
-      : isScheduled ? dateAsIso(post.publishedDate) ?? '' : '';
+      : isScheduled
+        ? (dateAsIso(post.publishedDate) ?? '')
+        : '';
   return {
     ...input,
     title: Object.hasOwn(body, 'title') ? input.title : post.title,
     subtitle: Object.hasOwn(body, 'subtitle') ? input.subtitle : post.subtitle,
     text: hasText ? input.text : '',
-    description: Object.hasOwn(body, 'description') || Object.hasOwn(body, 'metaDescription')
-      ? input.description
-      : hasText ? descriptionFromHtml(resolveContent(input)) : post.description,
+    description:
+      Object.hasOwn(body, 'description') || Object.hasOwn(body, 'metaDescription')
+        ? input.description
+        : hasText
+          ? descriptionFromHtml(resolveContent(input))
+          : post.description,
     url: Object.hasOwn(body, 'customUrl') || Object.hasOwn(body, 'url') ? input.url : post.url,
     tags: Object.hasOwn(body, 'tags') || Object.hasOwn(body, 'tag') ? input.tags : tags.join(','),
-    series: Object.hasOwn(body, 'seriesUrl') || Object.hasOwn(body, 'series') ? input.series : post.seriesUrl ?? '',
+    series: Object.hasOwn(body, 'seriesUrl') || Object.hasOwn(body, 'series') ? input.series : (post.seriesUrl ?? ''),
     hide: Object.hasOwn(body, 'isHide') || Object.hasOwn(body, 'hide') ? input.hide : post.hide,
-    advertise: Object.hasOwn(body, 'isAdvertise') || Object.hasOwn(body, 'advertise') ? input.advertise : post.advertise,
+    advertise:
+      Object.hasOwn(body, 'isAdvertise') || Object.hasOwn(body, 'advertise') ? input.advertise : post.advertise,
     blockComment: Object.hasOwn(body, 'blockComment') ? input.blockComment : post.blockComment,
     coverLayout: Object.hasOwn(body, 'coverLayout') ? input.coverLayout : post.coverLayout,
     coverImagePosition: Object.hasOwn(body, 'coverImagePosition') ? input.coverImagePosition : post.coverImagePosition,
@@ -86,7 +104,10 @@ async function ownedPostByReference(
   let slug: string;
   if (typeof reference === 'number') {
     if (!Number.isSafeInteger(reference) || reference < 1) throw new PostValidationError('VA', 'Check the post ID.');
-    const row = await db.post.findFirst({ where: { id: reference, authorId: author.id, deletedAt: null }, select: { slug: true } });
+    const row = await db.post.findFirst({
+      where: { id: reference, authorId: author.id, deletedAt: null },
+      select: { slug: true },
+    });
     slug = row?.slug ?? '';
   } else {
     slug = reference;

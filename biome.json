@@ -1,0 +1,120 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.6.8/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "includes": ["packages/**/*.{ts,tsx,js,mjs}", "!**/routeTree.gen.ts"]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 120
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "a11y": {
+        "noAutofocus": "warn",
+        "noLabelWithoutControl": "warn",
+        "noStaticElementInteractions": "warn",
+        "useAriaPropsSupportedByRole": "warn",
+        "useButtonType": "warn",
+        "useFocusableInteractive": "warn",
+        "useIframeTitle": "warn",
+        "useKeyWithClickEvents": "warn",
+        "useMediaCaption": "warn",
+        "useSemanticElements": "warn"
+      },
+      "correctness": {
+        "noComponentHookFactories": "warn",
+        "noVoidTypeReturn": "warn",
+        "useExhaustiveDependencies": "warn",
+        "useJsxKeyInIterable": "warn"
+      },
+      "security": {
+        "noDangerouslySetInnerHtml": "off"
+      },
+      "suspicious": {
+        "noArrayIndexKey": "warn",
+        "noControlCharactersInRegex": "off",
+        "noImplicitAnyLet": "warn",
+        "noShadowRestrictedNames": "warn",
+        "useIterableCallbackReturn": "warn"
+      }
+    }
+  },
+  "assist": {
+    "enabled": false
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "jsxQuoteStyle": "double",
+      "semicolons": "always",
+      "trailingCommas": "all",
+      "arrowParentheses": "always"
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["packages/client/**"],
+      "formatter": {
+        "indentWidth": 4
+      },
+      "javascript": {
+        "formatter": {
+          "trailingCommas": "none"
+        }
+      },
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "~/ui": "Use component subpath imports (e.g. ~/ui/button).",
+                  "~/features/editor/tiptap": "Use explicit subpath imports (e.g. ~/features/editor/tiptap/tiptap-editor)."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/client/src/screen-runtime.tsx", "packages/client/src/components/App.tsx"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "~/ui": "Use component subpath imports (e.g. ~/ui/button).",
+                  "~/features/editor/tiptap": "Use explicit subpath imports only inside lazy-loaded feature modules.",
+                  "@tanstack/react-router": "Bootstrap code must not statically import feature-heavy dependencies.",
+                  "@tanstack/router-core": "Bootstrap code must not statically import feature-heavy dependencies.",
+                  "@monaco-editor/react": "Bootstrap code must not statically import feature-heavy dependencies.",
+                  "frappe-charts": "Bootstrap code must not statically import feature-heavy dependencies.",
+                  "zod": "Bootstrap code must not statically import feature-heavy dependencies."
+                },
+                "patterns": [
+                  {
+                    "group": ["~/features/editor/tiptap/*", "@tiptap/*", "prosemirror*", "zod/*"],
+                    "message": "Bootstrap code must not statically import feature-heavy dependencies."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

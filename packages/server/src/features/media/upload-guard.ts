@@ -7,9 +7,11 @@ const MAX_ACTIVE_UPLOADS_PER_ACCOUNT = 2;
 const SELF_AUTHENTICATED_PREFIX = '/api/developer/';
 
 function isGuardedUpload(request: FastifyRequest) {
-  return request.method !== 'GET'
-    && request.headers['content-type']?.toLowerCase().startsWith('multipart/form-data') === true
-    && !request.url.startsWith(SELF_AUTHENTICATED_PREFIX);
+  return (
+    request.method !== 'GET' &&
+    request.headers['content-type']?.toLowerCase().startsWith('multipart/form-data') === true &&
+    !request.url.startsWith(SELF_AUTHENTICATED_PREFIX)
+  );
 }
 
 /** Rejects uploads before Fastify reads the body, because form CSRF tokens live inside that body. */
@@ -42,8 +44,12 @@ export function registerUploadGuard(
       return reply.code(403).type('text/plain; charset=utf-8').send('Sign in before uploading files.');
     }
     if (active >= MAX_ACTIVE_UPLOADS || (activeByAccount.get(user.id) ?? 0) >= MAX_ACTIVE_UPLOADS_PER_ACCOUNT) {
-      return reply.code(429).header('Connection', 'close').header('Retry-After', '5')
-        .type('text/plain; charset=utf-8').send('Other uploads are in progress. Try again in a moment.');
+      return reply
+        .code(429)
+        .header('Connection', 'close')
+        .header('Retry-After', '5')
+        .type('text/plain; charset=utf-8')
+        .send('Other uploads are in progress. Try again in a moment.');
     }
     active += 1;
     activeByAccount.set(user.id, (activeByAccount.get(user.id) ?? 0) + 1);

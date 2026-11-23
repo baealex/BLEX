@@ -86,7 +86,11 @@ test('serves the shared application entry in read-only mode', async () => {
 test('does not expose a GraphQL endpoint', async () => {
   for (const url of ['/graphql', '/graphiql']) {
     assert.equal((await app.inject(url)).statusCode, 404, url);
-    const response = await app.inject({ method: 'POST', url, payload: { query: '{ __schema { queryType { name } } }' } });
+    const response = await app.inject({
+      method: 'POST',
+      url,
+      payload: { query: '{ __schema { queryType { name } } }' },
+    });
     assert.equal(response.statusCode, 404, url);
   }
   const page = await app.inject({ url: '/graphql', headers: { accept: 'text/html' } });
@@ -140,13 +144,22 @@ test('includes the body and share metadata in the initial React HTML response', 
   assert.equal(article.headline, 'Public article');
   assert.match(response.body, /Public article - writer \| Synthetic Site/);
   assert.match(response.body, /href="\/resources\/media\/brand\/icon\/default\/hash\/favicon\.ico"/);
-  assert.match(response.body, /aria-label="Synthetic Site"><img src="\/resources\/media\/brand\/logo\/default\/hash\/logo\.svg"/);
+  assert.match(
+    response.body,
+    /aria-label="Synthetic Site"><img src="\/resources\/media\/brand\/logo\/default\/hash\/logo\.svg"/,
+  );
   assert.match(response.body, /name="robots" content="noindex,nofollow"/);
   assert.match(response.body, /post-cover-split[^\"]*cover-left/);
-  assert.match(response.body, /blog-post-content[^\"]*" itemProp="articleBody"|blog-post-content[^\"]*" itemprop="articleBody"/);
+  assert.match(
+    response.body,
+    /blog-post-content[^\"]*" itemProp="articleBody"|blog-post-content[^\"]*" itemprop="articleBody"/,
+  );
   assert.match(response.body, /post-action-dock/);
   assert.match(response.body, /href="\/assets\/blex\/theme\.css"/);
-  assert.match(response.body, /property="og:image" content="https:\/\/blog\.example\/resources\/media\/images\/cover\.png"/);
+  assert.match(
+    response.body,
+    /property="og:image" content="https:\/\/blog\.example\/resources\/media\/images\/cover\.png"/,
+  );
   assert.match(response.body, /aspect-ratio:4 \/ 3/);
   assert.match(response.body, /Global banner.*Public article body.*#<\/span>example-tag/);
   assert.match(response.body, /Author banner/);
@@ -158,7 +171,10 @@ test('includes the body and share metadata in the initial React HTML response', 
 });
 
 test('serves the default branding at its legacy resource URLs', async () => {
-  for (const [path, type] of [['/resources/logob.svg', 'svg'], ['/resources/logo512.png', 'png']]) {
+  for (const [path, type] of [
+    ['/resources/logob.svg', 'svg'],
+    ['/resources/logo512.png', 'png'],
+  ]) {
     const icon = await app.inject(path);
     assert.equal(icon.statusCode, 200, path);
     assert.match(icon.headers['content-type'] ?? '', new RegExp(type));
@@ -168,10 +184,13 @@ test('serves the default branding at its legacy resource URLs', async () => {
 
 test('requires the BLEX 4 schema before starting in writable mode', async () => {
   const unprepared = await buildApp(databasePath, new URL('https://blog.example'), {
-    secretKey: 'synthetic-startup-test', cipherKey: '0123456789abcdef0123456789abcdef',
+    secretKey: 'synthetic-startup-test',
+    cipherKey: '0123456789abcdef0123456789abcdef',
   });
   try {
-    await assert.rejects(async () => { await unprepared.ready(); }, /Apply the Prisma migrations.*BLEX 3\.x upgrade guide/);
+    await assert.rejects(async () => {
+      await unprepared.ready();
+    }, /Apply the Prisma migrations.*BLEX 3\.x upgrade guide/);
   } finally {
     await unprepared.close();
   }

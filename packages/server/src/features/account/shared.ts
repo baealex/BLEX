@@ -61,7 +61,9 @@ export async function authenticatedDatabaseUser(
 }
 
 export function apiValidationError(reply: FastifyReply, result: Extract<UpdateResult, { ok: false }>) {
-  return reply.send(failure('VA', result.message, result.messageKey ? { messageKey: result.messageKey, messageParams: {} } : {}));
+  return reply.send(
+    failure('VA', result.message, result.messageKey ? { messageKey: result.messageKey, messageParams: {} } : {}),
+  );
 }
 
 export async function currentUser(request: FastifyRequest, reply: FastifyReply, options: PersonalSettingsOptions) {
@@ -69,4 +71,3 @@ export async function currentUser(request: FastifyRequest, reply: FastifyReply, 
   if (!user || !Number.isSafeInteger(user.id) || user.id <= 0 || !user.username) return null;
   return user;
 }
-

@@ -4,8 +4,13 @@ import { publicPostWhere } from '../posts/data/visibility.js';
 import { publicPostPath } from '../posts/public-post.js';
 import { queuePostWebhooks } from '../integrations/webhooks/delivery.js';
 
-export const notificationPreferences = ['NOTIFY_POSTS_LIKE', 'NOTIFY_POSTS_COMMENT', 'NOTIFY_COMMENT_LIKE', 'NOTIFY_MENTION'] as const;
-export type NotificationPreference = typeof notificationPreferences[number];
+export const notificationPreferences = [
+  'NOTIFY_POSTS_LIKE',
+  'NOTIFY_POSTS_COMMENT',
+  'NOTIFY_COMMENT_LIKE',
+  'NOTIFY_MENTION',
+] as const;
+export type NotificationPreference = (typeof notificationPreferences)[number];
 export const notificationPreferenceColumns = {
   NOTIFY_POSTS_LIKE: 'notifyPostLike',
   NOTIFY_POSTS_COMMENT: 'notifyPostComment',
@@ -13,9 +18,18 @@ export const notificationPreferenceColumns = {
   NOTIFY_MENTION: 'notifyMention',
 } as const satisfies Record<NotificationPreference, keyof Prisma.UserPreferenceSelect>;
 export const notificationPreferenceSelect = {
-  notifyPostLike: true, notifyPostComment: true, notifyCommentLike: true, notifyMention: true,
+  notifyPostLike: true,
+  notifyPostComment: true,
+  notifyCommentLike: true,
+  notifyMention: true,
 } satisfies Prisma.UserPreferenceSelect;
-export type NotificationKey = 'post.commented' | 'comment.mentioned' | 'comment.liked' | 'comment.replied' | 'post.liked' | 'post.published';
+export type NotificationKey =
+  | 'post.commented'
+  | 'comment.mentioned'
+  | 'comment.liked'
+  | 'comment.replied'
+  | 'post.liked'
+  | 'post.published';
 
 interface NotificationInput {
   recipientId: number;
@@ -30,23 +44,37 @@ interface NotificationInput {
 
 export function notificationText(key: string, data: Record<string, unknown>, fallback = '', language = 'ko') {
   const { actor, post_title: title, comment_id: comment = '' } = data;
-  if (typeof actor !== 'string' || typeof title !== 'string' || (typeof comment !== 'number' && typeof comment !== 'string')) return fallback;
-  if (language === 'en') return ({
-    'post.commented': `@${actor} commented on "${title}". #${comment}`,
-    'comment.mentioned': `@${actor} mentioned you in "${title}". #${comment}`,
-    'comment.liked': `@${actor} liked your comment #${comment} on "${title}".`,
-    'comment.replied': `@${actor} replied to your comment on "${title}". #${comment}`,
-    'post.liked': `@${actor} liked "${title}".`,
-    'post.published': `@${actor} published a new post: "${title}".`,
-  } as Record<string, string>)[key] ?? fallback;
-  return ({
-    'post.commented': `"${title}" 글에 @${actor}님이 댓글을 남겼습니다. #${comment}`,
-    'comment.mentioned': `"${title}" 글에서 @${actor}님이 회원님을 태그했습니다. #${comment}`,
-    'comment.liked': `"${title}" 글에 작성한 회원님의 #${comment} 댓글을 @${actor}님이 추천했습니다.`,
-    'comment.replied': `"${title}" 글에 작성한 회원님의 댓글에 @${actor}님이 답글을 남겼습니다. #${comment}`,
-    'post.liked': `"${title}" 글을 @${actor}님이 추천했습니다.`,
-    'post.published': `@${actor}님이 새 글을 발행했습니다: "${title}"`,
-  } as Record<string, string>)[key] ?? fallback;
+  if (
+    typeof actor !== 'string' ||
+    typeof title !== 'string' ||
+    (typeof comment !== 'number' && typeof comment !== 'string')
+  )
+    return fallback;
+  if (language === 'en')
+    return (
+      (
+        {
+          'post.commented': `@${actor} commented on "${title}". #${comment}`,
+          'comment.mentioned': `@${actor} mentioned you in "${title}". #${comment}`,
+          'comment.liked': `@${actor} liked your comment #${comment} on "${title}".`,
+          'comment.replied': `@${actor} replied to your comment on "${title}". #${comment}`,
+          'post.liked': `@${actor} liked "${title}".`,
+          'post.published': `@${actor} published a new post: "${title}".`,
+        } as Record<string, string>
+      )[key] ?? fallback
+    );
+  return (
+    (
+      {
+        'post.commented': `"${title}" 글에 @${actor}님이 댓글을 남겼습니다. #${comment}`,
+        'comment.mentioned': `"${title}" 글에서 @${actor}님이 회원님을 태그했습니다. #${comment}`,
+        'comment.liked': `"${title}" 글에 작성한 회원님의 #${comment} 댓글을 @${actor}님이 추천했습니다.`,
+        'comment.replied': `"${title}" 글에 작성한 회원님의 댓글에 @${actor}님이 답글을 남겼습니다. #${comment}`,
+        'post.liked': `"${title}" 글을 @${actor}님이 추천했습니다.`,
+        'post.published': `@${actor}님이 새 글을 발행했습니다: "${title}"`,
+      } as Record<string, string>
+    )[key] ?? fallback
+  );
 }
 
 export function notificationParams(value: Prisma.JsonValue): Record<string, unknown> {
@@ -61,9 +89,17 @@ async function telegramDeliveryEnabled(tx: Prisma.TransactionClient) {
   return Boolean(settings?.telegramEnabled && settings.telegramBotToken);
 }
 
-export async function queueNotification(tx: Prisma.TransactionClient, notificationId: number, userId: number, telegramEnabled?: boolean) {
-  if (!(telegramEnabled ?? await telegramDeliveryEnabled(tx))) return;
-  const connection = await tx.telegramConnection.findFirst({ where: { userId, telegramId: { not: '' } }, select: { userId: true } });
+export async function queueNotification(
+  tx: Prisma.TransactionClient,
+  notificationId: number,
+  userId: number,
+  telegramEnabled?: boolean,
+) {
+  if (!(telegramEnabled ?? (await telegramDeliveryEnabled(tx)))) return;
+  const connection = await tx.telegramConnection.findFirst({
+    where: { userId, telegramId: { not: '' } },
+    select: { userId: true },
+  });
   if (!connection) return;
   await tx.notificationDelivery.upsert({
     where: { notificationId },
@@ -72,24 +108,46 @@ export async function queueNotification(tx: Prisma.TransactionClient, notificati
   });
 }
 
-export async function createNotification(tx: Prisma.TransactionClient, input: NotificationInput, telegramEnabled?: boolean) {
-  const user = await tx.user.findFirst({ where: { id: input.recipientId, isActive: true }, select: { username: true } });
+export async function createNotification(
+  tx: Prisma.TransactionClient,
+  input: NotificationInput,
+  telegramEnabled?: boolean,
+) {
+  const user = await tx.user.findFirst({
+    where: { id: input.recipientId, isActive: true },
+    select: { username: true },
+  });
   if (!user || user.username === input.actor) return false;
   if (input.preference) {
     // An unset preference stays off until the recipient turns it on.
-    const stored = await tx.userPreference.findUnique({ where: { userId: input.recipientId }, select: notificationPreferenceSelect });
+    const stored = await tx.userPreference.findUnique({
+      where: { userId: input.recipientId },
+      select: notificationPreferenceSelect,
+    });
     if (stored?.[notificationPreferenceColumns[input.preference]] !== true) return false;
   }
-  const data = { actor: input.actor, ...(input.commentId ? { comment_id: input.commentId } : {}), post_title: input.title };
+  const data = {
+    actor: input.actor,
+    ...(input.commentId ? { comment_id: input.commentId } : {}),
+    post_title: input.title,
+  };
   const payload = JSON.stringify(data);
-  const key = createHash('sha256').update(user.username + input.url + `${input.key}:${payload}` + (input.hiddenKey ?? '')).digest('base64');
+  const key = createHash('sha256')
+    .update(user.username + input.url + `${input.key}:${payload}` + (input.hiddenKey ?? ''))
+    .digest('base64');
   const timestamp = new Date();
   let notificationId: number;
   try {
     ({ id: notificationId } = await tx.notification.create({
       data: {
-        key, userId: input.recipientId, url: input.url, content: notificationText(input.key, data),
-        messageKey: input.key, messageParams: data, createdAt: timestamp, updatedAt: timestamp,
+        key,
+        userId: input.recipientId,
+        url: input.url,
+        content: notificationText(input.key, data),
+        messageKey: input.key,
+        messageParams: data,
+        createdAt: timestamp,
+        updatedAt: timestamp,
       },
       select: { id: true },
     }));
@@ -117,16 +175,32 @@ export async function notifyPostSubscribers(tx: Prisma.TransactionClient, postId
   const priorUrls = [url, ...aliases.map((entry) => publicPostPath(entry.username, slug))];
   const telegramEnabled = await telegramDeliveryEnabled(tx);
   const announced = await tx.notification.findMany({
-    where: { userId: { in: subscribers.map(({ subscriberId }) => subscriberId) }, messageKey: 'post.published', url: { in: priorUrls } },
+    where: {
+      userId: { in: subscribers.map(({ subscriberId }) => subscriberId) },
+      messageKey: 'post.published',
+      url: { in: priorUrls },
+    },
     select: { userId: true },
   });
   const alreadyNotified = new Set(announced.map(({ userId }) => userId));
   let delivered = 0;
   for (const { subscriberId: subscriber } of subscribers) {
     if (alreadyNotified.has(subscriber)) continue;
-    if (await createNotification(tx, {
-      recipientId: subscriber, actor: username, title, url, key: 'post.published', hiddenKey: `post-published:${postId}`,
-    }, telegramEnabled)) delivered += 1;
+    if (
+      await createNotification(
+        tx,
+        {
+          recipientId: subscriber,
+          actor: username,
+          title,
+          url,
+          key: 'post.published',
+          hiddenKey: `post-published:${postId}`,
+        },
+        telegramEnabled,
+      )
+    )
+      delivered += 1;
   }
   return delivered;
 }
@@ -154,13 +228,16 @@ export async function syncPostPublication(tx: Prisma.TransactionClient, postId: 
 
 export async function processScheduledPublications(db: PrismaClient) {
   const now = new Date();
-  await db.$transaction(async (tx) => {
-    const ready = await tx.scheduledPublication.findMany({
-      where: { publishAt: { lte: now } },
-      orderBy: { publishAt: 'asc' },
-      take: 20,
-      select: { postId: true },
-    });
-    for (const { postId } of ready) await syncPostPublication(tx, postId, { announce: true });
-  }, { timeout: 15_000 });
+  await db.$transaction(
+    async (tx) => {
+      const ready = await tx.scheduledPublication.findMany({
+        where: { publishAt: { lte: now } },
+        orderBy: { publishAt: 'asc' },
+        take: 20,
+        select: { postId: true },
+      });
+      for (const { postId } of ready) await syncPostPublication(tx, postId, { announce: true });
+    },
+    { timeout: 15_000 },
+  );
 }

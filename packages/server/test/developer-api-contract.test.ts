@@ -6,8 +6,22 @@ import { PrismaClient } from '@prisma/client';
 import { buildApp } from '../src/app.js';
 import { createDeveloperRateLimiter } from '../src/features/developer-api/services/rate-limit.js';
 import { camelToSnake, keysFromWire, keysToWire, snakeToCamel } from '../src/features/developer-api/wire-format.js';
-import { type ContractExchange, type ContractRecording, type ContractTokenStore, recordDeveloperApiContract } from './fixtures/developer-api-contract.js';
-import { createMigratedDatabase, insertRow, seedEditor, seedPost, signIn, testCipherKey, testSecretKey, testSiteUrl } from './fixtures/migrated-database.js';
+import {
+  type ContractExchange,
+  type ContractRecording,
+  type ContractTokenStore,
+  recordDeveloperApiContract,
+} from './fixtures/developer-api-contract.js';
+import {
+  createMigratedDatabase,
+  insertRow,
+  seedEditor,
+  seedPost,
+  signIn,
+  testCipherKey,
+  testSecretKey,
+  testSiteUrl,
+} from './fixtures/migrated-database.js';
 
 interface Schema {
   $ref?: string;
@@ -30,20 +44,38 @@ const spec = JSON.parse(readFileSync(new URL('../../data/developer-openapi.json'
   components: { schemas: Record<string, Schema> };
 };
 // Captured from the commit before the API moved to camelCase internals. Regenerating it would defeat its purpose.
-const golden = JSON.parse(readFileSync(new URL('../../test/fixtures/developer-api-contract.golden.json', import.meta.url), 'utf8')) as ContractRecording;
+const golden = JSON.parse(
+  readFileSync(new URL('../../test/fixtures/developer-api-contract.golden.json', import.meta.url), 'utf8'),
+) as ContractRecording;
 
 const store: ContractTokenStore = {
   insert(db, token) {
     insertRow(db, 'DeveloperToken', {
-      id: token.id, name: token.name, tokenPrefix: token.prefix, tokenHash: token.hash, scopes: JSON.stringify(token.scopes),
-      expiresAt: token.expiresAt, revokedAt: token.revokedAt, userId: token.userId,
+      id: token.id,
+      name: token.name,
+      tokenPrefix: token.prefix,
+      tokenHash: token.hash,
+      scopes: JSON.stringify(token.scopes),
+      expiresAt: token.expiresAt,
+      revokedAt: token.revokedAt,
+      userId: token.userId,
     });
   },
   requests(db) {
-    return db.prepare('SELECT id, method, path, statusCode, ipAddress, userAgent, tokenId, userId FROM DeveloperRequestLog ORDER BY id').all().map((row) => ({ ...row }));
+    return db
+      .prepare(
+        'SELECT id, method, path, statusCode, ipAddress, userAgent, tokenId, userId FROM DeveloperRequestLog ORDER BY id',
+      )
+      .all()
+      .map((row) => ({ ...row }));
   },
   usage(db) {
-    return db.prepare(`SELECT id, lastUsedAt IS NOT NULL AS used, lastUsedIp, updatedAt = lastUsedAt AS updatedWithUse FROM DeveloperToken ORDER BY id`).all().map((row) => ({ ...row }));
+    return db
+      .prepare(
+        `SELECT id, lastUsedAt IS NOT NULL AS used, lastUsedIp, updatedAt = lastUsedAt AS updatedWithUse FROM DeveloperToken ORDER BY id`,
+      )
+      .all()
+      .map((row) => ({ ...row }));
   },
 };
 
@@ -55,9 +87,12 @@ function documentedNames() {
     if (Array.isArray(node)) return node.forEach(walk);
     if (!node || typeof node !== 'object') return;
     for (const [key, value] of Object.entries(node)) {
-      if (key === 'properties' && value && typeof value === 'object') Object.keys(value).forEach((name) => names.add(name));
-      if (key === 'required' && Array.isArray(value)) value.forEach((name) => typeof name === 'string' && names.add(name));
-      if (key === 'parameters' && Array.isArray(value)) value.forEach((parameter: { name: string }) => names.add(parameter.name));
+      if (key === 'properties' && value && typeof value === 'object')
+        Object.keys(value).forEach((name) => names.add(name));
+      if (key === 'required' && Array.isArray(value))
+        value.forEach((name) => typeof name === 'string' && names.add(name));
+      if (key === 'parameters' && Array.isArray(value))
+        value.forEach((parameter: { name: string }) => names.add(parameter.name));
       walk(value);
     }
   };
@@ -83,10 +118,15 @@ function schemaProblems(value: unknown, reference: Schema, path: string): string
     return results.find((problems) => problems.length === 0) ?? results[0];
   }
   if (schema.allOf) return schema.allOf.flatMap((part) => schemaProblems(value, part, path));
-  if (Array.isArray(value)) return schema.items ? value.flatMap((item, index) => schemaProblems(item, schema.items as Schema, `${path}[${index}]`)) : [];
+  if (Array.isArray(value))
+    return schema.items
+      ? value.flatMap((item, index) => schemaProblems(item, schema.items as Schema, `${path}[${index}]`))
+      : [];
   if (value === null || typeof value !== 'object' || !schema.properties) return [];
   const entries = Object.entries(value);
-  const problems = (schema.required ?? []).filter((name) => !(name in value)).map((name) => `${path}.${name} is required`);
+  const problems = (schema.required ?? [])
+    .filter((name) => !(name in value))
+    .map((name) => `${path}.${name} is required`);
   for (const [key, item] of entries) {
     const property = schema.properties[key];
     if (property) problems.push(...schemaProblems(item, property, `${path}.${key}`));
@@ -98,14 +138,24 @@ function schemaProblems(value: unknown, reference: Schema, path: string): string
 /** A literal path such as /posts/search wins over /posts/{post_id}, as it does in the router. */
 function documentedPath(exchange: ContractExchange) {
   const path = exchange.url.split('?')[0];
-  const candidates = Object.keys(spec.paths).filter((template) => new RegExp(`^${template.replace(/\{\w+\}/g, '[^/]+')}$`).test(path));
+  const candidates = Object.keys(spec.paths).filter((template) =>
+    new RegExp(`^${template.replace(/\{\w+\}/g, '[^/]+')}$`).test(path),
+  );
   return candidates.find((candidate) => !candidate.includes('{')) ?? candidates[0];
 }
 
 test('every documented property and parameter name round-trips through camelCase', () => {
   const names = documentedNames();
   assert.ok(names.size >= 50, `only found ${names.size} names`);
-  for (const name of ['post_id', 'dry_run', 'series_id', 'expected_updated_at', 'cover_image_position', 'is_hide', 'text_md']) {
+  for (const name of [
+    'post_id',
+    'dry_run',
+    'series_id',
+    'expected_updated_at',
+    'cover_image_position',
+    'is_hide',
+    'text_md',
+  ]) {
     assert.ok(names.has(name), name);
   }
   const camelNames = new Set<string>();
@@ -121,10 +171,34 @@ test('every documented property and parameter name round-trips through camelCase
 });
 
 test('converts keys through nested arrays and objects without touching values', () => {
-  const incoming = { series_id: 1, tags: ['snake_tag', { inner_key: 'value_kept' }], nested_value: { deep_key: [{ deeper_key: 'some_value' }] } };
-  assert.equal(JSON.stringify(keysFromWire(incoming)), JSON.stringify({ seriesId: 1, tags: ['snake_tag', { innerKey: 'value_kept' }], nestedValue: { deepKey: [{ deeperKey: 'some_value' }] } }));
-  const outgoing = { contentHtml: '<p data-someKey="x">camelCase some_key</p>', when: new Date(0), list: [{ postCount: 1 }], empty: null };
-  assert.equal(JSON.stringify(keysToWire(outgoing)), JSON.stringify({ content_html: '<p data-someKey="x">camelCase some_key</p>', when: new Date(0), list: [{ post_count: 1 }], empty: null }));
+  const incoming = {
+    series_id: 1,
+    tags: ['snake_tag', { inner_key: 'value_kept' }],
+    nested_value: { deep_key: [{ deeper_key: 'some_value' }] },
+  };
+  assert.equal(
+    JSON.stringify(keysFromWire(incoming)),
+    JSON.stringify({
+      seriesId: 1,
+      tags: ['snake_tag', { innerKey: 'value_kept' }],
+      nestedValue: { deepKey: [{ deeperKey: 'some_value' }] },
+    }),
+  );
+  const outgoing = {
+    contentHtml: '<p data-someKey="x">camelCase some_key</p>',
+    when: new Date(0),
+    list: [{ postCount: 1 }],
+    empty: null,
+  };
+  assert.equal(
+    JSON.stringify(keysToWire(outgoing)),
+    JSON.stringify({
+      content_html: '<p data-someKey="x">camelCase some_key</p>',
+      when: new Date(0),
+      list: [{ post_count: 1 }],
+      empty: null,
+    }),
+  );
   for (const value of ['plain_text', 7, true, null, undefined]) {
     assert.equal(keysFromWire(value), value);
     assert.equal(keysToWire(value), value);
@@ -134,9 +208,20 @@ test('converts keys through nested arrays and objects without touching values', 
 });
 
 test('ignores request keys the API never documented instead of aliasing them', () => {
-  const converted = keysFromWire({ isHidden: true, dryRun: 'true', SERIES_ID: 1, is__hidden: true, _series_id: 1, cover_layout_: 'split', title: 'kept' });
+  const converted = keysFromWire({
+    isHidden: true,
+    dryRun: 'true',
+    SERIES_ID: 1,
+    is__hidden: true,
+    _series_id: 1,
+    cover_layout_: 'split',
+    title: 'kept',
+  });
   assert.equal(JSON.stringify(converted), '{"title":"kept"}');
-  const polluted = keysFromWire(JSON.parse('{"__proto__":{"isAdmin":true},"constructor":{"prototype":1}}')) as Record<string, unknown>;
+  const polluted = keysFromWire(JSON.parse('{"__proto__":{"isAdmin":true},"constructor":{"prototype":1}}')) as Record<
+    string,
+    unknown
+  >;
   assert.equal(polluted.isAdmin, undefined);
   assert.equal(({} as Record<string, unknown>).isAdmin, undefined);
 });
@@ -150,16 +235,36 @@ test('survives request bodies nested deeper than the call stack', () => {
 });
 
 test('error fields keep the names callers sent, even ones camelCase cannot reproduce', () => {
-  const fields = { expected_updated_at: 'a', post_id: 1, cover_image_2x: true, Odd_Key: 'kept', errors: [{ loc: ['body', 'payload', 'series_id'], msg: 'some_message' }] };
-  const wire = keysToWire({ error: { code: 'request.invalid_payload', message: 'm', fields } }) as { error: { fields: unknown } };
+  const fields = {
+    expected_updated_at: 'a',
+    post_id: 1,
+    cover_image_2x: true,
+    Odd_Key: 'kept',
+    errors: [{ loc: ['body', 'payload', 'series_id'], msg: 'some_message' }],
+  };
+  const wire = keysToWire({ error: { code: 'request.invalid_payload', message: 'm', fields } }) as {
+    error: { fields: unknown };
+  };
   assert.equal(JSON.stringify(wire.error.fields), JSON.stringify(fields));
   const conflict = recording.exchanges.find(({ name }) => name === 'update stale version');
-  assert.deepEqual(Object.keys((JSON.parse(conflict?.body ?? '{}') as { error: { fields: object } }).error.fields), ['expected_updated_at', 'actual_updated_at', 'post_id']);
+  assert.deepEqual(Object.keys((JSON.parse(conflict?.body ?? '{}') as { error: { fields: object } }).error.fields), [
+    'expected_updated_at',
+    'actual_updated_at',
+    'post_id',
+  ]);
   for (const [name, field] of [
-    ['create invalid snake string field', 'content_html'], ['create invalid series_url', 'series_url'], ['create invalid expected_updated_at', 'expected_updated_at'],
-    ['create invalid published_at', 'published_at'], ['create invalid cover_layout', 'cover_layout'], ['create invalid cover_image_position', 'cover_image_position'],
-    ['create invalid cover_image_ratio', 'cover_image_ratio'], ['create invalid content_type', 'content_type'], ['create invalid is_hidden', 'is_hidden'],
-    ['create invalid is_hide', 'is_hidden'], ['create invalid is_advertise', 'is_advertise'], ['create invalid series_id', 'series_id'],
+    ['create invalid snake string field', 'content_html'],
+    ['create invalid series_url', 'series_url'],
+    ['create invalid expected_updated_at', 'expected_updated_at'],
+    ['create invalid published_at', 'published_at'],
+    ['create invalid cover_layout', 'cover_layout'],
+    ['create invalid cover_image_position', 'cover_image_position'],
+    ['create invalid cover_image_ratio', 'cover_image_ratio'],
+    ['create invalid content_type', 'content_type'],
+    ['create invalid is_hidden', 'is_hidden'],
+    ['create invalid is_hide', 'is_hidden'],
+    ['create invalid is_advertise', 'is_advertise'],
+    ['create invalid series_id', 'series_id'],
   ]) {
     const exchange = recording.exchanges.find((item) => item.name === name);
     const { error } = JSON.parse(exchange?.body ?? '{}') as { error: { fields: { errors: Array<{ loc: string[] }> } } };
@@ -192,30 +297,61 @@ test('real responses use exactly the documented key names', () => {
     covered.add(`${exchange.method} ${path}`);
   }
   for (const [path, operations] of Object.entries(spec.paths)) {
-    for (const method of Object.keys(operations)) assert.ok(covered.has(`${method.toUpperCase()} ${path}`), `${method} ${path} was not exercised`);
+    for (const method of Object.keys(operations))
+      assert.ok(covered.has(`${method.toUpperCase()} ${path}`), `${method} ${path} was not exercised`);
   }
 });
 
 test('a dry run under either name never deletes, and an unreadable flag is refused', async () => {
   const fixture = await createMigratedDatabase();
-  const app = await buildApp(fixture.path, testSiteUrl, { secretKey: testSecretKey, cipherKey: testCipherKey }, fixture.mediaRoot);
+  const app = await buildApp(
+    fixture.path,
+    testSiteUrl,
+    { secretKey: testSecretKey, cipherKey: testCipherKey },
+    fixture.mediaRoot,
+  );
   const prisma = new PrismaClient({ datasourceUrl: `file:${fixture.path}` });
   try {
     seedEditor(fixture.db, 1, 'writer');
     seedPost(fixture.db, 1, 1, 'kept-post');
     const raw = 'blex_pat_dryruntoken1_contract-secret';
     insertRow(fixture.db, 'DeveloperToken', {
-      id: 1, userId: 1, name: 'Writer', tokenPrefix: 'dryruntoken1', tokenHash: createHash('sha256').update(raw, 'utf8').digest('hex'),
+      id: 1,
+      userId: 1,
+      name: 'Writer',
+      tokenPrefix: 'dryruntoken1',
+      tokenHash: createHash('sha256').update(raw, 'utf8').digest('hex'),
       scopes: '["posts:read","posts:write"]',
     });
-    const remove = (query: string) => app.inject({ method: 'DELETE', url: `/api/developer/v1/posts/1?${query}`, headers: { authorization: `Bearer ${raw}` } });
+    const remove = (query: string) =>
+      app.inject({
+        method: 'DELETE',
+        url: `/api/developer/v1/posts/1?${query}`,
+        headers: { authorization: `Bearer ${raw}` },
+      });
 
-    for (const query of ['dry_run=true', 'dryRun=true', 'dryRun=YES', 'dryRun=1', 'dry_run=false&dryRun=true', 'dryRun=false&dry_run=true', 'dry_run=true&dry_run=false', 'dryRun=true&dryRun=false']) {
+    for (const query of [
+      'dry_run=true',
+      'dryRun=true',
+      'dryRun=YES',
+      'dryRun=1',
+      'dry_run=false&dryRun=true',
+      'dryRun=false&dry_run=true',
+      'dry_run=true&dry_run=false',
+      'dryRun=true&dryRun=false',
+    ]) {
       const response = await remove(query);
       assert.equal(response.statusCode, 200, query);
       assert.equal(response.json().data.can_delete, true, query);
     }
-    for (const [query, field] of [['dry_run=maybe', 'dry_run'], ['dryRun=maybe', 'dryRun'], ['dry_run=', 'dry_run'], ['dryRun=', 'dryRun'], ['dry_run=false&dryRun=maybe', 'dryRun'], ['dry_run=maybe&dry_run=false', 'dry_run']]) {
+    for (const [query, field] of [
+      ['dry_run=maybe', 'dry_run'],
+      ['dryRun=maybe', 'dryRun'],
+      ['dry_run=', 'dry_run'],
+      ['dryRun=', 'dryRun'],
+      ['dry_run=false&dryRun=maybe', 'dryRun'],
+      ['dry_run=maybe&dry_run=false', 'dry_run'],
+    ]) {
       const response = await remove(query);
       assert.equal(response.statusCode, 422, query);
       assert.equal(response.json().error.code, 'request.invalid_payload', query);
@@ -235,9 +371,16 @@ test('a dry run under either name never deletes, and an unreadable flag is refus
 test('limits each token per minute, reads and writes apart, with a documented 429', async () => {
   const fixture = await createMigratedDatabase();
   let clock = 0;
-  const app = await buildApp(fixture.path, testSiteUrl, {
-    secretKey: testSecretKey, cipherKey: testCipherKey, developerRateLimit: { read: 3, write: 2, now: () => clock },
-  }, fixture.mediaRoot);
+  const app = await buildApp(
+    fixture.path,
+    testSiteUrl,
+    {
+      secretKey: testSecretKey,
+      cipherKey: testCipherKey,
+      developerRateLimit: { read: 3, write: 2, now: () => clock },
+    },
+    fixture.mediaRoot,
+  );
   const prisma = new PrismaClient({ datasourceUrl: `file:${fixture.path}` });
   try {
     seedEditor(fixture.db, 1, 'writer');
@@ -245,21 +388,32 @@ test('limits each token per minute, reads and writes apart, with a documented 42
     const token = (id: number) => {
       const raw = `blex_pat_ratelimit000${id}_contract-secret`;
       insertRow(fixture.db, 'DeveloperToken', {
-        id, userId: 1, name: `Token ${id}`, tokenPrefix: `ratelimit000${id}`, tokenHash: createHash('sha256').update(raw, 'utf8').digest('hex'),
+        id,
+        userId: 1,
+        name: `Token ${id}`,
+        tokenPrefix: `ratelimit000${id}`,
+        tokenHash: createHash('sha256').update(raw, 'utf8').digest('hex'),
         scopes: '["posts:read","posts:write"]',
       });
       return { authorization: `Bearer ${raw}` };
     };
     const [first, second] = [token(1), token(2)];
     const read = (headers: { authorization: string }) => app.inject({ url: '/api/developer/v1/me', headers });
-    const write = (headers: { authorization: string }) => app.inject({ method: 'DELETE', url: '/api/developer/v1/posts/1?dry_run=true', headers });
+    const write = (headers: { authorization: string }) =>
+      app.inject({ method: 'DELETE', url: '/api/developer/v1/posts/1?dry_run=true', headers });
 
     for (let count = 0; count < 3; count += 1) assert.equal((await read(first)).statusCode, 200);
     clock = 15_500;
     const limited = await read(first);
     assert.equal(limited.statusCode, 429);
     assert.equal(limited.headers['retry-after'], '45');
-    assert.deepEqual(limited.json(), { error: { code: 'request.rate_limited', message: 'Too many requests. Try again later.', fields: { retry_after: 45 } } });
+    assert.deepEqual(limited.json(), {
+      error: {
+        code: 'request.rate_limited',
+        message: 'Too many requests. Try again later.',
+        fields: { retry_after: 45 },
+      },
+    });
     const documented = spec.paths['/api/developer/v1/me'].get.responses['429'].content?.['application/json'].schema;
     assert.deepEqual(schemaProblems(limited.json(), documented as Schema, 'limited'), []);
 
@@ -298,12 +452,26 @@ test('the rate limiter keeps a bounded number of windows', () => {
 
 test('never returns a token secret or hash from token management', async () => {
   const fixture = await createMigratedDatabase();
-  const app = await buildApp(fixture.path, testSiteUrl, { secretKey: testSecretKey, cipherKey: testCipherKey }, fixture.mediaRoot);
+  const app = await buildApp(
+    fixture.path,
+    testSiteUrl,
+    { secretKey: testSecretKey, cipherKey: testCipherKey },
+    fixture.mediaRoot,
+  );
   const prisma = new PrismaClient({ datasourceUrl: `file:${fixture.path}` });
   try {
     seedEditor(fixture.db, 1, 'writer');
     const session = signIn(fixture.db, 1);
-    insertRow(fixture.db, 'DeveloperToken', { id: 1, userId: 1, name: 'Stored', tokenPrefix: 'storedprefix', tokenHash: 'stored-secret-hash', scopes: '["posts:read"]', lastUsedAt: Date.UTC(2025, 0, 2), lastUsedIp: '203.0.113.5' });
+    insertRow(fixture.db, 'DeveloperToken', {
+      id: 1,
+      userId: 1,
+      name: 'Stored',
+      tokenPrefix: 'storedprefix',
+      tokenHash: 'stored-secret-hash',
+      scopes: '["posts:read"]',
+      lastUsedAt: Date.UTC(2025, 0, 2),
+      lastUsedIp: '203.0.113.5',
+    });
     const expected = ['id', 'name', 'tokenPrefix', 'scopes', 'expiresAt', 'revokedAt', 'lastUsedAt', 'createdAt'];
 
     const listed = await app.inject({ url: '/v1/developer-tokens', headers: session });
@@ -320,7 +488,10 @@ test('never returns a token secret or hash from token management', async () => {
     const stored = await prisma.developerToken.findUniqueOrThrow({ where: { id: 1 } });
     assert.ok(stored.revokedAt);
     assert.equal(stored.updatedAt.getTime(), stored.revokedAt.getTime());
-    assert.equal((await app.inject({ method: 'DELETE', url: '/v1/developer-tokens/99', headers: session })).statusCode, 404);
+    assert.equal(
+      (await app.inject({ method: 'DELETE', url: '/v1/developer-tokens/99', headers: session })).statusCode,
+      404,
+    );
   } finally {
     await prisma.$disconnect();
     await app.close();
@@ -330,17 +501,46 @@ test('never returns a token secret or hash from token management', async () => {
 
 test('revoking a token keeps the first timestamp, even under concurrency', async () => {
   const fixture = await createMigratedDatabase();
-  const app = await buildApp(fixture.path, testSiteUrl, { secretKey: testSecretKey, cipherKey: testCipherKey }, fixture.mediaRoot);
+  const app = await buildApp(
+    fixture.path,
+    testSiteUrl,
+    { secretKey: testSecretKey, cipherKey: testCipherKey },
+    fixture.mediaRoot,
+  );
   const prisma = new PrismaClient({ datasourceUrl: `file:${fixture.path}` });
   try {
     seedEditor(fixture.db, 1, 'writer');
     seedEditor(fixture.db, 2, 'other');
     const session = signIn(fixture.db, 1);
     const firstRevocation = Date.UTC(2025, 0, 2, 3, 4, 5);
-    insertRow(fixture.db, 'DeveloperToken', { id: 1, userId: 1, name: 'Revoked', tokenPrefix: 'revokedonce1', tokenHash: 'hash-1', scopes: '[]', revokedAt: firstRevocation, updatedAt: firstRevocation });
-    insertRow(fixture.db, 'DeveloperToken', { id: 2, userId: 1, name: 'Active', tokenPrefix: 'activetoken1', tokenHash: 'hash-2', scopes: '[]' });
-    insertRow(fixture.db, 'DeveloperToken', { id: 3, userId: 2, name: 'Other', tokenPrefix: 'othertoken01', tokenHash: 'hash-3', scopes: '[]' });
-    const revoke = (id: number) => app.inject({ method: 'DELETE', url: `/v1/developer-tokens/${id}`, headers: session });
+    insertRow(fixture.db, 'DeveloperToken', {
+      id: 1,
+      userId: 1,
+      name: 'Revoked',
+      tokenPrefix: 'revokedonce1',
+      tokenHash: 'hash-1',
+      scopes: '[]',
+      revokedAt: firstRevocation,
+      updatedAt: firstRevocation,
+    });
+    insertRow(fixture.db, 'DeveloperToken', {
+      id: 2,
+      userId: 1,
+      name: 'Active',
+      tokenPrefix: 'activetoken1',
+      tokenHash: 'hash-2',
+      scopes: '[]',
+    });
+    insertRow(fixture.db, 'DeveloperToken', {
+      id: 3,
+      userId: 2,
+      name: 'Other',
+      tokenPrefix: 'othertoken01',
+      tokenHash: 'hash-3',
+      scopes: '[]',
+    });
+    const revoke = (id: number) =>
+      app.inject({ method: 'DELETE', url: `/v1/developer-tokens/${id}`, headers: session });
 
     const repeated = await revoke(1);
     assert.equal(repeated.json().status, 'DONE');
@@ -371,9 +571,31 @@ test('deleting an account removes its tokens and logs and detaches logs written 
   try {
     seedEditor(fixture.db, 1, 'leaving');
     seedEditor(fixture.db, 2, 'staying');
-    insertRow(fixture.db, 'DeveloperToken', { id: 1, userId: 1, name: 'Leaving', tokenPrefix: 'leaving00001', tokenHash: 'hash-1', scopes: '[]' });
-    insertRow(fixture.db, 'DeveloperToken', { id: 2, userId: 2, name: 'Staying', tokenPrefix: 'staying00001', tokenHash: 'hash-2', scopes: '[]' });
-    const log = (id: number, userId: number, tokenId: number) => insertRow(fixture.db, 'DeveloperRequestLog', { id, userId, tokenId, method: 'GET', path: '/me', statusCode: 200 });
+    insertRow(fixture.db, 'DeveloperToken', {
+      id: 1,
+      userId: 1,
+      name: 'Leaving',
+      tokenPrefix: 'leaving00001',
+      tokenHash: 'hash-1',
+      scopes: '[]',
+    });
+    insertRow(fixture.db, 'DeveloperToken', {
+      id: 2,
+      userId: 2,
+      name: 'Staying',
+      tokenPrefix: 'staying00001',
+      tokenHash: 'hash-2',
+      scopes: '[]',
+    });
+    const log = (id: number, userId: number, tokenId: number) =>
+      insertRow(fixture.db, 'DeveloperRequestLog', {
+        id,
+        userId,
+        tokenId,
+        method: 'GET',
+        path: '/me',
+        statusCode: 200,
+      });
     log(1, 1, 1);
     log(2, 2, 1);
     log(3, 2, 2);
@@ -381,8 +603,17 @@ test('deleting an account removes its tokens and logs and detaches logs written 
     const { deleteAccountRows } = await import('../src/features/auth/services/deletions.js');
     await prisma.$transaction((tx) => deleteAccountRows(tx, 1));
 
-    assert.deepEqual((await prisma.developerToken.findMany({ select: { id: true } })).map(({ id }) => id), [2]);
-    assert.deepEqual(await prisma.developerRequestLog.findMany({ orderBy: { id: 'asc' }, select: { id: true, tokenId: true } }), [{ id: 2, tokenId: null }, { id: 3, tokenId: 2 }]);
+    assert.deepEqual(
+      (await prisma.developerToken.findMany({ select: { id: true } })).map(({ id }) => id),
+      [2],
+    );
+    assert.deepEqual(
+      await prisma.developerRequestLog.findMany({ orderBy: { id: 'asc' }, select: { id: true, tokenId: true } }),
+      [
+        { id: 2, tokenId: null },
+        { id: 3, tokenId: 2 },
+      ],
+    );
   } finally {
     await prisma.$disconnect();
     await fixture.cleanup();

@@ -33,7 +33,12 @@ export async function deleteWorkLog(db: PrismaClient, logId: number, ownerId: nu
   return attachments.map(({ attachment }) => attachment);
 }
 
-export async function revokeWorkLogShare(db: PrismaClient, logId: number, token: string, ownerId: number): Promise<number> {
+export async function revokeWorkLogShare(
+  db: PrismaClient,
+  logId: number,
+  token: string,
+  ownerId: number,
+): Promise<number> {
   const { count } = await db.workLogShare.deleteMany({ where: { token, log: { id: logId, ownerId } } });
   return count;
 }

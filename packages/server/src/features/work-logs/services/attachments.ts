@@ -75,12 +75,14 @@ async function safeMediaFile(mediaRoot: string | undefined, attachment: string):
   const root = resolve(mediaRoot, PRIVATE_MEDIA_DIRECTORY);
   const candidate = resolve(root, ...attachment.split('/'));
   const unresolved = relative(root, candidate);
-  if (unresolved === '' || unresolved === '..' || unresolved.startsWith(`..${sep}`) || isAbsolute(unresolved)) return null;
+  if (unresolved === '' || unresolved === '..' || unresolved.startsWith(`..${sep}`) || isAbsolute(unresolved))
+    return null;
   try {
     const realRoot = await realpath(root);
     const path = await realpath(candidate);
     const pathRelativeToRoot = relative(realRoot, path);
-    if (pathRelativeToRoot === '..' || pathRelativeToRoot.startsWith(`..${sep}`) || isAbsolute(pathRelativeToRoot)) return null;
+    if (pathRelativeToRoot === '..' || pathRelativeToRoot.startsWith(`..${sep}`) || isAbsolute(pathRelativeToRoot))
+      return null;
     const details = await stat(path);
     return details.isFile() ? { path, size: details.size } : null;
   } catch {
@@ -124,7 +126,8 @@ export async function mediaResponse(
       return reply.code(416).headers(headers).header('Content-Range', `bytes */${file.size}`).send();
     }
     const length = end - start + 1;
-    reply.code(206)
+    reply
+      .code(206)
       .headers(headers)
       .type(entry.mediaType)
       .header('Content-Range', `bytes ${start}-${end}/${file.size}`)

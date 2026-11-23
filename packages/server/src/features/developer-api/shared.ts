@@ -33,9 +33,7 @@ export function toIsoDateTime(value: string | Date | null): string | null {
 
   const fraction = match[2];
   const hasMicroseconds = fraction !== undefined && /[1-9]/.test(fraction);
-  const normalizedFraction = hasMicroseconds
-    ? `.${fraction.slice(0, 6).padEnd(6, '0')}`
-    : '';
+  const normalizedFraction = hasMicroseconds ? `.${fraction.slice(0, 6).padEnd(6, '0')}` : '';
   const offset = match[3] === 'Z' ? '+00:00' : (match[3] ?? '+00:00');
   return `${match[1].replace(' ', 'T')}${normalizedFraction}${offset}`;
 }
@@ -69,7 +67,10 @@ const dryRunDisabled = /^(false|off|no|0|n|f)$/i;
 /** Any value asking for a dry run wins, and a value that cannot be read stops the request before it can delete. */
 export function parseDryRun(query: QueryValue): { dryRun: boolean; invalid?: { field: string; value: string } } {
   let dryRun = false;
-  for (const [field, sent] of [['dry_run', query.dryRun], ['dryRun', query.dryRunCamelCase]] as const) {
+  for (const [field, sent] of [
+    ['dry_run', query.dryRun],
+    ['dryRun', query.dryRunCamelCase],
+  ] as const) {
     for (const value of [sent ?? []].flat()) {
       if (dryRunEnabled.test(value)) dryRun = true;
       else if (!dryRunDisabled.test(value)) return { dryRun: true, invalid: { field, value } };
@@ -84,12 +85,14 @@ export function parseValidationError(reply: FastifyReply, field: string, value: 
       code: 'request.invalid_payload',
       message: 'The request payload could not be validated.',
       fields: {
-        errors: [{
-          type: 'int_parsing',
-          loc: ['query', field],
-          msg: `Input should be a valid integer, unable to parse string as an integer: '${value}'`,
-          input: value,
-        }],
+        errors: [
+          {
+            type: 'int_parsing',
+            loc: ['query', field],
+            msg: `Input should be a valid integer, unable to parse string as an integer: '${value}'`,
+            input: value,
+          },
+        ],
       },
     },
   });
@@ -99,8 +102,18 @@ export type Editor = { id: number; username: string };
 
 interface DeveloperPostMutations {
   create: (editor: Editor, input: Record<string, unknown>, asDraft: boolean) => Promise<{ id: number }>;
-  update: (editor: Editor, id: number, input: Record<string, unknown>, expectedStoredUpdate?: string) => Promise<{ id: number } | null>;
-  publish: (editor: Editor, id: number, input: Record<string, unknown>, expectedStoredUpdate: string) => Promise<{ id: number } | null>;
+  update: (
+    editor: Editor,
+    id: number,
+    input: Record<string, unknown>,
+    expectedStoredUpdate?: string,
+  ) => Promise<{ id: number } | null>;
+  publish: (
+    editor: Editor,
+    id: number,
+    input: Record<string, unknown>,
+    expectedStoredUpdate: string,
+  ) => Promise<{ id: number } | null>;
   trash: (editor: Editor, id: number) => Promise<string | null>;
   error: (failure: unknown) => DeveloperApiError | null;
 }

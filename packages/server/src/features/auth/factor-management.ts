@@ -18,7 +18,7 @@ export async function beginFactorSetup(db: PrismaClient, account: VerificationAc
   const uri = new TOTP({ issuer: 'BLEX', label: account.email || account.username, secret }).toString();
   const image = await QRCode.toDataURL(uri, { margin: 5 });
   const stored = await db.$transaction(async (tx) => {
-    if (!await acquireVerification(tx, account)) return false;
+    if (!(await acquireVerification(tx, account))) return false;
     const encrypted = encryptSecret(secret.base32, cipherKey);
     const recoveryHash = createHash('sha256').update(recovery).digest('hex');
     const setup = { secret: encrypted, recoveryHash, expiresAt: new Date(Date.now() + setupTimeout) };
@@ -30,22 +30,25 @@ export async function beginFactorSetup(db: PrismaClient, account: VerificationAc
     });
     return true;
   });
-  return stored ? { image, recovery } as const : { error: 'RE' } as const;
+  return stored ? ({ image, recovery } as const) : ({ error: 'RE' } as const);
 }
 
 export async function activateFactor(db: PrismaClient, account: VerificationAccount, cipherKey: string, code: unknown) {
   if (!hasVerification(account)) return 'RE';
   if (account.factorId !== null) return 'AC';
   return db.$transaction(async (tx) => {
-    if (!await acquireVerification(tx, account)) return 'RE';
+    if (!(await acquireVerification(tx, account))) return 'RE';
     const unexpired = { sessionHash: account.sessionHash, expiresAt: { gt: new Date() } };
     const pending = await tx.factorSetup.findFirst({ where: unexpired, select: { secret: true, recoveryHash: true } });
     if (!pending) return 'EP';
     const entered = typeof code === 'string' ? code.trim() : '';
     if (!entered) return 'IP';
     if (!/^\d{6}$/.test(entered)) return 'RJ';
-    if (!decryptSecret(pending.secret, cipherKey) ||
-        !verifySecondFactor({ totpSecret: pending.secret, recoveryKey: '' }, entered, cipherKey)) return 'RJ';
+    if (
+      !decryptSecret(pending.secret, cipherKey) ||
+      !verifySecondFactor({ totpSecret: pending.secret, recoveryKey: '' }, entered, cipherKey)
+    )
+      return 'RJ';
     const { count: claimed } = await tx.factorSetup.deleteMany({ where: unexpired });
     if (claimed !== 1) return 'EP';
     await tx.twoFactorAuth.create({
@@ -64,7 +67,7 @@ export async function disableFactor(db: PrismaClient, account: VerificationAccou
   if (factorId === null || factorCreated === null) return 'AU';
   if (Date.now() - factorCreated.getTime() <= 86_400_000) return 'RJ';
   return db.$transaction(async (tx) => {
-    if (!await acquireVerification(tx, account)) return 'RE';
+    if (!(await acquireVerification(tx, account))) return 'RE';
     await tx.twoFactorAuth.deleteMany({ where: { userId: account.id, id: factorId } });
     await tx.session.updateMany({ where: { userId: account.id }, data: clearedVerification });
     return null;

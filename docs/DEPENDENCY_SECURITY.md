@@ -16,7 +16,7 @@ Update manifests and the lockfile together. Use the same pnpm version in the roo
 
 ## Braces parser patch
 
-`patches/braces@3.0.3.patch` limits brace and parenthesis nesting to 100 groups before recursive compilation or expansion. pnpm applies it during installation. `packages/web/test/dependencySecurity.test.mjs` verifies it using the copy of braces installed as a dependency of Lingui.
+`patches/braces@3.0.3.patch` limits brace and parenthesis nesting to 100 groups before recursive compilation or expansion. pnpm applies it during installation. `packages/client/test/dependencySecurity.test.mjs` verifies it using the copy of braces installed as a dependency of Lingui.
 
 Keep the patch until a replacement dependency provides equivalent protection. Verify ordinary globs, boundary cases, mixed groups, escaped input, and excessive nesting when changing it.
 

@@ -14,14 +14,12 @@ export { parseAuthoringPostInput } from '../services/post-content.js';
 export { PostValidationError, AuthoringSaveResult } from '../services/post-store.js';
 export { createAuthorPost, updateAuthorPost, publishAuthorDraft, deleteAuthorPost } from '../services/author-api.js';
 
-export function registerAuthoring(
-  app: FastifyInstance,
-  db: PrismaClient,
-  options: AuthoringOptions,
-): void {
+export function registerAuthoring(app: FastifyInstance, db: PrismaClient, options: AuthoringOptions): void {
   app.register(async (routes) => {
     await routes.register(formBody);
-    await routes.register(multipart, { limits: { files: 1, fileSize: contentUploadLimit, fields: 40, fieldSize: editorBodyLimit, parts: 41 } });
+    await routes.register(multipart, {
+      limits: { files: 1, fileSize: contentUploadLimit, fields: 40, fieldSize: editorBodyLimit, parts: 41 },
+    });
     routes.removeContentTypeParser('application/json');
     routes.addContentTypeParser('application/json', { parseAs: 'string' }, (_request, body, doneParse) => {
       try {

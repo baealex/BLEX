@@ -1,6 +1,6 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyRequest } from 'fastify';
-import { type WorkLogEntryView, type WorkLogView } from '../pages.js';
+import { type WorkLogEntryView, type WorkLogView } from '../../../../../client/src/contracts/work-logs.js';
 import { PAGE_SIZE, bodyRecord } from '../shared.js';
 
 export interface WorkLogRow extends WorkLogView {
@@ -18,13 +18,25 @@ interface EntryInput {
 }
 
 export const entrySelect = {
-  id: true, logId: true, title: true, text: true, mediaType: true, attachment: true, createdAt: true,
+  id: true,
+  logId: true,
+  title: true,
+  text: true,
+  mediaType: true,
+  attachment: true,
+  createdAt: true,
 } satisfies Prisma.WorkLogEntrySelect;
 
 type StoredEntry = Prisma.WorkLogEntryGetPayload<{ select: typeof entrySelect }>;
 
-export const newestFirst = [{ createdAt: 'desc' }, { id: 'desc' }] satisfies Prisma.WorkLogEntryOrderByWithRelationInput[];
-export const oldestFirst = [{ createdAt: 'asc' }, { id: 'asc' }] satisfies Prisma.WorkLogEntryOrderByWithRelationInput[];
+export const newestFirst = [
+  { createdAt: 'desc' },
+  { id: 'desc' },
+] satisfies Prisma.WorkLogEntryOrderByWithRelationInput[];
+export const oldestFirst = [
+  { createdAt: 'asc' },
+  { id: 'asc' },
+] satisfies Prisma.WorkLogEntryOrderByWithRelationInput[];
 
 export function toEntryRow(entry: StoredEntry): EntryRow {
   return { ...entry, createdAt: entry.createdAt.toISOString() };
@@ -36,7 +48,13 @@ export async function readOwnedLog(db: PrismaClient, logId: number, userId: numb
     select: { id: true, title: true, createdAt: true, ownerId: true, owner: { select: { username: true } } },
   });
   if (!log) return null;
-  return { id: log.id, title: log.title, createdAt: log.createdAt.toISOString(), ownerId: log.ownerId, ownerUsername: log.owner.username };
+  return {
+    id: log.id,
+    title: log.title,
+    createdAt: log.createdAt.toISOString(),
+    ownerId: log.ownerId,
+    ownerUsername: log.owner.username,
+  };
 }
 
 export function countOwnedLogs(db: PrismaClient, userId: number): Promise<number> {
@@ -56,7 +74,11 @@ export async function readOwnedLogs(db: PrismaClient, userId: number, page: numb
 
 export async function countEntriesByLog(db: PrismaClient, logIds: number[]): Promise<Map<number, number>> {
   if (!logIds.length) return new Map();
-  const counts = await db.workLogEntry.groupBy({ by: ['logId'], where: { logId: { in: logIds } }, _count: { _all: true } });
+  const counts = await db.workLogEntry.groupBy({
+    by: ['logId'],
+    where: { logId: { in: logIds } },
+    _count: { _all: true },
+  });
   return new Map(counts.map((row) => [row.logId, row._count._all]));
 }
 
@@ -80,7 +102,12 @@ export async function readEntries(
   return entries.map(toEntryRow);
 }
 
-export async function readEntry(db: PrismaClient, logId: number, entryId: number, withAttachment = false): Promise<EntryRow | null> {
+export async function readEntry(
+  db: PrismaClient,
+  logId: number,
+  entryId: number,
+  withAttachment = false,
+): Promise<EntryRow | null> {
   const entry = await db.workLogEntry.findFirst({
     where: { id: entryId, logId, ...(withAttachment ? { attachment: { not: '' } } : {}) },
     select: entrySelect,

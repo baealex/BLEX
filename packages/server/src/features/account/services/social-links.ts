@@ -23,7 +23,16 @@ function socialValueError(): UpdateResult {
 }
 
 function validateSocialFields(name: string, value: string, orderValue: string): number | null {
-  if (!name || name.length > 50 || name.includes(',') || name.includes('&') || value.length > 255 || value.includes(',') || value.includes('&')) return null;
+  if (
+    !name ||
+    name.length > 50 ||
+    name.includes(',') ||
+    name.includes('&') ||
+    value.length > 255 ||
+    value.includes(',') ||
+    value.includes('&')
+  )
+    return null;
   if (!value.startsWith('https://') || !safeExternalUrl(value)) return null;
   if (!/^-?\d+$/.test(orderValue)) return null;
   const order = Number(orderValue);

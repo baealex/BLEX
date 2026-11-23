@@ -6,7 +6,7 @@ BLEX uses Fastify, TypeScript, Prisma, and SQLite. `packages/server/src/main.ts`
 
 | Area | Location |
 | --- | --- |
-| Public pages and post queries | `packages/server/src/features/discovery/`, `packages/server/src/features/posts/public-post.ts`, `packages/server/src/features/posts/pages/public-post-page.tsx` |
+| Public pages and post queries | `packages/server/src/features/discovery/`, `packages/server/src/features/posts/public-post.ts`, `packages/server/src/features/posts/public-post-route.ts` |
 | Login, sessions, OAuth, and two-factor authentication | `packages/server/src/features/auth/` |
 | Post editing and collections | `packages/server/src/features/posts/authoring/`, `packages/server/src/features/series/` |
 | Personal and administrator settings | `packages/server/src/features/account/`, `packages/server/src/features/site-admin/` |
@@ -23,7 +23,7 @@ BLEX uses Fastify, TypeScript, Prisma, and SQLite. `packages/server/src/main.ts`
 - Check authentication, role, ownership, and visibility on the server. Client-side checks help users navigate the interface; they do not enforce access control.
 - Validate CSRF tokens on state-changing browser requests. Follow the existing scoped-token checks for the Developer API.
 - Use explicit parameter and return types at module and API boundaries. Keep code and comments in English.
-- Keep initial page data in the SSR response. Use `renderApplicationDocument` for pages served by the shared React app.
+- Keep initial page data in the SSR response. Render pages through `renderPage`, which calls the matching `*.page.tsx` in `packages/client`, for pages served by the shared React app.
 - Sanitize post HTML with the existing post renderer. Serve private media only through routes that check access permissions.
 
 ## Database changes

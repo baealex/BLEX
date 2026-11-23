@@ -14,7 +14,9 @@ test('validates the Django baseline and refuses to adopt an incomplete or incons
   try {
     db.exec(sql);
     assert.throws(() => verifyLegacyDatabase(databasePath), /Upgrade this BLEX 3\.x database to 3\.14 first/);
-    db.exec("INSERT INTO django_migrations (app, name, applied) VALUES ('board', '0070_author_subscription', '2000-01-01');");
+    db.exec(
+      "INSERT INTO django_migrations (app, name, applied) VALUES ('board', '0070_author_subscription', '2000-01-01');",
+    );
     assert.ok(verifyLegacyDatabase(databasePath) > 0);
 
     db.exec('PRAGMA foreign_keys = OFF; INSERT INTO auth_group_permissions (group_id, permission_id) VALUES (1, 1)');

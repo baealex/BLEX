@@ -41,7 +41,8 @@ export async function createSession(
 
       await transaction.session.deleteMany({ where: { expiresAt: { lte: now } } });
       if (previous) await transaction.session.deleteMany({ where: { tokenHash: previous } });
-      if (account.spentRecoveryKey !== undefined) await spendRecoveryKey(transaction, account.userId, account.spentRecoveryKey);
+      if (account.spentRecoveryKey !== undefined)
+        await spendRecoveryKey(transaction, account.userId, account.spentRecoveryKey);
       await transaction.session.create({
         data: { tokenHash: storedToken, userId: account.userId, credentialTag: tag, expiresAt },
         select: { tokenHash: true },
@@ -64,7 +65,12 @@ export async function readSession(db: PrismaClient, token: string | undefined, s
       credentialTag: true,
       user: {
         select: {
-          id: true, username: true, name: true, email: true, passwordHash: true, isStaff: true,
+          id: true,
+          username: true,
+          name: true,
+          email: true,
+          passwordHash: true,
+          isStaff: true,
           profile: { select: { avatar: true, role: true } },
           twoFactor: { select: { id: true } },
         },
@@ -73,7 +79,13 @@ export async function readSession(db: PrismaClient, token: string | undefined, s
   });
   if (!session || !/^[0-9a-f]{64}$/.test(session.credentialTag)) return null;
   const { user } = session;
-  if (!timingSafeEqual(Buffer.from(session.credentialTag, 'hex'), Buffer.from(credentialTag(user.passwordHash, secretKey), 'hex'))) return null;
+  if (
+    !timingSafeEqual(
+      Buffer.from(session.credentialTag, 'hex'),
+      Buffer.from(credentialTag(user.passwordHash, secretKey), 'hex'),
+    )
+  )
+    return null;
   const notifyCount = await db.notification.count({ where: { userId: user.id, isRead: false } });
   const telegramLinks = await db.telegramConnection.count({ where: { userId: user.id, telegramId: { not: '' } } });
   const avatarPath = user.profile?.avatar;

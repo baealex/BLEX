@@ -14,11 +14,15 @@ function databaseKind(path: string): DatabaseKind {
   let db: DatabaseSync | undefined;
   try {
     db = new DatabaseSync(path, { readOnly: true });
-    const rows = db.prepare(`SELECT name FROM sqlite_schema WHERE type = 'table'`).all() as unknown as Array<{ name: string }>;
+    const rows = db.prepare(`SELECT name FROM sqlite_schema WHERE type = 'table'`).all() as unknown as Array<{
+      name: string;
+    }>;
     const tables = new Set(rows.map(({ name }) => name));
     if (!tables.size) return 'missing';
     if (tables.has('_prisma_migrations')) {
-      return db.prepare(`SELECT 1 FROM _prisma_migrations WHERE migration_name = '0000_django_3x'`).get() ? 'prerelease' : 'current';
+      return db.prepare(`SELECT 1 FROM _prisma_migrations WHERE migration_name = '0000_django_3x'`).get()
+        ? 'prerelease'
+        : 'current';
     }
     return tables.has('django_migrations') ? 'legacy' : 'unknown';
   } catch {
@@ -29,8 +33,10 @@ function databaseKind(path: string): DatabaseKind {
 }
 
 const guidance: Record<'legacy' | 'prerelease' | 'unknown', string> = {
-  legacy: 'This is a BLEX 3.x database. Mount the 3.x data folder read-only at /legacy, leave the BLEX 4 data directory empty, and start again.',
-  prerelease: 'This database came from a pre-release BLEX 4 build. Remove it and import from your BLEX 3.14 data, or start with an empty data directory.',
+  legacy:
+    'This is a BLEX 3.x database. Mount the 3.x data folder read-only at /legacy, leave the BLEX 4 data directory empty, and start again.',
+  prerelease:
+    'This database came from a pre-release BLEX 4 build. Remove it and import from your BLEX 3.14 data, or start with an empty data directory.',
   unknown: 'This file is not a BLEX database. Check the BLEX 4 data directory.',
 };
 
@@ -56,12 +62,19 @@ export interface PrepareDatabaseOptions {
 
 /** Brings the database to the current schema before the server opens it. */
 export async function prepareDatabase({
-  databasePath, mediaRoot, legacyRoot = '/legacy', oldComposeDatabase = '/app/db.sqlite3',
-  portMapping, containerPort = '8040', log = console.info,
+  databasePath,
+  mediaRoot,
+  legacyRoot = '/legacy',
+  oldComposeDatabase = '/app/db.sqlite3',
+  portMapping,
+  containerPort = '8040',
+  log = console.info,
 }: PrepareDatabaseOptions) {
   if (existsSync(oldComposeDatabase)) {
-    throw new DatabaseSetupError('Found a BLEX 3.x Compose setup. Your data was not changed. Use the baealex/blex:4 image, map the port to 8040, '
-      + 'mount a data volume at /var/lib/blex, and mount ./backend/src read-only at /legacy. See docs/UPGRADE_FROM_3.md.');
+    throw new DatabaseSetupError(
+      'Found a BLEX 3.x Compose setup. Your data was not changed. Use the baealex/blex:4 image, map the port to 8040, ' +
+        'mount a data volume at /var/lib/blex, and mount ./backend/src read-only at /legacy. See docs/UPGRADE_FROM_3.md.',
+    );
   }
 
   const portProblem = portMappingProblem(portMapping, containerPort);
@@ -75,11 +88,18 @@ export async function prepareDatabase({
   if (kind === 'missing' && existsSync(join(legacyRoot, 'db.sqlite3'))) {
     log('Importing the BLEX 3.14 data. The original stays unchanged.');
     try {
-      const { rows } = await importLegacyInstallation({ legacyRoot, databasePath, mediaRoot, createDatabase: createInitialDatabase });
+      const { rows } = await importLegacyInstallation({
+        legacyRoot,
+        databasePath,
+        mediaRoot,
+        createDatabase: createInitialDatabase,
+      });
       log(`Imported ${rows} rows from BLEX 3.14.`);
     } catch (error) {
       const reason = error instanceof Error ? error.message : String(error);
-      throw new DatabaseSetupError(`Could not import the BLEX 3.14 data: ${reason} The original was not changed.`, { cause: error });
+      throw new DatabaseSetupError(`Could not import the BLEX 3.14 data: ${reason} The original was not changed.`, {
+        cause: error,
+      });
     }
   }
   await deployMigrations(databasePath);

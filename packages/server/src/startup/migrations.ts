@@ -28,7 +28,10 @@ export function deployMigrations(databasePath: string) {
 
 /** Stops at the first migration: the 3.14 import maps to this schema, and later versions migrate from it. */
 export async function createInitialDatabase(databasePath: string) {
-  const sql = await readFile(new URL(`../../../prisma/migrations/${initialMigration}/migration.sql`, import.meta.url), 'utf8');
+  const sql = await readFile(
+    new URL(`../../../prisma/migrations/${initialMigration}/migration.sql`, import.meta.url),
+    'utf8',
+  );
   const db = new DatabaseSync(databasePath);
   try {
     db.exec(sql);

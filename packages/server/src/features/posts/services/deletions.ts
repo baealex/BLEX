@@ -8,7 +8,7 @@ export async function deleteTrashedPost(
   deletedAt: Date,
 ): Promise<boolean> {
   const current = await tx.post.findFirst({ where: { id, authorId, deletedAt }, select: { id: true } });
-  return Boolean(current) && await deletePosts(tx, { id, authorId }) === 1;
+  return Boolean(current) && (await deletePosts(tx, { id, authorId })) === 1;
 }
 
 /** Schema cascades remove everything a post owns. Comment threads go first because they can be deep or cross posts. */

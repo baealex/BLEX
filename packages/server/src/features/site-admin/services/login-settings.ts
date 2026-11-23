@@ -62,7 +62,8 @@ function validateNotificationUrl(value: unknown): ApiResult<string> {
   if ([...normalized].some((character) => character.charCodeAt(0) < 32)) {
     return { ok: false, code: 'VA', message: 'Notification URLs cannot contain control characters.' };
   }
-  if (normalized.includes('\\')) return { ok: false, code: 'VA', message: 'Notification URLs cannot contain backslashes.' };
+  if (normalized.includes('\\'))
+    return { ok: false, code: 'VA', message: 'Notification URLs cannot contain backslashes.' };
   const scheme = normalized.match(/^([A-Za-z][A-Za-z0-9+.-]*):/)?.[1]?.toLowerCase() ?? '';
   if (scheme && scheme !== 'http' && scheme !== 'https') {
     return { ok: false, code: 'VA', message: 'Notification URLs must be a relative path or an HTTP(S) URL.' };
@@ -75,7 +76,11 @@ function validateNotificationUrl(value: unknown): ApiResult<string> {
     const hostname = parsed.hostname.replace(/^\[|\]$/g, '');
     if (hostname.includes(':')) return { ok: true, body: normalized };
     const ascii = domainToASCII(hostname);
-    if (!ascii || !/^[A-Za-z0-9._-]+$/.test(ascii) || ascii.replaceAll('.', '').length > 0 && /^\d+$/.test(ascii.replaceAll('.', ''))) {
+    if (
+      !ascii ||
+      !/^[A-Za-z0-9._-]+$/.test(ascii) ||
+      (ascii.replaceAll('.', '').length > 0 && /^\d+$/.test(ascii.replaceAll('.', '')))
+    ) {
       throw new Error('invalid hostname');
     }
     return { ok: true, body: normalized };
@@ -96,9 +101,10 @@ export async function updateLoginSettings(
   input: Body,
 ): Promise<ApiResult<AdminLoginSettings>> {
   const current = await readLoginRow(db);
-  const welcomeUrl = 'welcomeNotificationUrl' in input
-    ? validateNotificationUrl(input.welcomeNotificationUrl)
-    : { ok: true as const, body: current?.welcomeNotificationUrl || '/' };
+  const welcomeUrl =
+    'welcomeNotificationUrl' in input
+      ? validateNotificationUrl(input.welcomeNotificationUrl)
+      : { ok: true as const, body: current?.welcomeNotificationUrl || '/' };
   if (!welcomeUrl.ok) return welcomeUrl;
 
   let hcaptchaEnabled = current?.hcaptchaEnabled ?? false;
@@ -117,18 +123,35 @@ export async function updateLoginSettings(
     return { ok: false, code: 'VA', message: 'Enter an hCaptcha Secret Key.' };
   }
 
-  const changes: Prisma.LoginSettingCreateInput = { hcaptchaEnabled, hcaptchaSiteKey, hcaptchaSecretKey, updatedAt: new Date() };
-  if (typeof input.welcomeNotificationMessage === 'string') changes.welcomeNotificationMessage = input.welcomeNotificationMessage;
+  const changes: Prisma.LoginSettingCreateInput = {
+    hcaptchaEnabled,
+    hcaptchaSiteKey,
+    hcaptchaSecretKey,
+    updatedAt: new Date(),
+  };
+  if (typeof input.welcomeNotificationMessage === 'string')
+    changes.welcomeNotificationMessage = input.welcomeNotificationMessage;
   if ('welcomeNotificationUrl' in input) changes.welcomeNotificationUrl = welcomeUrl.body;
-  if (typeof input.accountDeletionRedirectUrl === 'string') changes.accountDeletionRedirectUrl = input.accountDeletionRedirectUrl;
+  if (typeof input.accountDeletionRedirectUrl === 'string')
+    changes.accountDeletionRedirectUrl = input.accountDeletionRedirectUrl;
 
   const supportedPayload = Array.isArray(input.socialAuthProviders) ? input.socialAuthProviders.filter(isRecord) : null;
   await db.$transaction(async (transaction) => {
-    await transaction.loginSetting.upsert({ where: { id: 1 }, create: { id: 1, ...changes }, update: changes, select: { id: true } });
+    await transaction.loginSetting.upsert({
+      where: { id: 1 },
+      create: { id: 1, ...changes },
+      update: changes,
+      select: { id: true },
+    });
 
     if (supportedPayload !== null) {
       for (const provider of SOCIAL_PROVIDERS) {
-        await transaction.socialProvider.upsert({ where: { key: provider.key }, create: { key: provider.key }, update: {}, select: { id: true } });
+        await transaction.socialProvider.upsert({
+          where: { key: provider.key },
+          create: { key: provider.key },
+          update: {},
+          select: { id: true },
+        });
       }
       for (const item of supportedPayload) {
         const key = stringValue(item.key);
@@ -146,11 +169,14 @@ export async function updateLoginSettings(
           clientSecret = trimmed ? encryptUnlessEncrypted(trimmed, cipherKey) : '';
         }
         if (item.clearClientSecret === true) clientSecret = '';
-        await transaction.socialProvider.update({ where: { key }, data: { isEnabled, clientId, clientSecret }, select: { id: true } });
+        await transaction.socialProvider.update({
+          where: { key },
+          data: { isEnabled, clientId, clientSecret },
+          select: { id: true },
+        });
       }
     }
     await recordAudit(transaction, userId, 'loginsetting', 'Login settings', 'Updated login and security settings');
   });
   return { ok: true, body: await serializeLoginSettings(db, cipherKey) };
 }
-

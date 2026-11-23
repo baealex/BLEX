@@ -70,8 +70,12 @@ export function csrfCookieValue(request: FastifyRequest): string {
 
 /** Names in rendered forms and pager links, which saved URLs depend on. */
 export const pageFields = {
-  selectedEntries: 'selected_entries', timelinePage: 'timeline_page', currentSelectionPage: 'current_selection_page',
-  selectionPage: 'selection_page', linksPage: 'links_page', previewPage: 'preview_page',
+  selectedEntries: 'selected_entries',
+  timelinePage: 'timeline_page',
+  currentSelectionPage: 'current_selection_page',
+  selectionPage: 'selection_page',
+  linksPage: 'links_page',
+  previewPage: 'preview_page',
 } as const;
 
 export function toIsoDateTime(value: string | null): string {
@@ -103,7 +107,7 @@ export async function currentUser(
 }
 
 export async function isActiveEditor(db: PrismaClient, userId: number): Promise<boolean> {
-  return await db.user.count({ where: { id: userId, isActive: true, profile: { is: { role: 'EDITOR' } } } }) > 0;
+  return (await db.user.count({ where: { id: userId, isActive: true, profile: { is: { role: 'EDITOR' } } } })) > 0;
 }
 
 export function csrfValid(request: FastifyRequest, options: WorkLogOptions): boolean {

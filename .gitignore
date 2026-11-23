@@ -2,8 +2,8 @@
 /node_modules
 # Data left by BLEX 3.x installs
 /backend/
-/packages/web/src/locales/**/*.js
-/packages/web/src/locales/**/*.mjs
+/packages/client/src/locales/**/*.js
+/packages/client/src/locales/**/*.mjs
 /frontend/**.env
 
 /*.log

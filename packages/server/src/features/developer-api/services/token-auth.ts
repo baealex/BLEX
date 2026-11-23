@@ -46,7 +46,16 @@ export async function authenticate(
 
   const stored = await db.developerToken.findUnique({
     where: { tokenPrefix },
-    select: { id: true, userId: true, name: true, tokenPrefix: true, tokenHash: true, scopes: true, expiresAt: true, revokedAt: true },
+    select: {
+      id: true,
+      userId: true,
+      name: true,
+      tokenPrefix: true,
+      tokenHash: true,
+      scopes: true,
+      expiresAt: true,
+      revokedAt: true,
+    },
   });
 
   const suppliedHash = createHash('sha256').update(rawToken, 'utf8').digest('hex');
@@ -61,8 +70,12 @@ export async function authenticate(
     select: { id: true, username: true, name: true, email: true, isActive: true, profile: { select: { role: true } } },
   });
   const user: UserRow | null = owner && {
-    id: owner.id, username: owner.username, firstName: owner.name, email: owner.email,
-    isActive: owner.isActive, role: owner.profile?.role ?? null,
+    id: owner.id,
+    username: owner.username,
+    firstName: owner.name,
+    email: owner.email,
+    isActive: owner.isActive,
+    role: owner.profile?.role ?? null,
   };
   if (!user) return { error: formatError('auth.invalid_token', 'Invalid token.', 401) };
 
@@ -93,9 +106,5 @@ export async function authenticate(
 
 export function requireScope(token: AuthenticatedToken, scope = 'posts:read'): DeveloperApiError | undefined {
   if (token.scopes.includes(scope)) return undefined;
-  return formatError(
-    'auth.insufficient_scope',
-    `${scope} scope is required.`,
-    403,
-  );
+  return formatError('auth.insufficient_scope', `${scope} scope is required.`, 403);
 }

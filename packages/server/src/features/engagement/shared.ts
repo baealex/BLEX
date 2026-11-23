@@ -100,12 +100,23 @@ export async function activeUser(
 }
 
 const readerPostSelect = {
-  id: true, authorId: true, title: true, slug: true, commentsBlocked: true,
+  id: true,
+  authorId: true,
+  title: true,
+  slug: true,
+  commentsBlocked: true,
   author: { select: { username: true } },
 } satisfies Prisma.PostSelect;
 
 function readerPost(row: Prisma.PostGetPayload<{ select: typeof readerPostSelect }>): PostRow {
-  return { id: row.id, authorId: row.authorId, authorUsername: row.author.username, title: row.title, slug: row.slug, blockComment: row.commentsBlocked };
+  return {
+    id: row.id,
+    authorId: row.authorId,
+    authorUsername: row.author.username,
+    title: row.title,
+    slug: row.slug,
+    blockComment: row.commentsBlocked,
+  };
 }
 
 export async function publicPost(db: PrismaClient, slug: string): Promise<PostRow | null> {
@@ -115,7 +126,10 @@ export async function publicPost(db: PrismaClient, slug: string): Promise<PostRo
 
 /** 3.x still shows the owner the reader panel on a hidden or scheduled post. */
 export async function ownedPost(db: PrismaClient, slug: string, ownerId: number): Promise<PostRow | null> {
-  const row = await db.post.findFirst({ where: { slug, authorId: ownerId, deletedAt: null }, select: readerPostSelect });
+  const row = await db.post.findFirst({
+    where: { slug, authorId: ownerId, deletedAt: null },
+    select: readerPostSelect,
+  });
   return row && readerPost(row);
 }
 
@@ -124,10 +138,15 @@ export async function activeEditor(db: PrismaClient, username: string): Promise<
     where: { username },
     select: { id: true, username: true, name: true, isActive: true, profile: { select: { role: true } } },
   });
-  return author && {
-    id: author.id, username: author.username, firstName: author.name, isActive: author.isActive,
-    profileRole: author.profile?.role ?? null,
-  };
+  return (
+    author && {
+      id: author.id,
+      username: author.username,
+      firstName: author.name,
+      isActive: author.isActive,
+      profileRole: author.profile?.role ?? null,
+    }
+  );
 }
 
 export function safeHttpUrl(value: string | null): string {
@@ -146,7 +165,8 @@ export function requestCsrfAccepted(request: FastifyRequest, options: ReaderActi
 }
 
 export function localReturnTo(value: unknown): string | null {
-  if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//') || /[\r\n]/.test(value)) return null;
+  if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//') || /[\r\n]/.test(value))
+    return null;
   try {
     const target = new URL(value, 'https://blex.local');
     if (target.origin !== 'https://blex.local') return null;

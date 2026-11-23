@@ -7,8 +7,16 @@ import { buildApp } from '../src/app.js';
 import { seriesNavigation } from '../src/features/posts/public-post.js';
 import { htmlToMarkdown } from '../src/features/discovery/feeds/markdown.js';
 import {
-  createMigratedDatabase, insertRow, seedEditor, seedPost, signIn,
-  testCipherKey, testSecretKey, testSiteUrl, prismaDate } from './fixtures/migrated-database.js';
+  createMigratedDatabase,
+  insertRow,
+  seedEditor,
+  seedPost,
+  signIn,
+  testCipherKey,
+  testSecretKey,
+  testSiteUrl,
+  prismaDate,
+} from './fixtures/migrated-database.js';
 
 const daysAgo = (days: number) => new Date(Date.now() - days * 86_400_000).toISOString().slice(0, -1).replace('T', ' ');
 const future = new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, -1).replace('T', ' ');
@@ -18,24 +26,54 @@ async function publicApp(site: { seo: number; aeo: number } = { seo: 1, aeo: 1 }
   const { db } = fixture;
   seedEditor(db, 1, 'writer');
   insertRow(db, 'SiteSetting', { id: 1, seoEnabled: site.seo, aeoEnabled: site.aeo });
-  insertRow(db, 'Series', { id: 1, ownerId: 1, name: 'Guide', slug: 'guide', layout: 'list', isHidden: 0, createdAt: prismaDate(daysAgo(2)) });
+  insertRow(db, 'Series', {
+    id: 1,
+    ownerId: 1,
+    name: 'Guide',
+    slug: 'guide',
+    layout: 'list',
+    isHidden: 0,
+    createdAt: prismaDate(daysAgo(2)),
+  });
   seedPost(db, 1, 1, 'part-one', { seriesId: 1, title: 'Part one', publishedAt: daysAgo(3) });
   seedPost(db, 2, 1, 'part-two', { seriesId: 1, title: 'Part two', publishedAt: daysAgo(2) });
   seedPost(db, 3, 1, 'part-three', { seriesId: 1, title: 'Part three', publishedAt: daysAgo(1) });
   seedPost(db, 4, 1, 'hidden-part', { seriesId: 1, title: 'Hidden part', publishedAt: daysAgo(2) });
   db.exec('UPDATE "Post" SET isHidden = 1 WHERE id = 4');
   seedPost(db, 5, 1, 'later-part', { seriesId: 1, title: 'Later part', publishedAt: future });
-  seedPost(db, 6, 1, 'trashed-part', { seriesId: 1, title: 'Trashed part', publishedAt: daysAgo(2), deletedAt: daysAgo(1) });
+  seedPost(db, 6, 1, 'trashed-part', {
+    seriesId: 1,
+    title: 'Trashed part',
+    publishedAt: daysAgo(2),
+    deletedAt: daysAgo(1),
+  });
   insertRow(db, 'StaticPage', { id: 1, slug: 'about', title: 'About', content: '<p>About</p>', isPublished: 1 });
-  const app = await buildApp(fixture.path, testSiteUrl, { secretKey: testSecretKey, cipherKey: testCipherKey }, fixture.mediaRoot);
+  const app = await buildApp(
+    fixture.path,
+    testSiteUrl,
+    { secretKey: testSecretKey, cipherKey: testCipherKey },
+    fixture.mediaRoot,
+  );
   await app.ready();
-  return { ...fixture, app, async close() { await app.close(); await fixture.cleanup(); } };
+  return {
+    ...fixture,
+    app,
+    async close() {
+      await app.close();
+      await fixture.cleanup();
+    },
+  };
 }
 
 test('sends the 3.x security headers and moves plain HTTP to the HTTPS site', async () => {
   const fixture = await createMigratedDatabase();
   const site = new URL('https://blex.test');
-  const app = await buildApp(fixture.path, site, { secretKey: testSecretKey, cipherKey: testCipherKey }, fixture.mediaRoot);
+  const app = await buildApp(
+    fixture.path,
+    site,
+    { secretKey: testSecretKey, cipherKey: testCipherKey },
+    fixture.mediaRoot,
+  );
   try {
     await app.ready();
     const { headers } = await app.inject({ url: '/robots.txt' });
@@ -72,7 +110,10 @@ test('shows the public series path on a post', async () => {
 test('tells the author when a hidden post is outside the series list', async () => {
   const fixture = await publicApp();
   try {
-    const { body, statusCode } = await fixture.app.inject({ url: '/@writer/hidden-part', headers: signIn(fixture.db, 1) });
+    const { body, statusCode } = await fixture.app.inject({
+      url: '/@writer/hidden-part',
+      headers: signIn(fixture.db, 1),
+    });
     assert.equal(statusCode, 200);
     assert.match(body, /시리즈 목록에 표시되지 않습니다/);
     assert.ok(!body.includes('Part one'));
@@ -82,7 +123,11 @@ test('tells the author when a hidden post is outside the series list', async () 
 });
 
 test('keeps the 3.x five-post series window around the current post', () => {
-  const posts = Array.from({ length: 9 }, (_, index) => ({ id: index + 1, url: `p${index + 1}`, title: `P${index + 1}` }));
+  const posts = Array.from({ length: 9 }, (_, index) => ({
+    id: index + 1,
+    url: `p${index + 1}`,
+    title: `P${index + 1}`,
+  }));
   const window = (id: number) => seriesNavigation(posts, id)?.entries.map((entry) => entry.index);
   assert.deepEqual(window(1), [1, 2, 3, 4, 5]);
   assert.deepEqual(window(3), [1, 2, 3, 4, 5]);
@@ -216,9 +261,17 @@ test('asks anonymous readers to log in through the shared modal controls', async
   try {
     seedEditor(fixture.db, 2, 'other');
     seedPost(fixture.db, 7, 2, 'other-post', { title: 'Other post', publishedAt: daysAgo(1) });
-    insertRow(fixture.db, 'Comment', { id: 1, postId: 7, authorId: 1, markdown: 'c', html: 'c', createdAt: prismaDate(daysAgo(1)) });
+    insertRow(fixture.db, 'Comment', {
+      id: 1,
+      postId: 7,
+      authorId: 1,
+      markdown: 'c',
+      html: 'c',
+      createdAt: prismaDate(daysAgo(1)),
+    });
     const post = (await fixture.app.inject('/@other/other-post')).body;
-    for (const action of ['subscribe', 'like', 'comment', 'reply']) assert.match(post, new RegExp(`data-blex-login-prompt="${action}"`), action);
+    for (const action of ['subscribe', 'like', 'comment', 'reply'])
+      assert.match(post, new RegExp(`data-blex-login-prompt="${action}"`), action);
     assert.ok(post.includes('data-blex-login-next="/@other/other-post"'));
     assert.doesNotMatch(post, /action%3D|로그인하고 (구독|좋아요|답글)/);
     const author = (await fixture.app.inject('/@other')).body;
@@ -233,15 +286,19 @@ test('asks anonymous readers to log in through the shared modal controls', async
 test('keeps the stylesheet of an administrator-written static page without its attributes', async () => {
   const fixture = await publicApp();
   try {
-    fixture.db.prepare('UPDATE StaticPage SET content = ? WHERE id = 1').run(
-      '<style media="x" onload="bad()">.welcome { color: red; }</style><div class="welcome">Hello</div><script>bad()</script>',
-    );
+    fixture.db
+      .prepare('UPDATE StaticPage SET content = ? WHERE id = 1')
+      .run(
+        '<style media="x" onload="bad()">.welcome { color: red; }</style><div class="welcome">Hello</div><script>bad()</script>',
+      );
     const { body, statusCode } = await fixture.app.inject('/static/about');
     assert.equal(statusCode, 200);
     assert.ok(body.includes('<style>.welcome { color: red; }</style>'));
     assert.ok(body.includes('<div class="welcome">Hello</div>'));
     assert.doesNotMatch(body, /onload="bad|<script>bad/);
-    fixture.db.prepare('UPDATE StaticPage SET content = ? WHERE id = 1').run('<p onclick="evil()">Safe</p><a href="javascript:evil()">bad</a>');
+    fixture.db
+      .prepare('UPDATE StaticPage SET content = ? WHERE id = 1')
+      .run('<p onclick="evil()">Safe</p><a href="javascript:evil()">bad</a>');
     assert.doesNotMatch((await fixture.app.inject('/static/about')).body, /onclick=|javascript:evil/);
   } finally {
     await fixture.close();
@@ -250,13 +307,19 @@ test('keeps the stylesheet of an administrator-written static page without its a
 
 test('renders raw HTML in Markdown with the 3.x whitespace and sorted attributes', () => {
   const html = '<div style="padding: 1px" class="box">\n    <p>Text</p>\n    <pre>  keep\n    this</pre>\n</div>';
-  assert.equal(htmlToMarkdown(html), '<div class="box" style="padding: 1px">\n<p>Text</p>\n<pre>  keep\n    this</pre>\n</div>');
+  assert.equal(
+    htmlToMarkdown(html),
+    '<div class="box" style="padding: 1px">\n<p>Text</p>\n<pre>  keep\n    this</pre>\n</div>',
+  );
   assert.equal(htmlToMarkdown('<blockquote>one\r\ntwo</blockquote>'), '> one\n> two');
   assert.equal(htmlToMarkdown('<pre>one<br>two</pre>'), '```\none\ntwo\n```');
-  assert.equal(htmlToMarkdown('<img alt="<ruby> tag" class="x" src="/a.png">'), '<img alt="&lt;ruby&gt; tag" class="x" src="/a.png"/>');
-  assert.equal(htmlToMarkdown('<p title=it\'s>one</p><p>two</p>'), 'one\n\ntwo');
+  assert.equal(
+    htmlToMarkdown('<img alt="<ruby> tag" class="x" src="/a.png">'),
+    '<img alt="&lt;ruby&gt; tag" class="x" src="/a.png"/>',
+  );
+  assert.equal(htmlToMarkdown("<p title=it's>one</p><p>two</p>"), 'one\n\ntwo');
   const started = Date.now();
-  htmlToMarkdown('<br \'"><br \'>'.repeat(40_000));
+  htmlToMarkdown("<br '\"><br '>".repeat(40_000));
   assert.ok(Date.now() - started < 3_000, 'unbalanced quotes must not make parsing quadratic');
 });
 
@@ -267,22 +330,61 @@ test('an inactive author disappears from every public surface, and returns untou
   try {
     seedEditor(db, 2, 'retired');
     db.exec('UPDATE "User" SET isStaff = 1, isSuperuser = 1 WHERE id = 1');
-    insertRow(db, 'Series', { id: 2, ownerId: 2, name: `${needle} series`, slug: 'retired-series', layout: 'list', isHidden: 0 });
-    seedPost(db, 7, 2, needle, { seriesId: 2, title: `${needle} title`, description: 'shared search term', publishedAt: daysAgo(1) });
+    insertRow(db, 'Series', {
+      id: 2,
+      ownerId: 2,
+      name: `${needle} series`,
+      slug: 'retired-series',
+      layout: 'list',
+      isHidden: 0,
+    });
+    seedPost(db, 7, 2, needle, {
+      seriesId: 2,
+      title: `${needle} title`,
+      description: 'shared search term',
+      publishedAt: daysAgo(1),
+    });
     insertRow(db, 'Tag', { id: 1, name: 'shared-topic' });
     insertRow(db, 'Tag', { id: 2, name: `${needle}-tag` });
-    for (const [postId, tagId] of [[1, 1], [7, 1], [7, 2]]) insertRow(db, '_PostToTag', { A: postId, B: tagId });
+    for (const [postId, tagId] of [
+      [1, 1],
+      [7, 1],
+      [7, 2],
+    ])
+      insertRow(db, '_PostToTag', { A: postId, B: tagId });
     insertRow(db, 'PostShareLink', { id: 1, postId: 7, token: 'retiredshare' });
-    insertRow(db, 'Comment', { id: 1, postId: 7, authorId: 1, markdown: 'note', html: '<p>note</p>', createdAt: daysAgo(1) });
+    insertRow(db, 'Comment', {
+      id: 1,
+      postId: 7,
+      authorId: 1,
+      markdown: 'note',
+      html: '<p>note</p>',
+      createdAt: daysAgo(1),
+    });
     insertRow(db, 'PostLike', { postId: 7, userId: 1, createdAt: daysAgo(1) });
     insertRow(db, 'PinnedPost', { postId: 7, userId: 2, order: 0 });
     const rawToken = 'blex_pat_retiredtoken_contract-secret';
-    insertRow(db, 'DeveloperToken', { id: 1, userId: 2, name: 'Retired', tokenPrefix: 'retiredtoken', tokenHash: createHash('sha256').update(rawToken, 'utf8').digest('hex'), scopes: '["posts:read"]' });
+    insertRow(db, 'DeveloperToken', {
+      id: 1,
+      userId: 2,
+      name: 'Retired',
+      tokenPrefix: 'retiredtoken',
+      tokenHash: createHash('sha256').update(rawToken, 'utf8').digest('hex'),
+      scopes: '["posts:read"]',
+    });
     const rowsBefore = JSON.stringify(db.prepare('SELECT * FROM "Post" WHERE id = 7').get());
 
-    const postRoutes = [`/@retired/${needle}`, `/@retired/${needle}.md`, `/v1/users/@retired/posts/${needle}?mode=view`,
-      `/v1/users/@retired/posts/${needle}/related`, `/@retired/${needle}/related`, '/@retired/series/retired-series', '/r/retiredshare'];
-    for (const url of postRoutes) assert.ok([200, 302].includes((await app.inject(url)).statusCode), `${url} should be public before deactivation`);
+    const postRoutes = [
+      `/@retired/${needle}`,
+      `/@retired/${needle}.md`,
+      `/v1/users/@retired/posts/${needle}?mode=view`,
+      `/v1/users/@retired/posts/${needle}/related`,
+      `/@retired/${needle}/related`,
+      '/@retired/series/retired-series',
+      '/r/retiredshare',
+    ];
+    for (const url of postRoutes)
+      assert.ok([200, 302].includes((await app.inject(url)).statusCode), `${url} should be public before deactivation`);
 
     db.exec('UPDATE "User" SET isActive = 0 WHERE id = 2');
 
@@ -293,12 +395,31 @@ test('an inactive author disappears from every public surface, and returns untou
     const index = (await app.inject('/sitemap.xml')).body;
     const sitemaps = [...index.matchAll(/<loc>([^<]+)<\/loc>/g)].map(([, location]) => new URL(location).pathname);
     assert.ok(sitemaps.includes('/posts/sitemap.xml'));
-    const listings = ['/', '/rss', '/rss/@retired', '/llms.txt', '/tags', '/tag/shared-topic', `/tag/${needle}-tag`,
-      '/search?q=shared', '/search?q=shared&username=retired', '/v1/search?q=shared', '/v1/search?q=shared&username=retired',
-      '/@retired', '/@retired/partials/featured-posts', '/@writer', '/@writer/part-one', '/v1/users/@writer/posts/part-one/related', ...sitemaps];
+    const listings = [
+      '/',
+      '/rss',
+      '/rss/@retired',
+      '/llms.txt',
+      '/tags',
+      '/tag/shared-topic',
+      `/tag/${needle}-tag`,
+      '/search?q=shared',
+      '/search?q=shared&username=retired',
+      '/v1/search?q=shared',
+      '/v1/search?q=shared&username=retired',
+      '/@retired',
+      '/@retired/partials/featured-posts',
+      '/@writer',
+      '/@writer/part-one',
+      '/v1/users/@writer/posts/part-one/related',
+      ...sitemaps,
+    ];
     for (const url of listings) assert.ok(!(await app.inject(url)).body.includes(needle), url);
 
-    const inactiveApi = await app.inject({ url: '/api/developer/v1/posts', headers: { authorization: `Bearer ${rawToken}` } });
+    const inactiveApi = await app.inject({
+      url: '/api/developer/v1/posts',
+      headers: { authorization: `Bearer ${rawToken}` },
+    });
     assert.equal(inactiveApi.statusCode, 401);
     assert.equal(inactiveApi.json().error.code, 'auth.inactive_user');
 
@@ -321,8 +442,22 @@ test('shows public yearly and recent activity on the author page', async () => {
   const fixture = await publicApp();
   try {
     seedEditor(fixture.db, 2, 'reader');
-    insertRow(fixture.db, 'Comment', { id: 1, postId: 1, authorId: 1, markdown: 'c', html: 'c', createdAt: prismaDate(daysAgo(1)) });
-    insertRow(fixture.db, 'Comment', { id: 2, postId: 4, authorId: 1, markdown: 'c', html: 'c', createdAt: prismaDate(daysAgo(1)) });
+    insertRow(fixture.db, 'Comment', {
+      id: 1,
+      postId: 1,
+      authorId: 1,
+      markdown: 'c',
+      html: 'c',
+      createdAt: prismaDate(daysAgo(1)),
+    });
+    insertRow(fixture.db, 'Comment', {
+      id: 2,
+      postId: 4,
+      authorId: 1,
+      markdown: 'c',
+      html: 'c',
+      createdAt: prismaDate(daysAgo(1)),
+    });
     insertRow(fixture.db, 'PostLike', { postId: 3, userId: 1, createdAt: daysAgo(1) });
     const { body, statusCode } = await fixture.app.inject('/@writer');
     assert.equal(statusCode, 200);
@@ -330,7 +465,8 @@ test('shows public yearly and recent activity on the author page', async () => {
     assert.match(body, /활동 내역/);
     assert.match(body, /지난 1년 활동/);
     assert.match(body, /data-heatmap-days=/);
-    for (const label of ['새 포스트를 작성했어요', '시리즈를 만들었어요', '댓글을 남겼어요', '좋아요를 눌렀어요']) assert.ok(body.includes(label), label);
+    for (const label of ['새 포스트를 작성했어요', '시리즈를 만들었어요', '댓글을 남겼어요', '좋아요를 눌렀어요'])
+      assert.ok(body.includes(label), label);
     for (const excluded of ['Hidden part', 'Later part', 'Trashed part']) assert.ok(!body.includes(excluded), excluded);
   } finally {
     await fixture.close();

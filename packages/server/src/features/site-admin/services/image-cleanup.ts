@@ -57,7 +57,10 @@ function relativeImagePathFromStoredPath(value: string): string {
 
 function collectImageReferences(values: Array<string | null>, category: ImageCleanupFile['category']): Set<string> {
   const used = new Set<string>();
-  const expression = new RegExp(`(?:https?:\\/\\/[^/\\s"'<>]+)?\\/?(?:resources\\/media\\/)?images\\/${category}\\/([^?#\\s"'<>)]*)`, 'gi');
+  const expression = new RegExp(
+    `(?:https?:\\/\\/[^/\\s"'<>]+)?\\/?(?:resources\\/media\\/)?images\\/${category}\\/([^?#\\s"'<>)]*)`,
+    'gi',
+  );
   for (const value of values) {
     if (!value) continue;
     for (const match of value.matchAll(expression)) {
@@ -69,20 +72,23 @@ function collectImageReferences(values: Array<string | null>, category: ImageCle
   return used;
 }
 
-async function readImageReferences(db: PrismaClient | Prisma.TransactionClient): Promise<Record<ImageCleanupFile['category'], Set<string>>> {
-  const [posts, content, history, comments, profiles, series, pages, forms, notices, banners, workLogEntries] = await Promise.all([
-    db.post.findMany({ select: { image: true } }),
-    db.postContent.findMany({ select: { html: true } }),
-    db.postRevision.findMany({ select: { content: true } }),
-    db.comment.findMany({ select: { markdown: true, html: true } }),
-    db.profile.findMany({ select: { aboutMarkdown: true, aboutHtml: true } }),
-    db.series.findMany({ select: { descriptionMarkdown: true, descriptionHtml: true } }),
-    db.staticPage.findMany({ select: { content: true } }),
-    db.formTemplate.findMany({ select: { content: true } }),
-    db.siteNotice.findMany({ select: { url: true } }),
-    db.siteBanner.findMany({ select: { contentHtml: true } }),
-    db.workLogEntry.findMany({ select: { text: true } }),
-  ]);
+async function readImageReferences(
+  db: PrismaClient | Prisma.TransactionClient,
+): Promise<Record<ImageCleanupFile['category'], Set<string>>> {
+  const [posts, content, history, comments, profiles, series, pages, forms, notices, banners, workLogEntries] =
+    await Promise.all([
+      db.post.findMany({ select: { image: true } }),
+      db.postContent.findMany({ select: { html: true } }),
+      db.postRevision.findMany({ select: { content: true } }),
+      db.comment.findMany({ select: { markdown: true, html: true } }),
+      db.profile.findMany({ select: { aboutMarkdown: true, aboutHtml: true } }),
+      db.series.findMany({ select: { descriptionMarkdown: true, descriptionHtml: true } }),
+      db.staticPage.findMany({ select: { content: true } }),
+      db.formTemplate.findMany({ select: { content: true } }),
+      db.siteNotice.findMany({ select: { url: true } }),
+      db.siteBanner.findMany({ select: { contentHtml: true } }),
+      db.workLogEntry.findMany({ select: { text: true } }),
+    ]);
   const values = [
     ...posts.map((row) => row.image),
     ...content.map((row) => row.html),
@@ -117,7 +123,13 @@ async function safeImageCategoryDirectory(root: string, category: string): Promi
   try {
     const baseInfo = await lstat(base);
     const directoryInfo = await lstat(directory);
-    if (!baseInfo.isDirectory() || baseInfo.isSymbolicLink() || !directoryInfo.isDirectory() || directoryInfo.isSymbolicLink()) return null;
+    if (
+      !baseInfo.isDirectory() ||
+      baseInfo.isSymbolicLink() ||
+      !directoryInfo.isDirectory() ||
+      directoryInfo.isSymbolicLink()
+    )
+      return null;
     return directory;
   } catch (error) {
     if (error instanceof Error && 'code' in error && ['ENOENT', 'ENOTDIR'].includes(String(error.code))) return null;
@@ -150,7 +162,14 @@ async function scanImageCategory(
         const info = await lstat(absolutePath);
         const real = await realpath(absolutePath);
         const fromRoot = relative(root, real);
-        if (!info.isFile() || info.isSymbolicLink() || fromRoot === '..' || fromRoot.startsWith(`..${sep}`) || isAbsolute(fromRoot)) continue;
+        if (
+          !info.isFile() ||
+          info.isSymbolicLink() ||
+          fromRoot === '..' ||
+          fromRoot.startsWith(`..${sep}`) ||
+          isAbsolute(fromRoot)
+        )
+          continue;
         const contentHash = await streamFileHash(real);
         const relativePath = fromRoot.split(sep).join('/');
         const filename = entry.name;
@@ -160,14 +179,15 @@ async function scanImageCategory(
           relativePath,
           filename,
           size: info.size,
-          sizeKb: Math.round(info.size / 1024 * 100) / 100,
+          sizeKb: Math.round((info.size / 1024) * 100) / 100,
           mtimeMs: info.mtimeMs,
           inode: Number(info.ino),
           contentHash,
           isUsed: usedNames.has(cleanLegacyImageName(filename)),
         });
       } catch (error) {
-        if (error instanceof Error && 'code' in error && ['ENOENT', 'ELOOP', 'ENOTDIR'].includes(String(error.code))) continue;
+        if (error instanceof Error && 'code' in error && ['ENOENT', 'ELOOP', 'ENOTDIR'].includes(String(error.code)))
+          continue;
         throw error;
       }
     }
@@ -186,7 +206,8 @@ export async function buildImageCleanupPlan(
 ): Promise<ImageCleanupPlan> {
   if (!mediaRoot) throw new Error('Image cleanup storage is unavailable.');
   const targetValue = parameters.target;
-  const target: ImageCleanupTarget = targetValue === 'content' || targetValue === 'title' || targetValue === 'avatar' ? targetValue : 'all';
+  const target: ImageCleanupTarget =
+    targetValue === 'content' || targetValue === 'title' || targetValue === 'avatar' ? targetValue : 'all';
   const removeDuplicates = parameters.removeDuplicates === true;
   const root = await mediaRootRealPath(mediaRoot);
   const imageReferences = await readImageReferences(db);
@@ -207,18 +228,23 @@ export async function buildImageCleanupPlan(
   ]);
   const usedAvatar = new Set([
     ...imageReferences.avatar,
-    ...profiles.flatMap((row) => [row.avatar, row.cover])
-    .filter((path): path is string => Boolean(path))
-    .map(filenameFromStoredPath),
+    ...profiles
+      .flatMap((row) => [row.avatar, row.cover])
+      .filter((path): path is string => Boolean(path))
+      .map(filenameFromStoredPath),
   ]);
-  const categories: ImageCleanupFile['category'][] = target === 'all'
-    ? ['content', 'title', 'avatar']
-    : [target];
-  const allFiles = (await Promise.all(categories.map((category) => scanImageCategory(
-    root,
-    category,
-    category === 'content' ? imageReferences.content : category === 'title' ? usedTitle : usedAvatar,
-  )))).flat();
+  const categories: ImageCleanupFile['category'][] = target === 'all' ? ['content', 'title', 'avatar'] : [target];
+  const allFiles = (
+    await Promise.all(
+      categories.map((category) =>
+        scanImageCategory(
+          root,
+          category,
+          category === 'content' ? imageReferences.content : category === 'title' ? usedTitle : usedAvatar,
+        ),
+      ),
+    )
+  ).flat();
   const unusedFiles = allFiles.filter((file) => !file.isUsed);
   const duplicateFiles: ImageCleanupPlan['duplicateFiles'] = [];
   if (removeDuplicates && (target === 'all' || target === 'title')) {
@@ -230,9 +256,12 @@ export async function buildImageCleanupPlan(
     }
   }
   const referencedContentNames = imageReferences.content;
-  const unusedCacheRows = cacheRows.filter((row) => !referencedContentNames.has(cleanLegacyImageName(filenameFromStoredPath(row.path))));
+  const unusedCacheRows = cacheRows.filter(
+    (row) => !referencedContentNames.has(cleanLegacyImageName(filenameFromStoredPath(row.path))),
+  );
   const planDigest = createHash('sha256');
-  for (const file of unusedFiles) planDigest.update(`${file.relativePath}\0${file.size}\0${file.mtimeMs}\0${file.inode}\0${file.contentHash}\n`);
+  for (const file of unusedFiles)
+    planDigest.update(`${file.relativePath}\0${file.size}\0${file.mtimeMs}\0${file.inode}\0${file.contentHash}\n`);
   for (const row of unusedCacheRows) planDigest.update(`cache\0${row.id}\0${row.path}\n`);
   const totalSize = unusedFiles.reduce((total, file) => total + file.size, 0);
   const duplicateSize = duplicateFiles.reduce((total, entry) => total + entry.duplicate.size, 0);
@@ -252,42 +281,56 @@ export function imageCleanupPlanApi(plan: ImageCleanupPlan, dryRun: boolean): Re
   const messages: string[] = [];
   if (plan.cacheRows.length) messages.push(`이미지 캐시 ${plan.cacheRows.length}개가 삭제 대상입니다.`);
   if (plan.duplicateFiles.length) {
-    messages.push(dryRun
-      ? `중복 타이틀 이미지 ${plan.duplicateFiles.length}개(${Math.round(plan.duplicateSize / 1024 / 1024 * 100) / 100}MB)가 삭제 대상입니다.`
-      : `중복 타이틀 이미지 ${plan.duplicateFiles.length}개(${Math.round(plan.duplicateSize / 1024 / 1024 * 100) / 100}MB)를 삭제했습니다.`);
+    messages.push(
+      dryRun
+        ? `중복 타이틀 이미지 ${plan.duplicateFiles.length}개(${Math.round((plan.duplicateSize / 1024 / 1024) * 100) / 100}MB)가 삭제 대상입니다.`
+        : `중복 타이틀 이미지 ${plan.duplicateFiles.length}개(${Math.round((plan.duplicateSize / 1024 / 1024) * 100) / 100}MB)를 삭제했습니다.`,
+    );
   }
   return {
     target: plan.target,
     removeDuplicates: plan.removeDuplicates,
     totalUnused: plan.unusedFiles.length,
-    totalSizeMb: Math.round(plan.totalSize / 1024 / 1024 * 100) / 100,
+    totalSizeMb: Math.round((plan.totalSize / 1024 / 1024) * 100) / 100,
     totalDuplicates: plan.duplicateFiles.length,
-    totalDuplicateSizeMb: Math.round(plan.duplicateSize / 1024 / 1024 * 100) / 100,
-    totalSavedMb: Math.round((plan.totalSize + plan.duplicateSize) / 1024 / 1024 * 100) / 100,
+    totalDuplicateSizeMb: Math.round((plan.duplicateSize / 1024 / 1024) * 100) / 100,
+    totalSavedMb: Math.round(((plan.totalSize + plan.duplicateSize) / 1024 / 1024) * 100) / 100,
     messages,
     hasErrors: false,
     dryRun,
-    ...(dryRun ? {
-      previewHash: plan.previewHash,
-      unusedFiles: plan.unusedFiles.slice(0, 100).map((file) => ({
-        path: file.relativePath.split('/').slice(2).join('/'),
-        url: imageMediaUrl(file.relativePath),
-        sizeKb: file.sizeKb,
-      })),
-      ...(plan.duplicateFiles.length ? { duplicateFiles: plan.duplicateFiles.slice(0, 100).map(({ duplicate, original }) => ({
-        duplicateUrl: imageMediaUrl(duplicate.relativePath),
-        duplicateSizeKb: duplicate.sizeKb,
-        originalUrl: imageMediaUrl(original.relativePath),
-        originalSizeKb: original.sizeKb,
-        hash: duplicate.contentHash.slice(0, 8),
-      })) } : {}),
-    } : {}),
+    ...(dryRun
+      ? {
+          previewHash: plan.previewHash,
+          unusedFiles: plan.unusedFiles.slice(0, 100).map((file) => ({
+            path: file.relativePath.split('/').slice(2).join('/'),
+            url: imageMediaUrl(file.relativePath),
+            sizeKb: file.sizeKb,
+          })),
+          ...(plan.duplicateFiles.length
+            ? {
+                duplicateFiles: plan.duplicateFiles.slice(0, 100).map(({ duplicate, original }) => ({
+                  duplicateUrl: imageMediaUrl(duplicate.relativePath),
+                  duplicateSizeKb: duplicate.sizeKb,
+                  originalUrl: imageMediaUrl(original.relativePath),
+                  originalSizeKb: original.sizeKb,
+                  hash: duplicate.contentHash.slice(0, 8),
+                })),
+              }
+            : {}),
+        }
+      : {}),
   };
 }
 
 async function verifyImageCandidate(root: string, file: ImageCleanupFile): Promise<boolean> {
   const parts = file.relativePath.split('/');
-  if (parts.length < 3 || parts[0] !== 'images' || parts[1] !== file.category || parts.some((part) => !part || part === '.' || part === '..')) return false;
+  if (
+    parts.length < 3 ||
+    parts[0] !== 'images' ||
+    parts[1] !== file.category ||
+    parts.some((part) => !part || part === '.' || part === '..')
+  )
+    return false;
   let current = root;
   try {
     for (const part of parts.slice(0, -1)) {
@@ -301,7 +344,7 @@ async function verifyImageCandidate(root: string, file: ImageCleanupFile): Promi
     const fromRoot = relative(root, real);
     if (!info.isFile() || info.isSymbolicLink() || fromRoot !== file.relativePath.split('/').join(sep)) return false;
     if (info.size !== file.size || info.mtimeMs !== file.mtimeMs || Number(info.ino) !== file.inode) return false;
-    return await streamFileHash(real) === file.contentHash;
+    return (await streamFileHash(real)) === file.contentHash;
   } catch {
     return false;
   }
@@ -322,7 +365,9 @@ async function removeEmptyDirectories(directory: string): Promise<number> {
     try {
       await rmdir(child);
       removed += 1;
-    } catch { /* It still holds files. */ }
+    } catch {
+      /* It still holds files. */
+    }
   }
   return removed;
 }
@@ -357,12 +402,15 @@ export async function executeImageCleanupPlan(
     if (!deletedRelativePaths.has(relativeImagePathFromStoredPath(cache.path))) continue;
     deletedCaches += (await db.uploadedImage.deleteMany({ where: { id: cache.id, path: cache.path } })).count;
   }
-  const categories: ImageCleanupFile['category'][] = plan.target === 'all' ? ['content', 'title', 'avatar'] : [plan.target as ImageCleanupFile['category']];
+  const categories: ImageCleanupFile['category'][] =
+    plan.target === 'all' ? ['content', 'title', 'avatar'] : [plan.target as ImageCleanupFile['category']];
   const categoryLabels = { content: '콘텐츠 이미지', title: '타이틀 이미지', avatar: '아바타 이미지' };
   for (const category of categories) {
     messages.push(`${categoryLabels[category]} ${deletedByCategory[category]}개를 삭제했습니다.`);
     if (category === 'title' && plan.duplicateFiles.length) {
-      messages.push(`중복 타이틀 이미지 ${plan.duplicateFiles.length}개(${Math.round(plan.duplicateSize / 1024 / 1024 * 100) / 100}MB)를 삭제했습니다.`);
+      messages.push(
+        `중복 타이틀 이미지 ${plan.duplicateFiles.length}개(${Math.round((plan.duplicateSize / 1024 / 1024) * 100) / 100}MB)를 삭제했습니다.`,
+      );
     }
   }
   if (deletedCaches) messages.push(`이미지 캐시 ${deletedCaches}개를 삭제했습니다.`);

@@ -16,22 +16,43 @@ export const testSiteUrl = new URL('http://site.test');
 
 /** Every account table, for fixtures that hand-write the rest of their schema. */
 export const accountTables = [
-  'User', 'Profile', 'UserPreference', 'SocialLink', 'SocialProvider', 'SocialAccount', 'TwoFactorAuth',
-  'UsernameChange', 'AuthorInvite', 'LoginAttempt', 'Session', 'FactorSetup', 'OAuthFlow', 'OAuthChallenge',
+  'User',
+  'Profile',
+  'UserPreference',
+  'SocialLink',
+  'SocialProvider',
+  'SocialAccount',
+  'TwoFactorAuth',
+  'UsernameChange',
+  'AuthorInvite',
+  'LoginAttempt',
+  'Session',
+  'FactorSetup',
+  'OAuthFlow',
+  'OAuthChallenge',
 ];
 
 type Row = Record<string, SQLInputValue>;
-interface ColumnInfo { name: string; type: string; notnull: number; dflt_value: unknown; pk: number }
+interface ColumnInfo {
+  name: string;
+  type: string;
+  notnull: number;
+  dflt_value: unknown;
+  pk: number;
+}
 
 /** Fills required columns the application normally populates, so fixtures keep the real constraints. */
 export function insertRow(db: DatabaseSync, table: string, values: Row) {
   const columns = db.prepare(`PRAGMA table_info("${table}")`).all() as unknown as ColumnInfo[];
-  const { sql } = db.prepare(`SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?`).get(table) as { sql: string };
+  const { sql } = db.prepare(`SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?`).get(table) as {
+    sql: string;
+  };
   const row: Row = { ...values };
   for (const column of columns) {
     const type = column.type.toLowerCase();
     // Fixtures may write a migrated date the way 3.x stored it.
-    if (/date/.test(type) && /^[A-Z_]/.test(table) && typeof row[column.name] === 'string') row[column.name] = prismaDate(row[column.name] as string);
+    if (/date/.test(type) && /^[A-Z_]/.test(table) && typeof row[column.name] === 'string')
+      row[column.name] = prismaDate(row[column.name] as string);
     if (column.name in row || column.pk || !column.notnull) continue;
     if (/date/.test(type) && /[A-Z]/.test(column.name)) {
       row[column.name] = prismaTimestamp;
@@ -45,8 +66,9 @@ export function insertRow(db: DatabaseSync, table: string, values: Row) {
     else row[column.name] = '';
   }
   const names = Object.keys(row);
-  db.prepare(`INSERT INTO "${table}" (${names.map((name) => `"${name}"`).join(', ')}) VALUES (${names.map(() => '?').join(', ')})`)
-    .run(...names.map((name) => row[name]));
+  db.prepare(
+    `INSERT INTO "${table}" (${names.map((name) => `"${name}"`).join(', ')}) VALUES (${names.map(() => '?').join(', ')})`,
+  ).run(...names.map((name) => row[name]));
 }
 
 export function seedEditor(db: DatabaseSync, id: number, username: string) {
@@ -55,12 +77,22 @@ export function seedEditor(db: DatabaseSync, id: number, username: string) {
 }
 
 export function seedPost(db: DatabaseSync, id: number, authorId: number, slug: string, values: Row = {}) {
-  insertRow(db, 'Post', { id, authorId, slug, title: slug, publishedAt: legacyTimestamp, updatedAt: legacyTimestamp, ...values });
+  insertRow(db, 'Post', {
+    id,
+    authorId,
+    slug,
+    title: slug,
+    publishedAt: legacyTimestamp,
+    updatedAt: legacyTimestamp,
+    ...values,
+  });
   insertRow(db, 'PostContent', { postId: id, html: '<p>Body</p>' });
 }
 
 export function signIn(db: DatabaseSync, userId: number) {
-  const { passwordHash } = db.prepare('SELECT passwordHash FROM "User" WHERE id = ?').get(userId) as { passwordHash: string };
+  const { passwordHash } = db.prepare('SELECT passwordHash FROM "User" WHERE id = ?').get(userId) as {
+    passwordHash: string;
+  };
   const session = createToken();
   const csrf = createToken();
   insertRow(db, 'Session', {
@@ -80,10 +112,15 @@ export function prismaDate(value: string): number {
 /** The real DDL and indexes for tables, for fixtures that still hand-write other domains in one script. */
 export function migratedTableSql(...tables: string[]): string {
   const migration = readFileSync(new URL('0001_init/migration.sql', migrationsRoot), 'utf8');
-  return migration.split(/;\s*\n/).filter((statement) => {
-    const table = /CREATE TABLE "(\w+)"/.exec(statement)?.[1] ?? /CREATE (?:UNIQUE )?INDEX "\w+" ON "(\w+)"/.exec(statement)?.[1];
-    return table !== undefined && tables.includes(table);
-  }).map((statement) => `${statement};\n`).join('');
+  return migration
+    .split(/;\s*\n/)
+    .filter((statement) => {
+      const table =
+        /CREATE TABLE "(\w+)"/.exec(statement)?.[1] ?? /CREATE (?:UNIQUE )?INDEX "\w+" ON "(\w+)"/.exec(statement)?.[1];
+      return table !== undefined && tables.includes(table);
+    })
+    .map((statement) => `${statement};\n`)
+    .join('');
 }
 
 /** Adds real migrated tables and indexes to a fixture that still hand-writes other domains. */

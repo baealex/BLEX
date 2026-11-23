@@ -1,6 +1,10 @@
 import type { Prisma } from '@prisma/client';
 
-export async function anonymizeComments(db: Prisma.TransactionClient, authorId: number, commentId: number): Promise<void> {
+export async function anonymizeComments(
+  db: Prisma.TransactionClient,
+  authorId: number,
+  commentId: number,
+): Promise<void> {
   await db.comment.updateMany({ where: { authorId, id: commentId }, data: { authorId: null } });
 }
 
