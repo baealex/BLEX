@@ -218,7 +218,7 @@ function wrapBlockRule(parser: MarkdownIt, name: string, wrap: (rule: BlockRule)
   parser.block.ruler.at(name, wrap(entry.fn as BlockRule), { alt: entry.alt });
 }
 
-/** Python-Markdown needs a blank line before a top-level list or table, and has no `1)` list marker. */
+/** Top-level lists and tables require a preceding blank line; `1)` stays literal text. */
 function legacyList(rule: BlockRule): BlockRule {
   return (state, startLine, endLine, silent) => {
     if (silent && state.parentType === 'paragraph' && state.listIndent < 0) return false;
@@ -228,7 +228,7 @@ function legacyList(rule: BlockRule): BlockRule {
   };
 }
 
-/** A Python-Markdown table needs a pipe on every line of its block. */
+/** Every line of a table block must contain a pipe. */
 function legacyTable(rule: BlockRule): BlockRule {
   return (state, startLine, endLine, silent) => {
     if (silent && state.parentType === 'paragraph') return false;
@@ -283,8 +283,8 @@ function legacyFence(rule: BlockRule): BlockRule {
 }
 
 /**
- * Python-Markdown nests a list only at four spaces, and reads an item of the other list type on the next line as text
- * of the current item. Rewriting those lines lets markdown-it build the same list.
+ * Nested lists require four spaces. An adjacent item of the other list type stays in the current item as text.
+ * Rewrite those lines before markdown-it builds the list.
  */
 function legacyListSource(source: string) {
   const lines = source.split('\n');
@@ -505,7 +505,7 @@ function finishRule(state: StateCore) {
   state.tokens.forEach((token, index) => {
     const previous = state.tokens[index - 1];
     const next = state.tokens[index + 1];
-    // Python-Markdown keeps `-`, `*`, and `+` items in one list.
+    // Mixed `-`, `*`, and `+` markers stay in one list.
     if (token.type === 'bullet_list_close' && next?.type === 'bullet_list_open') return;
     if (token.type === 'bullet_list_open' && previous?.type === 'bullet_list_close') return;
     // Quotes separated only by blank lines are one quote.

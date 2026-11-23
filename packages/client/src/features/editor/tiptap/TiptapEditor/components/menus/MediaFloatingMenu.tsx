@@ -184,7 +184,6 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
 
     return (
         <>
-            {/* 설정 아이콘: 노드 선택 시 우하단에 표시 */}
             {!isOpen && (
                 <Popover.Root open>
                     <Popover.Anchor virtualRef={{ current: anchorElement }} />
@@ -212,7 +211,6 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                 </Popover.Root>
             )}
 
-            {/* 설정 메뉴: 아이콘 클릭 시 표시 */}
             <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
                 <Popover.Anchor virtualRef={{ current: anchorElement }} />
                 <Popover.Portal>
@@ -231,7 +229,6 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="flex items-center gap-2">
-                            {/* 정렬 (image, video) */}
                             {(selectedNode.type === 'image' || selectedNode.type === 'video') && (
                                 <div className="flex gap-0.5 bg-surface-subtle rounded-lg p-0.5">
                                     <IconButton
@@ -255,7 +252,6 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                                 </div>
                             )}
 
-                            {/* 크기 (image, video) */}
                             {(selectedNode.type === 'image' || selectedNode.type === 'video') && (
                                 <>
                                     <div className={dividerClassName} />
@@ -277,7 +273,6 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                                 </>
                             )}
 
-                            {/* 비율 */}
                             <div className={dividerClassName} />
                             <select
                                 value={
@@ -306,7 +301,6 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                                 )}
                             </select>
 
-                            {/* 재생 모드 (video) */}
                             {selectedNode.type === 'video' && (
                                 <>
                                     <div className={dividerClassName} />
@@ -322,7 +316,6 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                             )}
                         </div>
 
-                        {/* 스타일 (image, video) */}
                         {mediaTypesWithStyle.includes(selectedNode.type) && (
                             <div className="flex items-center gap-2">
                                 <select

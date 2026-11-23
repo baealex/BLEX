@@ -66,7 +66,6 @@ export const ColumnsNode = Node.create({
                 const { selection, doc } = editor.state;
                 const { $from, empty: isCollapsed } = selection;
 
-                // 빈 문단에서 커서가 맨 앞에 있을 때만 처리
                 if (!isCollapsed || $from.parentOffset !== 0) return false;
 
                 const parent = $from.parent;
@@ -77,7 +76,6 @@ export const ColumnsNode = Node.create({
                 const index = $beforeParagraph.index();
                 const docNode = $beforeParagraph.parent;
 
-                // 인접한 형제가 columns 노드인지 확인
                 const prevSibling = index > 0 ? docNode.child(index - 1) : null;
                 const nextSibling = index < docNode.childCount - 1 ? docNode.child(index + 1) : null;
 

@@ -67,7 +67,7 @@ export function registerReaderActions(app: FastifyInstance, db: PrismaClient, op
       try {
         doneParse(null, JSON.parse(body as string));
       } catch {
-        // The legacy PUT API falls back to a QueryDict when its JSON body is malformed.
+        // Malformed JSON remains raw text for the form-field fallback.
         doneParse(null, body as string);
       }
     });

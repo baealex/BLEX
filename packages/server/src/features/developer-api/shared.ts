@@ -38,7 +38,7 @@ export function toIsoDateTime(value: string | Date | null): string | null {
   return `${match[1].replace(' ', 'T')}${normalizedFraction}${offset}`;
 }
 
-/** Dates are stored in milliseconds, so a version a client saved from 3.x may carry three more digits. */
+/** Compares version timestamps at the database's millisecond precision. */
 export function sameVersion(expected: string, actual: Date): boolean {
   const milliseconds = expected.replace(/(\.\d{3})\d{3}(?=Z|[+-]\d{2}:\d{2}$|$)/, '$1000');
   return toIsoDateTime(milliseconds) === toIsoDateTime(actual);

@@ -266,7 +266,7 @@ export function sanitizeAboutHtml(html: string): string {
   return sanitizeHtml(html, aboutHtmlOptions);
 }
 
-/** Author banners keep the declaration spacing 3.x wrote when it cleaned their inline styles. */
+/** Normalizes author banner inline styles to a consistent declaration spacing. */
 export function sanitizeBannerHtml(html: string): string {
   return sanitizePostHtml(html)
     .trimStart()
@@ -359,7 +359,7 @@ const commentHtmlOptions: sanitizeHtml.IOptions = {
   allowedStyles: {},
 };
 
-/** Comments keep the narrower 3.x allowlist; post layout attributes do not apply to them. */
+/** Comments use a narrower allowlist that excludes post layout attributes. */
 export function sanitizeCommentHtml(html: string): string {
   return sanitizeHtml(html, commentHtmlOptions);
 }

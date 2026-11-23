@@ -18,11 +18,10 @@ export const ConfirmProvider = ({ children }: { children: ReactNode }) => {
 
     const resolveRef = useRef<((value: boolean) => void) | null>(null);
 
-    // Handle bfcache restoration - reset modal state when page is restored
+    // Do not restore an unresolved confirmation dialog from the browser cache.
     useEffect(() => {
         const handlePageShow = (event: PageTransitionEvent) => {
             if (event.persisted) {
-                // Page was restored from bfcache, reset modal state
                 setDialogState((prev) => ({
                     ...prev,
                     isOpen: false

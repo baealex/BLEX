@@ -40,7 +40,7 @@ const guidance: Record<'legacy' | 'prerelease' | 'unknown', string> = {
   unknown: 'This file is not a BLEX database. Check the BLEX 4 data directory.',
 };
 
-/** A 3.x Compose file still maps to port 80, which would start a site nobody can reach. */
+/** Rejects a port mapping that would leave the container's listening port unreachable. */
 export function portMappingProblem(portMapping: string | undefined, containerPort: string): string | null {
   if (!portMapping) return null;
   const parts = portMapping.split('/')[0].split(':');

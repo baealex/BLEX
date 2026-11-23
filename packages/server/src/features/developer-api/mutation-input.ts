@@ -91,7 +91,7 @@ export async function developerPostInput(
   }
   const slug = values.slug ?? values.url;
   if (slug != null) body.url = slug;
-  // Like 3.x, a draft created through the API ignores any publication time.
+  // Creating a draft ignores publication time.
   if (values.publishedAt != null && operation !== 'update' && !(operation === 'create' && status === 'draft')) {
     body.reservedDate = values.publishedAt;
   }

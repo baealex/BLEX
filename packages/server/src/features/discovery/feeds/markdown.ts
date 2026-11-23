@@ -144,7 +144,7 @@ function parseHtml(html: string): HtmlNode {
   return root;
 }
 
-/** Matches the 3.x parser, which reduces whitespace-only text between tags to one character. */
+/** Reduces whitespace-only text between tags to one newline or space. */
 function collapseWhitespaceNode(text: string): string {
   if (!/^[ \n\t\f\r]+$/.test(text)) return text;
   return text.includes('\n') ? '\n' : ' ';

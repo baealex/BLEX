@@ -68,7 +68,7 @@ export default defineConfig(({ mode }) => {
             lingui(),
             babel({
                 presets: [
-                    // The shared UI and Tiptap editor hold mutable editor state and have never been compiled.
+                    // Keep mutable shared UI and editor state outside the React Compiler transform.
                     reactCompilerPreset({
                         sources: (filename: string) => !/\/src\/(?:ui|features\/editor\/tiptap)\//.test(filename)
                     }),

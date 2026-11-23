@@ -1,6 +1,7 @@
 import * as RadixSelect from '@radix-ui/react-select';
 import { ChevronDown, Check, AlertCircle } from './icons';
 
+// Radix reserves the empty string for clearing, so empty options use a sentinel.
 const EMPTY_VALUE = '__select_none__';
 
 interface SelectItem {
@@ -42,15 +43,12 @@ const Select = ({
     disabled = false,
     density = 'default'
 }: SelectProps) => {
-    // Convert empty string to internal placeholder value
     const internalValue = value === '' ? EMPTY_VALUE : value;
 
     const handleValueChange = (newValue: string) => {
-        // Convert internal placeholder value back to empty string
         onValueChange(newValue === EMPTY_VALUE ? '' : newValue);
     };
 
-    // Convert items with empty value to internal placeholder value
     const internalItems = items.map((item) => ({
         ...item,
         value: item.value === '' ? EMPTY_VALUE : item.value

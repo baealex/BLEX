@@ -86,7 +86,6 @@ const PostActions = ({
         });
     };
 
-    // Update time display every 30 seconds
     useEffect(() => {
         if (!lastSaved) return;
         const timer = setInterval(() => setTick((t) => t + 1), 30000);

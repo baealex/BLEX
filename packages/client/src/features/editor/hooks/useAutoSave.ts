@@ -141,7 +141,6 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
     dataRef.current = data;
     optionsRef.current = options;
 
-    // Keep draftUrlRef in sync with options
     useEffect(() => {
         if (options.draftUrl) {
             draftUrlRef.current = options.draftUrl;
@@ -161,7 +160,6 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
 
         hasUnsavedEditsRef.current = false;
 
-        // Clear existing timer and countdown when manually saving
         if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
         if (countdownRef.current) clearInterval(countdownRef.current);
         setAutoSaveCountdown(null);
@@ -242,7 +240,6 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         setResumeCount((count) => count + 1);
     }, []);
 
-    // Auto-save effect
     useEffect(() => {
         if (!options.enabled || pausedRef.current) return;
 
@@ -255,7 +252,6 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
             return;
         }
 
-        // Check if data has actually changed
         const hasNewChanges = prevDataStringRef.current !== currentDataString;
         if (!hasNewChanges && !hasUnsavedEditsRef.current) return;
 
@@ -275,7 +271,6 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
         if (countdownRef.current) clearInterval(countdownRef.current);
 
-        // Start countdown
         const totalSeconds = Math.ceil(intervalMs / 1000);
         setAutoSaveCountdown(totalSeconds);
         countdownRef.current = window.setInterval(() => {

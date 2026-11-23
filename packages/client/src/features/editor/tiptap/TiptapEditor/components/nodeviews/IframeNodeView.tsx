@@ -4,10 +4,8 @@ import type { NodeViewProps } from '@tiptap/react';
 export const IframeNodeView = ({ node }: NodeViewProps) => {
     const { src, aspectRatio, align, caption } = node.attrs;
 
-    // aspect-ratio를 CSS 형식으로 변환 (16:9 -> 16 / 9)
     const aspectRatioCSS = aspectRatio ? aspectRatio.replace(':', ' / ') : '16 / 9';
 
-    // figure 정렬 스타일
     const getFigureStyle = (): React.CSSProperties => {
         const baseStyle: React.CSSProperties = {
             width: '100%',

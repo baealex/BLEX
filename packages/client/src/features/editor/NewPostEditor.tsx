@@ -107,12 +107,10 @@ const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: Ne
         imageDeleted: boolean;
     };
 
-    // Track initial state for dirty check
     const initialDataRef = useRef<DirtySnapshot | null>(null);
     const isIntentionalSubmitRef = useRef(false);
     const firstPublishGuideButtonRef = useRef<HTMLButtonElement>(null);
 
-    // Custom hooks
     const {
         imagePreview,
         imageFile,
@@ -273,13 +271,11 @@ const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: Ne
         <Trans id="editor.heading.new_post">New post</Trans>
     );
 
-    // Fetch series list and draft data if draftUrl exists
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true);
             setHasEditedSeries(false);
             try {
-                // Fetch series list
                 const { data: seriesResponse } = await getSeries();
                 let mappedSeries: Series[] = [];
                 if (seriesResponse.status === 'DONE') {
@@ -291,7 +287,6 @@ const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: Ne
                     setSeriesList(mappedSeries);
                 }
 
-                // Fetch draft data if draftUrl exists
                 if (draftUrl) {
                     const { data: draftResponse } = await getDraft(draftUrl);
                     if (draftResponse.status === 'DONE' && draftResponse.body) {
@@ -322,7 +317,6 @@ const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: Ne
                         setIsUrlAutoSync(!draftData.url || draftData.url === generateUrlFromTitle(newTitle));
                         setTags(newTags);
 
-                        // Restore series
                         if (draftData.series) {
                             const matchingSeries = mappedSeries.find((s) => s.url === draftData.series?.url);
                             if (matchingSeries) {
@@ -330,7 +324,6 @@ const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: Ne
                             }
                         }
 
-                        // Restore image
                         if (draftData.image) {
                             setImagePreviewUrl(draftData.image);
                         }
@@ -364,7 +357,6 @@ const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: Ne
         }
     }, [isLoading, buildDirtySnapshot]);
 
-    // Check if form has unsaved changes
     const hasUnsavedChanges = () => {
         const initial = initialDataRef.current;
         if (!initial) return false;
@@ -373,7 +365,6 @@ const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: Ne
         return JSON.stringify(current) !== JSON.stringify(initial);
     };
 
-    // Warn on page unload if there are unsaved changes
     useEffect(() => {
         const handleBeforeUnload = (e: BeforeUnloadEvent) => {
             if (isIntentionalSubmitRef.current) {
@@ -388,16 +379,13 @@ const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: Ne
         return () => window.removeEventListener('beforeunload', handleBeforeUnload);
     });
 
-    // Handle draft selection
     const handleSelectDraft = async (url: string) => {
         if (url === currentDraftUrl) {
-            // Already on this post
             setIsDraftsPanelOpen(false);
             return;
         }
 
         if (hasUnsavedChanges()) {
-            // Show confirmation
             const confirmed = await confirm({
                 title: t({
                     id: 'editor.unsaved.title',
@@ -421,7 +409,6 @@ const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: Ne
                 window.location.assign(`/write?draft=${url}`);
             }
         } else {
-            // Navigate directly
             window.location.assign(`/write?draft=${url}`);
         }
     };
@@ -652,7 +639,6 @@ const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: Ne
                 onRemoveImage={handleRemoveImage}
             />
 
-            {/* Floating Action Bar */}
             <PostActions
                 mode={draftUrl ? 'draft' : 'new'}
                 isSaving={isSaving}
@@ -693,7 +679,6 @@ const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: Ne
                 onClose={() => setIsPreviewOpen(false)}
             />
 
-            {/* Settings Drawer */}
             <SettingsDrawer
                 isOpen={isSettingsDrawerOpen}
                 onClose={() => setIsSettingsDrawerOpen(false)}
@@ -720,7 +705,6 @@ const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: Ne
                 }
             />
 
-            {/* Drafts Panel */}
             <DraftsPanel
                 isOpen={isDraftsPanelOpen}
                 onClose={() => setIsDraftsPanelOpen(false)}

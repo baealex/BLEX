@@ -23,7 +23,6 @@ class Logger {
     }
 
     public debug(message: string, ...args: unknown[]) {
-        // Only log debug messages in development
         if ((import.meta as any).env.DEV) {
             console.debug(message, ...args);
         }

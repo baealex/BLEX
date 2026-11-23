@@ -6,7 +6,7 @@ const koreanMessages = JSON.parse(
   readFileSync(new URL('../../../data/api-messages.ko.json', import.meta.url), 'utf8'),
 ) as Record<string, string>;
 const loginMessages = new Set(['', 'Login required.', 'Log in to continue.']);
-// These 3.x views reported a missing session without a message.
+// These endpoints use an empty message for a missing session.
 const silentLoginPaths =
   /^\/v1\/(?:setting\/(?!trash-posts)|subscriptions|global-(?:banners|notices)|admin\/|site-settings|login-settings|integration-settings|static-pages|utilities)/;
 

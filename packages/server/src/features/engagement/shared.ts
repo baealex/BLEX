@@ -125,7 +125,7 @@ export async function publicPost(db: PrismaClient, slug: string): Promise<PostRo
   return row && readerPost(row);
 }
 
-/** 3.x still shows the owner the reader panel on a hidden or scheduled post. */
+/** Allows the owner to use the reader panel on hidden or scheduled posts. */
 export async function ownedPost(db: PrismaClient, slug: string, ownerId: number): Promise<PostRow | null> {
   const row = await db.post.findFirst({
     where: { slug, authorId: ownerId, deletedAt: null },

@@ -24,14 +24,12 @@ export const VideoNode = Node.create({
             height: { default: null },
             align: { default: 'center' }, // left, center, right
             caption: { default: null },
-            // 새로운 스타일 속성들 (이미지와 동일)
             objectFit: { default: 'cover' }, // cover, contain, fill, none
             aspectRatio: { default: null }, // 16:9, 4:3, 1:1, 21:9 등
             border: { default: false },
             shadow: { default: false },
             borderRadius: { default: null }, // 0, 4, 8, 16, 9999 (px)
             sizePreset: { default: null }, // 'small', 'medium', 'large', 'full', null(=natural)
-            // 재생 모드: 'gif'(움짤) 또는 'video'(일반 영상)
             playMode: { default: 'gif' },
             autoplay: {
                 default: true,
@@ -66,7 +64,6 @@ export const VideoNode = Node.create({
 
     parseHTML() {
         return [
-            // figure > video 구조
             {
                 tag: 'figure',
                 getAttrs: (element) => {
@@ -78,7 +75,7 @@ export const VideoNode = Node.create({
 
                     const source = video.querySelector('source');
 
-                    // data-src가 있으면 즉시 src로 사용 (lazy 로딩 제거)
+                    // Load stored lazy media directly when opening the editor.
                     let finalSrc =
                         video.getAttribute('src') || source?.getAttribute('src') || video.src || source?.src || null;
                     const dataSrc = source?.getAttribute('data-src') || video.getAttribute('data-src') || null;
@@ -86,7 +83,7 @@ export const VideoNode = Node.create({
                         finalSrc = dataSrc;
                     }
 
-                    // playMode 판단: controls가 있으면 video, 없으면 gif
+                    // Videos without controls reopen in GIF playback mode.
                     const hasControls = video.hasAttribute('controls');
                     const playMode = hasControls ? 'video' : 'gif';
 
@@ -111,14 +108,13 @@ export const VideoNode = Node.create({
                     };
                 }
             },
-            // 단독 video 태그
             {
                 tag: 'video',
                 getAttrs: (element) => {
                     const video = element as HTMLVideoElement;
                     const source = video.querySelector('source');
 
-                    // data-src가 있으면 즉시 src로 사용 (lazy 로딩 제거)
+                    // Load stored lazy media directly when opening the editor.
                     let finalSrc =
                         video.getAttribute('src') || source?.getAttribute('src') || video.src || source?.src || null;
                     const dataSrc = source?.getAttribute('data-src') || video.getAttribute('data-src') || null;
@@ -126,7 +122,7 @@ export const VideoNode = Node.create({
                         finalSrc = dataSrc;
                     }
 
-                    // playMode 판단: controls가 있으면 video, 없으면 gif
+                    // Videos without controls reopen in GIF playback mode.
                     const hasControls = video.hasAttribute('controls');
                     const playMode = hasControls ? 'video' : 'gif';
 
@@ -171,17 +167,13 @@ export const VideoNode = Node.create({
             playMode
         } = HTMLAttributes;
 
-        // 비디오 속성 설정
         const videoAttrs: Record<string, string> = { playsinline: '' };
 
-        // playMode에 따라 재생 속성 결정
         if (playMode === 'gif') {
-            // 움짤 모드: 자동재생, 음소거, 반복
             videoAttrs.autoplay = '';
             videoAttrs.muted = '';
             videoAttrs.loop = '';
         } else {
-            // 비디오 모드: 컨트롤 표시
             videoAttrs.controls = '';
         }
 
@@ -189,7 +181,6 @@ export const VideoNode = Node.create({
         if (width && sizePreset !== 'full') videoAttrs.width = width;
         if (height) videoAttrs.height = height;
 
-        // 비디오 스타일
         const videoStyles: string[] = [];
         if (aspectRatio) {
             videoStyles.push(`aspect-ratio: ${aspectRatio.replace(':', ' / ')}`);
@@ -214,7 +205,6 @@ export const VideoNode = Node.create({
         const sourceAttrs: Record<string, string> = { type: 'video/mp4' };
         if (src) sourceAttrs.src = normalizeMediaUrlForStorage(src);
 
-        // figure 스타일 (공유 유틸 사용)
         const { attrs: figureAttrs } = buildFigureAttrsForHTML({
             align,
             border,

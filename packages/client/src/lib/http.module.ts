@@ -16,7 +16,6 @@ export interface ErrorResponse {
 
 export type Response<T> = DoneResponse<T> | ErrorResponse;
 
-// CSRF token retrieval with fallback
 const getCsrfToken = () => {
     if (typeof document !== 'undefined') {
         const inputToken = document.querySelector<HTMLInputElement>('[name=csrfmiddlewaretoken]')?.value;

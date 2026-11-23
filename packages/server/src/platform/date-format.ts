@@ -38,7 +38,7 @@ function localParts(date: Date) {
   };
 }
 
-/** Rebuilds the naive UTC text 3.x stored, so a date read from a Prisma column keeps every existing output format. */
+/** Formats a Prisma timestamp as timezone-free UTC text with optional six-digit fractions. */
 export function storedDateText(value: Date | number | bigint): string {
   const date = value instanceof Date ? value : new Date(Number(value));
   const milliseconds = date.getUTCMilliseconds();
@@ -115,7 +115,7 @@ export function koreanDateTime(value: StoredDate): string {
   return `${koreanDate(value)} ${hours % 12 || 12}:${minute} ${hours < 12 ? '오전' : '오후'}`;
 }
 
-/** Follows the 3.x relative date: a calendar date after a year, otherwise the largest elapsed unit. */
+/** Uses a calendar date after a year; otherwise shows the largest elapsed unit. */
 export function timeSince(value: StoredDate, now = new Date()): string {
   const date = parseInstant(value)?.date;
   if (!date) return '';

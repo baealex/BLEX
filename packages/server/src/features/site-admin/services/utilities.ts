@@ -61,7 +61,7 @@ function utilityTokenSignature(value: string, secretKey: string): Buffer {
   return createHmac('sha256', secretKey).update('blex.utility-cleanup\0').update(value).digest();
 }
 
-/** The 3.x screen returns only the token, so the signed preview hash is read back from it. */
+/** Reads the signed preview hash from the token when the client submits no separate hash. */
 function signedPreviewHash(token: unknown): string {
   if (typeof token !== 'string') return '';
   try {

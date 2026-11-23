@@ -221,7 +221,7 @@ export interface PublicPageOptions {
 }
 
 /**
- * Static pages are written by administrators and may carry their own stylesheet, as they did in 3.x.
+ * Administrator-written static pages may include their own stylesheet.
  * A style body ends at the first tag the HTML parser would close it with, including `</style/>` and `</style x>`.
  */
 export function staticPageStyles(content: string): string {

@@ -54,7 +54,6 @@ export const VideoNodeView = ({ node, selected, editor, getPos }: NodeViewProps)
         }
     }, [muted, loop, autoplay, playMode]);
 
-    // playMode 변경 시 재생 상태 동기화
     useEffect(() => {
         const video = videoRef.current;
         if (!video) return;
@@ -130,7 +129,6 @@ export const VideoNodeView = ({ node, selected, editor, getPos }: NodeViewProps)
                             background: 'transparent'
                         }}
                     />
-                    {/* 움짤/영상 모드 인디케이터 */}
                     {selected && (
                         <div
                             style={{
