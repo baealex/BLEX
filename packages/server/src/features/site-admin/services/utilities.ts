@@ -366,14 +366,9 @@ export async function runUtilityAction(
       throw error;
     }
     try {
-      const result = await db.$transaction(
-        async (transaction) => {
-          const plan = await buildImageCleanupPlan(transaction, options.mediaRoot, parameters);
-          if (plan.previewHash !== previewHash) throw new Error('image cleanup preview changed');
-          return executeImageCleanupPlan(transaction, options.mediaRoot as string, plan);
-        },
-        { timeout: 120_000 },
-      );
+      const plan = await buildImageCleanupPlan(db, options.mediaRoot, parameters);
+      if (plan.previewHash !== previewHash) throw new Error('image cleanup preview changed');
+      const result = await executeImageCleanupPlan(db, options.mediaRoot, plan);
       await db.adminLog.updateMany({ where: { id: auditId }, data: { message: 'Executed unused image cleanup' } });
       return { ok: true, body: result };
     } catch (error) {
