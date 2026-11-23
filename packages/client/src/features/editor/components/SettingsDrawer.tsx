@@ -36,7 +36,6 @@ interface SettingsDrawerProps {
     isOpen: boolean;
     onClose: () => void;
 
-    // Form data
     isEdit: boolean;
     isScheduled?: boolean;
     url: string;
@@ -54,7 +53,6 @@ interface SettingsDrawerProps {
     };
     imagePreview: string | null;
 
-    // Handlers
     onUrlChange: (url: string) => void;
     onMetaDescriptionChange: (description: string) => void;
     onSeriesChange: (series: Series) => void;
@@ -206,12 +204,10 @@ const SettingsDrawer = ({
     return (
         <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <Dialog.Portal>
-                {/* Backdrop */}
                 <Dialog.Overlay
                     className={`fixed inset-0 ${DIM_OVERLAY_DEFAULT} z-40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0`}
                 />
 
-                {/* Drawer Content */}
                 <Dialog.Content
                     className={cx(
                         'fixed inset-y-0 right-0 z-50 w-full sm:w-[480px] bg-surface shadow-2xl flex flex-col focus:outline-none',
@@ -220,7 +216,6 @@ const SettingsDrawer = ({
                         `${ENTRANCE_DURATION} ease-in-out`
                     )}
                 >
-                    {/* Header */}
                     <div className="flex items-center justify-between px-6 py-5 border-b border-line">
                         <div className="flex items-center gap-3">
                             <SlidersHorizontal className="w-5 h-5 text-content-hint" />
@@ -240,7 +235,6 @@ const SettingsDrawer = ({
                         </Dialog.Close>
                     </div>
 
-                    {/* Content */}
                     <div className="flex-1 overflow-y-auto px-6 py-6">
                         <div className="space-y-8">
                             {/* Publishing Section */}
@@ -628,7 +622,6 @@ const SettingsDrawer = ({
                         </div>
                     </div>
 
-                    {/* Footer */}
                     <div className="px-6 py-4 border-t border-line bg-surface-subtle">
                         <Button type="button" onClick={onClose} variant="primary" size="md" fullWidth>
                             <Trans id="common.done">Done</Trans>

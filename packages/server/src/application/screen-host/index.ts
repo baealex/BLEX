@@ -57,7 +57,6 @@ const hasPrefix = (path: string, prefixes: string[]) => {
   return prefixes.some((prefix) => normalized === prefix || normalized.startsWith(`${prefix}/`));
 };
 
-/** Finds the built 3.x screens next to the compiled server. */
 export async function resolveWebAssetsRoot(): Promise<string | undefined> {
   const root = new URL('../../../web/', import.meta.url);
   try {
@@ -124,7 +123,7 @@ interface ScreenPage {
   footer?: boolean;
 }
 
-/** 3.x only offers the captcha widget when the stored secret can actually verify it. */
+/** Show the widget only when its stored secret can verify the response. */
 async function readCaptchaSiteKey(db: PrismaClient, cipherKey: string): Promise<string> {
   const row = await db.loginSetting.findUnique({
     where: { id: 1 },
@@ -315,7 +314,7 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
       `${mode === 'admin' ? '관리자 설정' : '설정'} | {site}`,
     );
 
-  // Requests the 3.x editor cannot serve fall through to the existing login, role, and 404 handling.
+  // Let the editor route handle login, role, and missing-post responses when this screen cannot mount.
   const sendEditor = async (request: FastifyRequest, reply: FastifyReply, path: string, query: string) => {
     const edit = /^\/@([^/]+)\/([^/]+)\/edit\/?$/.exec(path);
     if (!edit && !/^\/write\/?$/.test(path)) return undefined;

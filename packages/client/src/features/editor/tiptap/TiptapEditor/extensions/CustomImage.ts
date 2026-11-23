@@ -36,7 +36,6 @@ export const CustomImage = Node.create({
 
     parseHTML() {
         return [
-            // figure > img 구조
             {
                 tag: 'figure',
                 getAttrs: (element) => {
@@ -72,7 +71,6 @@ export const CustomImage = Node.create({
                     };
                 }
             },
-            // 단독 img 태그
             {
                 tag: 'img',
                 getAttrs: (element) => {

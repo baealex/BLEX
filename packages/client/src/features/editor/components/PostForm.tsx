@@ -29,7 +29,6 @@ interface PostFormProps {
     imagePreview: string | null;
     selectedSeries: { id: string; name: string };
 
-    // Handlers
     onTitleChange: (title: string) => void;
     onSubtitleChange: (subtitle: string) => void;
     onContentChange: (content: string) => void;

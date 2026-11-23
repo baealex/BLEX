@@ -4,9 +4,6 @@ interface UseCommandPaletteOptions {
     shortcut?: string;
 }
 
-/**
- * Command Palette hook - manages command palette state and keyboard shortcuts
- */
 export const useCommandPalette = (options: UseCommandPaletteOptions = {}) => {
     const { shortcut = 'k' } = options;
     const [isOpen, setIsOpen] = useState(false);

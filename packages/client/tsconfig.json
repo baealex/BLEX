@@ -23,9 +23,6 @@
             "~/*": [
                 "src/*"
             ],
-            "@templates/*": [
-                "templates/*"
-            ],
             "react": [
                 "node_modules/@types/react"
             ],

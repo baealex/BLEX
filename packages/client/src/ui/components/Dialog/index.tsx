@@ -11,7 +11,6 @@ export const Dialog = {
     Close: RadixDialog.Close
 };
 
-// Also export as named components if needed, or keep generic namespace
 export const DialogRoot = RadixDialog.Root;
 export const DialogTrigger = RadixDialog.Trigger;
 export const DialogPortal = RadixDialog.Portal;

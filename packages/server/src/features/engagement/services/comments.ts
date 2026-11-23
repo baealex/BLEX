@@ -160,7 +160,7 @@ export async function publicComments(
   if (!post) return { canComment: false, comments: [], totalComments: 0, olderCommentsCursor: null };
 
   const blocked = post.commentsBlocked;
-  // A legacy reply can point at a parent on another post or at another reply. Neither has a place in this tree.
+  // Exclude stored replies whose parent is on another post or is itself a reply.
   const where: Prisma.CommentWhereInput = {
     postId: post.id,
     OR: [{ parentId: null }, { parent: { postId: post.id, parentId: null } }],

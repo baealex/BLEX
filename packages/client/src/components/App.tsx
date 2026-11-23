@@ -7,14 +7,11 @@ interface AppProps {
 }
 
 const LazyComponents = {
-    // Screen components
     SearchPage: lazy(() => import('../features/search')),
     Toaster: lazy(() => import('../features/toaster')),
 
-    // Pages
     Signup: lazy(() => import('../features/auth/signup')),
     PostEditor: lazy(() => import('../features/editor')),
-    // Unified Settings App
     SettingsApp: lazy(() => import('../features/settings'))
 };
 
@@ -31,7 +28,7 @@ const App = ({ __name, __onMounted, ...props }: AppProps) => {
 
     return (
         <Suspense>
-            {/* @ts-expect-error - 동적 컴포넌트 props 타입 처리를 위한 임시 방법 */}
+            {/* @ts-expect-error -- The server supplies the props required by the selected screen. */}
             <Component {...props} />
             <MountNotifier onMounted={__onMounted} />
         </Suspense>

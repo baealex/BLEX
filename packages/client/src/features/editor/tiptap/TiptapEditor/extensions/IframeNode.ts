@@ -19,7 +19,6 @@ export const IframeNode = Node.create({
             height: { default: null },
             frameborder: { default: '0' },
             allowfullscreen: { default: true },
-            // 새로운 속성들
             align: { default: 'center' }, // left, center, right
             aspectRatio: { default: '16:9' }, // 16:9, 4:3, 21:9, 1:1
             caption: { default: null }
@@ -28,7 +27,6 @@ export const IframeNode = Node.create({
 
     parseHTML() {
         return [
-            // figure > iframe 구조
             {
                 tag: 'figure',
                 getAttrs: (element) => {
@@ -50,7 +48,6 @@ export const IframeNode = Node.create({
                     };
                 }
             },
-            // 단독 iframe 태그
             {
                 tag: 'iframe',
                 getAttrs: (element) => {
@@ -73,7 +70,6 @@ export const IframeNode = Node.create({
     renderHTML({ HTMLAttributes }) {
         const { src, height, frameborder, align, aspectRatio, caption } = HTMLAttributes;
 
-        // iframe 속성
         const iframeAttrs: Record<string, string> = {
             frameborder: frameborder || '0',
             allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture',
@@ -82,7 +78,6 @@ export const IframeNode = Node.create({
 
         if (src) iframeAttrs.src = src;
 
-        // iframe 스타일 - aspectRatio 사용시 height 자동
         const iframeStyles: string[] = ['width: 100%', 'border: 0'];
         if (aspectRatio) {
             iframeStyles.push(`aspect-ratio: ${aspectRatio.replace(':', ' / ')}`);
@@ -90,11 +85,10 @@ export const IframeNode = Node.create({
         } else if (height) {
             iframeStyles.push(`height: ${height}px`);
         } else {
-            iframeStyles.push('height: 350px'); // 기본값
+            iframeStyles.push('height: 350px');
         }
         iframeAttrs.style = iframeStyles.join('; ');
 
-        // figure 스타일
         const figureStyles: string[] = ['width: 100%', 'margin: 0'];
         const figureAttrs: Record<string, string> = {};
 

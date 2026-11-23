@@ -82,7 +82,6 @@ const SlashCommandMenu = ({
             .map((keyword) => keyword.trim())
             .filter(Boolean);
 
-    // 서식 목록 불러오기
     useEffect(() => {
         const fetchForms = async () => {
             try {
@@ -92,7 +91,7 @@ const SlashCommandMenu = ({
                     setForms(data.body?.forms || []);
                 }
             } catch {
-                // Ignore error
+                // Keep built-in commands available when templates cannot be loaded.
             }
         };
 
@@ -101,12 +100,10 @@ const SlashCommandMenu = ({
         }
     }, [isVisible]);
 
-    // 서식 삽입 처리
     const handleFormInsert = async (formId: number) => {
         if (!editor) return;
 
         try {
-            // 서식 내용 가져오기
             const response = await fetch(`/v1/forms/${formId}`);
             if (!response.ok) return;
 
@@ -117,7 +114,6 @@ const SlashCommandMenu = ({
                 return;
             }
 
-            // 마크다운을 HTML로 변환
             const htmlResponse = await fetch('/v1/markdown', {
                 method: 'POST',
                 headers: {
@@ -128,7 +124,6 @@ const SlashCommandMenu = ({
             });
 
             if (!htmlResponse.ok) {
-                // 변환 실패 시 원본 마크다운 삽입
                 editor.chain().focus().insertContent(markdown).run();
                 return;
             }
@@ -136,10 +131,9 @@ const SlashCommandMenu = ({
             const htmlData = await htmlResponse.json();
             const html = htmlData.body?.html || '';
 
-            // 에디터에 HTML 삽입
             editor.chain().focus().insertContent(html).run();
         } catch {
-            // Error handling
+            // A failed template insertion leaves the current document in place.
         }
     };
 
@@ -281,7 +275,6 @@ const SlashCommandMenu = ({
         }
     ];
 
-    // 서식 항목 동적 생성
     const formItems: CommandItem[] = forms.map((form) => ({
         id: `form-${form.id}`,
         title: form.title,
@@ -364,10 +357,9 @@ const SlashCommandMenu = ({
             setSearchTerm('');
             setTimeout(() => inputRef.current?.focus(), 10);
 
-            // 가상 앵커 요소 생성 (매번 최신 좌표를 계산하도록)
+            // Resolve coordinates on each measurement so the menu follows the caret.
             const anchor = {
                 getBoundingClientRect: () => {
-                    // getBoundingClientRect가 호출될 때마다 최신 좌표 계산
                     try {
                         const coords = editor.view.coordsAtPos(slashPos + 1);
                         return {
@@ -382,7 +374,6 @@ const SlashCommandMenu = ({
                             toJSON: () => ({})
                         };
                     } catch {
-                        // 위치 계산 실패 시 기본값 반환
                         return {
                             top: 0,
                             left: 0,

@@ -117,12 +117,7 @@ async function ownedPostByReference(
   return post;
 }
 
-/**
- * Create a post with the same persistence and sanitization path as `/v1/posts`.
- * Accepted body fields include title, subtitle, content/textMd/contentMarkdown,
- * contentType, description/metaDescription, url/customUrl, tags/tag, series,
- * hide/isHide, advertise/isAdvertise, blockComment, cover settings and reservedDate.
- */
+/** Creates a post through the shared authoring validation and sanitization path. */
 export async function createAuthorPost(
   db: PrismaClient,
   editor: AuthoringUser,

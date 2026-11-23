@@ -149,12 +149,10 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         [formData, tags, selectedSeries.url, imageDeleted]
     );
 
-    // Fetch data
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true);
             try {
-                // Fetch series list
                 const { data: seriesResponse } = await getSeries();
                 if (seriesResponse.status === 'DONE') {
                     const mappedSeries = (seriesResponse.body.series || []).map((s) => ({
@@ -165,7 +163,6 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                     setSeriesList(mappedSeries);
                 }
 
-                // Fetch post data for editing
                 const { data: postResponse } = await getPostForEdit(username, postUrl);
                 if (postResponse.status === 'DONE') {
                     const postData = postResponse.body;
@@ -298,7 +295,6 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         return () => window.clearTimeout(timeoutId);
     }, [isLoading, availableRecovery, createRecoverySnapshot, persistRecovery, username, postUrl]);
 
-    // Warn on page unload if there are unsaved changes
     useEffect(() => {
         const handleBeforeUnload = (e: BeforeUnloadEvent) => {
             if (isIntentionalSubmitRef.current) {
@@ -879,7 +875,6 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 onRemoveImage={handleRemoveImage}
             />
 
-            {/* Floating Action Bar */}
             <PostActions
                 mode="edit"
                 isSaving={false}
@@ -893,7 +888,6 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 onOpenSettings={() => setIsSettingsDrawerOpen(true)}
             />
 
-            {/* Settings Drawer */}
             <SettingsDrawer
                 isOpen={isSettingsDrawerOpen}
                 onClose={() => setIsSettingsDrawerOpen(false)}

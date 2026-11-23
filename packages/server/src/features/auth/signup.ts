@@ -50,7 +50,7 @@ async function signupSettings(db: PrismaClient) {
     : undefined;
 }
 
-/** Like 3.x, a captcha without a usable secret is treated as switched off. */
+/** Requires a usable decrypted CAPTCHA secret. */
 function activeCaptcha(settings: SignupSettings | undefined, cipherKey: string) {
   const secret = settings?.captchaEnabled ? decryptSecret(settings.secretKey, cipherKey) : null;
   return secret ? { secret, siteKey: settings!.siteKey.trim() } : null;

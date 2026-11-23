@@ -161,7 +161,7 @@ export async function readPublicPost(
   };
 }
 
-/** An author's own unpublished post, dated the way the 3.x preview screen dates it. */
+/** Uses the last edit time for both dates when an author previews an unpublished post. */
 export async function readDraftPreview(db: PrismaClient, authorId: number, slug: string): Promise<DraftPreview | null> {
   const post = await db.post.findFirst({
     where: { slug, authorId, publishedAt: null, deletedAt: null },

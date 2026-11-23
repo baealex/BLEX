@@ -95,12 +95,10 @@ const DraftsPanel = ({ isOpen, onClose, onSelectPost, currentDraftUrl }: DraftsP
     return (
         <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <Dialog.Portal>
-                {/* Backdrop */}
                 <Dialog.Overlay
                     className={`fixed inset-0 ${DIM_OVERLAY_DEFAULT} z-40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0`}
                 />
 
-                {/* Slide-over panel */}
                 <Dialog.Content
                     className={cx(
                         'fixed inset-y-0 left-0 z-50 w-full sm:w-[480px] bg-surface shadow-2xl flex flex-col focus:outline-none',
@@ -109,7 +107,6 @@ const DraftsPanel = ({ isOpen, onClose, onSelectPost, currentDraftUrl }: DraftsP
                         `${ENTRANCE_DURATION} ease-in-out`
                     )}
                 >
-                    {/* Header */}
                     <div className="flex items-center justify-between p-5 border-b border-line">
                         <Dialog.Title className="text-lg font-semibold text-content">
                             <Trans id="editor.drafts.title">Drafts</Trans>
@@ -126,7 +123,6 @@ const DraftsPanel = ({ isOpen, onClose, onSelectPost, currentDraftUrl }: DraftsP
                         </Dialog.Close>
                     </div>
 
-                    {/* Content */}
                     <div className="flex-1 overflow-y-auto">
                         {isLoading ? (
                             <div className="flex items-center justify-center flex-1 min-h-[200px]">
@@ -193,7 +189,6 @@ const DraftsPanel = ({ isOpen, onClose, onSelectPost, currentDraftUrl }: DraftsP
                         )}
                     </div>
 
-                    {/* Footer */}
                     <div className="p-4 border-t border-line bg-surface-subtle">
                         <p className="text-xs text-content-secondary text-center">
                             <Plural id="editor.drafts.total" value={drafts.length} one="# draft" other="# drafts" />

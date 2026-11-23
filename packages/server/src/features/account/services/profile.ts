@@ -60,7 +60,7 @@ export function mediaUrl(siteUrl: URL, path: string): string {
   return new URL(`media/${path.replace(/^\/+/, '')}`, resourceBase).href;
 }
 
-/** 3.x answered profile uploads with a site-relative path unless a resource host was configured. */
+/** Returns a site-relative upload path unless a separate resource host is configured. */
 export function uploadedMediaUrl(url: string): string {
   return process.env.RESOURCE_URL?.trim() ? url : new URL(url).pathname;
 }
@@ -148,7 +148,7 @@ export async function updateProfile(db: PrismaClient, userId: number, body: Body
   if (homepage.length > 100) return { ok: false, message: '홈페이지 주소는 100자 이하여야 합니다.' };
   const homepageValidation = validateHomepage(homepage);
   if (!homepageValidation.ok) return homepageValidation;
-  // An account without a profile row has nothing to update, as in 3.x.
+  // A missing profile stays absent; this operation only updates existing rows.
   await db.profile.updateMany({
     where: { userId },
     data: { bio, homepage: homepage ? safeExternalUrl(homepage) : '' },

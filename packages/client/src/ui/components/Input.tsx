@@ -56,11 +56,9 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
             ? '!bg-surface-subtle !text-content-hint cursor-default focus:!ring-0 focus:!border-line'
             : '';
 
-        // Padding logic
         const leftPadding = leftIcon ? 'pl-11' : '';
         const rightPadding = rightIcon ? 'pr-11' : '';
 
-        // Icon position styles
         const iconBase = 'absolute flex pointer-events-none text-content-hint pl-4 pr-4';
         const iconPosition = multiline ? 'top-0 pt-3 items-start' : 'inset-y-0 items-center';
 
