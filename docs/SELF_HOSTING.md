@@ -23,7 +23,7 @@ docker compose up --build -d
 docker compose logs blex
 ```
 
-Follow the `/setup` URL in the logs to create the first administrator account. Use the admin settings to configure the site name, login options, and other site settings.
+Follow the `/setup` URL in the logs to create the first administrator account. Use the admin settings to configure the site name and other site settings. See [Social Login Setup](SOCIAL_LOGIN.md) to connect Google or GitHub.
 
 ## HTTPS reverse proxy
 
@@ -33,7 +33,9 @@ A proxy on the same host can use the default port mapping at `127.0.0.1:20002`. 
 
 ## Backups
 
-The data volume contains `db.sqlite3` and `media/`. Back up the database and media together so they represent the same point in time. Keep a copy of the environment file as well. While the database is in use, use SQLite's backup API or a consistent snapshot. Work-log attachments are stored under `media/_work_logs/`. BLEX checks ownership or sharing permissions before serving them. Exclude this directory from public paths if you add a separate static file server.
+The data volume contains `db.sqlite3` and `media/`. Back up the database and media together so they represent the same point in time. Keep a copy of the environment file as well. While the database is in use, use SQLite's backup API or a consistent snapshot.
+
+Work-log attachments are stored under `media/_work_logs/`. BLEX checks ownership or sharing permissions before serving them. Exclude this directory from public paths if you add a separate static file server.
 
 ## Run containers directly
 

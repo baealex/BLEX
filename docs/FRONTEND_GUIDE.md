@@ -46,11 +46,6 @@ Web screens read the server-provided locale from `window.configuration.locale`, 
 
 ## Development and checks
 
-```sh
-pnpm install
-pnpm dev
-```
-
-This builds and starts the main app at `http://localhost:8040`; restart after source changes. Use the pnpm version declared in the root `package.json`. Run `pnpm build:client` to build the additional screens and their UI/editor dependencies. Restart the app after the first web build so it finds the assets.
+Follow the [local development setup](DEV_CONVENTION.md#local-development). Build additional screens with `pnpm build:client` and restart the app after the first build so it discovers the assets.
 
 Run `pnpm test` and `pnpm type-check` for changes to the main application. For web changes, use the workspace commands in the [Testing Guide](TESTING_GUIDE.md).

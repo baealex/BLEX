@@ -8,7 +8,7 @@ The client-rendered React screens use Lingui, and the reusable editor has a type
 
 | Surface | Messages and locale handling |
 | --- | --- |
-| Web screens | `packages/client/src/locales/{locale}/messages.po`; host locale supplied by `packages/server/src/application/screen-host/index.tsx` |
+| Web screens | `packages/client/src/locales/{locale}/messages.po`; host locale supplied by `packages/server/src/application/screen-host/index.ts` |
 | Reusable editor | `packages/client/src/features/editor/tiptap/TiptapEditor/i18n/locales/{locale}.ts` |
 | System notifications | Message keys, parameters, and text templates in `packages/server/src/features/notifications/model.ts` |
 | Main app pages | `packages/client/src/routes/` and `packages/client/src/features/`; API fallback text stays in `packages/server/src/`; check their existing language handling before editing |
@@ -29,7 +29,7 @@ pnpm i18n:check
 
 Keep explicit, domain-prefixed Lingui IDs stable and provide clear English default messages. Preserve placeholders and ICU expressions. Keep PO catalogs under version control; generated Lingui `.mjs` files are ignored.
 
-For the reusable editor, update the translations in its type-checked locale files without changing keys or `{placeholders}`. Its [README](../packages/client/src/features/editor/tiptap/README.md) describes catalog loading and host overrides. The main app's visual editor in `packages/server/src/features/posts/editor/` is a separate implementation.
+For the reusable editor, update the translations in its type-checked locale files without changing keys or `{placeholders}`. Its [README](../packages/client/src/features/editor/tiptap/README.md) describes catalog loading and host overrides.
 
 ## Add a language
 
