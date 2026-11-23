@@ -1,11 +1,27 @@
-import { readFileSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gzipSync } from 'node:zlib';
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
-const outDir = resolve(currentDir, '../../server/dist/web');
-const manifestPath = resolve(outDir, '.vite/manifest.json');
+
+const readBuild = (name) => {
+    const outDir = resolve(currentDir, '../../server/dist', name);
+    const manifestPath = resolve(outDir, '.vite/manifest.json');
+
+    if (!existsSync(manifestPath)) {
+        console.error(`Missing build output: packages/server/dist/${name}/.vite/manifest.json`);
+        console.error('Run pnpm build:client before checking entry budgets.');
+        process.exit(1);
+    }
+
+    return { outDir, manifest: JSON.parse(readFileSync(manifestPath, 'utf8')) };
+};
+
+const builds = { web: readBuild('web'), client: readBuild('client') };
+
+// Every public page loads these two entries from the separate build served at /assets/ui/.
+const publicPageEntries = ['src/application/client.tsx', 'src/appearance/site-client.ts'];
 
 // Size limits keep about 10% headroom over the current build so ordinary feature work
 // does not fail on a few bytes. They still catch a sudden jump, such as a heavy
@@ -96,6 +112,38 @@ const budgets = [
         maxInitialBytes: 235 * 1024,
         maxInitialGzipBytes: 49 * 1024,
         allowedInitialNames: ['styles/main.scss', 'styles/post.scss']
+    },
+    {
+        build: 'client',
+        entries: publicPageEntries,
+        label: 'public page scripts',
+        maxInitialBytes: 380 * 1024,
+        maxInitialGzipBytes: 123 * 1024
+    },
+    {
+        build: 'client',
+        entries: [
+            ...publicPageEntries,
+            'src/features/engagement/ui/comments-client.tsx',
+            'src/features/posts/code-blocks-client.ts'
+        ],
+        label: 'public post page scripts',
+        maxInitialBytes: 430 * 1024,
+        maxInitialGzipBytes: 141 * 1024
+    },
+    {
+        build: 'client',
+        entries: [...publicPageEntries, 'src/features/auth/ui/login-client.tsx'],
+        label: 'public login page scripts',
+        maxInitialBytes: 390 * 1024,
+        maxInitialGzipBytes: 127 * 1024
+    },
+    {
+        build: 'client',
+        entries: [...publicPageEntries, 'src/application/screen-host/client.ts'],
+        label: 'public screen host scripts',
+        maxInitialBytes: 380 * 1024,
+        maxInitialGzipBytes: 124 * 1024
     }
 ];
 
@@ -108,13 +156,11 @@ const assetBudgets = [
     }
 ];
 
-const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
-
 const formatKiB = (bytes) => `${(bytes / 1024).toFixed(1)} KiB`;
 
 const getSearchValue = (item, key) => [key, item.name, item.src, item.file].filter(Boolean).join(' ');
 
-const collectInitialGraph = (entryKeys) => {
+const collectInitialGraph = ({ manifest }, entryKeys) => {
     const visited = new Set();
     const visit = (key) => {
         if (visited.has(key)) {
@@ -139,15 +185,19 @@ const collectInitialGraph = (entryKeys) => {
     return [...visited];
 };
 
-const getItemName = (key) => {
+const getItemName = ({ manifest }, key) => {
     const item = manifest[key];
     return item?.src ?? item?.name ?? key;
 };
 
-const collectDynamicNames = (entryKeys) =>
-    new Set(entryKeys.flatMap((entryKey) => (manifest[entryKey]?.dynamicImports ?? []).map(getItemName)));
+const collectDynamicNames = (build, entryKeys) =>
+    new Set(
+        entryKeys.flatMap((entryKey) =>
+            (build.manifest[entryKey]?.dynamicImports ?? []).map((key) => getItemName(build, key))
+        )
+    );
 
-const getFileStats = (key) => {
+const getFileStats = ({ manifest, outDir }, key) => {
     const item = manifest[key];
     const filePath = resolve(outDir, item.file);
     const source = readFileSync(filePath, 'utf8');
@@ -167,7 +217,8 @@ const getFileStats = (key) => {
 let hasFailure = false;
 
 for (const budget of budgets) {
-    const stats = collectInitialGraph(budget.entries).map(getFileStats);
+    const build = builds[budget.build ?? 'web'];
+    const stats = collectInitialGraph(build, budget.entries).map((key) => getFileStats(build, key));
     const totalRawBytes = stats.reduce((sum, item) => sum + item.rawBytes, 0);
     const totalGzipBytes = stats.reduce((sum, item) => sum + item.gzipBytes, 0);
     const unexpectedStats = budget.allowedInitialNames
@@ -182,7 +233,7 @@ for (const budget of budgets) {
               })
               .filter((item) => item.hits.length > 0)
         : [];
-    const dynamicNames = collectDynamicNames(budget.entries);
+    const dynamicNames = collectDynamicNames(build, budget.entries);
     const missingDynamicNames = (budget.requiredDynamicNames ?? []).filter((name) => !dynamicNames.has(name));
 
     console.log(`Entry budget report: ${budget.label}`);
@@ -242,13 +293,13 @@ for (const budget of budgets) {
 }
 
 for (const budget of assetBudgets) {
-    const item = manifest[budget.entry];
+    const item = builds.web.manifest[budget.entry];
     if (!item) {
         throw new Error(`Missing manifest entry: ${budget.entry}`);
     }
 
     const assets = item.assets ?? [];
-    const totalBytes = assets.reduce((sum, file) => sum + statSync(resolve(outDir, file)).size, 0);
+    const totalBytes = assets.reduce((sum, file) => sum + statSync(resolve(builds.web.outDir, file)).size, 0);
     const violations = [];
 
     console.log(`Asset budget report: ${budget.label}`);
