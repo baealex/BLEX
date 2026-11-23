@@ -1,16 +1,12 @@
+import { flushSync } from 'react-dom';
 import { hydrateRoot } from 'react-dom/client';
 import {
-  createBrowserRouter,
-  redirect,
-  replace,
-  RouterProvider,
-  useLoaderData,
-  useLocation,
-  useNavigationType,
-  useRouteError,
-  type LoaderFunctionArgs,
-} from 'react-router';
-import { useEffect, useLayoutEffect } from 'react';
+  createBrowserHistory,
+  createRootRoute,
+  createRoute,
+  createRouter,
+} from '@tanstack/react-router';
+import { useLayoutEffect, useState } from 'react';
 import { ApplicationFrame, type ApplicationView } from './frame.js';
 import { openLoginPromptFrom } from './login-prompt.js';
 import { opensOutsideApplication, type BlexNavigateDetail } from './navigation.js';
@@ -71,7 +67,9 @@ let currentPageCleanup: (() => void) | null = null;
 let pageModuleGeneration = 0;
 let currentHistoryKey = 'default';
 let hasCommittedInitialDocument = false;
-let router: ReturnType<typeof createBrowserRouter> | null = null;
+let router: ApplicationRouter | null = null;
+let navigationType: PageChangeDetail['navigationType'] = 'PUSH';
+let showApplicationPage: ((page: ApplicationDocument) => void) | null = null;
 const stagedDocuments = new Map<string, ApplicationDocument>();
 const pendingPostForms = new WeakSet<HTMLFormElement>();
 const activePostRequests = new Set<AbortController>();
@@ -206,20 +204,18 @@ class NativeNavigationRequired extends Error {
   }
 }
 
-async function loadApplicationDocument({ request }: LoaderFunctionArgs): Promise<ApplicationDocument> {
+async function loadApplicationDocument({ abortController }: { abortController: AbortController }): Promise<ApplicationDocument> {
+  if (!hasCommittedInitialDocument && initialDocument) return initialDocument;
+  const { signal } = abortController;
+  const href = router?.history.location.href ?? window.location.href;
   let requestUrl: URL;
-  try { requestUrl = new URL(request.url); } catch { return requiredNavigation(request.url); }
+  try { requestUrl = new URL(href, window.location.href); } catch { return requiredNavigation(href); }
   saveCurrentPosition();
   const staged = stagedDocuments.get(pageRequestKey(requestUrl));
   if (staged) {
     stagedDocuments.delete(pageRequestKey(requestUrl));
-    if (request.signal.aborted) throw new DOMException('Navigation was cancelled.', 'AbortError');
-    dispatchLifecycle('blex:before-page-change', {
-      from: window.location.href,
-      to: staged.url,
-      navigationType: router?.state.historyAction ?? 'PUSH',
-    });
-    disposeActivePage();
+    if (signal.aborted) throw new DOMException('Navigation was cancelled.', 'AbortError');
+    beginPageChange(staged.url);
     return staged;
   }
 
@@ -229,14 +225,14 @@ async function loadApplicationDocument({ request }: LoaderFunctionArgs): Promise
       method: 'GET',
       credentials: 'same-origin',
       redirect: 'follow',
-      signal: request.signal,
+      signal,
       headers: { Accept: 'text/html,application/xhtml+xml', 'X-Blex-Application-Request': '1' },
     });
   } catch (error) {
-    if (request.signal.aborted) throw error;
+    if (signal.aborted) throw error;
     return requiredNavigation(requestUrl.href);
   }
-  if (request.signal.aborted) throw new DOMException('Navigation was cancelled.', 'AbortError');
+  if (signal.aborted) throw new DOMException('Navigation was cancelled.', 'AbortError');
 
   const finalUrl = new URL(response.url || requestUrl.href, requestUrl);
   if (finalUrl.origin !== window.location.origin) return requiredNavigation(finalUrl.href);
@@ -247,28 +243,38 @@ async function loadApplicationDocument({ request }: LoaderFunctionArgs): Promise
   }
 
   const markup = await response.text();
-  if (request.signal.aborted) throw new DOMException('Navigation was cancelled.', 'AbortError');
+  if (signal.aborted) throw new DOMException('Navigation was cancelled.', 'AbortError');
   const parsed = new DOMParser().parseFromString(markup, 'text/html');
-  const document = readApplicationDocument(parsed, finalUrl.href);
-  if (!document) return requiredNavigation(finalUrl.href);
+  const page = readApplicationDocument(parsed, finalUrl.href);
+  if (!page) return requiredNavigation(finalUrl.href);
 
   if (response.redirected && !sameRoute(finalUrl, requestUrl)) {
     const redirected = new URL(finalUrl.href);
     if (!redirected.hash) redirected.hash = requestUrl.hash;
-    const currentUrl = new URL(window.location.href);
-    const responsePath = redirected.pathname + redirected.search + redirected.hash;
-    if (sameRoute(requestUrl, currentUrl) || sameRoute(redirected, currentUrl)) return replace(responsePath) as never;
-    return redirect(responsePath) as never;
+    // The address bar already shows the requested URL, so the redirect target takes over its history entry.
+    stagedDocuments.set(pageRequestKey(redirected), page);
+    abortController.abort();
+    visit(redirected.pathname + redirected.search + redirected.hash, true);
+    throw new DOMException('Navigation was redirected.', 'AbortError');
   }
 
-  if (request.signal.aborted) throw new DOMException('Navigation was cancelled.', 'AbortError');
+  beginPageChange(page.url);
+  return page;
+}
+
+function beginPageChange(to: string): void {
   dispatchLifecycle('blex:before-page-change', {
-    from: window.location.href,
-    to: document.url,
-    navigationType: router?.state.historyAction ?? 'PUSH',
+    from: currentDocument?.url ?? window.location.href,
+    to,
+    navigationType,
   });
   disposeActivePage();
-  return document;
+}
+
+// History paths go in directly because a router destination would read a `$` segment as a route parameter.
+function visit(path: string, replace = false): void {
+  if (replace) router?.history.replace(path);
+  else router?.history.push(path);
 }
 
 function sameRoute(left: URL, right: URL): boolean {
@@ -349,12 +355,11 @@ function dispatchNavigateEvent(event: Event): void {
   try { target = new URL(detail.to, window.location.href); } catch { return; }
   if (!isInternalApplicationUrl(target)) return;
   if (sameRoute(target, new URL(window.location.href)) && target.hash === window.location.hash) return;
-  const activeRouter = router;
-  if (!activeRouter) return;
+  if (!router) return;
 
   event.preventDefault();
   saveCurrentPosition();
-  void activeRouter.navigate(`${target.pathname}${target.search}${target.hash}`, { replace: detail.replace });
+  visit(`${target.pathname}${target.search}${target.hash}`, detail.replace);
 }
 
 const excludedFileExtension = /\.(?:css|m?js|map|png|jpe?g|gif|webp|avif|svg|ico|woff2?|ttf|otf|eot|pdf|zip|gz|mp3|mp4|webm|json|txt|xml|webmanifest|md)$/i;
@@ -394,12 +399,11 @@ function handleDocumentClick(event: MouseEvent): void {
   const current = new URL(window.location.href);
   if (sameRoute(destination, current) && destination.hash !== current.hash) return;
   if (destination.href === current.href) return;
-  const activeRouter = router;
-  if (!activeRouter) return;
+  if (!router) return;
 
   event.preventDefault();
   saveCurrentPosition();
-  void activeRouter.navigate(`${destination.pathname}${destination.search}${destination.hash}`);
+  visit(`${destination.pathname}${destination.search}${destination.hash}`);
 }
 
 function formHasTarget(form: HTMLFormElement, submitter: HTMLElement | null): boolean {
@@ -433,8 +437,7 @@ function handleDocumentSubmit(event: SubmitEvent): void {
     if (destination.pathname.startsWith('/v1/') &&
         (!isFormRedirectEndpoint || !isSafeFormReturnTo(data.get('returnTo')))) return;
     if (destination.pathname.startsWith('/api/')) return;
-    const activeRouter = router;
-    if (!activeRouter) return;
+    if (!router) return;
     if (pendingPostForms.has(form)) {
       event.preventDefault();
       return;
@@ -462,12 +465,11 @@ function handleDocumentSubmit(event: SubmitEvent): void {
     params.append(name, value);
   }
   destination.search = params.toString();
-  const activeRouter = router;
-  if (!activeRouter) return;
+  if (!router) return;
 
   event.preventDefault();
   saveCurrentPosition();
-  void activeRouter.navigate(`${destination.pathname}${destination.search}${destination.hash}`);
+  visit(`${destination.pathname}${destination.search}${destination.hash}`);
 }
 
 function isSafeFormReturnTo(value: FormDataEntryValue | null): value is string {
@@ -554,7 +556,8 @@ async function submitApplicationPost(
       return;
     }
     if (response.status === 204 || response.status === 205) {
-      activeRouter.revalidate();
+      await activeRouter.invalidate();
+      renderLoadedPage(activeRouter);
       return;
     }
     const contentType = response.headers.get('content-type')?.toLowerCase() ?? '';
@@ -580,12 +583,11 @@ async function submitApplicationPost(
     stagedDocuments.set(pageRequestKey(new URL(page.url)), page);
     const currentUrl = new URL(window.location.href);
     if (sameRoute(currentUrl, finalUrl)) {
-      if (currentUrl.hash !== finalUrl.hash) {
-        await activeRouter.navigate(finalUrl.pathname + finalUrl.search + finalUrl.hash);
-      }
-      activeRouter.revalidate();
+      if (currentUrl.hash !== finalUrl.hash) visit(finalUrl.pathname + finalUrl.search + finalUrl.hash);
+      await activeRouter.invalidate();
+      renderLoadedPage(activeRouter);
     } else {
-      await activeRouter.navigate(finalUrl.pathname + finalUrl.search + finalUrl.hash);
+      visit(finalUrl.pathname + finalUrl.search + finalUrl.hash);
     }
   } catch (error) {
     if (controller.signal.aborted) return;
@@ -831,73 +833,109 @@ async function activateRouteFeatures(
   return cleanups.length ? () => cleanupAll(cleanups) : null;
 }
 
-function ApplicationRoute() {
-  const page = useLoaderData() as ApplicationDocument;
-  const location = useLocation();
-  const navigationType = useNavigationType();
+function browserHistoryKey(): string {
+  const state: unknown = window.history.state;
+  return isRecord(state) && typeof state.__TSR_key === 'string' ? state.__TSR_key : 'default';
+}
+
+function commitApplicationPage(page: ApplicationDocument, hash: string): void {
+  const initial = !hasCommittedInitialDocument;
+  const key = browserHistoryKey();
+  const navigated = !initial && key !== currentHistoryKey;
+  if (!initial && page === currentDocument) {
+    currentHistoryKey = key;
+    // The browser already scrolled to a fragment link it followed by itself.
+    if (navigated && !(key === 'default' && hash)) restorePagePosition(navigationType, key, hash);
+    return;
+  }
+
+  const previousUrl = currentDocument?.url ?? page.url;
+  const changeType = navigationType;
+  currentDocument = page;
+  currentHistoryKey = key;
+  applyDocumentState(page, initial);
+  const content = document.getElementById('blex-route-content');
+  if (content) {
+    if (navigated) restorePagePosition(changeType, key, hash);
+    const generation = ++pageModuleGeneration;
+    void activateRouteFeatures(page, content, generation).then((cleanup) => {
+      if (generation !== pageModuleGeneration || currentDocument !== page) {
+        cleanup?.();
+        return;
+      }
+      currentPageCleanup = cleanup;
+      dispatchLifecycle('blex:page-change', { from: previousUrl, to: page.url, navigationType: changeType });
+    });
+  }
+  hasCommittedInitialDocument = true;
+}
+
+function renderLoadedPage(activeRouter: ApplicationRouter): void {
+  const match = activeRouter.state.matches.at(-1);
+  if (match?.status === 'error') {
+    // The failed destination already owns the current history entry.
+    window.location.replace(match.error instanceof NativeNavigationRequired ? match.error.url : window.location.href);
+    return;
+  }
+  const page = match?.status === 'success' ? match.loaderData as ApplicationDocument | undefined : undefined;
+  if (!page) return;
+  flushSync(() => showApplicationPage?.(page));
+  commitApplicationPage(page, window.location.hash);
+}
+
+function ApplicationRoute({ initialPage }: { initialPage: ApplicationDocument }) {
+  const [page, setPage] = useState(initialPage);
 
   useLayoutEffect(() => {
-    const initial = !hasCommittedInitialDocument;
-    const navigated = !initial && location.key !== currentHistoryKey;
-    const previousUrl = currentDocument?.url ?? page.url;
-    currentDocument = page;
-    currentHistoryKey = location.key;
-    applyDocumentState(page, initial);
-    const content = document.getElementById('blex-route-content');
-    if (content) {
-      if (navigated) restorePagePosition(navigationType, location.key, location.hash);
-      const generation = ++pageModuleGeneration;
-      void activateRouteFeatures(page, content, generation).then((cleanup) => {
-        if (generation !== pageModuleGeneration || currentDocument !== page) {
-          cleanup?.();
-          return;
-        }
-        currentPageCleanup = cleanup;
-        dispatchLifecycle('blex:page-change', {
-          from: previousUrl,
-          to: page.url,
-          navigationType,
-        });
-      });
-    }
-    hasCommittedInitialDocument = true;
-  }, [page, location.key, location.hash, navigationType]);
+    showApplicationPage = setPage;
+    if (!hasCommittedInitialDocument) commitApplicationPage(initialPage, window.location.hash);
+  }, [initialPage]);
 
   return <ApplicationFrame view={page.view} />;
 }
 
-function ApplicationErrorBoundary() {
-  const error = useRouteError();
-  useEffect(() => {
-    const url = error instanceof NativeNavigationRequired ? error.url : window.location.href;
-    window.location.assign(url);
-  }, [error]);
-  const fallback = currentDocument ?? initialDocument;
-  return fallback ? <ApplicationFrame view={fallback.view} /> : null;
-}
+const rootRoute = createRootRoute();
+const applicationRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '$',
+  loaderDeps: ({ search }) => search,
+  // A fragment change stays on the loaded page; saved forms still reload it through invalidate.
+  shouldReload: ({ cause }) => cause !== 'stay',
+  loader: loadApplicationDocument,
+});
+
+const createApplicationRouter = () => createRouter({
+  routeTree: rootRoute.addChildren([applicationRoute]),
+  history: createBrowserHistory(),
+  trailingSlash: 'preserve',
+  // Server-rendered query strings stay byte-for-byte instead of being reparsed as JSON values.
+  parseSearch: (search) => ({ raw: search }),
+  stringifySearch: (search) => (typeof search.raw === 'string' ? search.raw : ''),
+  defaultStaleReloadMode: 'blocking',
+  defaultGcTime: 0,
+});
+type ApplicationRouter = ReturnType<typeof createApplicationRouter>;
 
 const appRoot = document.getElementById('blex-application');
 const initialDocument = readApplicationDocument(document, window.location.href);
 
 if (appRoot && initialDocument) {
   history.scrollRestoration = 'manual';
-  const appRouter = createBrowserRouter([{
-    id: 'application',
-    path: '*',
-    loader: loadApplicationDocument,
-    Component: ApplicationRoute,
-    ErrorBoundary: ApplicationErrorBoundary,
-  }], {
-    hydrationData: { loaderData: { application: initialDocument } },
-  });
+  const appRouter = createApplicationRouter();
   router = appRouter;
-
-  document.addEventListener('blex:navigate', dispatchNavigateEvent);
-  document.addEventListener('click', handleDocumentClick);
-  document.addEventListener('submit', handleDocumentSubmit);
-  installPositionTracking();
-  hydrateRoot(appRoot, <RouterProvider router={appRouter} />, {
-    onRecoverableError(error) { console.error('BLEX application hydration recovered from an error.', error); },
+  void appRouter.load().then(() => {
+    // The page body is server HTML, so this router owns history and loading while React renders one stable frame.
+    appRouter.history.subscribe(({ action }) => {
+      navigationType = action.type === 'PUSH' || action.type === 'REPLACE' ? action.type : 'POP';
+      void appRouter.load().then(() => renderLoadedPage(appRouter));
+    });
+    document.addEventListener('blex:navigate', dispatchNavigateEvent);
+    document.addEventListener('click', handleDocumentClick);
+    document.addEventListener('submit', handleDocumentSubmit);
+    installPositionTracking();
+    hydrateRoot(appRoot, <ApplicationRoute initialPage={initialDocument} />, {
+      onRecoverableError(error) { console.error('BLEX application hydration recovered from an error.', error); },
+    });
   });
 } else {
   console.error('BLEX client routing was skipped because the application document marker is missing.');

@@ -1,6 +1,6 @@
 # Frontend Guide
 
-BLEX renders pages with React on the server and uses a shared React Router application for browser navigation. Additional React screens are loaded from `packages/web/` through the server screen host.
+BLEX renders pages with React on the server and uses a shared TanStack Router application for browser navigation. Additional React screens are loaded from `packages/web/` through the server screen host.
 
 ## Code layout
 
