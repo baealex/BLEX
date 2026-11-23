@@ -5,7 +5,7 @@ import { CalendarDays, FileText } from '@blex/ui/icons';
 import { usePostsQuery, type FilterOptions, type PostsSource } from '../hooks/usePostsData';
 import { usePostsActions } from '../hooks';
 import PostCard from './PostCard';
-import Pagination from './Pagination';
+import { SettingsPagination } from '../../../components';
 import type { Series } from '~/lib/api/settings';
 import { SettingsEmptyState } from '../../../components';
 import { formatLocalDateTime } from '~/i18n/formatters';
@@ -124,7 +124,11 @@ export const PostListContent = ({
                 />
             )}
 
-            <Pagination
+            <SettingsPagination
+                ariaLabel={t({
+                    id: 'settings.posts.pagination.aria',
+                    message: 'Post pages'
+                })}
                 page={filters.page}
                 lastPage={postsData.lastPage || 1}
                 onPageChange={onPageChange}

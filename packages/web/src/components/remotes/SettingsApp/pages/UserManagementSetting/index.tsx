@@ -1,20 +1,16 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import type { MessageDescriptor } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import {
     ChevronDown,
-    ChevronLeft,
-    ChevronRight,
-    ChevronsLeft,
-    ChevronsRight,
     Ticket,
     Users
 } from '@blex/ui/icons';
 import { toast } from '~/utils/toast';
 import { useConfirm } from '~/hooks/useConfirm';
-import { SettingsHeader } from '../../components';
+import { SettingsHeader, SettingsPagination } from '../../components';
 import { MemberActions } from './MemberActions';
 import { Button, Card, Input, Select } from '~/components/shared';
 import { getDocumentTimeZone, normalizeLocale } from '~/i18n/locale';
@@ -412,24 +408,6 @@ const UserManagementSetting = () => {
     const stats = usersData.stats;
     const pagination = usersData.pagination;
     const currentPage = pagination.page;
-    const visiblePages = useMemo(() => {
-        const lastPage = pagination.totalPages;
-
-        if (lastPage <= 5) {
-            return Array.from({ length: lastPage }, (_, index) => index + 1);
-        }
-
-        if (currentPage <= 3) {
-            return [1, 2, 3, 4, 5];
-        }
-
-        if (currentPage >= lastPage - 2) {
-            return [lastPage - 4, lastPage - 3, lastPage - 2, lastPage - 1, lastPage];
-        }
-
-        return [currentPage - 2, currentPage - 1, currentPage, currentPage + 1, currentPage + 2];
-    }, [currentPage, pagination.totalPages]);
-
     const roleMutation = useMutation({
         mutationFn: ({ user, role }: { user: ManagedUser; role: ManagedUserRole }) => updateManagedUserRole(user.id, role),
         onSuccess: ({ data }) => {
@@ -911,84 +889,30 @@ const UserManagementSetting = () => {
                     </div>
                 </div>
 
+                <SettingsPagination
+                    page={String(currentPage)}
+                    lastPage={pagination.totalPages}
+                    ariaLabel={t({
+                        id: 'settings.users.pagination.aria',
+                        message: 'User pages'
+                    })}
+                    onPageChange={value => handlePageMove(Number(value))}
+                />
                 {pagination.totalPages > 1 && (
-                    <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        <p className="text-sm text-content-secondary">
-                            {i18n._({
-                                id: 'settings.users.pagination.summary',
-                                message: 'Showing {start}–{end} of {total} users',
-                                values: {
-                                    start: (pagination.page - 1) * pagination.pageSize + 1,
-                                    end: Math.min(
-                                        pagination.page * pagination.pageSize,
-                                        pagination.total
-                                    ),
-                                    total: pagination.total
-                                }
-                            })}
-                        </p>
-                        <div className="flex flex-wrap items-center gap-2">
-                            <Button
-                                density="compact"
-                                variant="secondary"
-                                size="sm"
-                                disabled={!pagination.hasPrevious}
-                                onClick={() => handlePageMove(1)}
-                                aria-label={t({
-                                    id: 'common.pagination.first',
-                                    message: 'First page'
-                                })}>
-                                <ChevronsLeft aria-hidden="true" className="h-4 w-4" />
-                            </Button>
-                            <Button
-                                density="compact"
-                                variant="secondary"
-                                size="sm"
-                                disabled={!pagination.hasPrevious}
-                                onClick={() => handlePageMove(currentPage - 1)}
-                                aria-label={t({
-                                    id: 'common.pagination.previous',
-                                    message: 'Previous page'
-                                })}>
-                                <ChevronLeft aria-hidden="true" className="h-4 w-4" />
-                            </Button>
-                            {visiblePages.map(pageNumber => (
-                                <Button
-                                    density="compact"
-                                    key={pageNumber}
-                                    variant={pageNumber === currentPage ? 'primary' : 'secondary'}
-                                    size="sm"
-                                    onClick={() => handlePageMove(pageNumber)}
-                                    aria-current={pageNumber === currentPage ? 'page' : undefined}>
-                                    {pageNumber}
-                                </Button>
-                            ))}
-                            <Button
-                                density="compact"
-                                variant="secondary"
-                                size="sm"
-                                disabled={!pagination.hasNext}
-                                onClick={() => handlePageMove(currentPage + 1)}
-                                aria-label={t({
-                                    id: 'common.pagination.next',
-                                    message: 'Next page'
-                                })}>
-                                <ChevronRight aria-hidden="true" className="h-4 w-4" />
-                            </Button>
-                            <Button
-                                density="compact"
-                                variant="secondary"
-                                size="sm"
-                                disabled={!pagination.hasNext}
-                                onClick={() => handlePageMove(pagination.totalPages)}
-                                aria-label={t({
-                                    id: 'common.pagination.last',
-                                    message: 'Last page'
-                                })}>
-                                <ChevronsRight aria-hidden="true" className="h-4 w-4" />
-                            </Button>
-                        </div>
-                    </div>
+                    <p className="mt-4 text-center text-sm text-content-secondary">
+                        {i18n._({
+                            id: 'settings.users.pagination.summary',
+                            message: 'Showing {start}–{end} of {total} users',
+                            values: {
+                                start: (pagination.page - 1) * pagination.pageSize + 1,
+                                end: Math.min(
+                                    pagination.page * pagination.pageSize,
+                                    pagination.total
+                                ),
+                                total: pagination.total
+                            }
+                        })}
+                    </p>
                 )}
             </Card>
         </div>

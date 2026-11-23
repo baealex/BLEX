@@ -11,16 +11,16 @@ import {
     getModeratedComments,
     type ModeratedComment
 } from '~/lib/api/settings';
-import { SettingsHeader } from '../../components';
-import { ModerationPager, usePageScroll } from '../shared/ModerationPager';
+import { SettingsHeader, SettingsPagination } from '../../components';
+import { useModerationPaging, useModerationSearch } from '../shared/useModerationList';
 
 const ModerationCommentsSetting = () => {
     const { i18n, t } = useLingui();
     const { confirm } = useConfirm();
     const queryClient = useQueryClient();
-    const [query, setQuery] = useState('');
-    const [appliedQuery, setAppliedQuery] = useState('');
-    const [page, setPage] = useState(1);
+    const { page, query: appliedQuery, updateSearch } = useModerationSearch();
+    const [draftQuery, setDraftQuery] = useState<string | null>(null);
+    const query = draftQuery ?? appliedQuery;
     const locale = normalizeLocale(i18n.locale);
     const failed = t({
         id: 'settings.moderation.action_failed',
@@ -36,7 +36,7 @@ const ModerationCommentsSetting = () => {
         },
         placeholderData: previous => previous
     });
-    const { listRef, markPageChange } = usePageScroll(!isPlaceholderData, data);
+    const { listRef, goToPage } = useModerationPaging(page, updateSearch, data?.pagination, !isPlaceholderData);
 
     const deleteMutation = useMutation({
         mutationFn: (comment: ModeratedComment) => deleteModeratedComment(comment.id),
@@ -74,15 +74,12 @@ const ModerationCommentsSetting = () => {
         if (confirmed) deleteMutation.mutate(comment);
     };
 
-    const handlePageChange = (nextPage: number) => {
-        if (nextPage === page) return;
-        markPageChange();
-        setPage(nextPage);
-    };
-
     const handleSearch = () => {
-        setPage(1);
-        setAppliedQuery(query.trim());
+        setDraftQuery(null);
+        updateSearch({
+            q: query.trim() || undefined,
+            page: undefined
+        });
     };
 
     const formatDate = (value: string | null) => (value
@@ -112,6 +109,11 @@ const ModerationCommentsSetting = () => {
                     id: 'settings.moderation.comments.list_title',
                     message: 'Recent comments'
                 })}
+                subtitle={data ? i18n._({
+                    id: 'settings.moderation.total',
+                    message: '{total} total',
+                    values: { total: data.pagination.total }
+                }) : undefined}
                 icon={<MessageCircle aria-hidden="true" className="h-4 w-4" />}>
                 <div className="mb-6 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
                     <Input
@@ -125,7 +127,7 @@ const ModerationCommentsSetting = () => {
                             message: 'Search comment text or author'
                         })}
                         value={query}
-                        onChange={(event) => setQuery(event.target.value)}
+                        onChange={(event) => setDraftQuery(event.target.value)}
                         onKeyDown={(event) => {
                             if (event.key === 'Enter') handleSearch();
                         }}
@@ -188,7 +190,17 @@ const ModerationCommentsSetting = () => {
                     )}
                 </div>
 
-                {data && <ModerationPager pagination={data.pagination} onPageChange={handlePageChange} />}
+                {data && (
+                    <SettingsPagination
+                        page={String(data.pagination.page)}
+                        lastPage={data.pagination.totalPages}
+                        ariaLabel={t({
+                            id: 'settings.moderation.comments.pagination_aria',
+                            message: 'Comment pages'
+                        })}
+                        onPageChange={value => goToPage(Number(value))}
+                    />
+                )}
             </Card>
         </div>
     );

@@ -19,7 +19,7 @@ import {
 } from '~/styles/settingsStyles';
 import { toast } from '~/utils/toast';
 import { SettingsEmptyState, SettingsListItem } from '../../../components';
-import Pagination from './Pagination';
+import { SettingsPagination } from '../../../components';
 import { formatDateTime } from '~/i18n/formatters';
 import { normalizeLocale } from '~/i18n/locale';
 
@@ -294,7 +294,11 @@ export const TrashPostListContent = ({
                     );
                 })}
             </div>
-            <Pagination
+            <SettingsPagination
+                ariaLabel={t({
+                    id: 'settings.posts.pagination.aria',
+                    message: 'Post pages'
+                })}
                 page={String(trashData.pagination.page)}
                 lastPage={trashData.pagination.lastPage}
                 onPageChange={onPageChange}

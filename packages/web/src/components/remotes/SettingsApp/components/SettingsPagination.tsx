@@ -1,13 +1,19 @@
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from '@blex/ui/icons';
 import { useLingui } from '@lingui/react/macro';
 
-interface PaginationProps {
+interface SettingsPaginationProps {
     page: string;
     lastPage: number;
+    ariaLabel: string;
     onPageChange: (page: string) => void;
 }
 
-const Pagination = ({ page, lastPage, onPageChange }: PaginationProps) => {
+const SettingsPagination = ({
+    page,
+    lastPage,
+    ariaLabel,
+    onPageChange
+}: SettingsPaginationProps) => {
     const { t } = useLingui();
     const currentPage = Number.parseInt(page, 10) || 1;
 
@@ -39,10 +45,7 @@ const Pagination = ({ page, lastPage, onPageChange }: PaginationProps) => {
     return (
         <nav
             className="pagination-nav [&_.pagination-link]:min-h-11 [&_.pagination-link]:min-w-11 [@media(pointer:fine)]:[&_.pagination-link]:min-h-9 [@media(pointer:fine)]:[&_.pagination-link]:min-w-9"
-            aria-label={t({
-                id: 'settings.posts.pagination.aria',
-                message: 'Post pages'
-            })}>
+            aria-label={ariaLabel}>
             <div className="pagination-action prev">
                 {currentPage > 1 ? (
                     <>
@@ -153,4 +156,4 @@ const Pagination = ({ page, lastPage, onPageChange }: PaginationProps) => {
     );
 };
 
-export default Pagination;
+export default SettingsPagination;

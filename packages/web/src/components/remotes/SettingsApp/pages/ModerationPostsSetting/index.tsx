@@ -19,8 +19,8 @@ import {
     type ModeratedPostFilter,
     type ModeratedPostStatus
 } from '~/lib/api/settings';
-import { SettingsHeader } from '../../components';
-import { ModerationPager, usePageScroll } from '../shared/ModerationPager';
+import { SettingsHeader, SettingsPagination } from '../../components';
+import { useModerationPaging, useModerationSearch } from '../shared/useModerationList';
 
 const filterItems: Array<{ value: ModeratedPostFilter; label: MessageDescriptor }> = [
     {
@@ -72,10 +72,10 @@ const ModerationPostsSetting = () => {
     const { i18n, t } = useLingui();
     const { confirm } = useConfirm();
     const queryClient = useQueryClient();
-    const [query, setQuery] = useState('');
-    const [appliedQuery, setAppliedQuery] = useState('');
-    const [filter, setFilter] = useState<ModeratedPostFilter>('all');
-    const [page, setPage] = useState(1);
+    const { page, query: appliedQuery, status, updateSearch } = useModerationSearch();
+    const [draftQuery, setDraftQuery] = useState<string | null>(null);
+    const query = draftQuery ?? appliedQuery;
+    const filter = filterItems.find(item => item.value === status)?.value ?? 'all';
     const locale = normalizeLocale(i18n.locale);
     const failed = t({
         id: 'settings.moderation.action_failed',
@@ -91,7 +91,7 @@ const ModerationPostsSetting = () => {
         },
         placeholderData: previous => previous
     });
-    const { listRef, markPageChange } = usePageScroll(!isPlaceholderData, data);
+    const { listRef, goToPage } = useModerationPaging(page, updateSearch, data?.pagination, !isPlaceholderData);
 
     const actionMutation = useMutation({
         mutationFn: ({ post, action }: { post: ModeratedPost; action: PostAction }) => runAction(post, action),
@@ -153,15 +153,12 @@ const ModerationPostsSetting = () => {
         });
     };
 
-    const handlePageChange = (nextPage: number) => {
-        if (nextPage === page) return;
-        markPageChange();
-        setPage(nextPage);
-    };
-
     const handleSearch = () => {
-        setPage(1);
-        setAppliedQuery(query.trim());
+        setDraftQuery(null);
+        updateSearch({
+            q: query.trim() || undefined,
+            page: undefined
+        });
     };
 
     const isBusy = (post: ModeratedPost) => actionMutation.isPending && actionMutation.variables?.post.id === post.id;
@@ -191,6 +188,11 @@ const ModerationPostsSetting = () => {
                     id: 'settings.moderation.posts.list_title',
                     message: 'Published posts'
                 })}
+                subtitle={data ? i18n._({
+                    id: 'settings.moderation.total',
+                    message: '{total} total',
+                    values: { total: data.pagination.total }
+                }) : undefined}
                 icon={<FileText aria-hidden="true" className="h-4 w-4" />}>
                 <div className="mb-6 grid gap-3 md:grid-cols-[minmax(0,1fr)_180px_auto]">
                     <Input
@@ -204,7 +206,7 @@ const ModerationPostsSetting = () => {
                             message: 'Search title or author'
                         })}
                         value={query}
-                        onChange={(event) => setQuery(event.target.value)}
+                        onChange={(event) => setDraftQuery(event.target.value)}
                         onKeyDown={(event) => {
                             if (event.key === 'Enter') handleSearch();
                         }}
@@ -217,8 +219,10 @@ const ModerationPostsSetting = () => {
                             message: 'Filter posts by status'
                         })}
                         onValueChange={(value) => {
-                            setFilter(value as ModeratedPostFilter);
-                            setPage(1);
+                            updateSearch({
+                                status: value === 'all' ? undefined : value,
+                                page: undefined
+                            });
                         }}
                         items={filterItems.map(item => ({
                             value: item.value,
@@ -327,7 +331,17 @@ const ModerationPostsSetting = () => {
                     )}
                 </div>
 
-                {data && <ModerationPager pagination={data.pagination} onPageChange={handlePageChange} />}
+                {data && (
+                    <SettingsPagination
+                        page={String(data.pagination.page)}
+                        lastPage={data.pagination.totalPages}
+                        ariaLabel={t({
+                            id: 'settings.posts.pagination.aria',
+                            message: 'Post pages'
+                        })}
+                        onPageChange={value => goToPage(Number(value))}
+                    />
+                )}
             </Card>
         </div>
     );
