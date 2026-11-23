@@ -48,6 +48,12 @@ const DEFAULT_LANGUAGE_DELETED_COMMENT = '<p>삭제된 댓글입니다.</p>';
 
 // A percent-encoded Korean character takes nine bytes, so 10,000 characters need about 90 KiB.
 export const commentBodyLimit = 128 * 1024;
+export const MAX_COMMENT_LENGTH = 10_000;
+
+/** Browsers submit each textarea line break as CRLF, which the field's maxLength counts as one character. */
+export function commentTooLong(text: string): boolean {
+  return text.replace(/\r\n/g, '\n').length > MAX_COMMENT_LENGTH;
+}
 
 function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (character) => ({

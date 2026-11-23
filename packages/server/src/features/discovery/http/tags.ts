@@ -14,7 +14,7 @@ export function registerTagsRoutes(app: FastifyInstance, db: PrismaClient, siteU
     const query = url.searchParams;
     const page = pageFrom(query);
     if (page === null) return sendNotFound(reply);
-    const searchText = (query.get('q') ?? '').trim();
+    const searchText = (query.get('q') ?? '').slice(0, 100).trim();
     const requestedSort = query.get('sort') ?? 'popular';
     const sort = ['popular', 'name', 'recent'].includes(requestedSort) ? requestedSort : 'popular';
     const { brand, siteName, viewer } = await getLayoutContext(request, reply, db, options);

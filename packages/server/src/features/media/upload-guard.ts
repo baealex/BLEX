@@ -1,15 +1,32 @@
-import type { FastifyInstance, FastifyRequest } from 'fastify';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { failure } from '../../platform/response.js';
 
 // Upload routes buffer files in memory, so these caps bound the memory a burst can claim.
 const MAX_ACTIVE_UPLOADS = 8;
 const MAX_ACTIVE_UPLOADS_PER_ACCOUNT = 2;
+const DEFAULT_NON_MULTIPART_BYTES = 8 * 1024;
 // Developer API routes authenticate their bearer token before they read the body.
 const SELF_AUTHENTICATED_PREFIX = '/api/developer/';
 
+function isMultipart(request: FastifyRequest) {
+  return request.headers['content-type']?.toLowerCase().startsWith('multipart/form-data') === true;
+}
+
 function isGuardedUpload(request: FastifyRequest) {
-  return request.method !== 'GET'
-    && request.headers['content-type']?.toLowerCase().startsWith('multipart/form-data') === true
-    && !request.url.startsWith(SELF_AUTHENTICATED_PREFIX);
+  return request.method !== 'GET' && isMultipart(request) && !request.url.startsWith(SELF_AUTHENTICATED_PREFIX);
+}
+
+/**
+ * A route's large body limit exists for files. Other content types are parsed before the handler can check the
+ * session, so this hook holds them to a small size.
+ */
+export function limitNonMultipartBody(maxBytes = DEFAULT_NON_MULTIPART_BYTES) {
+  return async (request: FastifyRequest, reply: FastifyReply) => {
+    if (isMultipart(request)) return;
+    const declared = Number(request.headers['content-length'] ?? 0);
+    if (!request.headers['transfer-encoding'] && declared <= maxBytes) return;
+    return reply.code(413).header('Connection', 'close').send(failure('VA', 'Upload files as multipart form data.'));
+  };
 }
 
 /** Rejects uploads before Fastify reads the body, because form CSRF tokens live inside that body. */

@@ -2,6 +2,7 @@ import formBody from '@fastify/formbody';
 import multipart from '@fastify/multipart';
 import { type PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
+import { limitNonMultipartBody } from '../media/upload-guard.js';
 import { renderWorkLogDelete, renderWorkLogIndex, renderWorkLogShared } from './pages.js';
 import { displayPage, pageChrome, pageLinks, renderDetailPage } from './detail-page.js';
 import { MAX_ATTACHMENT_SIZE, mediaResponse, removeAttachment, saveAttachment, validateAttachment } from './services/attachments.js';
@@ -82,7 +83,8 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       return renderDetailPage(request, reply, db, options, user, log);
     });
 
-    routes.post<{ Params: { pk: string }; Body: unknown }>('/work-logs/:pk/entry/', { bodyLimit: MAX_REQUEST_SIZE }, async (request, reply) => {
+    // A text-only entry posts as a form: 5,000 percent-encoded Korean characters take about 45 KiB.
+    routes.post<{ Params: { pk: string }; Body: unknown }>('/work-logs/:pk/entry/', { bodyLimit: MAX_REQUEST_SIZE, onRequest: limitNonMultipartBody(64 * 1024) }, async (request, reply) => {
       if (!csrfValid(request, options)) return notAllowed(reply);
       const user = await currentUser(request, reply, options);
       if (!user) return reply;

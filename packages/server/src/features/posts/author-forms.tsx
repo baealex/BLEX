@@ -68,6 +68,9 @@ export function registerAuthorForms(app: FastifyInstance, db: PrismaClient, opti
     routes.route<Request>({ method: ['GET', 'POST'], url: '/v1/forms', bodyLimit, handler: handle });
     routes.route<Request>({ method: ['GET', 'PUT', 'DELETE'], url: '/v1/forms/:id', bodyLimit, handler: handle });
     routes.post('/v1/markdown', { bodyLimit }, async (request, reply) => {
+      const editor = await options.currentUser(request);
+      if (!editor) return failure('NL');
+      if (!editor.hasEditorRole) return failure('RJ', 'Author access is required.');
       if (!options.validateCsrf(request)) return reply.code(403).send(failure('RJ'));
       const { text, sourceType } = formInput(request);
       return typeof text === 'string' && text ? done({ html: sourceType === 'html' ? sanitizePostHtml(text) : markdownToHtml(text) }) :

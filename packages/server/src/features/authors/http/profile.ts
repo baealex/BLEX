@@ -139,7 +139,7 @@ export function registerProfileRoutes(app: FastifyInstance, db: PrismaClient, si
     const query = url.searchParams;
     const page = pageFrom(query);
     if (page === null) return sendNotFound(reply);
-    const searchText = (query.get('q') ?? '').trim();
+    const searchText = (query.get('q') ?? '').slice(0, 100).trim();
     const tagFilter = (query.get('tag') ?? '').trim();
     const where: Prisma.PostWhereInput = {
       authorId: author.id,
@@ -222,7 +222,7 @@ export function registerProfileRoutes(app: FastifyInstance, db: PrismaClient, si
     const query = url.searchParams;
     const page = pageFrom(query);
     if (page === null) return sendNotFound(reply);
-    const searchText = (query.get('q') ?? '').trim();
+    const searchText = (query.get('q') ?? '').slice(0, 100).trim();
     const requestedSort = query.get('sort') ?? 'custom';
     const sort = ['custom', 'newest', 'oldest', 'posts'].includes(requestedSort) ? requestedSort : 'custom';
     const publicPost = publicPostWhere();

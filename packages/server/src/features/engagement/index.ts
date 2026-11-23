@@ -6,7 +6,7 @@ import { decryptSecret } from '../auth/encrypted-secret.js';
 import { timeSince } from '../../platform/date-format.js';
 import { publicPostPath } from '../posts/public-post.js';
 import { done, failure as error } from '../../platform/response.js';
-import { CommentRow, commentBodyLimit, commentForViewer, commentHtml, publicComments, serializeComment } from './services/comments.js';
+import { CommentRow, commentBodyLimit, commentForViewer, commentHtml, commentTooLong, publicComments, serializeComment } from './services/comments.js';
 import { anonymizeComments } from './services/deletions.js';
 import { canSubscribe, mySubscriptions, subscriptionState } from './services/subscriptions.js';
 import { ReaderActionsOptions, activeEditor, activeUser, asBodyObject, bodyField, commentReturnTo, forbidden, localReturnTo, missing, publicPost, requestCsrfAccepted, textValue, truthyBodyField } from './shared.js';
@@ -111,6 +111,7 @@ export function registerReaderActions(
       }
 
       const markdown = bodyField(body, 'commentMd');
+      if (commentTooLong(markdown)) return error('VA', 'Comments can be up to 10,000 characters.');
       const html = commentHtml(markdown);
       const commentId = await db.$transaction(async (tx) => {
         const inserted = await tx.comment.create({
@@ -194,6 +195,7 @@ export function registerReaderActions(
               return error('AT', 'You do not have permission to edit this comment.');
             }
             const markdown = bodyField(body, 'commentMd');
+            if (commentTooLong(markdown)) return error('VA', 'Comments can be up to 10,000 characters.');
             await db.comment.updateMany({
               where: { id: comment.id, authorId: viewer.id },
               data: { markdown, html: commentHtml(markdown), isEdited: true },

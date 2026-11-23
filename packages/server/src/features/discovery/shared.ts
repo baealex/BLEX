@@ -310,7 +310,24 @@ export interface PublicPageOptions {
   requiresSetup?: () => Promise<boolean>;
 }
 
-/** Static pages are written by administrators and may carry their own stylesheet, as they did in 3.x. */
+/**
+ * Static pages are written by administrators and may carry their own stylesheet, as they did in 3.x.
+ * A style body ends at the first tag the HTML parser would close it with, including `</style/>` and `</style x>`.
+ */
 export function staticPageStyles(content: string): string {
-  return [...content.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi)].map((match) => `<style>${match[1]}</style>`).join('');
+  const styles: string[] = [];
+  let bodyStart = -1;
+  let tagEnd = -1;
+  for (const { 0: tag, index } of content.matchAll(/<\/?style(?=[\s/>])/gi)) {
+    if (tagEnd < index) tagEnd = content.indexOf('>', index);
+    if (tagEnd < 0) break;
+    const closing = tag[1] === '/';
+    if (closing && bodyStart >= 0 && index >= bodyStart) {
+      styles.push(`<style>${content.slice(bodyStart, index)}</style>`);
+      bodyStart = -1;
+    } else if (!closing && bodyStart < 0) {
+      bodyStart = tagEnd + 1;
+    }
+  }
+  return styles.join('');
 }

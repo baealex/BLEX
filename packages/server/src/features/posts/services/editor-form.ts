@@ -23,12 +23,18 @@ export async function readEditorForm(request: FastifyRequest): Promise<EditorFor
   const body: Record<string, unknown> = {};
   let image: EditorForm['image'];
   let uploadError: string | undefined;
+  let fieldBytes = 0;
   try {
     for await (const part of request.parts()) {
       if (part.type === 'file') {
         const buffer = await part.toBuffer();
         if (part.fieldname === 'image' && part.filename && buffer.length) image = { buffer, filename: part.filename };
-      } else body[part.fieldname] = part.value;
+        continue;
+      }
+      // Multipart parsing skips the route's body limit. Over-limit fields are still read so the request can finish.
+      fieldBytes += Buffer.byteLength(String(part.value));
+      if (fieldBytes > editorBodyLimit) uploadError = 'The post is too large to save.';
+      else body[part.fieldname] = part.value;
     }
   } catch (error) {
     if (!(error instanceof Error && 'code' in error && error.code === 'FST_REQ_FILE_TOO_LARGE')) throw error;

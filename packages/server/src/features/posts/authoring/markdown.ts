@@ -41,6 +41,45 @@ function uploadedVideoFigure(caption: string, video: { url: string; type: string
   return `<figure><video controls playsinline preload="metadata"><source src="${escapeHtml(video.url)}" type="${video.type}"></video>${figcaption}</figure>`;
 }
 
+/** Replaces `[label](target)` in one pass, because a regular expression rescans the line from every bracket. */
+function replaceLinks(text: string, opener: '[' | '![', render: (label: string, target: string) => string): string {
+  const minimumLabel = opener === '[' ? 1 : 0;
+  let output = '';
+  let copied = 0;
+  let from = 0;
+  let close = -1;
+  for (;;) {
+    const start = text.indexOf(opener, from);
+    if (start < 0) break;
+    const labelStart = start + opener.length;
+    if (close < labelStart) close = text.indexOf(']', labelStart);
+    if (close < 0) break;
+    from = start + 1;
+    if (close - labelStart < minimumLabel || text[close + 1] !== '(') continue;
+    const targetStart = close + 2;
+    const targetEnd = text.indexOf(')', targetStart);
+    if (targetEnd < 0) break;
+    if (targetEnd === targetStart) continue;
+    output += text.slice(copied, start) + render(text.slice(labelStart, close), text.slice(targetStart, targetEnd));
+    copied = targetEnd + 1;
+    from = copied;
+  }
+  return output + text.slice(copied);
+}
+
+function parseHeading(line: string): { level: number; text: string } | null {
+  const opening = line.match(/^\s{0,3}(#{1,6})(\s+)/);
+  if (!opening) return null;
+  const lineBreak = /[\r\n\u2028\u2029]/;
+  const rest = line.slice(opening[0].length);
+  let end = rest.trimEnd().length;
+  while (end > 0 && rest[end - 1] === '#') end -= 1;
+  // A heading keeps one character when only closing marks or spaces follow its opening.
+  const text = rest.slice(0, end).trimEnd() || rest[0]
+    || [...opening[2]!.slice(1)].reverse().find((character) => !lineBreak.test(character));
+  return text && !lineBreak.test(text) ? { level: opening[1]!.length, text } : null;
+}
+
 function inlineMarkdown(raw: string): string {
   const tokens: string[] = [];
   const protect = (html: string) => {
@@ -49,11 +88,11 @@ function inlineMarkdown(raw: string): string {
     return token;
   };
 
-  let prepared = raw.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_match, alt: string, target: string) => {
+  let prepared = replaceLinks(raw, '![', (alt, target) => {
     const safe = safeLink(target);
     return protect(safe ? `<img src="${escapeHtml(safe)}" alt="${escapeHtml(alt)}">` : escapeHtml(alt));
   });
-  prepared = prepared.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, label: string, target: string) => {
+  prepared = replaceLinks(prepared, '[', (label, target) => {
     const safe = safeLink(target);
     return protect(safe ? `<a href="${escapeHtml(safe)}">${escapeHtml(label)}</a>` : escapeHtml(label));
   });
@@ -110,10 +149,9 @@ export function markdownToHtml(markdown: string): string {
       continue;
     }
 
-    const heading = line.match(/^\s{0,3}(#{1,6})\s+(.+?)\s*#*\s*$/);
+    const heading = parseHeading(line);
     if (heading) {
-      const level = heading[1]!.length;
-      blocks.push(`<h${level}>${inlineMarkdown(heading[2]!)}</h${level}>`);
+      blocks.push(`<h${heading.level}>${inlineMarkdown(heading.text)}</h${heading.level}>`);
       index += 1;
       continue;
     }

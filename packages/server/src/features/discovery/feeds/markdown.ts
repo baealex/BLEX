@@ -26,7 +26,9 @@ export function htmlToMarkdown(html: string): string {
 /** Splits HTML into tags and text, keeping a `>` inside a quoted attribute as part of its tag. */
 function tokenizeHtml(html: string): string[] {
   const lastQuote = { '"': html.lastIndexOf('"'), "'": html.lastIndexOf("'") };
+  const lastClose = html.lastIndexOf('>');
   const tagEnd = (start: number): number => {
+    if (start > lastClose) return 0;
     for (let index = start; index < html.length; index += 1) {
       const character = html[index];
       if (character === '>') return index + 1;
@@ -58,10 +60,20 @@ function tokenizeHtml(html: string): string[] {
   return tokens;
 }
 
+/** Reads a start tag without a pattern, because lazy matching before trailing spaces rescans long attributes. */
+function parseStartTag(token: string): { tag: string; attributes: string } | null {
+  const name = token.match(/^<\s*([\w:-]+)/);
+  if (!name || !token.endsWith('>')) return null;
+  const inner = token.slice(name[0].length, -1);
+  return { tag: name[1].toLowerCase(), attributes: (inner.endsWith('/') ? inner.slice(0, -1) : inner).trimEnd() };
+}
+
 function parseHtml(html: string): HtmlNode {
   const root: HtmlNode = { tag: null, attrs: {}, children: [] };
   const stack = [root];
   const tokens = tokenizeHtml(html);
+  const openTags = new Map<string, number>();
+  const openCount = (tag: string) => openTags.get(tag) ?? 0;
   let skippedTag: string | null = null;
 
   for (const token of tokens) {
@@ -77,25 +89,31 @@ function parseHtml(html: string): HtmlNode {
     if (token.startsWith('<!--') || /^<!/i.test(token)) continue;
     if (token.startsWith('</')) {
       const closingTag = token.slice(2).match(/^\s*([\w:-]+)/)?.[1]?.toLowerCase();
-      if (!closingTag) continue;
-      const matchingIndex = stack.map((node) => node.tag).lastIndexOf(closingTag);
-      if (matchingIndex > 0) stack.length = matchingIndex;
+      if (!closingTag || !openCount(closingTag)) continue;
+      while (stack.length > 1) {
+        const { tag } = stack.pop()!;
+        if (tag) openTags.set(tag, openCount(tag) - 1);
+        if (tag === closingTag) break;
+      }
       continue;
     }
     if (token.startsWith('<')) {
-      const match = token.match(/^<\s*([\w:-]+)([\s\S]*?)\s*\/?>$/);
-      if (!match) {
+      const start = parseStartTag(token);
+      if (!start) {
         stack.at(-1)!.children.push({ tag: null, attrs: {}, text: token, children: [], parent: stack.at(-1) });
         continue;
       }
-      const tag = match[1].toLowerCase();
-      const node: HtmlNode = { tag, attrs: parseAttributes(match[2]), children: [], parent: stack.at(-1) };
+      const { tag } = start;
+      const node: HtmlNode = { tag, attrs: parseAttributes(start.attributes), children: [], parent: stack.at(-1) };
       stack.at(-1)!.children.push(node);
-      if (!voidTags.has(tag) && !/\/\s*>$/.test(token)) stack.push(node);
+      if (!voidTags.has(tag) && !/\/\s*>$/.test(token)) {
+        stack.push(node);
+        openTags.set(tag, openCount(tag) + 1);
+      }
       continue;
     }
     const text = decodeEntities(token);
-    const preservesWhitespace = stack.some((node) => node.tag === 'pre' || node.tag === 'textarea');
+    const preservesWhitespace = openCount('pre') > 0 || openCount('textarea') > 0;
     stack.at(-1)!.children.push({
       tag: null, attrs: {}, text: preservesWhitespace ? text : collapseWhitespaceNode(text), children: [], parent: stack.at(-1),
     });
