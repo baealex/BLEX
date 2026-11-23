@@ -231,6 +231,12 @@ export async function postDetail(db: PrismaClient, post: PostDetailRow) {
   };
 }
 
+/** What a token without `posts:read` learns from a write: that it landed, and the address once the post is public. */
+export function postWriteReceipt(post: PostRow) {
+  const { id, status, url, publicUrl, updatedAt, publishedAt } = postSummary(post, [], Date.now());
+  return { id, status, ...(status === 'published' ? { url, publicUrl } : {}), updatedAt, publishedAt };
+}
+
 export function postNotFound(reply: FastifyReply) {
   const headers = reply.request.headers;
   const language = headers['accept-language']?.split(',')[0]?.trim().split(/[;-]/)[0];

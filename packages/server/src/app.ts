@@ -47,6 +47,11 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
   });
   app.addHook('onSend', async (request, reply, payload) => {
     applySecurityHeaders(reply, httpsSite);
+    // Shared caches already skip Authorization requests, but not cookies, which may put a visitor's data in the page.
+    if (!reply.hasHeader('Cache-Control')) {
+      const cookies = requestCookies(request);
+      if (cookies[sessionCookie] || cookies[csrfCookie]) reply.header('Cache-Control', 'private, no-store');
+    }
     const contentType = String(reply.getHeader('Content-Type') ?? '');
     if (
       (reply.statusCode === 404 || reply.statusCode === 403) &&
