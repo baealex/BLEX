@@ -101,8 +101,8 @@ Treat dark mode as a supported rendering mode throughout the interface.
 
 ### Token files
 
-- Tokens and Tailwind mappings live in `packages/server/src/appearance/variables.css` and `packages/server/src/appearance/tailwind.css`.
-- That one stylesheet covers public pages and React screens. It scans `packages/server`, `packages/client`, `packages/client/src/ui`, and `packages/client/src/features/editor/tiptap` for class names.
+- Tokens and Tailwind mappings live in `packages/client/src/appearance/variables.css` and `packages/client/src/appearance/tailwind.css`.
+- That one stylesheet covers public pages and React screens. It scans `packages/client/src` for class names.
 - Tailwind mappings must stay mapping-only (`@theme inline`), not duplicate token values.
 - Legacy aliases (`--color-bg-*`, `--color-text-*`, `--color-border-*`, `--color-interactive-*`, `--glass-*`) are deprecated and must not be reintroduced.
 
@@ -111,7 +111,7 @@ Treat dark mode as a supported rendering mode throughout the interface.
 - Theme is applied via `html[data-theme="light|dark"]`.
 - Default follows system preference when no explicit user choice exists.
 - User override is stored in cookie key `blex_theme`.
-- The shared theme client in `packages/server/src/appearance/site-client.ts` reads the cookie or system preference and sets `data-theme`. Keep initialization early to avoid a visible theme mismatch.
+- The shared theme client in `packages/client/src/appearance/site-client.ts` reads the cookie or system preference and sets `data-theme`. Keep initialization early to avoid a visible theme mismatch.
 - Client theme changes must update `data-theme` and keep runtime listeners in sync.
 
 ### Dark mode in components

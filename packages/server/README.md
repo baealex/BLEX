@@ -1,6 +1,6 @@
 # BLEX Server
 
-Fastify serves React SSR pages, HTTP APIs, and static assets. Prisma manages the SQLite schema. Domain code lives in `src/features/`. Routes are registered in `src/routes/`, and shared HTTP helpers live in `src/platform/`.
+Fastify serves HTTP APIs and static assets, loads page data, and renders the views from `packages/client`. Prisma manages the SQLite schema. Domain code lives in `src/features/`. Routes are registered in `src/routes/`, and shared HTTP helpers live in `src/platform/`.
 
 Run `pnpm install` and `pnpm dev` from the repository root. See the [development conventions](../../docs/DEV_CONVENTION.md) and [backend guide](../../docs/BACKEND_GUIDE.md) for code layout and checks.
 

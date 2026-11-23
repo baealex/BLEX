@@ -4,14 +4,14 @@ Keep product messages separate from posts, profile text, tags, queries, and othe
 
 ## Current coverage
 
-The client-rendered React screens use Lingui, and the reusable editor has a type-checked message catalog. Many server-rendered pages still contain Korean text directly in `packages/server/src/`; there is no complete translation catalog for server-rendered pages. Enabling English does not translate every page.
+The client-rendered React screens use Lingui, and the reusable editor has a type-checked message catalog. Many server-rendered pages still contain Korean text directly in `packages/client/src/routes/` and the views they use; there is no complete translation catalog for server-rendered pages. Enabling English does not translate every page.
 
 | Surface | Messages and locale handling |
 | --- | --- |
 | Web screens | `packages/client/src/locales/{locale}/messages.po`; host locale supplied by `packages/server/src/application/screen-host/index.tsx` |
 | Reusable editor | `packages/client/src/features/editor/tiptap/TiptapEditor/i18n/locales/{locale}.ts` |
 | System notifications | Message keys, parameters, and text templates in `packages/server/src/features/notifications/model.ts` |
-| Main app pages and API fallback text | The relevant modules in `packages/server/src/`; check their existing language handling before editing |
+| Main app pages | `packages/client/src/routes/` and `packages/client/src/features/`; API fallback text stays in `packages/server/src/`; check their existing language handling before editing |
 
 English is the source language for catalogs. Korean and English catalogs are included. The web runtime reads `window.configuration.locale`, falling back to the document language; it does not choose a separate locale from `navigator.language`.
 

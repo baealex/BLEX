@@ -36,7 +36,7 @@ Use shared React components for stable product primitives:
 - Dropdown
 - Tabs or segmented controls with real repeated behavior
 
-Use shared styles (`packages/server/src/appearance/site.scss` and `packages/client/styles/main.scss`) only for:
+Use shared styles (`packages/client/src/appearance/site.scss` and `packages/client/styles/main.scss`) only for:
 
 - global base rules
 - font and dependency imports

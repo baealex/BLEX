@@ -6,24 +6,25 @@ BLEX renders pages with React on the server and uses a shared TanStack Router ap
 
 | Area | Location |
 | --- | --- |
-| Shared app document, frame, and navigation | `packages/server/src/application/` |
-| Public layout, theme, and styles | `packages/server/src/appearance/` |
-| Login and reader interactions | `packages/server/src/features/auth/ui/`, `packages/server/src/features/engagement/ui/` |
+| Shared app document, frame, and navigation | `packages/client/src/application/` |
+| Public layout, theme, and styles | `packages/client/src/appearance/` |
+| Login and reader interactions | `packages/client/src/features/auth/ui/`, `packages/client/src/features/engagement/ui/` |
 | Web host and browser configuration | `packages/server/src/application/screen-host/` |
 | Client routes, where each URL is a file | `packages/client/src/routes/` |
+| Data each server-rendered page receives | `packages/client/src/contracts/` |
 | Screens and feature code | `packages/client/src/features/<domain>/` |
 | Shared UI primitives | `packages/client/src/ui/` |
 | Tiptap editor | `packages/client/src/features/editor/tiptap/` |
 
-`packages/server/vite.config.ts` builds the main browser entry points into `packages/server/dist/client/`. The web package writes its build output to `packages/server/dist/web/`; the Docker build includes both. The web package's `screen-loader.ts` loads the React runtime when a `data-screen` element appears, and `screen-runtime.tsx` mounts the requested screen after activating its locale.
+The client package produces three builds under `packages/server/dist/`: `web` for React screens, `client` for the public browser entry points, and `ssr` for the views the server renders.
 
 ## Routes
 
-Add a client URL by adding a file under `packages/client/src/routes/`. Keep route files thin: they declare the path, access guard, and lazy page, and the page itself lives in `features/<domain>`. The Vite plugin regenerates `src/routeTree.gen.ts`; commit that file and do not edit it by hand.
+Add a client URL by adding a file under `packages/client/src/routes/`. A `*.page.tsx` file renders on the server and ships no JavaScript of its own: its server route loads the data and calls `renderPage` with the file's path as the id, and `contracts/pages.d.ts` types those props. Any other route file is a browser route. Keep browser route files thin: they declare the path, access guard, and lazy page, and the page itself lives in `features/<domain>`. The Vite plugin regenerates `src/routeTree.gen.ts`; commit that file and do not edit it by hand.
 
 ## Pages and browser behavior
 
-- Use `renderApplicationDocument` for pages in the main application so direct visits receive server-rendered HTML and internal navigation uses the app router.
+- Use `renderApplicationDocument` from a `*.page.tsx` file for pages in the main application so direct visits receive server-rendered HTML and internal navigation uses the app router.
 - Include the initial content and metadata in the server response. Avoid a second browser request for data already needed to render the page.
 - Initialize browser features when their route loads. Remove event listeners, disconnect observers, and destroy editor instances when navigating away.
 - Keep browser-only APIs out of server render paths. Load large editor and interaction modules when the relevant screen needs them.

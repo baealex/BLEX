@@ -26,7 +26,7 @@ The development command builds the app and starts the server at `http://localhos
 
 Read [Backend Guide](BACKEND_GUIDE.md) and [Testing Guide](TESTING_GUIDE.md).
 
-- Put domain code in `packages/server/src/features/<domain>`: `http` for routes, `services` for business logic and data access, and `pages` for SSR screens. Register routes from `packages/server/src/routes/index.ts`.
+- Put domain code in `packages/server/src/features/<domain>`: `http` for routes and `services` for business logic and data access. Views belong in `packages/client`. Register routes from `packages/server/src/routes/index.ts`.
 - Keep shared response, CSRF, cookie, date format, and header helpers in `packages/server/src/platform/`. Only the one-time BLEX 3.14 import and its verification belong in `packages/server/src/compat/`.
 - Prisma schema and migrations live in `packages/server/prisma/`. `0001_init` stays the single migration until 4.0 ships; after that, new migrations stack on it.
 - Use the Prisma model API for database access. Raw SQL needs a documented reason; see the [Backend Guide](BACKEND_GUIDE.md#database-changes).
@@ -39,8 +39,8 @@ Read [Backend Guide](BACKEND_GUIDE.md) and [Testing Guide](TESTING_GUIDE.md).
 
 Read [Frontend Guide](FRONTEND_GUIDE.md), [Design Guide](DESIGN_GUIDE.md), and [UI Change Style Guide](UI_CHANGE_STYLE_GUIDE.md).
 
-- Use `renderApplicationDocument` for app pages. Include initial page data in the SSR response and clean up browser features when navigating away.
-- The main application and browser entry points live in `packages/server/src/`. Client routes live in `packages/client/src/routes/`, their screens in `packages/client/src/features/<domain>/`, and shared controls in `packages/client/src/ui/`.
+- Add server-rendered pages as `packages/client/src/routes/**/*.page.tsx` and call them with `renderPage`. Include initial page data in the SSR response and clean up browser features when navigating away.
+- Client routes live in `packages/client/src/routes/`, their screens in `packages/client/src/features/<domain>/`, and shared controls in `packages/client/src/ui/`.
 - Follow the existing screen's component and data-fetching patterns. Run the checks for the workspace you changed.
 
 ## Internationalization
