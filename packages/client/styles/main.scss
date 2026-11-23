@@ -1,34 +1,10 @@
-@use "./forwarded.scss";
-
 @layer base {
     html {
         scroll-behavior: smooth;
-        background-color: var(--color-surface-page);
-        color: var(--color-content);
-    }
-
-    body {
-        font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
-            system-ui, 'Segoe UI', 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic',
-            sans-serif;
-        word-break: keep-all;
-        overflow-x: hidden;
-        overflow-wrap: anywhere;
-        background-color: var(--color-surface-page);
-        color: var(--color-content);
-    }
-
-    [x-cloak] {
-        display: none !important;
     }
 
     img:not([data-no-filter]) {
-        filter: var(--media-filter);
         transition: filter var(--motion-interaction) var(--ease-apple);
-    }
-
-    video:not([data-no-filter]) {
-        filter: var(--media-filter);
     }
 }
 

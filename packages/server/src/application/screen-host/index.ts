@@ -50,7 +50,7 @@ const editorPrefixes = [
   'developer-api',
 ];
 const webAssetPrefix = '/assets/web/';
-const styleEntries = ['styles/main.scss', 'styles/post.scss'];
+const documentStyleEntry = 'styles/main.scss';
 const loaderEntry = 'src/scripts/screen-loader.ts';
 
 const hasPrefix = (path: string, prefixes: string[]) => {
@@ -169,8 +169,6 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
       locale: resolveUiLocale(viewer?.state.language),
       timeZone: viewer?.state.timeZone || process.env.TZ || 'Asia/Seoul',
       ...(viewer ? { user: { isAuthenticated: 'True', username: viewer.user.username } } : {}),
-      googleClientId: '',
-      githubClientId: '',
     };
     const screen = `<div data-screen="${page.component}" data-screen-status="pending" data-screen-props="${encodeURIComponent(JSON.stringify(page.props))}"><div role="status" aria-live="polite" class="flex min-h-52 items-center justify-center gap-2 py-12 text-sm font-medium text-content-secondary"><span aria-hidden="true" class="h-4 w-4 animate-spin rounded-full border-2 border-line-strong border-t-action motion-reduce:animate-none"></span><span>불러오는 중...</span></div></div>`;
     const robots = page.robots ?? 'noindex,nofollow';
@@ -185,7 +183,7 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
       faviconUrl: brand.faviconUrl,
       rssUrl: page.searchPage ? new URL('/rss', options.siteUrl).href : undefined,
       brand,
-      styleHrefs: styleEntries.map((entry) => manifestAsset(assets, entry)),
+      documentStyleHref: manifestAsset(assets, documentStyleEntry),
       configurationJson: scriptJson(configuration),
       globalsJson: page.globals ? scriptJson(page.globals) : undefined,
       captcha: Boolean(page.captcha),

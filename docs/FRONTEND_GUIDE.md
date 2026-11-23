@@ -18,6 +18,8 @@ BLEX renders pages with React on the server and uses a shared TanStack Router ap
 
 The client package produces three builds under `packages/server/dist/`: `web` for React screens, `client` for the public browser entry points, and `ssr` for the views the server renders.
 
+Public pages and React screens share the theme, prose, and syntax styles in `packages/client/src/appearance/`. `packages/client/styles/main.scss` adds screen-document scrolling, media transitions, and print rules.
+
 ## Routes
 
 Add a client URL by adding a file under `packages/client/src/routes/`. A `*.page.tsx` file renders on the server and ships no JavaScript of its own: its server route loads the data and calls `renderPage` with the file's path as the id, and `contracts/pages.d.ts` types those props. Any other route file is a browser route. Keep browser route files thin: they declare the path, access guard, and lazy page, and the page itself lives in `features/<domain>`. The Vite plugin regenerates `src/routeTree.gen.ts`; commit that file and do not edit it by hand.
@@ -46,6 +48,6 @@ Web screens read the server-provided locale from `window.configuration.locale`, 
 
 ## Development and checks
 
-Follow the [local development setup](DEV_CONVENTION.md#local-development). Build additional screens with `pnpm build:client` and restart the app after the first build so it discovers the assets.
+Follow the [local development setup](DEV_CONVENTION.md#local-development). Build additional screens with `pnpm build:client` and restart the app after the first build so it discovers the assets. `pnpm dev:client` runs Vite directly on port 8100 with its built-in file watcher.
 
-Run `pnpm test` and `pnpm type-check` for changes to the main application. For web changes, use the workspace commands in the [Testing Guide](TESTING_GUIDE.md).
+Run `pnpm test` and `pnpm type-check` for changes to the main application. The client type check covers browser code and all Vite/Lingui configuration files. For web changes, use the workspace commands in the [Testing Guide](TESTING_GUIDE.md).

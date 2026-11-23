@@ -98,7 +98,7 @@ export interface PageProps {
         faviconUrl: string;
         rssUrl?: string;
         brand: SiteBrand;
-        styleHrefs: string[];
+        documentStyleHref: string;
         configurationJson: string;
         globalsJson?: string;
         captcha: boolean;

@@ -70,4 +70,4 @@ Biome formats and lints the repository. Run `pnpm format` to apply fixes; `pnpm 
 
 Regular CI runs application and client checks. Explicit releases use the manual `BUILD.yml` workflow: application checks, a candidate build, AMD64/ARM64 runtime/browser/security checks, then publication of the verified digest and automatic Git tagging. Follow [Releasing BLEX](RELEASING.md); Git tag pushes do not trigger releases. Published images also receive weekly security scans.
 
-For dependency updates, read [Dependency Maintenance](DEPENDENCY_SECURITY.md). The [architecture diagram](blex4-architecture.html) illustrates request flows and code boundaries.
+For dependency updates, read [Dependency Maintenance](DEPENDENCY_SECURITY.md).

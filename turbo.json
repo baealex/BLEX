@@ -5,17 +5,6 @@
             "dependsOn": [
                 "^build"
             ],
-            "outputs": [
-                "dist/**"
-            ]
-        },
-        "@blex/server#build": {
-            "cache": false
-        },
-        "@blex/client#build": {
-            "dependsOn": [
-                "^build"
-            ],
             "cache": false
         },
         "type-check": {

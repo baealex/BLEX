@@ -12,7 +12,7 @@ export default function renderPage({
     faviconUrl,
     rssUrl,
     brand,
-    styleHrefs,
+    documentStyleHref,
     configurationJson,
     globalsJson,
     captcha,
@@ -39,9 +39,7 @@ export default function renderPage({
                     <link rel="alternate" type="application/rss+xml" title={`${brand.siteName} RSS`} href={rssUrl} />
                 )}
                 <SiteTheme />
-                {styleHrefs.map((href) => (
-                    <link key={href} rel="stylesheet" href={href} />
-                ))}
+                <link rel="stylesheet" href={documentStyleHref} />
                 <script
                     type="application/json"
                     id="blex-screen-config"

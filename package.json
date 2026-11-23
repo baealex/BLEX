@@ -34,7 +34,6 @@
     "homepage": "https://github.com/baealex/BLEX#readme",
     "devDependencies": {
         "@biomejs/biome": "2.6.8",
-        "glob": "^14.0.6",
         "turbo": "^2.10.4",
         "typescript": "^5.9.3",
         "yaml": "^2.9.0"

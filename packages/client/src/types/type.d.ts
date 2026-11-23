@@ -1,4 +1,3 @@
-import 'react';
 import type { AppLocale } from '../i18n/locale';
 
 type ToastCall = (message: unknown, options?: Record<string, unknown>) => unknown;
@@ -14,18 +13,6 @@ type LazyToast = ToastCall & {
     message: ToastCall;
 };
 
-declare module 'react' {
-    interface StyleHTMLAttributes<T> extends React.HTMLAttributes<T> {
-        jsx?: boolean;
-        global?: boolean;
-    }
-}
-
-declare module '*.scss' {
-    const content: { [className: string]: string };
-    export default content;
-}
-
 declare global {
     interface Window {
         configuration: {
@@ -34,11 +21,9 @@ declare global {
             locale: AppLocale;
             timeZone: string;
             user?: {
-                isAuthenticated: boolean;
+                isAuthenticated: 'True';
                 username: string;
             };
-            googleClientId?: string;
-            githubClientId?: string;
         };
         NEXT_URL: string;
         toast: LazyToast;
