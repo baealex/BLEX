@@ -62,7 +62,12 @@ export interface AdminManagedUser {
   isActive: boolean;
   isStaff: boolean;
   isSuperuser: boolean;
+  hasTwoFactor: boolean;
   canChangeRole: boolean;
+  canChangeStatus: boolean;
+  canDelete: boolean;
+  canResetPassword: boolean;
+  canResetTwoFactor: boolean;
   postCount: number;
   dateJoined: string | null;
   lastLogin: string | null;
@@ -79,6 +84,41 @@ export interface AdminUserList {
     hasPrevious: boolean;
   };
   stats: { total: number; editors: number; readers: number; admins: number };
+}
+
+export interface AdminPagination {
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
+export type AdminPostStatus = 'public' | 'hidden' | 'trash';
+
+export interface AdminModeratedPost {
+  id: number;
+  title: string;
+  path: string;
+  author: string;
+  authorActive: boolean;
+  status: AdminPostStatus;
+  commentCount: number;
+  likeCount: number;
+  publishedDate: string | null;
+  deletedDate: string | null;
+}
+
+export interface AdminModeratedComment {
+  id: number;
+  excerpt: string;
+  author: string;
+  isReply: boolean;
+  isEdited: boolean;
+  postTitle: string;
+  postPath: string;
+  createdDate: string | null;
 }
 
 export interface AdminIntegrationSettings {

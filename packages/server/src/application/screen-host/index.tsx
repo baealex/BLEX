@@ -24,7 +24,7 @@ export interface ScreenHostOptions {
   cipherKey: string;
 }
 
-const adminPrefixes = ['site-settings', 'seo-aeo', 'static-pages', 'global-notices', 'global-banners', 'global-webhook', 'integrations', 'utilities', 'users'];
+const adminPrefixes = ['site-settings', 'seo-aeo', 'static-pages', 'global-notices', 'global-banners', 'global-webhook', 'integrations', 'utilities', 'users', 'moderation'];
 const editorPrefixes = ['posts', 'series', 'pinned-posts', 'drafts', 'forms', 'notices', 'banners', 'webhook', 'developer-api'];
 const webAssetPrefix = '/assets/web/';
 const styleEntries = ['styles/tailwind.css', 'styles/main.scss', 'styles/post.scss'];
@@ -203,9 +203,9 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
     });
   };
 
-  const sendHost = (request: FastifyRequest, reply: FastifyReply, mode: 'user' | 'admin', basePath: string, user: { id: number; username: string }, isStaff: boolean, isSuperuser: boolean, canManageSiteSettings: boolean) =>
+  const sendHost = (request: FastifyRequest, reply: FastifyReply, mode: 'user' | 'admin', user: { id: number; username: string }, isStaff: boolean, isSuperuser: boolean, canManageSiteSettings: boolean) =>
     sendScreen(request, reply, user, isStaff, 'SettingsApp', (isEditor, state) => ({
-      isEditor, isStaff, isSuperuser, adminUrl: null, settingsMode: mode, basePath,
+      isEditor, isStaff, isSuperuser,
       canUseTelegramIntegration: state.telegramConfigured || state.telegramConnected > 0,
       adminCapabilities: {
         canManageSiteSettings: isStaff && canManageSiteSettings,
@@ -264,7 +264,7 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
     }
     if (area === 'admin-settings') {
       if (!account.staff) return reply.callNotFound();
-      return sendHost(request, reply, 'admin', '/admin-settings', user, account.staff, account.superuser, account.canManageSiteSettings);
+      return sendHost(request, reply, 'admin', user, account.staff, account.superuser, account.canManageSiteSettings);
     }
     if (hasPrefix(rest, adminPrefixes)) {
       if (!account.staff) return reply.callNotFound();
@@ -274,6 +274,6 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
       const profile = await db.profile.findUnique({ where: { userId: user.id }, select: { role: true } });
       if (profile?.role !== 'EDITOR') return reply.callNotFound();
     }
-    return sendHost(request, reply, 'user', '/settings', user, account.staff, account.superuser, account.canManageSiteSettings);
+    return sendHost(request, reply, 'user', user, account.staff, account.superuser, account.canManageSiteSettings);
   });
 }
