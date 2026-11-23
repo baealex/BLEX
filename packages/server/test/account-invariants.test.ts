@@ -347,6 +347,29 @@ const seedFactorUser = (
 };
 const currentCode = () => new TOTP({ secret: Secret.fromBase32(totpBase32) }).generate();
 
+test('the reauthentication page asks for a code only when the account has a second factor', () =>
+  withApp(
+    async (app) => {
+      const factorPage = await app.inject({
+        url: '/reauthenticate',
+        headers: await signIn(app, 'writer', currentCode()),
+      });
+      assert.equal(factorPage.statusCode, 200, factorPage.body);
+      assert.match(factorPage.body, /name="code"/);
+      assert.equal(factorPage.body.includes(passwordHash), false);
+      assert.equal(factorPage.body.includes(importedRecoveryHash), false);
+
+      const passwordPage = await app.inject({ url: '/reauthenticate', headers: await signIn(app, 'passwordonly') });
+      assert.equal(passwordPage.statusCode, 200, passwordPage.body);
+      assert.match(passwordPage.body, /name="password"/);
+      assert.doesNotMatch(passwordPage.body, /name="code"/);
+    },
+    (fixture) => {
+      seedFactorUser(fixture);
+      seedUser(fixture, 2, 'passwordonly');
+    },
+  ));
+
 test('an imported recovery key signs in exactly once under concurrency and turns the factor off', () =>
   withApp(async (app, db) => {
     const anonymous = browser(await app.inject('/v1/login'));

@@ -223,20 +223,23 @@ export function registerAccountSecurity(app: FastifyInstance, db: PrismaClient, 
     const viewer = await readSecurityViewer(db, account.id);
     const brand = await readPublicSiteBrand(db);
     const fieldClass = 'block h-12 w-full rounded-lg border border-line bg-surface px-3';
-    return reply.type('text/html; charset=utf-8').header('Cache-Control', 'private, no-store').send(
-      renderPage('reauthenticate', {
-        brand,
-        account,
-        viewer,
-        csrf,
-        error,
-        showForm,
-        next,
-        pendingFactor,
-        fieldClass,
-        visibleProviders,
-      }),
-    );
+    return reply
+      .type('text/html; charset=utf-8')
+      .header('Cache-Control', 'private, no-store')
+      .send(
+        renderPage('reauthenticate', {
+          brand,
+          account: { username: account.username, hasSecondFactor: account.factorId !== null },
+          viewer,
+          csrf,
+          error,
+          showForm,
+          next,
+          pendingFactor,
+          fieldClass,
+          visibleProviders,
+        }),
+      );
   };
 
   app.get('/reauthenticate', reauthenticate);

@@ -67,7 +67,7 @@ export default function renderPage({
                                             />
                                         </label>
                                     )}
-                                    {account.factorId !== null && (
+                                    {account.hasSecondFactor && (
                                         <label className="block space-y-1">
                                             <span className="text-sm text-content">
                                                 {ui('Authenticator code or recovery key')}
