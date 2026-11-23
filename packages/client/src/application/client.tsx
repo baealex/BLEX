@@ -7,7 +7,7 @@ import {
     createRouter,
     type RouterHistory
 } from '@tanstack/react-router';
-import { use, useLayoutEffect, useState } from 'react';
+import { use, useEffect, useLayoutEffect, useState } from 'react';
 import { ApplicationFrame, type ApplicationView } from './frame.js';
 import { openLoginPromptFrom } from './login-prompt.js';
 import { opensOutsideApplication, type BlexNavigateDetail } from './navigation.js';
@@ -63,6 +63,11 @@ interface PostDocument {
     data: PostPageData;
     bodyHtml: string;
     revision: number;
+    /** True once this document's post page has committed in the React tree. */
+    mounted: boolean;
+    /** Resolves when the page has mounted or can no longer mount. */
+    settled: Promise<void>;
+    settle: () => void;
 }
 
 type PostPageComponent = typeof import('../features/posts/post-page')['PostPage'];
@@ -279,10 +284,17 @@ function readPostDocument(source: Document, content: Element): PostDocument | nu
     const body = content.querySelector(postBodySelector);
     if (!isRecord(data) || typeof data.postPath !== 'string' || !body) return null;
     postRevision += 1;
+    let settle = () => {};
+    const settled = new Promise<void>((resolve) => {
+        settle = resolve;
+    });
     return {
         data: data as unknown as PostPageData,
         bodyHtml: body.innerHTML,
-        revision: postRevision
+        revision: postRevision,
+        mounted: false,
+        settled,
+        settle
     };
 }
 
@@ -302,6 +314,11 @@ function loadPostPage(): Promise<PostPageComponent> {
 
 function PostRoute({ post, loading }: { post: PostDocument; loading: Promise<PostPageComponent> }) {
     const PostPage = loadedPostPage ?? use(loading);
+
+    useEffect(() => {
+        post.mounted = true;
+        post.settle();
+    }, [post]);
 
     return <PostPage data={post.data} bodyHtml={post.bodyHtml} revision={post.revision} />;
 }
@@ -325,6 +342,7 @@ function hydratePostWhenLoaded(page: ApplicationDocument): void {
             content: undefined
         };
         showApplicationPage?.(page.view);
+        post.settle();
     });
 }
 
@@ -349,6 +367,24 @@ async function preparePostContent(page: ApplicationDocument): Promise<void> {
         html: '',
         content: <PostRoute post={post} loading={Promise.resolve(PostPage)} />
     };
+}
+
+/** Hands browser-only prompts back to the site script when this document's post page did not mount. */
+async function announceUnmountedPost(page: ApplicationDocument): Promise<void> {
+    const { post } = page;
+    if (!post) return;
+    if (page.view.content !== undefined) {
+        await Promise.race([
+            post.settled,
+            new Promise((resolve) => {
+                window.setTimeout(resolve, postPageWaitMs);
+            })
+        ]);
+    }
+    // A page about to be replaced leaves the one-time prompt for the next document.
+    const replacing = activePostRequests.size > 0 || router?.state.isLoading;
+    if (currentDocument === page && !post.mounted && !replacing)
+        document.dispatchEvent(new CustomEvent('blex:post-page-unmounted'));
 }
 
 function readApplicationDocument(source: Document, url: string): ApplicationDocument | null {
@@ -1284,6 +1320,7 @@ function commitApplicationPage(page: ApplicationDocument, hash: string): void {
                 to: page.url,
                 navigationType: changeType
             });
+            void announceUnmountedPost(page);
         });
     }
     hasCommittedInitialDocument = true;
