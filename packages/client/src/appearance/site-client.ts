@@ -1,6 +1,7 @@
 import './tailwind.css';
 import './site.scss';
 import { loadAboutEditors } from '../features/authors/about-editor-loader';
+import { escapeAction } from './quick-search-escape';
 import { rememberSearch } from './recent-searches';
 
 const root = document.documentElement;
@@ -89,20 +90,42 @@ function bindStandaloneSearch(signal: AbortSignal) {
     const listening = { signal: untilMounted.signal };
     signal.addEventListener('abort', () => untilMounted.abort(), { once: true, ...listening });
     let loading = false;
+    let dismissed = false;
     const load = () => {
         if (loading) return;
         loading = true;
         void import('./quick-search-client').then(
             ({ mountQuickSearch }) => {
-                if (!signal.aborted) mountQuickSearch(search, signal, () => untilMounted.abort());
+                if (!signal.aborted)
+                    mountQuickSearch(
+                        search,
+                        signal,
+                        () => untilMounted.abort(),
+                        () => dismissed
+                    );
             },
             () => {
                 loading = false;
             }
         );
     };
-    input.addEventListener('focus', load, listening);
-    input.addEventListener('input', load, listening);
+    const engage = () => {
+        dismissed = false;
+        load();
+    };
+    input.addEventListener('focus', engage, listening);
+    input.addEventListener('input', engage, listening);
+    input.addEventListener(
+        'keydown',
+        (event) => {
+            if (event.key !== 'Escape') return;
+            const action = escapeAction(event, false, input.value !== '');
+            if (action !== 'none') event.preventDefault();
+            if (action === 'clear') input.value = '';
+            if (action !== 'hold') dismissed = true;
+        },
+        listening
+    );
     form.addEventListener('submit', () => rememberSearch(input.value.trim()), listening);
     document.addEventListener(
         'keydown',
