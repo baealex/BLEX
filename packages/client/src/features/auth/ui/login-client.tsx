@@ -1,6 +1,7 @@
 import { hydrateRoot } from 'react-dom/client';
 import { LoginForm, type LoginModel } from './login-form.js';
 import './login.css';
+import { activateDocumentLocale } from '../../../i18n';
 
 const activeMounts = new WeakMap<HTMLElement, () => void>();
 
@@ -37,7 +38,7 @@ function findLoginRoot(scope: ParentNode): HTMLElement | null {
 }
 
 if (typeof document !== 'undefined' && !document.getElementById('blex-application')) {
-    mountPage(document);
+    void activateDocumentLocale().then(() => mountPage(document));
 }
 
 function parseLoginModel(serialized: string): LoginModel | null {

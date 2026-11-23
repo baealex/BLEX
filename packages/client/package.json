@@ -88,6 +88,7 @@
     },
     "devDependencies": {
         "@babel/core": "7.29.6",
+        "@blex/contracts": "workspace:*",
         "@lingui/babel-plugin-lingui-macro": "^6.6.0",
         "@lingui/cli": "^6.6.0",
         "@lingui/vite-plugin": "^6.6.0",

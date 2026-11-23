@@ -1,3 +1,4 @@
+import { systemMessage } from '../../platform/messages.js';
 import { renderPage } from '../../platform/views.js';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import type { PrismaClient } from '@prisma/client';
@@ -76,10 +77,10 @@ export function registerPasswordReset(app: FastifyInstance, db: PrismaClient, si
 
     let error: string | undefined;
     if (request.method === 'POST') {
-      if (!validCsrf(request, siteUrl)) return reply.code(403).send('요청을 확인해 주세요.');
+      if (!validCsrf(request, siteUrl)) return reply.code(403).send(systemMessage('Check your request.'));
       const { password, passwordConfirm } = formInput(request);
-      if (typeof password !== 'string' || !password) error = '새 비밀번호를 입력해 주세요.';
-      else if (password !== passwordConfirm) error = '비밀번호 확인이 일치하지 않습니다.';
+      if (typeof password !== 'string' || !password) error = systemMessage('Enter your new password.');
+      else if (password !== passwordConfirm) error = systemMessage('The password confirmation does not match.');
       else error = submittedPasswordError(password, account) || undefined;
       if (!error) {
         const passwordHash = await hashPassword(password as string);

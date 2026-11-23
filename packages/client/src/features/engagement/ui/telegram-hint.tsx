@@ -1,3 +1,4 @@
+import { ui } from '../../../i18n/public-ui.js';
 import IconBrandTelegram from '@tabler/icons-react/icons/IconBrandTelegram';
 import IconX from '@tabler/icons-react/icons/IconX';
 import { useEffect } from 'react';
@@ -64,12 +65,12 @@ export function TelegramHint({ raised, onClose }: TelegramHintProps) {
             <aside
                 role="status"
                 aria-live="polite"
-                aria-label="텔레그램 연결 안내"
+                aria-label={ui('Telegram connection reminder')}
                 className={`pointer-events-auto relative w-full max-w-[22rem] rounded-2xl border border-line bg-surface-elevated p-4 text-content shadow-floating animate-in fade-in-0 ${ENTRANCE_DURATION}`}
             >
                 <button
                     type="button"
-                    aria-label="닫기"
+                    aria-label={ui('Close')}
                     onClick={onClose}
                     className={`absolute right-1.5 top-1.5 inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-content-hint hover:bg-surface-subtle hover:text-content ${pressable} [@media(pointer:fine)]:min-h-8 [@media(pointer:fine)]:min-w-8`}
                 >
@@ -83,8 +84,10 @@ export function TelegramHint({ raised, onClose }: TelegramHintProps) {
                         <IconBrandTelegram className="h-4 w-4" aria-hidden="true" />
                     </span>
                     <div className="min-w-0">
-                        <p className="text-sm font-semibold text-content">구독했어요</p>
-                        <p className="mt-0.5 text-sm text-content-secondary">새 글을 텔레그램으로 받아보세요</p>
+                        <p className="text-sm font-semibold text-content">
+                            {ui('Subscribed', {}, 'public.Subscribed.9afbe521')}
+                        </p>
+                        <p className="mt-0.5 text-sm text-content-secondary">{ui('Get new posts on Telegram')}</p>
                     </div>
                 </div>
                 <div className="mt-3 flex items-center justify-end gap-1">
@@ -93,14 +96,14 @@ export function TelegramHint({ raised, onClose }: TelegramHintProps) {
                         onClick={onClose}
                         className={`inline-flex min-h-11 items-center justify-center rounded-lg px-3 text-sm font-medium text-content-secondary hover:bg-surface-subtle hover:text-content ${pressable} [@media(pointer:fine)]:min-h-9`}
                     >
-                        다음에
+                        {ui('Later')}
                     </button>
                     <a
                         href="/settings/integration"
-                        aria-label="텔레그램 연결하기"
+                        aria-label={ui('Connect Telegram')}
                         className={`inline-flex min-h-11 items-center justify-center rounded-lg bg-action px-3.5 text-sm font-semibold text-content-inverted hover:bg-action-hover ${pressable} [@media(pointer:fine)]:min-h-9`}
                     >
-                        연결하기
+                        {ui('Connect')}
                     </a>
                 </div>
             </aside>

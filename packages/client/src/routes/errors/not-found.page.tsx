@@ -1,20 +1,22 @@
+import { getDocumentLocale } from '../../i18n/locale.js';
+import { ui } from '../../i18n/public-ui.js';
 import { SiteIcon } from '~/appearance/icons';
 import { SiteHeader, SiteTheme } from '~/appearance/shell';
 import { renderApplicationDocument } from '~/application/document';
 import { floatStyles } from '~/features/discovery/not-found-parts';
-import type { PageProps } from '~/contracts/pages';
+import type { PageProps } from '@blex/contracts/pages';
 
 const pageButton =
     'rounded-full border border-line bg-surface-elevated px-8 py-3.5 font-semibold text-content transition-all duration-150 hover:-translate-y-0.5 hover:border-line-strong hover:shadow-lg';
 
 export default function renderPage({ brand, viewer }: PageProps['errors/not-found']): string {
     return renderApplicationDocument(
-        <html lang="ko">
+        <html lang={getDocumentLocale()}>
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <meta name="robots" content="noindex,nofollow" />
-                <title>404 - 페이지를 찾을 수 없습니다</title>
+                <title>{ui('404 - Page not found')}</title>
                 <link rel="icon" href={brand.faviconUrl} />
                 <SiteTheme />
                 <style>{floatStyles}</style>
@@ -39,25 +41,24 @@ export default function renderPage({ brand, viewer }: PageProps['errors/not-foun
                                 </div>
                             </div>
                             <h2 className="mb-6 text-3xl font-bold tracking-tight text-content sm:text-4xl">
-                                페이지를 찾을 수 없습니다
+                                {ui('Page not found')}
                             </h2>
                             <p className="mx-auto mb-12 max-w-md text-lg leading-relaxed text-content-secondary">
-                                요청하신 페이지가 삭제되었거나, 주소가 변경되었거나, 일시적으로 사용할 수 없는
-                                상태입니다.
+                                {ui('This page may have been deleted, moved, or temporarily unavailable.')}
                             </p>
                             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
                                 <button type="button" data-history-back="" className={pageButton}>
-                                    뒤로 가기
+                                    {ui('Go back')}
                                 </button>
                                 <a href="/search" className={pageButton}>
                                     <SiteIcon name="search" className="mr-2 text-sm" />
-                                    검색
+                                    {ui('Search')}
                                 </a>
                                 <a
                                     href="/"
                                     className="rounded-full bg-action px-8 py-3.5 font-semibold text-content-inverted transition-all duration-150 hover:-translate-y-0.5 hover:bg-action-hover hover:shadow-lg"
                                 >
-                                    홈으로 돌아가기
+                                    {ui('Back to home')}
                                 </a>
                             </div>
                         </div>

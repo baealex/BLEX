@@ -5,6 +5,7 @@ import type { WorkLogDeleteProps, WorkLogDetailProps, WorkLogIndexProps, WorkLog
 import type {
     AuthorRow,
     AuthorSocialLink,
+    CardLikes,
     NoticeRow,
     PageMeta,
     PostRow,

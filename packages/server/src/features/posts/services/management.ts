@@ -1,3 +1,4 @@
+import { requestLocale } from '../../../platform/request-locale.js';
 import type { Prisma, PrismaClient } from '@prisma/client';
 import { syncPostPublication } from '../../notifications/model.js';
 import { localDate, localDateTimeText } from '../../../platform/date-format.js';
@@ -20,7 +21,7 @@ export function managementDate(value: DbDate, scheduled = false): string {
   const iso = dateAsIso(value);
   if (!iso) return '';
   const date = new Date(iso);
-  return new Intl.DateTimeFormat('ko-KR', {
+  return new Intl.DateTimeFormat(requestLocale(), {
     timeZone: 'Asia/Seoul',
     year: 'numeric',
     month: 'long',

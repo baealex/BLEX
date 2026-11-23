@@ -1,8 +1,9 @@
+import { ui } from '../../i18n/public-ui.js';
 import { AboutPageEditor } from '~/features/authors/about-editor';
 import { authorPath, authorTabs, profileHeader } from '~/features/authors/profile-ui';
 import { PageLayout } from '~/features/discovery/layout';
 import { ReactFragment } from '~/features/discovery/search-ui';
-import type { PageProps } from '~/contracts/pages';
+import type { PageProps } from '@blex/contracts/pages';
 
 export default function renderPage({
     meta,
@@ -22,8 +23,10 @@ export default function renderPage({
                     {authorTabs(author, 'about')}
                     <div className="mb-8">
                         <div className="mb-6">
-                            <h1 className="mb-3 text-lg font-bold text-content">자신을 소개해 보세요.</h1>
-                            <p className="text-md text-content-secondary">자신을 소개하는 글을 작성해 보세요.</p>
+                            <h1 className="mb-3 text-lg font-bold text-content">{ui('Tell us about yourself.')}</h1>
+                            <p className="text-md text-content-secondary">
+                                {ui('Write an introduction about yourself.')}
+                            </p>
                         </div>
                         <div
                             className="mb-6"

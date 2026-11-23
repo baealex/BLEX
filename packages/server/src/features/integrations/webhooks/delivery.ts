@@ -1,3 +1,5 @@
+import { systemMessage } from '../../../platform/messages.js';
+import { resolveUiLocale } from '../../../platform/locale.js';
 import type { Prisma, PrismaClient } from '@prisma/client';
 import { publicPostWhere } from '../../posts/data/visibility.js';
 import { publicPostPath } from '../../posts/public-post.js';
@@ -82,11 +84,20 @@ export async function deliverPostWebhook(
   const target = row ? parseWebhookUrl(row.channelUrl) : null;
   let sent = false;
   if (row && target) {
+    const preference = channel?.ownerId
+      ? await db.userPreference.findUnique({ where: { userId: channel.ownerId }, select: { language: true } })
+      : null;
+    const locale = resolveUiLocale(preference?.language);
     const postUrl = new URL(publicPostPath(row.username, row.slug), siteUrl).href;
-    const escape = (value: string) => value.replace(/[\[\]<>\\]/g, '\\$&');
+    const escape = (value: string) => value.replace(/[[\]<>\\]/g, '\\$&');
     sent = await send(
       target,
-      `[${escape(row.name || row.username)}] 새 글을 발행했습니다. [${escape(row.title)}](${postUrl})`,
+      systemMessage(
+        '[{value0}] published a new post. [{value1}]({value2})',
+        { value0: escape(row.name || row.username), value1: escape(row.title), value2: postUrl },
+        undefined,
+        locale,
+      ),
       postUrl,
       signal,
     );

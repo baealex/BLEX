@@ -1,6 +1,7 @@
+import { ui } from '../../../i18n/public-ui.js';
 import { SiteIcon, type SiteIconName } from '../../../appearance/icons.js';
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type RefObject } from 'react';
-import type { CommentPayload } from '../../../contracts/engagement';
+import type { CommentPayload } from '@blex/contracts/engagement';
 import {
     appendCommentToTree,
     buildReplySubmissionText,
@@ -86,7 +87,7 @@ class CommentRequestError extends Error {
 
 function writeFailureMessage(error: unknown, fallback: string) {
     return error instanceof CommentRequestError && error.status === 429
-        ? '댓글을 너무 빠르게 작성하고 있어요. 잠시 후 다시 시도해 주세요.'
+        ? ui('You are commenting too quickly. Try again in a moment.')
         : fallback;
 }
 
@@ -132,10 +133,10 @@ function CommentForm({
     fieldRef,
     focusOnMount = false,
     nativeForm,
-    placeholder = '댓글을 작성하세요...',
-    submitLabel = '댓글 작성',
-    submittingLabel = '작성 중...',
-    fieldLabel = '댓글 내용'
+    placeholder = ui('Write a comment…'),
+    submitLabel = ui('Write a comment'),
+    submittingLabel = ui('Writing…'),
+    fieldLabel = ui('Comment content')
 }: {
     value: string;
     onChange: (text: string) => void;
@@ -242,7 +243,7 @@ function CommentForm({
                     <div
                         ref={listRef}
                         role="listbox"
-                        aria-label="멘션할 사용자"
+                        aria-label={ui('User to mention')}
                         className="absolute left-0 top-full z-50 mt-1 max-h-[200px] w-60 overflow-y-auto rounded-lg border border-line bg-surface shadow-lg"
                     >
                         {users.map((user, index) => (
@@ -266,7 +267,7 @@ function CommentForm({
             <div className="flex justify-end gap-2">
                 {onCancel && (
                     <button type="button" className={secondaryButton} onClick={onCancel} disabled={isSubmitting}>
-                        취소
+                        {ui('Cancel')}
                     </button>
                 )}
                 <button type="submit" className={primaryButton} disabled={hydrated && (isSubmitting || !value.trim())}>
@@ -303,8 +304,8 @@ function CommentEditForm({
                 value={value}
                 rows={3}
                 maxLength={10000}
-                placeholder="댓글을 수정하세요..."
-                aria-label="수정할 댓글 내용"
+                placeholder={ui('Edit your comment…')}
+                aria-label={ui('Comment to edit')}
                 disabled={isSubmitting}
                 onChange={(event) => onChange(event.target.value)}
             />
@@ -314,18 +315,18 @@ function CommentEditForm({
                     className={secondaryButton}
                     onClick={onCancel}
                     disabled={isSubmitting}
-                    aria-label="댓글 수정 취소"
+                    aria-label={ui('Cancel editing comment')}
                 >
-                    취소
+                    {ui('Cancel')}
                 </button>
                 <button
                     type="button"
                     className={primaryButton}
                     onClick={onSave}
                     disabled={isSubmitting || !value.trim()}
-                    aria-label="댓글 저장"
+                    aria-label={ui('Save comment')}
                 >
-                    {isSubmitting ? '저장 중...' : '저장'}
+                    {isSubmitting ? ui('Saving...') : ui('Save')}
                 </button>
             </div>
         </div>
@@ -365,7 +366,7 @@ function CommentMenu({
         <div ref={root} className="absolute right-4 top-4 z-10">
             <button
                 type="button"
-                aria-label="댓글 옵션 열기"
+                aria-label={ui('Open comment options')}
                 aria-haspopup="menu"
                 aria-expanded={open}
                 onClick={() => setOpen((value) => !value)}
@@ -388,7 +389,7 @@ function CommentMenu({
                                 onEdit();
                             }}
                         >
-                            수정
+                            {ui('Update')}
                         </button>
                     )}
                     {canDelete && (
@@ -401,7 +402,7 @@ function CommentMenu({
                                 onDelete();
                             }}
                         >
-                            삭제
+                            {ui('Delete')}
                         </button>
                     )}
                 </div>
@@ -411,14 +412,14 @@ function CommentMenu({
 }
 
 function CommentHeader({ comment }: { comment: CommentPayload }) {
-    const name = comment.isDeleted ? '삭제된 사용자' : comment.author;
+    const name = comment.isDeleted ? ui('Deleted user') : comment.author;
     const profile = `/@${encodeURIComponent(comment.author)}`;
     const avatarClass =
         'size-11 rounded-full ring-2 ring-line-light transition-all duration-200 group-hover/avatar:ring-line';
     const avatar = comment.authorImage ? (
         <img
             src={comment.authorImage}
-            alt={`${name}님의 프로필 이미지`}
+            alt={ui("{value0}'s profile picture", { value0: name })}
             loading="lazy"
             className={`${avatarClass} object-cover`}
         />
@@ -436,7 +437,7 @@ function CommentHeader({ comment }: { comment: CommentPayload }) {
             ) : (
                 <a
                     href={profile}
-                    aria-label={`${comment.author}님의 프로필 보기`}
+                    aria-label={ui("View {value0}'s profile", { value0: comment.author })}
                     className="group/avatar shrink-0 transition-transform duration-200 hover:scale-105"
                 >
                     {avatar}
@@ -458,7 +459,7 @@ function CommentHeader({ comment }: { comment: CommentPayload }) {
                     {comment.isEdited && (
                         <>
                             <span aria-hidden="true">·</span>
-                            <span>수정됨</span>
+                            <span>{ui('Edited')}</span>
                         </>
                     )}
                 </div>
@@ -484,7 +485,7 @@ function CommentActions({ comment, handlers }: { comment: CommentPayload; handle
     const replyContent = (
         <>
             <Icon name="reply" className="size-4" />
-            답글
+            {ui('Reply')}
         </>
     );
     return (
@@ -494,7 +495,7 @@ function CommentActions({ comment, handlers }: { comment: CommentPayload; handle
                     <button
                         type="button"
                         className={likeClass}
-                        aria-label={isLiked ? '좋아요 취소' : '좋아요'}
+                        aria-label={isLiked ? ui('Unlike') : ui('Like')}
                         aria-pressed={isLiked}
                         onClick={() => handlers.onLike(id)}
                     >
@@ -504,7 +505,7 @@ function CommentActions({ comment, handlers }: { comment: CommentPayload; handle
                     <a
                         {...loginPromptProps(`${model.postPath}#comment-${id}`, 'like')}
                         className={likeClass}
-                        aria-label="좋아요"
+                        aria-label={ui('Like')}
                     >
                         {likeContent}
                     </a>
@@ -512,9 +513,9 @@ function CommentActions({ comment, handlers }: { comment: CommentPayload; handle
             {showCount && (
                 <span className={`${actionButton} text-content-secondary`}>
                     <Icon name="heart" className="size-4" />
-                    <span className="sr-only">좋아요 </span>
+                    <span className="sr-only">{ui('Like')} </span>
                     <span>{countLikes}</span>
-                    <span className="sr-only">개</span>
+                    <span className="sr-only">{ui('items')}</span>
                 </span>
             )}
             {showReply &&
@@ -522,7 +523,7 @@ function CommentActions({ comment, handlers }: { comment: CommentPayload; handle
                     <button
                         type="button"
                         className={`${actionButton} ${quietAction}`}
-                        aria-label="답글 작성"
+                        aria-label={ui('Write a reply')}
                         onClick={() => handlers.onReply(id)}
                     >
                         {replyContent}
@@ -531,7 +532,7 @@ function CommentActions({ comment, handlers }: { comment: CommentPayload; handle
                     <a
                         {...loginPromptProps(`${model.postPath}?reply_to=${id}#post-comments`, 'reply')}
                         className={`${actionButton} ${quietAction}`}
-                        aria-label="답글 작성"
+                        aria-label={ui('Write a reply')}
                     >
                         {replyContent}
                     </a>
@@ -543,7 +544,7 @@ function CommentActions({ comment, handlers }: { comment: CommentPayload; handle
 function CommentItem({ comment, handlers }: { comment: CommentPayload; handlers: CommentHandlers }) {
     const isEditing = handlers.editingId === comment.id;
     const isReply = comment.parentId !== undefined;
-    const name = comment.isDeleted ? '삭제된 사용자' : comment.author;
+    const name = comment.isDeleted ? ui('Deleted user') : comment.author;
     const { canEdit, canDelete } = comment.permissions;
     return (
         <div
@@ -554,7 +555,9 @@ function CommentItem({ comment, handlers }: { comment: CommentPayload; handlers:
         >
             <article
                 className={`relative py-6 transition-colors duration-200 ${isReply ? 'ml-6 border-l border-line-light pl-6 sm:ml-14 sm:pl-8' : ''}`}
-                aria-label={isReply ? `${name}님의 답글` : `${name}님의 댓글`}
+                aria-label={
+                    isReply ? ui("{value0}'s reply", { value0: name }) : ui("{value0}'s comment", { value0: name })
+                }
             >
                 {(canEdit || canDelete) && !isEditing && (
                     <CommentMenu
@@ -589,7 +592,9 @@ function CommentItem({ comment, handlers }: { comment: CommentPayload; handlers:
                 <div className="ml-6 mt-4 border-l border-line-light pl-6 pt-4 sm:ml-14 sm:pl-8">
                     <div className="mb-3 flex items-center gap-2">
                         <Icon name="reply" className="size-4 text-content-hint" />
-                        <p className="text-sm text-content-secondary">{`${comment.author}님에게 답글 작성 중`}</p>
+                        <p className="text-sm text-content-secondary">
+                            {ui('Replying to {value0}', { value0: comment.author })}
+                        </p>
                     </div>
                     <CommentForm
                         focusOnMount
@@ -600,9 +605,9 @@ function CommentItem({ comment, handlers }: { comment: CommentPayload; handlers:
                         hydrated={handlers.hydrated}
                         mentionableUsers={handlers.mentionableUsers}
                         onCancel={handlers.onCancelReply}
-                        placeholder="답글을 작성하세요..."
-                        submitLabel="답글 작성"
-                        fieldLabel="답글 내용"
+                        placeholder={ui('Write a reply…')}
+                        submitLabel={ui('Write a reply')}
+                        fieldLabel={ui('Reply content')}
                     />
                 </div>
             )}
@@ -693,9 +698,9 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
             setCommentText('');
             setComments((current) => appendCommentToTree(current, created));
             scrollToLatest();
-            success('댓글을 작성했습니다.');
+            success(ui('Comment posted.'));
         } catch (error) {
-            failure(writeFailureMessage(error, '댓글을 작성하는 중 문제가 발생했습니다.'));
+            failure(writeFailureMessage(error, ui('Could not post your comment.')));
         } finally {
             setSubmitting(false);
         }
@@ -714,7 +719,7 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
             setOlderCursor(page.olderCommentsCursor);
             setHiddenCount(Math.max(0, page.totalComments - countComments(merged)));
         } catch {
-            failure('이전 댓글을 불러오지 못했습니다.');
+            failure(ui('Could not load older comments.'));
         } finally {
             setLoadingOlder(false);
         }
@@ -734,7 +739,7 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
                 }))
             );
         } catch {
-            failure('좋아요를 변경하는 중 문제가 발생했습니다.');
+            failure(ui('Could not update your like.'));
         }
     };
     const startEditing = async (id: number) => {
@@ -743,7 +748,7 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
             setEditingId(id);
             setEditText(textMd);
         } catch {
-            failure('댓글을 불러오는 중 문제가 발생했습니다.');
+            failure(ui('Could not load comments.'));
         }
     };
     const cancelEditing = () => {
@@ -751,7 +756,7 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
         setEditText('');
     };
     const saveEdit = async (id: number) => {
-        if (!editText.trim()) return failure('댓글을 입력해 주세요.');
+        if (!editText.trim()) return failure(ui('Enter a comment.'));
         setSubmitting(true);
         try {
             await requestComments(model, `/v1/comments/${id}`, 'PUT', {
@@ -766,9 +771,9 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
             setComments(latest.comments);
             setCanComment(latest.canComment);
             cancelEditing();
-            success('댓글을 수정했습니다.');
+            success(ui('Comment updated.'));
         } catch {
-            failure('댓글을 수정하는 중 문제가 발생했습니다.');
+            failure(ui('Could not update the comment.'));
         } finally {
             setSubmitting(false);
         }
@@ -780,9 +785,9 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
         try {
             const deleted = await requestComments<CommentPayload>(model, `/v1/comments/${id}`, 'DELETE');
             setComments((current) => mergeCommentInTree(current, deleted));
-            success('댓글을 삭제했습니다.');
+            success(ui('Comment deleted.'));
         } catch {
-            failure('댓글을 삭제하는 중 문제가 발생했습니다.');
+            failure(ui('Could not delete the comment.'));
         }
     };
     const cancelReplying = () => {
@@ -790,7 +795,7 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
         setReplyText('');
     };
     const handleReply = async () => {
-        if (!replyRoot || !replyTarget || !canReply) return failure('답글을 남길 댓글을 찾지 못했습니다.');
+        if (!replyRoot || !replyTarget || !canReply) return failure(ui('Could not find the comment to reply to.'));
         setSubmitting(true);
         try {
             const created = await requestComments<CommentPayload>(model, commentsUrl, 'POST', {
@@ -800,9 +805,9 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
             cancelReplying();
             setComments((current) => appendCommentToTree(current, created));
             scrollToLatest();
-            success('답글을 작성했습니다.');
+            success(ui('Reply posted.'));
         } catch (error) {
-            failure(writeFailureMessage(error, '답글을 작성하는 중 문제가 발생했습니다.'));
+            failure(writeFailureMessage(error, ui('Could not post your reply.')));
         } finally {
             setSubmitting(false);
         }
@@ -842,9 +847,13 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
         >
             <div className="mb-6 flex items-start justify-between gap-4 border-b border-line-light pb-4">
                 <h2 id="comments-heading" className="min-w-0 text-lg font-bold leading-snug text-content">
-                    댓글
+                    {ui('Comments')}
                 </h2>
-                <span className="shrink-0 text-sm font-medium leading-6 text-content-secondary">{`댓글 ${countComments(comments) + hiddenCount}개`}</span>
+                <span className="shrink-0 text-sm font-medium leading-6 text-content-secondary">
+                    {ui('{value0, plural, one{# comment} other{# comments}}', {
+                        value0: countComments(comments) + hiddenCount
+                    })}
+                </span>
             </div>
             {olderCursor !== null && (
                 <button
@@ -854,10 +863,12 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
                     onClick={() => void handleLoadOlder()}
                 >
                     {isLoadingOlder
-                        ? '불러오는 중...'
+                        ? ui('Loading…')
                         : hiddenCount > 0
-                          ? `이전 댓글 ${hiddenCount}개 더 보기`
-                          : '이전 댓글 더 보기'}
+                          ? ui('Load {value0, plural, one{# older comment} other{# older comments}}', {
+                                value0: hiddenCount
+                            })
+                          : ui('Load older comments')}
                 </button>
             )}
             <div ref={listRef}>
@@ -870,13 +881,13 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
                 ) : (
                     <div className="py-8 text-center">
                         <Icon name="comment" className="mx-auto mb-2 size-8 text-content-hint" />
-                        <p className="text-sm text-content-secondary">아직 댓글이 없습니다</p>
+                        <p className="text-sm text-content-secondary">{ui('No comments yet')}</p>
                     </div>
                 )}
             </div>
             {canComment ? (
                 <div className="mt-8 border-t border-line-light pt-8">
-                    <h3 className="mb-6 text-sm font-medium text-content-secondary">댓글 남기기</h3>
+                    <h3 className="mb-6 text-sm font-medium text-content-secondary">{ui('Leave a comment')}</h3>
                     {model.isLoggedIn ? (
                         <CommentForm
                             fieldRef={mainField}
@@ -895,15 +906,15 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
                     ) : (
                         <a
                             {...loginPromptProps(`${model.postPath}#post-comments`, 'comment')}
-                            aria-label="로그인하고 댓글 작성"
+                            aria-label={ui('Sign in to comment')}
                             className="group flex min-h-28 w-full cursor-pointer flex-col items-start justify-between gap-4 rounded-xl border border-line bg-surface-subtle p-5 text-left transition-all duration-150 hover:border-line-strong hover:bg-surface focus:outline-none focus:ring-2 focus:ring-action/20"
                         >
                             <span aria-hidden="true" className="text-sm text-content-hint">
-                                댓글을 작성하세요...
+                                {ui('Write a comment…')}
                             </span>
                             <span className="inline-flex items-center gap-2 text-sm font-semibold text-content-secondary transition-colors group-hover:text-content">
                                 <Icon name="lock" className="size-4" />
-                                로그인하고 댓글 작성
+                                {ui('Sign in to comment')}
                             </span>
                         </a>
                     )}
@@ -911,7 +922,7 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
             ) : (
                 <div className="mt-8 flex items-center gap-3 rounded-xl border border-line bg-surface-subtle px-4 py-3 text-content-secondary">
                     <Icon name="comment" className="size-4 shrink-0 text-content-hint" />
-                    <p className="text-sm">작성자가 이 글의 새 댓글과 답글을 받지 않습니다.</p>
+                    <p className="text-sm">{ui('The author is not accepting new comments or replies on this post.')}</p>
                 </div>
             )}
             <dialog
@@ -924,19 +935,19 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
                 className="fixed inset-0 m-auto h-fit w-[calc(100%-2rem)] max-w-sm rounded-2xl border border-line bg-surface p-6 text-content shadow-xl backdrop:bg-black/50"
             >
                 <h2 id="comment-delete-title" className="mb-2 text-lg font-semibold">
-                    댓글 삭제
+                    {ui('Delete comment')}
                 </h2>
-                <p className="mb-6 text-sm text-content-secondary">이 댓글을 삭제할까요?</p>
+                <p className="mb-6 text-sm text-content-secondary">{ui('Delete this comment?')}</p>
                 <div className="flex justify-end gap-2">
                     <button type="button" className={secondaryButton} onClick={() => setDeleteId(null)}>
-                        취소
+                        {ui('Cancel')}
                     </button>
                     <button
                         type="button"
                         onClick={() => void confirmDelete()}
                         className="rounded-lg bg-danger px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
                     >
-                        삭제
+                        {ui('Delete')}
                     </button>
                 </div>
             </dialog>

@@ -1,3 +1,4 @@
+import { systemMessage } from '../../platform/messages.js';
 import { renderPage } from '../../platform/views.js';
 import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
@@ -69,7 +70,7 @@ class InvalidSignup extends Error {
   }
 }
 
-const usedInvite = '이미 사용되었거나 비활성화된 초대 코드입니다.';
+const usedInvite = () => systemMessage('This invite code has already been used or has been disabled.');
 
 async function findInvite(db: PrismaClient | Prisma.TransactionClient, code: string) {
   if (!code) return;
@@ -77,8 +78,8 @@ async function findInvite(db: PrismaClient | Prisma.TransactionClient, code: str
     where: { code },
     select: { id: true, isActive: true, claimedById: true },
   });
-  if (!invite) throw new InvalidSignup('유효하지 않은 초대 코드입니다.', 'RJ');
-  if (!invite.isActive || invite.claimedById !== null) throw new InvalidSignup(usedInvite, 'RJ');
+  if (!invite) throw new InvalidSignup(systemMessage('Invalid invite code.'), 'RJ');
+  if (!invite.isActive || invite.claimedById !== null) throw new InvalidSignup(usedInvite(), 'RJ');
   return invite;
 }
 
@@ -102,7 +103,8 @@ async function verifyChallenge(fetchProvider: typeof fetch, secret: string, chal
 }
 
 async function createPasswordAccount(db: PrismaClient, request: FastifyRequest, config: AuthConfig) {
-  if (!(await hasAdministrator(db))) throw new InvalidSignup('첫 관리자 계정을 먼저 만들어주세요.', 'RJ');
+  if (!(await hasAdministrator(db)))
+    throw new InvalidSignup(systemMessage('Create the first administrator account before continuing.'), 'RJ');
   const input = formInput(request);
   const username = regularField(input, 'username');
   const displayName = regularField(input, 'name');
@@ -110,23 +112,25 @@ async function createPasswordAccount(db: PrismaClient, request: FastifyRequest, 
   const password = regularField(input, 'password');
   const inviteCode = regularField(input, 'inviteCode').trim();
   if (await db.user.findUnique({ where: { username }, select: { id: true } }))
-    throw new InvalidSignup('이미 사용중인 아이디입니다.');
+    throw new InvalidSignup(systemMessage('This username is already in use.'));
   if (!accountUsernamePattern.test(username))
-    throw new InvalidSignup('사용자 이름은 4~15자 사이의 소문자 영어, 숫자만 가능합니다.');
-  if (email.length > 254 || !accountEmailPattern.test(email)) throw new InvalidSignup('올바른 이메일 주소가 아닙니다.');
-  if (displayName.length > 150) throw new InvalidSignup('표시 이름은 150자까지 입력할 수 있습니다.');
+    throw new InvalidSignup(systemMessage('Usernames must contain 4–15 lowercase English letters or numbers.'));
+  if (email.length > 254 || !accountEmailPattern.test(email))
+    throw new InvalidSignup(systemMessage('Enter a valid email address.'));
+  if (displayName.length > 150)
+    throw new InvalidSignup(systemMessage('Display names must be 150 characters or fewer.'));
   const passwordError = describeInvalidPassword(password, [username, displayName, email]);
   if (passwordError) throw new InvalidSignup(passwordError);
   await findInvite(db, inviteCode);
   const settings = await signupSettings(db);
   const attempt = await reserveLoginAttempt(db, `${config.secretKey}:signup`, request.ip, username);
-  if (!attempt) throw new InvalidSignup('가입 시도가 너무 많습니다. 잠시 후 다시 시도해 주세요.', 'RJ');
+  if (!attempt) throw new InvalidSignup(systemMessage('Too many signup attempts. Try again in a moment.'), 'RJ');
   const captcha = activeCaptcha(settings, config.cipherKey);
   if (captcha) {
     const challenge = regularField(input, 'h-captcha-response').trim();
-    if (!challenge) throw new InvalidSignup('보안 검증이 필요합니다.');
+    if (!challenge) throw new InvalidSignup(systemMessage('Security verification is required.'));
     if (!(await verifyChallenge(config.fetchProvider ?? fetch, captcha.secret, challenge))) {
-      throw new InvalidSignup('보안 검증에 실패했습니다.', 'RJ');
+      throw new InvalidSignup(systemMessage('Security verification failed.'), 'RJ');
     }
   }
 
@@ -136,7 +140,7 @@ async function createPasswordAccount(db: PrismaClient, request: FastifyRequest, 
     // Acquire the SQLite write lock before rechecking the username and invitation.
     await tx.user.updateMany({ where: { username }, data: { username } });
     if (await tx.user.findUnique({ where: { username }, select: { id: true } }))
-      throw new InvalidSignup('이미 사용중인 아이디입니다.');
+      throw new InvalidSignup(systemMessage('This username is already in use.'));
     const invite = await findInvite(tx, inviteCode);
     const id = await insertAccount(tx, {
       username,
@@ -152,7 +156,7 @@ async function createPasswordAccount(db: PrismaClient, request: FastifyRequest, 
         where: { id: invite.id, isActive: true, claimedById: null },
         data: { claimedById: id, claimedAt: new Date(), isActive: false },
       });
-      if (count !== 1) throw new InvalidSignup(usedInvite, 'RJ');
+      if (count !== 1) throw new InvalidSignup(usedInvite(), 'RJ');
     }
     if (settings?.welcome) {
       const createdAt = new Date();
@@ -237,7 +241,7 @@ export function registerSignup(app: FastifyInstance, db: PrismaClient, siteUrl: 
           Object.hasOwn(input, 'passwordCheck') &&
           regularField(input, 'passwordCheck') !== regularField(input, 'password')
         ) {
-          throw new InvalidSignup('두 비밀번호가 일치하지 않습니다.');
+          throw new InvalidSignup(systemMessage('The two passwords do not match.'));
         }
         const account = await createPasswordAccount(db, request, config);
         const token = await createSession(db, account, config.secretKey, request.cookies[sessionCookie]);

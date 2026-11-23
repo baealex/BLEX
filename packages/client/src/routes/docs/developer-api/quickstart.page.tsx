@@ -2,7 +2,7 @@ import { DeveloperQuickstart } from '~/features/developer-api/quickstart';
 import { developerText } from '~/features/developer-api/messages';
 import { SiteFooter, SiteHeader, SiteTheme } from '~/appearance/shell';
 import { renderApplicationDocument } from '~/application/document';
-import type { PageProps } from '~/contracts/pages';
+import type { PageProps } from '@blex/contracts/pages';
 
 export default function renderPage({
     brand,

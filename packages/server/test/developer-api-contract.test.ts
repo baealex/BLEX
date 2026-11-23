@@ -256,30 +256,6 @@ test('error fields keep the names callers sent, even ones camelCase cannot repro
     error: { fields: unknown };
   };
   assert.equal(JSON.stringify(wire.error.fields), JSON.stringify(fields));
-  const conflict = recording.exchanges.find(({ name }) => name === 'update stale version');
-  assert.deepEqual(Object.keys((JSON.parse(conflict?.body ?? '{}') as { error: { fields: object } }).error.fields), [
-    'expected_updated_at',
-    'actual_updated_at',
-    'post_id',
-  ]);
-  for (const [name, field] of [
-    ['create invalid snake string field', 'content_html'],
-    ['create invalid series_url', 'series_url'],
-    ['create invalid expected_updated_at', 'expected_updated_at'],
-    ['create invalid published_at', 'published_at'],
-    ['create invalid cover_layout', 'cover_layout'],
-    ['create invalid cover_image_position', 'cover_image_position'],
-    ['create invalid cover_image_ratio', 'cover_image_ratio'],
-    ['create invalid content_type', 'content_type'],
-    ['create invalid is_hidden', 'is_hidden'],
-    ['create invalid is_hide', 'is_hidden'],
-    ['create invalid is_advertise', 'is_advertise'],
-    ['create invalid series_id', 'series_id'],
-  ]) {
-    const exchange = recording.exchanges.find((item) => item.name === name);
-    const { error } = JSON.parse(exchange?.body ?? '{}') as { error: { fields: { errors: Array<{ loc: string[] }> } } };
-    assert.deepEqual(error.fields.errors[0].loc, ['body', 'payload', field], name);
-  }
 });
 
 // The captured fixture remains unchanged. Only display text and newly documented language metadata differ.

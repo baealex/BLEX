@@ -1,9 +1,10 @@
+import { ui } from '../../../i18n/public-ui.js';
 import { SiteIcon } from '~/appearance/icons';
 import { authorPath } from '~/features/authors/profile-ui';
 import { PageLayout } from '~/features/discovery/layout';
 import { EmptyState, Pagination, postPath } from '~/features/discovery/post-list';
 import { avatarUrl, dateLabel, formatPostDate } from '~/features/discovery/view-helpers';
-import type { PageProps } from '~/contracts/pages';
+import type { PageProps } from '@blex/contracts/pages';
 
 export default function renderPage({
     meta,
@@ -24,7 +25,7 @@ export default function renderPage({
             <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
                 <header className="mb-12 text-center">
                     <span className="mb-4 inline-block rounded-full bg-surface-subtle px-3 py-1 text-xs font-bold uppercase tracking-wider text-content-secondary">
-                        시리즈
+                        {ui('Series')}
                     </span>
                     <h1 className="mb-4 text-3xl font-bold leading-tight tracking-tight text-content sm:text-4xl">
                         {series.name}
@@ -50,12 +51,12 @@ export default function renderPage({
                         <span className="size-1 rounded-full bg-content-hint/70" aria-hidden={true} />
                         <span className="flex items-center gap-1.5">
                             <SiteIcon name="file-text" className="text-xs" />
-                            {`${count}개 포스트`}
+                            {ui('{value0, plural, one{# post} other{# posts}}', { value0: count })}
                         </span>
                         <span className="size-1 rounded-full bg-content-hint/70" aria-hidden={true} />
                         <span className="flex items-center gap-1.5">
                             <SiteIcon name="clock" className="text-xs" />
-                            {`${dateLabel(series.updatedDate)} 수정됨`}
+                            {ui('Updated {value0}', { value0: dateLabel(series.updatedDate) })}
                         </span>
                     </div>
                     {viewer?.id === author.id ? (
@@ -65,7 +66,7 @@ export default function renderPage({
                                 className="inline-flex items-center gap-2 rounded-full bg-action px-5 py-2.5 text-sm font-medium text-content-inverted transition-all duration-150 hover:bg-action-hover active:scale-[0.98]"
                             >
                                 <SiteIcon name="edit" className="text-xs" />
-                                <span>시리즈 편집</span>
+                                <span>{ui('Edit series')}</span>
                             </a>
                         </div>
                     ) : null}
@@ -74,21 +75,21 @@ export default function renderPage({
                     <div className="mb-6 flex justify-end">
                         <nav
                             className="inline-flex rounded-xl bg-surface-subtle/80 p-1 backdrop-blur-sm ring-1 ring-line/60"
-                            aria-label="포스트 정렬"
+                            aria-label={ui('Sort posts')}
                         >
                             <a
                                 href={`${seriesPath}?sort=asc`}
                                 aria-current={sortOrder === 'asc' ? 'page' : undefined}
                                 className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all duration-150 ${sortOrder === 'asc' ? 'bg-surface-elevated text-content shadow-sm' : 'text-content-secondary hover:text-content'}`}
                             >
-                                오래된순
+                                {ui('Oldest first')}
                             </a>
                             <a
                                 href={seriesPath}
                                 aria-current={sortOrder === 'desc' ? 'page' : undefined}
                                 className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all duration-150 ${sortOrder === 'desc' ? 'bg-surface-elevated text-content shadow-sm' : 'text-content-secondary hover:text-content'}`}
                             >
-                                최신순
+                                {ui('Newest first')}
                             </a>
                         </nav>
                     </div>
@@ -120,7 +121,7 @@ export default function renderPage({
                                                 </span>
                                                 <span className="flex items-center gap-1.5">
                                                     <SiteIcon name="clock" />
-                                                    {`${post.readTime}분`}
+                                                    {ui('{value0} min', { value0: post.readTime })}
                                                 </span>
                                                 <span className="ml-auto flex items-center gap-3">
                                                     <span className="flex items-center gap-1.5 transition-colors hover:text-danger">
@@ -141,8 +142,8 @@ export default function renderPage({
                     </div>
                 ) : (
                     <EmptyState
-                        title="아직 포스트가 없어요"
-                        message="이 시리즈에는 아직 포스트가 추가되지 않았습니다."
+                        title={ui('No posts yet')}
+                        message={ui('No posts have been added to this series yet.')}
                         icon="stack-2"
                         framed={true}
                     />

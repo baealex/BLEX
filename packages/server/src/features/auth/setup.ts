@@ -1,3 +1,4 @@
+import { systemMessage } from '../../platform/messages.js';
 import { renderPage } from '../../platform/views.js';
 import { timingSafeEqual } from 'node:crypto';
 import type { Prisma, PrismaClient } from '@prisma/client';
@@ -102,16 +103,17 @@ export function registerSetup(app: FastifyInstance, db: PrismaClient, siteUrl: U
         .header('Content-Security-Policy', setupCsp)
         .send(setupMarkup(csrf, validToken ? provided : '', message));
 
-    if (!validToken) return fail('설정 토큰을 확인해 주세요.');
+    if (!validToken) return fail(systemMessage('Check the setup token.'));
     if (!accountUsernamePattern.test(username))
-      return fail('사용자 이름은 4~15자 사이의 소문자 영어, 숫자만 가능합니다.');
-    if (!displayName || displayName.length > 150) return fail('표시 이름을 확인해 주세요.');
-    if (email.length > 254 || !accountEmailPattern.test(email)) return fail('올바른 이메일 주소가 아닙니다.');
-    if (password !== fields.passwordCheck) return fail('비밀번호가 일치하지 않습니다.');
+      return fail(systemMessage('Usernames must contain 4–15 lowercase English letters or numbers.'));
+    if (!displayName || displayName.length > 150) return fail(systemMessage('Check your display name.'));
+    if (email.length > 254 || !accountEmailPattern.test(email))
+      return fail(systemMessage('Enter a valid email address.'));
+    if (password !== fields.passwordCheck) return fail(systemMessage('Passwords do not match.'));
     const passwordError = describeInvalidPassword(password, [username, displayName, email]);
     if (passwordError) return fail(passwordError);
     if (await db.user.findUnique({ where: { username }, select: { id: true } }))
-      return fail('이미 사용중인 아이디입니다.');
+      return fail(systemMessage('This username is already in use.'));
 
     const passwordHash = await hashPassword(password);
     const userId = await db.$transaction(async (tx) => {

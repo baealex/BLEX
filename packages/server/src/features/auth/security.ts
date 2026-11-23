@@ -1,3 +1,4 @@
+import { systemMessage } from '../../platform/messages.js';
 import { renderPage } from '../../platform/views.js';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
@@ -25,7 +26,10 @@ export function securityError(code: string, errorMessage = '') {
 }
 
 export const verificationRequired = {
-  ...securityError('RE', '계속하려면 본인 확인을 해주세요.'),
+  ...securityError('RE'),
+  get errorMessage() {
+    return systemMessage('Verify your identity to continue.');
+  },
   messageKey: 'auth.reauthentication_required',
   messageParams: {},
 };
@@ -38,11 +42,14 @@ function factorError(code: string | null, action?: string) {
   if (!code) return success;
   if (code === 'RE') return verificationRequired;
   const messages: Record<string, string> = {
-    AU: '2단계 인증을 이미 해제했습니다.',
-    AC: '2단계 인증을 이미 연결했습니다.',
-    EP: '2FA 설정 세션이 만료되었습니다. 다시 시도해주세요.',
-    IP: '인증 코드를 입력해주세요.',
-    RJ: action === 'disable' ? '24시간 동안 해제할 수 없습니다.' : '잘못된 인증 코드입니다.',
+    AU: systemMessage('Two-factor authentication is already disabled.'),
+    AC: systemMessage('Two-factor authentication is already enabled.'),
+    EP: systemMessage('The two-factor setup session has expired. Try again.'),
+    IP: systemMessage('Enter an authentication code.'),
+    RJ:
+      action === 'disable'
+        ? systemMessage('Two-factor authentication cannot be disabled within 24 hours.')
+        : systemMessage('Invalid authentication code.'),
   };
   return securityError(code, messages[code]);
 }
@@ -76,7 +83,9 @@ export function submittedPasswordError(password: string, account: { username: st
     !/\p{Lu}/u.test(password) ||
     !/[^\p{N}\p{Ll}\p{Lu}]/u.test(password)
   ) {
-    return '비밀번호에는 숫자, 소문자, 대문자, 특수문자를 모두 넣어 주세요.';
+    return systemMessage(
+      'Include a number, a lowercase letter, an uppercase letter, and a special character in your password.',
+    );
   }
   return describeInvalidPassword(password, [account.username, account.name, account.email]);
 }
@@ -163,10 +172,10 @@ export function registerAccountSecurity(app: FastifyInstance, db: PrismaClient, 
     const hasPassword = /^[a-z0-9_]+\$/.test(account.passwordHash);
     let error = '';
     if (request.method === 'POST') {
-      if (!validCsrf(request, siteUrl)) return reply.code(403).send('요청을 확인해 주세요.');
+      if (!validCsrf(request, siteUrl)) return reply.code(403).send(systemMessage('Check your request.'));
       const input = formInput(request);
       const attempt = await reserveLoginAttempt(db, config.secretKey, request.ip, account.username);
-      if (!attempt) error = '너무 많은 실패로 인해 잠시 후 다시 시도해주세요.';
+      if (!attempt) error = systemMessage('Too many failed attempts. Please try again later.');
       else {
         const isAccount =
           pendingFactor ||
@@ -183,7 +192,7 @@ export function registerAccountSecurity(app: FastifyInstance, db: PrismaClient, 
               code,
               config.cipherKey,
             ));
-        if (!isAccount || !isFactor) error = '비밀번호 또는 인증 코드가 올바르지 않습니다.';
+        if (!isAccount || !isFactor) error = systemMessage('The password or authentication code is incorrect.');
         else {
           const spentRecoveryKey =
             account.factorId !== null && isRecoveryCode(code) ? (account.recoveryKey ?? undefined) : undefined;
@@ -244,7 +253,8 @@ export function registerAccountSecurity(app: FastifyInstance, db: PrismaClient, 
     if (!validCsrf(request, siteUrl)) return reply.code(403).send(securityError('RJ'));
     const deleted = await deleteAccount(db, account, config.mediaRoot);
     if (deleted.error === 'RE') return verificationRequired;
-    if (deleted.error === 'RJ') return securityError('RJ', '마지막 관리자 계정은 삭제할 수 없습니다.');
+    if (deleted.error === 'RJ')
+      return securityError('RJ', systemMessage('The last administrator account cannot be deleted.'));
     reply.clearCookie(sessionCookie, authCookieOptions(siteUrl));
     return success;
   });
@@ -273,7 +283,7 @@ export function registerAccountSecurity(app: FastifyInstance, db: PrismaClient, 
               ? await activateFactor(db, account, config.cipherKey, formInput(request).code)
               : await disableFactor(db, account);
           if (!error && action === 'activate')
-            return { status: 'DONE', body: { message: '2차 인증이 활성화되었습니다.' } };
+            return { status: 'DONE', body: { message: systemMessage('Two-factor authentication has been enabled.') } };
         }
         return factorError(error, action);
       },

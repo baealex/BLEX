@@ -1,6 +1,8 @@
+import { getDocumentLocale, getDocumentTimeZone } from '../i18n/locale.js';
 type StoredDate = string | Date | null | undefined;
 
-const displayTimeZone = () => process.env.TZ || 'Asia/Seoul';
+const displayTimeZone = () =>
+    getDocumentTimeZone() || (typeof process !== 'undefined' ? process.env.TZ : undefined) || 'Asia/Seoul';
 
 function parseInstant(value: StoredDate): { date: Date; microseconds: string } | null {
     if (!value) return null;
@@ -106,18 +108,31 @@ export function localDateTimeText(value: StoredDate): string {
     return `${year}-${month}-${day} ${hour}:${minute}`;
 }
 
-/** Korean calendar date, "Y년 n월 j일". */
+/** Localized calendar date; retains the legacy Korean function name. */
 export function koreanDate(value: StoredDate): string {
     const instant = parseInstant(value);
     if (!instant) return '';
+    if (getDocumentLocale() === 'en')
+        return new Intl.DateTimeFormat('en', {
+            timeZone: displayTimeZone(),
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        }).format(instant.date);
     const { year, month, day } = localParts(instant.date);
     return `${year}년 ${Number(month)}월 ${Number(day)}일`;
 }
 
-/** Korean date and 12-hour time, "Y년 n월 j일 g:i A". */
+/** Localized calendar date and time. */
 export function koreanDateTime(value: StoredDate): string {
     const instant = parseInstant(value);
     if (!instant) return '';
+    if (getDocumentLocale() === 'en')
+        return new Intl.DateTimeFormat('en', {
+            timeZone: displayTimeZone(),
+            dateStyle: 'long',
+            timeStyle: 'short'
+        }).format(instant.date);
     const { hour, minute } = localParts(instant.date);
     const hours = Number(hour);
     return `${koreanDate(value)} ${hours % 12 || 12}:${minute} ${hours < 12 ? '오전' : '오후'}`;
@@ -127,6 +142,20 @@ export function koreanDateTime(value: StoredDate): string {
 export function timeSince(value: StoredDate, now = new Date()): string {
     const date = parseInstant(value)?.date;
     if (!date) return '';
+    if (getDocumentLocale() === 'en') {
+        const minutes = Math.max(0, Math.floor((now.valueOf() - date.valueOf()) / 60_000));
+        if (minutes > 365 * 24 * 60) return koreanDate(value);
+        const format = new Intl.RelativeTimeFormat('en', { numeric: 'always' });
+        const units: Array<[number, Intl.RelativeTimeFormatUnit]> = [
+            [43_200, 'month'],
+            [10_080, 'week'],
+            [1_440, 'day'],
+            [60, 'hour'],
+            [1, 'minute']
+        ];
+        for (const [size, unit] of units) if (minutes >= size) return format.format(-Math.floor(minutes / size), unit);
+        return format.format(0, 'minute');
+    }
     if (now.valueOf() - date.valueOf() > 365 * 24 * 60 * 60 * 1000) {
         const { year, month, day } = localParts(date);
         return `${year}년 ${Number(month)}월 ${Number(day)}일`;

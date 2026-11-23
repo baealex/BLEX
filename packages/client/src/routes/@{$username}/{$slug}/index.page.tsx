@@ -1,3 +1,4 @@
+import { getDocumentLocale } from '../../../i18n/locale.js';
 import { SiteHeader, SiteTheme } from '~/appearance/shell';
 import { renderApplicationDocument, scriptJson } from '~/application/document';
 import { postPageDataId } from '~/application/route-data';
@@ -52,7 +53,7 @@ export default function renderPage(props: PostPageProps): string {
             : null;
 
     return renderApplicationDocument(
-        <html lang="ko">
+        <html lang={getDocumentLocale()}>
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />

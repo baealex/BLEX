@@ -18,7 +18,8 @@ database.exec(`
   ${migratedTableSql(...accountTables)}
   INSERT INTO "User" ("id", "username", "email", "passwordHash", "joinedAt") VALUES
     (1, 'writer', '', '', 1577836800000),
-    (2, 'other', '', '', 1577836800000);
+    (2, 'other', '', '', 1577836800000),
+    (3, 'third', '', '', 1577836800000);
   INSERT INTO FormTemplate (id, title, content, isPublic, userId, createdAt, updatedAt)
   VALUES (1, '첫 서식', '첫 번째 문단', 0, 1, ${Date.UTC(2024, 1, 1, 0, 30)}, ${Date.UTC(2024, 1, 1, 0, 30)});
 `);
@@ -34,6 +35,7 @@ registerAuthorForms(app, db, {
     const id = Number(Array.isArray(raw) ? raw.at(-1) : raw);
     if (id === 1) return { id, username: 'writer', hasEditorRole: true };
     if (id === 2) return { id, username: 'reader', hasEditorRole: false };
+    if (id === 3) return { id, username: 'third', hasEditorRole: true };
     return null;
   },
   validateCsrf: (request) => request.headers['x-test-csrf'] === 'valid',
@@ -92,6 +94,18 @@ test('preserves legacy form API envelopes and owner checks', async () => {
   assert.deepEqual(detail.json().body, { id, title: '새 포스트 서식', content: '## 시작' });
   const readerDetail = await app.inject({ url: `/v1/forms/${id}`, headers: { 'x-test-user': '2' } });
   assert.equal(readerDetail.json().errorCode, 'error:RJ', readerDetail.body);
+
+  const otherEditor = { 'x-test-user': '3', 'x-test-csrf': 'valid', 'content-type': 'application/json' };
+  for (const method of ['GET', 'PUT', 'DELETE'] as const) {
+    const denied = await app.inject({
+      method,
+      url: `/v1/forms/${id}`,
+      headers: otherEditor,
+      ...(method === 'GET' ? {} : { payload: { title: '남의 서식', content: '바꾸기' } }),
+    });
+    assert.equal(denied.statusCode, 404, `${method} ${denied.body}`);
+  }
+  assert.equal((await db.formTemplate.findUniqueOrThrow({ where: { id } })).title, '새 포스트 서식');
 
   const updated = await app.inject({
     method: 'PUT',

@@ -1,8 +1,9 @@
+import { ui } from '../i18n/public-ui.js';
 import { SiteIcon } from '~/appearance/icons';
 import { PageLayout } from '~/features/discovery/layout';
 import { EmptyState, Pagination } from '~/features/discovery/post-list';
 import { DropdownFilter, QueryFilter } from '~/features/discovery/search-ui';
-import type { PageProps } from '~/contracts/pages';
+import type { PageProps } from '@blex/contracts/pages';
 
 export default function renderPage({
     meta,
@@ -20,8 +21,10 @@ export default function renderPage({
         children: (
             <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
                 <header className="mb-10 text-center">
-                    <h1 className="mb-3 text-3xl font-bold tracking-tight text-content sm:text-4xl">태그 클라우드</h1>
-                    <p className="text-content-secondary">전체 태그와 태그별 포스트를 확인할 수 있습니다</p>
+                    <h1 className="mb-3 text-3xl font-bold tracking-tight text-content sm:text-4xl">
+                        {ui('Tag cloud')}
+                    </h1>
+                    <p className="text-content-secondary">{ui('Explore all tags and their posts')}</p>
                 </header>
                 <div className="mb-12 flex flex-col items-end justify-between gap-6 sm:flex-row sm:items-center">
                     <div className="w-full sm:max-w-md sm:flex-1">
@@ -29,13 +32,18 @@ export default function renderPage({
                             htmlFor="tag-query"
                             className="mb-2 ml-1 block text-xs font-bold uppercase tracking-wider text-content-secondary"
                         >
-                            태그 검색
+                            {ui('Search tags')}
                         </label>
-                        <QueryFilter path="/tags" search={query} placeholder="검색어를 입력하세요." id="tag-query" />
+                        <QueryFilter
+                            path="/tags"
+                            search={query}
+                            placeholder={ui('Enter a search term.')}
+                            id="tag-query"
+                        />
                     </div>
                     <div className="w-full sm:w-auto">
                         <p className="mb-2 ml-1 block text-xs font-bold uppercase tracking-wider text-content-secondary">
-                            정렬 방식
+                            {ui('Sort order')}
                         </p>
                         <DropdownFilter
                             path="/tags"
@@ -45,15 +53,15 @@ export default function renderPage({
                             options={[
                                 {
                                     value: 'popular',
-                                    label: '인기순'
+                                    label: ui('Most popular')
                                 },
                                 {
                                     value: 'name',
-                                    label: '이름순'
+                                    label: ui('Name')
                                 },
                                 {
                                     value: 'recent',
-                                    label: '최신순'
+                                    label: ui('Newest first')
                                 }
                             ]}
                         />
@@ -79,18 +87,18 @@ export default function renderPage({
                                     <h2 className="mb-1 truncate text-lg font-bold text-content transition-colors duration-200 group-hover:text-content">
                                         {tag.name}
                                     </h2>
-                                    <p className="line-clamp-2 text-sm text-content-secondary">{`${tag.count.toLocaleString('ko-KR')}개 포스트에서 태그됨`}</p>
+                                    <p className="line-clamp-2 text-sm text-content-secondary">
+                                        {ui('Tagged in {value0} posts', { value0: tag.count })}
+                                    </p>
                                 </div>
                             </a>
                         ))}
                     </div>
                 ) : (
                     <EmptyState
-                        title="태그가 없습니다"
+                        title={ui('No tags')}
                         message={
-                            searchText
-                                ? '검색 조건에 맞는 태그가 없습니다.'
-                                : '포스트에 태그를 추가하면 여기에 표시됩니다.'
+                            searchText ? ui('No tags match your search.') : ui('Tags added to posts will appear here.')
                         }
                         icon="tags"
                         framed={true}

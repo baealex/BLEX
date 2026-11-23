@@ -1,5 +1,6 @@
-import type { CommentPayload, ReaderPostLikeState } from '../../contracts/engagement';
-import type { PageProps, PostSeriesNavigation, PublicPost, RelatedPost } from '../../contracts/pages';
+import type { CommentPayload, ReaderPostLikeState } from '@blex/contracts/engagement';
+import type { PageProps, PostSeriesNavigation, PublicPost, RelatedPost } from '@blex/contracts/pages';
+import { getDocumentLocale } from '../../i18n/locale.js';
 import { storedDateText } from '../../lib/date-format';
 import type { PostCommentsModel } from '../engagement/ui/comments.js';
 import { publicPostPath } from './paths';
@@ -76,10 +77,11 @@ const coverRatios = new Map([
     ['3:4', '3 / 4']
 ]);
 
-const publicationDate = new Intl.DateTimeFormat('ko-KR', {
-    dateStyle: 'long',
-    timeZone: 'Asia/Seoul'
-});
+const publicationDate = () =>
+    new Intl.DateTimeFormat(getDocumentLocale(), {
+        dateStyle: 'long',
+        timeZone: 'Asia/Seoul'
+    });
 
 export function articleImage(path: string): string | undefined {
     if (!path || /[\\\u0000-\u001f\u007f]/.test(path) || path.startsWith('//')) return;
@@ -99,7 +101,7 @@ function isoDate(text: string): string | undefined {
 // Dates are formatted once on the server, so a browser with different locale data cannot break hydration.
 function postDate(text: string): PostDate | undefined {
     const iso = isoDate(text);
-    return iso ? { iso, text: publicationDate.format(new Date(iso)) } : undefined;
+    return iso ? { iso, text: publicationDate().format(new Date(iso)) } : undefined;
 }
 
 function clientComment(comment: CommentPayload): CommentPayload {

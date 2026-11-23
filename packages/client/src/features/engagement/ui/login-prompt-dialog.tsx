@@ -1,3 +1,4 @@
+import { ui } from '../../../i18n/public-ui.js';
 import IconUser from '@tabler/icons-react/icons/IconUser';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { renderBodyIsland } from '../../../application/island.js';
@@ -9,10 +10,18 @@ interface SocialProvider {
 }
 
 const descriptions: Record<LoginPromptAction, string> = {
-    like: '좋아요를 누르려면 로그인해 주세요.',
-    comment: '댓글을 남기려면 로그인해 주세요.',
-    reply: '답글을 작성하려면 로그인해 주세요.',
-    subscribe: '이 작가의 새 글 알림을 받으려면 로그인해 주세요.'
+    get like() {
+        return ui('Sign in to like this post.');
+    },
+    get comment() {
+        return ui('Sign in to leave a comment.');
+    },
+    get reply() {
+        return ui('Sign in to reply.');
+    },
+    get subscribe() {
+        return ui("Sign in to subscribe to this author's new posts.");
+    }
 };
 const actionClass =
     'flex min-h-11 w-full items-center justify-center rounded-xl px-4 text-sm font-semibold transition-colors duration-150';
@@ -74,7 +83,7 @@ export function LoginPromptDialog({ action, next, onClose }: LoginPromptDialogPr
                 <IconUser className="size-5 text-content" aria-hidden="true" />
             </div>
             <h2 id="blex-login-prompt-title" className="mb-2 text-xl font-semibold text-content">
-                로그인이 필요해요
+                {ui('Sign in to continue')}
             </h2>
             <p id="blex-login-prompt-description" className="mb-5 text-sm text-content-secondary">
                 {descriptions[action]}
@@ -87,7 +96,7 @@ export function LoginPromptDialog({ action, next, onClose }: LoginPromptDialogPr
                         data-no-spa=""
                         className={`${actionClass} border border-line bg-surface text-content hover:bg-surface-subtle`}
                     >
-                        {`${provider.name}로 계속하기`}
+                        {ui('Continue with {value0}', { value0: provider.name })}
                     </a>
                 ))}
             </div>
@@ -96,14 +105,14 @@ export function LoginPromptDialog({ action, next, onClose }: LoginPromptDialogPr
                 data-no-spa=""
                 className={`${actionClass} bg-action text-content-inverted hover:bg-action-hover`}
             >
-                로그인하기
+                {ui('Sign in')}
             </a>
             <button
                 type="button"
                 className={`${actionClass} mt-2 border border-line bg-surface text-content-secondary hover:text-content`}
                 onClick={() => dialog.current?.close()}
             >
-                취소
+                {ui('Cancel')}
             </button>
         </dialog>
     );

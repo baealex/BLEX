@@ -40,6 +40,7 @@ import { registerApiMessages } from '../platform/api-messages.js';
 import { validCsrf } from '../platform/csrf.js';
 import { registerSiteAssets } from '../platform/site-assets.js';
 import { registerScreenHost } from '../application/screen-host/index.js';
+import { registerRequestLocale } from '../platform/request-locale.js';
 
 type RouteContext = {
   db: PrismaClient;
@@ -62,8 +63,15 @@ export async function registerRoutes(
     siteUrl,
     mediaRoot,
   };
+  if (auth) await app.register(cookie);
+  registerRequestLocale(app, db, async (request) => {
+    if (request.url.startsWith('/api/developer/v1/') && request.headers.authorization) {
+      const { token } = await authenticate(db, request.headers.authorization);
+      if (token) return token.user;
+    }
+    return currentUser(request);
+  });
   if (auth) {
-    await app.register(cookie);
     registerBodyGuard(app, {
       currentUser,
       tokenAccount: async (request, reply) => {

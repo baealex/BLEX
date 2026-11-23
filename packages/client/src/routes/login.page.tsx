@@ -1,16 +1,18 @@
+import { getDocumentLocale } from '../i18n/locale.js';
+import { ui } from '../i18n/public-ui.js';
 import { SiteFooter, SiteHeader, SiteTheme } from '~/appearance/shell';
 import { renderApplicationDocument } from '~/application/document';
 import { LoginForm } from '~/features/auth/ui/login-form';
-import type { PageProps } from '~/contracts/pages';
+import type { PageProps } from '@blex/contracts/pages';
 
 export default function renderPage({ brand, loginAssets, model }: PageProps['login']): string {
     return renderApplicationDocument(
-        <html lang="ko">
+        <html lang={getDocumentLocale()}>
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <meta name="robots" content="noindex" />
-                <title>{`로그인 - ${brand.siteName}`}</title>
+                <title>{ui('Sign in - {value0}', { value0: brand.siteName })}</title>
                 <SiteTheme />
                 {loginAssets.css.map((file) => (
                     <link key={file} rel="stylesheet" href={file} />

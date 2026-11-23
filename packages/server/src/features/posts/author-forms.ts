@@ -1,3 +1,4 @@
+import { systemMessage } from '../../platform/messages.js';
 import formBody from '@fastify/formbody';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
@@ -69,7 +70,7 @@ export function registerAuthorForms(app: FastifyInstance, db: PrismaClient, opti
         const title = input.title ?? '';
         const content = input.content ?? '';
         if (typeof title !== 'string' || title.length > 50 || typeof content !== 'string') {
-          return failure('IP', '글 양식을 확인해 주세요.');
+          return failure('IP', systemMessage('Check the post template.'));
         }
         if (id) await db.formTemplate.updateMany({ where: { id, userId: editor.id }, data: { title, content } });
         else
@@ -102,7 +103,7 @@ export function registerAuthorForms(app: FastifyInstance, db: PrismaClient, opti
       const { text, sourceType } = formInput(request);
       return typeof text === 'string' && text
         ? done({ html: sourceType === 'html' ? sanitizePostHtml(text) : markdownToHtml(text) })
-        : failure('IP', '텍스트가 비어 있습니다.');
+        : failure('IP', systemMessage('The text is empty.'));
     });
   });
 }

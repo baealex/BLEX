@@ -11,7 +11,7 @@ AI Agents must read `docs/DEV_CONVENTION.md` before starting any development.
 - SQLite schema and the `0001_init` migration: `packages/server/prisma`
 - Tests and fixtures: `packages/server/test`
 - Client routes, where each URL is a file: `packages/client/src/routes` (`*.page.tsx` renders on the server, other files are browser routes)
-- Data the server passes to each page: `packages/client/src/contracts`
+- Types for the data the server passes to each page: `packages/contracts/src` (shared by server and client, types only)
 - Client features: `packages/client/src/features/<domain>`
 - Shared UI: `packages/client/src/ui`
 - Project docs: `docs`

@@ -11,6 +11,7 @@ const catalogLoaders: Record<AppLocale, () => Promise<CatalogModule>> = {
 };
 
 const catalogPromises = new Map<AppLocale, Promise<CatalogModule>>();
+let activationVersion = 0;
 
 const loadCatalog = (locale: AppLocale): Promise<CatalogModule> => {
     const existing = catalogPromises.get(locale);
@@ -24,11 +25,13 @@ const loadCatalog = (locale: AppLocale): Promise<CatalogModule> => {
 };
 
 export const activateLocale = async (locale: AppLocale): Promise<AppLocale> => {
+    const version = ++activationVersion;
     if (i18n.locale === locale && Object.keys(i18n.messages).length > 0) {
         return locale;
     }
 
     const { messages } = await loadCatalog(locale);
+    if (version !== activationVersion) return locale;
     i18n.loadAndActivate({
         locale,
         messages

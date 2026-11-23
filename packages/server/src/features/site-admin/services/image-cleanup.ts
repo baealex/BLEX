@@ -1,3 +1,4 @@
+import { systemMessage } from '../../../platform/messages.js';
 import type { Prisma, PrismaClient } from '@prisma/client';
 import { createHash } from 'node:crypto';
 import { createReadStream } from 'node:fs';
@@ -284,12 +285,19 @@ export async function buildImageCleanupPlan(
 
 export function imageCleanupPlanApi(plan: ImageCleanupPlan, dryRun: boolean): Record<string, unknown> {
   const messages: string[] = [];
-  if (plan.cacheRows.length) messages.push(`이미지 캐시 ${plan.cacheRows.length}개가 삭제 대상입니다.`);
+  if (plan.cacheRows.length)
+    messages.push(systemMessage('{value0} cached images are marked for deletion.', { value0: plan.cacheRows.length }));
   if (plan.duplicateFiles.length) {
     messages.push(
       dryRun
-        ? `중복 타이틀 이미지 ${plan.duplicateFiles.length}개(${Math.round((plan.duplicateSize / 1024 / 1024) * 100) / 100}MB)가 삭제 대상입니다.`
-        : `중복 타이틀 이미지 ${plan.duplicateFiles.length}개(${Math.round((plan.duplicateSize / 1024 / 1024) * 100) / 100}MB)를 삭제했습니다.`,
+        ? systemMessage('{value0} duplicate title images ({value1} MB) are marked for deletion.', {
+            value0: plan.duplicateFiles.length,
+            value1: Math.round((plan.duplicateSize / 1024 / 1024) * 100) / 100,
+          })
+        : systemMessage('Deleted {value0} duplicate title images ({value1} MB).', {
+            value0: plan.duplicateFiles.length,
+            value1: Math.round((plan.duplicateSize / 1024 / 1024) * 100) / 100,
+          }),
     );
   }
   return {
@@ -327,7 +335,11 @@ export function imageCleanupPlanApi(plan: ImageCleanupPlan, dryRun: boolean): Re
   };
 }
 
-async function verifyImageCandidate(root: string, file: ImageCleanupFile): Promise<boolean> {
+async function verifyImageCandidate(
+  root: string,
+  file: ImageCleanupFile,
+  hashFile: (path: string) => Promise<string>,
+): Promise<boolean> {
   const parts = file.relativePath.split('/');
   if (
     parts.length < 3 ||
@@ -349,7 +361,7 @@ async function verifyImageCandidate(root: string, file: ImageCleanupFile): Promi
     const fromRoot = relative(root, real);
     if (!info.isFile() || info.isSymbolicLink() || fromRoot !== file.relativePath.split('/').join(sep)) return false;
     if (info.size !== file.size || info.mtimeMs !== file.mtimeMs || Number(info.ino) !== file.inode) return false;
-    return (await streamFileHash(real)) === file.contentHash;
+    return (await hashFile(real)) === file.contentHash;
   } catch {
     return false;
   }
@@ -382,6 +394,7 @@ export async function executeImageCleanupPlan(
   db: PrismaClient,
   mediaRoot: string,
   plan: ImageCleanupPlan,
+  hashFile = streamFileHash,
 ): Promise<Record<string, unknown>> {
   const root = await mediaRootRealPath(mediaRoot);
   const messages: string[] = [];
@@ -392,7 +405,7 @@ export async function executeImageCleanupPlan(
   const deletedByCategory: Record<ImageCleanupFile['category'], number> = { content: 0, title: 0, avatar: 0 };
   const candidates: ImageCleanupFile[] = [];
   for (const file of plan.unusedFiles) {
-    if (await verifyImageCandidate(root, file)) candidates.push(file);
+    if (await verifyImageCandidate(root, file, hashFile)) candidates.push(file);
     else errors.push(`Skipped a changed file: ${file.relativePath}`);
   }
   const cacheByPath = new Map<string, Array<{ id: number; path: string }>>();
@@ -428,23 +441,39 @@ export async function executeImageCleanupPlan(
   }
   const categories: ImageCleanupFile['category'][] =
     plan.target === 'all' ? ['content', 'title', 'avatar'] : [plan.target as ImageCleanupFile['category']];
-  const categoryLabels = { content: '콘텐츠 이미지', title: '타이틀 이미지', avatar: '아바타 이미지' };
+  const categoryLabels = {
+    content: systemMessage('Content images'),
+    title: systemMessage('Title images'),
+    avatar: systemMessage('Avatar images'),
+  };
   for (const category of categories) {
-    messages.push(`${categoryLabels[category]} ${deletedByCategory[category]}개를 삭제했습니다.`);
+    messages.push(
+      systemMessage('Deleted {value1} {value0}.', {
+        value0: categoryLabels[category],
+        value1: deletedByCategory[category],
+      }),
+    );
     if (category === 'title' && plan.duplicateFiles.length) {
       messages.push(
-        `중복 타이틀 이미지 ${plan.duplicateFiles.length}개(${Math.round((plan.duplicateSize / 1024 / 1024) * 100) / 100}MB)를 삭제했습니다.`,
+        systemMessage('Deleted {value0} duplicate title images ({value1} MB).', {
+          value0: plan.duplicateFiles.length,
+          value1: Math.round((plan.duplicateSize / 1024 / 1024) * 100) / 100,
+        }),
       );
     }
   }
-  if (deletedCaches) messages.push(`이미지 캐시 ${deletedCaches}개를 삭제했습니다.`);
-  if (filesNowInUse) messages.push(`정리 중 새로 사용된 이미지 ${filesNowInUse}개는 남겨 두었습니다.`);
+  if (deletedCaches) messages.push(systemMessage('Deleted {value0} cached images.', { value0: deletedCaches }));
+  if (filesNowInUse)
+    messages.push(
+      systemMessage('Kept {value0} images that became referenced during cleanup.', { value0: filesNowInUse }),
+    );
   let emptyDirectories = 0;
   for (const category of categories) {
     const directory = await safeImageCategoryDirectory(root, category);
     if (directory) emptyDirectories += await removeEmptyDirectories(directory);
   }
-  if (emptyDirectories) messages.push(`빈 디렉터리 ${emptyDirectories}개를 삭제했습니다.`);
+  if (emptyDirectories)
+    messages.push(systemMessage('Deleted {value0} empty directories.', { value0: emptyDirectories }));
   if (errors.length) messages.push(...errors.slice(0, 20));
   return {
     ...imageCleanupPlanApi(plan, false),

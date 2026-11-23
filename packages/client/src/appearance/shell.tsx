@@ -1,4 +1,5 @@
 import { siteText, type SiteLocale } from './messages.js';
+import { getDocumentLocale } from '../i18n/locale.js';
 import { SiteIcon, type SiteIconName } from './icons.js';
 import { QuickSearch } from './quick-search.js';
 
@@ -140,7 +141,14 @@ export interface SiteHeaderProps {
     locale?: SiteLocale;
 }
 
-export function SiteHeader({ brand, viewer, searchPage, editorPage, hideAuthLinks, locale = 'ko' }: SiteHeaderProps) {
+export function SiteHeader({
+    brand,
+    viewer,
+    searchPage,
+    editorPage,
+    hideAuthLinks,
+    locale = getDocumentLocale()
+}: SiteHeaderProps) {
     return (
         <header
             className="frosted-surface sticky top-0 right-0 left-0 z-30 border-b border-transparent transition-all duration-200"
@@ -202,13 +210,13 @@ export function SiteHeader({ brand, viewer, searchPage, editorPage, hideAuthLink
                                         href="/login"
                                         className={`${authLink} text-content-secondary hover:bg-surface-subtle hover:text-content`}
                                     >
-                                        로그인
+                                        {siteText(locale, 'Log in')}
                                     </a>
                                     <a
                                         href="/sign"
                                         className={`${authLink} bg-action text-content-inverted hover:bg-action-hover`}
                                     >
-                                        회원가입
+                                        {siteText(locale, 'Sign up')}
                                     </a>
                                 </>
                             )
@@ -300,7 +308,7 @@ export function SiteHeader({ brand, viewer, searchPage, editorPage, hideAuthLink
 
 export function SiteFooter({
     brand,
-    locale = 'ko',
+    locale = getDocumentLocale(),
     year = new Date().getFullYear()
 }: {
     brand?: Brand;

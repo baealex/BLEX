@@ -1,7 +1,8 @@
+import { ui } from '../i18n/public-ui.js';
 import { PageLayout } from '~/features/discovery/layout';
 import { EmptyState } from '~/features/discovery/post-list';
 import { SearchPagination, SearchResultCard, searchForm } from '~/features/discovery/search-ui';
-import type { PageProps } from '~/contracts/pages';
+import type { PageProps } from '@blex/contracts/pages';
 
 export default function renderPage({
     meta,
@@ -17,7 +18,9 @@ export default function renderPage({
         children: (
             <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-8 sm:px-6 sm:py-12">
                 <section>
-                    <h1 className="mb-4 text-2xl font-bold tracking-tight text-content sm:text-3xl">포스트 검색</h1>
+                    <h1 className="mb-4 text-2xl font-bold tracking-tight text-content sm:text-3xl">
+                        {ui('Search posts')}
+                    </h1>
                     {searchForm(searchText, username)}
                 </section>
                 {searchText ? (
@@ -25,8 +28,12 @@ export default function renderPage({
                         <section className="space-y-4">
                             <div className="rounded-2xl border border-line bg-surface-subtle px-4 py-3">
                                 <h2 className="text-lg font-semibold text-content">
-                                    <strong className="text-content">{count.toLocaleString('ko-KR')}</strong>개의 결과
-                                    <span className="ml-2 text-xs font-normal text-content-hint">{`“${searchText}” 검색`}</span>
+                                    <strong className="text-content">
+                                        {ui('{count, plural, one{# result} other{# results}}', { count })}
+                                    </strong>
+                                    <span className="ml-2 text-xs font-normal text-content-hint">
+                                        {ui('Search for “{value0}”', { value0: searchText })}
+                                    </span>
                                 </h2>
                             </div>
                             <div className="space-y-4">
@@ -38,16 +45,16 @@ export default function renderPage({
                         </section>
                     ) : (
                         <EmptyState
-                            title="검색 결과가 없습니다"
-                            message="다른 검색어 또는 작성자 이름으로 다시 검색해 보세요."
+                            title={ui('No results')}
+                            message={ui('Try a different search query or author name.')}
                             icon="search"
                             framed={true}
                         />
                     )
                 ) : (
                     <EmptyState
-                        title="무엇을 찾고 있나요?"
-                        message="검색어를 입력하면 제목, 설명, 태그, 본문에서 공개 글을 찾습니다."
+                        title={ui('What are you looking for?')}
+                        message={ui('Search public posts by title, description, tags, or content.')}
                         icon="search"
                         framed={true}
                     />

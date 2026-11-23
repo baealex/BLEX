@@ -11,7 +11,7 @@ BLEX renders pages with React on the server and uses a shared TanStack Router ap
 | Login and reader interactions | `packages/client/src/features/auth/ui/`, `packages/client/src/features/engagement/ui/` |
 | Web host and browser configuration | `packages/server/src/application/screen-host/` |
 | Client routes, where each URL is a file | `packages/client/src/routes/` |
-| Data each server-rendered page receives | `packages/client/src/contracts/` |
+| Types for the data each server-rendered page receives | `packages/contracts/src/` |
 | Screens and feature code | `packages/client/src/features/<domain>/` |
 | Shared UI primitives | `packages/client/src/ui/` |
 | Tiptap editor | `packages/client/src/features/editor/tiptap/` |
@@ -22,7 +22,7 @@ Public pages and React screens share the theme, prose, and syntax styles in `pac
 
 ## Routes
 
-Add a client URL by adding a file under `packages/client/src/routes/`. A `*.page.tsx` file renders on the server and ships no JavaScript of its own: its server route loads the data and calls `renderPage` with the file's path as the id, and `contracts/pages.d.ts` types those props. Any other route file is a browser route. Keep browser route files thin: they declare the path, access guard, and lazy page, and the page itself lives in `features/<domain>`. The Vite plugin regenerates `src/routeTree.gen.ts`; commit that file and do not edit it by hand.
+Add a client URL by adding a file under `packages/client/src/routes/`. A `*.page.tsx` file renders on the server and ships no JavaScript of its own: its server route loads the data and calls `renderPage` with the file's path as the id, and `packages/contracts/src/pages.d.ts` types those props. Any other route file is a browser route. Keep browser route files thin: they declare the path, access guard, and lazy page, and the page itself lives in `features/<domain>`. The Vite plugin regenerates `src/routeTree.gen.ts`; commit that file and do not edit it by hand.
 
 The post detail page is the one server-rendered page in the main React tree: `features/posts/post-page.tsx` renders on the server and hydrates in the browser. Its data is a JSON script built field by field in `post-page-data.ts`. Everything there is public in the HTML, and the post body stays out because hydration reads it from the server markup.
 
@@ -46,7 +46,7 @@ The post detail page is the one server-rendered page in the main React tree: `fe
 
 Use semantic Tailwind tokens and follow the [Design Guide](DESIGN_GUIDE.md) and [UI Change Style Guide](UI_CHANGE_STYLE_GUIDE.md). Keep screen-specific CSS close to the feature.
 
-Web screens read the server-provided locale from `window.configuration.locale`, with the document language as fallback. Use the existing Lingui runtime and catalogs; do not create a separate instance per screen. See [Translation Guide](TRANSLATION_GUIDE.md) for current coverage and checks.
+The server sets the document language from the user preference or site default. Public SSR and browser components use `ui()` with literal English product copy; React screens use the existing Lingui macros. Both use the same PO catalogs. Activate the document catalog before hydration and the destination catalog before internal navigation. Resolve translated labels during rendering, never at module initialization. Do not pass authored content through translation helpers or create a separate runtime per feature. See [Translation Guide](TRANSLATION_GUIDE.md) for current coverage and checks.
 
 ## Development and checks
 

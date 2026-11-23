@@ -1,23 +1,25 @@
+import { getDocumentLocale } from '../i18n/locale.js';
+import { ui } from '../i18n/public-ui.js';
 import { SiteFooter, SiteHeader, SiteTheme } from '~/appearance/shell';
 import { renderApplicationDocument } from '~/application/document';
 import { AuthPanel, authField, authInput, authSubmit } from '~/features/auth/ui/panel';
-import type { PageProps } from '~/contracts/pages';
+import type { PageProps } from '@blex/contracts/pages';
 
 export default function renderPage({ error, csrf, token }: PageProps['setup']): string {
     return renderApplicationDocument(
-        <html lang="ko">
+        <html lang={getDocumentLocale()}>
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <meta name="robots" content="noindex" />
-                <title>BLEX 초기 설정</title>
+                <title>{ui('Set up BLEX')}</title>
                 <SiteTheme />
             </head>
             <body className="bg-surface-page text-content antialiased">
                 <SiteHeader hideAuthLinks />
                 <main className="flex min-h-[calc(100vh-10.5rem)] justify-center px-4 py-16 md:px-6">
                     <div className="w-full max-w-[420px]">
-                        <AuthPanel title="첫 관리자 만들기" id="setup-title" lock>
+                        <AuthPanel title={ui('Create your first administrator')} id="setup-title" lock>
                             {error && (
                                 <p
                                     role="alert"
@@ -32,7 +34,7 @@ export default function renderPage({ error, csrf, token }: PageProps['setup']): 
                                     <input type="hidden" name="setupToken" value={token} />
                                 ) : (
                                     <label className={authField}>
-                                        설정 토큰
+                                        {ui('Setup token')}
                                         <input
                                             className={authInput}
                                             type="password"
@@ -43,7 +45,7 @@ export default function renderPage({ error, csrf, token }: PageProps['setup']): 
                                     </label>
                                 )}
                                 <label className={authField}>
-                                    아이디
+                                    {ui('Username', {}, 'public.Username.367001d7')}
                                     <input
                                         className={authInput}
                                         name="username"
@@ -53,7 +55,7 @@ export default function renderPage({ error, csrf, token }: PageProps['setup']): 
                                     />
                                 </label>
                                 <label className={authField}>
-                                    표시 이름
+                                    {ui('Display name')}
                                     <input
                                         className={authInput}
                                         name="displayName"
@@ -63,7 +65,7 @@ export default function renderPage({ error, csrf, token }: PageProps['setup']): 
                                     />
                                 </label>
                                 <label className={authField}>
-                                    이메일
+                                    {ui('Email')}
                                     <input
                                         className={authInput}
                                         type="email"
@@ -74,7 +76,7 @@ export default function renderPage({ error, csrf, token }: PageProps['setup']): 
                                     />
                                 </label>
                                 <label className={authField}>
-                                    비밀번호
+                                    {ui('Password')}
                                     <input
                                         className={authInput}
                                         type="password"
@@ -84,7 +86,7 @@ export default function renderPage({ error, csrf, token }: PageProps['setup']): 
                                     />
                                 </label>
                                 <label className={authField}>
-                                    비밀번호 확인
+                                    {ui('Confirm password')}
                                     <input
                                         className={authInput}
                                         type="password"
@@ -94,7 +96,7 @@ export default function renderPage({ error, csrf, token }: PageProps['setup']): 
                                     />
                                 </label>
                                 <button className={authSubmit} type="submit">
-                                    관리자 만들기
+                                    {ui('Create administrator')}
                                 </button>
                             </form>
                         </AuthPanel>

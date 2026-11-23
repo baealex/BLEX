@@ -1,5 +1,7 @@
+import { getDocumentLocale } from '../../../i18n/locale.js';
+import { ui } from '../../../i18n/public-ui.js';
 import { renderApplicationDocument } from '~/application/document';
-import type { PageProps } from '~/contracts/pages';
+import type { PageProps } from '@blex/contracts/pages';
 import { historyPageCss } from '~/features/posts/history-pages-parts';
 
 export default function renderPage({
@@ -13,8 +15,8 @@ export default function renderPage({
     const frames = timelapseFrames.map((frame, index) => (
         <details className="frame" key={`${frame.savedAt}:${index}`} open={index === timelapseFrames.length - 1}>
             <summary>
-                <strong>{frame.title || '제목 없는 글'}</strong>
-                <span>{`${frame.stage === 'draft' ? '임시 저장' : '발행 글'} · ${frame.savedLabel}`}</span>
+                <strong>{frame.title || ui('Untitled post')}</strong>
+                <span>{`${frame.stage === 'draft' ? ui('Save draft') : ui('Published post')} · ${frame.savedLabel}`}</span>
             </summary>
             <div className="frame-body">
                 <div dangerouslySetInnerHTML={{ __html: frame.contentHtml }} />
@@ -22,33 +24,43 @@ export default function renderPage({
         </details>
     ));
     return renderApplicationDocument(
-        <html lang="ko">
+        <html lang={getDocumentLocale()}>
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <meta name="color-scheme" content="light dark" />
                 <meta name="robots" content="noindex,nofollow" />
-                <title>{`작성 타임라인 · ${title} · BLEX`}</title>
+                <title>{ui('Writing timeline · {value0} · BLEX', { value0: title })}</title>
                 <style>{historyPageCss}</style>
             </head>
             <body>
                 <header>
-                    <a href={`${postPath}/edit`}>글 편집</a>
+                    <a href={`${postPath}/edit`}>{ui('Edit post')}</a>
                     <nav>
-                        <a href={`${postPath}/revisions`}>수정 기록</a>
-                        <a href="/settings/posts">글 관리</a>
+                        <a href={`${postPath}/revisions`}>{ui('Revision history')}</a>
+                        <a href="/settings/posts">{ui('Manage posts')}</a>
                     </nav>
                 </header>
                 <main>
-                    <h1>작성 타임라인</h1>
-                    <p className="meta">{`${title} · ${totalCount}개 장면`}</p>
+                    <h1>{ui('Writing timeline')}</h1>
+                    <p className="meta">
+                        {ui('{value0} · {value1, plural, one{# frame} other{# frames}}', {
+                            value0: title,
+                            value1: totalCount
+                        })}
+                    </p>
                     {totalCount > timelapseFrames.length ? (
-                        <p className="notice">{`오래된 기록을 포함해 ${totalCount}개 중 ${timelapseFrames.length}개 장면을 표시합니다.`}</p>
+                        <p className="notice">
+                            {ui('Showing {value1} of {value0} frames, including older history.', {
+                                value0: totalCount,
+                                value1: timelapseFrames.length
+                            })}
+                        </p>
                     ) : null}
                     {frames.length ? (
-                        <section aria-label="작성 기록 목록">{frames}</section>
+                        <section aria-label={ui('Writing history')}>{frames}</section>
                     ) : (
-                        <p className="empty">표시할 작성 기록이 없습니다.</p>
+                        <p className="empty">{ui('No writing history to display.')}</p>
                     )}
                 </main>
             </body>

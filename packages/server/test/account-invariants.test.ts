@@ -45,13 +45,14 @@ function browser(response: { headers: { 'set-cookie'?: string | string[] } }, pr
 async function withApp(
   run: (app: FastifyInstance, db: PrismaClient, path: string, mediaRoot: string) => Promise<void>,
   seed?: (fixture: Awaited<ReturnType<typeof createMigratedDatabase>>) => void,
+  auth: { fetchProvider?: typeof fetch } = {},
 ) {
   const fixture = await createMigratedDatabase();
   seed?.(fixture);
   const app = await buildApp(
     fixture.path,
     testSiteUrl,
-    { secretKey: testSecretKey, cipherKey: testCipherKey },
+    { secretKey: testSecretKey, cipherKey: testCipherKey, ...auth },
     fixture.mediaRoot,
   );
   const db = new PrismaClient({ datasourceUrl: `file:${fixture.path}?connection_limit=1` });
@@ -97,15 +98,13 @@ const isSignedIn = async (app: FastifyInstance, headers: Headers) =>
 
 const sessionToken = (headers: Headers) => /blexsessionid=([^;]+)/.exec(headers.cookie)?.[1] ?? '';
 
-test('a stored password change invalidates sessions through the credential tag', () =>
+test('a stored password change ends existing sessions', () =>
   withApp(
     async (app, db) => {
       const session = await signIn(app, 'writer');
       assert.equal(await isSignedIn(app, session), true);
       await db.user.update({ where: { id: 1 }, data: { passwordHash: `${passwordHash}x` } });
       assert.equal(await isSignedIn(app, session), false);
-      await db.user.update({ where: { id: 1 }, data: { passwordHash } });
-      assert.equal(await isSignedIn(app, session), true);
     },
     (fixture) => seedUser(fixture, 1, 'writer'),
   ));
@@ -247,8 +246,14 @@ test('a reused invite signs up exactly one editor under concurrency', () =>
     },
   ));
 
-test('an OAuth state and a pending OAuth challenge are each consumed once under concurrency', () =>
-  withApp(
+test('an OAuth state and a pending OAuth challenge are each consumed once under concurrency', () => {
+  let tokenRequests = 0;
+  const fetchProvider: typeof fetch = async (url) => {
+    if (!String(url).endsWith('/token')) return Response.json({ id: 'uid-1' });
+    tokenRequests += 1;
+    return Response.json({ access_token: 'synthetic-token' });
+  };
+  return withApp(
     async (app, db) => {
       const started = await app.inject('/login/start/google');
       const state = new URL(started.headers.location!).searchParams.get('state')!;
@@ -262,6 +267,7 @@ test('an OAuth state and a pending OAuth challenge are each consumed once under 
         ),
       );
       assert.equal(await db.oAuthFlow.count(), 0);
+      assert.equal(tokenRequests, 1);
 
       const token = createToken();
       await db.oAuthChallenge.create({
@@ -286,7 +292,9 @@ test('an OAuth state and a pending OAuth challenge are each consumed once under 
       });
       insertRow(fixture.db, 'SocialAccount', { id: 1, providerId: 1, uid: 'uid-1', userId: 1 });
     },
-  ));
+    { fetchProvider },
+  );
+});
 
 test('a factor setup activates once under concurrency, and only with a valid code', () =>
   withApp(
@@ -549,6 +557,14 @@ test('account deletion cascades owned rows, anonymizes comments, and removes wor
       assert.equal(existsSync(join(mediaRoot, '_work_logs', attachment)), true, 'a refused deletion keeps the file');
 
       const verified = await reauthenticate(app, reader);
+      await db.$executeRawUnsafe(
+        `CREATE TRIGGER keep_user BEFORE DELETE ON "User" BEGIN SELECT RAISE(ABORT, 'blocked'); END`,
+      );
+      const rolledBack = await app.inject({ method: 'DELETE', url: '/v1/sign', headers: verified });
+      assert.notEqual(rolledBack.json().status, 'DONE');
+      assert.equal(existsSync(join(mediaRoot, '_work_logs', attachment)), true, 'a rollback keeps the file');
+      await db.$executeRawUnsafe('DROP TRIGGER keep_user');
+
       assert.equal((await app.inject({ method: 'DELETE', url: '/v1/sign', headers: verified })).json().status, 'DONE');
       assert.equal(existsSync(join(mediaRoot, '_work_logs', attachment)), false);
       assert.equal(await db.user.count({ where: { id: 2 } }), 0);

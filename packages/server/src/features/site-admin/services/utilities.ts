@@ -1,3 +1,4 @@
+import { systemMessage } from '../../../platform/messages.js';
 import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyRequest } from 'fastify';
 import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
@@ -50,7 +51,7 @@ function utilityParameters(action: UtilityAction, body: Body): UtilityParameters
   if (action === utilityActions.cleanImages) {
     const target = body.target ?? 'all';
     if (typeof target !== 'string' || !['all', 'content', 'title', 'avatar'].includes(target)) {
-      throw new Error('유효한 정리 대상을 선택해주세요.');
+      throw new Error(systemMessage('Select a valid cleanup target.'));
     }
     return { target, removeDuplicates: body.removeDuplicates === true };
   }
@@ -342,7 +343,7 @@ export async function runUtilityAction(
     const previewHash =
       typeof body.previewHash === 'string' ? body.previewHash : signedPreviewHash(body.confirmationToken);
     if (!/^[a-f0-9]{64}$/.test(previewHash)) {
-      return { ok: false, code: 'RJ', message: '미리보기 확인이 만료되었거나 유효하지 않습니다.' };
+      return { ok: false, code: 'RJ', message: systemMessage('The cleanup preview has expired or is invalid.') };
     }
     const boundParameters = { ...parameters, previewHash };
     let auditId: number;
@@ -361,7 +362,7 @@ export async function runUtilityAction(
       });
     } catch (error) {
       if (String(error).includes('invalid utility confirmation')) {
-        return { ok: false, code: 'RJ', message: '미리보기 확인이 만료되었거나 유효하지 않습니다.' };
+        return { ok: false, code: 'RJ', message: systemMessage('The cleanup preview has expired or is invalid.') };
       }
       throw error;
     }
@@ -373,7 +374,7 @@ export async function runUtilityAction(
       return { ok: true, body: result };
     } catch (error) {
       if (String(error).includes('image cleanup preview changed')) {
-        return { ok: false, code: 'RJ', message: '미리보기 확인이 만료되었거나 유효하지 않습니다.' };
+        return { ok: false, code: 'RJ', message: systemMessage('The cleanup preview has expired or is invalid.') };
       }
       return { ok: false, code: 'VA', message: 'Image cleanup stopped safely; review the utility audit log.' };
     }
@@ -408,7 +409,7 @@ export async function runUtilityAction(
     return { ok: true, body: result };
   } catch (error) {
     if (String(error).includes('invalid utility confirmation')) {
-      return { ok: false, code: 'RJ', message: '미리보기 확인이 만료되었거나 유효하지 않습니다.' };
+      return { ok: false, code: 'RJ', message: systemMessage('The cleanup preview has expired or is invalid.') };
     }
     throw error;
   }

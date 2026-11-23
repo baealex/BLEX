@@ -1,3 +1,4 @@
+import { systemMessage } from '../../../platform/messages.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import sharp from 'sharp';
 import { createReadStream } from 'node:fs';
@@ -20,7 +21,7 @@ interface MediaFile {
 
 export async function validateAttachment(data: Buffer): Promise<{ mediaType: string; extension: string }> {
   if (data.length === 0 || data.length > MAX_ATTACHMENT_SIZE) {
-    throw new Error('12MB 이하의 파일을 첨부해 주세요.');
+    throw new Error(systemMessage('Choose an attachment up to 12 MB.'));
   }
   if (data.length >= 12 && data.toString('ascii', 4, 8) === 'ftyp') {
     return { mediaType: 'video/mp4', extension: '.mp4' };
@@ -33,7 +34,7 @@ export async function validateAttachment(data: Buffer): Promise<{ mediaType: str
   try {
     metadata = await sharp(data, { failOn: 'error', limitInputPixels: MAX_IMAGE_PIXELS }).metadata();
   } catch {
-    throw new Error('PNG, JPEG, WebP, MP4, WebM 파일을 선택해 주세요.');
+    throw new Error(systemMessage('Choose a PNG, JPEG, WebP, MP4, or WebM file.'));
   }
   const formats: Record<string, { mediaType: string; extension: string }> = {
     png: { mediaType: 'image/png', extension: '.png' },
@@ -42,15 +43,15 @@ export async function validateAttachment(data: Buffer): Promise<{ mediaType: str
   };
   const validated = metadata.format ? formats[metadata.format] : undefined;
   if (!validated || !metadata.width || !metadata.height) {
-    throw new Error('PNG, JPEG, WebP, MP4, WebM 파일을 선택해 주세요.');
+    throw new Error(systemMessage('Choose a PNG, JPEG, WebP, MP4, or WebM file.'));
   }
   if (metadata.width * metadata.height > MAX_IMAGE_PIXELS) {
-    throw new Error('2,000만 화소 이하의 이미지를 선택해 주세요.');
+    throw new Error(systemMessage('Choose an image up to 20 megapixels.'));
   }
   try {
     await sharp(data, { failOn: 'error', limitInputPixels: MAX_IMAGE_PIXELS }).stats();
   } catch {
-    throw new Error('PNG, JPEG, WebP, MP4, WebM 파일을 선택해 주세요.');
+    throw new Error(systemMessage('Choose a PNG, JPEG, WebP, MP4, or WebM file.'));
   }
   return validated;
 }

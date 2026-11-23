@@ -1,5 +1,5 @@
 import { Fragment, type ReactNode } from 'react';
-import type { DeveloperCommands } from '~/contracts/developer-api';
+import type { DeveloperCommands } from '@blex/contracts/developer-api';
 import { developerText, type DeveloperLocale, type DeveloperMessage } from './messages.js';
 
 function Command({ locale, label, children }: { locale: DeveloperLocale; label: string; children: string }) {

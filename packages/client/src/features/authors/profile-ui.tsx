@@ -1,7 +1,8 @@
+import { ui } from '../../i18n/public-ui.js';
 import type { ReactNode } from 'react';
 import { SiteIcon, type SiteIconName } from '../../appearance/icons';
 import { loginPromptProps } from '../engagement/ui/login-prompt';
-import type { AuthorRow, AuthorSocialLink, PostRow, PublicPageViewer, SubscriptionState } from '../../contracts/public';
+import type { AuthorRow, AuthorSocialLink, PostRow, PublicPageViewer, SubscriptionState } from '@blex/contracts/public';
 import { avatarUrl, dateLabel, dateValue, mediaUrl, postCover, safeExternalUrl } from '../discovery/view-helpers';
 import { EmptyState, postPath } from '../discovery/post-list';
 import { AboutEditor, AboutHeading } from './about-editor';
@@ -22,7 +23,7 @@ function subscriptionControl(
     path: string
 ): ReactNode {
     if (!state.canSubscribe) return null;
-    const subscribeLabel = `${author.username}님의 새 글 구독`;
+    const subscribeLabel = ui('Subscribe to new posts by {value0}', { value0: author.username });
     if (!viewer) {
         return (
             <a
@@ -31,7 +32,7 @@ function subscriptionControl(
                 className="inline-flex items-center gap-2 rounded-full bg-action px-5 py-2.5 text-sm font-semibold text-content-inverted transition-colors duration-150 hover:bg-action-hover active:scale-[0.98]"
             >
                 <SiteIcon name="bell" className="text-xs" />
-                구독
+                {ui('Subscribe')}
             </a>
         );
     }
@@ -47,7 +48,7 @@ function subscriptionControl(
                 className={`inline-flex items-center justify-center gap-2 rounded-full border px-5 py-2.5 text-sm font-semibold transition-all duration-150 ${state.isSubscribed ? 'border-line bg-surface text-content-secondary hover:border-line-strong hover:text-content' : 'border-transparent bg-action text-content-inverted hover:bg-action-hover active:scale-95'}`}
             >
                 <SiteIcon name={state.isSubscribed ? 'check' : 'bell'} className="text-xs" />
-                {state.isSubscribed ? '구독 중' : '구독'}
+                {state.isSubscribed ? ui('Subscribed') : ui('Subscribe')}
             </button>
         </form>
     );
@@ -67,16 +68,16 @@ export function featuredPostsSection(
         >
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <h2 className="text-2xl font-bold tracking-tight text-content">
-                    {featured.kind === 'featured' ? '추천 포스트' : '최근 포스트'}
+                    {featured.kind === 'featured' ? ui('Recommended posts') : ui('Recent posts')}
                 </h2>
                 {isOwner ? (
-                    <nav className="flex flex-wrap gap-2" aria-label="작성자 글 관리">
+                    <nav className="flex flex-wrap gap-2" aria-label={ui('Manage author posts')}>
                         <a
                             href="/settings/pinned-posts"
                             className="inline-flex items-center gap-2 rounded-full bg-surface px-4 py-2 text-sm font-semibold text-content-secondary ring-1 ring-line/60 transition-colors hover:bg-surface-subtle hover:text-content"
                         >
                             <SiteIcon name="pin" className="text-xs" />
-                            고정 포스트 설정
+                            {ui('Manage pinned posts')}
                         </a>
                     </nav>
                 ) : null}
@@ -105,7 +106,7 @@ export function featuredPostsSection(
                                             </time>
                                         ) : null}
                                         <span className="size-1 rounded-full bg-content-hint/70" />
-                                        <span>{`${post.readTime}분`}</span>
+                                        <span>{ui('{value0} min', { value0: post.readTime })}</span>
                                     </div>
                                 </div>
                             </article>
@@ -114,9 +115,9 @@ export function featuredPostsSection(
                 </div>
             ) : (
                 <EmptyState
-                    title="아직 공개된 포스트가 없습니다."
+                    title={ui('No public posts yet.')}
                     actionUrl="/write"
-                    actionLabel="포스트 작성하기"
+                    actionLabel={ui('Write a post')}
                     actionIcon="edit"
                 />
             )}
@@ -144,7 +145,7 @@ export function profileHeader(
                 <img
                     className="h-full w-full object-cover object-center"
                     src={mediaUrl(author.cover) ?? undefined}
-                    alt={`${author.username}의 커버`}
+                    alt={ui("{value0}'s cover", { value0: author.username })}
                     loading="lazy"
                 />
                 <div className="absolute inset-0 bg-surface-page/5" />
@@ -155,7 +156,7 @@ export function profileHeader(
                         className="absolute right-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/30 bg-black/25 px-3 py-1.5 text-xs font-semibold text-white/90 backdrop-blur-sm transition-colors duration-150 hover:border-white/50 hover:bg-black/35 hover:text-white"
                     >
                         <SiteIcon name="camera" className="text-[11px]" />
-                        <span>커버 변경</span>
+                        <span>{ui('Change cover')}</span>
                     </a>
                 ) : null}
             </div>
@@ -178,8 +179,8 @@ export function profileHeader(
                         {isOwner ? (
                             <a
                                 href="/settings/profile"
-                                title="프로필 이미지 변경"
-                                aria-label="프로필 이미지 변경"
+                                title={ui('Change profile picture')}
+                                aria-label={ui('Change profile picture')}
                                 className="absolute bottom-1 right-1 flex size-9 items-center justify-center rounded-full border border-line bg-surface text-content-secondary shadow-subtle transition-colors duration-150 hover:border-line-strong hover:text-content"
                             >
                                 <SiteIcon name="pencil" className="text-xs" />
@@ -258,7 +259,7 @@ export function profileHeader(
                             className="inline-flex items-center gap-2 rounded-full border border-dashed border-line-strong px-4 py-2 text-sm text-content-hint transition-colors duration-150 hover:border-line hover:text-content-secondary"
                         >
                             <SiteIcon name="plus" className="text-xs" />
-                            <span>소셜 링크 추가</span>
+                            <span>{ui('Add a social link')}</span>
                         </a>
                     ) : null}
                 </div>
@@ -298,18 +299,18 @@ export function authorTabs(author: AuthorRow, activeTab: 'overview' | 'posts' | 
         {
             key: 'overview',
             href: authorPath(author.username),
-            label: '개요'
+            label: ui('Overview')
         },
         {
             key: 'posts',
             href: authorPath(author.username, '/posts'),
-            label: '포스트',
+            label: ui('Posts'),
             count: author.publicPostCount
         },
         {
             key: 'series',
             href: authorPath(author.username, '/series'),
-            label: '시리즈',
+            label: ui('Series'),
             count: author.publicSeriesCount
         }
     ];
@@ -318,7 +319,7 @@ export function authorTabs(author: AuthorRow, activeTab: 'overview' | 'posts' | 
             <div className="hide-scrollbar flex justify-center overflow-x-auto pb-2 sm:pb-0">
                 <nav
                     className="inline-flex min-w-fit rounded-xl bg-surface-subtle/80 p-1.5 backdrop-blur-sm"
-                    aria-label="작성자 메뉴"
+                    aria-label={ui('Author menu')}
                 >
                     {tabs.map((tab) => (
                         <a

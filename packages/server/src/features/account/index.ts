@@ -1,3 +1,4 @@
+import { systemMessage } from '../../platform/messages.js';
 import formBody from '@fastify/formbody';
 import multipart from '@fastify/multipart';
 import type { PrismaClient } from '@prisma/client';
@@ -74,15 +75,16 @@ export function registerPersonalSettings(app: FastifyInstance, db: PrismaClient,
         loginRedirect(request, reply);
         return reply;
       }
-      if (!options.validateCsrf(request)) return reply.code(403).send('요청을 확인해 주세요.');
+      if (!options.validateCsrf(request)) return reply.code(403).send(systemMessage('Check your request.'));
       const author = await readAuthorAbout(db, request.params.username);
-      if (!author) return reply.code(404).send('작가 정보를 찾을 수 없습니다.');
-      if (author.id !== user.id) return reply.code(403).send('접근 권한이 없습니다.');
+      if (!author) return reply.code(404).send(systemMessage('Author not found.'));
+      if (author.id !== user.id) return reply.code(403).send(systemMessage('Access denied.'));
       const saved = await saveAuthorAbout(db, user.id, bodyRecord(request.body).aboutMarkdown);
-      if (!saved) return reply.code(400).send({ status: 'error', message: '소개글을 저장하지 못했습니다.' });
+      if (!saved)
+        return reply.code(400).send({ status: 'error', message: systemMessage('Could not save your introduction.') });
       return reply.send({
         status: 'success',
-        message: '소개글을 저장했습니다.',
+        message: systemMessage('Introduction saved.'),
         aboutMarkdown: saved.markdown,
         aboutHtml: saved.html,
       });
@@ -99,7 +101,7 @@ export function registerPersonalSettings(app: FastifyInstance, db: PrismaClient,
       if (author.id !== user.id) return reply.send(failure('AT'));
       if (!options.validateCsrf(request)) return reply.code(403).send(failure('RJ'));
       const saved = await saveAuthorAbout(db, user.id, body.aboutMarkdown);
-      if (!saved) return reply.send(failure('VA', '소개 내용을 확인해 주세요.'));
+      if (!saved) return reply.send(failure('VA', systemMessage('Check your introduction.')));
       return success();
     });
 
@@ -128,9 +130,10 @@ export function registerPersonalSettings(app: FastifyInstance, db: PrismaClient,
       const body = bodyRecord(request.body);
       const password = body.password;
       if (password !== undefined && typeof password !== 'string')
-        return reply.send(failure('VA', '비밀번호를 확인해 주세요.'));
+        return reply.send(failure('VA', systemMessage('Check your password.')));
       if (typeof password === 'string' && password) {
-        if (!options.updatePassword) return reply.send(failure('VA', '비밀번호 변경 기능을 사용할 수 없습니다.'));
+        if (!options.updatePassword)
+          return reply.send(failure('VA', systemMessage('Password changes are unavailable.')));
         return options.updatePassword(request, reply, user, body);
       }
       if (body.username) {

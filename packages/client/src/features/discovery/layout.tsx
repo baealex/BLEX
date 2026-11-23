@@ -1,8 +1,10 @@
+import { getDocumentLocale } from '../../i18n/locale.js';
+import { ui } from '../../i18n/public-ui.js';
 import type { ReactNode } from 'react';
 import { SiteIcon } from '../../appearance/icons';
 import { SiteFooter, SiteHeader, SiteTheme } from '../../appearance/shell';
 import { renderApplicationDocument, scriptJson } from '../../application/document';
-import type { NoticeRow, PageMeta, SiteBrand } from '../../contracts/public';
+import type { NoticeRow, PageMeta, SiteBrand } from '@blex/contracts/public';
 import { NoticeControls } from './notice-controls';
 
 export function PublicSiteMark({
@@ -35,7 +37,7 @@ export function PublicSiteMark({
 
 export function PublicFooterLinks({ brand }: { brand?: SiteBrand }): ReactNode {
     return (
-        <nav aria-label="사이트 정보" className="site-footer-links">
+        <nav aria-label={ui('About this site')} className="site-footer-links">
             {(brand?.footerPages ?? []).map(({ slug, title }) => (
                 <a key={slug} href={`/static/${encodeURIComponent(slug)}`}>
                     {title}
@@ -53,7 +55,7 @@ export function PageLayout({ meta, children }: { meta: PageMeta; children: React
     ) : null;
 
     return renderApplicationDocument(
-        <html lang="ko">
+        <html lang={getDocumentLocale()}>
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -122,7 +124,7 @@ export function NoticeSection({ notices, scope }: { notices: NoticeRow[]; scope:
     if (!notices.length) return null;
     if (scope === 'global') {
         return (
-            <section className="mb-6" aria-label="사이트 공지사항" data-notice-carousel="">
+            <section className="mb-6" aria-label={ui('Site notices')} data-notice-carousel="">
                 {notices.map((notice, index) => {
                     const href = noticeLink(notice.url);
                     const content = (
@@ -133,7 +135,7 @@ export function NoticeSection({ notices, scope }: { notices: NoticeRow[]; scope:
                             <div className="min-w-0 flex-1">
                                 <div className="mb-1.5 flex items-center gap-2">
                                     <span className="rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider text-content-hint">
-                                        사이트 공지
+                                        {ui('Site notice')}
                                     </span>
                                     {notices.length > 1 ? (
                                         <span className="text-[10px] font-medium tabular-nums text-content-hint">{`${index + 1}/${notices.length}`}</span>
@@ -172,11 +174,13 @@ export function NoticeSection({ notices, scope }: { notices: NoticeRow[]; scope:
         );
     }
     return (
-        <section className="mb-14" aria-label="작성자 공지사항">
+        <section className="mb-14" aria-label={ui('Author notices')}>
             <div className="mb-4 flex items-end justify-between gap-4">
-                <h2 className="text-2xl font-bold tracking-tight text-content">공지</h2>
+                <h2 className="text-2xl font-bold tracking-tight text-content">{ui('Notices')}</h2>
                 {notices.length > 1 ? (
-                    <span className="pb-1 text-xs font-medium tabular-nums text-content-hint">{`${notices.length}개`}</span>
+                    <span className="pb-1 text-xs font-medium tabular-nums text-content-hint">
+                        {ui('{value0, plural, one{# notice} other{# notices}}', { value0: notices.length })}
+                    </span>
                 ) : null}
             </div>
             <div className="divide-y divide-line-light border-y border-line-light">

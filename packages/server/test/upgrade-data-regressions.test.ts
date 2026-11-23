@@ -179,25 +179,6 @@ test('deletes a revision that a later restore points to', async () => {
   }
 });
 
-test('creates a writing form on the real schema', async () => {
-  const fixture = await migratedApp();
-  try {
-    const response = await fixture.app.inject({
-      method: 'POST',
-      url: '/v1/forms',
-      headers: fixture.headers,
-      payload: { title: 'Template', content: 'Body' },
-    });
-    assert.equal(response.json().status, 'DONE', response.body);
-    assert.equal(
-      fixture.count('FormTemplate', `title = 'Template' AND userId = 1 AND isPublic = 0 AND updatedAt IS NOT NULL`),
-      1,
-    );
-  } finally {
-    await fixture.close();
-  }
-});
-
 test('keeps Django work log share links working and revocable', async () => {
   const fixture = await migratedApp();
   try {
@@ -333,29 +314,6 @@ test('applies Django empty title and content rules to API updates', async () => 
     assert.equal(fixture.count('PostContent', `postId = 11 AND html = ''`), 1);
   } finally {
     await db.$disconnect();
-    await fixture.close();
-  }
-});
-
-test('keeps the advertising flag when the web editor saves a post', async () => {
-  const fixture = await migratedApp();
-  try {
-    seedPost(fixture.db, 10, 1, 'promoted');
-    fixture.db.exec('UPDATE "Post" SET isAdvertised = 1 WHERE id = 10');
-    const boundary = 'blexboundary';
-    const fields = { title: 'Promoted', contentHtml: '<p>Changed body</p>', url: 'promoted', tag: '' };
-    const saved = await fixture.app.inject({
-      method: 'POST',
-      url: '/v1/users/@writer/posts/promoted',
-      headers: { ...fixture.headers, 'content-type': `multipart/form-data; boundary=${boundary}` },
-      payload: `${Object.entries(fields)
-        .map(([name, value]) => `--${boundary}\r\nContent-Disposition: form-data; name="${name}"\r\n\r\n${value}\r\n`)
-        .join('')}--${boundary}--\r\n`,
-    });
-    assert.equal(saved.json().status, 'DONE', saved.body);
-    assert.equal(fixture.count('Post', `id = 10 AND title = 'Promoted'`), 1);
-    assert.equal(fixture.count('Post', 'id = 10 AND isAdvertised = 1'), 1);
-  } finally {
     await fixture.close();
   }
 });

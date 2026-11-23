@@ -1,3 +1,4 @@
+import { systemMessage } from '../../platform/messages.js';
 import formBody from '@fastify/formbody';
 import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
@@ -74,16 +75,16 @@ async function issueToken(db: PrismaClient, account: VerificationAccount | null,
     !provided.length ||
     provided.some((scope) => !['posts:write', 'posts:read'].includes(scope))
   ) {
-    return securityError('VA', '지원되는 권한을 선택해 주세요.');
+    return securityError('VA', systemMessage('Select supported permissions.'));
   }
   const scopes = [...new Set(provided)].sort();
   const rawDays = input.expiresInDays ?? 90;
   const days =
     rawDays === '' ? 90 : typeof rawDays === 'number' || /^\d+$/.test(String(rawDays)) ? Number(rawDays) : NaN;
   if (!Number.isInteger(days) || days < 1 || days > 365)
-    return securityError('VA', '유효 기간은 1일부터 365일까지 입력해 주세요.');
+    return securityError('VA', systemMessage('Choose a validity period between 1 and 365 days.'));
   if (input.name !== undefined && typeof input.name !== 'string')
-    return securityError('VA', '토큰 이름을 확인해 주세요.');
+    return securityError('VA', systemMessage('Check the token name.'));
   const name = typeof input.name === 'string' && input.name.trim() ? input.name.slice(0, 100) : 'Developer token';
   const prefix = randomBytes(6).toString('hex');
   const token = `blex_pat_${prefix}_${createToken()}`;

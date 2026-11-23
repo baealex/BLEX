@@ -1,3 +1,5 @@
+import { ui } from '../i18n/public-ui.js';
+import { activateDocumentLocale } from '../i18n';
 import { siteText } from './messages.js';
 import './tailwind.css';
 import './site.scss';
@@ -186,8 +188,8 @@ function bindRouteElements() {
                 void navigator.clipboard
                     ?.writeText(link?.value ?? '')
                     .then(() => {
-                        button.textContent = '링크를 복사했어요';
-                        if (status) status.textContent = '링크를 복사했어요';
+                        button.textContent = ui('Link copied');
+                        if (status) status.textContent = ui('Link copied');
                     })
                     .catch(() => undefined);
             },
@@ -238,7 +240,7 @@ function bindRouteElements() {
         async function openEditor() {
             if (signal.aborted || !field || !submit || !status || loaded || loading) return;
             loading = true;
-            status.textContent = '댓글을 불러오는 중입니다.';
+            status.textContent = ui('Loading comments.');
             try {
                 const response = await fetch(`/v1/comments/${id}`, {
                     cache: 'no-store',
@@ -254,7 +256,7 @@ function bindRouteElements() {
                 if (details.open) field.focus();
             } catch {
                 if (!signal.aborted && status.isConnected)
-                    status.textContent = '댓글을 불러오지 못했습니다. 다시 열어 주세요.';
+                    status.textContent = ui('Could not load comments. Open them again.');
             } finally {
                 loading = false;
             }
@@ -352,10 +354,10 @@ function handleGlobalClick(event: MouseEvent) {
             try {
                 await navigator.clipboard.writeText(copiedButton.dataset.copyLink ?? '');
                 if (generation === routeGeneration && copiedButton.isConnected && status?.isConnected)
-                    status.textContent = copiedButton.dataset.copyMessage ?? '링크가 복사되었습니다.';
+                    status.textContent = copiedButton.dataset.copyMessage ?? ui('Link copied.');
             } catch {
                 if (generation === routeGeneration && copiedButton.isConnected && status?.isConnected)
-                    status.textContent = copiedButton.dataset.copyErrorMessage ?? '복사에 실패했습니다.';
+                    status.textContent = copiedButton.dataset.copyErrorMessage ?? ui('Could not copy.');
             }
         })();
     }
@@ -401,12 +403,16 @@ function activateClientBindings() {
     bindRouteElements();
 }
 
-systemTheme.addEventListener('change', () => setTheme(undefined, hydrated));
+systemTheme.addEventListener('change', () => setTheme(undefined, hydrated && localeReady));
 document.addEventListener('blex:before-page-change', handleBeforePageChange);
 document.addEventListener('blex:page-change', handlePageChange);
 document.addEventListener('blex:post-page-unmounted', () => {
     if (routeController) offerTelegramHint(routeController.signal);
 });
 
-setTheme(undefined, hydrated);
-if (hydrated) activateClientBindings();
+let localeReady = false;
+setTheme(undefined, false);
+void activateDocumentLocale().then(() => {
+    localeReady = true;
+    if (hydrated) activateClientBindings();
+});

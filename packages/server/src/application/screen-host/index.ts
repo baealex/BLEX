@@ -1,3 +1,4 @@
+import { systemMessage } from '../../platform/messages.js';
 import fastifyStatic from '@fastify/static';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
@@ -170,7 +171,7 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
       timeZone: viewer?.state.timeZone || process.env.TZ || 'Asia/Seoul',
       ...(viewer ? { user: { isAuthenticated: 'True', username: viewer.user.username } } : {}),
     };
-    const screen = `<div data-screen="${page.component}" data-screen-status="pending" data-screen-props="${encodeURIComponent(JSON.stringify(page.props))}"><div role="status" aria-live="polite" class="flex min-h-52 items-center justify-center gap-2 py-12 text-sm font-medium text-content-secondary"><span aria-hidden="true" class="h-4 w-4 animate-spin rounded-full border-2 border-line-strong border-t-action motion-reduce:animate-none"></span><span>불러오는 중...</span></div></div>`;
+    const screen = `<div data-screen="${page.component}" data-screen-status="pending" data-screen-props="${encodeURIComponent(JSON.stringify(page.props))}"><div role="status" aria-live="polite" class="flex min-h-52 items-center justify-center gap-2 py-12 text-sm font-medium text-content-secondary"><span aria-hidden="true" class="h-4 w-4 animate-spin rounded-full border-2 border-line-strong border-t-action motion-reduce:animate-none"></span><span>${systemMessage('Loading…')}</span></div></div>`;
     const robots = page.robots ?? 'noindex,nofollow';
     // The editor keeps full page loads so its unsaved-changes warning covers every way of leaving.
     const movesInApplication = page.component !== 'PostEditor';
@@ -250,7 +251,7 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
     return sendDocument(request, reply, null, {
       component: 'Signup',
       props: {},
-      title: (site) => `회원가입 - ${site}`,
+      title: (site) => systemMessage('Sign up - {value0}', { value0: site }),
       robots: 'noindex',
       contentClass: 'flex items-center justify-center my-16 px-4 md:px-6',
       footer: true,
@@ -275,7 +276,10 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
     return sendDocument(request, reply, viewer, {
       component: 'SearchPage',
       props: username ? { username } : {},
-      title: (site) => (searchText ? `검색: ${searchText} - ${site}` : `검색 - ${site}`),
+      title: (site) =>
+        searchText
+          ? systemMessage('Search: {value0} - {value1}', { value0: searchText, value1: site })
+          : systemMessage('Search - {value0}', { value0: site }),
       robots: 'noindex,follow',
       canonical: new URL('/search', options.siteUrl).href,
       contentClass: 'max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12',
@@ -311,7 +315,7 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
           canManageUtilities: isStaff && isSuperuser,
         },
       }),
-      `${mode === 'admin' ? '관리자 설정' : '설정'} | {site}`,
+      `${mode === 'admin' ? systemMessage('Admin settings') : systemMessage('Settings')} | {site}`,
     );
 
   // Let the editor route handle login, role, and missing-post responses when this screen cannot mount.
@@ -335,7 +339,7 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
         account.staff,
         'PostEditor',
         () => ({ mode: 'edit', username, postUrl: post.slug }),
-        '수정하기 - {site}',
+        systemMessage('Edit post - {site}'),
       );
     }
     const published = await db.post.findFirst({
@@ -358,7 +362,7 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
         account.staff,
         'PostEditor',
         () => ({ mode: 'draft', username: user.username, draftUrl: draft.slug, showFirstPublishGuide }),
-        '임시저장 - {site}',
+        systemMessage('Draft - {site}'),
       );
     return sendScreen(
       request,
@@ -367,7 +371,7 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
       account.staff,
       'PostEditor',
       () => ({ mode: 'new', username: user.username, showFirstPublishGuide }),
-      '새 포스트 - {site}',
+      systemMessage('New post - {site}'),
     );
   };
 

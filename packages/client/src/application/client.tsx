@@ -1,3 +1,5 @@
+import { ui } from '../i18n/public-ui.js';
+import { activateDocumentLocale, activateLocale, normalizeLocale } from '../i18n';
 import { flushSync } from 'react-dom';
 import { hydrateRoot } from 'react-dom/client';
 import {
@@ -925,19 +927,19 @@ async function submitApplicationPost(
         });
         const finalUrl = new URL(response.url || action.href, action);
         if (finalUrl.origin !== window.location.origin) {
-            showPostFeedback(form, '응답 페이지가 사이트 주소와 일치하지 않습니다.');
+            showPostFeedback(form, ui('The response page does not belong to this site.'));
             return;
         }
         if (response.status === 204 || response.status === 205) {
             await activeRouter.invalidate();
-            renderLoadedPage(activeRouter);
+            await renderLoadedPage(activeRouter);
             return;
         }
         const contentType = response.headers.get('content-type')?.toLowerCase() ?? '';
         if (contentType && !contentType.includes('text/html') && !contentType.includes('application/xhtml+xml')) {
             showPostFeedback(
                 form,
-                '서버 응답을 화면에 표시할 수 없습니다. 페이지를 새로고침해 저장 상태를 확인해 주세요.'
+                ui('Could not display the response page. Refresh to check whether your changes were saved.')
             );
             return;
         }
@@ -952,7 +954,7 @@ async function submitApplicationPost(
             return;
         }
         if (!page) {
-            showPostFeedback(form, '서버 응답 페이지를 불러오지 못했습니다. 저장 상태를 확인해 주세요.');
+            showPostFeedback(form, ui('Could not load the response page. Check whether your changes were saved.'));
             return;
         }
 
@@ -961,7 +963,7 @@ async function submitApplicationPost(
         if (sameRoute(currentUrl, finalUrl)) {
             if (currentUrl.hash !== finalUrl.hash) visit(finalUrl.pathname + finalUrl.search + finalUrl.hash);
             await activeRouter.invalidate();
-            renderLoadedPage(activeRouter);
+            await renderLoadedPage(activeRouter);
         } else {
             visit(finalUrl.pathname + finalUrl.search + finalUrl.hash);
         }
@@ -970,7 +972,7 @@ async function submitApplicationPost(
         console.error('An application form could not be submitted.', error);
         showPostFeedback(
             form,
-            '요청 결과를 확인하지 못했습니다. 저장 상태를 확인한 뒤 필요한 경우 다시 시도해 주세요.'
+            ui('Could not confirm the result. Check whether your changes were saved before trying again.')
         );
     }
 }
@@ -1326,7 +1328,7 @@ function commitApplicationPage(page: ApplicationDocument, hash: string): void {
     hasCommittedInitialDocument = true;
 }
 
-function renderLoadedPage(activeRouter: ApplicationRouter): void {
+async function renderLoadedPage(activeRouter: ApplicationRouter): Promise<void> {
     const { matches } = activeRouter.state;
     const match = matches[matches.length - 1];
     if (match?.status === 'error') {
@@ -1338,6 +1340,15 @@ function renderLoadedPage(activeRouter: ApplicationRouter): void {
     }
     const page = match?.status === 'success' ? (match.loaderData as ApplicationDocument | undefined) : undefined;
     if (!page) return;
+    const isCurrentPage = () => activeRouter.state.matches[activeRouter.state.matches.length - 1]?.loaderData === page;
+    try {
+        await activateLocale(normalizeLocale(page.head.lang));
+    } catch {
+        if (isCurrentPage()) window.location.assign(page.url);
+        return;
+    }
+    if (!isCurrentPage()) return;
+    if (page.head.lang) document.documentElement.lang = page.head.lang;
     flushSync(() => showApplicationPage?.(page.view));
     commitApplicationPage(page, window.location.hash);
 }
@@ -1398,29 +1409,31 @@ if (appRoot && initialDocument) {
     const appRouter = createApplicationRouter();
     router = appRouter;
     hydratePostWhenLoaded(initialDocument);
-    void appRouter.load().then(() => {
-        // Most page bodies are server HTML, so this router owns history and loading while React renders one stable frame.
-        appRouter.history.subscribe(({ location, action }) => {
-            navigationType = action.type === 'PUSH' || action.type === 'REPLACE' ? action.type : 'POP';
-            if (!appRouter.state.isLoading && staysInActiveScreen(location.pathname)) {
-                saveCurrentPosition();
-                queueMicrotask(() => {
-                    currentHistoryKey = browserHistoryKey();
-                });
-                return;
-            }
-            void appRouter.load().then(() => renderLoadedPage(appRouter));
+    void activateDocumentLocale()
+        .then(() => appRouter.load())
+        .then(() => {
+            // Most page bodies are server HTML, so this router owns history and loading while React renders one stable frame.
+            appRouter.history.subscribe(({ location, action }) => {
+                navigationType = action.type === 'PUSH' || action.type === 'REPLACE' ? action.type : 'POP';
+                if (!appRouter.state.isLoading && staysInActiveScreen(location.pathname)) {
+                    saveCurrentPosition();
+                    queueMicrotask(() => {
+                        currentHistoryKey = browserHistoryKey();
+                    });
+                    return;
+                }
+                void appRouter.load().then(() => renderLoadedPage(appRouter));
+            });
+            document.addEventListener('blex:navigate', dispatchNavigateEvent);
+            document.addEventListener('click', handleDocumentClick);
+            document.addEventListener('submit', handleDocumentSubmit);
+            installPositionTracking();
+            hydrateRoot(appRoot, <ApplicationRoute initialPage={initialDocument} />, {
+                onRecoverableError(error) {
+                    console.error('BLEX application hydration recovered from an error.', error);
+                }
+            });
         });
-        document.addEventListener('blex:navigate', dispatchNavigateEvent);
-        document.addEventListener('click', handleDocumentClick);
-        document.addEventListener('submit', handleDocumentSubmit);
-        installPositionTracking();
-        hydrateRoot(appRoot, <ApplicationRoute initialPage={initialDocument} />, {
-            onRecoverableError(error) {
-                console.error('BLEX application hydration recovered from an error.', error);
-            }
-        });
-    });
 } else {
     console.error('BLEX client routing was skipped because the application document marker is missing.');
 }

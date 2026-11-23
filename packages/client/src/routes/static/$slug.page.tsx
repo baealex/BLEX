@@ -1,5 +1,5 @@
 import { PageLayout } from '~/features/discovery/layout';
-import type { PageProps } from '~/contracts/pages';
+import type { PageProps } from '@blex/contracts/pages';
 
 export default function renderPage({ meta, pageHtml }: PageProps['static/$slug']): string {
     return PageLayout({
