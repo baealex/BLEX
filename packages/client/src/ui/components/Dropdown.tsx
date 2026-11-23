@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import { keyedDropdownItems } from './dropdown-items';
 import { Check, EllipsisVertical } from './icons';
 
 interface DropdownItem {
@@ -39,8 +40,8 @@ const Dropdown = ({
 
     const alignProp: 'start' | 'end' | 'center' = align === 'right' ? 'end' : align === 'left' ? 'start' : align;
     const hasSelectionItems = items.some((item) => item.checked !== undefined);
-    const selectedItem = items.find((item) => item.checked);
-    const selectedItemValue = selectedItem ? (selectedItem.id ?? selectedItem.label) : '';
+    const keyedItems = keyedDropdownItems(items);
+    const selectedItemValue = keyedItems.find(({ item }) => item.checked)?.value ?? '';
 
     const getItemClassName = (item: DropdownItem) => `
         relative flex items-center text-sm gap-3 cursor-pointer select-none outline-none
@@ -95,10 +96,10 @@ const Dropdown = ({
                 >
                     {hasSelectionItems ? (
                         <DropdownMenu.RadioGroup value={selectedItemValue}>
-                            {items.map((item) => (
+                            {keyedItems.map(({ item, value }) => (
                                 <DropdownMenu.RadioItem
-                                    key={item.id ?? item.label}
-                                    value={item.id ?? item.label}
+                                    key={value}
+                                    value={value}
                                     onSelect={item.onClick}
                                     className={getItemClassName(item)}
                                 >
@@ -107,12 +108,8 @@ const Dropdown = ({
                             ))}
                         </DropdownMenu.RadioGroup>
                     ) : (
-                        items.map((item) => (
-                            <DropdownMenu.Item
-                                key={item.id ?? item.label}
-                                onSelect={item.onClick}
-                                className={getItemClassName(item)}
-                            >
+                        keyedItems.map(({ item, value }) => (
+                            <DropdownMenu.Item key={value} onSelect={item.onClick} className={getItemClassName(item)}>
                                 {renderItemContent(item)}
                             </DropdownMenu.Item>
                         ))
