@@ -43,7 +43,8 @@ const SettingsListItem = ({ onClick, className, dragHandleProps, left, actions, 
             <div className={LIST_ITEM_CONTENT}>
                 <div className={`${LIST_ITEM_ROW}${className ? ` ${className}` : ''}`}>
                     {dragHandleProps && (
-                        <div
+                        <button
+                            type="button"
                             className={LIST_ITEM_DRAG_HANDLE}
                             style={{ touchAction: 'none' }}
                             onClick={(e) => e.stopPropagation()}
@@ -58,7 +59,7 @@ const SettingsListItem = ({ onClick, className, dragHandleProps, left, actions, 
                             }
                         >
                             <GripVertical aria-hidden="true" className="h-4 w-4" />
-                        </div>
+                        </button>
                     )}
 
                     {onClick ? (
@@ -79,11 +80,7 @@ const SettingsListItem = ({ onClick, className, dragHandleProps, left, actions, 
                         </>
                     )}
 
-                    {actions && (
-                        <div className={LIST_ITEM_ACTIONS} onClick={(e) => e.stopPropagation()}>
-                            {actions}
-                        </div>
-                    )}
+                    {actions && <div className={LIST_ITEM_ACTIONS}>{actions}</div>}
                 </div>
             </div>
         </div>

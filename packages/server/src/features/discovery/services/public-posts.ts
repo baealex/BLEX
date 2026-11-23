@@ -3,7 +3,7 @@ import type { Prisma, PrismaClient } from '@prisma/client';
 import { storedDateText } from '../../../platform/date-format.js';
 import { postIdsMatching } from '../../posts/data/text-match.js';
 import { publicPostWhere } from '../../posts/data/visibility.js';
-import { AuthorRow, PAGE_SIZE, PostQueryOptions, PostRow, PublicPageViewer } from '../shared.js';
+import { type AuthorRow, PAGE_SIZE, type PostQueryOptions, type PostRow, type PublicPageViewer } from '../shared.js';
 import { csrfCookie } from '../page-context.js';
 import type { CardLikes } from '../../../../../client/src/contracts/public.js';
 
@@ -143,17 +143,18 @@ export async function rankPublicSearch(db: PrismaClient, keywords: string[], use
   const matches: SearchMatch[] = [];
   for (let offset = 0; offset < ids.length; offset += 500) {
     const rows = await db.post.findMany({
-      where: { id: { in: ids.slice(offset, offset + 500) } },
+      where: { AND: [base, { id: { in: ids.slice(offset, offset + 500) } }] },
       select: { id: true, publishedAt: true },
     });
     for (const { id, publishedAt } of rows) {
+      if (!publishedAt) continue;
       const titleScore = title.has(id) ? 100 : 0;
       const descriptionScore = description.has(id) ? 40 : 0;
       const tagScore = tags.has(id) ? 30 : 0;
       const contentScore = content.has(id) ? 10 : 0;
       matches.push({
         id,
-        publishedAt: publishedAt!,
+        publishedAt,
         titleScore,
         descriptionScore,
         tagScore,
@@ -178,17 +179,23 @@ export async function readSearchPage(
   offset: number,
 ): Promise<Array<PostRow & SearchMatch>> {
   const page = matches.slice(offset, offset + limit);
-  const rows = await db.post.findMany({ where: { id: { in: page.map(({ id }) => id) } }, select: postCardSelect });
+  const rows = await db.post.findMany({
+    where: { AND: [publicPostWhere(), { id: { in: page.map(({ id }) => id) } }] },
+    select: postCardSelect,
+  });
   const cards = new Map(rows.map((row) => [row.id, row]));
-  return page.map((match) => {
-    const post = cards.get(match.id)!;
-    return {
-      ...postCard(post),
-      seriesUrl: post.series?.slug ?? null,
-      seriesName: post.series?.name ?? null,
-      likeCount: undefined,
-      commentCount: undefined,
-      ...match,
-    };
+  return page.flatMap((match) => {
+    const post = cards.get(match.id);
+    if (!post) return [];
+    return [
+      {
+        ...postCard(post),
+        seriesUrl: post.series?.slug ?? null,
+        seriesName: post.series?.name ?? null,
+        likeCount: undefined,
+        commentCount: undefined,
+        ...match,
+      },
+    ];
   });
 }

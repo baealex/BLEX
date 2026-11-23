@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import * as RadixCheckbox from '@radix-ui/react-checkbox';
 import { Check } from './icons';
 import { cx } from '../lib/classnames';
@@ -12,8 +13,10 @@ interface CheckboxProps {
 }
 
 const Checkbox = ({ checked, onCheckedChange, label, description, disabled = false, className }: CheckboxProps) => {
+    const controlId = useId();
     return (
         <label
+            htmlFor={controlId}
             className={cx(
                 'flex items-start gap-3 cursor-pointer group',
                 disabled && 'opacity-50 cursor-not-allowed',
@@ -21,6 +24,7 @@ const Checkbox = ({ checked, onCheckedChange, label, description, disabled = fal
             )}
         >
             <RadixCheckbox.Root
+                id={controlId}
                 checked={checked}
                 onCheckedChange={(value) => onCheckedChange(value === true)}
                 disabled={disabled}

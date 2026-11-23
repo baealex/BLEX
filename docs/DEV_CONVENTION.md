@@ -66,6 +66,8 @@ pnpm type-check
 
 Biome formats and lints the repository. Run `pnpm format` to apply fixes; `pnpm lint` is the CI check.
 
+Keep lint warnings visible in local and CI output. Fix diagnostics that reveal behavior defects rather than weakening rules or adding suppressions. Report remaining warnings alongside errors; a successful command does not mean the code is warning-free.
+
 `pnpm test` includes the application build. For web, UI, or editor changes, also run the workspace checks as described in the [Testing Guide](TESTING_GUIDE.md).
 
 Regular CI runs application and client checks. Explicit releases use the manual `BUILD.yml` workflow: application checks, a candidate build, AMD64/ARM64 runtime/browser/security checks, then publication of the verified digest and automatic Git tagging. Follow [Releasing BLEX](RELEASING.md); Git tag pushes do not trigger releases. Published images also receive weekly security scans.

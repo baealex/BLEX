@@ -46,6 +46,7 @@ export const IframeNodeView = ({ node }: NodeViewProps) => {
                 >
                     <iframe
                         src={src}
+                        title={caption || src}
                         style={{
                             width: '100%',
                             aspectRatio: aspectRatioCSS,

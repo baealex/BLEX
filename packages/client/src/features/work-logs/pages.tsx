@@ -125,7 +125,10 @@ export function renderWorkLogIndex(props: WorkLogIndexProps): string {
                             placeholder="어떤 작업을 기록할까요?"
                             className="min-h-12 min-w-0 flex-1 rounded-lg border border-line bg-surface px-3 text-content placeholder:text-content-hint"
                         />
-                        <button className="min-h-12 rounded-lg bg-action px-5 text-sm font-semibold text-content-inverted transition hover:bg-action-hover active:scale-95">
+                        <button
+                            type="submit"
+                            className="min-h-12 rounded-lg bg-action px-5 text-sm font-semibold text-content-inverted transition hover:bg-action-hover active:scale-95"
+                        >
                             일지 만들기
                         </button>
                     </div>
@@ -285,7 +288,9 @@ export function renderWorkLogDetail(props: WorkLogDetailProps): string {
                                         {props.error}
                                     </div>
                                 )}
-                                <button className={primaryButton}>기록 저장</button>
+                                <button type="submit" className={primaryButton}>
+                                    기록 저장
+                                </button>
                             </form>
                         </>
                     )}
@@ -405,6 +410,7 @@ export function renderWorkLogDetail(props: WorkLogDetailProps): string {
                                                 링크가 있는 사람은 누구나 선택한 기록을 볼 수 있어요.
                                             </p>
                                             <button
+                                                type="submit"
                                                 name="action"
                                                 value="preview"
                                                 className="mt-4 min-h-11 w-full rounded-lg border border-line px-4 text-sm font-semibold transition hover:bg-surface-subtle active:scale-95"
@@ -412,12 +418,13 @@ export function renderWorkLogDetail(props: WorkLogDetailProps): string {
                                                 공유 화면 미리보기
                                             </button>
                                             {(previousSelectionPage || nextSelectionPage) && (
-                                                <div
+                                                <nav
                                                     className="mt-2 flex flex-wrap items-center gap-2 text-sm"
                                                     aria-label="공유할 기록"
                                                 >
                                                     {previousSelectionPage && (
                                                         <button
+                                                            type="submit"
                                                             formNoValidate
                                                             name={pageFields.selectionPage}
                                                             value={previousSelectionPage}
@@ -428,6 +435,7 @@ export function renderWorkLogDetail(props: WorkLogDetailProps): string {
                                                     )}
                                                     {nextSelectionPage && (
                                                         <button
+                                                            type="submit"
                                                             formNoValidate
                                                             name={pageFields.selectionPage}
                                                             value={nextSelectionPage}
@@ -439,7 +447,7 @@ export function renderWorkLogDetail(props: WorkLogDetailProps): string {
                                                     {props.selectedIds.length > 0 && (
                                                         <span className="text-content-secondary">{`기록 ${props.selectedIds.length}개 선택`}</span>
                                                     )}
-                                                </div>
+                                                </nav>
                                             )}
                                         </form>
                                     ) : (
@@ -472,7 +480,10 @@ export function renderWorkLogDetail(props: WorkLogDetailProps): string {
                                                 action={`/work-logs/${props.log.id}/share/${share.token}/revoke/`}
                                             >
                                                 {csrfInput(props.csrfToken)}
-                                                <button className="min-h-11 whitespace-nowrap px-2 text-sm text-danger hover:underline">
+                                                <button
+                                                    type="submit"
+                                                    className="min-h-11 whitespace-nowrap px-2 text-sm text-danger hover:underline"
+                                                >
                                                     공유 중지
                                                 </button>
                                             </form>
@@ -534,7 +545,10 @@ export function renderWorkLogDelete(props: WorkLogDeleteProps): string {
                 >
                     취소
                 </a>
-                <button className="min-h-11 rounded-lg border border-danger-line bg-danger-surface px-4 text-sm font-semibold text-danger transition hover:opacity-80 active:scale-95">
+                <button
+                    type="submit"
+                    className="min-h-11 rounded-lg border border-danger-line bg-danger-surface px-4 text-sm font-semibold text-danger transition hover:opacity-80 active:scale-95"
+                >
                     {heading}
                 </button>
             </form>
@@ -587,13 +601,14 @@ export function renderWorkLogShared(props: WorkLogSharedProps): string {
                         />
                         <input type="hidden" name={pageFields.linksPage} value={String(props.linksPage ?? 1)} />
                         <button
+                            type="submit"
                             name="action"
                             value="edit"
                             className="min-h-11 rounded-lg px-3 text-sm font-semibold text-content-secondary transition hover:bg-surface-subtle active:scale-95"
                         >
                             공유 내용 수정
                         </button>
-                        <button name="action" value="publish" className={primaryButton}>
+                        <button type="submit" name="action" value="publish" className={primaryButton}>
                             공유 링크 만들기
                         </button>
                     </form>
@@ -696,6 +711,7 @@ export function renderWorkLogShared(props: WorkLogSharedProps): string {
                               <nav aria-label="페이지 이동" className="mt-4 flex flex-wrap gap-2 text-sm">
                                   {previousPage && (
                                       <button
+                                          type="submit"
                                           form="work-log-preview-form"
                                           name={pageFields.previewPage}
                                           value={previousPage}
@@ -706,6 +722,7 @@ export function renderWorkLogShared(props: WorkLogSharedProps): string {
                                   )}
                                   {nextPage && (
                                       <button
+                                          type="submit"
                                           form="work-log-preview-form"
                                           name={pageFields.previewPage}
                                           value={nextPage}

@@ -1,19 +1,19 @@
 import { SiteIcon, type SiteIconName } from '~/appearance/icons';
 import { SiteFooter, SiteHeader, SiteTheme } from '~/appearance/shell';
 import { renderApplicationDocument, scriptJson } from '~/application/document';
-import { type ReaderPostView } from '~/contracts/engagement';
-import {
-    type PostPresentation,
-    type PostSeriesEntry,
-    type PostSeriesNavigation,
-    type PublicPost,
-    type RelatedPost
+import type { ReaderPostView } from '~/contracts/engagement';
+import type {
+    PostPresentation,
+    PostSeriesEntry,
+    PostSeriesNavigation,
+    PublicPost,
+    RelatedPost
 } from '~/contracts/pages';
 import { PostComments } from '~/features/engagement/ui';
 import { loginPromptProps } from '~/features/engagement/ui/login-prompt';
 import { publicPostPath } from '~/features/posts/paths';
 import { storedDateText } from '~/lib/date-format';
-import { type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import type { PageProps } from '~/contracts/pages';
 
 function articleImage(path: string): string | undefined {
@@ -139,7 +139,8 @@ function PostCover({
                         </>
                     )}
                     <span className={separator}>·</span>
-                    <span className={metadataColor} aria-label="읽는 시간">
+                    <span className={metadataColor}>
+                        <span className="sr-only">읽는 시간: </span>
                         {post.readTime}분 소요
                     </span>
                     {timelapsePath && (
@@ -722,7 +723,7 @@ function PostDock({
                     <div className="flex items-center justify-between border-b border-line-light px-6 py-3">
                         <h2 className="text-lg font-bold">목차</h2>
                         <form method="dialog">
-                            <button className={dockButton} aria-label="목차 닫기">
+                            <button type="submit" className={dockButton} aria-label="목차 닫기">
                                 <SiteIcon name="x" className="size-4" />
                             </button>
                         </form>

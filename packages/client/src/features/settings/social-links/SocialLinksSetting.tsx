@@ -177,7 +177,8 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                 {/* Mobile item header */}
                 <div className="flex items-center justify-between p-4 sm:hidden bg-surface-subtle border-b border-line/60">
                     <div className="flex items-center gap-3">
-                        <div
+                        <button
+                            type="button"
                             className="flex min-h-11 min-w-11 cursor-grab touch-none items-center justify-center rounded-lg text-content-hint transition-colors hover:bg-surface-subtle hover:text-content-secondary active:cursor-grabbing"
                             style={{ touchAction: 'none' }}
                             {...attributes}
@@ -185,7 +186,7 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                             aria-label={reorderLabel}
                         >
                             <GripVertical aria-hidden="true" className="h-4 w-4" />
-                        </div>
+                        </button>
                         <div className="w-8 h-8 flex items-center justify-center bg-surface rounded-lg shadow-sm">
                             <InlineIcon icon={platformIcon} className="text-base text-content-secondary" />
                         </div>
@@ -206,7 +207,8 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                 {/* Item controls */}
                 <div className="p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3">
                     {/* Desktop drag handle */}
-                    <div
+                    <button
+                        type="button"
                         className="hidden min-h-11 min-w-11 flex-shrink-0 cursor-grab items-center justify-center rounded-lg text-content-hint transition-colors hover:bg-surface-subtle hover:text-content-secondary group-hover:text-content-secondary active:cursor-grabbing sm:flex [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9"
                         style={{ touchAction: 'none' }}
                         {...attributes}
@@ -214,7 +216,7 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                         aria-label={reorderLabel}
                     >
                         <GripVertical aria-hidden="true" className="h-4 w-4" />
-                    </div>
+                    </button>
 
                     {/* Desktop platform icon */}
                     <div className="hidden sm:flex w-10 h-10 items-center justify-center bg-gradient-to-br from-surface-subtle to-surface-subtle rounded-lg shadow-sm group-hover:from-surface-subtle group-hover:to-surface-subtle transition-all duration-200 flex-shrink-0">

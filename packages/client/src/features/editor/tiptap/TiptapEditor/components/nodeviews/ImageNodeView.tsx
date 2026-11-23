@@ -2,8 +2,10 @@ import { NodeViewWrapper } from '@tiptap/react';
 import type { NodeViewProps } from '@tiptap/react';
 import { NodeSelection } from '@tiptap/pm/state';
 import { getFigureStyle, getMediaStyle } from '../../utils/mediaStyles';
+import { useEditorI18n } from '../../i18n';
 
 export const ImageNodeView = ({ node, selected, editor, getPos }: NodeViewProps) => {
+    const { t } = useEditorI18n();
     const {
         src,
         alt,
@@ -65,8 +67,11 @@ export const ImageNodeView = ({ node, selected, editor, getPos }: NodeViewProps)
                         width={width || undefined}
                         height={height || undefined}
                     />
-                    {/* 투명 오버레이: 클릭 시 노드 선택 */}
+                    {/* Tiptap ignores button mousedown events, so the drag handle stays a keyboard-accessible div. */}
                     <div
+                        role="button"
+                        tabIndex={0}
+                        aria-label={t('media.settings')}
                         data-drag-handle=""
                         onMouseDown={(event) => {
                             if (event.button === 0) {
@@ -74,6 +79,12 @@ export const ImageNodeView = ({ node, selected, editor, getPos }: NodeViewProps)
                             }
                         }}
                         onClick={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            selectNode();
+                        }}
+                        onKeyDown={(event) => {
+                            if (event.key !== 'Enter' && event.key !== ' ') return;
                             event.preventDefault();
                             event.stopPropagation();
                             selectNode();

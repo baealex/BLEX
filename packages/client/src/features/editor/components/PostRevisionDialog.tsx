@@ -513,7 +513,7 @@ const PostRevisionDialog = ({
                                                 </p>
                                             )}
                                             {selectedRevision.tags.length > 0 && (
-                                                <div
+                                                <ul
                                                     className="mt-3 flex flex-wrap gap-1.5"
                                                     aria-label={t({
                                                         id: 'editor.revisions.tags_aria_label',
@@ -521,14 +521,14 @@ const PostRevisionDialog = ({
                                                     })}
                                                 >
                                                     {selectedRevision.tags.map((tag) => (
-                                                        <span
+                                                        <li
                                                             key={tag}
                                                             className="rounded-full bg-surface-subtle px-2.5 py-1 text-xs text-content-secondary"
                                                         >
                                                             #{tag}
-                                                        </span>
+                                                        </li>
                                                     ))}
-                                                </div>
+                                                </ul>
                                             )}
                                         </div>
 

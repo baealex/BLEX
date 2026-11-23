@@ -21,7 +21,7 @@ const isSelectKey = (event: KeyboardEvent) => event.key === 'Enter' || event.key
 const PostLinkSuggestionList = ({ ref, items, loading, failed, command }: PostLinkSuggestionListProps) => {
     const { t } = useEditorI18n();
     const [selectedIndex, setSelectedIndex] = useState(0);
-    const optionRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const optionRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
     useEffect(() => {
         setSelectedIndex(0);
@@ -91,21 +91,23 @@ const PostLinkSuggestionList = ({ ref, items, loading, failed, command }: PostLi
                         const isSelected = index === selectedIndex;
 
                         return (
-                            <div
+                            <button
+                                type="button"
+                                tabIndex={-1}
                                 key={item.href}
                                 ref={(element) => {
                                     optionRefs.current[index] = element;
                                 }}
                                 role="option"
                                 aria-selected={isSelected}
-                                className={`flex flex-col gap-0.5 rounded-lg px-3 py-3 sm:py-2 cursor-pointer transition-colors duration-150 ${isSelected ? 'bg-surface-subtle' : ''}`}
+                                className={`flex w-full flex-col gap-0.5 rounded-lg px-3 py-3 text-left sm:py-2 cursor-pointer transition-colors duration-150 ${isSelected ? 'bg-surface-subtle' : ''}`}
                                 onMouseDown={(event) => event.preventDefault()}
                                 onMouseEnter={() => setSelectedIndex(index)}
                                 onClick={() => selectItem(index)}
                             >
                                 <span className="truncate text-sm font-medium text-content">{item.title}</span>
                                 {item.meta && <span className="text-xs text-content-hint">{item.meta}</span>}
-                            </div>
+                            </button>
                         );
                     })}
                 </div>
