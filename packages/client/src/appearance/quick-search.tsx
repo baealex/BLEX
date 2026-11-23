@@ -1,3 +1,4 @@
+import { siteText, type SiteLocale } from './messages.js';
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { SiteIcon } from './icons.js';
 import { escapeAction } from './quick-search-escape.js';
@@ -37,7 +38,15 @@ function resultRows(matches: unknown): SearchRow[] {
  * `onReady` runs once this component's own handlers are live.
  * `startClosed` reports that the reader already dismissed the box with Esc while this code was loading.
  */
-export function QuickSearch({ onReady, startClosed }: { onReady?: () => void; startClosed?: () => boolean }) {
+export function QuickSearch({
+    onReady,
+    startClosed,
+    locale = 'ko'
+}: {
+    onReady?: () => void;
+    startClosed?: () => boolean;
+    locale?: SiteLocale;
+}) {
     const container = useRef<HTMLDivElement>(null);
     const input = useRef<HTMLInputElement>(null);
     const list = useRef<HTMLUListElement>(null);
@@ -45,7 +54,11 @@ export function QuickSearch({ onReady, startClosed }: { onReady?: () => void; st
     const request = useRef<AbortController | undefined>(undefined);
     const [open, setOpen] = useState(false);
     const [selected, setSelected] = useState(-1);
-    const [view, setView] = useState<SearchView>({ heading: '최근 검색', rows: [], emptyMessage: '' });
+    const [view, setView] = useState<SearchView>({
+        heading: siteText(locale, 'Recent searches'),
+        rows: [],
+        emptyMessage: ''
+    });
 
     const query = () => input.current?.value.trim() ?? '';
 
@@ -70,9 +83,14 @@ export function QuickSearch({ onReady, startClosed }: { onReady?: () => void; st
             });
             const result = await response.json();
             if (!controller.signal.aborted)
-                show('빠른 검색 결과', resultRows(result.body?.results), '빠른 검색 결과가 없습니다.');
+                show(
+                    siteText(locale, 'Quick search results'),
+                    resultRows(result.body?.results),
+                    siteText(locale, 'No quick search results.')
+                );
         } catch {
-            if (!controller.signal.aborted) show('빠른 검색 결과', [], '검색 화면에서 다시 시도해 주세요.');
+            if (!controller.signal.aborted)
+                show(siteText(locale, 'Quick search results'), [], siteText(locale, 'Try again on the search page.'));
         } finally {
             if (request.current === controller) request.current = undefined;
         }
@@ -84,15 +102,15 @@ export function QuickSearch({ onReady, startClosed }: { onReady?: () => void; st
         const term = query();
         if (!term) {
             show(
-                '최근 검색',
+                siteText(locale, 'Recent searches'),
                 recentSearches()
                     .slice(0, 6)
                     .map((entry) => ({ href: `/search?${new URLSearchParams({ q: entry })}`, title: entry })),
-                '최근 검색어가 없습니다.'
+                siteText(locale, 'No recent searches.')
             );
             return;
         }
-        show('빠른 검색 결과', [], '검색 중…');
+        show(siteText(locale, 'Quick search results'), [], siteText(locale, 'Searching…'));
         delay.current = window.setTimeout(() => {
             delay.current = undefined;
             void fetchResults(term);
@@ -167,8 +185,8 @@ export function QuickSearch({ onReady, startClosed }: { onReady?: () => void; st
                     ref={input}
                     name="q"
                     type="search"
-                    placeholder="검색"
-                    aria-label="검색"
+                    placeholder={siteText(locale, 'Search')}
+                    aria-label={siteText(locale, 'Search')}
                     autoComplete="off"
                     className="min-w-0 flex-1 bg-transparent text-sm text-content placeholder:text-content-hint focus:outline-none"
                     onFocus={suggest}

@@ -7,6 +7,8 @@ import {
   registerContentMultipart,
   saveContentUpload,
 } from '../media/content-media.js';
+import { developerLanguageHeaders, localizeDeveloperError, readDeveloperLocale } from './localization.js';
+import { developerRouteOptions, developerSchemas, developerRequestError, type PostMutationInput } from './schemas.js';
 import { DeveloperMutationInputError, developerPostInput } from './mutation-input.js';
 import {
   type PaginationQuery,
@@ -48,6 +50,16 @@ export function registerDeveloperApi(app: FastifyInstance, db: PrismaClient, opt
 
 function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options: DeveloperApiOptions): void {
   const audited = new WeakMap<FastifyRequest, AuthenticatedToken>();
+  const users = new WeakMap<FastifyRequest, number>();
+  app.addHook('preSerialization', async (request, reply, payload) => {
+    const userId =
+      reply.statusCode >= 500
+        ? undefined
+        : (users.get(request) ?? (await authenticate(db, request.headers.authorization)).token?.user.id);
+    const locale = await readDeveloperLocale(db, request, userId);
+    developerLanguageHeaders(reply, locale);
+    return localizeDeveloperError(payload, locale);
+  });
   if (options.writable)
     app.addHook('onSend', async (request, reply, payload) => {
       const token = audited.get(request);
@@ -85,6 +97,7 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
   const authenticateRequest = async (request: FastifyRequest, reply: FastifyReply) => {
     const result = await authenticate(db, request.headers.authorization);
     if (!result.token) return result;
+    users.set(request, result.token.user.id);
     const retryAfter = takeRequest(result.token.id, developerRequestKind(request.method));
     if (retryAfter !== null) {
       // Refused before auditing, so a client over its limit cannot keep writing to the database.
@@ -107,7 +120,12 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
       return null;
     }
     const scope = requireScope(token, 'posts:write');
-    if (!scope) return token;
+    if (!scope) {
+      const invalid = developerRequestError(request);
+      if (!invalid) return token;
+      errorReply(reply, invalid);
+      return null;
+    }
     errorReply(reply, scope);
     return null;
   }
@@ -117,7 +135,11 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
       await registerContentMultipart(routes);
       routes.post(
         `${API_PREFIX}/images`,
-        { bodyLimit: contentUploadLimit + 8192, config: { bodyAccess: 'token' } },
+        {
+          ...developerRouteOptions(developerSchemas.uploadImage),
+          bodyLimit: contentUploadLimit + 8192,
+          config: { bodyAccess: 'token' },
+        },
         async (request, reply) => {
           const token = await writeToken(request, reply);
           if (!token) return reply;
@@ -157,9 +179,13 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
       if (error.statusCode === 404) return postNotFound(db, reply, editor.id);
       return errorReply(reply, error);
     };
-    app.post(
+    app.post<{ Body: PostMutationInput }>(
       `${API_PREFIX}/posts`,
-      { bodyLimit: 1024 * 1024, config: { bodyAccess: 'token' } },
+      {
+        ...developerRouteOptions(developerSchemas.createPost),
+        bodyLimit: 1024 * 1024,
+        config: { bodyAccess: 'token' },
+      },
       async (request, reply) => {
         const token = await writeToken(request, reply);
         if (!token) return reply;
@@ -178,7 +204,8 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
 
     for (const operation of ['update', 'publish'] as const) {
       const route = `${API_PREFIX}/posts/:postId${operation === 'publish' ? '/publish' : ''}`;
-      app.route<{ Params: { postId: string } }>({
+      app.route<{ Params: { postId: string }; Body: PostMutationInput }>({
+        ...developerRouteOptions(operation === 'publish' ? developerSchemas.publishPost : developerSchemas.updatePost),
         method: operation === 'publish' ? 'POST' : 'PATCH',
         url: route,
         bodyLimit: 1024 * 1024,
@@ -187,6 +214,9 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
         onRequest: async (request) => {
           if (operation === 'publish' && request.headers['content-length'] === '0')
             delete request.headers['content-type'];
+        },
+        preValidation: async (request) => {
+          if (operation === 'publish' && request.body === undefined) request.body = {};
         },
         async handler(request, reply) {
           const token = await writeToken(request, reply);
@@ -229,6 +259,7 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
 
     app.delete<{ Params: { postId: string }; Querystring: QueryValue }>(
       `${API_PREFIX}/posts/:postId`,
+      developerRouteOptions(developerSchemas.deletePost),
       async (request, reply) => {
         const token = await writeToken(request, reply);
         if (!token) return reply;
@@ -253,7 +284,7 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
       },
     );
   }
-  app.get(`${API_PREFIX}/me`, async (request, reply) => {
+  app.get(`${API_PREFIX}/me`, developerRouteOptions(developerSchemas.me), async (request, reply) => {
     const auth = await authenticateRequest(request, reply);
     if (auth.error) return errorReply(reply, auth.error);
     const token = auth.token;
@@ -278,51 +309,63 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
     });
   });
 
-  app.get<{ Querystring: PaginationQuery }>(`${API_PREFIX}/posts`, async (request, reply) => {
-    const auth = await authenticateRequest(request, reply);
-    if (auth.error) return errorReply(reply, auth.error);
-    const token = auth.token;
-    if (!token) return reply.code(401).send({ error: { code: 'auth.invalid_token', message: 'Invalid token.' } });
-    const scopeError = requireScope(token);
-    if (scopeError) return errorReply(reply, scopeError);
+  app.get<{ Querystring: PaginationQuery }>(
+    `${API_PREFIX}/posts`,
+    developerRouteOptions(developerSchemas.listPosts),
+    async (request, reply) => {
+      const auth = await authenticateRequest(request, reply);
+      if (auth.error) return errorReply(reply, auth.error);
+      const token = auth.token;
+      if (!token) return reply.code(401).send({ error: { code: 'auth.invalid_token', message: 'Invalid token.' } });
+      const scopeError = requireScope(token);
+      if (scopeError) return errorReply(reply, scopeError);
 
-    const result = await listPosts(db, token, request.query);
-    if (result.error) return errorReply(reply, result.error);
-    if (result.invalid) return parseValidationError(reply, result.invalid.field, result.invalid.value);
-    return reply.send(result);
-  });
+      const result = await listPosts(db, token, request.query);
+      if (result.error) return errorReply(reply, result.error);
+      if (result.invalid) return parseValidationError(reply, result.invalid.field, result.invalid.value);
+      return reply.send(result);
+    },
+  );
 
-  app.get<{ Querystring: SearchQuery }>(`${API_PREFIX}/posts/search`, async (request, reply) => {
-    const auth = await authenticateRequest(request, reply);
-    if (auth.error) return errorReply(reply, auth.error);
-    const token = auth.token;
-    if (!token) return reply.code(401).send({ error: { code: 'auth.invalid_token', message: 'Invalid token.' } });
-    const scopeError = requireScope(token);
-    if (scopeError) return errorReply(reply, scopeError);
+  app.get<{ Querystring: SearchQuery }>(
+    `${API_PREFIX}/posts/search`,
+    developerRouteOptions(developerSchemas.searchPosts),
+    async (request, reply) => {
+      const auth = await authenticateRequest(request, reply);
+      if (auth.error) return errorReply(reply, auth.error);
+      const token = auth.token;
+      if (!token) return reply.code(401).send({ error: { code: 'auth.invalid_token', message: 'Invalid token.' } });
+      const scopeError = requireScope(token);
+      if (scopeError) return errorReply(reply, scopeError);
 
-    const result = await listPosts(db, token, request.query, request.query);
-    if (result.error) return errorReply(reply, result.error);
-    if (result.invalid) return parseValidationError(reply, result.invalid.field, result.invalid.value);
-    return reply.send(result);
-  });
+      const result = await listPosts(db, token, request.query, request.query);
+      if (result.error) return errorReply(reply, result.error);
+      if (result.invalid) return parseValidationError(reply, result.invalid.field, result.invalid.value);
+      return reply.send(result);
+    },
+  );
 
-  app.get<{ Params: { postId: string } }>(`${API_PREFIX}/posts/:postId`, async (request, reply) => {
-    const auth = await authenticateRequest(request, reply);
-    if (auth.error) return errorReply(reply, auth.error);
-    const token = auth.token;
-    if (!token) return reply.code(401).send({ error: { code: 'auth.invalid_token', message: 'Invalid token.' } });
-    const scopeError = requireScope(token);
-    if (scopeError) return errorReply(reply, scopeError);
+  app.get<{ Params: { postId: string } }>(
+    `${API_PREFIX}/posts/:postId`,
+    developerRouteOptions(developerSchemas.getPost),
+    async (request, reply) => {
+      const auth = await authenticateRequest(request, reply);
+      if (auth.error) return errorReply(reply, auth.error);
+      const token = auth.token;
+      if (!token) return reply.code(401).send({ error: { code: 'auth.invalid_token', message: 'Invalid token.' } });
+      const scopeError = requireScope(token);
+      if (scopeError) return errorReply(reply, scopeError);
 
-    const postId = parsePostId(request.params.postId);
-    if (postId === null) return parseValidationError(reply, 'post_id', request.params.postId);
+      const postId = parsePostId(request.params.postId);
+      if (postId === null) return parseValidationError(reply, 'post_id', request.params.postId);
 
-    const post = await readOwnedPost(db, token.user.id, postId);
-    if (!post) return postNotFound(db, reply, token.user.id);
-    return reply.send({ data: await postDetail(db, post) });
-  });
+      const post = await readOwnedPost(db, token.user.id, postId);
+      if (!post) return postNotFound(db, reply, token.user.id);
+      return reply.send({ data: await postDetail(db, post) });
+    },
+  );
 
-  app.get(`${API_PREFIX}/tags`, async (request, reply) => {
+  app.get(`${API_PREFIX}/tags`, developerRouteOptions(developerSchemas.listTags), async (request, reply) => {
     const auth = await authenticateRequest(request, reply);
     if (auth.error) return errorReply(reply, auth.error);
     const token = auth.token;
@@ -346,7 +389,7 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
     });
   });
 
-  app.get(`${API_PREFIX}/series`, async (request, reply) => {
+  app.get(`${API_PREFIX}/series`, developerRouteOptions(developerSchemas.listSeries), async (request, reply) => {
     const auth = await authenticateRequest(request, reply);
     if (auth.error) return errorReply(reply, auth.error);
     const token = auth.token;

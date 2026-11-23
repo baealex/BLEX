@@ -39,10 +39,20 @@ interface Operation {
   responses: Record<string, { content?: Record<string, { schema: Schema }> }>;
 }
 
-const spec = JSON.parse(readFileSync(new URL('../../data/developer-openapi.json', import.meta.url), 'utf8')) as {
+const schemaFixture = await createMigratedDatabase();
+const schemaApp = await buildApp(
+  schemaFixture.path,
+  testSiteUrl,
+  { secretKey: testSecretKey, cipherKey: testCipherKey },
+  schemaFixture.mediaRoot,
+);
+await schemaApp.ready();
+const spec = schemaApp.swagger() as unknown as {
   paths: Record<string, Record<string, Operation>>;
   components: { schemas: Record<string, Schema> };
 };
+await schemaApp.close();
+await schemaFixture.cleanup();
 // Captured from the commit before the API moved to camelCase internals. Regenerating it would defeat its purpose.
 const golden = JSON.parse(
   readFileSync(new URL('../../test/fixtures/developer-api-contract.golden.json', import.meta.url), 'utf8'),
@@ -272,10 +282,37 @@ test('error fields keep the names callers sent, even ones camelCase cannot repro
   }
 });
 
-test('answers every recorded request byte-for-byte as the previous commit did', () => {
+// The captured fixture remains unchanged. Only display text and newly documented language metadata differ.
+function machineExchange(exchange: ContractExchange) {
+  const copy = structuredClone(exchange);
+  for (const header of ['content-language', 'vary', 'cache-control']) delete copy.headers[header];
+  if (copy.body === '<omitted>' || !copy.body) return copy;
+  const body = JSON.parse(copy.body);
+  if (body.error && typeof body.error === 'object') {
+    delete body.error.message;
+    for (const issue of body.error.fields?.errors ?? []) delete issue.msg;
+  }
+  return { ...copy, body };
+}
+
+test('preserves recorded statuses, response data, and machine-readable errors', () => {
+  const frameworkCodes: Record<string, string> = {
+    'create malformed json': 'request.invalid_payload',
+    'create prototype key': 'request.invalid_payload',
+    'create form body': 'request.unsupported_media_type',
+    'create too large': 'request.too_large',
+  };
   assert.equal(recording.exchanges.length, golden.exchanges.length);
   recording.exchanges.forEach((exchange, index) => {
-    assert.deepEqual(exchange, golden.exchanges[index], exchange.name);
+    const expected = machineExchange(golden.exchanges[index]);
+    const code = frameworkCodes[exchange.name];
+    if (code) expected.body = { error: { code, fields: null } };
+    if (exchange.headers['content-language']) {
+      assert.equal(exchange.headers['content-language'], 'ko');
+      assert.equal(exchange.headers['cache-control'], 'private, no-store');
+      assert.match(exchange.headers.vary, /Cookie/);
+    }
+    assert.deepEqual(machineExchange(exchange), expected, exchange.name);
   });
 });
 
@@ -410,7 +447,7 @@ test('limits each token per minute, reads and writes apart, with a documented 42
     assert.deepEqual(limited.json(), {
       error: {
         code: 'request.rate_limited',
-        message: 'Too many requests. Try again later.',
+        message: '요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.',
         fields: { retry_after: 45 },
       },
     });

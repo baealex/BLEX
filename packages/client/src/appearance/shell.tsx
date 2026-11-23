@@ -1,3 +1,4 @@
+import { siteText, type SiteLocale } from './messages.js';
 import { SiteIcon, type SiteIconName } from './icons.js';
 import { QuickSearch } from './quick-search.js';
 
@@ -57,13 +58,13 @@ const iconButton =
 const authLink =
     'inline-flex min-h-9 shrink-0 items-center rounded-full px-4 py-2 text-sm font-medium transition-all duration-150 active:scale-95';
 
-function ThemeButton({ bordered }: { bordered?: boolean }) {
+function ThemeButton({ bordered, locale }: { bordered?: boolean; locale: SiteLocale }) {
     return (
         <button
             type="button"
             data-site-theme-toggle
             className={`${iconButton} ${bordered ? 'border border-line-light' : ''}`}
-            aria-label="다크 모드로 전환"
+            aria-label={siteText(locale, 'Switch to dark mode')}
         >
             <SiteIcon name="sun" className="blex-theme-sun size-4" />
             <SiteIcon name="moon" className="blex-theme-moon size-4" />
@@ -74,11 +75,25 @@ function ThemeButton({ bordered }: { bordered?: boolean }) {
 const mobileItem =
     'flex items-center gap-3 rounded-lg px-3 py-3 text-sm transition-colors duration-150 hover:bg-surface-subtle active:bg-surface-subtle';
 
-function AccountLinks({ viewer, mobile, newPost }: { viewer: HeaderViewer; mobile?: boolean; newPost?: boolean }) {
+function AccountLinks({
+    viewer,
+    mobile,
+    newPost,
+    locale
+}: {
+    viewer: HeaderViewer;
+    mobile?: boolean;
+    newPost?: boolean;
+    locale: SiteLocale;
+}) {
     const links: Array<[string, string, SiteIconName]> = [
-        ['/work-logs/', '작업 일지', 'book'],
-        [viewer.username ? `/@${encodeURIComponent(viewer.username)}` : '/settings/profile', '프로필', 'user'],
-        ['/settings/notify', '설정', 'settings']
+        ['/work-logs/', siteText(locale, 'Work logs'), 'book'],
+        [
+            viewer.username ? `/@${encodeURIComponent(viewer.username)}` : '/settings/profile',
+            siteText(locale, 'Profile'),
+            'user'
+        ],
+        ['/settings/notify', siteText(locale, 'Settings'), 'settings']
     ];
     const spacing = mobile ? 'rounded-lg px-3' : 'px-4';
     const iconWidth = mobile ? 'w-5' : 'w-4';
@@ -88,7 +103,7 @@ function AccountLinks({ viewer, mobile, newPost }: { viewer: HeaderViewer; mobil
                 {newPost && (
                     <a href="/write" className={`${mobileItem} font-medium text-content`}>
                         <SiteIcon name="pencil" className="w-5 text-xs text-content-secondary" />
-                        <span>새 포스트</span>
+                        <span>{siteText(locale, 'New post')}</span>
                     </a>
                 )}
                 {links.map(([href, label, icon]) => (
@@ -109,7 +124,7 @@ function AccountLinks({ viewer, mobile, newPost }: { viewer: HeaderViewer; mobil
                     className={`flex w-full items-center gap-3 ${spacing} py-3 text-left text-sm text-danger transition-colors duration-150 hover:bg-danger-surface`}
                 >
                     <SiteIcon name="logout" className={`${iconWidth} text-xs`} />
-                    <span>로그아웃</span>
+                    <span>{siteText(locale, 'Log out')}</span>
                 </button>
             </form>
         </>
@@ -122,9 +137,10 @@ export interface SiteHeaderProps {
     searchPage?: boolean;
     editorPage?: boolean;
     hideAuthLinks?: boolean;
+    locale?: SiteLocale;
 }
 
-export function SiteHeader({ brand, viewer, searchPage, editorPage, hideAuthLinks }: SiteHeaderProps) {
+export function SiteHeader({ brand, viewer, searchPage, editorPage, hideAuthLinks, locale = 'ko' }: SiteHeaderProps) {
     return (
         <header
             className="frosted-surface sticky top-0 right-0 left-0 z-30 border-b border-transparent transition-all duration-200"
@@ -136,12 +152,15 @@ export function SiteHeader({ brand, viewer, searchPage, editorPage, hideAuthLink
                     <div className={`flex-1 ${searchPage ? '' : 'md:px-6'}`}>
                         {!searchPage && (
                             <div className="hidden md:block">
-                                <QuickSearch />
+                                <QuickSearch locale={locale} />
                             </div>
                         )}
                     </div>
-                    <nav className="hidden shrink-0 items-center gap-2 md:flex" aria-label="계정 메뉴">
-                        <ThemeButton bordered />
+                    <nav
+                        className="hidden shrink-0 items-center gap-2 md:flex"
+                        aria-label={siteText(locale, 'Account menu')}
+                    >
+                        <ThemeButton bordered locale={locale} />
                         {viewer ? (
                             <>
                                 {viewer.hasEditorRole && !editorPage && (
@@ -149,13 +168,13 @@ export function SiteHeader({ brand, viewer, searchPage, editorPage, hideAuthLink
                                         href="/write"
                                         className={`${authLink} gap-1.5 bg-action text-content-inverted hover:bg-action-hover`}
                                     >
-                                        <SiteIcon name="pencil" className="size-3" /> 새 포스트
+                                        <SiteIcon name="pencil" className="size-3" /> {siteText(locale, 'New post')}
                                     </a>
                                 )}
                                 <details className="blex-user-menu relative" data-account-menu>
                                     <summary
                                         className="relative flex cursor-pointer items-center gap-1.5 rounded-full py-1.5 pr-2 pl-1.5 transition-all duration-150 hover:bg-surface-subtle active:scale-95"
-                                        aria-label="사용자 메뉴"
+                                        aria-label={siteText(locale, 'User menu')}
                                     >
                                         <span className="flex size-8 items-center justify-center rounded-full bg-action text-xs font-semibold text-content-inverted">
                                             {viewer.username?.slice(0, 1).toUpperCase() || 'B'}
@@ -167,10 +186,12 @@ export function SiteHeader({ brand, viewer, searchPage, editorPage, hideAuthLink
                                     </summary>
                                     <div className="absolute right-0 z-50 mt-2 w-52 rounded-xl bg-surface-elevated py-1 shadow-lg ring-1 ring-line/50">
                                         <div className="border-b border-line-light px-4 py-3.5">
-                                            <p className="text-xs text-content-secondary">로그인한 계정</p>
+                                            <p className="text-xs text-content-secondary">
+                                                {siteText(locale, 'Signed in as')}
+                                            </p>
                                             <p className="mt-0.5 truncate text-sm font-semibold">{viewer.username}</p>
                                         </div>
-                                        <AccountLinks viewer={viewer} />
+                                        <AccountLinks viewer={viewer} locale={locale} />
                                     </div>
                                 </details>
                             </>
@@ -193,23 +214,30 @@ export function SiteHeader({ brand, viewer, searchPage, editorPage, hideAuthLink
                             )
                         )}
                     </nav>
-                    <nav className="flex shrink-0 items-center gap-1 md:hidden" aria-label="모바일 메뉴">
+                    <nav
+                        className="flex shrink-0 items-center gap-1 md:hidden"
+                        aria-label={siteText(locale, 'Mobile menu')}
+                    >
                         {!searchPage && (
-                            <a href="/search" className={iconButton} aria-label="검색">
+                            <a href="/search" className={iconButton} aria-label={siteText(locale, 'Search')}>
                                 <SiteIcon name="search" className="size-4" />
                             </a>
                         )}
                         {viewer && (
-                            <a href="/settings/notify" className={iconButton} aria-label="알림">
+                            <a
+                                href="/settings/notify"
+                                className={iconButton}
+                                aria-label={siteText(locale, 'Notifications')}
+                            >
                                 <SiteIcon name="bell" className="size-4" />
                             </a>
                         )}
-                        <ThemeButton />
+                        <ThemeButton locale={locale} />
                         <button
                             type="button"
                             className={iconButton}
                             data-site-menu-open
-                            aria-label="메뉴"
+                            aria-label={siteText(locale, 'Menu')}
                             aria-controls="blex-mobile-menu"
                             aria-expanded="false"
                         >
@@ -224,14 +252,14 @@ export function SiteHeader({ brand, viewer, searchPage, editorPage, hideAuthLink
             >
                 <div className="flex h-full flex-col">
                     <div className="flex h-14 shrink-0 items-center justify-between border-b border-line-light px-4">
-                        <span className="text-sm font-semibold text-content">메뉴</span>
+                        <span className="text-sm font-semibold text-content">{siteText(locale, 'Menu')}</span>
                         <form method="dialog">
-                            <button type="submit" className={iconButton} aria-label="닫기">
+                            <button type="submit" className={iconButton} aria-label={siteText(locale, 'Close')}>
                                 <SiteIcon name="x" className="text-base" />
                             </button>
                         </form>
                     </div>
-                    <nav className="flex-1 overflow-y-auto px-3 py-2" aria-label="사이트 메뉴">
+                    <nav className="flex-1 overflow-y-auto px-3 py-2" aria-label={siteText(locale, 'Site menu')}>
                         {viewer ? (
                             <>
                                 <div className="mb-1 flex items-center gap-3 px-3 py-3">
@@ -242,18 +270,23 @@ export function SiteHeader({ brand, viewer, searchPage, editorPage, hideAuthLink
                                         <p className="truncate text-sm font-semibold text-content">{viewer.username}</p>
                                     </div>
                                 </div>
-                                <AccountLinks viewer={viewer} mobile newPost={viewer.hasEditorRole && !editorPage} />
+                                <AccountLinks
+                                    viewer={viewer}
+                                    mobile
+                                    newPost={viewer.hasEditorRole && !editorPage}
+                                    locale={locale}
+                                />
                             </>
                         ) : (
                             !hideAuthLinks && (
                                 <div className="space-y-1 py-1">
                                     <a href="/login" className={`${mobileItem} text-content-secondary`}>
                                         <SiteIcon name="login-2" className="w-5 text-xs text-content-hint" />
-                                        <span>로그인</span>
+                                        <span>{siteText(locale, 'Log in')}</span>
                                     </a>
                                     <a href="/sign" className={`${mobileItem} font-medium text-content`}>
                                         <SiteIcon name="user-plus" className="w-5 text-xs text-content-secondary" />
-                                        <span>회원가입</span>
+                                        <span>{siteText(locale, 'Sign up')}</span>
                                     </a>
                                 </div>
                             )
@@ -265,12 +298,15 @@ export function SiteHeader({ brand, viewer, searchPage, editorPage, hideAuthLink
     );
 }
 
-export function SiteFooter({ brand }: { brand?: Brand }) {
+export function SiteFooter({ brand, locale = 'ko' }: { brand?: Brand; locale?: SiteLocale }) {
     return (
         <footer className="mt-auto border-t border-line-light bg-surface">
             <div className="mx-auto max-w-7xl px-4 py-12 md:px-6">
                 {Boolean(brand?.footerPages?.length) && (
-                    <nav className="mb-8 flex flex-wrap justify-center gap-2" aria-label="사이트 정보">
+                    <nav
+                        className="mb-8 flex flex-wrap justify-center gap-2"
+                        aria-label={siteText(locale, 'Site information')}
+                    >
                         {brand?.footerPages?.map((page) => (
                             <a
                                 key={page.slug}
