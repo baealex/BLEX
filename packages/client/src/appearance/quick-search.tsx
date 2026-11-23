@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { SiteIcon } from './icons.js';
+import { recentSearches, rememberSearch } from './recent-searches.js';
 
 interface SearchRow {
     href: string;
@@ -13,29 +14,7 @@ interface SearchView {
     emptyMessage: string;
 }
 
-const recentSearchesKey = 'blex-recent-searches';
 const suggestDelayMs = 200;
-
-function recentSearches(): string[] {
-    try {
-        const value: unknown = JSON.parse(localStorage.getItem(recentSearchesKey) ?? '[]');
-        return Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === 'string') : [];
-    } catch {
-        return [];
-    }
-}
-
-function rememberSearch(query: string) {
-    if (!query) return;
-    try {
-        localStorage.setItem(
-            recentSearchesKey,
-            JSON.stringify([query, ...recentSearches().filter((entry) => entry !== query)].slice(0, 6))
-        );
-    } catch {
-        /* Search works without browser storage. */
-    }
-}
 
 function resultRows(matches: unknown): SearchRow[] {
     if (!Array.isArray(matches)) return [];
@@ -53,7 +32,8 @@ function resultRows(matches: unknown): SearchRow[] {
     });
 }
 
-export function QuickSearch() {
+/** `onReady` runs once this component's own handlers are live. */
+export function QuickSearch({ onReady }: { onReady?: () => void }) {
     const container = useRef<HTMLDivElement>(null);
     const input = useRef<HTMLInputElement>(null);
     const list = useRef<HTMLUListElement>(null);
@@ -139,6 +119,7 @@ export function QuickSearch() {
         document.addEventListener('blex:before-page-change', closeOnPageChange);
         // The box can take focus before this code has loaded.
         if (document.activeElement === input.current) suggest();
+        onReady?.();
         return () => {
             cancel();
             document.removeEventListener('click', closeOnOutsideClick);

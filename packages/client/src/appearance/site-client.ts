@@ -1,5 +1,6 @@
 import './tailwind.css';
 import './site.scss';
+import { rememberSearch } from './recent-searches';
 
 const root = document.documentElement;
 const systemTheme = matchMedia('(prefers-color-scheme: dark)');
@@ -74,30 +75,46 @@ function updateHeader() {
     header.classList.toggle('border-transparent', scrollY === 0);
 }
 
-/** Outside the application frame, React for the search box loads only once the reader reaches for it. */
+/**
+ * Outside the application frame, React for the search box loads only once the reader reaches for it.
+ * These listeners cover the box until the island takes over, and the plain form keeps working if it never does.
+ */
 function bindStandaloneSearch(signal: AbortSignal) {
     const search = document.querySelector<HTMLElement>('[data-site-search]');
+    const form = search?.querySelector('form');
     const input = search?.querySelector('input');
-    if (!search || !input) return;
-    let requested = false;
+    if (!search || !form || !input) return;
+    const untilMounted = new AbortController();
+    const listening = { signal: untilMounted.signal };
+    signal.addEventListener('abort', () => untilMounted.abort(), { once: true, ...listening });
+    let loading = false;
     const load = () => {
-        if (requested) return;
-        requested = true;
-        void import('./quick-search-client').then(({ mountQuickSearch }) => {
-            if (!signal.aborted) mountQuickSearch(search, signal);
-        });
+        if (loading) return;
+        loading = true;
+        void import('./quick-search-client').then(
+            ({ mountQuickSearch }) => {
+                if (!signal.aborted) mountQuickSearch(search, signal, () => untilMounted.abort());
+            },
+            () => {
+                loading = false;
+            }
+        );
     };
-    input.addEventListener('focus', load, { signal });
+    input.addEventListener('focus', load, listening);
+    input.addEventListener('input', load, listening);
+    form.addEventListener('submit', () => rememberSearch(input.value.trim()), listening);
     document.addEventListener(
         'keydown',
         (event) => {
-            if (requested || !(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'k') return;
+            if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'k') return;
             if (!search.getClientRects().length) return;
             event.preventDefault();
             input.focus();
+            load();
         },
-        { signal }
+        listening
     );
+    if (document.activeElement === input) load();
 }
 
 function bindRouteElements() {
