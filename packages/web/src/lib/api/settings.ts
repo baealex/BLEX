@@ -927,7 +927,12 @@ export interface ManagedUser {
     isActive: boolean;
     isStaff: boolean;
     isSuperuser: boolean;
+    hasTwoFactor: boolean;
     canChangeRole: boolean;
+    canChangeStatus: boolean;
+    canDelete: boolean;
+    canResetPassword: boolean;
+    canResetTwoFactor: boolean;
     postCount: number;
     dateJoined: string | null;
     lastLogin: string | null;
@@ -979,6 +984,89 @@ export const updateManagedUserRole = async (userId: number, role: ManagedUserRol
         { role },
         { headers: { 'Content-Type': 'application/json' } }
     );
+};
+
+export const updateManagedUserStatus = async (userId: number, isActive: boolean) => {
+    return http.patch<Response<{ user: ManagedUser }>>(
+        `v1/admin/users/${userId}/status`,
+        { isActive },
+        { headers: { 'Content-Type': 'application/json' } }
+    );
+};
+
+export const deleteManagedUser = async (userId: number, username: string) => {
+    return http.delete<Response<{ username: string }>>(`v1/admin/users/${userId}`, {
+        data: { username },
+        headers: { 'Content-Type': 'application/json' }
+    });
+};
+
+export const resetManagedUserTwoFactor = async (userId: number) => {
+    return http.delete<Response<{ user: ManagedUser }>>(`v1/admin/users/${userId}/two-factor`);
+};
+
+export const createManagedUserPasswordLink = async (userId: number) => {
+    return http.post<Response<{ url: string; expiresDate: string }>>(`v1/admin/users/${userId}/password-link`);
+};
+
+export type ModeratedPostStatus = 'public' | 'hidden' | 'trash';
+export type ModeratedPostFilter = 'all' | ModeratedPostStatus;
+
+export interface ModeratedPost {
+    id: number;
+    title: string;
+    path: string;
+    author: string;
+    authorActive: boolean;
+    status: ModeratedPostStatus;
+    commentCount: number;
+    likeCount: number;
+    publishedDate: string | null;
+    deletedDate: string | null;
+}
+
+export interface ModeratedComment {
+    id: number;
+    excerpt: string;
+    author: string;
+    isReply: boolean;
+    isEdited: boolean;
+    postTitle: string;
+    postPath: string;
+    createdDate: string | null;
+}
+
+export const getModeratedPosts = async (query: string, status: ModeratedPostFilter, page: number) => {
+    const params = new URLSearchParams({ page: String(page) });
+    if (query.trim()) params.set('q', query.trim());
+    if (status !== 'all') params.set('status', status);
+    return http.get<Response<{ posts: ModeratedPost[]; pagination: ManagedUsersPagination }>>(`v1/admin/posts?${params.toString()}`);
+};
+
+export const setModeratedPostHidden = async (postId: number, isHidden: boolean) => {
+    return http.patch<Response<ModeratedPost>>(
+        `v1/admin/posts/${postId}`,
+        { isHidden },
+        { headers: { 'Content-Type': 'application/json' } }
+    );
+};
+
+export const moveModeratedPostToTrash = async (postId: number) => {
+    return http.post<Response<ModeratedPost>>(`v1/admin/posts/${postId}/trash`);
+};
+
+export const restoreModeratedPost = async (postId: number) => {
+    return http.post<Response<ModeratedPost>>(`v1/admin/posts/${postId}/restore`);
+};
+
+export const getModeratedComments = async (query: string, page: number) => {
+    const params = new URLSearchParams({ page: String(page) });
+    if (query.trim()) params.set('q', query.trim());
+    return http.get<Response<{ comments: ModeratedComment[]; pagination: ManagedUsersPagination }>>(`v1/admin/comments?${params.toString()}`);
+};
+
+export const deleteModeratedComment = async (commentId: number) => {
+    return http.delete<Response<{ id: number }>>(`v1/admin/comments/${commentId}`);
 };
 
 export interface AuthorInvite {

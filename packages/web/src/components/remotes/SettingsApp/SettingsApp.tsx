@@ -7,10 +7,18 @@ import {
     Navigate,
     useRouter
 } from '@tanstack/react-router';
-import { lazy, Suspense, type ElementType } from 'react';
+import {
+ lazy, useEffect, useState, Suspense, type ElementType
+} from 'react';
 import { useLingui } from '@lingui/react/macro';
 import { SettingsLayout } from './components/SettingsLayout';
 import { LoadingState } from '../../shared';
+import {
+    hasSettingsBasePath,
+    settingsBasePaths,
+    settingsModeFromPath,
+    useSettingsMode
+} from './settings-mode';
 
 // Lazy load settings pages
 const NotifySetting = lazy(() => import('./pages/NotifySetting'));
@@ -38,6 +46,8 @@ const SeoAeoSetting = lazy(() => import('./pages/SeoAeoSetting'));
 const StaticPagesSetting = lazy(() => import('./pages/StaticPagesSetting'));
 const UtilitySetting = lazy(() => import('./pages/UtilitySetting'));
 const UserManagementSetting = lazy(() => import('./pages/UserManagementSetting'));
+const ModerationPostsSetting = lazy(() => import('./pages/ModerationPostsSetting'));
+const ModerationCommentsSetting = lazy(() => import('./pages/ModerationCommentsSetting'));
 
 // Lazy load fullscreen editors
 const SeriesEditor = lazy(() => import('./pages/SeriesSetting/components/SeriesEditor'));
@@ -49,14 +59,9 @@ export interface SettingsAppProps {
     isEditor: boolean;
     isStaff: boolean;
     isSuperuser?: boolean;
-    adminUrl?: string;
-    settingsMode?: SettingsMode;
-    basePath?: string;
     canUseTelegramIntegration?: boolean;
     adminCapabilities?: Partial<AdminCapabilities>;
 }
-
-type SettingsMode = 'user' | 'admin';
 
 export interface AdminCapabilities {
     canManageSiteSettings: boolean;
@@ -68,9 +73,6 @@ export interface AdminCapabilities {
 interface SettingsRouterContext {
     isEditor: boolean;
     isStaff: boolean;
-    adminUrl?: string;
-    settingsMode: SettingsMode;
-    basePath: string;
     canUseTelegramIntegration: boolean;
     adminCapabilities: AdminCapabilities;
 }
@@ -80,6 +82,17 @@ const getAdminDefaultPath = (adminCapabilities: AdminCapabilities) => {
     if (adminCapabilities.canManageLoginSettings) return '/login';
     if (adminCapabilities.canManageIntegrationSettings) return '/integrations';
     return '/global-notices';
+};
+
+const SettingsDocumentTitle = () => {
+    const settingsMode = useSettingsMode();
+
+    useEffect(() => {
+        const label = settingsMode === 'admin' ? '관리자 설정' : '설정';
+        document.title = document.title.replace(/^(?:관리자 설정|설정)(?= \|)/, label);
+    }, [settingsMode]);
+
+    return null;
 };
 
 const SettingsRoot = () => {
@@ -96,6 +109,7 @@ const SettingsRoot = () => {
                     })}
                 />
             )}>
+            <SettingsDocumentTitle />
             <Outlet />
         </Suspense>
     );
@@ -113,7 +127,8 @@ const settingsRoute = createRoute({
 
 const SettingsIndexRedirect = () => {
     const router = useRouter();
-    const { settingsMode, adminCapabilities } = router.options.context as SettingsRouterContext;
+    const settingsMode = useSettingsMode();
+    const { adminCapabilities } = router.options.context as SettingsRouterContext;
 
     return <Navigate to={settingsMode === 'admin' ? getAdminDefaultPath(adminCapabilities) : '/notify'} replace />;
 };
@@ -139,9 +154,9 @@ const adminCapabilityOnly = (
 ) => {
     const AdminCapabilityOnlyRoute = (props: Record<string, unknown>) => {
         const router = useRouter();
+        const settingsMode = useSettingsMode();
         const {
             isStaff,
-            settingsMode,
             adminCapabilities
         } = router.options.context as SettingsRouterContext;
 
@@ -335,6 +350,18 @@ const userManagementRoute = createRoute({
     component: UserManagementSetting
 });
 
+const moderationPostsRoute = createRoute({
+    getParentRoute: () => settingsRoute,
+    path: '/moderation/posts',
+    component: ModerationPostsSetting
+});
+
+const moderationCommentsRoute = createRoute({
+    getParentRoute: () => settingsRoute,
+    path: '/moderation/comments',
+    component: ModerationCommentsSetting
+});
+
 // Layout-less routes for fullscreen editors
 const staticPageCreateRoute = createRoute({
     getParentRoute: () => rootRoute,
@@ -440,52 +467,61 @@ const routeTree = rootRoute.addChildren([
         seoAeoRoute,
         staticPagesRoute,
         utilitiesRoute,
-        userManagementRoute
+        userManagementRoute,
+        moderationPostsRoute,
+        moderationCommentsRoute
     ])
 ]);
+
+// Both settings areas share this tree. The mode follows the URL, so moving between them never reloads the page.
+const createSettingsRouter = (context: SettingsRouterContext) => createRouter({
+    routeTree,
+    context,
+    defaultPreload: 'intent',
+    rewrite: {
+        input: ({ url }) => {
+            const basePath = settingsBasePaths[settingsModeFromPath(url.pathname)];
+            if (url.pathname === basePath || url.pathname.startsWith(`${basePath}/`)) {
+                url.pathname = url.pathname.slice(basePath.length) || '/';
+            }
+            return url;
+        },
+        output: ({ url }) => {
+            if (!hasSettingsBasePath(url.pathname)) {
+                url.pathname = `${settingsBasePaths[settingsModeFromPath(window.location.pathname)]}${url.pathname}`;
+            }
+            return url;
+        }
+    }
+});
 
 const SettingsApp = ({
     isEditor,
     isStaff,
     isSuperuser = false,
-    adminUrl,
-    settingsMode = 'user',
-    basePath,
     canUseTelegramIntegration = false,
     adminCapabilities
 }: SettingsAppProps) => {
-    const normalizedSettingsMode = settingsMode === 'admin' ? 'admin' : 'user';
-    const normalizedBasePath = basePath ?? (normalizedSettingsMode === 'admin' ? '/admin-settings' : '/settings');
     const legacyStaffCapabilities = adminCapabilities === undefined && isStaff;
-    const normalizedAdminCapabilities: AdminCapabilities = {
-        canManageSiteSettings: isSuperuser
-            || adminCapabilities?.canManageSiteSettings === true
-            || legacyStaffCapabilities,
-        canManageLoginSettings: isSuperuser
-            || adminCapabilities?.canManageLoginSettings === true
-            || legacyStaffCapabilities,
-        canManageIntegrationSettings: isSuperuser
-            || adminCapabilities?.canManageIntegrationSettings === true
-            || legacyStaffCapabilities,
-        canManageUtilities: isSuperuser
-            || adminCapabilities?.canManageUtilities === true
-            || legacyStaffCapabilities
-    };
-
-    const router = createRouter({
-        routeTree,
-        context: {
-            isEditor,
-            isStaff,
-            adminUrl,
-            settingsMode: normalizedSettingsMode,
-            basePath: normalizedBasePath,
-            canUseTelegramIntegration,
-            adminCapabilities: normalizedAdminCapabilities
-        },
-        defaultPreload: 'intent',
-        basepath: normalizedBasePath
-    });
+    const [router] = useState(() => createSettingsRouter({
+        isEditor,
+        isStaff,
+        canUseTelegramIntegration,
+        adminCapabilities: {
+            canManageSiteSettings: isSuperuser
+                || adminCapabilities?.canManageSiteSettings === true
+                || legacyStaffCapabilities,
+            canManageLoginSettings: isSuperuser
+                || adminCapabilities?.canManageLoginSettings === true
+                || legacyStaffCapabilities,
+            canManageIntegrationSettings: isSuperuser
+                || adminCapabilities?.canManageIntegrationSettings === true
+                || legacyStaffCapabilities,
+            canManageUtilities: isSuperuser
+                || adminCapabilities?.canManageUtilities === true
+                || legacyStaffCapabilities
+        }
+    }));
 
     return <RouterProvider router={router} />;
 };

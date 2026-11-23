@@ -135,7 +135,7 @@ test('applies 3.x access rules before mounting settings', async () => {
     assert.equal(moved.statusCode, 302);
     assert.equal(moved.headers.location, '/admin-settings/users');
     const admin = await fixture.app.inject({ url: '/admin-settings/users', headers: staff });
-    assert.equal(screenProps(admin.body).props.settingsMode, 'admin');
+    assert.match(admin.body, /<title>관리자 설정 \|/);
   } finally {
     await fixture.close();
   }

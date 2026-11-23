@@ -18,6 +18,7 @@ import {
     Layers3,
     LogIn,
     Megaphone,
+    MessageCircle,
     Palette,
     Plug,
     Send,
@@ -38,6 +39,7 @@ import {
     INTERACTION_DURATION
 } from '@blex/ui/design-tokens';
 import type { AdminCapabilities } from '../SettingsApp';
+import { useSettingsMode, type SettingsMode } from '../settings-mode';
 
 interface NavigationItem {
     name: MessageDescriptor;
@@ -60,14 +62,9 @@ interface SettingsNavigationProps {
     currentPath: string;
 }
 
-type SettingsMode = 'user' | 'admin';
-
 interface SettingsRouterContext {
     isEditor: boolean;
     isStaff: boolean;
-    adminUrl?: string;
-    settingsMode: SettingsMode;
-    basePath: string;
     canUseTelegramIntegration: boolean;
     adminCapabilities: AdminCapabilities;
 }
@@ -326,10 +323,28 @@ const adminNavigationSections: NavigationSection[] = [
             {
                 name: msg({
                     id: 'settings.navigation.user_permissions',
-                    message: 'User permissions'
+                    message: 'User management'
                 }),
                 path: '/users',
                 icon: Users,
+                requiresStaff: true
+            },
+            {
+                name: msg({
+                    id: 'settings.navigation.moderation_posts',
+                    message: 'All posts'
+                }),
+                path: '/moderation/posts',
+                icon: FileText,
+                requiresStaff: true
+            },
+            {
+                name: msg({
+                    id: 'settings.navigation.moderation_comments',
+                    message: 'All comments'
+                }),
+                path: '/moderation/comments',
+                icon: MessageCircle,
                 requiresStaff: true
             },
             {
@@ -341,15 +356,6 @@ const adminNavigationSections: NavigationSection[] = [
                 icon: Wrench,
                 requiresStaff: true,
                 requiresAdminCapability: 'canManageUtilities'
-            },
-            {
-                name: msg({
-                    id: 'settings.navigation.admin_panel',
-                    message: 'Admin panel'
-                }),
-                path: 'admin',
-                icon: Shield,
-                requiresStaff: true
             }
         ]
     }
@@ -376,24 +382,23 @@ const canShowSection = (section: NavigationSection, isEditor: boolean, isStaff: 
     (!section.requiresEditor || isEditor) && (!section.requiresStaff || isStaff)
 );
 
-const normalizePath = (path: string, basePath: string) => {
-    const withoutBase = path.startsWith(basePath) ? path.slice(basePath.length) : path;
-    const normalized = withoutBase.replace(/\/+$/, '');
-    return normalized || '/';
-};
+const normalizePath = (path: string) => path.replace(/\/+$/, '') || '/';
 
 const SettingsModeLink = ({
     settingsMode,
     isStaff,
     adminCapabilities,
-    mobile = false
+    mobile = false,
+    onNavigate
 }: {
     settingsMode: SettingsMode;
     isStaff: boolean;
     adminCapabilities: AdminCapabilities;
     mobile?: boolean;
+    onNavigate?: () => void;
 }) => {
     const { t } = useLingui();
+    const router = useRouter();
 
     if (!isStaff) return null;
 
@@ -420,6 +425,12 @@ const SettingsModeLink = ({
     return (
         <a
             href={href}
+            onClick={(event) => {
+                if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                event.preventDefault();
+                onNavigate?.();
+                router.history.push(href);
+            }}
             className={`inline-flex min-h-11 items-center gap-1.5 font-medium text-content-hint transition-colors ${INTERACTION_DURATION} hover:text-content-secondary ${mobile ? 'rounded-xl px-3 text-sm hover:bg-surface-subtle' : 'w-fit rounded-lg text-xs [@media(pointer:fine)]:min-h-9'}`}>
             <ModeIcon aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-content-hint" />
             <span>{label}</span>
@@ -435,12 +446,10 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const mobileMenuTriggerRef = useRef<HTMLButtonElement>(null);
     const router = useRouter();
+    const settingsMode = useSettingsMode();
     const {
         isEditor,
         isStaff,
-        adminUrl,
-        settingsMode,
-        basePath,
         canUseTelegramIntegration,
         adminCapabilities
     } = router.options.context as SettingsRouterContext;
@@ -457,10 +466,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
     const activeItem = navigationSections
         .flatMap(section => section.items)
         .filter(item => canShowItem(item, isEditor, isStaff, canUseTelegramIntegration, adminCapabilities))
-        .find(item => (
-            item.path !== 'admin'
-            && normalizePath(currentPath, basePath) === normalizePath(item.path, basePath)
-        ));
+        .find(item => normalizePath(currentPath) === normalizePath(item.path));
     const activeItemName = activeItem ? i18n._(activeItem.name) : settingsLabel;
     const handleMobileMenuOpenChange = (open: boolean) => {
         setMobileMenuOpen(open);
@@ -468,17 +474,11 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
             window.requestAnimationFrame(() => mobileMenuTriggerRef.current?.focus());
         }
     };
-    const handleNavClick = (item: NavigationItem) => {
-        handleMobileMenuOpenChange(false);
-        if (item.path === 'admin' && adminUrl) {
-            window.location.assign(adminUrl);
-        }
-    };
 
     const renderNavItem = (item: NavigationItem) => {
         if (!canShowItem(item, isEditor, isStaff, canUseTelegramIntegration, adminCapabilities)) return null;
 
-        const isActive = item.path !== 'admin' && normalizePath(currentPath, basePath) === normalizePath(item.path, basePath);
+        const isActive = normalizePath(currentPath) === normalizePath(item.path);
         const baseClasses = `group flex min-h-11 items-center rounded-lg px-3 py-2.5 text-sm transition-all ${INTERACTION_DURATION} active:scale-95 motion-reduce:transform-none motion-reduce:transition-none`;
         const activeClasses = isActive
             ? 'bg-surface-subtle text-content font-semibold'
@@ -486,31 +486,13 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
         const iconClasses = isActive ? 'text-content' : 'text-content-hint';
         const ItemIcon = item.icon;
 
-        if (item.path === 'admin') {
-            return (
-                <li key={item.path}>
-                    <a
-                        href={adminUrl}
-                        className={`${baseClasses} ${activeClasses}`}
-                        onClick={() => handleNavClick(item)}>
-                        <span
-                            aria-hidden="true"
-                            className={`mr-3 inline-flex w-6 shrink-0 justify-center transition-colors ${iconClasses} group-hover:text-content-secondary`}>
-                            <ItemIcon className="h-4 w-4" />
-                        </span>
-                        <span className="min-w-0 flex-1">{i18n._(item.name)}</span>
-                    </a>
-                </li>
-            );
-        }
-
         return (
             <li key={item.path}>
                 <Link
                     to={item.path}
                     aria-current={isActive ? 'page' : undefined}
                     className={`${baseClasses} ${activeClasses}`}
-                    onClick={() => handleNavClick(item)}>
+                    onClick={() => handleMobileMenuOpenChange(false)}>
                     <span
                         aria-hidden="true"
                         className={`mr-3 inline-flex w-6 shrink-0 justify-center transition-colors ${iconClasses} group-hover:text-content-secondary`}>
@@ -613,6 +595,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                                         isStaff={isStaff}
                                         adminCapabilities={adminCapabilities}
                                         mobile
+                                        onNavigate={() => handleMobileMenuOpenChange(false)}
                                     />
                                 </div>
                             )}
@@ -631,12 +614,10 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
 export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationProps) => {
     const { i18n, t } = useLingui();
     const router = useRouter();
+    const settingsMode = useSettingsMode();
     const {
         isEditor,
         isStaff,
-        adminUrl,
-        settingsMode,
-        basePath,
         canUseTelegramIntegration,
         adminCapabilities
     } = router.options.context as SettingsRouterContext;
@@ -650,16 +631,11 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
             message: 'Settings'
         });
     const navigationSections = getNavigationSections(settingsMode);
-    const handleNavClick = (item: NavigationItem) => {
-        if (item.path === 'admin' && adminUrl) {
-            window.location.assign(adminUrl);
-        }
-    };
 
     const renderNavItem = (item: NavigationItem) => {
         if (!canShowItem(item, isEditor, isStaff, canUseTelegramIntegration, adminCapabilities)) return null;
 
-        const isActive = item.path !== 'admin' && normalizePath(currentPath, basePath) === normalizePath(item.path, basePath);
+        const isActive = normalizePath(currentPath) === normalizePath(item.path);
         const baseClasses = `flex min-h-11 items-center rounded-lg px-3 text-sm transition-all ${INTERACTION_DURATION} active:scale-95 [@media(pointer:fine)]:min-h-9`;
         const activeClasses = isActive
             ? 'bg-surface-subtle text-content font-semibold'
@@ -668,31 +644,12 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
         const desktopClasses = 'group py-2';
         const ItemIcon = item.icon;
 
-        if (item.path === 'admin') {
-            return (
-                <li key={item.path}>
-                    <a
-                        href={adminUrl}
-                        className={`${baseClasses} ${activeClasses} ${desktopClasses}`}
-                        onClick={() => handleNavClick(item)}>
-                        <span
-                            aria-hidden="true"
-                            className={`mr-3 inline-flex w-5 shrink-0 justify-center transition-colors ${iconClasses} group-hover:text-content-secondary`}>
-                            <ItemIcon className="h-4 w-4" />
-                        </span>
-                        <span className="min-w-0 flex-1">{i18n._(item.name)}</span>
-                    </a>
-                </li>
-            );
-        }
-
         return (
             <li key={item.path}>
                 <Link
                     to={item.path}
                     aria-current={isActive ? 'page' : undefined}
-                    className={`${baseClasses} ${activeClasses} ${desktopClasses}`}
-                    onClick={() => handleNavClick(item)}>
+                    className={`${baseClasses} ${activeClasses} ${desktopClasses}`}>
                     <span
                         aria-hidden="true"
                         className={`mr-3 inline-flex w-5 shrink-0 justify-center transition-colors ${iconClasses} group-hover:text-content-secondary`}>

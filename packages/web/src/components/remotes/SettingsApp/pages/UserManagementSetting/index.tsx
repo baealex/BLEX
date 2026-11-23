@@ -15,6 +15,7 @@ import {
 import { toast } from '~/utils/toast';
 import { useConfirm } from '~/hooks/useConfirm';
 import { SettingsHeader } from '../../components';
+import { MemberActions } from './MemberActions';
 import { Button, Card, Input, Select } from '~/components/shared';
 import { getDocumentTimeZone, normalizeLocale } from '~/i18n/locale';
 import {
@@ -187,6 +188,10 @@ const getUserStatusMessage = (user: ManagedUser): MessageDescriptor => {
     });
 };
 
+const hasMemberActions = (user: ManagedUser) => (
+    user.canChangeStatus || user.canDelete || user.canResetPassword || user.canResetTwoFactor
+);
+
 const UserStatusBadge = ({ user }: { user: ManagedUser }) => {
     const { i18n } = useLingui();
     const label = i18n._(getUserStatusMessage(user));
@@ -334,6 +339,8 @@ const MobileUserRow = ({
                             </p>
                         )}
                     </div>
+
+                    <MemberActions user={user} />
                 </div>
             )}
         </div>
@@ -612,11 +619,11 @@ const UserManagementSetting = () => {
             <SettingsHeader
                 title={t({
                     id: 'settings.users.title',
-                    message: 'User roles'
+                    message: 'User management'
                 })}
                 description={t({
                     id: 'settings.users.description',
-                    message: 'Administrator access cannot be changed on this screen.'
+                    message: 'Change roles, suspend or delete members, and help them recover their accounts. Administrator access cannot be changed here.'
                 })}
             />
 
@@ -797,12 +804,13 @@ const UserManagementSetting = () => {
                 )}
 
                 <div className="overflow-hidden rounded-xl border border-line">
-                    <div className="hidden grid-cols-[minmax(0,1.5fr)_110px_90px_100px_130px] gap-4 bg-surface-subtle px-4 py-3 text-xs font-semibold text-content-secondary md:grid">
+                    <div className="hidden grid-cols-[minmax(0,1.5fr)_110px_70px_100px_120px_44px] gap-4 bg-surface-subtle px-4 py-3 text-xs font-semibold text-content-secondary md:grid">
                         <span><Trans id="settings.users.field.user">User</Trans></span>
                         <span><Trans id="settings.users.field.role">Role</Trans></span>
                         <span><Trans id="settings.users.field.posts">Posts</Trans></span>
                         <span><Trans id="settings.users.field.status">Status</Trans></span>
                         <span><Trans id="settings.users.field.joined">Joined</Trans></span>
+                        <span className="sr-only"><Trans id="settings.users.field.actions">Actions</Trans></span>
                     </div>
 
                     <div className="divide-y divide-line">
@@ -816,7 +824,7 @@ const UserManagementSetting = () => {
                                     onRoleChange={role => void handleRoleChange(user, role)}
                                 />
 
-                                <div className="hidden gap-4 px-4 py-4 md:grid md:grid-cols-[minmax(0,1.5fr)_110px_90px_100px_130px] md:items-center">
+                                <div className="hidden gap-4 px-4 py-4 md:grid md:grid-cols-[minmax(0,1.5fr)_110px_70px_100px_120px_44px] md:items-center">
                                     <div className="min-w-0">
                                         <div className="flex items-center gap-2">
                                             <p className="truncate text-sm font-semibold text-content">{user.username}</p>
@@ -858,7 +866,34 @@ const UserManagementSetting = () => {
                                     <div className="text-sm text-content-secondary">
                                         <span>{formatDate(user.dateJoined, locale)}</span>
                                     </div>
+                                    <div className="flex justify-end">
+                                        {hasMemberActions(user) && (
+                                            <button
+                                                type="button"
+                                                aria-expanded={expandedUserId === user.id}
+                                                aria-controls={`managed-user-actions-${user.id}`}
+                                                aria-label={i18n._({
+                                                    id: 'settings.users.actions.toggle_label',
+                                                    message: 'Manage {username}',
+                                                    values: { username: user.username }
+                                                })}
+                                                onClick={() => handleUserToggle(user.id)}
+                                                className="flex h-9 w-9 items-center justify-center rounded-lg text-content-hint transition-colors hover:bg-surface-subtle hover:text-content active:scale-95 motion-reduce:transform-none motion-reduce:transition-none">
+                                                <ChevronDown
+                                                    aria-hidden="true"
+                                                    className={`h-4 w-4 transition-transform motion-reduce:transition-none ${expandedUserId === user.id ? 'rotate-180' : ''}`}
+                                                />
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
+                                {expandedUserId === user.id && hasMemberActions(user) && (
+                                    <div
+                                        id={`managed-user-actions-${user.id}`}
+                                        className="hidden border-t border-line bg-surface-subtle/40 px-4 pb-4 md:block">
+                                        <MemberActions user={user} />
+                                    </div>
+                                )}
                             </div>
                         ))}
 

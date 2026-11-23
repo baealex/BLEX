@@ -28,14 +28,9 @@ import { formatDateTime } from '~/i18n/formatters';
 import { normalizeLocale } from '~/i18n/locale';
 import { SettingsHeader } from '../../components';
 
-type SettingsMode = 'user' | 'admin';
-
 interface SettingsRouterContext {
     isEditor: boolean;
     isStaff: boolean;
-    adminUrl?: string;
-    settingsMode: SettingsMode;
-    basePath: string;
 }
 
 const scopeOptions: Array<{

@@ -662,6 +662,7 @@ msgstr "Apply"
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:212
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:204
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:387
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:286
 #: src/components/shared/ImageCropDialog.tsx:239
 #: src/contexts/ConfirmContext.tsx:98
 msgid "common.cancel"
@@ -669,7 +670,7 @@ msgstr "Cancel"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:72
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:522
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:529
 msgid "common.change"
 msgstr "Change"
 
@@ -682,6 +683,7 @@ msgstr "Change order"
 #: src/components/remotes/PostEditor/components/DraftsPanel.tsx:122
 #: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:234
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:525
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:332
 msgid "common.close"
 msgstr "Close"
 
@@ -691,19 +693,19 @@ msgid "common.confirm"
 msgstr "Confirm"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:565
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:560
 #: src/components/remotes/SettingsApp/pages/IntegrationSetting/components/TelegramConnectCard.tsx:112
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:462
 msgid "common.copy"
 msgstr "Copy"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:368
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:363
 msgid "common.copy_failed"
 msgstr "Could not copy."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:363
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:358
 msgid "common.copy_success"
 msgstr "Copied."
 
@@ -727,6 +729,8 @@ msgstr "Create"
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:86
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:356
 #: src/components/remotes/SettingsApp/pages/GlobalBannerSetting/components/GlobalBannerList.tsx:111
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:67
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:168
 #: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:233
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:307
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:539
@@ -743,8 +747,8 @@ msgstr "Create"
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:462
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageList.tsx:43
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/StaticPagesSetting.tsx:72
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:598
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:723
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:605
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:730
 msgid "common.delete"
 msgstr "Delete"
 
@@ -811,7 +815,7 @@ msgstr "Load more"
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/components/SettingsLayout.tsx:23
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:141
-#: src/components/remotes/SettingsApp/SettingsApp.tsx:93
+#: src/components/remotes/SettingsApp/SettingsApp.tsx:101
 msgid "common.loading"
 msgstr "Loading"
 
@@ -831,31 +835,33 @@ msgid "common.next"
 msgstr "Next"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:108
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:103
 msgid "common.none"
 msgstr "None"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:54
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:902
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:937
 msgid "common.pagination.first"
 msgstr "First page"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:129
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:949
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:984
 msgid "common.pagination.last"
 msgstr "Last page"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:117
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:937
+#: src/components/remotes/SettingsApp/pages/shared/ModerationPager.tsx:42
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:972
 msgid "common.pagination.next"
 msgstr "Next page"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:66
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:914
+#: src/components/remotes/SettingsApp/pages/shared/ModerationPager.tsx:30
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:949
 msgid "common.pagination.previous"
 msgstr "Previous page"
 
@@ -886,7 +892,7 @@ msgid "common.replace"
 msgstr "Replace"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:787
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:794
 msgid "common.reset"
 msgstr "Reset"
 
@@ -930,7 +936,9 @@ msgid "common.saving_ellipsis"
 msgstr "Saving..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:783
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:127
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:222
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:790
 msgid "common.search"
 msgstr "Search"
 
@@ -3430,240 +3438,240 @@ msgid "settings.banners.validation.title_required"
 msgstr "Enter a banner name."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:585
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:580
 msgid "settings.developer_api.active.description"
 msgstr "Review tokens that can currently be used and revoke them whenever needed."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:592
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:587
 msgid "settings.developer_api.active.empty"
 msgstr "There are no active tokens. Create one above when you need it."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:580
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:575
 msgid "settings.developer_api.active.title"
 msgstr "Active tokens ({count})"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:533
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:528
 msgid "settings.developer_api.create.action"
 msgstr "Create token"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:532
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:527
 msgid "settings.developer_api.create.creating"
 msgstr "Creating…"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:434
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:429
 msgid "settings.developer_api.create.description"
 msgstr "Choose a name, permissions, and expiration period for each external tool."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:282
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:277
 msgid "settings.developer_api.create.error"
 msgstr "An error occurred while creating the token."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:264
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:259
 msgid "settings.developer_api.create.failed"
 msgstr "Could not create the token."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:276
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:271
 msgid "settings.developer_api.create.success"
 msgstr "Developer API token created."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:430
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:425
 msgid "settings.developer_api.create.title"
 msgstr "Create a token"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:546
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:541
 msgid "settings.developer_api.created.description"
 msgstr "The full value is shown only once on this screen."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:542
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:537
 msgid "settings.developer_api.created.title"
 msgstr "Copy your token now"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:570
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:565
 msgid "settings.developer_api.created.warning"
 msgstr "You cannot view it again after refreshing or leaving this screen. If it is lost or exposed, revoke it below and create a new one immediately."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:184
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:179
 msgid "settings.developer_api.date.created"
 msgstr "Created"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:191
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:186
 msgid "settings.developer_api.date.expires"
 msgstr "Expires"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:198
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:193
 msgid "settings.developer_api.date.last_used"
 msgstr "Last used"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:410
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:405
 msgid "settings.developer_api.description"
 msgstr "Create and manage personal API tokens that let external tools read or write your posts."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:423
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:418
 msgid "settings.developer_api.docs"
 msgstr "API docs"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:495
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:490
 msgid "settings.developer_api.form.expiration_days"
 msgstr "Expires in (days)"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:504
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:499
 msgid "settings.developer_api.form.expiration_help"
 msgstr "Choose a value from 1 to 365 days."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:442
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:437
 msgid "settings.developer_api.form.name"
 msgstr "Token name"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:452
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:447
 msgid "settings.developer_api.form.name_help"
 msgstr "Use a name that will help you identify it later."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:448
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:443
 msgid "settings.developer_api.form.name_placeholder"
 msgstr "For example: Personal automation, Raycast, deploy script"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:462
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:457
 msgid "settings.developer_api.form.permissions"
 msgstr "Permissions"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:465
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:460
 msgid "settings.developer_api.form.permissions_help"
 msgstr "Select only the permissions this tool needs."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:608
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:603
 msgid "settings.developer_api.inactive.title"
 msgstr "Expired and revoked ({count})"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:245
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:240
 msgid "settings.developer_api.load_failed"
 msgstr "Could not load developer API tokens."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:419
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:414
 msgid "settings.developer_api.quickstart"
 msgstr "Quickstart"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:216
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:386
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:211
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:381
 msgid "settings.developer_api.revoke.action"
 msgstr "Revoke"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:310
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:305
 msgid "settings.developer_api.revoke.error"
 msgstr "An error occurred while revoking the token."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:296
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:291
 msgid "settings.developer_api.revoke.failed"
 msgstr "Could not revoke the token."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:381
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:376
 msgid "settings.developer_api.revoke.message"
 msgstr "Revoke \"{name}\"? A revoked token cannot be used again."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:304
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:299
 msgid "settings.developer_api.revoke.success"
 msgstr "Developer API token revoked."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:377
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:372
 msgid "settings.developer_api.revoke.title"
 msgstr "Revoke API token"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:481
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:476
 msgid "settings.developer_api.scope.author_required"
 msgstr "Author access is required."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:53
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:48
 msgid "settings.developer_api.scope.posts_read.description"
 msgstr "View your post list and post details."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:49
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:119
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:44
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:114
 msgid "settings.developer_api.scope.posts_read.label"
 msgstr "Read posts"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:64
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:59
 msgid "settings.developer_api.scope.posts_write.description"
 msgstr "Create, edit, and publish your posts."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:60
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:125
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:55
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:120
 msgid "settings.developer_api.scope.posts_write.label"
 msgstr "Write posts"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:516
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:511
 msgid "settings.developer_api.security_notice"
 msgstr "The full token is shown only once, immediately after creation. Grant the minimum permissions, choose the shortest useful lifetime, and store it securely."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:145
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:140
 msgid "settings.developer_api.status.active"
 msgstr "Active"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:140
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:135
 msgid "settings.developer_api.status.expired"
 msgstr "Expired"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:134
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:129
 msgid "settings.developer_api.status.revoked"
 msgstr "Revoked"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:406
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:401
 msgid "settings.developer_api.title"
 msgstr "Developer API"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:345
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:340
 msgid "settings.developer_api.validation.expiry_range"
 msgstr "Enter an expiration period between 1 and 365 days."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:328
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:323
 msgid "settings.developer_api.validation.name_required"
 msgstr "Enter a token name."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:336
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:331
 msgid "settings.developer_api.validation.scope_required"
 msgstr "Select at least one permission."
 
@@ -4008,191 +4016,393 @@ msgid "settings.login.welcome_url.label"
 msgstr "Welcome notification URL"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:99
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:25
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:80
+msgid "settings.moderation.action_failed"
+msgstr "Could not complete this action."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:62
+msgid "settings.moderation.comments.delete_message"
+msgstr "Delete this comment by {author}? Visitors will see it as a deleted comment, and this cannot be undone here."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:58
+msgid "settings.moderation.comments.delete_title"
+msgstr "Delete comment"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:47
+msgid "settings.moderation.comments.deleted"
+msgstr "Comment deleted."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:97
+msgid "settings.moderation.comments.description"
+msgstr "Find and remove comments from any post."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:148
+msgid "settings.moderation.comments.edited"
+msgstr "Edited"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:179
+msgid "settings.moderation.comments.empty"
+msgstr "No comments match your search."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:104
+msgid "settings.moderation.comments.list_title"
+msgstr "Recent comments"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:145
+msgid "settings.moderation.comments.reply"
+msgstr "Reply"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:112
+msgid "settings.moderation.comments.search_label"
+msgstr "Search comments"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:116
+msgid "settings.moderation.comments.search_placeholder"
+msgstr "Search comment text or author"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:93
+msgid "settings.moderation.comments.title"
+msgstr "All comments"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:175
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:314
+msgid "settings.moderation.load_failed"
+msgstr "Could not load the list. Try again shortly."
+
+#. js-lingui-explicit-id
+#. placeholder {0}: pagination.page
+#. placeholder {1}: pagination.totalPages
+#. placeholder {2}: pagination.total
+#: src/components/remotes/SettingsApp/pages/shared/ModerationPager.tsx:19
+msgid "settings.moderation.pagination"
+msgstr "Page {0} of {1} · {2} total"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:266
+msgid "settings.moderation.posts.author_inactive"
+msgstr "(inactive author)"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:176
+msgid "settings.moderation.posts.description"
+msgstr "Hide or remove published posts from any author. Drafts and scheduled posts stay private."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:318
+msgid "settings.moderation.posts.empty"
+msgstr "No posts match your search."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:208
+msgid "settings.moderation.posts.filter_label"
+msgstr "Filter posts by status"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:28
+msgid "settings.moderation.posts.filter.all"
+msgstr "Public and hidden"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:103
+msgid "settings.moderation.posts.hidden_done"
+msgstr "Post hidden."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:295
+msgid "settings.moderation.posts.hide"
+msgstr "Hide"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:183
+msgid "settings.moderation.posts.list_title"
+msgstr "Published posts"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:254
+msgid "settings.moderation.posts.meta"
+msgstr "{author} · {date} · {comments} comments · {likes} likes"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:280
+msgid "settings.moderation.posts.restore"
+msgstr "Restore"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:115
+msgid "settings.moderation.posts.restored_done"
+msgstr "Post restored."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:191
+msgid "settings.moderation.posts.search_label"
+msgstr "Search posts"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:195
+msgid "settings.moderation.posts.search_placeholder"
+msgstr "Search title or author"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:294
+msgid "settings.moderation.posts.show"
+msgstr "Make public"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:107
+msgid "settings.moderation.posts.shown_done"
+msgstr "Post is public again."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:42
+msgid "settings.moderation.posts.status.hidden"
+msgstr "Hidden"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:35
+msgid "settings.moderation.posts.status.public"
+msgstr "Public"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:49
+msgid "settings.moderation.posts.status.trash"
+msgstr "Trash"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:172
+msgid "settings.moderation.posts.title"
+msgstr "All posts"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:141
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:304
+msgid "settings.moderation.posts.trash_confirm"
+msgstr "Move to trash"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:133
+msgid "settings.moderation.posts.trash_message"
+msgstr "Move \"{title}\" by {author} to the trash? It disappears from the site, and you can restore it from the Trash filter."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:129
+msgid "settings.moderation.posts.trash_title"
+msgstr "Move to trash"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:111
+msgid "settings.moderation.posts.trashed_done"
+msgstr "Post moved to trash."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:133
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:228
+msgid "settings.moderation.updating"
+msgstr "Updating the list…"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:96
 msgid "settings.navigation.account"
 msgstr "Account"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:346
-msgid "settings.navigation.admin_panel"
-msgstr "Admin panel"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:414
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:448
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:644
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:419
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:457
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:625
 msgid "settings.navigation.admin_settings"
 msgstr "Admin settings"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:547
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:529
 msgid "settings.navigation.aria_label"
 msgstr "{settings} navigation"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:410
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:415
 msgid "settings.navigation.back_to_personal"
 msgstr "Back to my settings"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:168
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:165
 msgid "settings.navigation.banners"
 msgstr "Banners"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:598
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:580
 msgid "settings.navigation.close_menu"
 msgstr "Close {settings} menu"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:203
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:200
 msgid "settings.navigation.developer_api"
 msgstr "Developer API"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:150
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:147
 msgid "settings.navigation.forms"
 msgstr "Forms"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:281
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:278
 msgid "settings.navigation.global_banners"
 msgstr "Global banners"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:272
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:269
 msgid "settings.navigation.global_notices"
 msgstr "Global notices"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:290
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:287
 msgid "settings.navigation.global_webhook_integration"
 msgstr "Global webhook integration"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:234
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:231
 msgid "settings.navigation.login_management"
 msgstr "Login management"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:585
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:567
 msgid "settings.navigation.menu_title"
 msgstr "{settings} menu"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:159
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:342
+msgid "settings.navigation.moderation_comments"
+msgstr "All comments"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:333
+msgid "settings.navigation.moderation_posts"
+msgstr "All posts"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:156
 msgid "settings.navigation.notices"
 msgstr "Notices"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:83
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:80
 msgid "settings.navigation.notifications"
 msgstr "Notifications"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:558
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:540
 msgid "settings.navigation.open_menu"
 msgstr "Open {settings} menu, current page: {current}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:132
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:129
 msgid "settings.navigation.posts"
 msgstr "Posts"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:107
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:104
 msgid "settings.navigation.profile"
 msgstr "Profile"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:320
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:317
 msgid "settings.navigation.section.administration"
 msgstr "Administration"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:125
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:122
 msgid "settings.navigation.section.blog"
 msgstr "Blog"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:179
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:301
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:176
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:298
 msgid "settings.navigation.section.extensions"
 msgstr "Extensions"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:77
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:74
 msgid "settings.navigation.section.general"
 msgstr "General"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:265
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:262
 msgid "settings.navigation.section.operations"
 msgstr "Operations"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:217
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:214
 msgid "settings.navigation.section.site"
 msgstr "Site"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:244
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:241
 msgid "settings.navigation.seo_aeo"
 msgstr "SEO/AEO"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:141
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:138
 msgid "settings.navigation.series"
 msgstr "Series"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:452
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:648
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:461
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:629
 msgid "settings.navigation.settings"
 msgstr "Settings"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:224
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:221
 msgid "settings.navigation.site_customization"
 msgstr "Blog customization"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:115
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:112
 msgid "settings.navigation.social_links"
 msgstr "Social links"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:254
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:251
 msgid "settings.navigation.static_pages"
 msgstr "Static pages"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:91
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:88
 msgid "settings.navigation.subscriptions"
 msgstr "Subscriptions"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:308
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:305
 msgid "settings.navigation.telegram"
 msgstr "Telegram"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:185
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:182
 msgid "settings.navigation.telegram_integration"
 msgstr "Telegram integration"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:327
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:324
 msgid "settings.navigation.user_permissions"
 msgstr "User permissions"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:336
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:351
 msgid "settings.navigation.utilities"
 msgstr "Utilities"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:194
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:191
 msgid "settings.navigation.webhook_integration"
 msgstr "Webhook integration"
 
@@ -7063,345 +7273,501 @@ msgid "settings.telegram.token.generate_failed"
 msgstr "Could not generate a verification code."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:617
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:127
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:210
+msgid "settings.users.actions.deactivate"
+msgstr "Deactivate"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:122
+msgid "settings.users.actions.deactivate_message"
+msgstr "{username} will be signed out and cannot sign in. Their posts are hidden from visitors. You can reactivate the account at any time."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:118
+msgid "settings.users.actions.deactivate_title"
+msgstr "Deactivate account"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:51
+msgid "settings.users.actions.deactivated"
+msgstr "Deactivated {username}."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:245
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:294
+msgid "settings.users.actions.delete"
+msgstr "Delete account"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:276
+msgid "settings.users.actions.delete_confirm_label"
+msgstr "Type the username to confirm"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:264
+msgid "settings.users.actions.delete_message"
+msgstr "This permanently deletes {username} and their {postCount} posts. It cannot be undone. Their comments stay as deleted comments."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:253
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:261
+msgid "settings.users.actions.delete_title"
+msgstr "Delete account"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:88
+msgid "settings.users.actions.deleted"
+msgstr "Deleted {username}."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:30
+msgid "settings.users.actions.failed"
+msgstr "Could not complete this action."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:222
+msgid "settings.users.actions.password_action"
+msgstr "Password reset link"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:167
+msgid "settings.users.actions.password_confirm"
+msgstr "Create link"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:179
+msgid "settings.users.actions.password_copied"
+msgstr "Password reset link copied."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:336
+msgid "settings.users.actions.password_copy"
+msgstr "Copy link"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:184
+msgid "settings.users.actions.password_copy_failed"
+msgstr "Could not copy the link. Select it and copy it manually."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:162
+msgid "settings.users.actions.password_message"
+msgstr "Anyone with this link can set a new password for {username} for 24 hours. Only send it to the account owner."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:314
+msgid "settings.users.actions.password_ready_message"
+msgstr "Send this to {username}. It stops working on {expires} or once a new password is saved, and it will not be shown again."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:303
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:311
+msgid "settings.users.actions.password_ready_title"
+msgstr "Password reset link"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:158
+msgid "settings.users.actions.password_title"
+msgstr "Create password reset link"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:112
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:211
+msgid "settings.users.actions.reactivate"
+msgstr "Reactivate"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:107
+msgid "settings.users.actions.reactivate_message"
+msgstr "{username} will be able to sign in again, and their public posts will return."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:103
+msgid "settings.users.actions.reactivate_title"
+msgstr "Reactivate account"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:46
+msgid "settings.users.actions.reactivated"
+msgstr "Reactivated {username}."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:875
+msgid "settings.users.actions.toggle_label"
+msgstr "Manage {username}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:232
+msgid "settings.users.actions.two_factor_action"
+msgstr "Turn off 2FA"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:147
+msgid "settings.users.actions.two_factor_confirm"
+msgstr "Turn off"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:142
+msgid "settings.users.actions.two_factor_message"
+msgstr "Only do this after confirming the request came from {username}. They will be signed out and can sign in with just a password."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:65
+msgid "settings.users.actions.two_factor_reset"
+msgstr "Turned off two-factor authentication for {username}."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:138
+msgid "settings.users.actions.two_factor_title"
+msgstr "Turn off two-factor authentication"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:624
 msgid "settings.users.description"
 msgstr "Administrator access cannot be changed on this screen."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:231
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:236
 msgid "settings.users.details.collapse"
 msgstr "collapse"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:235
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:240
 msgid "settings.users.details.expand"
 msgstr "expand"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:247
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:252
 msgid "settings.users.details.toggle_label"
 msgstr "{username}, {status}, {role}, {action} details"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:288
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:813
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/MemberActions.tsx:196
+msgid "settings.users.field.actions"
+msgstr "Actions"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:293
 msgid "settings.users.field.email"
 msgstr "Email"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:305
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:805
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:310
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:812
 msgid "settings.users.field.joined"
 msgstr "Joined"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:291
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:826
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:296
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:834
 msgid "settings.users.field.no_email"
 msgstr "No email address"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:299
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:803
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:304
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:810
 msgid "settings.users.field.posts"
 msgstr "Posts"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:315
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:802
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:320
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:809
 msgid "settings.users.field.role"
 msgstr "Role"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:804
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:811
 msgid "settings.users.field.status"
 msgstr "Status"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:801
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:808
 msgid "settings.users.field.user"
 msgstr "User"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:79
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:80
 msgid "settings.users.filter.admins"
 msgstr "Administrators only"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:58
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:59
 msgid "settings.users.filter.all_roles"
 msgstr "All roles"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:72
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:73
 msgid "settings.users.filter.authors"
 msgstr "Authors only"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:65
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:66
 msgid "settings.users.filter.readers"
 msgstr "Readers only"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:774
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:781
 msgid "settings.users.filters.ordering_aria"
 msgstr "Sort users"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:764
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:771
 msgid "settings.users.filters.role_aria"
 msgstr "Filter users by role"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:699
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:706
 msgid "settings.users.invites.claimed_by"
 msgstr "Claimed by {username}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:714
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:721
 msgid "settings.users.invites.copy_action"
 msgstr "Copy link"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:581
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:588
 msgid "settings.users.invites.copy_failed"
 msgstr "Could not copy the invitation link."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:576
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:583
 msgid "settings.users.invites.copy_success"
 msgstr "Invitation link copied."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:677
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:684
 msgid "settings.users.invites.create_action"
 msgstr "Create invitation link"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:459
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:466
 msgid "settings.users.invites.create_and_copy_success"
 msgstr "Author invitation link created and copied to the clipboard."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:472
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:477
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:479
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:484
 msgid "settings.users.invites.create_failed"
 msgstr "Could not create the invitation link."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:464
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:471
 msgid "settings.users.invites.create_success"
 msgstr "Author invitation link created."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:494
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:499
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:501
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:506
 msgid "settings.users.invites.delete_failed"
 msgstr "Could not delete the invitation link."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:487
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:494
 msgid "settings.users.invites.delete_success"
 msgstr "Invitation link deleted."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:594
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:601
 msgid "settings.users.invites.delete.message"
 msgstr "Delete this invitation link? New users will no longer be able to sign up with it."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:590
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:597
 msgid "settings.users.invites.delete.title"
 msgstr "Delete invitation link"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:660
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:667
 msgid "settings.users.invites.description"
 msgstr "Anyone who signs up through an invitation link receives author access immediately."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:731
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:738
 msgid "settings.users.invites.empty"
 msgstr "There are no invitation links."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:396
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:403
 msgid "settings.users.invites.load_failed"
 msgstr "Could not load invitation links."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:689
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:696
 msgid "settings.users.invites.status.claimed"
 msgstr "Claimed"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:693
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:700
 msgid "settings.users.invites.status.pending"
 msgstr "Pending"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:656
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:663
 msgid "settings.users.invites.title"
 msgstr "Invite authors"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:668
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:675
 msgid "settings.users.invites.usage_notice"
 msgstr "Each invitation link can be used once and can be deleted before it is claimed."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:873
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:908
 msgid "settings.users.list.empty"
 msgstr "No users match your search."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:867
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:902
 msgid "settings.users.list.error"
 msgstr "Could not load the user list. Try again shortly."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:739
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:746
 msgid "settings.users.list.title"
 msgstr "Users"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:795
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:802
 msgid "settings.users.list.updating"
 msgstr "Updating the user list…"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:381
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:388
 msgid "settings.users.load_failed"
 msgstr "Could not load the user list."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:127
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:128
 msgid "settings.users.order.joined_asc"
 msgstr "Oldest members"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:120
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:121
 msgid "settings.users.order.joined_desc"
 msgstr "Newest members"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:113
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:114
 msgid "settings.users.order.posts_asc"
 msgstr "Fewest posts"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:106
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:107
 msgid "settings.users.order.posts_desc"
 msgstr "Most posts"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:92
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:93
 msgid "settings.users.order.username_asc"
 msgstr "Username: A to Z"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:99
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:100
 msgid "settings.users.order.username_desc"
 msgstr "Username: Z to A"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:882
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:917
 msgid "settings.users.pagination.summary"
 msgstr "Showing {start}–{end} of {total} users"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:441
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:446
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:448
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:453
 msgid "settings.users.role_change.failed"
 msgstr "Could not change the role."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:513
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:520
 msgid "settings.users.role_change.message"
 msgstr "Change {username}'s role from {currentRole} to {nextRole}?"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:430
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:437
 msgid "settings.users.role_change.success"
 msgstr "Changed {username}'s role to {role}."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:509
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:516
 msgid "settings.users.role_change.title"
 msgstr "Change role"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:43
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:44
 msgid "settings.users.role.author"
 msgstr "Author"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:36
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:37
 msgid "settings.users.role.reader"
 msgstr "Reader"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:321
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:838
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:326
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:846
 msgid "settings.users.role.select_aria"
 msgstr "Change role for {username}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:747
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:754
 msgid "settings.users.search.label"
 msgstr "Search users"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:751
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:758
 msgid "settings.users.search.placeholder"
 msgstr "Search username, name, or email"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:649
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:656
 msgid "settings.users.stats.administrators"
 msgstr "Administrators"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:637
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:644
 msgid "settings.users.stats.authors"
 msgstr "Authors"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:624
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:631
 msgid "settings.users.stats.label"
 msgstr "User statistics"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:643
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:650
 msgid "settings.users.stats.readers"
 msgstr "Readers"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:631
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:638
 msgid "settings.users.stats.total"
 msgstr "Total"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:184
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:185
 msgid "settings.users.status.active"
 msgstr "Active"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:179
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:180
 msgid "settings.users.status.administrator"
 msgstr "Administrator"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:167
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:168
 msgid "settings.users.status.inactive"
 msgstr "Inactive"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:173
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:174
 msgid "settings.users.status.superuser"
 msgstr "Superuser"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:613
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:620
 msgid "settings.users.title"
 msgstr "User roles"
 
