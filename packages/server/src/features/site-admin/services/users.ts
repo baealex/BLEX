@@ -2,8 +2,10 @@ import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyRequest } from 'fastify';
 import { randomBytes } from 'node:crypto';
 import { containsLiteral } from '../../posts/data/text-match.js';
+import { removeAccountAttachments, removeAccountData } from '../../auth/delete-account.js';
+import { createPasswordResetToken } from '../../auth/password-reset.js';
 import { type AdminManagedUser, type AdminUserList, type AdminInvite } from '../types.js';
-import { ApiResult, isoDate, positiveInteger } from '../shared.js';
+import { ApiResult, isoDate, positiveInteger, recordModeration } from '../shared.js';
 
 /** Posts in the trash do not count toward a member's post total. */
 const countedPosts = { deletedAt: null } satisfies Prisma.PostWhereInput;
@@ -12,12 +14,53 @@ const managedUserSelect = {
   id: true, username: true, name: true, email: true, isActive: true, isStaff: true, isSuperuser: true,
   joinedAt: true, lastLoginAt: true,
   profile: { select: { role: true } },
+  twoFactor: { select: { id: true } },
   _count: { select: { posts: { where: countedPosts } } },
 } satisfies Prisma.UserSelect;
 
 type ManagedUserRow = Prisma.UserGetPayload<{ select: typeof managedUserSelect }>;
 type UserOrdering = { field: 'username' | 'postCount' | 'joinedAt'; direction: 'asc' | 'desc' };
 type UserStats = AdminUserList['stats'];
+
+export interface MemberActor {
+  id: number;
+  superuser: boolean;
+}
+
+/**
+ * Staff can suspend members. Deleting an account, or handing out a way into one, takes a superuser,
+ * and no one can use these on their own account or on another superuser.
+ */
+function memberPermissions(row: ManagedUserRow, actor: MemberActor) {
+  const administrator = row.isStaff || row.isSuperuser;
+  const self = row.id === actor.id;
+  const recoverable = actor.superuser && !self && !row.isSuperuser;
+  return {
+    canChangeRole: row.isActive && !administrator,
+    canChangeStatus: !self && !administrator,
+    canDelete: actor.superuser && !self && !administrator,
+    canResetPassword: recoverable && row.isActive,
+    canResetTwoFactor: recoverable && row.twoFactor !== null,
+  };
+}
+
+function managedUser(row: ManagedUserRow, actor: MemberActor): AdminManagedUser {
+  return {
+    id: row.id,
+    username: row.username,
+    name: row.name,
+    email: row.email,
+    role: row.profile?.role === 'EDITOR' ? 'EDITOR' : 'READER',
+    isActive: row.isActive,
+    isStaff: row.isStaff,
+    isSuperuser: row.isSuperuser,
+    hasTwoFactor: row.twoFactor !== null,
+    ...memberPermissions(row, actor),
+    postCount: row._count.posts,
+    dateJoined: isoDate(row.joinedAt),
+    lastLogin: row.lastLoginAt ? isoDate(row.lastLoginAt) : null,
+  };
+}
 
 export async function readInvites(db: PrismaClient): Promise<AdminInvite[]> {
   const rows = await db.authorInvite.findMany({
@@ -124,7 +167,7 @@ async function managedUserPage(
   return { users, stats: { total, editors, readers, admins }, page, totalPages };
 }
 
-export async function readManagedUsers(db: PrismaClient, request: FastifyRequest): Promise<AdminUserList> {
+export async function readManagedUsers(db: PrismaClient, request: FastifyRequest, actor: MemberActor): Promise<AdminUserList> {
   const params = userListQuery(request);
   const query = (params.get('q') ?? '').trim();
   const role = userRoleFilter(params.get('role'));
@@ -135,20 +178,7 @@ export async function readManagedUsers(db: PrismaClient, request: FastifyRequest
     db, managedUserWhere(query, role), query, userOrdering(params.get('ordering')), pageSize, requestedPage,
   );
   return {
-    users: users.map((row) => ({
-      id: row.id,
-      username: row.username,
-      name: row.name,
-      email: row.email,
-      role: row.profile?.role === 'EDITOR' ? 'EDITOR' : 'READER',
-      isActive: row.isActive,
-      isStaff: row.isStaff,
-      isSuperuser: row.isSuperuser,
-      canChangeRole: row.isActive && !row.isStaff && !row.isSuperuser,
-      postCount: row._count.posts,
-      dateJoined: isoDate(row.joinedAt),
-      lastLogin: row.lastLoginAt ? isoDate(row.lastLoginAt) : null,
-    })),
+    users: users.map((row) => managedUser(row, actor)),
     pagination: {
       page,
       pageSize,
@@ -163,7 +193,7 @@ export async function readManagedUsers(db: PrismaClient, request: FastifyRequest
 
 export async function updateManagedUserRole(
   db: PrismaClient,
-  actorId: number,
+  actor: MemberActor,
   targetId: number,
   roleValue: unknown,
 ): Promise<ApiResult<AdminManagedUser>> {
@@ -173,10 +203,10 @@ export async function updateManagedUserRole(
   return db.$transaction(async (transaction) => {
     const target = await transaction.user.findUnique({
       where: { id: targetId },
-      select: { id: true, username: true, name: true, email: true, isActive: true, isStaff: true, isSuperuser: true, joinedAt: true, lastLoginAt: true },
+      select: { id: true, isStaff: true, isSuperuser: true },
     });
     if (!target) return { ok: false, code: 'NF', message: 'User not found.' };
-    if (target.id === actorId) return { ok: false, code: 'RJ', message: 'You cannot change your own role.' };
+    if (target.id === actor.id) return { ok: false, code: 'RJ', message: 'You cannot change your own role.' };
     if (target.isStaff || target.isSuperuser) {
       return { ok: false, code: 'RJ', message: 'Administrator roles cannot be changed from this page.' };
     }
@@ -194,22 +224,98 @@ export async function updateManagedUserRole(
       await transaction.profile.create({ data: { userId: targetId, role: roleValue }, select: { userId: true } });
     }
     await transaction.userPreference.upsert({ where: { userId: targetId }, create: { userId: targetId }, update: {}, select: { userId: true } });
-    const postCount = await transaction.post.count({ where: { authorId: targetId, ...countedPosts } });
-    const user: AdminManagedUser = {
-      id: target.id,
-      username: target.username,
-      name: target.name,
-      email: target.email,
-      role: roleValue,
-      isActive: target.isActive,
-      isStaff: target.isStaff,
-      isSuperuser: target.isSuperuser,
-      canChangeRole: target.isActive,
-      postCount,
-      dateJoined: isoDate(target.joinedAt),
-      lastLogin: target.lastLoginAt ? isoDate(target.lastLoginAt) : null,
-    };
-    return { ok: true, body: user };
+    const row = await transaction.user.findUniqueOrThrow({ where: { id: targetId }, select: managedUserSelect });
+    return { ok: true, body: managedUser(row, actor) };
+  });
+}
+
+type MemberPermission = keyof ReturnType<typeof memberPermissions>;
+
+async function permittedMember(
+  transaction: Prisma.TransactionClient,
+  actor: MemberActor,
+  targetId: number,
+  permission: MemberPermission,
+): Promise<{ ok: true; row: ManagedUserRow } | { ok: false; code: string; message: string }> {
+  const row = await transaction.user.findUnique({ where: { id: targetId }, select: managedUserSelect });
+  if (!row) return { ok: false, code: 'NF', message: 'User not found.' };
+  if (!memberPermissions(row, actor)[permission]) {
+    return { ok: false, code: 'RJ', message: 'You cannot perform this action on this account.' };
+  }
+  return { ok: true, row };
+}
+
+export async function setMemberActive(
+  db: PrismaClient,
+  actor: MemberActor,
+  targetId: number,
+  isActive: unknown,
+): Promise<ApiResult<AdminManagedUser>> {
+  if (typeof isActive !== 'boolean') return { ok: false, code: 'VA', message: 'Check the account status.' };
+  return db.$transaction(async (transaction) => {
+    const target = await permittedMember(transaction, actor, targetId, 'canChangeStatus');
+    if (!target.ok) return target;
+    if (target.row.isActive === isActive) return { ok: true, body: managedUser(target.row, actor) };
+    await transaction.user.update({ where: { id: targetId }, data: { isActive }, select: { id: true } });
+    if (!isActive) await transaction.session.deleteMany({ where: { userId: targetId } });
+    await recordModeration(transaction, actor.id, 'user', targetId, target.row.username, 2, isActive ? 'Reactivated account' : 'Deactivated account');
+    const row = await transaction.user.findUniqueOrThrow({ where: { id: targetId }, select: managedUserSelect });
+    return { ok: true, body: managedUser(row, actor) };
+  });
+}
+
+export async function deleteMember(
+  db: PrismaClient,
+  actor: MemberActor,
+  targetId: number,
+  confirmedUsername: unknown,
+  mediaRoot?: string,
+): Promise<ApiResult<{ username: string }>> {
+  const result = await db.$transaction(async (transaction) => {
+    const target = await permittedMember(transaction, actor, targetId, 'canDelete');
+    if (!target.ok) return target;
+    if (confirmedUsername !== target.row.username) {
+      return { ok: false as const, code: 'VA', message: 'Type the username to confirm.' };
+    }
+    const attachments = await removeAccountData(transaction, targetId);
+    await recordModeration(transaction, actor.id, 'user', targetId, target.row.username, 3, 'Deleted account');
+    return { ok: true as const, username: target.row.username, attachments };
+  }, { timeout: 15_000, isolationLevel: 'Serializable' });
+  if (!result.ok) return result;
+  await removeAccountAttachments(result.attachments, mediaRoot);
+  return { ok: true, body: { username: result.username } };
+}
+
+export async function resetMemberTwoFactor(
+  db: PrismaClient,
+  actor: MemberActor,
+  targetId: number,
+): Promise<ApiResult<AdminManagedUser>> {
+  return db.$transaction(async (transaction) => {
+    const target = await permittedMember(transaction, actor, targetId, 'canResetTwoFactor');
+    if (!target.ok) return target;
+    await transaction.twoFactorAuth.deleteMany({ where: { userId: targetId } });
+    await transaction.session.deleteMany({ where: { userId: targetId } });
+    await recordModeration(transaction, actor.id, 'user', targetId, target.row.username, 2, 'Turned off two-factor authentication');
+    const row = await transaction.user.findUniqueOrThrow({ where: { id: targetId }, select: managedUserSelect });
+    return { ok: true, body: managedUser(row, actor) };
+  });
+}
+
+export async function issueMemberPasswordLink(
+  db: PrismaClient,
+  actor: MemberActor,
+  targetId: number,
+  secretKey: string,
+  siteUrl: URL,
+): Promise<ApiResult<{ url: string; expiresDate: string }>> {
+  return db.$transaction(async (transaction) => {
+    const target = await permittedMember(transaction, actor, targetId, 'canResetPassword');
+    if (!target.ok) return target;
+    const account = await transaction.user.findUniqueOrThrow({ where: { id: targetId }, select: { id: true, passwordHash: true } });
+    const { token, expiresAt } = createPasswordResetToken(account, secretKey);
+    await recordModeration(transaction, actor.id, 'user', targetId, target.row.username, 2, 'Created a password reset link');
+    return { ok: true, body: { url: new URL(`/password-reset/${token}`, siteUrl).href, expiresDate: isoDate(expiresAt) } };
   });
 }
 

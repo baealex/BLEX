@@ -44,6 +44,19 @@ export async function recordAudit(
   await db.adminLog.create({ data: { userId, target, objectId: '1', objectName, action: 2, message } });
 }
 
+/** Records who moderated what. Never pass a comment body, password, or reset link here. */
+export async function recordModeration(
+  db: Prisma.TransactionClient,
+  userId: number,
+  target: 'user' | 'post' | 'comment',
+  objectId: number,
+  objectName: string,
+  action: 2 | 3,
+  message: string,
+): Promise<void> {
+  await db.adminLog.create({ data: { userId, target, objectId: String(objectId), objectName: objectName.slice(0, 200), action, message } });
+}
+
 export function csrfValid(request: FastifyRequest, options: AdminSettingsOptions): boolean {
   try {
     return options.validateCsrf(request);

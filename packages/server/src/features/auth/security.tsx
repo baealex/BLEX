@@ -56,7 +56,7 @@ async function readSecurityViewer(db: PrismaClient, accountId: number) {
   };
 }
 
-function csrfForPage(request: FastifyRequest, reply: FastifyReply, siteUrl: URL) {
+export function csrfForPage(request: FastifyRequest, reply: FastifyReply, siteUrl: URL) {
   const previous = request.cookies[csrfCookie];
   if (previous && csrfPattern.test(previous)) return previous;
   const token = createToken();
@@ -64,7 +64,7 @@ function csrfForPage(request: FastifyRequest, reply: FastifyReply, siteUrl: URL)
   return token;
 }
 
-function submittedPasswordError(password: string, account: { username: string; name: string; email: string }) {
+export function submittedPasswordError(password: string, account: { username: string; name: string; email: string }) {
   if (!/\p{N}/u.test(password) || !/\p{Ll}/u.test(password) || !/\p{Lu}/u.test(password) || !/[^\p{N}\p{Ll}\p{Lu}]/u.test(password)) {
     return '비밀번호에는 숫자, 소문자, 대문자, 특수문자를 모두 넣어 주세요.';
   }

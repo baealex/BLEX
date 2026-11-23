@@ -5,6 +5,7 @@ import type { DeveloperRateLimit } from '../developer-api/services/rate-limit.js
 import { authCookieOptions, csrfCookie, refreshCsrf, sessionCookie, setSessionCookies } from '../../platform/cookies.js';
 import { csrfPattern, formInput, validCsrf } from '../../platform/csrf.js';
 import { registerLoginPage } from './login-page.js';
+import { registerPasswordReset } from './password-reset.js';
 import { reserveLoginAttempt } from './login-attempts.js';
 import { consumePendingOAuth, oauthChallengeCookie, readPendingOAuth, registerOAuthRoutes } from './oauth.js';
 import { authenticatePassword } from './password-login.js';
@@ -54,6 +55,7 @@ export function registerAuthentication(app: FastifyInstance, db: PrismaClient, s
     registerOAuthRoutes(routes, db, siteUrl, config);
     registerSignup(routes, db, siteUrl, config);
     registerAccountSecurity(routes, db, siteUrl, config);
+    registerPasswordReset(routes, db, siteUrl, config);
     if (config.setupToken) registerSetup(routes, db, siteUrl, config.setupToken, config.secretKey);
     await registerLoginPage(routes, db, siteUrl, config);
 
