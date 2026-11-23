@@ -13,6 +13,7 @@ import {
   SearchQuery,
   listPosts,
   postDetail,
+  postWriteReceipt,
   postNotFound,
   postVersionIssue,
   readOwnedPost,
@@ -215,7 +216,8 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
                     expected ? original.updatedAt.toISOString() : undefined,
                   );
             const post = result && (await readOwnedPost(db, token.user.id, result.id));
-            return post ? reply.send({ data: await postDetail(db, post) }) : postNotFound(reply);
+            if (!post) return postNotFound(reply);
+            return reply.send({ data: requireScope(token) ? postWriteReceipt(post) : await postDetail(db, post) });
           } catch (failure) {
             return mutationError(failure, token.user, reply, id, expected);
           }
@@ -235,7 +237,8 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
         const original = await readOwnedPost(db, token.user.id, id);
         if (!original) return postNotFound(reply);
         if (dryRun) {
-          return reply.send({ data: { canDelete: true, post: await summarizePost(db, original) } });
+          const post = requireScope(token) ? postWriteReceipt(original) : await summarizePost(db, original);
+          return reply.send({ data: { canDelete: true, post } });
         }
         try {
           const deleted = await mutations.trash(token.user, id);

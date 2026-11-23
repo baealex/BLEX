@@ -276,7 +276,11 @@ export function registerPublicActivity(app: FastifyInstance, db: PrismaClient, o
     if (!user) return failure('NL');
     const page = Number(new URL(request.url, options.siteUrl).searchParams.get('page') || '1');
     if (!Number.isSafeInteger(page) || page < 1) return reply.code(404).send('Not found');
-    const mine = { authorId: user.id, post: { deletedAt: null } };
+    // A post that stopped being public keeps its title and address from its past commenters.
+    const mine = {
+      authorId: user.id,
+      post: { deletedAt: null, OR: [{ authorId: user.id }, publicPostWhere()] },
+    };
     const lastPage = Math.max(1, Math.ceil((await db.comment.count({ where: mine })) / 10));
     if (page > lastPage) return reply.code(404).send('Not found');
     const rows = await db.comment.findMany({

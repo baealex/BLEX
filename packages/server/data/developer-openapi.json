@@ -671,7 +671,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "OK. posts:read 권한이 없는 토큰은 id, status, updated_at, published_at만 받고, 공개된 글은 url과 public_url을 함께 받습니다.",
             "content": {
               "application/json": {
                 "schema": {
@@ -804,7 +804,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "OK. posts:read 권한이 없는 토큰의 dry_run 응답에서 post는 id, status, updated_at, published_at만 담고, 공개된 글은 url과 public_url을 함께 담습니다.",
             "content": {
               "application/json": {
                 "schema": {
@@ -919,7 +919,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "OK. posts:read 권한이 없는 토큰은 id, status, updated_at, published_at만 받고, 공개된 글은 url과 public_url을 함께 받습니다.",
             "content": {
               "application/json": {
                 "schema": {
