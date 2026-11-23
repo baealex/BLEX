@@ -8,13 +8,17 @@ import { legacySyntax } from './markdown-syntax.js';
 import { sanitizePostHtml } from '../post-html.js';
 
 function escapeHtml(value: string): string {
-  return value.replace(/[&<>"']/g, (character) => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#x27;',
-  })[character] ?? character);
+  return value.replace(
+    /[&<>"']/g,
+    (character) =>
+      ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#x27;',
+      })[character] ?? character,
+  );
 }
 
 function safeLink(value: string): string | null {
@@ -35,10 +39,16 @@ function safeUploadedVideo(value: string): { url: string; type: string } | null 
   } catch {
     return null;
   }
-  if (segments.length < 2 || segments.some((part) => !part || part === '.' || part === '..' || !/^[A-Za-z0-9._-]+$/.test(part))) {
+  if (
+    segments.length < 2 ||
+    segments.some((part) => !part || part === '.' || part === '..' || !/^[A-Za-z0-9._-]+$/.test(part))
+  ) {
     return null;
   }
-  const extension = segments.at(-1)?.match(/\.(mp4|webm)$/i)?.[1]?.toLowerCase();
+  const extension = segments
+    .at(-1)
+    ?.match(/\.(mp4|webm)$/i)?.[1]
+    ?.toLowerCase();
   if (!extension) return null;
   return { url: safe, type: extension === 'mp4' ? 'video/mp4' : 'video/webm' };
 }

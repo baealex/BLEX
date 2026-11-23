@@ -8,10 +8,13 @@ import { AdminSettingsOptions, ApiResult, Body, isRecord } from '../shared.js';
 
 /** Stored with each confirmation and signed into its token, so issued values stay valid. */
 export const utilityActions = {
-  cleanTags: 'clean_tags', cleanSessions: 'clean_sessions', cleanLogs: 'clean_logs', cleanImages: 'clean_images',
+  cleanTags: 'clean_tags',
+  cleanSessions: 'clean_sessions',
+  cleanLogs: 'clean_logs',
+  cleanImages: 'clean_images',
 } as const;
 
-export type UtilityAction = typeof utilityActions[keyof typeof utilityActions];
+export type UtilityAction = (typeof utilityActions)[keyof typeof utilityActions];
 
 export type UtilityParameters = Record<string, unknown>;
 
@@ -126,17 +129,19 @@ async function consumeUtilityConfirmation(
   if (receivedSignature.length !== expectedSignature.length || !timingSafeEqual(receivedSignature, expectedSignature)) {
     throw new Error('invalid utility confirmation');
   }
-  if (!isRecord(payload)
-      || payload.userId !== userId
-      || payload.sessionFingerprint !== sessionFingerprint
-      || payload.action !== action
-      || !isRecord(payload.parameters)
-      || JSON.stringify(payload.parameters) !== JSON.stringify(parameters)
-      || typeof payload.issuedAt !== 'number'
-      || payload.issuedAt > Date.now()
-      || Date.now() - payload.issuedAt > 5 * 60 * 1000
-      || typeof payload.nonce !== 'string'
-      || !payload.nonce) {
+  if (
+    !isRecord(payload) ||
+    payload.userId !== userId ||
+    payload.sessionFingerprint !== sessionFingerprint ||
+    payload.action !== action ||
+    !isRecord(payload.parameters) ||
+    JSON.stringify(payload.parameters) !== JSON.stringify(parameters) ||
+    typeof payload.issuedAt !== 'number' ||
+    payload.issuedAt > Date.now() ||
+    Date.now() - payload.issuedAt > 5 * 60 * 1000 ||
+    typeof payload.nonce !== 'string' ||
+    !payload.nonce
+  ) {
     throw new Error('invalid utility confirmation');
   }
   const tokenHash = createHash('sha256').update(tokenValue).digest('hex');
@@ -174,7 +179,7 @@ export async function readUtilityStats(db: PrismaClient): Promise<Record<string,
   let dbSize = 'N/A';
   try {
     const bytes = await readDatabaseBytes(db);
-    if (bytes !== null) dbSize = `${Math.round(bytes / 1024 / 1024 * 100) / 100} MB`;
+    if (bytes !== null) dbSize = `${Math.round((bytes / 1024 / 1024) * 100) / 100} MB`;
   } catch {
     // Some SQLite adapters disallow PRAGMA through prepared statements.
   }
@@ -212,7 +217,11 @@ async function runUtilityCleanup(
   if (action === utilityActions.cleanTags) {
     const total = await db.tag.count();
     const used = await db.tag.count({ where: { posts: { some: {} } } });
-    const unusedRows = await db.tag.findMany({ where: { posts: { none: {} } }, orderBy: { id: 'asc' }, select: { name: true } });
+    const unusedRows = await db.tag.findMany({
+      where: { posts: { none: {} } },
+      orderBy: { id: 'asc' },
+      select: { name: true },
+    });
     const topTags = await db.tag.findMany({
       where: { posts: { some: {} } },
       orderBy: [{ posts: { _count: 'desc' } }, { id: 'asc' }],
@@ -252,9 +261,13 @@ async function runUtilityCleanup(
   const logCount = await db.adminLog.count();
   const expiredLogCount = await db.adminLog.count({ where: { createdAt: { lt: adminCutoff } } });
   const developerRequestLogCount = await db.developerRequestLog.count();
-  const expiredDeveloperRequestLogCount = await db.developerRequestLog.count({ where: { createdAt: { lt: developerCutoff } } });
+  const expiredDeveloperRequestLogCount = await db.developerRequestLog.count({
+    where: { createdAt: { lt: developerCutoff } },
+  });
   const cleanedLogs = dryRun ? 0 : (await db.adminLog.deleteMany({ where: { createdAt: { lt: adminCutoff } } })).count;
-  const cleanedDeveloperLogs = dryRun ? 0 : (await db.developerRequestLog.deleteMany({ where: { createdAt: { lt: developerCutoff } } })).count;
+  const cleanedDeveloperLogs = dryRun
+    ? 0
+    : (await db.developerRequestLog.deleteMany({ where: { createdAt: { lt: developerCutoff } } })).count;
   return {
     logCount,
     adminAuditLogRetentionDays: adminRetention,
@@ -278,7 +291,8 @@ async function recordUtilityAudit(
     [utilityActions.cleanTags]: 'Executed unused tag cleanup',
     [utilityActions.cleanSessions]: 'Executed session cleanup',
     [utilityActions.cleanLogs]: 'Executed expired log cleanup',
-    [utilityActions.cleanImages]: phase === 'started' ? 'Started unused image cleanup' : 'Executed unused image cleanup',
+    [utilityActions.cleanImages]:
+      phase === 'started' ? 'Started unused image cleanup' : 'Executed unused image cleanup',
   };
   const log = await transaction.adminLog.create({
     data: { userId, target: 'logentry', objectName: 'System utilities', action: 2, message: messages[action] },
@@ -318,10 +332,15 @@ export async function runUtilityAction(
         );
         return { ok: true, body: { ...imageCleanupPlanApi(plan, true), confirmationToken } };
       } catch (error) {
-        return { ok: false, code: 'VA', message: error instanceof Error ? error.message : 'Could not preview image cleanup.' };
+        return {
+          ok: false,
+          code: 'VA',
+          message: error instanceof Error ? error.message : 'Could not preview image cleanup.',
+        };
       }
     }
-    const previewHash = typeof body.previewHash === 'string' ? body.previewHash : signedPreviewHash(body.confirmationToken);
+    const previewHash =
+      typeof body.previewHash === 'string' ? body.previewHash : signedPreviewHash(body.confirmationToken);
     if (!/^[a-f0-9]{64}$/.test(previewHash)) {
       return { ok: false, code: 'RJ', message: '미리보기 확인이 만료되었거나 유효하지 않습니다.' };
     }
@@ -347,11 +366,14 @@ export async function runUtilityAction(
       throw error;
     }
     try {
-      const result = await db.$transaction(async (transaction) => {
-        const plan = await buildImageCleanupPlan(transaction, options.mediaRoot, parameters);
-        if (plan.previewHash !== previewHash) throw new Error('image cleanup preview changed');
-        return executeImageCleanupPlan(transaction, options.mediaRoot as string, plan);
-      }, { timeout: 120_000 });
+      const result = await db.$transaction(
+        async (transaction) => {
+          const plan = await buildImageCleanupPlan(transaction, options.mediaRoot, parameters);
+          if (plan.previewHash !== previewHash) throw new Error('image cleanup preview changed');
+          return executeImageCleanupPlan(transaction, options.mediaRoot as string, plan);
+        },
+        { timeout: 120_000 },
+      );
       await db.adminLog.updateMany({ where: { id: auditId }, data: { message: 'Executed unused image cleanup' } });
       return { ok: true, body: result };
     } catch (error) {
@@ -363,7 +385,14 @@ export async function runUtilityAction(
   }
   if (body.dryRun !== false) {
     const result = await runUtilityCleanup(db, action, parameters, true, options.mediaRoot);
-    const confirmationToken = await issueUtilityConfirmation(db, userId, fingerprint, action, parameters, options.secretKey);
+    const confirmationToken = await issueUtilityConfirmation(
+      db,
+      userId,
+      fingerprint,
+      action,
+      parameters,
+      options.secretKey,
+    );
     return { ok: true, body: { ...result, confirmationToken } };
   }
   try {
@@ -389,4 +418,3 @@ export async function runUtilityAction(
     throw error;
   }
 }
-

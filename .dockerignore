@@ -19,9 +19,9 @@ node_modules/
 *.sqlite3-*
 *.db
 *.db-*
-packages/web/styles/fonts/woff
-packages/web/styles/fonts/woff2/Pretendard-Black.woff2
-packages/web/styles/fonts/woff2/Pretendard-ExtraBold.woff2
-packages/web/styles/fonts/woff2/Pretendard-ExtraLight.woff2
-packages/web/styles/fonts/woff2/Pretendard-Light.woff2
-packages/web/styles/fonts/woff2/Pretendard-Thin.woff2
+packages/client/styles/fonts/woff
+packages/client/styles/fonts/woff2/Pretendard-Black.woff2
+packages/client/styles/fonts/woff2/Pretendard-ExtraBold.woff2
+packages/client/styles/fonts/woff2/Pretendard-ExtraLight.woff2
+packages/client/styles/fonts/woff2/Pretendard-Light.woff2
+packages/client/styles/fonts/woff2/Pretendard-Thin.woff2

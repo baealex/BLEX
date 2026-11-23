@@ -1,0 +1,98 @@
+@use "./forwarded.scss";
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+        background-color: var(--color-surface-page);
+        color: var(--color-content);
+    }
+
+    body {
+        font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
+            system-ui, 'Segoe UI', 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic',
+            sans-serif;
+        word-break: keep-all;
+        overflow-x: hidden;
+        overflow-wrap: anywhere;
+        background-color: var(--color-surface-page);
+        color: var(--color-content);
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+
+    img:not([data-no-filter]) {
+        filter: var(--media-filter);
+        transition: filter var(--motion-interaction) var(--ease-apple);
+    }
+
+    video:not([data-no-filter]) {
+        filter: var(--media-filter);
+    }
+}
+
+@media print {
+    header,
+    footer,
+    nav,
+    aside,
+    .fixed,
+    .sticky,
+    [data-screen="LoginPrompt"],
+    [data-screen="Toaster"],
+    [data-screen="Comments"],
+    [data-screen="RelatedPosts"] {
+        display: none !important;
+    }
+
+    body {
+        font-size: 12pt;
+        line-height: 1.6;
+        color: #000;
+        background: #fff;
+    }
+
+    main {
+        min-height: auto !important;
+    }
+
+    a {
+        color: #000;
+        text-decoration: underline;
+    }
+
+    a[href]::after {
+        content: " (" attr(href) ")";
+        font-size: 0.8em;
+        color: #666;
+    }
+
+    a[href^="#"]::after,
+    a[href^="javascript"]::after,
+    a[href^="/@"]::after {
+        content: "";
+    }
+
+    img {
+        max-width: 100% !important;
+        page-break-inside: avoid;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        page-break-after: avoid;
+    }
+
+    .blog-post-content {
+        max-width: 100%;
+
+        pre {
+            white-space: pre-wrap;
+            border: 1px solid #ddd;
+        }
+
+        .code-block-wrapper {
+            page-break-inside: avoid;
+        }
+    }
+}

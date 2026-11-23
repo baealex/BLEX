@@ -42,7 +42,9 @@ class InlineScan {
   }
 
   lastCaptionClose(lineEnd: number) {
-    return this.remembered(`caption:${lineEnd}`, 0, () => this.src.lastIndexOf('</caption>', lineEnd - '</caption>'.length));
+    return this.remembered(`caption:${lineEnd}`, 0, () =>
+      this.src.lastIndexOf('</caption>', lineEnd - '</caption>'.length),
+    );
   }
 }
 
@@ -64,8 +66,12 @@ function escapeAttribute(value: string) {
 function isSafeVideoUrl(value: string) {
   if (/[\u0000- \\]/.test(value)) return false;
   const url = URL.parse(value);
-  return Boolean(url && (url.protocol === 'http:' || url.protocol === 'https:') && url.hostname
-    && url.pathname.toLowerCase().endsWith('.mp4'));
+  return Boolean(
+    url &&
+      (url.protocol === 'http:' || url.protocol === 'https:') &&
+      url.hostname &&
+      url.pathname.toLowerCase().endsWith('.mp4'),
+  );
 }
 
 function readGif(state: StateInline, scan: InlineScan) {
@@ -104,10 +110,11 @@ function readYoutube(state: StateInline, scan: InlineScan) {
   if (!/^[A-Za-z0-9_-]{1,64}$/.test(id) || !/^[1-9]\d{0,2}(?::[1-9]\d{0,2})?$/.test(ratio)) return null;
   return {
     end,
-    html: '<figure style="text-align: center; display: flex; justify-content: center; flex-direction: column; align-items: center;">'
-      + `<iframe style="width: 100%; aspect-ratio: ${ratio.replace(':', ' / ')}; border: 0;" data-aspect-ratio="${ratio}" `
-      + `src="https://www.youtube.com/embed/${id}" frameborder="0" `
-      + 'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></figure>',
+    html:
+      '<figure style="text-align: center; display: flex; justify-content: center; flex-direction: column; align-items: center;">' +
+      `<iframe style="width: 100%; aspect-ratio: ${ratio.replace(':', ' / ')}; border: 0;" data-aspect-ratio="${ratio}" ` +
+      `src="https://www.youtube.com/embed/${id}" frameborder="0" ` +
+      'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></figure>',
   };
 }
 
@@ -230,7 +237,8 @@ function legacyTable(rule: BlockRule): BlockRule {
       if (!state.src.slice(state.bMarks[line]!, state.eMarks[line]!).includes('|')) return false;
       rows += 1;
     }
-    const delimiter = startLine + 1 < endLine ? state.src.slice(state.bMarks[startLine + 1]!, state.eMarks[startLine + 1]!) : '';
+    const delimiter =
+      startLine + 1 < endLine ? state.src.slice(state.bMarks[startLine + 1]!, state.eMarks[startLine + 1]!) : '';
     const cells = rows * (delimiter.split('|').length + 1);
     const used = Number(state.env.legacyTableCells ?? 0);
     if (used + cells > MAX_TABLE_CELLS_PER_DOCUMENT) return false;
@@ -253,7 +261,12 @@ function lastFenceLine(state: StateBlock, marker: number) {
     last = -1;
     for (let line = state.bMarks.length - 2; line >= 0 && last < 0; line -= 1) {
       const start = state.bMarks[line]! + state.tShift[line]!;
-      if (state.src.charCodeAt(start) === marker && state.src.charCodeAt(start + 1) === marker && state.src.charCodeAt(start + 2) === marker) last = line;
+      if (
+        state.src.charCodeAt(start) === marker &&
+        state.src.charCodeAt(start + 1) === marker &&
+        state.src.charCodeAt(start + 2) === marker
+      )
+        last = line;
     }
     ends.set(marker, last);
   }
@@ -287,7 +300,7 @@ function legacyListSource(source: string) {
     const fenceLine = line.match(/^( *)(`{3,}|~{3,})/);
     if (fence) {
       if (fence.dedent) lines[index] = line.replace(new RegExp(`^ {0,${fence.dedent}}`), '');
-      if (fenceLine?.[2]![0] === fence.mark) fence = null;
+      if (fenceLine?.[2]?.[0] === fence.mark) fence = null;
       return;
     }
     if (fenceLine && (fenceLine[1]!.length < 4 || inList)) {
@@ -338,7 +351,9 @@ function listSourceRule(state: StateCore) {
 }
 
 function footnoteOrderRule(state: StateCore) {
-  const footnotes = state.env.footnotes as { refs?: Record<string, number>; list?: Array<{ label: string; count: number }> } | undefined;
+  const footnotes = state.env.footnotes as
+    | { refs?: Record<string, number>; list?: Array<{ label: string; count: number }> }
+    | undefined;
   if (!footnotes?.refs) return;
   footnotes.list ??= [];
   for (const key of Object.keys(footnotes.refs)) {
@@ -349,7 +364,11 @@ function footnoteOrderRule(state: StateCore) {
 }
 
 function headingId(text: string, used: Set<string>, nextIndex: Map<string, number>) {
-  const slug = text.replace(/[^\p{L}\p{N}_\s-]/gu, '').trim().toLowerCase().replace(/[-\s]+/g, '-');
+  const slug = text
+    .replace(/[^\p{L}\p{N}_\s-]/gu, '')
+    .trim()
+    .toLowerCase()
+    .replace(/[-\s]+/g, '-');
   const base = Array.from(slug).slice(0, 25).join('') || 'header';
   for (let index = nextIndex.get(base) ?? 0; index < 100; index += 1) {
     const id = index ? `${base}-${index}` : base;
@@ -394,7 +413,8 @@ function spendLinkBudget(token: Token, budget: { remaining: number }) {
   if (token.type !== 'link_open' && token.type !== 'image') return;
   const attribute = token.type === 'image' ? 'src' : 'href';
   budget.remaining -= String(token.attrGet(attribute) ?? '').length + String(token.attrGet('title') ?? '').length;
-  if (budget.remaining < 0) token.attrs = token.attrs?.filter(([name]) => name !== attribute && name !== 'title') ?? null;
+  if (budget.remaining < 0)
+    token.attrs = token.attrs?.filter(([name]) => name !== attribute && name !== 'title') ?? null;
 }
 
 function readAttributes(source: string) {
@@ -435,7 +455,7 @@ function headingAttributes(open: Token, inline: Token) {
 function paragraphAttributes(open: Token, inline: Token) {
   const children = inline.children ?? [];
   const last = children.at(-1);
-  if (last?.type !== 'text' || children.at(-2)?.type !== 'softbreak' && children.at(-2)?.type !== 'hardbreak') return;
+  if (last?.type !== 'text' || (children.at(-2)?.type !== 'softbreak' && children.at(-2)?.type !== 'hardbreak')) return;
   const text = last.content.trim();
   if (!text.startsWith('{') || !text.endsWith('}')) return;
   const body = attributeBody(text);
@@ -444,7 +464,16 @@ function paragraphAttributes(open: Token, inline: Token) {
   children.pop();
 }
 
-const inlineAttributeClosers = new Set(['link_close', 'image', 'code_inline', 'em_close', 'strong_close', 's_close', 'mark_close', 'sub_close']);
+const inlineAttributeClosers = new Set([
+  'link_close',
+  'image',
+  'code_inline',
+  'em_close',
+  'strong_close',
+  's_close',
+  'mark_close',
+  'sub_close',
+]);
 
 /** Attributes follow an inline element. Only links, images, and code keep them through the 3.14 sanitizer. */
 function inlineAttributes(inline: Token) {
@@ -453,7 +482,12 @@ function inlineAttributes(inline: Token) {
   const links: Token[] = [];
   children.forEach((child, index) => {
     if (child.type === 'link_open') links.push(child);
-    const target = child.type === 'link_close' ? links.pop() : child.type === 'image' || child.type === 'code_inline' ? child : undefined;
+    const target =
+      child.type === 'link_close'
+        ? links.pop()
+        : child.type === 'image' || child.type === 'code_inline'
+          ? child
+          : undefined;
     if (!inlineAttributeClosers.has(child.type)) return;
     const next = children[index + 1];
     if (next?.type !== 'text') return;
@@ -496,7 +530,8 @@ function finishRule(state: StateCore) {
   });
   // A paragraph holding only an HTML comment renders nothing.
   state.tokens = kept.filter((token, index) => {
-    const isEmpty = (inline?: Token) => inline?.type === 'inline' && inline.content.startsWith('<!--') && !inline.children?.length;
+    const isEmpty = (inline?: Token) =>
+      inline?.type === 'inline' && inline.content.startsWith('<!--') && !inline.children?.length;
     if (token.type === 'paragraph_open') return !isEmpty(kept[index + 1]);
     if (token.type === 'inline') return !(kept[index - 1]?.type === 'paragraph_open' && isEmpty(token));
     if (token.type === 'paragraph_close') return !isEmpty(kept[index - 1]);

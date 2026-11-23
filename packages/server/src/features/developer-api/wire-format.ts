@@ -23,7 +23,11 @@ function convertKeys(root: unknown, rename: (key: string) => string | null): unk
   const copy = (value: unknown): unknown => {
     if (Array.isArray(value)) {
       const items: unknown[] = new Array(value.length);
-      pending.push(() => value.forEach((item, index) => { items[index] = copy(item); }));
+      pending.push(() =>
+        value.forEach((item, index) => {
+          items[index] = copy(item);
+        }),
+      );
       return items;
     }
     if (!isPlainObject(value)) return value;
@@ -59,8 +63,13 @@ function queryFromWire(query: unknown): unknown {
 /** `error.fields` is keyed by the request field names callers sent, so it is written in wire format and left alone. */
 export function keysToWire(payload: unknown): unknown {
   const converted = convertKeys(payload, camelToSnake);
-  if (isPlainObject(payload) && isPlainObject(payload.error) && 'fields' in payload.error
-    && isPlainObject(converted) && isPlainObject(converted.error)) {
+  if (
+    isPlainObject(payload) &&
+    isPlainObject(payload.error) &&
+    'fields' in payload.error &&
+    isPlainObject(converted) &&
+    isPlainObject(converted.error)
+  ) {
     converted.error.fields = payload.error.fields;
   }
   return converted;

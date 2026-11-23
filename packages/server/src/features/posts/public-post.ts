@@ -2,7 +2,7 @@ import type { Prisma, PrismaClient } from '@prisma/client';
 import { storedDateText } from '../../platform/date-format.js';
 import { publicPostWhere } from './data/visibility.js';
 import { sanitizePostHtml } from './post-html.js';
-import { readPublicSiteBrand, type SiteBrand } from '../discovery/pages/index.js';
+import { readPublicSiteBrand, type SiteBrand } from '../discovery/http/pages.js';
 
 export interface PublicPost {
   id: number;
@@ -87,8 +87,21 @@ export function publicPostPath(username: string, slug: string): string {
 }
 
 const publicPostSelect = {
-  id: true, authorId: true, slug: true, title: true, subtitle: true, image: true, readTime: true, description: true,
-  coverLayout: true, coverImageRatio: true, coverImagePosition: true, publishedAt: true, updatedAt: true, createdAt: true, isHidden: true,
+  id: true,
+  authorId: true,
+  slug: true,
+  title: true,
+  subtitle: true,
+  image: true,
+  readTime: true,
+  description: true,
+  coverLayout: true,
+  coverImageRatio: true,
+  coverImagePosition: true,
+  publishedAt: true,
+  updatedAt: true,
+  createdAt: true,
+  isHidden: true,
   content: { select: { html: true } },
 } satisfies Prisma.PostSelect;
 
@@ -96,9 +109,20 @@ type SelectedPublicPost = Prisma.PostGetPayload<{ select: typeof publicPostSelec
 
 function publicPostFields(post: SelectedPublicPost, username: string, avatar: string | null | undefined) {
   return {
-    id: post.id, authorId: post.authorId, username, slug: post.slug, title: post.title, subtitle: post.subtitle, image: post.image,
-    readTime: post.readTime, authorAvatar: avatar ?? '', coverLayout: post.coverLayout, coverImageRatio: post.coverImageRatio,
-    coverImagePosition: post.coverImagePosition, description: post.description, contentHtml: sanitizePostHtml(post.content?.html ?? ''),
+    id: post.id,
+    authorId: post.authorId,
+    username,
+    slug: post.slug,
+    title: post.title,
+    subtitle: post.subtitle,
+    image: post.image,
+    readTime: post.readTime,
+    authorAvatar: avatar ?? '',
+    coverLayout: post.coverLayout,
+    coverImageRatio: post.coverImageRatio,
+    coverImagePosition: post.coverImagePosition,
+    description: post.description,
+    contentHtml: sanitizePostHtml(post.content?.html ?? ''),
   };
 }
 
@@ -122,10 +146,7 @@ export async function readPublicPost(
         ...(viewerId === undefined ? [] : [{ authorId: viewerId, author: { username } }]),
         {
           ...publicPostWhere(now),
-          OR: [
-            { author: { username } },
-            { author: { usernameChanges: { some: { username } } } },
-          ],
+          OR: [{ author: { username } }, { author: { usernameChanges: { some: { username } } } }],
         },
       ],
     },
@@ -146,7 +167,9 @@ export async function readDraftPreview(db: PrismaClient, authorId: number, slug:
     where: { slug, authorId, publishedAt: null, deletedAt: null },
     select: {
       ...publicPostSelect,
-      author: { select: { username: true, isStaff: true, profile: { select: { avatar: true, bio: true, homepage: true } } } },
+      author: {
+        select: { username: true, isStaff: true, profile: { select: { avatar: true, bio: true, homepage: true } } },
+      },
     },
   });
   if (!post) return null;
@@ -165,13 +188,18 @@ export async function readDraftPreview(db: PrismaClient, authorId: number, slug:
   };
 }
 
-export async function readPostPresentation(db: PrismaClient, post: Pick<PublicPost, 'id' | 'authorId'>): Promise<PostPresentation> {
+export async function readPostPresentation(
+  db: PrismaClient,
+  post: Pick<PublicPost, 'id' | 'authorId'>,
+): Promise<PostPresentation> {
   const [brand, site, placement, tags, banners] = await Promise.all([
     readPublicSiteBrand(db),
     db.siteSetting.findUnique({ where: { id: 1 }, select: { aeoEnabled: true } }),
     db.post.findUnique({
       where: { id: post.id },
-      select: { series: { select: { id: true, name: true, slug: true, isHidden: true, owner: { select: { username: true } } } } },
+      select: {
+        series: { select: { id: true, name: true, slug: true, isHidden: true, owner: { select: { username: true } } } },
+      },
     }),
     db.tag.findMany({ where: { posts: { some: { id: post.id } } }, orderBy: { id: 'asc' }, select: { name: true } }),
     db.siteBanner.findMany({
@@ -181,19 +209,26 @@ export async function readPostPresentation(db: PrismaClient, post: Pick<PublicPo
     }),
   ]);
   const series = placement?.series && !placement.series.isHidden ? placement.series : null;
-  const seriesPosts = !series ? [] : await db.post.findMany({
-    where: { seriesId: series.id, ...publicPostWhere() },
-    orderBy: [{ publishedAt: 'asc' }, { id: 'asc' }],
-    select: { id: true, slug: true, title: true },
-  });
+  const seriesPosts = !series
+    ? []
+    : await db.post.findMany({
+        where: { seriesId: series.id, ...publicPostWhere() },
+        orderBy: [{ publishedAt: 'asc' }, { id: 'asc' }],
+        select: { id: true, slug: true, title: true },
+      });
   return {
     ...brand,
     aeoEnabled: site?.aeoEnabled ?? false,
-    seriesNavigation: seriesNavigation(seriesPosts.map(({ id, slug, title }) => ({ id, url: slug, title })), post.id),
+    seriesNavigation: seriesNavigation(
+      seriesPosts.map(({ id, slug, title }) => ({ id, url: slug, title })),
+      post.id,
+    ),
     seriesName: series?.name ?? null,
     seriesUrl: series?.slug ?? null,
     seriesAuthor: series?.owner.username ?? null,
     tags: tags.map(({ name }) => name),
-    banners: banners.map((banner) => ({ ...banner, contentHtml: sanitizePostHtml(banner.contentHtml) })).filter((banner) => banner.contentHtml),
+    banners: banners
+      .map((banner) => ({ ...banner, contentHtml: sanitizePostHtml(banner.contentHtml) }))
+      .filter((banner) => banner.contentHtml),
   };
 }

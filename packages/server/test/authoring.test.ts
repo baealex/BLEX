@@ -6,19 +6,27 @@ import { DatabaseSync } from 'node:sqlite';
 import { PrismaClient } from '@prisma/client';
 import Fastify from 'fastify';
 import test from 'node:test';
-import {
-  PostValidationError,
-  registerAuthoring,
-  updateAuthorPost,
-} from '../src/features/posts/authoring/index.js';
+import { PostValidationError, registerAuthoring, updateAuthorPost } from '../src/features/posts/authoring/index.js';
 import { markdownToHtml } from '../src/features/posts/authoring/markdown.js';
 import { accountTables, createMigratedTables, migratedTableSql, prismaDate } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-authoring-'));
 const databasePath = join(directory, 'synthetic authoring.sqlite3');
 const database = new DatabaseSync(databasePath);
-createMigratedTables(database, 'FormTemplate', 'StaticPage', 'SiteBanner', 'UploadedImage', 'IntegrationSetting', 'SiteSetting',
-  'Notification', 'NotificationDelivery', 'TelegramConnection', 'WebhookChannel', 'WebhookDelivery');
+createMigratedTables(
+  database,
+  'FormTemplate',
+  'StaticPage',
+  'SiteBanner',
+  'UploadedImage',
+  'IntegrationSetting',
+  'SiteSetting',
+  'Notification',
+  'NotificationDelivery',
+  'TelegramConnection',
+  'WebhookChannel',
+  'WebhookDelivery',
+);
 const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
 const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString().replace('T', ' ').replace('Z', '');
 const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString().replace('T', ' ').replace('Z', '');
@@ -138,16 +146,26 @@ test('gates editor URLs, rejects a bad cover without saving, and serves draft-on
   assert.equal((await app.inject({ url: '/@writer/existing/edit', headers: { 'x-user-id': '2' } })).statusCode, 404);
 
   const editFields = {
-    title: 'Existing', url: 'existing', subtitle: 'Existing subtitle',
-    metaDescription: 'Existing description', contentHtml: '<h2>Existing content</h2><p>Do not lose this.</p>',
-    coverLayout: 'split', coverImagePosition: 'left', coverImageRatio: '4:3', blockComment: 'false',
+    title: 'Existing',
+    url: 'existing',
+    subtitle: 'Existing subtitle',
+    metaDescription: 'Existing description',
+    contentHtml: '<h2>Existing content</h2><p>Do not lose this.</p>',
+    coverLayout: 'split',
+    coverImagePosition: 'left',
+    coverImageRatio: '4:3',
+    blockComment: 'false',
   };
   const boundary = 'blexboundary';
   const editHeaders = { ...writerHeaders, 'content-type': `multipart/form-data; boundary=${boundary}` };
-  const editorForm = (fields: Record<string, string>) => `${Object.entries(fields)
-    .map(([name, value]) => `--${boundary}\r\nContent-Disposition: form-data; name="${name}"\r\n\r\n${value}\r\n`).join('')}--${boundary}--\r\n`;
+  const editorForm = (fields: Record<string, string>) =>
+    `${Object.entries(fields)
+      .map(([name, value]) => `--${boundary}\r\nContent-Disposition: form-data; name="${name}"\r\n\r\n${value}\r\n`)
+      .join('')}--${boundary}--\r\n`;
   const metadataEdit = await app.inject({
-    method: 'POST', url: '/v1/users/@writer/posts/existing', headers: editHeaders,
+    method: 'POST',
+    url: '/v1/users/@writer/posts/existing',
+    headers: editHeaders,
     payload: editorForm({ ...editFields, coverImageUrl: '/resources/media/images/content/2026/11/21/cover-test.jpg' }),
   });
   assert.equal(metadataEdit.json().status, 'DONE', metadataEdit.body);
@@ -161,14 +179,20 @@ test('gates editor URLs, rejects a bad cover without saving, and serves draft-on
   assert.equal(selectedCover[0]?.image, 'images/content/2026/11/21/cover-test.jpg');
 
   const rejectedCover = await app.inject({
-    method: 'POST', url: '/v1/users/@writer/posts/existing', headers: editHeaders,
+    method: 'POST',
+    url: '/v1/users/@writer/posts/existing',
+    headers: editHeaders,
     payload: editorForm({ ...editFields, title: 'Must not save', coverImageUrl: 'https://external.example/cover.jpg' }),
   });
   assert.deepEqual([rejectedCover.statusCode, rejectedCover.json().status], [200, 'ERROR']);
-  const afterRejectedCover = await db.$queryRaw<Array<{ title: string; image: string }>>`SELECT title, image FROM "Post" WHERE id = 1`;
+  const afterRejectedCover = await db.$queryRaw<
+    Array<{ title: string; image: string }>
+  >`SELECT title, image FROM "Post" WHERE id = 1`;
   assert.deepEqual(afterRejectedCover[0], { title: 'Existing', image: 'images/content/2026/11/21/cover-test.jpg' });
   const removeCover = await app.inject({
-    method: 'POST', url: '/v1/users/@writer/posts/existing', headers: editHeaders,
+    method: 'POST',
+    url: '/v1/users/@writer/posts/existing',
+    headers: editHeaders,
     payload: editorForm({ ...editFields, removeCoverImage: 'on' }),
   });
   assert.equal(removeCover.json().status, 'DONE', removeCover.body);
@@ -183,7 +207,6 @@ test('gates editor URLs, rejects a bad cover without saving, and serves draft-on
   assert.match(preview.body, /임시 포스트 미리보기/);
   assert.equal((await app.inject({ url: '/write/preview/scheduled', headers: writerHeaders })).statusCode, 404);
   assert.equal((await app.inject({ url: '/write/preview/draft-note', headers: { 'x-user-id': '2' } })).statusCode, 404);
-
 });
 
 test('creates a published Markdown post atomically with config, content, tags and series', async () => {
@@ -208,7 +231,9 @@ test('creates a published Markdown post atomically with config, content, tags an
   });
   assert.deepEqual(response.json(), { status: 'DONE', body: { url: 'hello-world' } });
 
-  const post = await db.$queryRaw<Array<{ id: number; publishedDate: string; seriesId: number; title: string; readTime: number }>>`
+  const post = await db.$queryRaw<
+    Array<{ id: number; publishedDate: string; seriesId: number; title: string; readTime: number }>
+  >`
     SELECT id, publishedAt AS publishedDate, seriesId, title, readTime
     FROM "Post" WHERE slug = 'hello-world'
   `;
@@ -223,7 +248,9 @@ test('creates a published Markdown post atomically with config, content, tags an
   assert.match(content[0]!.html, /<strong>bold<\/strong>/);
   assert.doesNotMatch(content[0]!.html, /<script/i);
   assert.match(content[0]!.html, /&lt;script&gt;bad\(\)&lt;\/script&gt;/);
-  const config = await db.$queryRaw<Array<{ hide: number | bigint; coverLayout: string; blockComment: number | bigint }>>`
+  const config = await db.$queryRaw<
+    Array<{ hide: number | bigint; coverLayout: string; blockComment: number | bigint }>
+  >`
     SELECT CAST(isHidden AS INTEGER) AS hide, coverLayout, CAST(commentsBlocked AS INTEGER) AS blockComment
     FROM "Post" WHERE id = ${post[0]!.id}
   `;
@@ -233,17 +260,25 @@ test('creates a published Markdown post atomically with config, content, tags an
   const tags = await db.$queryRaw<Array<{ value: string }>>`
     SELECT tag.name AS value FROM "Tag" AS tag JOIN "_PostToTag" AS link ON link.B = tag.id WHERE link.A = ${post[0]!.id} ORDER BY tag.name
   `;
-  assert.deepEqual(tags.map((tag) => tag.value), ['python', 'typescript']);
+  assert.deepEqual(
+    tags.map((tag) => tag.value),
+    ['python', 'typescript'],
+  );
   assert.equal(await db.notification.count({ where: { url: '/@writer/hello-world' } }), 1);
 });
 
 test('creates and reschedules future posts from the visible datetime-local field', async () => {
   const initialAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
   const create = await app.inject({
-    method: 'POST', url: '/v1/posts', headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
+    method: 'POST',
+    url: '/v1/posts',
+    headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
     payload: new URLSearchParams({
-      title: 'Scheduled through editor', url: 'scheduled-through-editor',
-      textMd: '# Ready later', contentType: 'markdown', reservedDate: initialAt,
+      title: 'Scheduled through editor',
+      url: 'scheduled-through-editor',
+      textMd: '# Ready later',
+      contentType: 'markdown',
+      reservedDate: initialAt,
     }).toString(),
   });
   assert.equal(create.json().status, 'DONE', create.body);
@@ -258,7 +293,8 @@ test('creates and reschedules future posts from the visible datetime-local field
 
   const laterAt = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString();
   const reschedule = await app.inject({
-    method: 'PUT', url: '/v1/users/@writer/posts/scheduled-through-editor?reservedDate=1',
+    method: 'PUT',
+    url: '/v1/users/@writer/posts/scheduled-through-editor?reservedDate=1',
     headers: { ...writerHeaders, 'content-type': 'application/json' },
     payload: { reservedDate: laterAt },
   });
@@ -268,34 +304,64 @@ test('creates and reschedules future posts from the visible datetime-local field
   `;
   assert.equal(Number(queued[0]?.date), Date.parse(laterAt));
 
-  const hide = await app.inject({ method: 'PUT', url: '/v1/users/@writer/posts/scheduled-through-editor?hide=1', headers: writerHeaders });
+  const hide = await app.inject({
+    method: 'PUT',
+    url: '/v1/users/@writer/posts/scheduled-through-editor?hide=1',
+    headers: writerHeaders,
+  });
   assert.equal(hide.json().body.isHide, true);
-  assert.equal((await db.$queryRaw<Array<{ total: number }>>`
+  assert.equal(
+    (
+      await db.$queryRaw<Array<{ total: number }>>`
     SELECT COUNT(*) AS total FROM "ScheduledPublication" WHERE postId = ${created[0]!.id}
-  `)[0]?.total, 0n);
-  const unhide = await app.inject({ method: 'PUT', url: '/v1/users/@writer/posts/scheduled-through-editor?hide=1', headers: writerHeaders });
+  `
+    )[0]?.total,
+    0n,
+  );
+  const unhide = await app.inject({
+    method: 'PUT',
+    url: '/v1/users/@writer/posts/scheduled-through-editor?hide=1',
+    headers: writerHeaders,
+  });
   assert.equal(unhide.json().body.isHide, false);
   assert.equal(await db.notification.count({ where: { url: '/@writer/scheduled-through-editor' } }), 0);
 });
 
 test('serves legacy create/edit/view contracts and keeps an existing post configuration intact', async () => {
-  const deniedAnonymous = await app.inject({ method: 'POST', url: '/v1/posts', headers: { 'x-test-csrf': 'good' }, payload: { title: 'No session' } });
+  const deniedAnonymous = await app.inject({
+    method: 'POST',
+    url: '/v1/posts',
+    headers: { 'x-test-csrf': 'good' },
+    payload: { title: 'No session' },
+  });
   assert.equal(deniedAnonymous.statusCode, 404);
   const deniedReader = await app.inject({
-    method: 'POST', url: '/v1/posts', headers: { 'x-user-id': '3', 'x-test-csrf': 'good', 'content-type': 'application/json' },
+    method: 'POST',
+    url: '/v1/posts',
+    headers: { 'x-user-id': '3', 'x-test-csrf': 'good', 'content-type': 'application/json' },
     payload: { title: 'Reader post', textHtml: '# no', contentType: 'markdown' },
   });
   assert.equal(deniedReader.json().errorCode, 'error:RJ');
-  const noCsrf = await app.inject({ method: 'POST', url: '/v1/posts', headers: { 'x-user-id': '1' }, payload: { title: 'No CSRF' } });
+  const noCsrf = await app.inject({
+    method: 'POST',
+    url: '/v1/posts',
+    headers: { 'x-user-id': '1' },
+    payload: { title: 'No CSRF' },
+  });
   assert.equal(noCsrf.statusCode, 403);
 
   const created = await app.inject({
-    method: 'POST', url: '/v1/posts', headers: { ...writerHeaders, 'content-type': 'application/json' },
+    method: 'POST',
+    url: '/v1/posts',
+    headers: { ...writerHeaders, 'content-type': 'application/json' },
     payload: { title: 'API markdown', textHtml: '# API\n\nA `code` sample', contentType: 'markdown', tag: 'api,one' },
   });
   assert.equal(created.json().status, 'DONE', created.body);
   const apiUrl = created.json().body.url;
-  const editMode = await app.inject({ url: `/v1/users/@writer/posts/${apiUrl}?mode=edit`, headers: { 'x-user-id': '1' } });
+  const editMode = await app.inject({
+    url: `/v1/users/@writer/posts/${apiUrl}?mode=edit`,
+    headers: { 'x-user-id': '1' },
+  });
   assert.equal(editMode.json().status, 'DONE');
   assert.match(editMode.json().body.contentHtml, /<h2 id="api">API<\/h2>/);
   assert.deepEqual(editMode.json().body.tags, ['api', 'one']);
@@ -305,13 +371,25 @@ test('serves legacy create/edit/view contracts and keeps an existing post config
   assert.match(view.json().body.renderedContent, /<code>code<\/code>/);
   const hiddenView = await app.inject({ url: '/v1/users/@writer/posts/hidden-post?mode=view' });
   assert.equal(hiddenView.statusCode, 404);
-  const wrongOwner = await app.inject({ url: `/v1/users/@writer/posts/${apiUrl}?mode=edit`, headers: { 'x-user-id': '2' } });
+  const wrongOwner = await app.inject({
+    url: `/v1/users/@writer/posts/${apiUrl}?mode=edit`,
+    headers: { 'x-user-id': '2' },
+  });
   assert.equal(wrongOwner.statusCode, 404);
 
   const edited = await app.inject({
-    method: 'POST', url: `/v1/users/@writer/posts/${apiUrl}`,
+    method: 'POST',
+    url: `/v1/users/@writer/posts/${apiUrl}`,
     headers: { ...writerHeaders, 'content-type': 'application/json' },
-    payload: { title: 'API markdown updated', textHtml: '# Updated\n\n**new** body', contentType: 'markdown', tag: 'new_tag', series: 'learning', isHide: false, isAdvertise: false },
+    payload: {
+      title: 'API markdown updated',
+      textHtml: '# Updated\n\n**new** body',
+      contentType: 'markdown',
+      tag: 'new_tag',
+      series: 'learning',
+      isHide: false,
+      isAdvertise: false,
+    },
   });
   assert.deepEqual(edited.json(), { status: 'DONE', body: {} });
   const updatedPost = await db.$queryRaw<Array<{ title: string; seriesId: number | null }>>`
@@ -327,14 +405,28 @@ test('serves legacy create/edit/view contracts and keeps an existing post config
     SELECT tag.name AS value FROM "Tag" AS tag JOIN "_PostToTag" AS link ON link.B = tag.id
     WHERE link.A = (SELECT id FROM "Post" WHERE slug = ${apiUrl}) ORDER BY tag.name
   `;
-  assert.deepEqual(updatedTags.map((tag) => tag.value), ['new', 'tag']);
+  assert.deepEqual(
+    updatedTags.map((tag) => tag.value),
+    ['new', 'tag'],
+  );
 
-  const hide = await app.inject({ method: 'PUT', url: `/v1/users/@writer/posts/${apiUrl}?hide=hide`, headers: writerHeaders });
+  const hide = await app.inject({
+    method: 'PUT',
+    url: `/v1/users/@writer/posts/${apiUrl}?hide=hide`,
+    headers: writerHeaders,
+  });
   assert.deepEqual(hide.json().body, { isHide: true });
   assert.equal((await app.inject({ url: `/v1/users/@writer/posts/${apiUrl}?mode=view` })).statusCode, 404);
-  const ownerView = await app.inject({ url: `/v1/users/@writer/posts/${apiUrl}?mode=view`, headers: { 'x-user-id': '1' } });
+  const ownerView = await app.inject({
+    url: `/v1/users/@writer/posts/${apiUrl}?mode=view`,
+    headers: { 'x-user-id': '1' },
+  });
   assert.equal(ownerView.statusCode, 200);
-  const unhide = await app.inject({ method: 'PUT', url: `/v1/users/@writer/posts/${apiUrl}?hide=hide`, headers: writerHeaders });
+  const unhide = await app.inject({
+    method: 'PUT',
+    url: `/v1/users/@writer/posts/${apiUrl}?hide=hide`,
+    headers: writerHeaders,
+  });
   assert.deepEqual(unhide.json().body, { isHide: false });
 });
 
@@ -345,10 +437,16 @@ test('serves settings management lists, filters and restores expired scheduled t
 
   const published = await app.inject({ url: '/v1/setting/posts?order=title', headers: { 'x-user-id': '1' } });
   assert.equal(published.json().status, 'DONE', published.body);
-  assert.deepEqual(published.json().body.posts.map((post: { title: string }) => post.title), ['API markdown updated', 'Existing', 'Hidden', 'Markdown launch']);
+  assert.deepEqual(
+    published.json().body.posts.map((post: { title: string }) => post.title),
+    ['API markdown updated', 'Existing', 'Hidden', 'Markdown launch'],
+  );
   assert.equal(published.json().body.totalCount, 4);
   const hidden = await app.inject({ url: '/v1/setting/posts?visibility=hidden', headers: { 'x-user-id': '1' } });
-  assert.deepEqual(hidden.json().body.posts.map((post: { url: string }) => post.url), ['hidden-post']);
+  assert.deepEqual(
+    hidden.json().body.posts.map((post: { url: string }) => post.url),
+    ['hidden-post'],
+  );
   const invalidOrder = await app.inject({ url: '/v1/setting/posts?order=unknown', headers: { 'x-user-id': '1' } });
   assert.equal(invalidOrder.statusCode, 404);
 
@@ -356,10 +454,16 @@ test('serves settings management lists, filters and restores expired scheduled t
   assert.deepEqual(tagManagement.json().body.tags[0], { name: 'popular', count: 2 });
   assert.equal(tagManagement.json().body.username, 'writer');
   assert.equal((await app.inject('/v1/setting/tag')).json().errorCode, 'error:NL');
-  assert.equal((await app.inject({ url: '/v1/setting/tag', headers: { 'x-user-id': '3' } })).json().errorCode, 'error:RJ');
+  assert.equal(
+    (await app.inject({ url: '/v1/setting/tag', headers: { 'x-user-id': '3' } })).json().errorCode,
+    'error:RJ',
+  );
 
   const scheduled = await app.inject({ url: '/v1/setting/reserved-posts', headers: { 'x-user-id': '1' } });
-  assert.deepEqual(scheduled.json().body.posts.map((post: { url: string }) => post.url), ['scheduled', 'scheduled-through-editor']);
+  assert.deepEqual(
+    scheduled.json().body.posts.map((post: { url: string }) => post.url),
+    ['scheduled', 'scheduled-through-editor'],
+  );
   const drafts = await app.inject({ url: '/v1/drafts', headers: { 'x-user-id': '1' } });
   assert.ok(drafts.json().body.drafts.some((draft: { url: string }) => draft.url === 'draft-note'));
   const trash = await app.inject({ url: '/v1/setting/trash-posts?page=1', headers: { 'x-user-id': '1' } });
@@ -370,13 +474,15 @@ test('serves settings management lists, filters and restores expired scheduled t
 
   const expectedDeletedDate = trash.json().body.posts[0].deletedDate;
   const stale = await app.inject({
-    method: 'POST', url: '/v1/setting/trash-posts/trashed-schedule/restore',
+    method: 'POST',
+    url: '/v1/setting/trash-posts/trashed-schedule/restore',
     headers: { ...writerHeaders, 'content-type': 'application/json' },
     payload: { expectedDeletedDate: '2001-01-01T00:00:00+00:00' },
   });
   assert.equal(stale.json().errorCode, 'error:RJ');
   const restore = await app.inject({
-    method: 'POST', url: '/v1/setting/trash-posts/trashed-schedule/restore',
+    method: 'POST',
+    url: '/v1/setting/trash-posts/trashed-schedule/restore',
     headers: { ...writerHeaders, 'content-type': 'application/json' },
     payload: { expectedDeletedDate },
   });
@@ -406,7 +512,9 @@ test('pages revision history, restores with version checks, deletes revisions an
   assert.equal(detail.json().body.revision.contentText, 'Old body');
   const expected = list.json().body.currentUpdatedDate;
   const restored = await app.inject({
-    method: 'POST', url: `${base}/1/restore`, headers: { ...writerHeaders, 'content-type': 'application/json' },
+    method: 'POST',
+    url: `${base}/1/restore`,
+    headers: { ...writerHeaders, 'content-type': 'application/json' },
     payload: { expectedUpdatedDate: expected },
   });
   assert.equal(restored.json().body.restored, true, restored.body);
@@ -415,31 +523,51 @@ test('pages revision history, restores with version checks, deletes revisions an
       FROM "Post" AS post JOIN "PostContent" AS content ON content.postId = post.id
      WHERE post.id = 1
   `;
-  assert.deepEqual(fields[0], { title: 'Old version', subtitle: 'Old subtitle', description: 'Old description', html: '<p>Old body</p>' });
+  assert.deepEqual(fields[0], {
+    title: 'Old version',
+    subtitle: 'Old subtitle',
+    description: 'Old description',
+    html: '<p>Old body</p>',
+  });
   const restoredTags = await db.$queryRaw<Array<{ value: string }>>`
     SELECT tag.name AS value FROM "_PostToTag" AS link JOIN "Tag" AS tag ON tag.id = link.B WHERE link.A = 1
   `;
-  assert.deepEqual(restoredTags.map((tag) => tag.value), ['oldtag']);
+  assert.deepEqual(
+    restoredTags.map((tag) => tag.value),
+    ['oldtag'],
+  );
 
   const stale = await app.inject({
-    method: 'POST', url: `${base}/1/restore`, headers: { ...writerHeaders, 'content-type': 'application/json' },
+    method: 'POST',
+    url: `${base}/1/restore`,
+    headers: { ...writerHeaders, 'content-type': 'application/json' },
     payload: { expectedUpdatedDate: expected },
   });
   assert.equal(stale.json().errorCode, 'error:CF');
   const legacyRestore = await app.inject({
-    method: 'POST', url: `${base}/2/restore`, headers: { ...writerHeaders, 'content-type': 'application/json' },
+    method: 'POST',
+    url: `${base}/2/restore`,
+    headers: { ...writerHeaders, 'content-type': 'application/json' },
     payload: { expectedUpdatedDate: restored.json().body.updatedDate },
   });
   assert.equal(legacyRestore.json().errorCode, 'error:RJ');
 
   const noChange = await app.inject({
-    method: 'POST', url: `${base}/1/restore`, headers: { ...writerHeaders, 'content-type': 'application/json' },
+    method: 'POST',
+    url: `${base}/1/restore`,
+    headers: { ...writerHeaders, 'content-type': 'application/json' },
     payload: { expectedUpdatedDate: restored.json().body.updatedDate },
   });
   assert.equal(noChange.json().body.restored, false);
-  const timelapse = await app.inject({ url: '/v1/users/@writer/posts/existing/timelapse', headers: { 'x-user-id': '1' } });
+  const timelapse = await app.inject({
+    url: '/v1/users/@writer/posts/existing/timelapse',
+    headers: { 'x-user-id': '1' },
+  });
   assert.equal(timelapse.json().body.totalCount, 3);
-  assert.deepEqual(timelapse.json().body.frames.map((frame: { title: string }) => frame.title), ['Old version', 'Existing', 'Old version']);
+  assert.deepEqual(
+    timelapse.json().body.frames.map((frame: { title: string }) => frame.title),
+    ['Old version', 'Existing', 'Old version'],
+  );
   assert.equal(timelapse.json().body.frames.at(-1).stage, 'published');
 
   const removed = await app.inject({ method: 'DELETE', url: `${base}/1`, headers: writerHeaders });
@@ -475,16 +603,21 @@ test('links editor to owner-only revision and timelapse pages with form restore 
   const restoreId = restoreCandidates[0]?.id;
   assert.ok(restoreId);
   const staleDelete = await app.inject({
-    method: 'POST', url: `${historyPath}/${restoreId}/delete`,
+    method: 'POST',
+    url: `${historyPath}/${restoreId}/delete`,
     headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
-    payload: new URLSearchParams({ confirmDelete: 'yes', expectedUpdatedDate: '2001-01-01 00:00:00.000000' }).toString(),
+    payload: new URLSearchParams({
+      confirmDelete: 'yes',
+      expectedUpdatedDate: '2001-01-01 00:00:00.000000',
+    }).toString(),
   });
   assert.equal(staleDelete.statusCode, 303);
   assert.match(staleDelete.headers.location ?? '', /conflict=1/);
 
   const current = await db.post.findMany({ where: { id: 1 }, select: { updatedAt: true } });
   const restore = await app.inject({
-    method: 'POST', url: `${historyPath}/${restoreId}/restore`,
+    method: 'POST',
+    url: `${historyPath}/${restoreId}/restore`,
     headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
     payload: new URLSearchParams({ expectedUpdatedDate: current[0]!.updatedAt.toISOString() }).toString(),
   });
@@ -496,9 +629,13 @@ test('links editor to owner-only revision and timelapse pages with form restore 
   const afterRestore = await db.post.findMany({ where: { id: 1 }, select: { updatedAt: true, title: true } });
   assert.equal(afterRestore[0]?.title, 'Existing');
   const remove = await app.inject({
-    method: 'POST', url: `${historyPath}/${restoreId}/delete`,
+    method: 'POST',
+    url: `${historyPath}/${restoreId}/delete`,
     headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
-    payload: new URLSearchParams({ confirmDelete: 'yes', expectedUpdatedDate: afterRestore[0]!.updatedAt.toISOString() }).toString(),
+    payload: new URLSearchParams({
+      confirmDelete: 'yes',
+      expectedUpdatedDate: afterRestore[0]!.updatedAt.toISOString(),
+    }).toString(),
   });
   assert.equal(remove.statusCode, 303, remove.body);
   assert.match(remove.headers.location ?? '', /deleted=1/);
@@ -509,7 +646,9 @@ test('links editor to owner-only revision and timelapse pages with form restore 
 
 test('saves, previews, edits and publishes drafts while keeping only owner access', async () => {
   const created = await app.inject({
-    method: 'POST', url: '/v1/drafts', headers: { ...writerHeaders, 'content-type': 'application/json' },
+    method: 'POST',
+    url: '/v1/drafts',
+    headers: { ...writerHeaders, 'content-type': 'application/json' },
     payload: { title: 'Draft from API', content: '# Private draft', contentType: 'markdown', tags: 'draft,notes' },
   });
   assert.equal(created.json().status, 'DONE', created.body);
@@ -522,12 +661,19 @@ test('saves, previews, edits and publishes drafts while keeping only owner acces
   assert.equal((await app.inject({ url: `/v1/drafts/${slug}`, headers: { 'x-user-id': '2' } })).statusCode, 404);
 
   const saveDraft = await app.inject({
-    method: 'PUT', url: `/v1/drafts/${slug}`,
+    method: 'PUT',
+    url: `/v1/drafts/${slug}`,
     headers: { ...writerHeaders, 'content-type': 'application/json' },
     payload: {
-      title: 'Draft from API', url: slug, contentHtml: '<h1>Private draft</h1>', tag: 'draft, notes',
-      metaDescription: 'Private draft', coverLayout: 'default', coverImagePosition: 'right',
-      coverImageRatio: 'auto', blockComment: 'false',
+      title: 'Draft from API',
+      url: slug,
+      contentHtml: '<h1>Private draft</h1>',
+      tag: 'draft, notes',
+      metaDescription: 'Private draft',
+      coverLayout: 'default',
+      coverImagePosition: 'right',
+      coverImageRatio: 'auto',
+      blockComment: 'false',
     },
   });
   assert.deepEqual(saveDraft.json(), { status: 'DONE', body: { url: slug } });
@@ -535,12 +681,21 @@ test('saves, previews, edits and publishes drafts while keeping only owner acces
   assert.equal(preview.statusCode, 200, preview.body);
 
   const publish = await app.inject({
-    method: 'POST', url: '/v1/posts', headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
+    method: 'POST',
+    url: '/v1/posts',
+    headers: { ...writerHeaders, 'content-type': 'application/x-www-form-urlencoded' },
     payload: new URLSearchParams({
-      draftUrl: slug, title: 'Draft published', url: slug,
-      textMd: '# Now public\n\nPublished **safely**.', contentType: 'markdown',
-      tag: 'live', series: 'learning', blockComment: 'false', coverLayout: 'default',
-      coverImagePosition: 'right', coverImageRatio: 'auto',
+      draftUrl: slug,
+      title: 'Draft published',
+      url: slug,
+      textMd: '# Now public\n\nPublished **safely**.',
+      contentType: 'markdown',
+      tag: 'live',
+      series: 'learning',
+      blockComment: 'false',
+      coverLayout: 'default',
+      coverImagePosition: 'right',
+      coverImageRatio: 'auto',
     }).toString(),
   });
   assert.deepEqual(publish.json(), { status: 'DONE', body: { url: slug } });
@@ -552,7 +707,11 @@ test('saves, previews, edits and publishes drafts while keeping only owner acces
 });
 
 test('supports schedule cancel and publish-now, and soft-deletes an owned post', async () => {
-  const cancel = await app.inject({ method: 'POST', url: '/v1/users/@writer/posts/scheduled/schedule/cancel', headers: writerHeaders });
+  const cancel = await app.inject({
+    method: 'POST',
+    url: '/v1/users/@writer/posts/scheduled/schedule/cancel',
+    headers: writerHeaders,
+  });
   assert.deepEqual(cancel.json().body, { url: 'scheduled', status: 'draft' });
   const state = await db.$queryRaw<Array<{ published: string | null }>>`
     SELECT CAST(publishedAt AS TEXT) AS published FROM "Post" WHERE slug = 'scheduled'
@@ -560,14 +719,22 @@ test('supports schedule cancel and publish-now, and soft-deletes an owned post',
   assert.equal(state[0]?.published, null);
 
   await db.post.update({ where: { slug: 'scheduled' }, data: { publishedAt: new Date(Date.UTC(2099, 0, 1)) } });
-  const publishNow = await app.inject({ method: 'POST', url: '/v1/users/@writer/posts/scheduled/schedule/publish-now', headers: writerHeaders });
+  const publishNow = await app.inject({
+    method: 'POST',
+    url: '/v1/users/@writer/posts/scheduled/schedule/publish-now',
+    headers: writerHeaders,
+  });
   assert.equal(publishNow.json().body.status, 'published');
   const published = await db.$queryRaw<Array<{ published: string | null }>>`
     SELECT CAST(publishedAt AS TEXT) AS published FROM "Post" WHERE slug = 'scheduled'
   `;
   assert.ok(published[0]?.published);
 
-  const trashed = await app.inject({ method: 'DELETE', url: '/v1/users/@writer/posts/existing', headers: writerHeaders });
+  const trashed = await app.inject({
+    method: 'DELETE',
+    url: '/v1/users/@writer/posts/existing',
+    headers: writerHeaders,
+  });
   assert.equal(trashed.json().body.trashed, true);
   const deleted = await db.$queryRaw<Array<{ deleted: string | null }>>`
     SELECT CAST(deletedAt AS TEXT) AS deleted FROM "Post" WHERE slug = 'existing'
@@ -581,9 +748,15 @@ test('exports ID-based PATCH persistence with preserved omissions and stale-writ
   await db.$executeRaw`UPDATE "Post" SET updatedAt = ${Date.UTC(2020, 0, 2, 3, 4, 5, 123)} WHERE id = 2`;
   // A client that read the post from 3.x may still hold the six-digit version of this date.
   const expected = '2020-01-02T03:04:05.123456+00:00';
-  const saved = await updateAuthorPost(db, { id: 1, username: 'writer' }, 2, {
-    title: 'Patched by ID',
-  }, expected);
+  const saved = await updateAuthorPost(
+    db,
+    { id: 1, username: 'writer' },
+    2,
+    {
+      title: 'Patched by ID',
+    },
+    expected,
+  );
   assert.equal(saved.id, 2);
   assert.equal(saved.url, 'draft-note');
 
@@ -595,10 +768,13 @@ test('exports ID-based PATCH persistence with preserved omissions and stale-writ
   assert.equal(preserved[0]?.title, 'Patched by ID');
   assert.equal(preserved[0]?.html, '<p>Draft starts here.</p>');
   assert.equal(preserved[0]?.seriesId, 1);
-  assert.deepEqual(await db.$queryRaw<Array<{ value: string }>>`
+  assert.deepEqual(
+    await db.$queryRaw<Array<{ value: string }>>`
     SELECT tag.name AS value FROM "Tag" AS tag
       JOIN "_PostToTag" AS link ON link.B = tag.id WHERE link.A = 2
-  `, [{ value: 'legacy-tag' }]);
+  `,
+    [{ value: 'legacy-tag' }],
+  );
 
   await assert.rejects(
     updateAuthorPost(db, { id: 1, username: 'writer' }, 2, { title: 'Stale write' }, expected),

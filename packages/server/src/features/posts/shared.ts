@@ -1,4 +1,3 @@
-import { createElement as h } from 'react';
 import { type PrismaClient } from '@prisma/client';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { isoWithOffset } from '../../platform/date-format.js';
@@ -86,8 +85,6 @@ export interface AuthoringPostInput {
   reservedDate: string;
 }
 
-export const h1 = h;
-
 export const POST_TITLE_MAX = 65;
 
 export const POST_SUBTITLE_MAX = 120;
@@ -120,11 +117,6 @@ export function inputField(body: Record<string, unknown>, ...keys: string[]): st
   return '';
 }
 
-function optionalField(body: Record<string, unknown>, key: string): string | undefined {
-  if (!Object.hasOwn(body, key)) return undefined;
-  return field(body[key]);
-}
-
 export function booleanField(value: unknown): boolean {
   if (Array.isArray(value)) return booleanField(value.at(-1));
   if (typeof value === 'boolean') return value;
@@ -137,9 +129,7 @@ export function bodyObject(body: unknown): Record<string, unknown> {
 }
 
 export function queryObject(request: FastifyRequest): Record<string, unknown> {
-  return request.query && typeof request.query === 'object'
-    ? request.query as Record<string, unknown>
-    : {};
+  return request.query && typeof request.query === 'object' ? (request.query as Record<string, unknown>) : {};
 }
 
 export function dateAsIso(value: DbDate): string | null {
@@ -152,9 +142,15 @@ export function localDateTime(value: DbDate): string {
   const date = new Date(iso);
   return new Intl.DateTimeFormat('sv-SE', {
     timeZone: 'Asia/Seoul',
-    year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
-  }).format(date).replace(' ', 'T');
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  })
+    .format(date)
+    .replace(' ', 'T');
 }
 
 export function cookieValue(request: FastifyRequest, name: string): string {
@@ -201,9 +197,14 @@ export async function currentAccount(
   });
   return account?.isActive
     ? {
-      id: account.id, username: account.username, isActive: true, role: account.profile?.role ?? null,
-      isStaff: user.isStaff, notifyCount: user.notifyCount, hasConnectedTelegram: user.hasConnectedTelegram,
-    }
+        id: account.id,
+        username: account.username,
+        isActive: true,
+        role: account.profile?.role ?? null,
+        isStaff: user.isStaff,
+        notifyCount: user.notifyCount,
+        hasConnectedTelegram: user.hasConnectedTelegram,
+      }
     : null;
 }
 

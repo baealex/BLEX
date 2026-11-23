@@ -20,13 +20,13 @@ pnpm install
 pnpm dev
 ```
 
-The development command builds the app and starts the server at `http://localhost:8040`. It also initializes a local SQLite database and generates secrets under `packages/server/.local/`. It does not watch source files; restart it after changes. Settings and editor pages are React screens, so run `pnpm build:web` first; without those assets they answer 503. FFmpeg is needed for local GIF conversion and video previews.
+The development command builds the app and starts the server at `http://localhost:8040`. It also initializes a local SQLite database and generates secrets under `packages/server/.local/`. It does not watch source files; restart it after changes. Settings and editor pages are React screens, so run `pnpm build:client` first; without those assets they answer 503. FFmpeg is needed for local GIF conversion and video previews.
 
 ## Backend
 
 Read [Backend Guide](BACKEND_GUIDE.md) and [Testing Guide](TESTING_GUIDE.md).
 
-- Put domain code in `packages/server/src/features/<domain>`: `http` for routes, `services` for business logic and data access, and `pages` for SSR screens. Register routes from `packages/server/src/routes/index.ts`.
+- Put domain code in `packages/server/src/features/<domain>`: `http` for routes and `services` for business logic and data access. Views belong in `packages/client`. Register routes from `packages/server/src/routes/index.ts`.
 - Keep shared response, CSRF, cookie, date format, and header helpers in `packages/server/src/platform/`. Only the one-time BLEX 3.14 import and its verification belong in `packages/server/src/compat/`.
 - Prisma schema and migrations live in `packages/server/prisma/`. `0001_init` stays the single migration until 4.0 ships; after that, new migrations stack on it.
 - Use the Prisma model API for database access. Raw SQL needs a documented reason; see the [Backend Guide](BACKEND_GUIDE.md#database-changes).
@@ -39,8 +39,8 @@ Read [Backend Guide](BACKEND_GUIDE.md) and [Testing Guide](TESTING_GUIDE.md).
 
 Read [Frontend Guide](FRONTEND_GUIDE.md), [Design Guide](DESIGN_GUIDE.md), and [UI Change Style Guide](UI_CHANGE_STYLE_GUIDE.md).
 
-- Use `renderApplicationDocument` for app pages. Include initial page data in the SSR response and clean up browser features when navigating away.
-- The main application and browser entry points live in `packages/server/src/`. React screens live in `packages/web/`; shared controls and the reusable Tiptap editor live in `packages/ui/` and `packages/editor/`.
+- Add server-rendered pages as `packages/client/src/routes/**/*.page.tsx` and call them with `renderPage`. Include initial page data in the SSR response and clean up browser features when navigating away.
+- Client routes live in `packages/client/src/routes/`, their screens in `packages/client/src/features/<domain>/`, and shared controls in `packages/client/src/ui/`.
 - Follow the existing screen's component and data-fetching patterns. Run the checks for the workspace you changed.
 
 ## Internationalization
@@ -60,5 +60,7 @@ Run from the repository root:
 pnpm test
 pnpm type-check
 ```
+
+Biome formats and lints the repository. Run `pnpm format` to apply fixes; `pnpm lint` is the CI check.
 
 `pnpm test` includes the application build. For web, UI, or editor changes, also run the workspace checks as described in the [Testing Guide](TESTING_GUIDE.md).

@@ -1,123 +1,37 @@
 import { createHash } from 'node:crypto';
-import { createElement, type ReactNode } from 'react';
 import type { Prisma } from '@prisma/client';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { sanitizePostHtml } from '../posts/post-html.js';
 import { authorPath } from '../authors/services/profile.js';
+import type {
+  SiteBrand,
+  NoticeRow,
+  SubscriptionState,
+  PostRow,
+  AuthorRow,
+  TagRow,
+  SeriesRow,
+  SeriesDetailRow,
+  AuthorSocialLink,
+  PageMeta,
+  PublicPageViewer,
+} from '../../../../client/src/contracts/public.js';
 
 type StoredDate = string | Date;
 
-export interface SiteBrand {
-  siteName: string;
-  logoUrl: string | null;
-  darkLogoUrl: string | null;
-  faviconUrl: string;
-  seoEnabled: boolean;
-  footerPages: Array<{ title: string; slug: string }>;
-}
-
-export interface NoticeRow {
-  id: number;
-  title: string;
-  url: string;
-}
-
-export interface SubscriptionState {
-  canSubscribe: boolean;
-  isSubscribed: boolean;
-}
-
-export interface PostRow {
-  id: number;
-  slug: string;
-  title: string;
-  subtitle: string;
-  image: string;
-  readTime: number;
-  description: string;
-  publishedDate: StoredDate | null;
-  authorUsername: string;
-  authorAvatar: string | null;
-  seriesUrl: string | null;
-  seriesName: string | null;
-  relevance?: number;
-  likeCount?: number;
-  commentCount?: number;
-  titleScore?: number;
-  descriptionScore?: number;
-  tagScore?: number;
-  contentScore?: number;
-}
-
-export interface AuthorRow {
-  id: number;
-  username: string;
-  firstName: string;
-  isActive: boolean;
-  bio: string;
-  avatar: string;
-  cover: string;
-  homepage: string;
-  aboutHtml: string;
-  aboutMarkdown: string;
-  role: string;
-  publicPostCount: number;
-  publicSeriesCount: number;
-}
-
-export interface TagRow {
-  id: number;
-  name: string;
-  count: number;
-}
-
-export interface SeriesRow {
-  id: number;
-  url: string;
-  name: string;
-  textMarkdown: string;
-  textHtml: string;
-  createdDate: StoredDate;
-  updatedDate: StoredDate;
-  postCount: number;
-}
-
-export interface SeriesDetailRow extends SeriesRow {
-  authorId: number;
-  authorUsername: string;
-  authorAvatar: string | null;
-}
-
-export interface AuthorSocialLink {
-  id: number;
-  name: string;
-  value: string;
-}
-
-export interface PageMeta {
-  title: string;
-  description: string;
-  canonical: string;
-  siteName: string;
-  brand?: SiteBrand;
-  robots?: string;
-  previous?: string;
-  next?: string;
-  structuredData?: Record<string, unknown>;
-  viewer?: PublicPageViewer | null;
-  searchPage?: boolean;
-  markdownUrl?: string;
-  authorFeed?: { url: string; title: string };
-}
-
-export interface PublicPageViewer {
-  id: number;
-  username?: string;
-  hasEditorRole: boolean;
-  isStaff?: boolean;
-  csrfToken?: string;
-  unreadCount?: number;
-}
+export type {
+  SiteBrand,
+  NoticeRow,
+  SubscriptionState,
+  PostRow,
+  AuthorRow,
+  TagRow,
+  SeriesRow,
+  SeriesDetailRow,
+  AuthorSocialLink,
+  PageMeta,
+  PublicPageViewer,
+};
 
 export interface PostQueryOptions {
   where?: Prisma.PostWhereInput;
@@ -125,8 +39,6 @@ export interface PostQueryOptions {
   limit?: number;
   offset?: number;
 }
-
-export const h = createElement;
 
 export const PAGE_SIZE = 24;
 
@@ -165,7 +77,12 @@ export function hasUnexpected(search: URLSearchParams, allowed: string[]): boole
   return [...search.keys()].some((key) => !allowed.includes(key));
 }
 
-export function validPublicPage(reply: FastifyReply, requestedPage: number | null, count: number, pageSize: number): number | null {
+export function validPublicPage(
+  reply: FastifyReply,
+  requestedPage: number | null,
+  count: number,
+  pageSize: number,
+): number | null {
   if (requestedPage === null || requestedPage > totalPages(count, pageSize)) {
     reply.code(404).type('text/plain; charset=utf-8').send('Not found');
     return null;
@@ -186,7 +103,7 @@ function resourceUrl(path: string): string {
 export function postCover(post: PostRow): string {
   if (post.image) return mediaUrl(post.image) ?? resourceUrl('assets/images/default-cover-1.jpg');
   const digest = createHash('md5').update(post.slug).digest('hex');
-  const index = Number.parseInt(digest.slice(0, 8), 16) % 6 + 1;
+  const index = (Number.parseInt(digest.slice(0, 8), 16) % 6) + 1;
   return resourceUrl(`assets/images/default-cover-${index}.jpg`);
 }
 
@@ -263,15 +180,6 @@ export function makePaginationMeta(
   };
 }
 
-function postTitle(post: PostRow): string {
-  return `/@${encodeURIComponent(post.authorUsername)}/${encodeURIComponent(post.slug)}`;
-}
-
-export function formatPostDate(post: PostRow): ReactNode {
-  if (!post.publishedDate) return null;
-  return h('time', { dateTime: dateValue(post.publishedDate) ?? undefined }, dateLabel(post.publishedDate));
-}
-
 export function safeStructuredPageData(
   siteName: string,
   canonical: string,
@@ -282,11 +190,13 @@ export function safeStructuredPageData(
   authorUsername: string | null,
   siteUrl: URL,
 ): Record<string, unknown> {
-  const author = authorUsername ? {
-    '@type': 'Person',
-    name: authorUsername,
-    url: makeAbsolute(siteUrl, authorPath(authorUsername)),
-  } : undefined;
+  const author = authorUsername
+    ? {
+        '@type': 'Person',
+        name: authorUsername,
+        url: makeAbsolute(siteUrl, authorPath(authorUsername)),
+      }
+    : undefined;
   return {
     '@context': 'https://schema.org',
     '@type': 'WebPage',

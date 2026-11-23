@@ -24,7 +24,13 @@ async function claimDelivery(db: PrismaClient) {
   }
 }
 
-export async function deliverTelegramNotification(db: PrismaClient, siteUrl: URL, cipherKey: string, send: typeof fetch, signal: AbortSignal) {
+export async function deliverTelegramNotification(
+  db: PrismaClient,
+  siteUrl: URL,
+  cipherKey: string,
+  send: typeof fetch,
+  signal: AbortSignal,
+) {
   const job = await claimDelivery(db);
   if (!job) return false;
 
@@ -35,7 +41,11 @@ export async function deliverTelegramNotification(db: PrismaClient, siteUrl: URL
   const notification = await db.notification.findFirst({
     where: { id: job.notificationId, user: { isActive: true, telegram: { isNot: null } } },
     select: {
-      userId: true, content: true, url: true, messageKey: true, messageParams: true,
+      userId: true,
+      content: true,
+      url: true,
+      messageKey: true,
+      messageParams: true,
       user: { select: { telegram: { select: { telegramId: true } } } },
     },
   });
@@ -47,15 +57,24 @@ export async function deliverTelegramNotification(db: PrismaClient, siteUrl: URL
   if (message && token && /^\d+:[A-Za-z0-9_-]+$/.test(token) && chat && /^-?\d+$/.test(chat)) {
     const url = URL.parse(message.url, siteUrl);
     const safeUrl = url && ['https:', 'http:'].includes(url.protocol) && !url.username && !url.password ? url.href : '';
-    const preferences = await db.userPreference.findUnique({ where: { userId: message.userId }, select: { language: true } });
+    const preferences = await db.userPreference.findUnique({
+      where: { userId: message.userId },
+      select: { language: true },
+    });
     const language = preferences?.language === 'en' && process.env.ENABLE_ENGLISH_UI === 'TRUE' ? 'en' : 'ko';
-    const text = notificationText(message.messageKey, notificationParams(message.messageParams), message.content, language);
+    const text = notificationText(
+      message.messageKey,
+      notificationParams(message.messageParams),
+      message.content,
+      language,
+    );
     try {
       const response = await send(`https://api.telegram.org/bot${token}/sendMessage`, {
         method: 'POST',
         body: JSON.stringify({ chat_id: chat, text: `${safeUrl ? `${safeUrl}\n` : ''}${text}`.slice(0, 4_096) }),
         headers: { 'Content-Type': 'application/json' },
-        redirect: 'error', signal: AbortSignal.any([signal, AbortSignal.timeout(8_000)]),
+        redirect: 'error',
+        signal: AbortSignal.any([signal, AbortSignal.timeout(8_000)]),
       });
       retry = response.status === 429 || response.status >= 500;
       if (response.status === 429) {
@@ -85,17 +104,20 @@ export function startNotificationWorker(db: PrismaClient, siteUrl: URL, cipherKe
     try {
       await processScheduledPublications(db);
       for (let count = 0; count < 4 && !controller.signal.aborted; count += 1) {
-        if (!await deliverTelegramNotification(db, siteUrl, cipherKey, send, controller.signal)) break;
+        if (!(await deliverTelegramNotification(db, siteUrl, cipherKey, send, controller.signal))) break;
       }
       for (let count = 0; count < 4 && !controller.signal.aborted; count += 1) {
-        if (!await deliverPostWebhook(db, siteUrl, controller.signal)) break;
+        if (!(await deliverPostWebhook(db, siteUrl, controller.signal))) break;
       }
     } catch {
       console.error('BLEX notification delivery polling failed.');
     }
   };
   const timer = setInterval(() => {
-    if (!running) running = tick().finally(() => { running = undefined; });
+    if (!running)
+      running = tick().finally(() => {
+        running = undefined;
+      });
   }, 5_000);
   timer.unref();
   return async () => {

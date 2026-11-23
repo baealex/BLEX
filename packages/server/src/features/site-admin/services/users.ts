@@ -11,8 +11,15 @@ import { ApiResult, isoDate, positiveInteger, recordModeration } from '../shared
 const countedPosts = { deletedAt: null } satisfies Prisma.PostWhereInput;
 
 const managedUserSelect = {
-  id: true, username: true, name: true, email: true, isActive: true, isStaff: true, isSuperuser: true,
-  joinedAt: true, lastLoginAt: true,
+  id: true,
+  username: true,
+  name: true,
+  email: true,
+  isActive: true,
+  isStaff: true,
+  isSuperuser: true,
+  joinedAt: true,
+  lastLoginAt: true,
   profile: { select: { role: true } },
   twoFactor: { select: { id: true } },
   _count: { select: { posts: { where: countedPosts } } },
@@ -67,7 +74,13 @@ export async function readInvites(db: PrismaClient): Promise<AdminInvite[]> {
     orderBy: { createdAt: 'desc' },
     take: 20,
     select: {
-      id: true, code: true, note: true, isActive: true, claimedById: true, createdAt: true, claimedAt: true,
+      id: true,
+      code: true,
+      note: true,
+      isActive: true,
+      claimedById: true,
+      createdAt: true,
+      claimedAt: true,
       createdBy: { select: { username: true } },
       claimedBy: { select: { username: true } },
     },
@@ -92,7 +105,10 @@ export function userListQuery(request: FastifyRequest): URLSearchParams {
 
 function managedUserWhere(query: string, role: string): Prisma.UserWhereInput {
   const conditions: Prisma.UserWhereInput[] = [];
-  if (query) conditions.push({ OR: [{ username: { contains: query } }, { email: { contains: query } }, { name: { contains: query } }] });
+  if (query)
+    conditions.push({
+      OR: [{ username: { contains: query } }, { email: { contains: query } }, { name: { contains: query } }],
+    });
   if (role === 'reader') conditions.push({ profile: { role: 'READER' } });
   else if (role === 'editor') conditions.push({ profile: { role: 'EDITOR' } });
   else if (role === 'admin') conditions.push({ OR: [{ isStaff: true }, { isSuperuser: true }] });
@@ -106,23 +122,30 @@ function userRoleFilter(value: string | null): string {
 
 function userOrdering(value: string | null): UserOrdering {
   switch (value) {
-    case '-username': return { field: 'username', direction: 'desc' };
-    case 'postCount': return { field: 'postCount', direction: 'asc' };
-    case '-postCount': return { field: 'postCount', direction: 'desc' };
-    case 'dateJoined': return { field: 'joinedAt', direction: 'asc' };
-    case '-dateJoined': return { field: 'joinedAt', direction: 'desc' };
-    default: return { field: 'username', direction: 'asc' };
+    case '-username':
+      return { field: 'username', direction: 'desc' };
+    case 'postCount':
+      return { field: 'postCount', direction: 'asc' };
+    case '-postCount':
+      return { field: 'postCount', direction: 'desc' };
+    case 'dateJoined':
+      return { field: 'joinedAt', direction: 'asc' };
+    case '-dateJoined':
+      return { field: 'joinedAt', direction: 'desc' };
+    default:
+      return { field: 'username', direction: 'asc' };
   }
 }
 
 function compareManagedUsers({ field, direction }: UserOrdering) {
   const sign = direction === 'asc' ? 1 : -1;
-  const byUsername = (left: ManagedUserRow, right: ManagedUserRow) => (left.username < right.username ? -1 : left.username > right.username ? 1 : 0);
+  const byUsername = (left: ManagedUserRow, right: ManagedUserRow) =>
+    left.username < right.username ? -1 : left.username > right.username ? 1 : 0;
   if (field === 'username') return (left: ManagedUserRow, right: ManagedUserRow) => sign * byUsername(left, right);
-  const value = field === 'postCount'
-    ? (row: ManagedUserRow) => row._count.posts
-    : (row: ManagedUserRow) => row.joinedAt.getTime();
-  return (left: ManagedUserRow, right: ManagedUserRow) => sign * (value(left) - value(right)) || byUsername(left, right);
+  const value =
+    field === 'postCount' ? (row: ManagedUserRow) => row._count.posts : (row: ManagedUserRow) => row.joinedAt.getTime();
+  return (left: ManagedUserRow, right: ManagedUserRow) =>
+    sign * (value(left) - value(right)) || byUsername(left, right);
 }
 
 function currentPage(requested: number, total: number, pageSize: number) {
@@ -140,8 +163,9 @@ async function managedUserPage(
 ): Promise<{ users: ManagedUserRow[]; stats: UserStats; page: number; totalPages: number }> {
   // Prisma cannot sort by a filtered relation count, and `contains` is a LIKE that cannot escape % or _.
   if (ordering.field === 'postCount' || /[%_]/.test(query)) {
-    const matches = (await db.user.findMany({ where, select: managedUserSelect }))
-      .filter((user) => !query || [user.username, user.email, user.name].some((text) => containsLiteral(text, query)));
+    const matches = (await db.user.findMany({ where, select: managedUserSelect })).filter(
+      (user) => !query || [user.username, user.email, user.name].some((text) => containsLiteral(text, query)),
+    );
     const stats = {
       total: matches.length,
       editors: matches.filter((user) => user.profile?.role === 'EDITOR').length,
@@ -160,14 +184,25 @@ async function managedUserPage(
     count({ OR: [{ isStaff: true }, { isSuperuser: true }] }),
   ]);
   const { page, totalPages } = currentPage(requestedPage, total, pageSize);
-  const orderBy: Prisma.UserOrderByWithRelationInput[] = ordering.field === 'joinedAt'
-    ? [{ joinedAt: ordering.direction }, { username: 'asc' }]
-    : [{ username: ordering.direction }];
-  const users = await db.user.findMany({ where, orderBy, skip: (page - 1) * pageSize, take: pageSize, select: managedUserSelect });
+  const orderBy: Prisma.UserOrderByWithRelationInput[] =
+    ordering.field === 'joinedAt'
+      ? [{ joinedAt: ordering.direction }, { username: 'asc' }]
+      : [{ username: ordering.direction }];
+  const users = await db.user.findMany({
+    where,
+    orderBy,
+    skip: (page - 1) * pageSize,
+    take: pageSize,
+    select: managedUserSelect,
+  });
   return { users, stats: { total, editors, readers, admins }, page, totalPages };
 }
 
-export async function readManagedUsers(db: PrismaClient, request: FastifyRequest, actor: MemberActor): Promise<AdminUserList> {
+export async function readManagedUsers(
+  db: PrismaClient,
+  request: FastifyRequest,
+  actor: MemberActor,
+): Promise<AdminUserList> {
   const params = userListQuery(request);
   const query = (params.get('q') ?? '').trim();
   const role = userRoleFilter(params.get('role'));
@@ -175,7 +210,12 @@ export async function readManagedUsers(db: PrismaClient, request: FastifyRequest
   const pageSize = pageSizeValue < 1 ? 20 : Math.min(pageSizeValue, 100);
   const requestedPage = positiveInteger(params.get('page'), 1);
   const { users, stats, page, totalPages } = await managedUserPage(
-    db, managedUserWhere(query, role), query, userOrdering(params.get('ordering')), pageSize, requestedPage,
+    db,
+    managedUserWhere(query, role),
+    query,
+    userOrdering(params.get('ordering')),
+    pageSize,
+    requestedPage,
   );
   return {
     users: users.map((row) => managedUser(row, actor)),
@@ -212,7 +252,11 @@ export async function updateManagedUserRole(
     }
     const profile = await transaction.profile.findUnique({ where: { userId: targetId }, select: { role: true } });
     if (profile) {
-      await transaction.profile.update({ where: { userId: targetId }, data: { role: roleValue }, select: { userId: true } });
+      await transaction.profile.update({
+        where: { userId: targetId },
+        data: { role: roleValue },
+        select: { userId: true },
+      });
       if (profile.role === 'EDITOR' && roleValue === 'READER') {
         const now = new Date();
         await transaction.post.updateMany({
@@ -223,7 +267,12 @@ export async function updateManagedUserRole(
     } else {
       await transaction.profile.create({ data: { userId: targetId, role: roleValue }, select: { userId: true } });
     }
-    await transaction.userPreference.upsert({ where: { userId: targetId }, create: { userId: targetId }, update: {}, select: { userId: true } });
+    await transaction.userPreference.upsert({
+      where: { userId: targetId },
+      create: { userId: targetId },
+      update: {},
+      select: { userId: true },
+    });
     const row = await transaction.user.findUniqueOrThrow({ where: { id: targetId }, select: managedUserSelect });
     return { ok: true, body: managedUser(row, actor) };
   });
@@ -258,7 +307,15 @@ export async function setMemberActive(
     if (target.row.isActive === isActive) return { ok: true, body: managedUser(target.row, actor) };
     await transaction.user.update({ where: { id: targetId }, data: { isActive }, select: { id: true } });
     if (!isActive) await transaction.session.deleteMany({ where: { userId: targetId } });
-    await recordModeration(transaction, actor.id, 'user', targetId, target.row.username, 2, isActive ? 'Reactivated account' : 'Deactivated account');
+    await recordModeration(
+      transaction,
+      actor.id,
+      'user',
+      targetId,
+      target.row.username,
+      2,
+      isActive ? 'Reactivated account' : 'Deactivated account',
+    );
     const row = await transaction.user.findUniqueOrThrow({ where: { id: targetId }, select: managedUserSelect });
     return { ok: true, body: managedUser(row, actor) };
   });
@@ -271,16 +328,19 @@ export async function deleteMember(
   confirmedUsername: unknown,
   mediaRoot?: string,
 ): Promise<ApiResult<{ username: string }>> {
-  const result = await db.$transaction(async (transaction) => {
-    const target = await permittedMember(transaction, actor, targetId, 'canDelete');
-    if (!target.ok) return target;
-    if (confirmedUsername !== target.row.username) {
-      return { ok: false as const, code: 'VA', message: 'Type the username to confirm.' };
-    }
-    const attachments = await removeAccountData(transaction, targetId);
-    await recordModeration(transaction, actor.id, 'user', targetId, target.row.username, 3, 'Deleted account');
-    return { ok: true as const, username: target.row.username, attachments };
-  }, { timeout: 15_000, isolationLevel: 'Serializable' });
+  const result = await db.$transaction(
+    async (transaction) => {
+      const target = await permittedMember(transaction, actor, targetId, 'canDelete');
+      if (!target.ok) return target;
+      if (confirmedUsername !== target.row.username) {
+        return { ok: false as const, code: 'VA', message: 'Type the username to confirm.' };
+      }
+      const attachments = await removeAccountData(transaction, targetId);
+      await recordModeration(transaction, actor.id, 'user', targetId, target.row.username, 3, 'Deleted account');
+      return { ok: true as const, username: target.row.username, attachments };
+    },
+    { timeout: 15_000, isolationLevel: 'Serializable' },
+  );
   if (!result.ok) return result;
   await removeAccountAttachments(result.attachments, mediaRoot);
   return { ok: true, body: { username: result.username } };
@@ -296,7 +356,15 @@ export async function resetMemberTwoFactor(
     if (!target.ok) return target;
     await transaction.twoFactorAuth.deleteMany({ where: { userId: targetId } });
     await transaction.session.deleteMany({ where: { userId: targetId } });
-    await recordModeration(transaction, actor.id, 'user', targetId, target.row.username, 2, 'Turned off two-factor authentication');
+    await recordModeration(
+      transaction,
+      actor.id,
+      'user',
+      targetId,
+      target.row.username,
+      2,
+      'Turned off two-factor authentication',
+    );
     const row = await transaction.user.findUniqueOrThrow({ where: { id: targetId }, select: managedUserSelect });
     return { ok: true, body: managedUser(row, actor) };
   });
@@ -312,10 +380,24 @@ export async function issueMemberPasswordLink(
   return db.$transaction(async (transaction) => {
     const target = await permittedMember(transaction, actor, targetId, 'canResetPassword');
     if (!target.ok) return target;
-    const account = await transaction.user.findUniqueOrThrow({ where: { id: targetId }, select: { id: true, passwordHash: true } });
+    const account = await transaction.user.findUniqueOrThrow({
+      where: { id: targetId },
+      select: { id: true, passwordHash: true },
+    });
     const { token, expiresAt } = createPasswordResetToken(account, secretKey);
-    await recordModeration(transaction, actor.id, 'user', targetId, target.row.username, 2, 'Created a password reset link');
-    return { ok: true, body: { url: new URL(`/password-reset/${token}`, siteUrl).href, expiresDate: isoDate(expiresAt) } };
+    await recordModeration(
+      transaction,
+      actor.id,
+      'user',
+      targetId,
+      target.row.username,
+      2,
+      'Created a password reset link',
+    );
+    return {
+      ok: true,
+      body: { url: new URL(`/password-reset/${token}`, siteUrl).href, expiresDate: isoDate(expiresAt) },
+    };
   });
 }
 
@@ -356,4 +438,3 @@ export async function deleteInvite(db: PrismaClient, inviteId: number): Promise<
     return row.claimedById === null ? 'missing' : 'claimed';
   });
 }
-

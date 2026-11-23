@@ -15,10 +15,13 @@ import { accountTables, insertRow, seedPost, migratedTableSql } from './fixtures
 
 // Test values were produced by Django, cryptography's Fernet and PyOTP.
 const password = 'compatibility-비밀번호-2026';
-const olderPasswordHash = 'pbkdf2_sha256$100000$TestOnlyBlexCompatibilitySalt$C7LHeNRVZX18ry19YwDvmo1l7q8hcL5jtbv2QGe2x8E=';
-const recentPasswordHash = 'pbkdf2_sha256$1200000$TestOnlyBlexCompatibilitySalt$isIYGdiCmgfQ3dZ8Dh19Nw88dzLGrL8LefWRlTkzd88=';
+const olderPasswordHash =
+  'pbkdf2_sha256$100000$TestOnlyBlexCompatibilitySalt$C7LHeNRVZX18ry19YwDvmo1l7q8hcL5jtbv2QGe2x8E=';
+const recentPasswordHash =
+  'pbkdf2_sha256$1200000$TestOnlyBlexCompatibilitySalt$isIYGdiCmgfQ3dZ8Dh19Nw88dzLGrL8LefWRlTkzd88=';
 const sha1PasswordHash = 'pbkdf2_sha1$100000$TestOnlyBlexCompatibilitySalt$nUTHIxFAB17ADxtO5tzXA87Z1gs=';
-const totpSecret = 'gAAAAABlU_EAVDlttaBTvMqR4RmYR1lYMY5Z8FEUI9Sjog0tK6L7y1-ZaRokhSKoQ4Z_tCtcH-wSP1DRgDF0XWVdFNY9Bwv2CX0BXDMIbln4SB9VE00mVEA=';
+const totpSecret =
+  'gAAAAABlU_EAVDlttaBTvMqR4RmYR1lYMY5Z8FEUI9Sjog0tK6L7y1-ZaRokhSKoQ4Z_tCtcH-wSP1DRgDF0XWVdFNY9Bwv2CX0BXDMIbln4SB9VE00mVEA=';
 const recoveryKey = '831c28715dcd5f61787dc41ad7bf1663f904ab40c6220da4630e7fddecae6fe8';
 const recoveryCode = 'test-only-recovery-code';
 const cipherKey = '0123456789abcdef0123456789abcdef';
@@ -67,7 +70,9 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     assert.equal(page.statusCode, 200);
     assert.match(page.body, /value="synthetic-invite"/);
     const captchaDb = new DatabaseSync(path);
-    captchaDb.prepare('UPDATE LoginSetting SET hcaptchaEnabled = 1, hcaptchaSiteKey = ?, hcaptchaSecretKey = ? WHERE id = 1').run('synthetic-site-key', encryptSecret('synthetic-captcha-secret', cipherKey));
+    captchaDb
+      .prepare('UPDATE LoginSetting SET hcaptchaEnabled = 1, hcaptchaSiteKey = ?, hcaptchaSecretKey = ? WHERE id = 1')
+      .run('synthetic-site-key', encryptSecret('synthetic-captcha-secret', cipherKey));
     captchaDb.close();
     const captchaPage = await app.inject('/sign');
     assert.equal(captchaPage.statusCode, 200, captchaPage.body);
@@ -77,24 +82,47 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     resetCaptchaDb.prepare('UPDATE LoginSetting SET hcaptchaEnabled = 0, hcaptchaSiteKey = ? WHERE id = 1').run('');
     resetCaptchaDb.close();
     const headers = headersFor(page, siteUrl);
-    const fields = { username: 'neweditor', name: 'Test Author', password, timeZone: 'Asia/Seoul', email: 'editor@Example.invalid' };
+    const fields = {
+      username: 'neweditor',
+      name: 'Test Author',
+      password,
+      timeZone: 'Asia/Seoul',
+      email: 'editor@Example.invalid',
+    };
     const noCsrf = await app.inject({ method: 'POST', url: '/v1/sign', payload: fields });
     assert.equal(noCsrf.statusCode, 403);
-    const reader = await app.inject({ method: 'POST', url: '/v1/sign', headers,
-      payload: { ...fields, username: 'newreader', name: 'Test Reader' } });
+    const reader = await app.inject({
+      method: 'POST',
+      url: '/v1/sign',
+      headers,
+      payload: { ...fields, username: 'newreader', name: 'Test Reader' },
+    });
     assert.equal(reader.json().body.hasEditorRole, false);
     assert.equal(reader.json().body.isFirstLogin, true);
     assert.equal(reader.json().body.notifyCount, 1);
-    const editor = await app.inject({ method: 'POST', url: '/v1/sign', headers,
-      payload: { ...fields, inviteCode: 'synthetic-invite' } });
+    const editor = await app.inject({
+      method: 'POST',
+      url: '/v1/sign',
+      headers,
+      payload: { ...fields, inviteCode: 'synthetic-invite' },
+    });
     assert.equal(editor.json().body.hasEditorRole, true);
     assert.equal(editor.json().body.email, 'editor@example.invalid');
     assert.match(headersFor(editor, siteUrl).cookie, /blexsessionid=/);
     const tokenUrl = '/v1/developer-tokens';
     const editorSession = headersFor(editor, siteUrl);
     const credentials = { name: 'Test automation', scopes: ['posts:read', 'posts:write'], expiresInDays: 30 };
-    assert.equal((await app.inject({ method: 'POST', url: tokenUrl, headers: editorSession, payload: credentials })).json().errorCode, 'error:RE');
-    const identityProof = await app.inject({ method: 'POST', url: '/reauthenticate', headers: editorSession, payload: { password } });
+    assert.equal(
+      (await app.inject({ method: 'POST', url: tokenUrl, headers: editorSession, payload: credentials })).json()
+        .errorCode,
+      'error:RE',
+    );
+    const identityProof = await app.inject({
+      method: 'POST',
+      url: '/reauthenticate',
+      headers: editorSession,
+      payload: { password },
+    });
     const verified = headersFor(identityProof, siteUrl);
     const token = await app.inject({ method: 'POST', url: tokenUrl, headers: verified, payload: credentials });
     assert.equal(token.json().status, 'DONE', token.body);
@@ -108,30 +136,56 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     const apiRequest = { url: '/api/developer/v1/me', headers: { authorization: `Bearer ${issued.token}` } };
     assert.equal((await app.inject(apiRequest)).json().data.user.username, 'neweditor');
     const postsUrl = '/api/developer/v1/posts';
-    const createdDraft = await app.inject({ method: 'POST', url: postsUrl, headers: apiRequest.headers,
-      payload: { title: 'Developer API draft', slug: 'developer-draft', markdown: '# API draft', tags: ['node', 'sqlite'] } });
+    const createdDraft = await app.inject({
+      method: 'POST',
+      url: postsUrl,
+      headers: apiRequest.headers,
+      payload: {
+        title: 'Developer API draft',
+        slug: 'developer-draft',
+        markdown: '# API draft',
+        tags: ['node', 'sqlite'],
+      },
+    });
     assert.equal(createdDraft.statusCode, 201, createdDraft.body);
     const draft = createdDraft.json().data;
     assert.equal(draft.status, 'draft');
     assert.match(draft.content_html, /<h2 id="api-draft">API draft<\/h2>/);
     const updateUrl = `${postsUrl}/${draft.id}`;
-    const stale = await app.inject({ method: 'PATCH', url: updateUrl, headers: apiRequest.headers,
-      payload: { title: 'Discarded', expected_updated_at: '2000-01-01T00:00:00+00:00' } });
+    const stale = await app.inject({
+      method: 'PATCH',
+      url: updateUrl,
+      headers: apiRequest.headers,
+      payload: { title: 'Discarded', expected_updated_at: '2000-01-01T00:00:00+00:00' },
+    });
     assert.equal(stale.statusCode, 409);
     assert.equal(stale.json().error.fields.actual_updated_at, draft.updated_at);
-    const updatedDraft = await app.inject({ method: 'PATCH', url: updateUrl, headers: apiRequest.headers,
-      payload: { subtitle: 'Kept Markdown and tags', expected_updated_at: draft.updated_at } });
+    const updatedDraft = await app.inject({
+      method: 'PATCH',
+      url: updateUrl,
+      headers: apiRequest.headers,
+      payload: { subtitle: 'Kept Markdown and tags', expected_updated_at: draft.updated_at },
+    });
     assert.equal(updatedDraft.statusCode, 200, updatedDraft.body);
     assert.deepEqual(updatedDraft.json().data.tags, ['node', 'sqlite']);
-    const authorChannel = await app.inject({ method: 'POST', url: '/v1/webhook/channels', headers: verified,
-      payload: { name: 'Synthetic author channel', webhookUrl: 'https://hooks.example.com/test-fixture' } });
+    const authorChannel = await app.inject({
+      method: 'POST',
+      url: '/v1/webhook/channels',
+      headers: verified,
+      payload: { name: 'Synthetic author channel', webhookUrl: 'https://hooks.example.com/test-fixture' },
+    });
     assert.equal(authorChannel.json().body.success, true);
     const published = await app.inject({ method: 'POST', url: `${updateUrl}/publish`, headers: apiRequest.headers });
     assert.equal(published.statusCode, 200, published.body);
     assert.equal(published.json().data.status, 'published');
     assert.equal((await app.inject('/@neweditor/developer-draft')).statusCode, 200);
     const shareApi = '/v1/users/@neweditor/posts/developer-draft/share-links';
-    const shared = await app.inject({ method: 'POST', url: shareApi, headers: verified, payload: { label: 'Newsletter' } });
+    const shared = await app.inject({
+      method: 'POST',
+      url: shareApi,
+      headers: verified,
+      payload: { label: 'Newsletter' },
+    });
     assert.equal(shared.json().status, 'DONE');
     const linkList = await app.inject({ url: shareApi, headers: verified });
     const [link] = linkList.json().body.links;
@@ -141,10 +195,20 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     assert.equal((await app.inject(url)).headers.location, '/@neweditor/developer-draft');
     const visited = await app.inject({ url: shareApi, headers: verified });
     assert.equal(visited.json().body.links[0].totalClicks, 1);
-    const paused = await app.inject({ method: 'PATCH', url: `${shareApi}/${link.id}`, headers: verified, payload: { isPaused: true } });
+    const paused = await app.inject({
+      method: 'PATCH',
+      url: `${shareApi}/${link.id}`,
+      headers: verified,
+      payload: { isPaused: true },
+    });
     assert.equal(paused.json().status, 'DONE');
     assert.equal((await app.inject(url)).statusCode, 404);
-    const concealed = await app.inject({ method: 'PATCH', url: updateUrl, headers: apiRequest.headers, payload: { is_hidden: true } });
+    const concealed = await app.inject({
+      method: 'PATCH',
+      url: updateUrl,
+      headers: apiRequest.headers,
+      payload: { is_hidden: true },
+    });
     assert.equal(concealed.statusCode, 200, concealed.body);
     const postPath = '/@neweditor/developer-draft';
     const ownerRead = await app.inject({ url: postPath, headers: verified });
@@ -154,7 +218,11 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     assert.match(ownerRead.body, /비공개 포스트입니다/);
     assert.equal((await app.inject({ url: postPath, headers: headersFor(reader, siteUrl) })).statusCode, 404);
     assert.equal((await app.inject(postPath)).statusCode, 404);
-    const dryRun = await app.inject({ method: 'DELETE', url: `${updateUrl}?dry_run=true`, headers: apiRequest.headers });
+    const dryRun = await app.inject({
+      method: 'DELETE',
+      url: `${updateUrl}?dry_run=true`,
+      headers: apiRequest.headers,
+    });
     assert.equal(dryRun.json().data.can_delete, true);
     const deleted = await app.inject({ method: 'DELETE', url: updateUrl, headers: apiRequest.headers });
     assert.equal(deleted.json().data.trashed, true);
@@ -162,23 +230,34 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     const revoked = await app.inject({ method: 'DELETE', url: `${tokenUrl}/${issued.id}`, headers: verified });
     assert.equal(revoked.json().body.id, issued.id);
     assert.equal((await app.inject(apiRequest)).statusCode, 401);
-    const reused = await app.inject({ method: 'POST', url: '/v1/sign', headers,
-      payload: { ...fields, username: 'anothereditor', inviteCode: 'synthetic-invite' } });
+    const reused = await app.inject({
+      method: 'POST',
+      url: '/v1/sign',
+      headers,
+      payload: { ...fields, username: 'anothereditor', inviteCode: 'synthetic-invite' },
+    });
     assert.equal(reused.json().errorCode, 'error:RJ');
     assert.equal((await app.inject('/v1/sign?username=neweditor')).json().body.isAvailable, false);
     assert.equal((await app.inject('/v1/sign?username=anothereditor')).json().body.isAvailable, true);
     const promoteFixture = new DatabaseSync(path);
-    promoteFixture.prepare(`UPDATE "User" SET isStaff = 1, canManageSiteSettings = 1 WHERE username = 'neweditor'`).run();
+    promoteFixture
+      .prepare(`UPDATE "User" SET isStaff = 1, canManageSiteSettings = 1 WHERE username = 'neweditor'`)
+      .run();
     promoteFixture.close();
     const globalChannels = await app.inject({ url: '/v1/webhook/global-channels', headers: verified });
     assert.equal(globalChannels.json().status, 'DONE', globalChannels.body);
-    assert.equal((await app.inject({ url: '/v1/webhook/global-channels', headers: headersFor(reader, siteUrl) })).json().errorCode, 'error:RJ');
+    assert.equal(
+      (await app.inject({ url: '/v1/webhook/global-channels', headers: headersFor(reader, siteUrl) })).json().errorCode,
+      'error:RJ',
+    );
     const check = new DatabaseSync(path, { readOnly: true });
-    const account = check.prepare(`
+    const account = check
+      .prepare(`
       SELECT profile.role, config.language, config.timeZone FROM "User" AS account
         JOIN "Profile" AS profile ON profile.userId = account.id JOIN "UserPreference" AS config ON config.userId = account.id
        WHERE account.username = 'neweditor'
-    `).get();
+    `)
+      .get();
     assert.equal(account?.role, 'EDITOR');
     assert.equal(account?.language, 'ko');
     assert.equal(account?.timeZone, 'Asia/Seoul');
@@ -194,40 +273,78 @@ test('requires recent verification for password and 2FA changes and rotates the 
   const directory = await mkdtemp(join(tmpdir(), 'blex-security-test-'));
   const path = join(directory, 'security.sqlite3');
   const fixture = await migratedFixture(path);
-  fixture.prepare(`
+  fixture
+    .prepare(`
     INSERT INTO "User" (id, username, passwordHash, email, name, joinedAt, isActive, isStaff, isSuperuser)
     VALUES (41, 'account', ?, 'test@example.invalid', 'Reader', 946684800000, 1, 0, 0)
-  `).run(olderPasswordHash);
+  `)
+    .run(olderPasswordHash);
   fixture.close();
   const siteUrl = new URL('https://blex.example');
   const app = await buildApp(path, siteUrl, { secretKey: 'settings-security-test-secret', cipherKey });
   const newPassword = 'Migrate!2026-개발자';
   try {
     const initial = headersFor(await app.inject('/v1/login'), siteUrl);
-    const session = await app.inject({ method: 'POST', url: '/v1/login', headers: initial, payload: { username: 'account', password } });
+    const session = await app.inject({
+      method: 'POST',
+      url: '/v1/login',
+      headers: initial,
+      payload: { username: 'account', password },
+    });
     const signedIn = headersFor(session, siteUrl);
-    const reauthenticationPage = await app.inject({ url: '/reauthenticate?next=%2Fsettings%2Fsecurity', headers: signedIn });
+    const reauthenticationPage = await app.inject({
+      url: '/reauthenticate?next=%2Fsettings%2Fsecurity',
+      headers: signedIn,
+    });
     assert.equal(reauthenticationPage.statusCode, 200, reauthenticationPage.body);
     assert.doesNotMatch(reauthenticationPage.body, /class="settings-ui/);
     assert.match(reauthenticationPage.body, /현재 비밀번호/);
-    const firstAttempt = await app.inject({ method: 'PUT', url: '/v1/setting/account', headers: signedIn, payload: { password: newPassword } });
+    const firstAttempt = await app.inject({
+      method: 'PUT',
+      url: '/v1/setting/account',
+      headers: signedIn,
+      payload: { password: newPassword },
+    });
     assert.equal(firstAttempt.json().messageKey, 'auth.reauthentication_required');
-    const attemptedSetup = await app.inject({ method: 'POST', url: '/v1/auth/security', headers: signedIn, payload: {} });
+    const attemptedSetup = await app.inject({
+      method: 'POST',
+      url: '/v1/auth/security',
+      headers: signedIn,
+      payload: {},
+    });
     assert.equal(attemptedSetup.json().errorCode, 'error:RE');
 
-    const verification = await app.inject({ method: 'POST', url: '/reauthenticate?next=%2Fsettings%2Fsecurity', headers: signedIn, payload: { password } });
+    const verification = await app.inject({
+      method: 'POST',
+      url: '/reauthenticate?next=%2Fsettings%2Fsecurity',
+      headers: signedIn,
+      payload: { password },
+    });
     assert.equal(verification.headers.location, '/settings/security');
     const verified = headersFor(verification, siteUrl);
     assert.equal((await app.inject({ url: '/v1/login', headers: signedIn })).json().errorCode, 'error:NL');
-    const updated = await app.inject({ method: 'PUT', url: '/v1/setting/account', headers: verified,
-      payload: { username: 'newaccount', name: 'Renamed user', password: newPassword } });
+    const updated = await app.inject({
+      method: 'PUT',
+      url: '/v1/setting/account',
+      headers: verified,
+      payload: { username: 'newaccount', name: 'Renamed user', password: newPassword },
+    });
     assert.deepEqual(updated.json(), { status: 'DONE', body: {} });
     const newSession = headersFor(updated, siteUrl);
     assert.equal((await app.inject({ url: '/v1/login', headers: verified })).json().errorCode, 'error:NL');
     assert.equal((await app.inject({ url: '/v1/login', headers: newSession })).json().body.username, 'newaccount');
-    assert.equal((await app.inject({ method: 'POST', url: '/v1/auth/security', headers: newSession, payload: {} })).json().errorCode, 'error:RE');
+    assert.equal(
+      (await app.inject({ method: 'POST', url: '/v1/auth/security', headers: newSession, payload: {} })).json()
+        .errorCode,
+      'error:RE',
+    );
 
-    const verifyNew = await app.inject({ method: 'POST', url: '/reauthenticate', headers: newSession, payload: { password: newPassword } });
+    const verifyNew = await app.inject({
+      method: 'POST',
+      url: '/reauthenticate',
+      headers: newSession,
+      payload: { password: newPassword },
+    });
     const secondProof = headersFor(verifyNew, siteUrl);
     const setup = await app.inject({ method: 'POST', url: '/v1/auth/security', headers: secondProof, payload: {} });
     assert.equal(setup.json().status, 'DONE');
@@ -240,14 +357,28 @@ test('requires recent verification for password and 2FA changes and rotates the 
     assert.ok(decrypted);
     stored.close();
     const TOTPCode = new TOTP({ secret: Secret.fromBase32(decrypted) }).generate();
-    const enabled = await app.inject({ method: 'POST', url: '/v1/auth/security/verify', headers: secondProof, payload: { code: TOTPCode } });
+    const enabled = await app.inject({
+      method: 'POST',
+      url: '/v1/auth/security/verify',
+      headers: secondProof,
+      payload: { code: TOTPCode },
+    });
     assert.equal(enabled.json().status, 'DONE');
     const status = await app.inject({ url: '/v1/auth/security', headers: secondProof });
     assert.deepEqual(status.json().body, { isEnabled: true, hasRecoveryKey: true });
-    const challenge = await app.inject({ method: 'POST', url: '/v1/login', headers: initial, payload: { username: 'newaccount', password: newPassword } });
+    const challenge = await app.inject({
+      method: 'POST',
+      url: '/v1/login',
+      headers: initial,
+      payload: { username: 'newaccount', password: newPassword },
+    });
     assert.equal(challenge.json().body.security, true);
-    const loginWithRecovery = await app.inject({ method: 'POST', url: '/v1/login', headers: initial,
-      payload: { username: 'newaccount', password: newPassword, code: setup.json().body.recoveryKey } });
+    const loginWithRecovery = await app.inject({
+      method: 'POST',
+      url: '/v1/login',
+      headers: initial,
+      payload: { username: 'newaccount', password: newPassword, code: setup.json().body.recoveryKey },
+    });
     assert.equal(loginWithRecovery.json().body.recoveryKeyUsed, true);
     assert.equal(loginWithRecovery.json().body.hasConnected2fa, false);
   } finally {
@@ -269,14 +400,18 @@ test('keeps the legacy login envelope and issues a new session only after CSRF, 
   const directory = await mkdtemp(join(tmpdir(), 'blex-http-auth-'));
   const path = join(directory, 'accounts.sqlite3');
   const fixture = await migratedFixture(path);
-  fixture.prepare(`
+  fixture
+    .prepare(`
     INSERT INTO "User" (id, username, passwordHash, email, name, joinedAt, isActive, isStaff, isSuperuser)
     VALUES (42, 'account', ?, 'test@example.invalid', 'Test', 946684800000, 1, 0, 0)
-  `).run(olderPasswordHash);
-  fixture.prepare(`
+  `)
+    .run(olderPasswordHash);
+  fixture
+    .prepare(`
     INSERT INTO "TwoFactorAuth" (userId, recoveryKey, totpSecret, createdAt)
     VALUES (42, ?, ?, 946684800000)
-  `).run(recoveryKey, totpSecret);
+  `)
+    .run(recoveryKey, totpSecret);
   fixture.close();
 
   const siteUrl = new URL('https://blex.example');
@@ -291,17 +426,30 @@ test('keeps the legacy login envelope and issues a new session only after CSRF, 
     const credentials = { username: 'account', password };
 
     const crossOrigin = await app.inject({
-      method: 'POST', url: '/v1/login', payload: credentials,
+      method: 'POST',
+      url: '/v1/login',
+      payload: credentials,
       headers: { ...csrfHeaders, origin: 'https://elsewhere.example' },
     });
     assert.equal(crossOrigin.statusCode, 403);
 
-    const challenge = await app.inject({ method: 'POST', url: '/v1/login', payload: credentials, headers: csrfHeaders });
-    assert.deepEqual(challenge.json(), { status: 'DONE', body: { username: 'account', security: true, isOauth: false } });
+    const challenge = await app.inject({
+      method: 'POST',
+      url: '/v1/login',
+      payload: credentials,
+      headers: csrfHeaders,
+    });
+    assert.deepEqual(challenge.json(), {
+      status: 'DONE',
+      body: { username: 'account', security: true, isOauth: false },
+    });
     assert.equal(challenge.headers['set-cookie'], undefined);
 
     const login = await app.inject({
-      method: 'POST', url: '/v1/login', payload: { ...credentials, code: new TOTP({ secret: Secret.fromBase32('JBSWY3DPEHPK3PXP') }).generate() }, headers: csrfHeaders,
+      method: 'POST',
+      url: '/v1/login',
+      payload: { ...credentials, code: new TOTP({ secret: Secret.fromBase32('JBSWY3DPEHPK3PXP') }).generate() },
+      headers: csrfHeaders,
     });
     assert.equal(login.statusCode, 200, login.body);
     assert.equal(login.json().body.username, 'account');
@@ -310,12 +458,19 @@ test('keeps the legacy login envelope and issues a new session only after CSRF, 
     const [session, rotatedCsrf] = cookiesFrom(login.headers['set-cookie']);
     assert.match(session, /^blexsessionid=/);
     assert.notEqual(rotatedCsrf, csrf);
-    const signedInHeaders = { origin: siteUrl.origin, cookie: `${session}; ${rotatedCsrf}`, 'x-csrftoken': rotatedCsrf.slice('csrftoken='.length) };
+    const signedInHeaders = {
+      origin: siteUrl.origin,
+      cookie: `${session}; ${rotatedCsrf}`,
+      'x-csrftoken': rotatedCsrf.slice('csrftoken='.length),
+    };
 
     const loggedIn = await app.inject({ url: '/v1/login', headers: signedInHeaders });
     assert.equal(loggedIn.json().body.email, 'test@example.invalid');
     const { username, name, avatar, hasEditorRole } = loggedIn.json().body;
-    assert.deepEqual({ username, name, avatar, hasEditorRole }, { username: 'account', name: 'Test', avatar: '', hasEditorRole: false });
+    assert.deepEqual(
+      { username, name, avatar, hasEditorRole },
+      { username: 'account', name: 'Test', avatar: '', hasEditorRole: false },
+    );
     const signedInHome = await app.inject({ url: '/', headers: signedInHeaders });
     assert.equal(signedInHome.statusCode, 200, signedInHome.body);
     assert.equal(signedInHome.headers['cache-control'], 'private, no-store');
@@ -325,7 +480,10 @@ test('keeps the legacy login envelope and issues a new session only after CSRF, 
 
     for (let attempt = 0; attempt < 5; attempt += 1) {
       const invalid = await app.inject({
-        method: 'POST', url: '/v1/login', payload: { ...credentials, password: 'invalid' }, headers: csrfHeaders,
+        method: 'POST',
+        url: '/v1/login',
+        payload: { ...credentials, password: 'invalid' },
+        headers: csrfHeaders,
       });
       assert.equal(invalid.json().errorCode, 'error:AT');
     }
@@ -342,11 +500,13 @@ test('account deletion checks recent proof, preserves other members, and protect
   const directory = await mkdtemp(join(tmpdir(), 'blex-delete-account-'));
   const path = join(directory, 'deletion.sqlite3');
   const fixture = await migratedFixture(path);
-  fixture.prepare(`
+  fixture
+    .prepare(`
     INSERT INTO "User" (id, username, passwordHash, email, name, joinedAt, isActive, isStaff, isSuperuser)
     VALUES (1, 'administrator', ?, 'admin@example.invalid', 'Owner', 946684800000, 1, 1, 1),
            (2, 'reader', ?, 'reader@example.invalid', 'Reader', 946684800000, 1, 0, 0)
-  `).run(olderPasswordHash, olderPasswordHash);
+  `)
+    .run(olderPasswordHash, olderPasswordHash);
   fixture.exec(`
     INSERT INTO "AuthorInvite" ("code", "note", "isActive", "createdById", "claimedById", "createdAt", "claimedAt") VALUES
     ('test-claimed', '', 0, 1, 2, 946684800000, 946684800000);
@@ -371,17 +531,39 @@ test('account deletion checks recent proof, preserves other members, and protect
   insertRow(fixture, 'StaticPage', { id: 1, authorId: 2, slug: 'kept-page', title: 'Kept page' });
   insertRow(fixture, 'AdminLog', { id: 1, userId: 2, action: 2, message: 'Deleted with its owner' });
   insertRow(fixture, 'AdminLog', { id: 2, userId: 1, action: 2, message: 'Kept' });
-  insertRow(fixture, 'CleanupConfirmation', { id: 1, userId: 2, tokenHash: 'deleted', action: 'clean_tags', sessionFingerprint: 'print', expiresAt: 946684800000 });
-  insertRow(fixture, 'UploadedImage', { id: 1, userId: 2, key: 'kept-image', path: 'images/content/kept.png', size: 1 });
+  insertRow(fixture, 'CleanupConfirmation', {
+    id: 1,
+    userId: 2,
+    tokenHash: 'deleted',
+    action: 'clean_tags',
+    sessionFingerprint: 'print',
+    expiresAt: 946684800000,
+  });
+  insertRow(fixture, 'UploadedImage', {
+    id: 1,
+    userId: 2,
+    key: 'kept-image',
+    path: 'images/content/kept.png',
+    size: 1,
+  });
   fixture.close();
   const siteUrl = new URL('https://blex.example');
   const app = await buildApp(path, siteUrl, { secretKey: 'deletion-test-secret', cipherKey });
   try {
     const anonymous = headersFor(await app.inject('/v1/login'), siteUrl);
     for (const username of ['administrator', 'reader']) {
-      const signed = headersFor(await app.inject({ method: 'POST', url: '/v1/login', headers: anonymous, payload: { username, password } }), siteUrl);
-      assert.equal((await app.inject({ method: 'DELETE', url: '/v1/sign', headers: signed })).json().errorCode, 'error:RE');
-      const verified = headersFor(await app.inject({ method: 'POST', url: '/reauthenticate', headers: signed, payload: { password } }), siteUrl);
+      const signed = headersFor(
+        await app.inject({ method: 'POST', url: '/v1/login', headers: anonymous, payload: { username, password } }),
+        siteUrl,
+      );
+      assert.equal(
+        (await app.inject({ method: 'DELETE', url: '/v1/sign', headers: signed })).json().errorCode,
+        'error:RE',
+      );
+      const verified = headersFor(
+        await app.inject({ method: 'POST', url: '/reauthenticate', headers: signed, payload: { password } }),
+        siteUrl,
+      );
       const result = await app.inject({ method: 'DELETE', url: '/v1/sign', headers: verified });
       if (username === 'administrator') assert.equal(result.json().errorCode, 'error:RJ');
       else {
@@ -390,20 +572,56 @@ test('account deletion checks recent proof, preserves other members, and protect
       }
     }
     const check = new DatabaseSync(path, { readOnly: true });
-    assert.deepEqual(check.prepare('SELECT username FROM "User"').all().map((row) => row.username), ['administrator']);
+    assert.deepEqual(
+      check
+        .prepare('SELECT username FROM "User"')
+        .all()
+        .map((row) => row.username),
+      ['administrator'],
+    );
     assert.equal(check.prepare('SELECT COUNT(*) AS rows FROM _WorkLogEntryToWorkLogShare').get()?.rows, 0);
     assert.equal(check.prepare('SELECT claimedById FROM AuthorInvite').get()?.claimedById, null);
-    assert.deepEqual(check.prepare('SELECT slug FROM "Post" WHERE seriesId IS NULL').all().map((row) => row.slug), ['kept-post']);
-    assert.deepEqual(check.prepare('SELECT markdown FROM Comment WHERE authorId IS NULL').all().map((row) => row.markdown), ['kept']);
+    assert.deepEqual(
+      check
+        .prepare('SELECT slug FROM "Post" WHERE seriesId IS NULL')
+        .all()
+        .map((row) => row.slug),
+      ['kept-post'],
+    );
+    assert.deepEqual(
+      check
+        .prepare('SELECT markdown FROM Comment WHERE authorId IS NULL')
+        .all()
+        .map((row) => row.markdown),
+      ['kept'],
+    );
     assert.equal(check.prepare('SELECT COUNT(*) AS rows FROM "Post"').get()?.rows, 1);
     assert.equal(check.prepare('SELECT COUNT(*) AS rows FROM Comment').get()?.rows, 1);
     assert.equal(check.prepare('SELECT COUNT(*) AS rows FROM CommentLike').get()?.rows, 0);
     assert.equal(check.prepare('SELECT actorId FROM "PostRevision" WHERE id = 1').get()?.actorId, null);
     assert.equal(check.prepare('SELECT COUNT(*) AS rows FROM FormTemplate').get()?.rows, 0);
-    assert.deepEqual(check.prepare('SELECT id FROM SiteNotice').all().map((row) => row.id), [2]);
-    assert.deepEqual(check.prepare('SELECT id FROM SiteBanner').all().map((row) => row.id), [2]);
+    assert.deepEqual(
+      check
+        .prepare('SELECT id FROM SiteNotice')
+        .all()
+        .map((row) => row.id),
+      [2],
+    );
+    assert.deepEqual(
+      check
+        .prepare('SELECT id FROM SiteBanner')
+        .all()
+        .map((row) => row.id),
+      [2],
+    );
     assert.equal(check.prepare('SELECT authorId FROM StaticPage WHERE id = 1').get()?.authorId, null);
-    assert.deepEqual(check.prepare('SELECT id FROM AdminLog').all().map((row) => row.id), [2]);
+    assert.deepEqual(
+      check
+        .prepare('SELECT id FROM AdminLog')
+        .all()
+        .map((row) => row.id),
+      [2],
+    );
     assert.equal(check.prepare('SELECT COUNT(*) AS rows FROM CleanupConfirmation').get()?.rows, 0);
     assert.equal(check.prepare('SELECT userId FROM UploadedImage WHERE id = 1').get()?.userId, null);
     assert.deepEqual(check.prepare('PRAGMA foreign_key_check').all(), []);
@@ -423,14 +641,20 @@ test('binds OAuth callbacks to the initiating browser and reuses an existing soc
     (45, 'social-reader', '!unusable', '', 'Reader', 946684800000, 1, 0, 0),
     (46, 'site-owner', '!unusable', 'new-social@example.invalid', 'Owner', 946684800000, 1, 1, 1);
   `);
-  fixture.prepare('INSERT INTO "SocialProvider" (id, key, clientId, clientSecret, isEnabled) VALUES (1, ?, ?, ?, 1)')
+  fixture
+    .prepare('INSERT INTO "SocialProvider" (id, key, clientId, clientSecret, isEnabled) VALUES (1, ?, ?, ?, 1)')
     .run('google', 'synthetic-client', totpSecret);
-  fixture.prepare('INSERT INTO "SocialAccount" (providerId, uid, userId, extraData, createdAt) VALUES (1, ?, 45, ?, 946684800000)')
+  fixture
+    .prepare(
+      'INSERT INTO "SocialAccount" (providerId, uid, userId, extraData, createdAt) VALUES (1, ?, 45, ?, 946684800000)',
+    )
     .run('existing-social-uid', '{}');
-  fixture.prepare(`
+  fixture
+    .prepare(`
     INSERT INTO "TwoFactorAuth" (userId, recoveryKey, totpSecret, createdAt)
     VALUES (45, ?, ?, 946684800000)
-  `).run(recoveryKey, totpSecret);
+  `)
+    .run(recoveryKey, totpSecret);
   fixture.close();
 
   let providerRequests = 0;
@@ -460,26 +684,44 @@ test('binds OAuth callbacks to the initiating browser and reuses an existing soc
     assert.equal(redirect.origin, 'https://accounts.google.com');
     assert.equal(redirect.searchParams.get('code_challenge_method'), 'S256');
     assert.ok(redirect.searchParams.get('state'));
-    const browser = cookiesFrom(authorization.headers['set-cookie']).find((item) => item.startsWith('blex_oauth_google='))!;
+    const browser = cookiesFrom(authorization.headers['set-cookie']).find((item) =>
+      item.startsWith('blex_oauth_google='),
+    )!;
     const callback = `/login/callback/google?${new URLSearchParams({ state: redirect.searchParams.get('state')!, code: 'synthetic-code' })}`;
     assert.equal((await app.inject(callback)).headers.location, '/login');
     assert.equal(providerRequests, 0);
 
     const pending = await app.inject({ url: callback, headers: { cookie: browser } });
     assert.equal(pending.headers.location, '/login');
-    const challenge = cookiesFrom(pending.headers['set-cookie']).find((item) => item.startsWith('blex_oauth_challenge='))!;
+    const challenge = cookiesFrom(pending.headers['set-cookie']).find((item) =>
+      item.startsWith('blex_oauth_challenge='),
+    )!;
     assert.match(challenge, /^blex_oauth_challenge=.+/);
     assert.equal((await app.inject({ url: callback, headers: { cookie: browser } })).headers.location, '/login');
     assert.equal(providerRequests, 2);
 
     const csrfResponse = await app.inject('/v1/login');
     const [csrf] = cookiesFrom(csrfResponse.headers['set-cookie']);
-    const headers = { origin: siteUrl.origin, cookie: `${challenge}; ${csrf}`, 'x-csrftoken': csrf.slice('csrftoken='.length) };
+    const headers = {
+      origin: siteUrl.origin,
+      cookie: `${challenge}; ${csrf}`,
+      'x-csrftoken': csrf.slice('csrftoken='.length),
+    };
     const authenticatorCode = new TOTP({ secret: Secret.fromBase32('JBSWY3DPEHPK3PXP') }).generate();
-    const result = await app.inject({ method: 'POST', url: '/v1/login', headers, payload: { oauth2fa: true, code: authenticatorCode } });
+    const result = await app.inject({
+      method: 'POST',
+      url: '/v1/login',
+      headers,
+      payload: { oauth2fa: true, code: authenticatorCode },
+    });
     assert.equal(result.json().body.username, 'social-reader');
     assert.ok(cookiesFrom(result.headers['set-cookie']).some((item) => item.startsWith('blexsessionid=')));
-    const replay = await app.inject({ method: 'POST', url: '/v1/login', headers, payload: { oauth2fa: true, code: authenticatorCode } });
+    const replay = await app.inject({
+      method: 'POST',
+      url: '/v1/login',
+      headers,
+      payload: { oauth2fa: true, code: authenticatorCode },
+    });
     assert.equal(replay.json().errorCode, 'error:RJ');
 
     const next = '/settings/security';
@@ -487,12 +729,21 @@ test('binds OAuth callbacks to the initiating browser and reuses an existing soc
     const startVerification = `/login/start/google?${new URLSearchParams({ next })}`;
     const sessionHeaders = headersFor(result, siteUrl);
     const followAuthorization = (headers: ReturnType<typeof headersFor>, authorize: typeof authorization) => {
-      const providerBrowser = cookiesFrom(authorize.headers['set-cookie']).find((entry) => entry.startsWith('blex_oauth_google='))!;
+      const providerBrowser = cookiesFrom(authorize.headers['set-cookie']).find((entry) =>
+        entry.startsWith('blex_oauth_google='),
+      )!;
       const state = new URL(authorize.headers.location!).searchParams.get('state')!;
-      return app.inject({ url: `/login/callback/google?${new URLSearchParams({ state, code: 'synthetic-code' })}`,
-        headers: { ...headers, cookie: `${providerBrowser}; ${headers.cookie}` } });
+      return app.inject({
+        url: `/login/callback/google?${new URLSearchParams({ state, code: 'synthetic-code' })}`,
+        headers: { ...headers, cookie: `${providerBrowser}; ${headers.cookie}` },
+      });
     };
-    const startReauth = await app.inject({ method: 'POST', url: startVerification, headers: sessionHeaders, payload: {} });
+    const startReauth = await app.inject({
+      method: 'POST',
+      url: startVerification,
+      headers: sessionHeaders,
+      payload: {},
+    });
     assert.equal(new URL(startReauth.headers.location!).searchParams.get('prompt'), 'select_account');
     nextIdentity = { id: 'another-social-user', email: 'new-social@example.invalid' };
     const mismatch = await followAuthorization(sessionHeaders, startReauth);
@@ -500,11 +751,21 @@ test('binds OAuth callbacks to the initiating browser and reuses an existing soc
     assert.ok(!cookiesFrom(mismatch.headers['set-cookie']).some((entry) => entry.startsWith('blexsessionid=')));
 
     nextIdentity = { id: 'existing-social-uid', email: '' };
-    const ownReauth = await app.inject({ method: 'POST', url: startVerification, headers: sessionHeaders, payload: {} });
+    const ownReauth = await app.inject({
+      method: 'POST',
+      url: startVerification,
+      headers: sessionHeaders,
+      payload: {},
+    });
     const oauthVerified = await followAuthorization(sessionHeaders, ownReauth);
     assert.equal(oauthVerified.headers.location, verifyUrl);
     const pendingProof = headersFor(oauthVerified, siteUrl);
-    const proofCompleted = await app.inject({ method: 'POST', url: verifyUrl, headers: pendingProof, payload: { code: authenticatorCode } });
+    const proofCompleted = await app.inject({
+      method: 'POST',
+      url: verifyUrl,
+      headers: pendingProof,
+      payload: { code: authenticatorCode },
+    });
     assert.equal(proofCompleted.headers.location, next);
 
     nextIdentity = { id: 'brand-new-social-uid', email: 'new-social@example.invalid' };
@@ -516,8 +777,18 @@ test('binds OAuth callbacks to the initiating browser and reuses an existing soc
     assert.equal(newViewer.json().body.username, 'new-social');
     assert.equal(newViewer.json().body.hasEditorRole, false);
     const check = new DatabaseSync(path, { readOnly: true });
-    assert.notEqual(check.prepare("SELECT userId FROM SocialAccount WHERE uid = 'brand-new-social-uid'").get()?.userId, 46);
-    assert.equal(check.prepare("SELECT timeZone FROM UserPreference WHERE userId = (SELECT id FROM User WHERE username = 'new-social')").get()?.timeZone, 'Asia/Seoul');
+    assert.notEqual(
+      check.prepare("SELECT userId FROM SocialAccount WHERE uid = 'brand-new-social-uid'").get()?.userId,
+      46,
+    );
+    assert.equal(
+      check
+        .prepare(
+          "SELECT timeZone FROM UserPreference WHERE userId = (SELECT id FROM User WHERE username = 'new-social')",
+        )
+        .get()?.timeZone,
+      'Asia/Seoul',
+    );
     check.close();
   } finally {
     await app.close();
@@ -545,21 +816,32 @@ test('requires 2FA for an active existing account and preserves the account ID u
   fixture.exec(`
   ${migratedTableSql(...accountTables)}
   `);
-  fixture.prepare('INSERT INTO "User" (id, username, passwordHash, isActive, email) VALUES (?, ?, ?, ?, \'\')').run(42, 'existing', olderPasswordHash, 1);
-  fixture.prepare('INSERT INTO "User" (id, username, passwordHash, isActive, email) VALUES (?, ?, ?, ?, \'\')').run(43, 'inactive', olderPasswordHash, 0);
-  fixture.prepare('INSERT INTO "TwoFactorAuth" (userId, totpSecret, recoveryKey, createdAt) VALUES (?, ?, ?, 946684800000)').run(42, totpSecret, recoveryKey);
+  fixture
+    .prepare('INSERT INTO "User" (id, username, passwordHash, isActive, email) VALUES (?, ?, ?, ?, \'\')')
+    .run(42, 'existing', olderPasswordHash, 1);
+  fixture
+    .prepare('INSERT INTO "User" (id, username, passwordHash, isActive, email) VALUES (?, ?, ?, ?, \'\')')
+    .run(43, 'inactive', olderPasswordHash, 0);
+  fixture
+    .prepare('INSERT INTO "TwoFactorAuth" (userId, totpSecret, recoveryKey, createdAt) VALUES (?, ?, ?, 946684800000)')
+    .run(42, totpSecret, recoveryKey);
   fixture.close();
 
   const db = new PrismaClient({ datasourceUrl: `file:${path}` });
   try {
     assert.deepEqual(await authenticatePassword(db, 'existing', password, '', cipherKey), {
-      status: 'second-factor-required', username: 'existing',
+      status: 'second-factor-required',
+      username: 'existing',
     });
     assert.deepEqual(await authenticatePassword(db, 'existing', password, '00000x', cipherKey), {
       status: 'invalid-second-factor',
     });
     assert.deepEqual(await authenticatePassword(db, 'existing', password, recoveryCode, cipherKey), {
-      status: 'authenticated', userId: 42, username: 'existing', passwordHash: olderPasswordHash, spentRecoveryKey: recoveryKey,
+      status: 'authenticated',
+      userId: 42,
+      username: 'existing',
+      passwordHash: olderPasswordHash,
+      spentRecoveryKey: recoveryKey,
     });
     assert.deepEqual(await authenticatePassword(db, 'inactive', password, '', cipherKey), {
       status: 'invalid-credentials',
@@ -586,15 +868,24 @@ test('creates a first administrator against an empty Prisma database once', asyn
     const [csrf] = cookiesFrom(form.headers['set-cookie']);
     const headers = { origin: siteUrl.origin, cookie: csrf, 'x-csrftoken': csrf.slice('csrftoken='.length) };
     const account = { username: 'FIRSTADMIN', displayName: 'Test Admin', email: 'owner@Example.invalid' };
-    const badToken = await app.inject({ method: 'POST', url: '/setup', headers, payload: { ...account, setupToken: 'invalid' } });
+    const badToken = await app.inject({
+      method: 'POST',
+      url: '/setup',
+      headers,
+      payload: { ...account, setupToken: 'invalid' },
+    });
     assert.match(badToken.body, /설정 토큰을 확인/);
     const weak = await app.inject({
-      method: 'POST', url: '/setup', headers,
+      method: 'POST',
+      url: '/setup',
+      headers,
       payload: { ...account, setupToken: setupToken, password: 'password123', passwordCheck: 'password123' },
     });
     assert.match(weak.body, /흔히 사용되는 비밀번호/);
     const created = await app.inject({
-      method: 'POST', url: '/setup', headers,
+      method: 'POST',
+      url: '/setup',
+      headers,
       payload: { ...account, setupToken: setupToken, password, passwordCheck: password },
     });
     assert.equal(created.statusCode, 302, created.body);
@@ -612,9 +903,19 @@ test('creates a first administrator against an empty Prisma database once', asyn
       assert.equal(await verifyPassword(password, String(user?.passwordHash)), true);
       assert.equal(user?.isSuperuser, 1);
       assert.equal(user?.isStaff, 1);
-      assert.deepEqual({ ...db.prepare('SELECT notifyMention, notifyCommentLike, notifyPostLike, notifyPostComment FROM UserPreference').get() }, {
-        notifyMention: 1, notifyCommentLike: 1, notifyPostLike: null, notifyPostComment: null,
-      });
+      assert.deepEqual(
+        {
+          ...db
+            .prepare('SELECT notifyMention, notifyCommentLike, notifyPostLike, notifyPostComment FROM UserPreference')
+            .get(),
+        },
+        {
+          notifyMention: 1,
+          notifyCommentLike: 1,
+          notifyPostLike: null,
+          notifyPostComment: null,
+        },
+      );
     } finally {
       db.close();
     }

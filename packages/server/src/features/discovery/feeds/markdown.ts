@@ -6,7 +6,22 @@ type HtmlNode = {
   parent?: HtmlNode;
 };
 
-const voidTags = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
+const voidTags = new Set([
+  'area',
+  'base',
+  'br',
+  'col',
+  'embed',
+  'hr',
+  'img',
+  'input',
+  'link',
+  'meta',
+  'param',
+  'source',
+  'track',
+  'wbr',
+]);
 const structuralTags = new Set(['article', 'section', 'main', 'aside', 'div', 'html', 'body']);
 const inlineRawTags = new Set(['figcaption', 'mark', 'u', 'sub', 'sup']);
 const inlinePassthroughTags = new Set(['span']);
@@ -89,7 +104,10 @@ function parseHtml(html: string): HtmlNode {
     }
     if (token.startsWith('<!--') || /^<!/i.test(token)) continue;
     if (token.startsWith('</')) {
-      const closingTag = token.slice(2).match(/^\s*([\w:-]+)/)?.[1]?.toLowerCase();
+      const closingTag = token
+        .slice(2)
+        .match(/^\s*([\w:-]+)/)?.[1]
+        ?.toLowerCase();
       if (!closingTag || !openCount(closingTag)) continue;
       while (stack.length > 1) {
         const { tag } = stack.pop()!;
@@ -116,7 +134,11 @@ function parseHtml(html: string): HtmlNode {
     const text = decodeEntities(token);
     const preservesWhitespace = openCount('pre') > 0 || openCount('textarea') > 0;
     stack.at(-1)!.children.push({
-      tag: null, attrs: {}, text: preservesWhitespace ? text : collapseWhitespaceNode(text), children: [], parent: stack.at(-1),
+      tag: null,
+      attrs: {},
+      text: preservesWhitespace ? text : collapseWhitespaceNode(text),
+      children: [],
+      parent: stack.at(-1),
     });
   }
   return root;
@@ -177,21 +199,34 @@ function htmlNodeToMarkdown(node: HtmlNode): string {
   if (name === 'code' && node.parent?.tag !== 'pre') return `\`${textSegments(node, '')}\``;
   if (name === 'pre') {
     const code = findNode(node, 'code');
-    const language = code?.attrs.class?.split(/\s+/).find((value) => value.startsWith('language-'))?.slice(9) ?? '';
-    const text = textStrings(node).join('\n').replace(/^\n+|(?<!\n)\n+$/g, '');
+    const language =
+      code?.attrs.class
+        ?.split(/\s+/)
+        .find((value) => value.startsWith('language-'))
+        ?.slice(9) ?? '';
+    const text = textStrings(node)
+      .join('\n')
+      .replace(/^\n+|(?<!\n)\n+$/g, '');
     return text ? `\`\`\`${language}\n${text}\n\`\`\`` : '';
   }
   if (name === 'ul' || name === 'ol') {
     const items = node.children.filter((child) => child.tag === 'li');
-    return items.map((item, index) => {
-      const prefix = name === 'ol' ? `${index + 1}. ` : '- ';
-      const content = childrenToMarkdown(item).trim();
-      return content ? `${prefix}${content.replace(/\n/g, '\n  ')}` : '';
-    }).filter(Boolean).join('\n');
+    return items
+      .map((item, index) => {
+        const prefix = name === 'ol' ? `${index + 1}. ` : '- ';
+        const content = childrenToMarkdown(item).trim();
+        return content ? `${prefix}${content.replace(/\n/g, '\n  ')}` : '';
+      })
+      .filter(Boolean)
+      .join('\n');
   }
   if (name === 'blockquote') {
     const text = childrenToMarkdown(node);
-    return text.split(/\r\n|[\n\r\v\f\x1c\x1d\x1e\x85\u2028\u2029]/).filter((line) => line.trim()).map((line) => `> ${line}`).join('\n');
+    return text
+      .split(/\r\n|[\n\r\v\f\x1c\x1d\x1e\x85\u2028\u2029]/)
+      .filter((line) => line.trim())
+      .map((line) => `> ${line}`)
+      .join('\n');
   }
   if (name === 'table') {
     if (shouldPreserveTable(node)) return rawHtml(node);
@@ -214,7 +249,13 @@ function childrenToMarkdown(node: HtmlNode): string {
 }
 
 function blockChildrenToMarkdown(node: HtmlNode): string {
-  return collapseBlankLines(node.children.map(htmlNodeToMarkdown).map((child) => child.trim()).filter(Boolean).join('\n\n'));
+  return collapseBlankLines(
+    node.children
+      .map(htmlNodeToMarkdown)
+      .map((child) => child.trim())
+      .filter(Boolean)
+      .join('\n\n'),
+  );
 }
 
 function textStrings(node: HtmlNode): string[] {
@@ -244,29 +285,45 @@ function findNode(node: HtmlNode, tag: string): HtmlNode | undefined {
 
 function rawHtml(node: HtmlNode): string {
   if (node.tag === null) return escapeHtml(node.text ?? '');
-  const attrs = Object.keys(node.attrs).sort().map((key) => ` ${key}=${quoteAttribute(node.attrs[key])}`).join('');
+  const attrs = Object.keys(node.attrs)
+    .sort()
+    .map((key) => ` ${key}=${quoteAttribute(node.attrs[key])}`)
+    .join('');
   if (voidTags.has(node.tag)) return `<${node.tag}${attrs}/>`;
   return `<${node.tag}${attrs}>${node.children.map(rawHtml).join('')}</${node.tag}>`;
 }
 
 function shouldPreserveTable(table: HtmlNode): boolean {
-  return findAll(table, 'th').concat(findAll(table, 'td')).some((cell) =>
-    Boolean(cell.attrs.rowspan || cell.attrs.colspan) || cell.children.some((child) =>
-      child.tag !== null && !['a', 'strong', 'b', 'em', 'i', 's', 'strike', 'del', 'code', 'span', 'br'].includes(child.tag),
-    ),
-  );
+  return findAll(table, 'th')
+    .concat(findAll(table, 'td'))
+    .some(
+      (cell) =>
+        Boolean(cell.attrs.rowspan || cell.attrs.colspan) ||
+        cell.children.some(
+          (child) =>
+            child.tag !== null &&
+            !['a', 'strong', 'b', 'em', 'i', 's', 'strike', 'del', 'code', 'span', 'br'].includes(child.tag),
+        ),
+    );
 }
 
 function tableToMarkdown(table: HtmlNode): string {
-  const rows = findAll(table, 'tr').map((row) => row.children.filter((cell) => cell.tag === 'th' || cell.tag === 'td')
-    .map((cell) => childrenToMarkdown(cell).replace(/\n/g, '<br>').replace(/\|/g, '\\|')))
+  const rows = findAll(table, 'tr')
+    .map((row) =>
+      row.children
+        .filter((cell) => cell.tag === 'th' || cell.tag === 'td')
+        .map((cell) => childrenToMarkdown(cell).replace(/\n/g, '<br>').replace(/\|/g, '\\|')),
+    )
     .filter((row) => row.length > 0);
   if (!rows.length) return '';
   const columnCount = Math.max(...rows.map((row) => row.length));
   const padded = rows.map((row) => [...row, ...Array.from({ length: columnCount - row.length }, () => '')]);
   const formatRow = (row: string[]) => `| ${row.join(' | ')} |`;
-  return [formatRow(padded[0]), formatRow(Array.from({ length: columnCount }, () => '---')),
-    ...padded.slice(1).map(formatRow)].join('\n');
+  return [
+    formatRow(padded[0]),
+    formatRow(Array.from({ length: columnCount }, () => '---')),
+    ...padded.slice(1).map(formatRow),
+  ].join('\n');
 }
 
 function findAll(node: HtmlNode, tag: string): HtmlNode[] {
@@ -281,10 +338,15 @@ function findAll(node: HtmlNode, tag: string): HtmlNode[] {
 function decodeEntities(value: string): string {
   return value.replace(/&(#(?:x[\da-f]+|\d+)|amp|lt|gt|quot|apos|nbsp);/gi, (entity, name: string) => {
     if (name[0] === '#') {
-      const number = name[1]?.toLowerCase() === 'x' ? Number.parseInt(name.slice(2), 16) : Number.parseInt(name.slice(1), 10);
+      const number =
+        name[1]?.toLowerCase() === 'x' ? Number.parseInt(name.slice(2), 16) : Number.parseInt(name.slice(1), 10);
       return Number.isFinite(number) && number > 0 && number <= 0x10ffff ? String.fromCodePoint(number) : entity;
     }
-    return ({ amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: '\u00a0' } as Record<string, string>)[name.toLowerCase()] ?? entity;
+    return (
+      ({ amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: '\u00a0' } as Record<string, string>)[
+        name.toLowerCase()
+      ] ?? entity
+    );
   });
 }
 
@@ -299,7 +361,10 @@ function quoteAttribute(value: string): string {
 }
 
 function normalizeInlineSpacing(text: string): string {
-  return text.replace(/[ \t]+/g, ' ').trim().replace(/(?<!\s)\s+([.,:;!?])/g, '$1');
+  return text
+    .replace(/[ \t]+/g, ' ')
+    .trim()
+    .replace(/(?<!\s)\s+([.,:;!?])/g, '$1');
 }
 
 function collapseBlankLines(text: string): string {

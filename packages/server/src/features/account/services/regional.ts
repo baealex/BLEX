@@ -55,7 +55,9 @@ export function accountDate(date: Date, timeZone: string): string {
   try {
     const parts = new Intl.DateTimeFormat('en-CA', {
       timeZone: isSupportedTimeZone(timeZone) ? timeZone : DEFAULT_TIME_ZONE,
-      year: 'numeric', month: '2-digit', day: '2-digit',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
     }).formatToParts(date);
     const fields = Object.fromEntries(parts.map(({ type, value: partValue }) => [type, partValue]));
     return `${fields.year}-${fields.month}-${fields.day}`;
@@ -83,21 +85,38 @@ export function regionalPreferences(config: RegionalConfig | null): RegionalPref
 
 function regionalError(field: 'language' | 'timeZone'): UpdateResult {
   return field === 'language'
-    ? { ok: false, message: '지원하는 언어를 선택하세요.', messageKey: 'settings.regional_preferences.invalid_language' }
-    : { ok: false, message: '유효한 시간대를 선택하세요.', messageKey: 'settings.regional_preferences.invalid_time_zone' };
+    ? {
+        ok: false,
+        message: '지원하는 언어를 선택하세요.',
+        messageKey: 'settings.regional_preferences.invalid_language',
+      }
+    : {
+        ok: false,
+        message: '유효한 시간대를 선택하세요.',
+        messageKey: 'settings.regional_preferences.invalid_time_zone',
+      };
 }
 
 export async function updateRegionalPreferences(db: PrismaClient, userId: number, body: Body): Promise<UpdateResult> {
   const language = body.language;
   const timeZone = body.timeZone;
   const languages = languageChoices();
-  if (language !== null && language !== '' && (typeof language !== 'string' || !languages.some(({ code }) => code === language))) {
+  if (
+    language !== null &&
+    language !== '' &&
+    (typeof language !== 'string' || !languages.some(({ code }) => code === language))
+  ) {
     return regionalError('language');
   }
   if (typeof timeZone !== 'string' || (timeZone !== '' && !isSupportedTimeZone(timeZone))) {
     return regionalError('timeZone');
   }
   const preference = { language: language as string | null, timeZone };
-  await db.userPreference.upsert({ where: { userId }, create: { userId, ...preference }, update: preference, select: { userId: true } });
+  await db.userPreference.upsert({
+    where: { userId },
+    create: { userId, ...preference },
+    update: preference,
+    select: { userId: true },
+  });
   return { ok: true };
 }

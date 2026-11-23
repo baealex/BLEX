@@ -3,7 +3,10 @@ import type { Prisma } from '@prisma/client';
 export async function isLastAdministrator(tx: Prisma.TransactionClient, userId: number): Promise<boolean> {
   const superuser = await tx.user.findFirst({ where: { id: userId, isSuperuser: true }, select: { id: true } });
   if (!superuser) return false;
-  const other = await tx.user.findFirst({ where: { id: { not: userId }, isSuperuser: true, isActive: true }, select: { id: true } });
+  const other = await tx.user.findFirst({
+    where: { id: { not: userId }, isSuperuser: true, isActive: true },
+    select: { id: true },
+  });
   return other === null;
 }
 

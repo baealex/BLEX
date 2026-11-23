@@ -5,7 +5,7 @@ import { csrfPattern } from '../../platform/csrf.js';
 import { createToken, type readSession } from '../auth/session.js';
 import { relatedPosts } from '../authors/public-activity.js';
 import { readReaderPostView } from '../engagement/index.js';
-import { postContentSecurityPolicy, renderPublicPostPage } from './pages/public-post-page.js';
+import { postContentSecurityPolicy, renderPublicPostPage } from './public-post-view.js';
 import { publicPostPath, readPostPresentation, readPublicPost } from './public-post.js';
 
 type PublicPostRouteOptions = {
@@ -14,7 +14,11 @@ type PublicPostRouteOptions = {
   currentUser: (request: FastifyRequest) => ReturnType<typeof readSession>;
 };
 
-export function registerPublicPostRoute(app: FastifyInstance, db: PrismaClient, { siteUrl, writable, currentUser }: PublicPostRouteOptions) {
+export function registerPublicPostRoute(
+  app: FastifyInstance,
+  db: PrismaClient,
+  { siteUrl, writable, currentUser }: PublicPostRouteOptions,
+) {
   app.get<{ Params: { username: string; slug: string } }>('/@:username/:slug', async (request, reply) => {
     const { username, slug } = request.params;
     const viewer = await currentUser(request);
@@ -47,9 +51,23 @@ export function registerPublicPostRoute(app: FastifyInstance, db: PrismaClient, 
       reply.header('Link', `<${markdown.href}>; rel="alternate"; type="text/markdown", <${llms.href}>; rel="llms-txt"`);
       reply.header('X-Llms-Txt', llms.href);
     }
-    return reply.type('text/html; charset=utf-8')
+    return reply
+      .type('text/html; charset=utf-8')
       .header('Vary', 'Cookie')
       .header('Content-Security-Policy', postContentSecurityPolicy)
-      .send(renderPublicPostPage(post, presentation, siteUrl, reader, csrf, canManage, viewer, related, undefined, history !== null));
+      .send(
+        renderPublicPostPage(
+          post,
+          presentation,
+          siteUrl,
+          reader,
+          csrf,
+          canManage,
+          viewer,
+          related,
+          undefined,
+          history !== null,
+        ),
+      );
   });
 }

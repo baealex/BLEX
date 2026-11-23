@@ -3,7 +3,20 @@ import { Parser } from 'htmlparser2';
 import { sanitizePostHtml } from '../post-html.js';
 import { markdownToHtml } from '../authoring/markdown.js';
 import { PostValidationError } from './post-store.js';
-import { AuthoringPostInput, COVER_LAYOUTS, COVER_POSITIONS, COVER_RATIOS, POST_DESCRIPTION_MAX, POST_SUBTITLE_MAX, POST_TITLE_MAX, POST_URL_MAX, TAG_MAX, booleanField, field, inputField } from '../shared.js';
+import {
+  AuthoringPostInput,
+  COVER_LAYOUTS,
+  COVER_POSITIONS,
+  COVER_RATIOS,
+  POST_DESCRIPTION_MAX,
+  POST_SUBTITLE_MAX,
+  POST_TITLE_MAX,
+  POST_URL_MAX,
+  TAG_MAX,
+  booleanField,
+  field,
+  inputField,
+} from '../shared.js';
 
 export function mediaUrl(value: string | null | undefined): string | null {
   if (!value) return null;
@@ -22,8 +35,11 @@ function storedCoverPath(value: string): string {
     throw new PostValidationError('VA', 'Choose an image URL from the upload page.');
   }
   const segments = path.split('/');
-  if (segments.length < 2 || segments.some((part) => !part || part === '.' || part === '..' || !/^[A-Za-z0-9._-]+$/.test(part)) ||
-      !/\.(?:jpe?g|png|gif)$/i.test(segments.at(-1) ?? '')) {
+  if (
+    segments.length < 2 ||
+    segments.some((part) => !part || part === '.' || part === '..' || !/^[A-Za-z0-9._-]+$/.test(part)) ||
+    !/\.(?:jpe?g|png|gif)$/i.test(segments.at(-1) ?? '')
+  ) {
     throw new PostValidationError('VA', 'Choose an image URL from the upload page.');
   }
   return path;
@@ -63,7 +79,14 @@ export function plainText(html: string): string {
 /** Strips tags and keeps the first 50 words. */
 export function descriptionFromHtml(html: string): string {
   let text = '';
-  const parser = new Parser({ ontext: (chunk) => { text += chunk; } }, { decodeEntities: false });
+  const parser = new Parser(
+    {
+      ontext: (chunk) => {
+        text += chunk;
+      },
+    },
+    { decodeEntities: false },
+  );
   parser.write(html);
   parser.end();
   const words = text.split(/\s+/u).filter(Boolean);
@@ -76,7 +99,9 @@ export function readingTime(html: string): number {
 }
 
 export function slugify(value: string): string {
-  return value.normalize('NFKC').toLocaleLowerCase('ko-KR')
+  return value
+    .normalize('NFKC')
+    .toLocaleLowerCase('ko-KR')
     .replace(/[^\p{L}\p{N}_\s-]/gu, '')
     .trim()
     .replace(/[\s-]+/g, '-');
@@ -84,8 +109,16 @@ export function slugify(value: string): string {
 
 /** Commas, underscores, and spaces separate tags. A hyphen belongs to the tag it sits inside. */
 export function normalizedTags(value: string): string[] {
-  const tags = value.split(/[,_]/)
-    .flatMap((part) => part.normalize('NFKC').toLocaleLowerCase('ko-KR').replace(/[^\p{L}\p{N}_\s-]/gu, '').trim().split(/\s+/))
+  const tags = value
+    .split(/[,_]/)
+    .flatMap((part) =>
+      part
+        .normalize('NFKC')
+        .toLocaleLowerCase('ko-KR')
+        .replace(/[^\p{L}\p{N}_\s-]/gu, '')
+        .trim()
+        .split(/\s+/),
+    )
     .map((tag) => tag.replace(/-+/g, '-').replace(/^-|-$/g, ''))
     .filter(Boolean);
   return [...new Set(tags)];
@@ -96,7 +129,8 @@ export function validatePostInput(input: AuthoringPostInput, allowEmptyBody: boo
   if (!allowEmptyBody && !input.title.trim()) return 'Enter a title.';
   if (length(input.title) > POST_TITLE_MAX) return `Titles can be up to ${POST_TITLE_MAX} characters.`;
   if (length(input.subtitle) > POST_SUBTITLE_MAX) return `Subtitles can be up to ${POST_SUBTITLE_MAX} characters.`;
-  if (length(input.description) > POST_DESCRIPTION_MAX) return `Descriptions can be up to ${POST_DESCRIPTION_MAX} characters.`;
+  if (length(input.description) > POST_DESCRIPTION_MAX)
+    return `Descriptions can be up to ${POST_DESCRIPTION_MAX} characters.`;
   if (length(slugify(input.url)) > POST_URL_MAX) return `Post URLs can be up to ${POST_URL_MAX} characters.`;
   if (normalizedTags(input.tags).some((tag) => Array.from(tag).length > TAG_MAX)) {
     return `Each tag can be up to ${TAG_MAX} characters.`;
@@ -110,7 +144,9 @@ export function validatePostInput(input: AuthoringPostInput, allowEmptyBody: boo
 
 export function parseAuthoringPostInput(body: Record<string, unknown>): AuthoringPostInput {
   const text = inputField(body, 'contentHtml', 'content', 'textHtml', 'textMd', 'contentMarkdown', 'markdown');
-  const contentType = field(body.contentType) || (body.contentMarkdown !== undefined || body.markdown !== undefined ? 'markdown' : 'html');
+  const contentType =
+    field(body.contentType) ||
+    (body.contentMarkdown !== undefined || body.markdown !== undefined ? 'markdown' : 'html');
   const tagsValue = Array.isArray(body.tag) ? body.tag : Array.isArray(body.tags) ? body.tags : undefined;
   return {
     title: field(body.title),
@@ -134,7 +170,5 @@ export function parseAuthoringPostInput(body: Record<string, unknown>): Authorin
 }
 
 export function resolveContent(input: AuthoringPostInput): string {
-  return input.contentType === 'markdown'
-    ? markdownToHtml(input.text)
-    : sanitizePostHtml(input.text);
+  return input.contentType === 'markdown' ? markdownToHtml(input.text) : sanitizePostHtml(input.text);
 }

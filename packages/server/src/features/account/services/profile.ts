@@ -10,7 +10,13 @@ const MAX_ABOUT_MARKDOWN_BYTES = 256 * 1024;
 export async function readAccount(db: PrismaClient, userId: number): Promise<AccountSettingsView | null> {
   const account = await db.user.findUnique({
     where: { id: userId },
-    select: { username: true, name: true, email: true, joinedAt: true, preference: { select: { language: true, timeZone: true } } },
+    select: {
+      username: true,
+      name: true,
+      email: true,
+      joinedAt: true,
+      preference: { select: { language: true, timeZone: true } },
+    },
   });
   if (!account) return null;
 
@@ -24,17 +30,23 @@ export async function readAccount(db: PrismaClient, userId: number): Promise<Acc
   };
 }
 
-export async function accountExtras(db: PrismaClient, userId: number): Promise<{ accountDeletionRedirectUrl: string; has2fa: boolean }> {
+export async function accountExtras(
+  db: PrismaClient,
+  userId: number,
+): Promise<{ accountDeletionRedirectUrl: string; has2fa: boolean }> {
   let accountDeletionRedirectUrl = '';
   try {
-    const setting = await db.loginSetting.findUnique({ where: { id: 1 }, select: { accountDeletionRedirectUrl: true } });
+    const setting = await db.loginSetting.findUnique({
+      where: { id: 1 },
+      select: { accountDeletionRedirectUrl: true },
+    });
     accountDeletionRedirectUrl = setting?.accountDeletionRedirectUrl ?? '';
   } catch {
     accountDeletionRedirectUrl = '';
   }
   let has2fa = false;
   try {
-    has2fa = await db.twoFactorAuth.count({ where: { userId } }) > 0;
+    has2fa = (await db.twoFactorAuth.count({ where: { userId } })) > 0;
   } catch {
     has2fa = false;
   }
@@ -137,7 +149,10 @@ export async function updateProfile(db: PrismaClient, userId: number, body: Body
   const homepageValidation = validateHomepage(homepage);
   if (!homepageValidation.ok) return homepageValidation;
   // An account without a profile row has nothing to update, as in 3.x.
-  await db.profile.updateMany({ where: { userId }, data: { bio, homepage: homepage ? safeExternalUrl(homepage) : '' } });
+  await db.profile.updateMany({
+    where: { userId },
+    data: { bio, homepage: homepage ? safeExternalUrl(homepage) : '' },
+  });
   return { ok: true };
 }
 
@@ -157,15 +172,30 @@ export interface AuthorAboutRow {
 export async function readAuthorAbout(db: PrismaClient, username: string): Promise<AuthorAboutRow | null> {
   const author = await db.user.findUnique({
     where: { username },
-    select: { id: true, username: true, isActive: true, profile: { select: { role: true, aboutMarkdown: true, aboutHtml: true } } },
+    select: {
+      id: true,
+      username: true,
+      isActive: true,
+      profile: { select: { role: true, aboutMarkdown: true, aboutHtml: true } },
+    },
   });
-  return author && {
-    id: author.id, username: author.username, isActive: author.isActive, role: author.profile?.role ?? null,
-    aboutMarkdown: author.profile?.aboutMarkdown ?? null, aboutHtml: author.profile?.aboutHtml ?? null,
-  };
+  return (
+    author && {
+      id: author.id,
+      username: author.username,
+      isActive: author.isActive,
+      role: author.profile?.role ?? null,
+      aboutMarkdown: author.profile?.aboutMarkdown ?? null,
+      aboutHtml: author.profile?.aboutHtml ?? null,
+    }
+  );
 }
 
-export async function saveAuthorAbout(db: PrismaClient, userId: number, markdown: unknown): Promise<{ markdown: string; html: string } | null> {
+export async function saveAuthorAbout(
+  db: PrismaClient,
+  userId: number,
+  markdown: unknown,
+): Promise<{ markdown: string; html: string } | null> {
   if (typeof markdown !== 'string' || Buffer.byteLength(markdown, 'utf8') > MAX_ABOUT_MARKDOWN_BYTES) return null;
   const html = renderAboutMarkdownToHtml(markdown);
   const about = { aboutMarkdown: markdown, aboutHtml: html };
@@ -173,7 +203,10 @@ export async function saveAuthorAbout(db: PrismaClient, userId: number, markdown
   return { markdown, html };
 }
 
-export function accountApiBody(account: AccountSettingsView, extras: { accountDeletionRedirectUrl: string; has2fa: boolean }) {
+export function accountApiBody(
+  account: AccountSettingsView,
+  extras: { accountDeletionRedirectUrl: string; has2fa: boolean },
+) {
   const preferences = account.regionalPreferences;
   return {
     username: account.username,

@@ -42,17 +42,17 @@ Run from the repository root after installing dependencies:
 pnpm i18n:check
 pnpm lint
 pnpm type-check
-pnpm test:web
-pnpm build:web
+pnpm test:client
+pnpm build:client
 pnpm check:entry-budgets
 ```
 
-Editor and web logic tests live in `packages/editor/test/` and `packages/web/test/` and use Node's test runner. Use browser checks for behavior that needs real DOM APIs, built assets, or navigation. Avoid adding browser tests for pure logic or visual preferences.
+Editor and web logic tests live in `packages/client/src/features/editor/tiptap/test/` and `packages/client/test/` and use Node's test runner. Use browser checks for behavior that needs real DOM APIs, built assets, or navigation. Avoid adding browser tests for pure logic or visual preferences.
 
 For the existing browser smoke test, start a new instance with a temporary database, built web assets, and a setup token you can provide to the test, then run:
 
 ```sh
-pnpm --filter @blex/web exec playwright install --only-shell chromium
+pnpm --filter @blex/client exec playwright install --only-shell chromium
 BLEX_SETUP_TOKEN=your-setup-token pnpm test:smoke
 ```
 

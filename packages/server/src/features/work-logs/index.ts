@@ -2,13 +2,55 @@ import formBody from '@fastify/formbody';
 import multipart from '@fastify/multipart';
 import { type PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
-import { renderWorkLogDelete, renderWorkLogIndex, renderWorkLogShared } from './pages.js';
+import { renderPage } from '../../platform/views.js';
 import { displayPage, pageChrome, pageLinks, renderDetailPage } from './detail-page.js';
-import { MAX_ATTACHMENT_SIZE, mediaResponse, removeAttachment, saveAttachment, validateAttachment } from './services/attachments.js';
+import {
+  MAX_ATTACHMENT_SIZE,
+  mediaResponse,
+  removeAttachment,
+  saveAttachment,
+  validateAttachment,
+} from './services/attachments.js';
 import { deleteWorkLog, deleteWorkLogEntry, revokeWorkLogShare } from './services/deletions.js';
-import { countEntriesByLog, countOwnedLogs, insertEntry, insertWorkLog, readEntry, readEntryInput, readOwnedLog, readOwnedLogs } from './services/logs.js';
-import { createShare, entryCountForShare, latestSharedEntry, pageEntryForShareMedia, readShare, readSnapshotEntries, selectedEntries, selectedEntryIds, sharePath, storedShareToken } from './services/shares.js';
-import { MAX_REQUEST_SIZE, PAGE_SIZE, WorkLogOptions, bodyRecord, csrfCookieValue, csrfValid, currentUser, html, isActiveEditor, pageFields, notAllowed, notFound, parseId, scalar, toIsoDateTime } from './shared.js';
+import {
+  countEntriesByLog,
+  countOwnedLogs,
+  insertEntry,
+  insertWorkLog,
+  readEntry,
+  readEntryInput,
+  readOwnedLog,
+  readOwnedLogs,
+} from './services/logs.js';
+import {
+  createShare,
+  entryCountForShare,
+  latestSharedEntry,
+  pageEntryForShareMedia,
+  readShare,
+  readSnapshotEntries,
+  selectedEntries,
+  selectedEntryIds,
+  sharePath,
+  storedShareToken,
+} from './services/shares.js';
+import {
+  MAX_REQUEST_SIZE,
+  PAGE_SIZE,
+  WorkLogOptions,
+  bodyRecord,
+  csrfCookieValue,
+  csrfValid,
+  currentUser,
+  html,
+  isActiveEditor,
+  pageFields,
+  notAllowed,
+  notFound,
+  parseId,
+  scalar,
+  toIsoDateTime,
+} from './shared.js';
 
 export { removeAttachment } from './services/attachments.js';
 export { WorkLogUser, WorkLogOptions } from './shared.js';
@@ -22,7 +64,8 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
     });
 
     routes.addHook('onRequest', async (_request, reply) => {
-      reply.header('Cache-Control', 'private, no-store')
+      reply
+        .header('Cache-Control', 'private, no-store')
         .header('X-Robots-Tag', 'noindex, nofollow, noarchive')
         .header('Referrer-Policy', 'strict-origin');
     });
@@ -30,21 +73,25 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
     routes.get('/work-logs/', async (request, reply) => {
       const user = await currentUser(request, reply, options);
       if (!user) return reply;
-      const [total, canWrite] = await Promise.all([
-        countOwnedLogs(db, user.id),
-        isActiveEditor(db, user.id),
-      ]);
+      const [total, canWrite] = await Promise.all([countOwnedLogs(db, user.id), isActiveEditor(db, user.id)]);
       const query = request.query as Record<string, string | string[] | undefined>;
       const page = displayPage(typeof query.page === 'string' ? query.page : undefined, total);
       const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
       const logs = await readOwnedLogs(db, user.id, page);
-      const entryCounts = await countEntriesByLog(db, logs.map((log) => log.id));
+      const entryCounts = await countEntriesByLog(
+        db,
+        logs.map((log) => log.id),
+      );
       const path = '/work-logs/';
-      const content = renderWorkLogIndex({
-        logs: logs.map((log) => ({ ...log, createdAt: toIsoDateTime(log.createdAt), entryCount: entryCounts.get(log.id) ?? 0 })),
+      const content = renderPage('work-logs/index', {
+        logs: logs.map((log) => ({
+          ...log,
+          createdAt: toIsoDateTime(log.createdAt),
+          entryCount: entryCounts.get(log.id) ?? 0,
+        })),
         canWrite,
         csrfToken: csrfCookieValue(request),
-        ...await pageChrome(db, request, user),
+        ...(await pageChrome(db, request, user)),
         links: pageLinks(path, page, pages),
       });
       return html(reply, content);
@@ -54,19 +101,22 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       if (!csrfValid(request, options)) return notAllowed(reply);
       const user = await currentUser(request, reply, options);
       if (!user) return reply;
-      if (!await isActiveEditor(db, user.id)) return notAllowed(reply);
+      if (!(await isActiveEditor(db, user.id))) return notAllowed(reply);
       const title = scalar(bodyRecord(request.body).title).trim();
       if (!title || title.length > 100) {
         const logs = await readOwnedLogs(db, user.id, 1);
-        return html(reply, renderWorkLogIndex({
-          logs: logs.map((log) => ({ ...log, createdAt: toIsoDateTime(log.createdAt) })),
-          canWrite: true,
-          csrfToken: csrfCookieValue(request),
-          ...await pageChrome(db, request, user),
-          error: '작업 일지 제목을 100자 이내로 입력해 주세요.',
-          title,
-          links: {},
-        }));
+        return html(
+          reply,
+          renderPage('work-logs/index', {
+            logs: logs.map((log) => ({ ...log, createdAt: toIsoDateTime(log.createdAt) })),
+            canWrite: true,
+            csrfToken: csrfCookieValue(request),
+            ...(await pageChrome(db, request, user)),
+            error: '작업 일지 제목을 100자 이내로 입력해 주세요.',
+            title,
+            links: {},
+          }),
+        );
       }
       const id = await insertWorkLog(db, user.id, title);
       return reply.redirect(`/work-logs/${id}/`, 302);
@@ -82,120 +132,157 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       return renderDetailPage(request, reply, db, options, user, log);
     });
 
-    routes.post<{ Params: { pk: string }; Body: unknown }>('/work-logs/:pk/entry/', { bodyLimit: MAX_REQUEST_SIZE, config: { bodyAccess: 'author' } }, async (request, reply) => {
-      if (!csrfValid(request, options)) return notAllowed(reply);
-      const user = await currentUser(request, reply, options);
-      if (!user) return reply;
-      const logId = parseId(request.params.pk);
-      if (logId === null) return notFound(reply);
-      const log = await readOwnedLog(db, logId, user.id);
-      if (!log) return notFound(reply);
-      if (!await isActiveEditor(db, user.id)) return notAllowed(reply);
+    routes.post<{ Params: { pk: string }; Body: unknown }>(
+      '/work-logs/:pk/entry/',
+      { bodyLimit: MAX_REQUEST_SIZE, config: { bodyAccess: 'author' } },
+      async (request, reply) => {
+        if (!csrfValid(request, options)) return notAllowed(reply);
+        const user = await currentUser(request, reply, options);
+        if (!user) return reply;
+        const logId = parseId(request.params.pk);
+        if (logId === null) return notFound(reply);
+        const log = await readOwnedLog(db, logId, user.id);
+        if (!log) return notFound(reply);
+        if (!(await isActiveEditor(db, user.id))) return notAllowed(reply);
 
-      const input = await readEntryInput(request);
-      const title = scalar(input.fields.title).trim();
-      const text = scalar(input.fields.text).trim();
-      if (title.length > 100 || text.length > 5000 || (!title && !text && !input.attachment)) {
-        return renderDetailPage(request, reply, db, options, user, log, { error: '메모를 작성하거나 파일을 첨부해 주세요.', entryTitle: title, entryText: text });
-      }
-
-      let mediaType = '';
-      let attachment = '';
-      if (input.attachment) {
-        if (!options.mediaRoot) return renderDetailPage(request, reply, db, options, user, log, { error: '첨부 파일을 사용할 수 없습니다.', entryTitle: title, entryText: text });
-        try {
-          const kind = await validateAttachment(input.attachment);
-          mediaType = kind.mediaType;
-          attachment = await saveAttachment(input.attachment, kind.extension, options.mediaRoot);
-        } catch (error) {
-          const message = error instanceof Error ? error.message : 'PNG, JPEG, WebP, MP4, WebM 파일을 선택해 주세요.';
-          return renderDetailPage(request, reply, db, options, user, log, { error: message, entryTitle: title, entryText: text });
+        const input = await readEntryInput(request);
+        const title = scalar(input.fields.title).trim();
+        const text = scalar(input.fields.text).trim();
+        if (title.length > 100 || text.length > 5000 || (!title && !text && !input.attachment)) {
+          return renderDetailPage(request, reply, db, options, user, log, {
+            error: '메모를 작성하거나 파일을 첨부해 주세요.',
+            entryTitle: title,
+            entryText: text,
+          });
         }
-      }
 
-      try {
-        await insertEntry(db, logId, title, text, mediaType, attachment);
-      } catch (error) {
-        await removeAttachment(options.mediaRoot, attachment);
-        throw error;
-      }
-      return reply.redirect(`/work-logs/${logId}/`, 302);
-    });
+        let mediaType = '';
+        let attachment = '';
+        if (input.attachment) {
+          if (!options.mediaRoot)
+            return renderDetailPage(request, reply, db, options, user, log, {
+              error: '첨부 파일을 사용할 수 없습니다.',
+              entryTitle: title,
+              entryText: text,
+            });
+          try {
+            const kind = await validateAttachment(input.attachment);
+            mediaType = kind.mediaType;
+            attachment = await saveAttachment(input.attachment, kind.extension, options.mediaRoot);
+          } catch (error) {
+            const message = error instanceof Error ? error.message : 'PNG, JPEG, WebP, MP4, WebM 파일을 선택해 주세요.';
+            return renderDetailPage(request, reply, db, options, user, log, {
+              error: message,
+              entryTitle: title,
+              entryText: text,
+            });
+          }
+        }
 
-    routes.post<{ Params: { pk: string }; Body: unknown }>('/work-logs/:pk/share/', { bodyLimit: 64 * 1024 }, async (request, reply) => {
-      if (!csrfValid(request, options)) return notAllowed(reply);
-      const user = await currentUser(request, reply, options);
-      if (!user) return reply;
-      const logId = parseId(request.params.pk);
-      if (logId === null) return notFound(reply);
-      const log = await readOwnedLog(db, logId, user.id);
-      if (!log) return notFound(reply);
-      if (!await isActiveEditor(db, user.id)) return notAllowed(reply);
+        try {
+          await insertEntry(db, logId, title, text, mediaType, attachment);
+        } catch (error) {
+          await removeAttachment(options.mediaRoot, attachment);
+          throw error;
+        }
+        return reply.redirect(`/work-logs/${logId}/`, 302);
+      },
+    );
 
-      const fields = bodyRecord(request.body);
-      const action = scalar(fields.action) || 'preview';
-      const browsing = pageFields.selectionPage in fields || action === 'edit';
-      const selection = selectedEntryIds(fields, browsing);
-      const headline = scalar(fields.headline).trim();
-      if (!selection.error && headline.length > 120) selection.error = '공유 제목은 120자 이내로 입력해 주세요.';
-      if (!browsing && !headline) selection.error = '무엇이 달라졌는지 입력해 주세요.';
-      const selected = selection.error ? [] : await selectedEntries(db, logId, selection.ids);
-      if (!selection.error && selected.length !== selection.ids.length) selection.error = '이 작업 일지의 기록을 선택해 주세요.';
+    routes.post<{ Params: { pk: string }; Body: unknown }>(
+      '/work-logs/:pk/share/',
+      { bodyLimit: 64 * 1024 },
+      async (request, reply) => {
+        if (!csrfValid(request, options)) return notAllowed(reply);
+        const user = await currentUser(request, reply, options);
+        if (!user) return reply;
+        const logId = parseId(request.params.pk);
+        if (logId === null) return notFound(reply);
+        const log = await readOwnedLog(db, logId, user.id);
+        if (!log) return notFound(reply);
+        if (!(await isActiveEditor(db, user.id))) return notAllowed(reply);
 
-      if (browsing || selection.error) {
-        return renderDetailPage(request, reply, db, options, user, log, {
-          timelinePage: scalar(fields[pageFields.timelinePage]),
-          selectionPage: scalar(fields[pageFields.selectionPage]) || scalar(fields[pageFields.currentSelectionPage]),
-          linksPage: scalar(fields[pageFields.linksPage]),
-          selectedIds: selected.map((entry) => entry.id),
-          shareError: selection.error,
-          headline,
-        });
-      }
+        const fields = bodyRecord(request.body);
+        const action = scalar(fields.action) || 'preview';
+        const browsing = pageFields.selectionPage in fields || action === 'edit';
+        const selection = selectedEntryIds(fields, browsing);
+        const headline = scalar(fields.headline).trim();
+        if (!selection.error && headline.length > 120) selection.error = '공유 제목은 120자 이내로 입력해 주세요.';
+        if (!browsing && !headline) selection.error = '무엇이 달라졌는지 입력해 주세요.';
+        const selected = selection.error ? [] : await selectedEntries(db, logId, selection.ids);
+        if (!selection.error && selected.length !== selection.ids.length)
+          selection.error = '이 작업 일지의 기록을 선택해 주세요.';
 
-      if (action === 'preview') {
-        const page = displayPage(scalar(fields[pageFields.previewPage]), selected.length);
-        const start = (page - 1) * PAGE_SIZE;
-        const entries = selected.slice(start, start + PAGE_SIZE);
-        return html(reply, renderWorkLogShared({
-          ...await pageChrome(db, request, user),
-          log: { ...log, createdAt: toIsoDateTime(log.createdAt) },
-          ownerUsername: user.username,
-          headline,
-          entries: entries.map((entry) => ({ ...entry, createdAt: toIsoDateTime(entry.createdAt) })),
-          cover: [...selected].reverse().find((entry) => entry.attachment) ?? null,
-          imageUrl: null,
-          shareUrl: '',
-          timelineLinks: pageLinks(`/work-logs/${logId}/share/`, page, Math.max(1, Math.ceil(selected.length / PAGE_SIZE))),
-          newLink: false,
-          preview: true,
-          selectedIds: selected.map((entry) => entry.id),
-          csrfToken: csrfCookieValue(request),
-          timelinePage: Number(scalar(fields[pageFields.timelinePage])) || 1,
-          selectionPage: Number(scalar(fields[pageFields.currentSelectionPage])) || 1,
-          linksPage: Number(scalar(fields[pageFields.linksPage])) || 1,
-          mediaUrl: (entry) => `/work-logs/${logId}/media/${entry.id}/`,
-        }));
-      }
+        if (browsing || selection.error) {
+          return renderDetailPage(request, reply, db, options, user, log, {
+            timelinePage: scalar(fields[pageFields.timelinePage]),
+            selectionPage: scalar(fields[pageFields.selectionPage]) || scalar(fields[pageFields.currentSelectionPage]),
+            linksPage: scalar(fields[pageFields.linksPage]),
+            selectedIds: selected.map((entry) => entry.id),
+            shareError: selection.error,
+            headline,
+          });
+        }
 
-      if (action !== 'publish') return renderDetailPage(request, reply, db, options, user, log, { shareError: '공유 화면을 미리 본 뒤 링크를 만들어 주세요.', headline });
-      const token = await createShare(db, logId, headline, selected);
-      return reply.redirect(`${sharePath(token)}?new=1`, 302);
-    });
+        if (action === 'preview') {
+          const page = displayPage(scalar(fields[pageFields.previewPage]), selected.length);
+          const start = (page - 1) * PAGE_SIZE;
+          const entries = selected.slice(start, start + PAGE_SIZE);
+          return html(
+            reply,
+            renderPage('work-logs/share/$token', {
+              ...(await pageChrome(db, request, user)),
+              log: { ...log, createdAt: toIsoDateTime(log.createdAt) },
+              ownerUsername: user.username,
+              headline,
+              entries: entries.map((entry) => ({ ...entry, createdAt: toIsoDateTime(entry.createdAt) })),
+              cover: [...selected].reverse().find((entry) => entry.attachment) ?? null,
+              imageUrl: null,
+              shareUrl: '',
+              timelineLinks: pageLinks(
+                `/work-logs/${logId}/share/`,
+                page,
+                Math.max(1, Math.ceil(selected.length / PAGE_SIZE)),
+              ),
+              newLink: false,
+              preview: true,
+              selectedIds: selected.map((entry) => entry.id),
+              csrfToken: csrfCookieValue(request),
+              timelinePage: Number(scalar(fields[pageFields.timelinePage])) || 1,
+              selectionPage: Number(scalar(fields[pageFields.currentSelectionPage])) || 1,
+              linksPage: Number(scalar(fields[pageFields.linksPage])) || 1,
+              mediaUrl: (entry) => `/work-logs/${logId}/media/${entry.id}/`,
+            }),
+          );
+        }
 
-    routes.post<{ Params: { pk: string; token: string } }>('/work-logs/:pk/share/:token/revoke/', { bodyLimit: 8 * 1024 }, async (request, reply) => {
-      if (!csrfValid(request, options)) return notAllowed(reply);
-      const user = await currentUser(request, reply, options);
-      if (!user) return reply;
-      const logId = parseId(request.params.pk);
-      const shareToken = storedShareToken(request.params.token);
-      if (logId === null || !shareToken) return notFound(reply);
-      const log = await readOwnedLog(db, logId, user.id);
-      if (!log) return notFound(reply);
-      const deleted = await revokeWorkLogShare(db, logId, shareToken, user.id);
-      if (deleted !== 1) return notFound(reply);
-      return reply.redirect(`/work-logs/${logId}/`, 302);
-    });
+        if (action !== 'publish')
+          return renderDetailPage(request, reply, db, options, user, log, {
+            shareError: '공유 화면을 미리 본 뒤 링크를 만들어 주세요.',
+            headline,
+          });
+        const token = await createShare(db, logId, headline, selected);
+        return reply.redirect(`${sharePath(token)}?new=1`, 302);
+      },
+    );
+
+    routes.post<{ Params: { pk: string; token: string } }>(
+      '/work-logs/:pk/share/:token/revoke/',
+      { bodyLimit: 8 * 1024 },
+      async (request, reply) => {
+        if (!csrfValid(request, options)) return notAllowed(reply);
+        const user = await currentUser(request, reply, options);
+        if (!user) return reply;
+        const logId = parseId(request.params.pk);
+        const shareToken = storedShareToken(request.params.token);
+        if (logId === null || !shareToken) return notFound(reply);
+        const log = await readOwnedLog(db, logId, user.id);
+        if (!log) return notFound(reply);
+        const deleted = await revokeWorkLogShare(db, logId, shareToken, user.id);
+        if (deleted !== 1) return notFound(reply);
+        return reply.redirect(`/work-logs/${logId}/`, 302);
+      },
+    );
 
     routes.get<{ Params: { pk: string } }>('/work-logs/:pk/delete/', async (request, reply) => {
       const user = await currentUser(request, reply, options);
@@ -204,66 +291,90 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       if (logId === null) return notFound(reply);
       const log = await readOwnedLog(db, logId, user.id);
       if (!log) return notFound(reply);
-      return html(reply, renderWorkLogDelete({ ...await pageChrome(db, request, user), log: { ...log, createdAt: toIsoDateTime(log.createdAt) }, csrfToken: csrfCookieValue(request) }));
+      return html(
+        reply,
+        renderPage('work-logs/$id/delete', {
+          ...(await pageChrome(db, request, user)),
+          log: { ...log, createdAt: toIsoDateTime(log.createdAt) },
+          csrfToken: csrfCookieValue(request),
+        }),
+      );
     });
 
-    routes.post<{ Params: { pk: string } }>('/work-logs/:pk/delete/', { bodyLimit: 8 * 1024 }, async (request, reply) => {
-      if (!csrfValid(request, options)) return notAllowed(reply);
-      const user = await currentUser(request, reply, options);
-      if (!user) return reply;
-      const logId = parseId(request.params.pk);
-      if (logId === null) return notFound(reply);
-      const log = await readOwnedLog(db, logId, user.id);
-      if (!log) return notFound(reply);
-      const attachments = await deleteWorkLog(db, logId, user.id);
-      await Promise.all(attachments.map((attachment) => removeAttachment(options.mediaRoot, attachment)));
-      return reply.redirect('/work-logs/', 302);
-    });
+    routes.post<{ Params: { pk: string } }>(
+      '/work-logs/:pk/delete/',
+      { bodyLimit: 8 * 1024 },
+      async (request, reply) => {
+        if (!csrfValid(request, options)) return notAllowed(reply);
+        const user = await currentUser(request, reply, options);
+        if (!user) return reply;
+        const logId = parseId(request.params.pk);
+        if (logId === null) return notFound(reply);
+        const log = await readOwnedLog(db, logId, user.id);
+        if (!log) return notFound(reply);
+        const attachments = await deleteWorkLog(db, logId, user.id);
+        await Promise.all(attachments.map((attachment) => removeAttachment(options.mediaRoot, attachment)));
+        return reply.redirect('/work-logs/', 302);
+      },
+    );
 
-    routes.get<{ Params: { pk: string; entryId: string } }>('/work-logs/:pk/entry/:entryId/delete/', async (request, reply) => {
-      const user = await currentUser(request, reply, options);
-      if (!user) return reply;
-      const logId = parseId(request.params.pk);
-      const entryId = parseId(request.params.entryId);
-      if (logId === null || entryId === null) return notFound(reply);
-      const log = await readOwnedLog(db, logId, user.id);
-      if (!log) return notFound(reply);
-      const entry = await readEntry(db, logId, entryId);
-      if (!entry) return notFound(reply);
-      return html(reply, renderWorkLogDelete({
-        ...await pageChrome(db, request, user),
-        log: { ...log, createdAt: toIsoDateTime(log.createdAt) },
-        entry: { ...entry, createdAt: toIsoDateTime(entry.createdAt) },
-        csrfToken: csrfCookieValue(request),
-      }));
-    });
+    routes.get<{ Params: { pk: string; entryId: string } }>(
+      '/work-logs/:pk/entry/:entryId/delete/',
+      async (request, reply) => {
+        const user = await currentUser(request, reply, options);
+        if (!user) return reply;
+        const logId = parseId(request.params.pk);
+        const entryId = parseId(request.params.entryId);
+        if (logId === null || entryId === null) return notFound(reply);
+        const log = await readOwnedLog(db, logId, user.id);
+        if (!log) return notFound(reply);
+        const entry = await readEntry(db, logId, entryId);
+        if (!entry) return notFound(reply);
+        return html(
+          reply,
+          renderPage('work-logs/$id/delete', {
+            ...(await pageChrome(db, request, user)),
+            log: { ...log, createdAt: toIsoDateTime(log.createdAt) },
+            entry: { ...entry, createdAt: toIsoDateTime(entry.createdAt) },
+            csrfToken: csrfCookieValue(request),
+          }),
+        );
+      },
+    );
 
-    routes.post<{ Params: { pk: string; entryId: string } }>('/work-logs/:pk/entry/:entryId/delete/', { bodyLimit: 8 * 1024 }, async (request, reply) => {
-      if (!csrfValid(request, options)) return notAllowed(reply);
-      const user = await currentUser(request, reply, options);
-      if (!user) return reply;
-      const logId = parseId(request.params.pk);
-      const entryId = parseId(request.params.entryId);
-      if (logId === null || entryId === null) return notFound(reply);
-      const log = await readOwnedLog(db, logId, user.id);
-      if (!log) return notFound(reply);
-      const attachment = await deleteWorkLogEntry(db, logId, entryId, user.id);
-      if (attachment === null) return notFound(reply);
-      await removeAttachment(options.mediaRoot, attachment);
-      return reply.redirect(`/work-logs/${logId}/`, 302);
-    });
+    routes.post<{ Params: { pk: string; entryId: string } }>(
+      '/work-logs/:pk/entry/:entryId/delete/',
+      { bodyLimit: 8 * 1024 },
+      async (request, reply) => {
+        if (!csrfValid(request, options)) return notAllowed(reply);
+        const user = await currentUser(request, reply, options);
+        if (!user) return reply;
+        const logId = parseId(request.params.pk);
+        const entryId = parseId(request.params.entryId);
+        if (logId === null || entryId === null) return notFound(reply);
+        const log = await readOwnedLog(db, logId, user.id);
+        if (!log) return notFound(reply);
+        const attachment = await deleteWorkLogEntry(db, logId, entryId, user.id);
+        if (attachment === null) return notFound(reply);
+        await removeAttachment(options.mediaRoot, attachment);
+        return reply.redirect(`/work-logs/${logId}/`, 302);
+      },
+    );
 
-    routes.get<{ Params: { pk: string; entryId: string } }>('/work-logs/:pk/media/:entryId/', async (request, reply) => {
-      const user = await currentUser(request, reply, options);
-      if (!user) return reply;
-      const logId = parseId(request.params.pk);
-      const entryId = parseId(request.params.entryId);
-      if (logId === null || entryId === null) return notFound(reply);
-      if (!await readOwnedLog(db, logId, user.id)) return notFound(reply);
-      const entry = await readEntry(db, logId, entryId, true);
-      if (!entry) return notFound(reply);
-      return mediaResponse(request, reply, options.mediaRoot, entry);
-    });
+    routes.get<{ Params: { pk: string; entryId: string } }>(
+      '/work-logs/:pk/media/:entryId/',
+      async (request, reply) => {
+        const user = await currentUser(request, reply, options);
+        if (!user) return reply;
+        const logId = parseId(request.params.pk);
+        const entryId = parseId(request.params.entryId);
+        if (logId === null || entryId === null) return notFound(reply);
+        if (!(await readOwnedLog(db, logId, user.id))) return notFound(reply);
+        const entry = await readEntry(db, logId, entryId, true);
+        if (!entry) return notFound(reply);
+        return mediaResponse(request, reply, options.mediaRoot, entry);
+      },
+    );
 
     routes.get<{ Params: { token: string } }>('/work-logs/share/:token/', async (request, reply) => {
       const shareToken = storedShareToken(request.params.token);
@@ -281,34 +392,42 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       ]);
       const path = sharePath(share.token);
       const shareUrl = new URL(path, options.siteUrl).href;
-      const imageUrl = image ? new URL(`/work-logs/share/${share.token}/media/${image.id}/`, options.siteUrl).href : null;
+      const imageUrl = image
+        ? new URL(`/work-logs/share/${share.token}/media/${image.id}/`, options.siteUrl).href
+        : null;
       const user = await options.currentUser(request);
-      return html(reply, renderWorkLogShared({
-        ...await pageChrome(db, request, user),
-        sharedAt: toIsoDateTime(share.createdAt),
-        log: { id: share.logId, title: share.logTitle, createdAt: toIsoDateTime(share.logCreatedAt) },
-        ownerUsername: share.ownerUsername,
-        headline: share.headline,
-        entries: entries.map((entry) => ({ ...entry, createdAt: toIsoDateTime(entry.createdAt) })),
-        cover: cover ? { ...cover, createdAt: toIsoDateTime(cover.createdAt) } : null,
-        imageUrl,
-        shareUrl,
-        timelineLinks: pageLinks(path, page, Math.max(1, Math.ceil(total / PAGE_SIZE))),
-        newLink: query.new === '1' && user?.id === share.ownerId,
-        csrfToken: '',
-        mediaUrl: (entry) => `/work-logs/share/${share.token}/media/${entry.id}/`,
-      }));
+      return html(
+        reply,
+        renderPage('work-logs/share/$token', {
+          ...(await pageChrome(db, request, user)),
+          sharedAt: toIsoDateTime(share.createdAt),
+          log: { id: share.logId, title: share.logTitle, createdAt: toIsoDateTime(share.logCreatedAt) },
+          ownerUsername: share.ownerUsername,
+          headline: share.headline,
+          entries: entries.map((entry) => ({ ...entry, createdAt: toIsoDateTime(entry.createdAt) })),
+          cover: cover ? { ...cover, createdAt: toIsoDateTime(cover.createdAt) } : null,
+          imageUrl,
+          shareUrl,
+          timelineLinks: pageLinks(path, page, Math.max(1, Math.ceil(total / PAGE_SIZE))),
+          newLink: query.new === '1' && user?.id === share.ownerId,
+          csrfToken: '',
+          mediaUrl: (entry) => `/work-logs/share/${share.token}/media/${entry.id}/`,
+        }),
+      );
     });
 
-    routes.get<{ Params: { token: string; entryId: string } }>('/work-logs/share/:token/media/:entryId/', async (request, reply) => {
-      const shareToken = storedShareToken(request.params.token);
-      if (!shareToken) return notFound(reply);
-      const share = await readShare(db, shareToken);
-      const entryId = parseId(request.params.entryId);
-      if (!share || entryId === null) return notFound(reply);
-      const entry = await pageEntryForShareMedia(db, share.id, share.logId, entryId);
-      if (!entry) return notFound(reply);
-      return mediaResponse(request, reply, options.mediaRoot, entry);
-    });
+    routes.get<{ Params: { token: string; entryId: string } }>(
+      '/work-logs/share/:token/media/:entryId/',
+      async (request, reply) => {
+        const shareToken = storedShareToken(request.params.token);
+        if (!shareToken) return notFound(reply);
+        const share = await readShare(db, shareToken);
+        const entryId = parseId(request.params.entryId);
+        if (!share || entryId === null) return notFound(reply);
+        const entry = await pageEntryForShareMedia(db, share.id, share.logId, entryId);
+        if (!entry) return notFound(reply);
+        return mediaResponse(request, reply, options.mediaRoot, entry);
+      },
+    );
   });
 }

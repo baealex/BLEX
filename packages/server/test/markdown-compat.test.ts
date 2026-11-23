@@ -5,10 +5,16 @@ import { parseDocument } from 'htmlparser2';
 import { markdownToHtml } from '../src/features/posts/authoring/markdown.js';
 import { sanitizePostHtml } from '../src/features/posts/post-html.js';
 
-interface GoldenCase { name: string; markdown: string; html: string }
+interface GoldenCase {
+  name: string;
+  markdown: string;
+  html: string;
+}
 type HtmlNode = { type: string; name?: string; data?: string; attribs?: Record<string, string>; children?: HtmlNode[] };
 
-const golden = JSON.parse(readFileSync(new URL('../../test/fixtures/markdown-3.14.golden.json', import.meta.url), 'utf8')) as { cases: GoldenCase[] };
+const golden = JSON.parse(
+  readFileSync(new URL('../../test/fixtures/markdown-3.14.golden.json', import.meta.url), 'utf8'),
+) as { cases: GoldenCase[] };
 
 // Each entry is a deliberate difference from 3.14 output.
 const knownDifferences: Record<string, string> = {
@@ -24,7 +30,7 @@ const knownDifferences: Record<string, string> = {
 };
 
 function codeText(node: HtmlNode): string {
-  return node.type === 'text' ? node.data ?? '' : (node.children ?? []).map(codeText).join('');
+  return node.type === 'text' ? (node.data ?? '') : (node.children ?? []).map(codeText).join('');
 }
 
 /** Compares document structure. Syntax highlight markup and whitespace between elements are not part of the contract. */
@@ -38,8 +44,11 @@ function canonical(html: string): string {
       return text ? [text] : [];
     }
     if (!node.name) return (node.children ?? []).flatMap(walk);
-    const attributes = Object.entries(node.attribs ?? {}).filter(([name]) => name !== 'style').sort()
-      .map(([name, value]) => ` ${name}="${value}"`).join('');
+    const attributes = Object.entries(node.attribs ?? {})
+      .filter(([name]) => name !== 'style')
+      .sort()
+      .map(([name, value]) => ` ${name}="${value}"`)
+      .join('');
     const body = (node.children ?? []).flatMap(walk);
     return node.name === 'p' && !body.length ? [] : [`<${node.name}${attributes}>`, ...body, `</${node.name}>`];
   };

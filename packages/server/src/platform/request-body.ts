@@ -58,7 +58,8 @@ export function registerBodyGuard(app: FastifyInstance, { currentUser, tokenAcco
     const { config, bodyLimit = DEFAULT_BODY_LIMIT } = request.routeOptions;
     const multipart = isMultipart(request);
     if (config?.bodyAccess === 'public' || (!multipart && bodyLimit <= DEFAULT_BODY_LIMIT)) return;
-    if (request.headers['transfer-encoding']) return refuse(reply, 411, 'Send this request with a Content-Length header.');
+    if (request.headers['transfer-encoding'])
+      return refuse(reply, 411, 'Send this request with a Content-Length header.');
     const size = Number(request.headers['content-length'] ?? 0);
     // Fastify refuses an oversized declared length itself, before reading the body.
     if (!multipart && (size <= DEFAULT_BODY_LIMIT || size > bodyLimit)) return;
@@ -91,11 +92,17 @@ export function registerBodyGuard(app: FastifyInstance, { currentUser, tokenAcco
     // An idle server always accepts one request, so a configured upload limit above a budget still works.
     const accountBytes = bufferedByAccount.get(account) ?? 0;
     const accountUploads = uploadsByAccount.get(account) ?? 0;
-    if ((multipart && accountUploads >= MAX_UPLOADS_PER_ACCOUNT)
-      || (accountBytes && accountBytes + size > MAX_BUFFERED_BYTES_PER_ACCOUNT)
-      || (buffered && buffered + size > MAX_BUFFERED_BYTES)) {
-      return reply.code(429).header('Connection', 'close').header('Retry-After', '5')
-        .type('text/plain; charset=utf-8').send('Other uploads are in progress. Try again in a moment.');
+    if (
+      (multipart && accountUploads >= MAX_UPLOADS_PER_ACCOUNT) ||
+      (accountBytes && accountBytes + size > MAX_BUFFERED_BYTES_PER_ACCOUNT) ||
+      (buffered && buffered + size > MAX_BUFFERED_BYTES)
+    ) {
+      return reply
+        .code(429)
+        .header('Connection', 'close')
+        .header('Retry-After', '5')
+        .type('text/plain; charset=utf-8')
+        .send('Other uploads are in progress. Try again in a moment.');
     }
     buffered += size;
     bufferedByAccount.set(account, accountBytes + size);

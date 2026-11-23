@@ -6,8 +6,11 @@ import { isAbsolute, relative, resolve, sep } from 'node:path';
 const privateDirectory = '_work_logs';
 
 function publicPath(parts: string[]): boolean {
-  return parts.length > 0 && parts[0] !== privateDirectory &&
-    parts.every((part) => part.length > 0 && !part.startsWith('.') && !/[\\\u0000]/.test(part));
+  return (
+    parts.length > 0 &&
+    parts[0] !== privateDirectory &&
+    parts.every((part) => part.length > 0 && !part.startsWith('.') && !/[\\\u0000]/.test(part))
+  );
 }
 
 export async function registerPublicMedia(app: FastifyInstance, mediaRoot: string) {
@@ -29,13 +32,18 @@ export async function registerPublicMedia(app: FastifyInstance, mediaRoot: strin
           return reply.code(404).send('Not found');
         }
       } catch (error) {
-        if (error instanceof Error && 'code' in error && ['ENOENT', 'ENOTDIR', 'ELOOP', 'ENAMETOOLONG'].includes(String(error.code))) {
+        if (
+          error instanceof Error &&
+          'code' in error &&
+          ['ENOENT', 'ENOTDIR', 'ELOOP', 'ENAMETOOLONG'].includes(String(error.code))
+        ) {
           return reply.code(404).send('Not found');
         }
         throw error;
       }
 
-      return reply.header('Content-Security-Policy', 'sandbox')
+      return reply
+        .header('Content-Security-Policy', 'sandbox')
         .header('X-Frame-Options', 'DENY')
         .header('X-Content-Type-Options', 'nosniff')
         .sendFile(stored);

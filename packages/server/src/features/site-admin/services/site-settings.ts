@@ -39,20 +39,29 @@ export function writeSiteSetting(db: Prisma.TransactionClient, changes: Prisma.S
 export function parseManifest(value: Prisma.JsonValue | null): { png?: Record<string, string>; ico?: string } {
   if (!isRecord(value)) return {};
   const png = isRecord(value.png)
-    ? Object.fromEntries(Object.entries(value.png).filter((entry): entry is [string, string] => typeof entry[1] === 'string'))
+    ? Object.fromEntries(
+        Object.entries(value.png).filter((entry): entry is [string, string] => typeof entry[1] === 'string'),
+      )
     : undefined;
   return { png, ico: typeof value.ico === 'string' ? value.ico : undefined };
 }
 
 async function storedMediaUrl(mediaRoot: string | undefined, storedPath: string | null): Promise<string | null> {
-  if (!mediaRoot || !storedPath || storedPath.startsWith('/') || storedPath.includes('\\') || storedPath.includes('\0')) return null;
+  if (!mediaRoot || !storedPath || storedPath.startsWith('/') || storedPath.includes('\\') || storedPath.includes('\0'))
+    return null;
   const parts = storedPath.split('/');
   if (parts.some((part) => part === '' || part === '.' || part === '..')) return null;
   try {
     const root = await realpath(mediaRoot);
     const file = await realpath(resolve(root, ...parts));
     const pathFromRoot = relative(root, file);
-    if (pathFromRoot === '..' || pathFromRoot.startsWith(`..${sep}`) || isAbsolute(pathFromRoot) || !(await stat(file)).isFile()) return null;
+    if (
+      pathFromRoot === '..' ||
+      pathFromRoot.startsWith(`..${sep}`) ||
+      isAbsolute(pathFromRoot) ||
+      !(await stat(file)).isFile()
+    )
+      return null;
     return `/resources/media/${parts.map(encodeURIComponent).join('/')}`;
   } catch {
     return null;
@@ -72,7 +81,8 @@ export async function serializeSiteSettings(
   const manifest = parseManifest(row?.iconManifest ?? null);
   const pngUrls: Record<string, string> = {};
   for (const size of ICON_PNG_SIZES) {
-    pngUrls[String(size)] = await storedMediaUrl(options.mediaRoot, manifest.png?.[String(size)] ?? null) ?? `/resources/logo${size}.png`;
+    pngUrls[String(size)] =
+      (await storedMediaUrl(options.mediaRoot, manifest.png?.[String(size)] ?? null)) ?? `/resources/logo${size}.png`;
   }
   const fallbackIcon = pngUrls['512'] ?? '/resources/logo512.png';
   return {
@@ -82,14 +92,14 @@ export async function serializeSiteSettings(
     logoSvgDarkUrl: logoDark ?? logo ?? '/resources/logow.svg',
     iconSvgUrl: icon ?? fallbackIcon,
     iconSvgDarkUrl: iconDark ?? icon ?? fallbackIcon,
-    faviconUrl: await storedMediaUrl(options.mediaRoot, manifest.ico ?? null) ?? '/resources/favicon.ico',
+    faviconUrl: (await storedMediaUrl(options.mediaRoot, manifest.ico ?? null)) ?? '/resources/favicon.ico',
     iconPngUrls: pngUrls,
     hasCustomLogo: Boolean(row?.logoSvg),
     hasCustomLogoDark: Boolean(row?.logoSvgDark),
     hasCustomIcon: Boolean(row?.iconSvg),
     hasCustomIconDark: Boolean(row?.iconSvgDark),
-    headerScript: canManageScripts ? row?.headerScript ?? '' : '',
-    footerScript: canManageScripts ? row?.footerScript ?? '' : '',
+    headerScript: canManageScripts ? (row?.headerScript ?? '') : '',
+    footerScript: canManageScripts ? (row?.footerScript ?? '') : '',
     canManageScripts,
     seoEnabled: row?.seoEnabled ?? true,
     robotsTxtExtraRules: row?.robotsTxtExtraRules ?? '',
@@ -115,7 +125,12 @@ function robotsDefault(siteUrl: URL, seoEnabled: boolean, aeoEnabled: boolean): 
     lines.push('Disallow: /llms.txt', 'Disallow: /*.md');
   }
   if (seoEnabled) lines.push(`Sitemap: ${new URL('/sitemap.xml', siteUrl).href}`);
-  else lines.push('', '# Search indexing is disabled at runtime.', '# Page responses include X-Robots-Tag and HTML robots meta noindex signals.');
+  else
+    lines.push(
+      '',
+      '# Search indexing is disabled at runtime.',
+      '# Page responses include X-Robots-Tag and HTML robots meta noindex signals.',
+    );
   return `${lines.join('\n').trim()}\n`;
 }
 
@@ -141,7 +156,8 @@ export async function updateSiteSettings(
   if ('headerScript' in input) changes.headerScript = stringValue(input.headerScript);
   if ('footerScript' in input) changes.footerScript = stringValue(input.footerScript);
   if ('seoEnabled' in input) changes.seoEnabled = input.seoEnabled === true;
-  if ('robotsTxtExtraRules' in input) changes.robotsTxtExtraRules = typeof input.robotsTxtExtraRules === 'string' ? input.robotsTxtExtraRules : '';
+  if ('robotsTxtExtraRules' in input)
+    changes.robotsTxtExtraRules = typeof input.robotsTxtExtraRules === 'string' ? input.robotsTxtExtraRules : '';
   if ('aeoEnabled' in input) changes.aeoEnabled = input.aeoEnabled === true;
 
   await db.$transaction(async (transaction) => {

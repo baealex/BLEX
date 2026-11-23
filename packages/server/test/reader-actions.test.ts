@@ -104,10 +104,13 @@ test('returns the legacy raw post-like envelope and serializes concurrent toggle
     app.inject({ method: 'POST', url: '/like/public-post', headers: signedIn }),
     app.inject({ method: 'POST', url: '/like/public-post', headers: signedIn }),
   ]);
-  assert.deepEqual(toggles.map((response) => response.json()).sort((left, right) => left.countLikes - right.countLikes), [
-    { status: 'done', countLikes: 0, hasLiked: false },
-    { status: 'done', countLikes: 1, hasLiked: true },
-  ]);
+  assert.deepEqual(
+    toggles.map((response) => response.json()).sort((left, right) => left.countLikes - right.countLikes),
+    [
+      { status: 'done', countLikes: 0, hasLiked: false },
+      { status: 'done', countLikes: 1, hasLiked: true },
+    ],
+  );
   const rows = await db.$queryRaw<Array<{ count: number | bigint }>>`
     SELECT COUNT(*) AS count FROM "PostLike" WHERE postId = 1 AND userId = 2
   `;
@@ -116,7 +119,10 @@ test('returns the legacy raw post-like envelope and serializes concurrent toggle
   assert.equal((await app.inject({ method: 'POST', url: '/like/hidden-post', headers: signedIn })).statusCode, 404);
   assert.equal((await app.inject({ method: 'POST', url: '/like/draft-post', headers: signedIn })).statusCode, 404);
   assert.equal((await app.inject({ method: 'POST', url: '/like/deleted-post', headers: signedIn })).statusCode, 404);
-  assert.equal((await app.inject({ method: 'POST', url: '/like/public-post', headers: { 'x-user-id': '2' } })).statusCode, 403);
+  assert.equal(
+    (await app.inject({ method: 'POST', url: '/like/public-post', headers: { 'x-user-id': '2' } })).statusCode,
+    403,
+  );
 });
 
 test('serves anonymous and signed-in public comments with nested permissions and sanitization', async () => {
@@ -139,7 +145,10 @@ test('serves anonymous and signed-in public comments with nested permissions and
   assert.equal(payload.body.comments[1].author, 'Ghost');
   assert.equal(payload.body.comments[1].isDeleted, true);
   assert.deepEqual(payload.body.comments[1].permissions, {
-    canEdit: false, canDelete: false, canLike: false, canReply: false,
+    canEdit: false,
+    canDelete: false,
+    canLike: false,
+    canReply: false,
   });
 
   const viewer = await app.inject({ url: '/v1/posts/public-post/comments', headers: { 'x-user-id': '2' } });
@@ -190,28 +199,48 @@ test('creates and replies to comments through form and JSON bodies with plain-te
   assert.match(json.json().body.renderedContent, /&lt;em&gt;plain text&lt;\/em&gt;/);
 
   const anonymous = await app.inject({
-    method: 'POST', url: '/v1/comments?url=public-post',
-    headers: { 'x-test-csrf': 'valid', 'content-type': 'application/json' }, payload: { commentMd: 'No user' },
+    method: 'POST',
+    url: '/v1/comments?url=public-post',
+    headers: { 'x-test-csrf': 'valid', 'content-type': 'application/json' },
+    payload: { commentMd: 'No user' },
   });
   assert.equal(anonymous.json().errorCode, 'error:AT');
   const crossPostReply = await app.inject({
-    method: 'POST', url: '/v1/comments?url=public-post',
-    headers: { ...signedIn, 'content-type': 'application/json' }, payload: { commentMd: 'wrong parent', parentId: '14' },
+    method: 'POST',
+    url: '/v1/comments?url=public-post',
+    headers: { ...signedIn, 'content-type': 'application/json' },
+    payload: { commentMd: 'wrong parent', parentId: '14' },
   });
   assert.equal(crossPostReply.json().errorCode, 'error:RJ');
   const blocked = await app.inject({
-    method: 'POST', url: '/v1/comments?url=blocked-comments',
-    headers: { ...signedIn, 'content-type': 'application/json' }, payload: { commentMd: 'blocked' },
+    method: 'POST',
+    url: '/v1/comments?url=blocked-comments',
+    headers: { ...signedIn, 'content-type': 'application/json' },
+    payload: { commentMd: 'blocked' },
   });
   assert.equal(blocked.json().errorCode, 'error:RJ');
-  assert.equal((await app.inject({
-    method: 'POST', url: '/v1/comments?url=hidden-post',
-    headers: { ...signedIn, 'content-type': 'application/json' }, payload: { commentMd: 'private' },
-  })).statusCode, 404);
-  assert.equal((await app.inject({
-    method: 'POST', url: '/v1/comments?url=public-post',
-    headers: { 'x-user-id': '2', 'content-type': 'application/json' }, payload: { commentMd: 'missing CSRF' },
-  })).statusCode, 403);
+  assert.equal(
+    (
+      await app.inject({
+        method: 'POST',
+        url: '/v1/comments?url=hidden-post',
+        headers: { ...signedIn, 'content-type': 'application/json' },
+        payload: { commentMd: 'private' },
+      })
+    ).statusCode,
+    404,
+  );
+  assert.equal(
+    (
+      await app.inject({
+        method: 'POST',
+        url: '/v1/comments?url=public-post',
+        headers: { 'x-user-id': '2', 'content-type': 'application/json' },
+        payload: { commentMd: 'missing CSRF' },
+      })
+    ).statusCode,
+    403,
+  );
 });
 
 test('gets, edits, likes and soft-deletes comments with owner checks', async () => {
@@ -223,7 +252,8 @@ test('gets, edits, likes and soft-deletes comments with owner checks', async () 
   assert.equal((await app.inject({ url: '/v1/comments/13', headers: { 'x-user-id': '2' } })).statusCode, 404);
 
   const edit = await app.inject({
-    method: 'PUT', url: '/v1/comments/11',
+    method: 'PUT',
+    url: '/v1/comments/11',
     headers: { ...signedIn, 'content-type': 'application/x-www-form-urlencoded' },
     payload: 'comment=comment&commentMd=first%0A%3Cscript%3Ebad()%3C%2Fscript%3E',
   });
@@ -235,32 +265,45 @@ test('gets, edits, likes and soft-deletes comments with owner checks', async () 
   assert.equal(changed[0]?.textMd, 'first\n<script>bad()</script>');
   assert.equal(changed[0]?.textHtml, '<p>first<br>&lt;script&gt;bad()&lt;/script&gt;</p>');
   assert.equal(Number(changed[0]?.edited), 1);
-  const formEdit = await app.inject({ method: 'POST', url: '/v1/comments/11',
+  const formEdit = await app.inject({
+    method: 'POST',
+    url: '/v1/comments/11',
     headers: { ...signedIn, 'content-type': 'application/x-www-form-urlencoded' },
     payload: 'action=edit&commentMd=Edited+from+the+article&returnTo=%2F%40editor%2Fpublic',
   });
   assert.equal(formEdit.statusCode, 303);
   assert.equal(formEdit.headers.location, '/@editor/public#comment-11');
-  assert.equal((await app.inject({ url: '/v1/comments/11', headers: { 'x-user-id': '2' } })).json().body.textMd, 'Edited from the article');
+  assert.equal(
+    (await app.inject({ url: '/v1/comments/11', headers: { 'x-user-id': '2' } })).json().body.textMd,
+    'Edited from the article',
+  );
 
   const like = await app.inject({
-    method: 'PUT', url: '/v1/comments/10',
-    headers: { ...signedIn, 'content-type': 'application/x-www-form-urlencoded' }, payload: 'like=like',
+    method: 'PUT',
+    url: '/v1/comments/10',
+    headers: { ...signedIn, 'content-type': 'application/x-www-form-urlencoded' },
+    payload: 'like=like',
   });
   assert.deepEqual(like.json().body, { isLiked: true, countLikes: 1 });
   const unlike = await app.inject({
-    method: 'PUT', url: '/v1/comments/10',
-    headers: { ...signedIn, 'content-type': 'application/x-www-form-urlencoded' }, payload: 'like=like',
+    method: 'PUT',
+    url: '/v1/comments/10',
+    headers: { ...signedIn, 'content-type': 'application/x-www-form-urlencoded' },
+    payload: 'like=like',
   });
   assert.deepEqual(unlike.json().body, { isLiked: false, countLikes: 0 });
   const concurrentLikes = await Promise.all([
     app.inject({
-      method: 'PUT', url: '/v1/comments/10',
-      headers: { ...signedIn, 'content-type': 'application/x-www-form-urlencoded' }, payload: 'like=like',
+      method: 'PUT',
+      url: '/v1/comments/10',
+      headers: { ...signedIn, 'content-type': 'application/x-www-form-urlencoded' },
+      payload: 'like=like',
     }),
     app.inject({
-      method: 'PUT', url: '/v1/comments/10',
-      headers: { ...signedIn, 'content-type': 'application/x-www-form-urlencoded' }, payload: 'like=like',
+      method: 'PUT',
+      url: '/v1/comments/10',
+      headers: { ...signedIn, 'content-type': 'application/x-www-form-urlencoded' },
+      payload: 'like=like',
     }),
   ]);
   assert.deepEqual(concurrentLikes.map((response) => response.json().body.countLikes).sort(), [0, 1]);
@@ -269,13 +312,17 @@ test('gets, edits, likes and soft-deletes comments with owner checks', async () 
   `;
   assert.equal(Number(finalLikes[0]?.count), 0);
   const selfLike = await app.inject({
-    method: 'PUT', url: '/v1/comments/11',
-    headers: { 'x-user-id': '2', 'x-test-csrf': 'valid', 'content-type': 'application/x-www-form-urlencoded' }, payload: 'like=like',
+    method: 'PUT',
+    url: '/v1/comments/11',
+    headers: { 'x-user-id': '2', 'x-test-csrf': 'valid', 'content-type': 'application/x-www-form-urlencoded' },
+    payload: 'like=like',
   });
   assert.equal(selfLike.json().errorCode, 'error:AT');
   const anonymousLike = await app.inject({
-    method: 'PUT', url: '/v1/comments/10',
-    headers: { 'x-test-csrf': 'valid', 'content-type': 'application/x-www-form-urlencoded' }, payload: 'like=like',
+    method: 'PUT',
+    url: '/v1/comments/10',
+    headers: { 'x-test-csrf': 'valid', 'content-type': 'application/x-www-form-urlencoded' },
+    payload: 'like=like',
   });
   assert.equal(anonymousLike.json().errorCode, 'error:NL');
 
@@ -283,7 +330,10 @@ test('gets, edits, likes and soft-deletes comments with owner checks', async () 
   assert.equal(deleted.statusCode, 200, deleted.body);
   assert.equal(deleted.json().body.isDeleted, true);
   assert.deepEqual(deleted.json().body.permissions, {
-    canEdit: false, canDelete: false, canLike: false, canReply: false,
+    canEdit: false,
+    canDelete: false,
+    canLike: false,
+    canReply: false,
   });
   const persisted = await db.$queryRaw<Array<{ authorId: number | null }>>`
     SELECT authorId FROM "Comment" WHERE id = 11
@@ -293,8 +343,10 @@ test('gets, edits, likes and soft-deletes comments with owner checks', async () 
   assert.equal(wrongOwnerDelete.json().errorCode, 'error:AT');
 
   const malformedJson = await app.inject({
-    method: 'PUT', url: '/v1/comments/10',
-    headers: { ...signedIn, 'content-type': 'application/json' }, payload: '[]',
+    method: 'PUT',
+    url: '/v1/comments/10',
+    headers: { ...signedIn, 'content-type': 'application/json' },
+    payload: '[]',
   });
   assert.equal(malformedJson.statusCode, 404);
 });
@@ -311,7 +363,8 @@ test('keeps subscriptions idempotent, logs only state changes, and reports accou
   assert.ok(subscribed.every((response) => response.json().body.isSubscribed === true));
   assert.ok(subscribed.every((response) => response.json().body.suggestTelegramConnection === false));
   const unconnected = await app.inject({
-    method: 'POST', url: '/v1/users/@writer/subscription',
+    method: 'POST',
+    url: '/v1/users/@writer/subscription',
     headers: { 'x-user-id': '5', 'x-test-csrf': 'valid' },
   });
   assert.equal(unconnected.json().body.suggestTelegramConnection, true);
@@ -343,19 +396,34 @@ test('keeps subscriptions idempotent, logs only state changes, and reports accou
   const logRows = await db.$queryRaw<Array<{ action: string }>>`
     SELECT action FROM "AuthorSubscriptionLog" WHERE subscriberId = 2 AND authorId = 1 ORDER BY id
   `;
-  assert.deepEqual(logRows.map((row) => row.action), ['subscribe', 'unsubscribe']);
+  assert.deepEqual(
+    logRows.map((row) => row.action),
+    ['subscribe', 'unsubscribe'],
+  );
   assert.equal((await app.inject('/v1/subscriptions')).json().errorCode, 'error:NL');
 });
 
 test('rejects self, reader and unknown subscriptions while preserving public state lookup', async () => {
-  const self = await app.inject({ method: 'POST', url: '/v1/users/@writer/subscription', headers: { 'x-user-id': '1', 'x-test-csrf': 'valid' } });
+  const self = await app.inject({
+    method: 'POST',
+    url: '/v1/users/@writer/subscription',
+    headers: { 'x-user-id': '1', 'x-test-csrf': 'valid' },
+  });
   assert.equal(self.json().errorCode, 'error:RJ');
   const reader = await app.inject({ method: 'POST', url: '/v1/users/@reader/subscription', headers: { ...signedIn } });
   assert.equal(reader.json().errorCode, 'error:RJ');
   assert.equal((await app.inject('/v1/users/@inactive/subscription')).json().body.canSubscribe, false);
   assert.equal((await app.inject('/v1/users/@missing/subscription')).statusCode, 404);
-  const anonymousPost = await app.inject({ method: 'POST', url: '/v1/users/@writer/subscription', headers: { 'x-test-csrf': 'valid' } });
+  const anonymousPost = await app.inject({
+    method: 'POST',
+    url: '/v1/users/@writer/subscription',
+    headers: { 'x-test-csrf': 'valid' },
+  });
   assert.equal(anonymousPost.json().errorCode, 'error:NL');
-  const noCsrf = await app.inject({ method: 'DELETE', url: '/v1/users/@writer/subscription', headers: { 'x-user-id': '2' } });
+  const noCsrf = await app.inject({
+    method: 'DELETE',
+    url: '/v1/users/@writer/subscription',
+    headers: { 'x-user-id': '2' },
+  });
   assert.equal(noCsrf.statusCode, 403);
 });

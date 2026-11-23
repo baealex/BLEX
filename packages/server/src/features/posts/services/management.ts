@@ -21,7 +21,10 @@ export function managementDate(value: DbDate, scheduled = false): string {
   if (!iso) return '';
   const date = new Date(iso);
   return new Intl.DateTimeFormat('ko-KR', {
-    timeZone: 'Asia/Seoul', year: 'numeric', month: 'long', day: 'numeric',
+    timeZone: 'Asia/Seoul',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
     ...(scheduled ? { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' as const } : {}),
   }).format(date);
 }
@@ -41,7 +44,13 @@ export async function getManagedPosts(
   query: Record<string, unknown>,
   scheduled: boolean,
   legacyApi = false,
-): Promise<{ posts: Array<Record<string, unknown>>; username: string; page: number; lastPage: number; totalCount: number }> {
+): Promise<{
+  posts: Array<Record<string, unknown>>;
+  username: string;
+  page: number;
+  lastPage: number;
+  totalCount: number;
+}> {
   const page = managementPage(query.page);
   const now = new Date();
   const tag = field(query.tag);
@@ -69,7 +78,13 @@ export async function getManagedPosts(
     skip: (page - 1) * 10,
     take: 10,
     select: {
-      slug: true, title: true, image: true, publishedAt: true, updatedAt: true, isHidden: true, readTime: true,
+      slug: true,
+      title: true,
+      image: true,
+      publishedAt: true,
+      updatedAt: true,
+      isHidden: true,
+      readTime: true,
       series: { select: { slug: true } },
       tags: { orderBy: { id: 'asc' }, select: { name: true } },
       _count: { select: { likes: true, comments: true } },
@@ -85,7 +100,9 @@ export async function getManagedPosts(
       title: post.title,
       image: legacyApi ? post.image || null : mediaUrl(post.image),
       createdDate: legacyApi
-        ? scheduled ? localDateTimeText(post.publishedAt) : localDate(post.publishedAt)
+        ? scheduled
+          ? localDateTimeText(post.publishedAt)
+          : localDate(post.publishedAt)
         : managementDate(post.publishedAt, scheduled),
       updatedDate: legacyApi ? localDate(post.updatedAt) : managementDate(post.updatedAt),
       isHide: post.isHidden,
@@ -99,13 +116,26 @@ export async function getManagedPosts(
 }
 
 const trashedPostSelect = {
-  id: true, slug: true, title: true, image: true, publishedAt: true, updatedAt: true, deletedAt: true, isHidden: true,
+  id: true,
+  slug: true,
+  title: true,
+  image: true,
+  publishedAt: true,
+  updatedAt: true,
+  deletedAt: true,
+  isHidden: true,
 } satisfies Prisma.PostSelect;
 
 function trashedPost(row: Prisma.PostGetPayload<{ select: typeof trashedPostSelect }>): TrashedPostRow {
   return {
-    id: row.id, url: row.slug, title: row.title, image: row.image, publishedDate: row.publishedAt,
-    updatedDate: row.updatedAt, deletedDate: row.deletedAt!, hide: row.isHidden,
+    id: row.id,
+    url: row.slug,
+    title: row.title,
+    image: row.image,
+    publishedDate: row.publishedAt,
+    updatedDate: row.updatedAt,
+    deletedDate: row.deletedAt!,
+    hide: row.isHidden,
   };
 }
 
@@ -113,7 +143,11 @@ export async function getTrashRows(
   db: PrismaClient,
   author: UserRow,
   page: number,
-): Promise<{ posts: Array<Record<string, unknown>>; pagination: { page: number; totalCount: number; lastPage: number }; retention: { mode: 'manual' } }> {
+): Promise<{
+  posts: Array<Record<string, unknown>>;
+  pagination: { page: number; totalCount: number; lastPage: number };
+  retention: { mode: 'manual' };
+}> {
   const where = { authorId: author.id, deletedAt: { not: null } } satisfies Prisma.PostWhereInput;
   const totalCount = await db.post.count({ where });
   const lastPage = Math.max(1, Math.ceil(totalCount / 10));
@@ -130,7 +164,9 @@ export async function getTrashRows(
     posts: rows.map(trashedPost).map((post) => {
       const sourceStatus = !post.publishedDate
         ? 'draft'
-        : post.publishedDate > post.deletedDate ? 'scheduled' : 'published';
+        : post.publishedDate > post.deletedDate
+          ? 'scheduled'
+          : 'published';
       const scheduleElapsed = sourceStatus === 'scheduled' && post.publishedDate! <= now;
       return {
         url: post.url,
@@ -192,10 +228,13 @@ export async function permanentlyDeleteTrashedPost(
   if (comparableDate(deletedDate) !== comparableDate(expectedDeletedDate)) {
     throw new PostValidationError('RJ', 'The trash state changed. Refresh the list and try again.');
   }
-  await db.$transaction(async (tx) => {
-    if (!await deleteTrashedPost(tx, post.id, author.id, deletedDate)) {
-      throw new PostValidationError('RJ', 'The trash state changed. Refresh the list and try again.');
-    }
-  }, { timeout: 15_000, isolationLevel: 'Serializable' });
+  await db.$transaction(
+    async (tx) => {
+      if (!(await deleteTrashedPost(tx, post.id, author.id, deletedDate))) {
+        throw new PostValidationError('RJ', 'The trash state changed. Refresh the list and try again.');
+      }
+    },
+    { timeout: 15_000, isolationLevel: 'Serializable' },
+  );
   return post.id;
 }

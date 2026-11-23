@@ -35,8 +35,8 @@ jobs:
           pnpm i18n:check
           pnpm lint
           pnpm type-check
-          pnpm test:web
-          pnpm build:web
+          pnpm test:client
+          pnpm build:client
           pnpm check:entry-budgets
 
   container:
@@ -47,8 +47,8 @@ jobs:
         with:
           node-version: '24.22.1'
       - run: npm install --global pnpm@11.17.0
-      - run: pnpm install --frozen-lockfile --filter @blex/web
-      - run: pnpm --filter @blex/web exec playwright install --with-deps --only-shell chromium
+      - run: pnpm install --frozen-lockfile --filter @blex/client
+      - run: pnpm --filter @blex/client exec playwright install --with-deps --only-shell chromium
       - name: Build the runtime image
         run: docker build --pull --tag blex:ci .
 

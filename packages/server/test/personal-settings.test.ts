@@ -67,9 +67,11 @@ registerPersonalSettings(app, db, {
   },
   validateCsrf: (request) => {
     const body = request.body as Record<string, unknown> | undefined;
-    return request.headers.origin === 'https://blog.example'
-      && request.headers.cookie?.includes(`csrftoken=${csrfToken}`) === true
-      && (request.headers['x-csrftoken'] === csrfToken || body?.csrfmiddlewaretoken === csrfToken);
+    return (
+      request.headers.origin === 'https://blog.example' &&
+      request.headers.cookie?.includes(`csrftoken=${csrfToken}`) === true &&
+      (request.headers['x-csrftoken'] === csrfToken || body?.csrfmiddlewaretoken === csrfToken)
+    );
   },
   updatePassword: async (_request, _reply, _user, payload) => {
     delegatedPayload = payload;
@@ -94,11 +96,13 @@ beforeEach(async () => {
 function headers(userId?: number, csrf = true) {
   return {
     ...(userId === undefined ? {} : { 'x-test-user': String(userId) }),
-    ...(csrf ? {
-      cookie: `csrftoken=${csrfToken}`,
-      origin: 'https://blog.example',
-      'x-csrftoken': csrfToken,
-    } : {}),
+    ...(csrf
+      ? {
+          cookie: `csrftoken=${csrfToken}`,
+          origin: 'https://blog.example',
+          'x-csrftoken': csrfToken,
+        }
+      : {}),
   };
 }
 
@@ -110,7 +114,11 @@ function multipart(fields: Array<{ name: string; value: string | Buffer; filenam
   const boundary = 'blex-synthetic-profile-boundary';
   const pieces: Buffer[] = [];
   for (const field of fields) {
-    pieces.push(Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="${field.name}"${field.filename ? `; filename="${field.filename}"` : ''}\r\n${field.contentType ? `Content-Type: ${field.contentType}\r\n` : ''}\r\n`));
+    pieces.push(
+      Buffer.from(
+        `--${boundary}\r\nContent-Disposition: form-data; name="${field.name}"${field.filename ? `; filename="${field.filename}"` : ''}\r\n${field.contentType ? `Content-Type: ${field.contentType}\r\n` : ''}\r\n`,
+      ),
+    );
     pieces.push(Buffer.isBuffer(field.value) ? field.value : Buffer.from(field.value));
     pieces.push(Buffer.from('\r\n'));
   }
@@ -145,7 +153,9 @@ test('reads and updates account name and regional preferences using the legacy e
   assert.ok(account.body.regionalPreferences.timeZones.includes('UTC'));
 
   const name = await app.inject({
-    method: 'PUT', url: '/v1/setting/account', headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
+    method: 'PUT',
+    url: '/v1/setting/account',
+    headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
     payload: form([['name', 'Updated Name']]),
   });
   assert.deepEqual(name.json(), { status: 'DONE', body: {} });
@@ -153,13 +163,17 @@ test('reads and updates account name and regional preferences using the legacy e
   assert.equal(updatedUser.name, 'Updated Name');
 
   const tooLongName = await app.inject({
-    method: 'PUT', url: '/v1/setting/account', headers: { ...headers(1), 'content-type': 'application/json' },
+    method: 'PUT',
+    url: '/v1/setting/account',
+    headers: { ...headers(1), 'content-type': 'application/json' },
     payload: { name: 'x'.repeat(31) },
   });
   assert.equal(tooLongName.json().errorCode, 'error:VA');
 
   const regional = await app.inject({
-    method: 'PUT', url: '/v1/setting/regional-preferences', headers: { ...headers(1), 'content-type': 'application/json' },
+    method: 'PUT',
+    url: '/v1/setting/regional-preferences',
+    headers: { ...headers(1), 'content-type': 'application/json' },
     payload: { language: 'ko', timeZone: 'UTC' },
   });
   assert.deepEqual(regional.json(), { status: 'DONE', body: {} });
@@ -168,19 +182,26 @@ test('reads and updates account name and regional preferences using the legacy e
   assert.equal(regionalRead.json().body.regionalPreferences.timeZone, 'UTC');
 
   const invalidRegional = await app.inject({
-    method: 'PUT', url: '/v1/setting/regional-preferences', headers: { ...headers(1), 'content-type': 'application/json' },
+    method: 'PUT',
+    url: '/v1/setting/regional-preferences',
+    headers: { ...headers(1), 'content-type': 'application/json' },
     payload: { language: 'not-supported', timeZone: 'Nowhere/Nozone' },
   });
   assert.equal(invalidRegional.json().errorCode, 'error:VA');
   assert.equal(invalidRegional.json().messageKey, 'settings.regional_preferences.invalid_language');
 
   const denied = await app.inject({
-    method: 'PUT', url: '/v1/setting/account', headers: headers(1, false), payload: { name: 'No CSRF' },
+    method: 'PUT',
+    url: '/v1/setting/account',
+    headers: headers(1, false),
+    payload: { name: 'No CSRF' },
   });
   assert.equal(denied.statusCode, 403);
 
   const browserLanguage = await app.inject({
-    method: 'PUT', url: '/v1/setting/regional-preferences', headers: { ...headers(1), 'content-type': 'application/json' },
+    method: 'PUT',
+    url: '/v1/setting/regional-preferences',
+    headers: { ...headers(1), 'content-type': 'application/json' },
     payload: { language: null, timeZone: 'Asia/Seoul' },
   });
   assert.deepEqual(browserLanguage.json(), { status: 'DONE', body: {} });
@@ -192,26 +213,39 @@ test('reads and updates account name and regional preferences using the legacy e
 
 test('delegates password-bearing account changes to the injected reauthentication handler', async () => {
   const response = await app.inject({
-    method: 'PUT', url: '/v1/setting/account', headers: { ...headers(1), 'content-type': 'application/json' },
+    method: 'PUT',
+    url: '/v1/setting/account',
+    headers: { ...headers(1), 'content-type': 'application/json' },
     payload: { username: 'newname', name: 'New Name', password: 'NewPassword123!' },
   });
   assert.deepEqual(response.json(), { status: 'DONE', body: { delegated: true } });
   assert.deepEqual(delegatedPayload, { username: 'newname', name: 'New Name', password: 'NewPassword123!' });
-  const [user] = await db.$queryRaw<Array<{ username: string; name: string }>>`SELECT username, name FROM "User" WHERE id = 1`;
+  const [user] = await db.$queryRaw<
+    Array<{ username: string; name: string }>
+  >`SELECT username, name FROM "User" WHERE id = 1`;
   assert.deepEqual(user, { username: 'writer', name: 'Writer Name' });
 });
 
 test('updates profile safely through the API', async () => {
   const unsafe = await app.inject({
-    method: 'PUT', url: '/v1/setting/profile', headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
-    payload: form([['bio', 'Should not persist'], ['homepage', 'javascript:alert(1)']]),
+    method: 'PUT',
+    url: '/v1/setting/profile',
+    headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
+    payload: form([
+      ['bio', 'Should not persist'],
+      ['homepage', 'javascript:alert(1)'],
+    ]),
   });
   assert.equal(unsafe.json().errorCode, 'error:VA');
-  const [unchanged] = await db.$queryRaw<Array<{ bio: string; homepage: string }>>`SELECT bio, homepage FROM "Profile" WHERE userId = 1`;
+  const [unchanged] = await db.$queryRaw<
+    Array<{ bio: string; homepage: string }>
+  >`SELECT bio, homepage FROM "Profile" WHERE userId = 1`;
   assert.deepEqual(unchanged, { bio: 'Writer bio', homepage: 'https://writer.example' });
 
   const updated = await app.inject({
-    method: 'PUT', url: '/v1/setting/profile', headers: { ...headers(1), 'content-type': 'application/json' },
+    method: 'PUT',
+    url: '/v1/setting/profile',
+    headers: { ...headers(1), 'content-type': 'application/json' },
     payload: { bio: 'Updated bio', homepage: 'https://example.test/profile' },
   });
   assert.deepEqual(updated.json(), { status: 'DONE', body: {} });
@@ -225,9 +259,13 @@ test('applies legacy social-link create, update, order and delete without crossi
   const read = await app.inject({ url: '/v1/setting/profile', headers: headers(1) });
   assert.deepEqual(read.json().body.social, [{ id: 1, name: 'github', value: 'https://github.com/writer', order: 1 }]);
 
-  const [linkBefore] = await db.$queryRaw<Array<{ updatedDate: string }>>`SELECT CAST(updatedAt AS TEXT) AS updatedDate FROM "SocialLink" WHERE id = 1`;
+  const [linkBefore] = await db.$queryRaw<
+    Array<{ updatedDate: string }>
+  >`SELECT CAST(updatedAt AS TEXT) AS updatedDate FROM "SocialLink" WHERE id = 1`;
   const updated = await app.inject({
-    method: 'PUT', url: '/v1/setting/social', headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
+    method: 'PUT',
+    url: '/v1/setting/social',
+    headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
     payload: form([
       ['update', '1,github,https://github.com/updated,3'],
       ['create', 'threads,https://threads.example/writer,1'],
@@ -235,55 +273,87 @@ test('applies legacy social-link create, update, order and delete without crossi
     ]),
   });
   assert.equal(updated.json().status, 'DONE');
-  assert.deepEqual(updated.json().body.map((link: { name: string }) => link.name), ['threads', 'github']);
-  const [ownLink] = await db.$queryRaw<Array<{ value: string; order: number }>>`SELECT url AS value, "order" AS "order" FROM "SocialLink" WHERE id = 1`;
+  assert.deepEqual(
+    updated.json().body.map((link: { name: string }) => link.name),
+    ['threads', 'github'],
+  );
+  const [ownLink] = await db.$queryRaw<
+    Array<{ value: string; order: number }>
+  >`SELECT url AS value, "order" AS "order" FROM "SocialLink" WHERE id = 1`;
   assert.deepEqual(ownLink, { value: 'https://github.com/updated', order: 3 });
-  const [linkAfter] = await db.$queryRaw<Array<{ updatedDate: string }>>`SELECT CAST(updatedAt AS TEXT) AS updatedDate FROM "SocialLink" WHERE id = 1`;
+  const [linkAfter] = await db.$queryRaw<
+    Array<{ updatedDate: string }>
+  >`SELECT CAST(updatedAt AS TEXT) AS updatedDate FROM "SocialLink" WHERE id = 1`;
   assert.equal(linkAfter.updatedDate, linkBefore.updatedDate);
-  const [privateLink] = await db.$queryRaw<Array<{ value: string }>>`SELECT url AS value FROM "SocialLink" WHERE id = 3`;
+  const [privateLink] = await db.$queryRaw<
+    Array<{ value: string }>
+  >`SELECT url AS value FROM "SocialLink" WHERE id = 3`;
   assert.equal(privateLink.value, 'https://github.com/other');
 
   const crossUserUpdate = await app.inject({
-    method: 'PUT', url: '/v1/setting/social', headers: { ...headers(1), 'content-type': 'application/json' },
+    method: 'PUT',
+    url: '/v1/setting/social',
+    headers: { ...headers(1), 'content-type': 'application/json' },
     payload: { update: '3,github,https://attacker.example,1', create: '', delete: '' },
   });
   assert.equal(crossUserUpdate.json().errorCode, 'error:VA');
-  const [stillPrivate] = await db.$queryRaw<Array<{ value: string }>>`SELECT url AS value FROM "SocialLink" WHERE id = 3`;
+  const [stillPrivate] = await db.$queryRaw<
+    Array<{ value: string }>
+  >`SELECT url AS value FROM "SocialLink" WHERE id = 3`;
   assert.equal(stillPrivate.value, 'https://github.com/other');
 
   const badSeparator = await app.inject({
-    method: 'PUT', url: '/v1/setting/social', headers: { ...headers(1), 'content-type': 'application/json' },
+    method: 'PUT',
+    url: '/v1/setting/social',
+    headers: { ...headers(1), 'content-type': 'application/json' },
     payload: { update: '', create: 'github,https://example.test/a&b,2', delete: '' },
   });
   assert.equal(badSeparator.json().errorCode, 'error:VA');
 
   const removed = await app.inject({
-    method: 'PUT', url: '/v1/setting/social', headers: { ...headers(1), 'content-type': 'application/json' },
+    method: 'PUT',
+    url: '/v1/setting/social',
+    headers: { ...headers(1), 'content-type': 'application/json' },
     payload: { update: '', create: '', delete: '1' },
   });
   assert.equal(removed.json().status, 'DONE', removed.body);
   const afterDelete = await app.inject({ url: '/v1/setting/profile', headers: headers(1) });
-  assert.deepEqual(afterDelete.json().body.social, [{ id: 4, name: 'threads', value: 'https://threads.example/writer', order: 1 }]);
+  assert.deepEqual(afterDelete.json().body.social, [
+    { id: 4, name: 'threads', value: 'https://threads.example/writer', order: 1 },
+  ]);
 });
 
 test('stores bounded profile images atomically under the owner media directory', async () => {
-  const image = await sharp({ create: { width: 80, height: 40, channels: 3, background: { r: 18, g: 90, b: 170 } } }).png().toBuffer();
+  const image = await sharp({ create: { width: 80, height: 40, channels: 3, background: { r: 18, g: 90, b: 170 } } })
+    .png()
+    .toBuffer();
   for (const kind of ['avatar', 'cover'] as const) {
     const request = multipart([
       { name: 'csrfmiddlewaretoken', value: csrfToken },
       { name: kind, filename: 'client-controlled-name.png', contentType: 'image/png', value: image },
     ]);
     const response = await app.inject({
-      method: 'POST', url: `/v1/setting/${kind}`,
+      method: 'POST',
+      url: `/v1/setting/${kind}`,
       headers: { ...headers(1), 'content-type': request.contentType },
       payload: request.payload,
     });
     assert.deepEqual(response.json().status, 'DONE');
-    assert.match(response.json().body.url, new RegExp(`^/resources/media/images/avatar/[a-f0-9]{2}/writer/${kind === 'avatar' ? 'a' : 'c'}[a-f0-9]{32}\\.png$`));
+    assert.match(
+      response.json().body.url,
+      new RegExp(
+        `^/resources/media/images/avatar/[a-f0-9]{2}/writer/${kind === 'avatar' ? 'a' : 'c'}[a-f0-9]{32}\\.png$`,
+      ),
+    );
 
-    const [profile] = await db.$queryRaw<Array<{ avatar: string; cover: string }>>`SELECT avatar, cover FROM "Profile" WHERE userId = 1`;
+    const [profile] = await db.$queryRaw<
+      Array<{ avatar: string; cover: string }>
+    >`SELECT avatar, cover FROM "Profile" WHERE userId = 1`;
     const savedPath = kind === 'avatar' ? profile.avatar : profile.cover;
-    assert.match(savedPath, new RegExp(`^images/avatar/[a-f0-9]{2}/writer/${kind === 'avatar' ? 'a' : 'c'}[a-f0-9]{32}\\.png$`));
+    assert.match(
+      savedPath,
+      new RegExp(`^images/avatar/[a-f0-9]{2}/writer/${kind === 'avatar' ? 'a' : 'c'}[a-f0-9]{32}\\.png$`),
+    );
     const bytes = await readFile(join(mediaRoot, ...savedPath.split('/')));
     const metadata = await sharp(bytes).metadata();
     assert.equal(metadata.format, 'png');
@@ -291,11 +361,16 @@ test('stores bounded profile images atomically under the owner media directory',
     assert.equal(metadata.height, 40);
   }
 
-  const filesBeforeFailedSave = await readdir(join(mediaRoot, ...legacyImagePath('writer', 'avatar', 'probe.png').split('/').slice(0, -1)));
+  const filesBeforeFailedSave = await readdir(
+    join(mediaRoot, ...legacyImagePath('writer', 'avatar', 'probe.png').split('/').slice(0, -1)),
+  );
   await db.$executeRaw`DELETE FROM "Profile" WHERE userId = 1`;
   const failedUpload = multipart([{ name: 'avatar', filename: 'avatar.png', contentType: 'image/png', value: image }]);
   const failed = await app.inject({
-    method: 'POST', url: '/v1/setting/avatar', headers: { ...headers(1), 'content-type': failedUpload.contentType }, payload: failedUpload.payload,
+    method: 'POST',
+    url: '/v1/setting/avatar',
+    headers: { ...headers(1), 'content-type': failedUpload.contentType },
+    payload: failedUpload.payload,
   });
   assert.equal(failed.statusCode, 500);
   const ownedDirectory = join(mediaRoot, ...legacyImagePath('writer', 'avatar', 'probe.png').split('/').slice(0, -1));
@@ -303,28 +378,47 @@ test('stores bounded profile images atomically under the owner media directory',
 });
 
 test('rejects invalid, oversized-dimension, and CSRF-free profile image uploads', async () => {
-  const smallImage = await sharp({ create: { width: 16, height: 16, channels: 3, background: 'red' } }).png().toBuffer();
+  const smallImage = await sharp({ create: { width: 16, height: 16, channels: 3, background: 'red' } })
+    .png()
+    .toBuffer();
   const oversizedDimensions = Buffer.from(smallImage);
   oversizedDimensions.writeUInt32BE(4001, 16);
   oversizedDimensions.writeUInt32BE(4001, 20);
-  for (const bytes of [Buffer.from('not an image'), Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"></svg>'), oversizedDimensions]) {
+  for (const bytes of [
+    Buffer.from('not an image'),
+    Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"></svg>'),
+    oversizedDimensions,
+  ]) {
     const request = multipart([{ name: 'avatar', filename: 'profile.png', contentType: 'image/png', value: bytes }]);
     const response = await app.inject({
-      method: 'POST', url: '/v1/setting/avatar', headers: { ...headers(1), 'content-type': request.contentType }, payload: request.payload,
+      method: 'POST',
+      url: '/v1/setting/avatar',
+      headers: { ...headers(1), 'content-type': request.contentType },
+      payload: request.payload,
     });
     assert.equal(response.statusCode, 200);
     assert.equal(response.json().errorCode, 'error:VA');
   }
 
-  const tooLargeRequest = multipart([{ name: 'avatar', filename: 'profile.png', contentType: 'image/png', value: Buffer.alloc(10 * 1024 * 1024 + 1) }]);
+  const tooLargeRequest = multipart([
+    { name: 'avatar', filename: 'profile.png', contentType: 'image/png', value: Buffer.alloc(10 * 1024 * 1024 + 1) },
+  ]);
   const tooLarge = await app.inject({
-    method: 'POST', url: '/v1/setting/avatar', headers: { ...headers(1), 'content-type': tooLargeRequest.contentType }, payload: tooLargeRequest.payload,
+    method: 'POST',
+    url: '/v1/setting/avatar',
+    headers: { ...headers(1), 'content-type': tooLargeRequest.contentType },
+    payload: tooLargeRequest.payload,
   });
   assert.equal(tooLarge.statusCode, 413);
 
-  const noCsrfRequest = multipart([{ name: 'avatar', filename: 'profile.png', contentType: 'image/png', value: smallImage }]);
+  const noCsrfRequest = multipart([
+    { name: 'avatar', filename: 'profile.png', contentType: 'image/png', value: smallImage },
+  ]);
   const noCsrf = await app.inject({
-    method: 'POST', url: '/v1/setting/avatar', headers: { ...headers(1, false), 'content-type': noCsrfRequest.contentType }, payload: noCsrfRequest.payload,
+    method: 'POST',
+    url: '/v1/setting/avatar',
+    headers: { ...headers(1, false), 'content-type': noCsrfRequest.contentType },
+    payload: noCsrfRequest.payload,
   });
   assert.equal(noCsrf.statusCode, 403);
   const [profile] = await db.$queryRaw<Array<{ avatar: string }>>`SELECT avatar FROM "Profile" WHERE userId = 1`;
@@ -369,38 +463,59 @@ test('restricts about editing to the active editor owner and sanitizes stored an
   assert.equal(anonymous.statusCode, 302);
 
   const notOwner = await app.inject({
-    method: 'POST', url: '/@other/about/edit', headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
-    payload: form([['csrfmiddlewaretoken', csrfToken], ['aboutMarkdown', 'Not mine']]),
+    method: 'POST',
+    url: '/@other/about/edit',
+    headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
+    payload: form([
+      ['csrfmiddlewaretoken', csrfToken],
+      ['aboutMarkdown', 'Not mine'],
+    ]),
   });
   assert.equal(notOwner.statusCode, 403);
 
   const saved = await app.inject({
-    method: 'POST', url: '/@writer/about/edit', headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
-    payload: form([['csrfmiddlewaretoken', csrfToken], ['aboutMarkdown', '# Hello\n\n<script>alert(2)</script>\n\n[Safe link](https://example.com)']]),
+    method: 'POST',
+    url: '/@writer/about/edit',
+    headers: { ...headers(1), 'content-type': 'application/x-www-form-urlencoded' },
+    payload: form([
+      ['csrfmiddlewaretoken', csrfToken],
+      ['aboutMarkdown', '# Hello\n\n<script>alert(2)</script>\n\n[Safe link](https://example.com)'],
+    ]),
   });
   assert.equal(saved.json().status, 'success');
   assert.equal(saved.json().message, '소개글을 저장했습니다.');
-  const [savedProfile] = await db.$queryRaw<Array<{ aboutMarkdown: string; aboutHtml: string }>>`SELECT aboutMarkdown, aboutHtml FROM "Profile" WHERE userId = 1`;
+  const [savedProfile] = await db.$queryRaw<
+    Array<{ aboutMarkdown: string; aboutHtml: string }>
+  >`SELECT aboutMarkdown, aboutHtml FROM "Profile" WHERE userId = 1`;
   assert.match(savedProfile.aboutHtml, /<h2 id="hello">Hello<\/h2>/);
   assert.doesNotMatch(savedProfile.aboutHtml, /<script>/);
 
   const apiSave = await app.inject({
-    method: 'PUT', url: '/v1/users/@writer', headers: { ...headers(1), 'content-type': 'application/json' },
+    method: 'PUT',
+    url: '/v1/users/@writer',
+    headers: { ...headers(1), 'content-type': 'application/json' },
     payload: { about: true, aboutMarkdown: 'API **save**' },
   });
   assert.deepEqual(apiSave.json(), { status: 'DONE', body: {} });
   const unauthorizedSave = await app.inject({
-    method: 'PUT', url: '/v1/users/@writer', headers: { ...headers(2), 'content-type': 'application/json' },
+    method: 'PUT',
+    url: '/v1/users/@writer',
+    headers: { ...headers(2), 'content-type': 'application/json' },
     payload: { about: true, aboutMarkdown: 'Not mine' },
   });
   assert.equal(unauthorizedSave.json().errorCode, 'error:AT');
   const missingCsrf = await app.inject({
-    method: 'PUT', url: '/v1/users/@writer', headers: { ...headers(1, false), 'content-type': 'application/json' },
+    method: 'PUT',
+    url: '/v1/users/@writer',
+    headers: { ...headers(1, false), 'content-type': 'application/json' },
     payload: { about: true, aboutMarkdown: 'No CSRF' },
   });
   assert.equal(missingCsrf.statusCode, 403);
   const anonymousSave = await app.inject({
-    method: 'PUT', url: '/v1/users/@writer', headers: { 'content-type': 'application/json' }, payload: { about: true, aboutMarkdown: 'No login' },
+    method: 'PUT',
+    url: '/v1/users/@writer',
+    headers: { 'content-type': 'application/json' },
+    payload: { about: true, aboutMarkdown: 'No login' },
   });
   assert.equal(anonymousSave.json().errorCode, 'error:NL');
 });

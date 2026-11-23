@@ -55,12 +55,17 @@ test('protects the form API by login, editor role, CSRF, and field limits', asyn
   assert.equal((await app.inject({ url: '/v1/forms', headers: { 'x-test-user': '2' } })).json().errorCode, 'error:RJ');
 
   const rejected = await app.inject({
-    method: 'PUT', url: '/v1/forms/1', headers: { ...apiHeaders, 'x-test-csrf': 'invalid' },
+    method: 'PUT',
+    url: '/v1/forms/1',
+    headers: { ...apiHeaders, 'x-test-csrf': 'invalid' },
     payload: { title: '수정', content: '내용' },
   });
   assert.equal(rejected.statusCode, 403);
   const tooLong = await app.inject({
-    method: 'PUT', url: '/v1/forms/1', headers: apiHeaders, payload: { title: 'x'.repeat(51), content: '내용' },
+    method: 'PUT',
+    url: '/v1/forms/1',
+    headers: apiHeaders,
+    payload: { title: 'x'.repeat(51), content: '내용' },
   });
   assert.equal(tooLong.json().errorCode, 'error:IP');
   const stored = await app.inject({ url: '/v1/forms/1', headers: writerHeaders });
@@ -74,7 +79,9 @@ test('preserves legacy form API envelopes and owner checks', async () => {
   assert.equal(list.json().body.forms[0].createdDate, '2024-02-01T09:30:00+09:00');
 
   const created = await app.inject({
-    method: 'POST', url: '/v1/forms', headers: apiHeaders,
+    method: 'POST',
+    url: '/v1/forms',
+    headers: apiHeaders,
     payload: { title: '새 포스트 서식', content: '## 시작' },
   });
   assert.equal(created.json().status, 'DONE', created.body);
@@ -87,7 +94,9 @@ test('preserves legacy form API envelopes and owner checks', async () => {
   assert.equal(readerDetail.json().errorCode, 'error:RJ', readerDetail.body);
 
   const updated = await app.inject({
-    method: 'PUT', url: `/v1/forms/${id}`, headers: apiHeaders,
+    method: 'PUT',
+    url: `/v1/forms/${id}`,
+    headers: apiHeaders,
     payload: { title: '수정된 서식', content: '수정 내용' },
   });
   assert.equal(updated.json().status, 'DONE');
@@ -99,7 +108,9 @@ test('preserves legacy form API envelopes and owner checks', async () => {
 });
 
 test('renders Markdown by default and sanitizes HTML when sourceType asks for it', async () => {
-  const render = async (payload: object) => (await app.inject({ method: 'POST', url: '/v1/markdown', headers: apiHeaders, payload })).json().body.html as string;
+  const render = async (payload: object) =>
+    (await app.inject({ method: 'POST', url: '/v1/markdown', headers: apiHeaders, payload })).json().body
+      .html as string;
   assert.match(await render({ text: '**bold**' }), /<strong>bold<\/strong>/);
   const html = await render({ text: '**kept**<script>alert(1)</script>', sourceType: 'html' });
   assert.ok(html.includes('**kept**'));
