@@ -3,7 +3,7 @@ import { ui } from '../i18n/public-ui.js';
 import { SiteFooter, SiteHeader, SiteTheme } from '~/appearance/shell';
 import { renderApplicationDocument } from '~/application/document';
 import { AuthPanel, authField, authInput, authSubmit } from '~/features/auth/ui/panel';
-import type { PageProps } from '~/contracts/pages';
+import type { PageProps } from '@blex/contracts/pages';
 
 export default function renderPage({ error, csrf, token }: PageProps['setup']): string {
     return renderApplicationDocument(

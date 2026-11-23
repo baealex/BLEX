@@ -5,6 +5,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 COPY patches/ ./patches/
 COPY packages/server/package.json ./packages/server/package.json
 COPY packages/client/package.json ./packages/client/package.json
+COPY packages/contracts/package.json ./packages/contracts/package.json
 RUN npm i -g pnpm@${PNPM_VERSION} && pnpm i --frozen-lockfile --filter . --filter '@blex/client...'
 COPY packages/client ./packages/client
 RUN pnpm exec turbo run build --filter=@blex/client && find /app/packages/server/dist -name '*.map' -delete
@@ -22,13 +23,13 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY patches/ ./patches/
 COPY packages/server/package.json ./packages/server/package.json
 COPY packages/client/package.json ./packages/client/package.json
+COPY packages/contracts/package.json ./packages/contracts/package.json
 COPY packages/server/prisma ./packages/server/prisma
 RUN pnpm i --frozen-lockfile --filter @blex/server
 COPY packages/server/tsconfig.json ./packages/server/
 COPY packages/server/src ./packages/server/src
 COPY packages/server/scripts ./packages/server/scripts
-# The server type-checks against the view contracts the client publishes.
-COPY packages/client/src/contracts ./packages/client/src/contracts
+COPY packages/contracts/src ./packages/contracts/src
 RUN pnpm --filter @blex/server run build
 
 FROM build AS traced-files

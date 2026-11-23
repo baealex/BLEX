@@ -1,4 +1,4 @@
-import type { CommentPayload } from '../../../contracts/engagement';
+import type { CommentPayload } from '@blex/contracts/engagement';
 
 const mentionStartBlockers = /[\p{L}\p{N}_@.+\-`*~]/u;
 const replyMentionSeparator = /[\s,!?;:()[\]{}]/;

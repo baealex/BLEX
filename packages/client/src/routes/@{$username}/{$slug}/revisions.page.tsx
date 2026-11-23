@@ -1,7 +1,7 @@
 import { getDocumentLocale } from '../../../i18n/locale.js';
 import { ui } from '../../../i18n/public-ui.js';
 import { renderApplicationDocument } from '~/application/document';
-import type { PageProps } from '~/contracts/pages';
+import type { PageProps } from '@blex/contracts/pages';
 import { historyPageCss } from '~/features/posts/history-pages-parts';
 
 export default function renderPage(model: PageProps['@{$username}/{$slug}/revisions']): string {

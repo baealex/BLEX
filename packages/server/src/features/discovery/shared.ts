@@ -16,7 +16,7 @@ import type {
   AuthorSocialLink,
   PageMeta,
   PublicPageViewer,
-} from '../../../../client/src/contracts/public.js';
+} from '@blex/contracts/public';
 
 type StoredDate = string | Date;
 

@@ -1,7 +1,7 @@
 import { systemMessage } from '../../../platform/messages.js';
 import type { Prisma, PrismaClient } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
-import type { WorkLogShareView } from '../../../../../client/src/contracts/work-logs.js';
+import type { WorkLogShareView } from '@blex/contracts/work-logs';
 import { type EntryRow, entrySelect, newestFirst, oldestFirst, toEntryRow } from './logs.js';
 import { PAGE_SIZE, arrayValue, pageFields } from '../shared.js';
 

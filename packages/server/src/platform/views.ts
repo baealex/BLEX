@@ -1,10 +1,10 @@
 import 'react';
 import 'react/jsx-runtime';
 import 'react-dom/server';
-import type { PageProps } from '../../../client/src/contracts/pages.js';
+import type { PageProps } from '@blex/contracts/pages';
 import { requestLocale } from './request-locale.js';
 
-export type { HeaderViewer, LoginModel, SiteHeaderProps } from '../../../client/src/contracts/views.js';
+export type { HeaderViewer, LoginModel, SiteHeaderProps } from '@blex/contracts/views';
 
 // The client package owns every view. The server loads its build and hands each route its data.
 const client = (await import(new URL('../../ssr/entry-server.js', import.meta.url).href)) as {

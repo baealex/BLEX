@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { SiteIcon } from '../../appearance/icons';
 import { SiteFooter, SiteHeader, SiteTheme } from '../../appearance/shell';
 import { renderApplicationDocument, scriptJson } from '../../application/document';
-import type { NoticeRow, PageMeta, SiteBrand } from '../../contracts/public';
+import type { NoticeRow, PageMeta, SiteBrand } from '@blex/contracts/public';
 import { NoticeControls } from './notice-controls';
 
 export function PublicSiteMark({

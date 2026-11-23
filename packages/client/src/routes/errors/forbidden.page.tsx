@@ -3,7 +3,7 @@ import { ui } from '../../i18n/public-ui.js';
 import { SiteHeader, SiteTheme } from '~/appearance/shell';
 import { renderApplicationDocument } from '~/application/document';
 import { floatStyles } from '~/features/discovery/not-found-parts';
-import type { PageProps } from '~/contracts/pages';
+import type { PageProps } from '@blex/contracts/pages';
 
 export default function renderPage({ brand, viewer }: PageProps['errors/forbidden']): string {
     return renderApplicationDocument(

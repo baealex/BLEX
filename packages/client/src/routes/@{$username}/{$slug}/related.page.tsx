@@ -2,7 +2,7 @@ import { getDocumentLocale } from '../../../i18n/locale.js';
 import { ui } from '../../../i18n/public-ui.js';
 import { renderApplicationDocument } from '~/application/document';
 import { publicPostPath } from '~/features/posts/paths';
-import type { PageProps } from '~/contracts/pages';
+import type { PageProps } from '@blex/contracts/pages';
 
 export default function renderPage({
     source,

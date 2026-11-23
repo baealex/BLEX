@@ -1,5 +1,5 @@
 import { renderToStaticMarkup } from 'react-dom/server';
-import type { PageProps } from '~/contracts/pages';
+import type { PageProps } from '@blex/contracts/pages';
 import { featuredPostsSection } from '~/features/authors/profile-ui';
 
 export default function renderPage({

@@ -1,5 +1,5 @@
 import { ui } from '../../../i18n/public-ui.js';
-import type { ReaderAuthorHeader, ReaderPostView } from '../../../contracts/engagement';
+import type { ReaderAuthorHeader, ReaderPostView } from '@blex/contracts/engagement';
 import { PostCommentsApp, type PostCommentsModel } from './comments.js';
 import { loginPromptProps } from './login-prompt.js';
 

@@ -2,7 +2,7 @@ import { ui } from '../../i18n/public-ui.js';
 import type { ReactNode } from 'react';
 import { SiteIcon, type SiteIconName } from '../../appearance/icons';
 import { loginPromptProps } from '../engagement/ui/login-prompt';
-import type { AuthorRow, AuthorSocialLink, PostRow, PublicPageViewer, SubscriptionState } from '../../contracts/public';
+import type { AuthorRow, AuthorSocialLink, PostRow, PublicPageViewer, SubscriptionState } from '@blex/contracts/public';
 import { avatarUrl, dateLabel, dateValue, mediaUrl, postCover, safeExternalUrl } from '../discovery/view-helpers';
 import { EmptyState, postPath } from '../discovery/post-list';
 import { AboutEditor, AboutHeading } from './about-editor';

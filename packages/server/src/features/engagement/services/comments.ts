@@ -1,5 +1,5 @@
 import { systemMessage } from '../../../platform/messages.js';
-import type { CommentPayload } from '../../../../../client/src/contracts/engagement.js';
+import type { CommentPayload } from '@blex/contracts/engagement';
 import type { Prisma, PrismaClient } from '@prisma/client';
 import { timeSince } from '../../../platform/date-format.js';
 import { publicPostWhere } from '../../posts/data/visibility.js';

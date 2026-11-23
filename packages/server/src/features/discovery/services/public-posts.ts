@@ -5,7 +5,7 @@ import { postIdsMatching } from '../../posts/data/text-match.js';
 import { publicPostWhere } from '../../posts/data/visibility.js';
 import { type AuthorRow, PAGE_SIZE, type PostQueryOptions, type PostRow, type PublicPageViewer } from '../shared.js';
 import { csrfCookie } from '../page-context.js';
-import type { CardLikes } from '../../../../../client/src/contracts/public.js';
+import type { CardLikes } from '@blex/contracts/public';
 
 const postCardSelect = {
   id: true,

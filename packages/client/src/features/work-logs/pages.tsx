@@ -11,7 +11,7 @@ import type {
     WorkLogEntryView,
     WorkLogIndexProps,
     WorkLogSharedProps
-} from '../../contracts/work-logs';
+} from '@blex/contracts/work-logs';
 import { koreanDate, koreanDateTime } from '../../lib/date-format';
 import { pageFields } from './fields';
 
