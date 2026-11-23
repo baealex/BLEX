@@ -50,7 +50,7 @@ interface ApplicationDocument {
     url: string;
     head: PageHead;
     bodyAttributes: Array<[string, string]>;
-    pageModules: Array<{ name: 'login' | 'editor' | 'comments' | 'screen'; source: string }>;
+    pageModules: Array<{ name: 'login' | 'editor' | 'comments' | 'code-blocks' | 'screen'; source: string }>;
     needsHcaptcha: boolean;
     screen: ScreenData | null;
 }
@@ -210,7 +210,14 @@ function pageModuleSources(source: Document): ApplicationDocument['pageModules']
         .map((script): ApplicationDocument['pageModules'][number] | null => {
             const name = script.dataset.blexPageModule;
             const src = script.getAttribute('src');
-            if ((name !== 'login' && name !== 'editor' && name !== 'comments' && name !== 'screen') || !src)
+            if (
+                (name !== 'login' &&
+                    name !== 'editor' &&
+                    name !== 'comments' &&
+                    name !== 'code-blocks' &&
+                    name !== 'screen') ||
+                !src
+            )
                 return null;
             return {
                 name,
