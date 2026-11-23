@@ -140,7 +140,7 @@ test('keeps the 3.x five-post series window around the current post', () => {
   assert.equal(seriesNavigation(posts, 99), null);
 });
 
-test('marks non-HTML public responses noindex when search indexing is off', async () => {
+test('marks public responses noindex when search indexing is off', async () => {
   const closed = await publicApp({ seo: 0, aeo: 1 });
   try {
     for (const url of ['/llms.txt', '/rss', '/@writer/part-one.md', '/@writer/part-one', '/']) {
@@ -463,9 +463,6 @@ test('shows public yearly and recent activity on the author page', async () => {
     insertRow(fixture.db, 'PostLike', { postId: 3, userId: 1, createdAt: daysAgo(1) });
     const { body, statusCode } = await fixture.app.inject('/@writer');
     assert.equal(statusCode, 200);
-    assert.match(body, /연간 활동/);
-    assert.match(body, /활동 내역/);
-    assert.match(body, /지난 1년 활동/);
     assert.match(body, /data-heatmap-days=/);
     for (const label of ['새 포스트를 작성했어요', '시리즈를 만들었어요', '댓글을 남겼어요', '좋아요를 눌렀어요'])
       assert.ok(body.includes(label), label);

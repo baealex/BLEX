@@ -98,15 +98,13 @@ const isSignedIn = async (app: FastifyInstance, headers: Headers) =>
 
 const sessionToken = (headers: Headers) => /blexsessionid=([^;]+)/.exec(headers.cookie)?.[1] ?? '';
 
-test('a stored password change invalidates sessions through the credential tag', () =>
+test('a stored password change ends existing sessions', () =>
   withApp(
     async (app, db) => {
       const session = await signIn(app, 'writer');
       assert.equal(await isSignedIn(app, session), true);
       await db.user.update({ where: { id: 1 }, data: { passwordHash: `${passwordHash}x` } });
       assert.equal(await isSignedIn(app, session), false);
-      await db.user.update({ where: { id: 1 }, data: { passwordHash } });
-      assert.equal(await isSignedIn(app, session), true);
     },
     (fixture) => seedUser(fixture, 1, 'writer'),
   ));

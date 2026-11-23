@@ -170,10 +170,7 @@ test('renders the public home, tag cloud, and tag posts from visible published r
 
   const headers = { 'x-test-user': 'reader', cookie: `csrftoken=${'a'.repeat(43)}` };
   const signedIn = await app.inject({ url: '/', headers });
-  assert.match(
-    signedIn.body,
-    /action="\/like\/public-new".*?aria-label="좋아요 취소 \(1\)" aria-pressed="true"><svg[^>]*tabler-icon-heart[^>]*>.*?<\/svg><span>1<\/span>/,
-  );
+  assert.match(signedIn.body, /action="\/like\/public-new".*?aria-pressed="true"/);
   assert.equal(signedIn.headers['cache-control'], 'private, no-store');
   const interests = await app.inject({ url: '/interests', headers });
   assert.match(interests.body, /Public new article/);

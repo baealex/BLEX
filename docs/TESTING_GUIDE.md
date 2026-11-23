@@ -47,7 +47,7 @@ pnpm build:client
 pnpm check:entry-budgets
 ```
 
-Editor and web logic tests live in `packages/client/src/features/editor/tiptap/test/` and `packages/client/test/` and use Node's test runner. Use browser checks for behavior that needs real DOM APIs, built assets, or navigation. Avoid adding browser tests for pure logic or visual preferences.
+Editor and web logic tests live in `packages/client/test/` and use Node's test runner. Use browser checks for behavior that needs real DOM APIs, built assets, or navigation. Avoid adding browser tests for pure logic or visual preferences.
 
 Run the browser smoke test against an automatically managed local instance after building both the server and web assets:
 

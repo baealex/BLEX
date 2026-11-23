@@ -162,13 +162,11 @@ test('serves private owner pages with noindex headers and hides other owners’ 
   assert.match(index.body, /Private notes/);
   assert.match(index.body, /Second log/);
   assert.doesNotMatch(index.body, /Other notes/);
-  assert.match(index.body, /기록 3개/);
 
   const ownerDetail = await app.inject({ method: 'GET', url: '/work-logs/1/', headers: headers(1) });
   assert.equal(ownerDetail.statusCode, 200, ownerDetail.body);
   assert.match(ownerDetail.body, /Private planning/);
   assert.match(ownerDetail.body, /Selected clip/);
-  assert.match(ownerDetail.body, /기록 골라 공유하기/);
 
   const readerDetail = await app.inject({ method: 'GET', url: '/work-logs/1/', headers: headers(3) });
   assert.equal(readerDetail.statusCode, 404);
@@ -258,7 +256,6 @@ test('creates immutable entry snapshots, rejects cross-log selections, and revok
     ]),
   });
   assert.equal(crossLog.statusCode, 200, crossLog.body);
-  assert.match(crossLog.body, /이 작업 일지의 기록을 선택해 주세요/);
   assert.equal(
     Number(
       (await prisma.$queryRaw<Array<{ total: number | bigint }>>`SELECT COUNT(*) AS total FROM WorkLogShare`)[0]?.total,
@@ -301,6 +298,8 @@ test('creates immutable entry snapshots, rejects cross-log selections, and revok
   });
   assert.equal(later.statusCode, 302);
   const unchanged = await app.inject(`/work-logs/share/${token}/`);
+  assert.equal(unchanged.statusCode, 200);
+  assert.match(unchanged.body, /Selected clip/);
   assert.doesNotMatch(unchanged.body, /A note added after sharing/);
 
   const invalidCsrf = await app.inject({

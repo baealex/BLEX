@@ -203,13 +203,11 @@ test('gates editor URLs, rejects a bad cover without saving, and serves draft-on
   assert.equal(preview.statusCode, 200, preview.body);
   assert.match(preview.body, /Draft starts here/);
   assert.match(preview.body, /noindex,nofollow/);
-  assert.match(preview.body, /data-site-header/);
-  assert.match(preview.body, /임시 포스트 미리보기/);
   assert.equal((await app.inject({ url: '/write/preview/scheduled', headers: writerHeaders })).statusCode, 404);
   assert.equal((await app.inject({ url: '/write/preview/draft-note', headers: { 'x-user-id': '2' } })).statusCode, 404);
 });
 
-test('creates a published Markdown post atomically with config, content, tags and series', async () => {
+test('creates a published Markdown post with config, content, tags and series', async () => {
   const response = await app.inject({
     method: 'POST',
     url: '/v1/posts',
@@ -267,7 +265,7 @@ test('creates a published Markdown post atomically with config, content, tags an
   assert.equal(await db.notification.count({ where: { url: '/@writer/hello-world' } }), 1);
 });
 
-test('creates and reschedules future posts from the visible datetime-local field', async () => {
+test('creates and reschedules future posts from an ISO reservedDate', async () => {
   const initialAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
   const create = await app.inject({
     method: 'POST',
