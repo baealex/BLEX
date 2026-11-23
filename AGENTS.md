@@ -16,6 +16,10 @@ AI Agents must read `docs/DEV_CONVENTION.md` before starting any development.
 - Shared UI: `packages/client/src/ui`
 - Project docs: `docs`
 
+## Releases
+
+For explicit release requests, follow [the release procedure](docs/RELEASING.md). Dispatch the Release workflow on main and monitor it through publication. The workflow creates Git version tags after testing; do not push tags to trigger a release.
+
 ## Development Commands
 
 - Install dependencies: `pnpm install`

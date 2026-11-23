@@ -1,92 +1,65 @@
-name: BUILD
+name: Release
+run-name: Release ${{ inputs.version || 'next version' }} from main
 
 on:
-  push:
-    tags:
-      - 'v*.*'
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'MAJOR.MINOR without v; leave empty for the next minor in the current major'
+        type: string
+        required: false
 
 permissions:
   contents: read
-  security-events: write
 
 env:
   IMAGE: baealex/blex
 
 concurrency:
-  group: build-${{ github.ref_name }}
-  cancel-in-progress: true
+  group: blex-release
+  cancel-in-progress: false
 
 jobs:
-  image_build:
+  application:
+    uses: ./.github/workflows/CI.yml
+
+  prepare:
+    needs: application
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+      sha: ${{ steps.release.outputs.sha }}
+      digest: ${{ steps.build.outputs.digest }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-
-      - name: Validate release tag
-        if: github.ref_type == 'tag'
-        shell: bash
-        run: |
-          if [[ ! "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+$ ]]; then
-            echo "Release tag must match vMAJOR.MINOR: $GITHUB_REF_NAME" >&2
-            exit 1
-          fi
-
-          git fetch --no-tags origin main
-          tagged_commit=$(git rev-parse "${GITHUB_REF}^{commit}")
-          if ! git merge-base --is-ancestor "$tagged_commit" origin/main; then
-            echo "Release tag must point to a commit contained in main." >&2
-            exit 1
-          fi
-
-      - name: Resolve release version
-        id: release
-        if: github.ref_type == 'tag'
-        shell: bash
-        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
+          persist-credentials: false
+      - uses: actions/setup-node@v6
         with:
           node-version: '24.22.1'
-
-      - run: npm install --global pnpm@11.17.0
-
-      - run: pnpm install --frozen-lockfile
-
-      - name: Validate Prisma schema
-        run: pnpm --filter @blex/server exec prisma validate
+      - name: Resolve the release version and commit
+        id: release
         env:
-          DATABASE_URL: file:/tmp/blex-validation.sqlite3
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: node .github/scripts/release.mjs prepare
 
-      - run: pnpm test
-
-      - name: Install the smoke test browser
-        run: pnpm --filter @blex/client exec playwright install --with-deps --only-shell chromium
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v4
+      - uses: docker/setup-qemu-action@v4
+        with:
+          platforms: arm64
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
       - name: Generate Docker metadata
         id: meta
         uses: docker/metadata-action@v6
         with:
           images: ${{ env.IMAGE }}
           flavor: latest=false
-          tags: |
-            type=raw,value=${{ steps.release.outputs.version }},enable=${{ github.ref_type == 'tag' }}
-            type=raw,value=${{ github.sha }}
-
-      - name: Build BLEX candidate
+          tags: type=raw,value=${{ steps.release.outputs.sha }}
+      - name: Build the release candidate
         id: build
         uses: docker/build-push-action@v7
         with:
@@ -96,17 +69,54 @@ jobs:
           pull: true
           no-cache-filters: runtime
           push: true
-          tags: ${{ env.IMAGE }}:${{ github.sha }}
+          tags: ${{ env.IMAGE }}:${{ steps.release.outputs.sha }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Record the candidate awaiting verification
+        env:
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+          RELEASE_SHA: ${{ steps.release.outputs.sha }}
+          IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          {
+            printf '## Candidate %s awaiting verification\n\n' "$RELEASE_VERSION"
+            printf 'Commit: `%s`\n\nImage: `%s@%s`\n' "$RELEASE_SHA" "$IMAGE" "$IMAGE_DIGEST"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  verify:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { architecture: amd64, runner: ubuntu-24.04 }
+          - { architecture: arm64, runner: ubuntu-24.04-arm }
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24.22.1'
+      - run: npm install --global pnpm@11.17.0
+      - run: pnpm install --frozen-lockfile --filter @blex/client
+      - name: Install the smoke test browser
+        run: pnpm --filter @blex/client exec playwright install --with-deps --only-shell chromium
+
       - name: Launch with 512 MiB and run the browser smoke test
         env:
-          RUNTIME_IMAGE: ${{ env.IMAGE }}@${{ steps.build.outputs.digest }}
+          RUNTIME_IMAGE: ${{ env.IMAGE }}@${{ needs.prepare.outputs.digest }}
+          PLATFORM: linux/${{ matrix.architecture }}
         run: |
-          docker pull --platform linux/amd64 "$RUNTIME_IMAGE"
-          docker run --rm --platform linux/amd64 --entrypoint ffmpeg "$RUNTIME_IMAGE" -version >/dev/null
+          docker pull --platform "$PLATFORM" "$RUNTIME_IMAGE"
+          docker run --rm --platform "$PLATFORM" --entrypoint ffmpeg "$RUNTIME_IMAGE" -version >/dev/null
           docker volume create blex-release-data
           cleanup() {
             docker logs blex-release || true
@@ -114,7 +124,7 @@ jobs:
             docker volume rm blex-release-data || true
           }
           trap cleanup EXIT
-          docker run -d --platform linux/amd64 --name blex-release -p 127.0.0.1:8040:8040 --memory=512m --cpus=1 \
+          docker run -d --platform "$PLATFORM" --name blex-release -p 127.0.0.1:8040:8040 --memory=512m --cpus=1 \
             -v blex-release-data:/var/lib/blex \
             -e INITIAL_SETUP_TOKEN=ci-setup-token \
             -e SITE_URL=http://127.0.0.1:8040 -e SECRET_KEY=ci-ephemeral-session-key \
@@ -131,46 +141,36 @@ jobs:
           '
           BLEX_SETUP_TOKEN=ci-setup-token pnpm test:smoke
 
-      - name: Scan AMD64 candidate
+      - name: Scan the candidate image
+        if: ${{ !cancelled() }}
         uses: ./.github/actions/image-security
         with:
-          image: ${{ env.IMAGE }}@${{ steps.build.outputs.digest }}
-          platform: linux/amd64
-          category: blex-container-amd64
+          image: ${{ env.IMAGE }}@${{ needs.prepare.outputs.digest }}
+          platform: linux/${{ matrix.architecture }}
+          category: blex-container-${{ matrix.architecture }}
 
-      - name: Scan ARM64 candidate
-        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
-        uses: ./.github/actions/image-security
+  publish:
+    needs: [prepare, verify]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
         with:
-          image: ${{ env.IMAGE }}@${{ steps.build.outputs.digest }}
-          platform: linux/arm64
-          category: blex-container-arm64
-
-      - name: Publish verified release tags
-        if: github.ref_type == 'tag'
+          ref: ${{ needs.prepare.outputs.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24.22.1'
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Publish the verified image and Git version tag
         env:
-          RELEASE_VERSION: ${{ steps.release.outputs.version }}
-          IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
-        run: |
-          major="${RELEASE_VERSION%%.*}"
-          docker buildx imagetools create \
-            --tag "${IMAGE}:${RELEASE_VERSION}" \
-            --tag "${IMAGE}:${major}" \
-            --tag "${IMAGE}:latest" \
-            "${IMAGE}@${IMAGE_DIGEST}"
-
-      - name: Verify multi-platform release image
-        if: github.ref_type == 'tag'
-        env:
-          RELEASE_VERSION: ${{ steps.release.outputs.version }}
-          IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
-        shell: bash
-        run: |
-          major="${RELEASE_VERSION%%.*}"
-          for tag in "$RELEASE_VERSION" "$major" latest; do
-            manifest=$(docker buildx imagetools inspect "${IMAGE}:${tag}")
-            grep -q 'linux/amd64' <<< "$manifest"
-            grep -q 'linux/arm64' <<< "$manifest"
-            digest=$(awk '/^Digest:/ { print $2 }' <<< "$manifest")
-            test "$digest" = "$IMAGE_DIGEST"
-          done
+          RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
+          IMAGE_DIGEST: ${{ needs.prepare.outputs.digest }}
+          GH_TOKEN: ${{ github.token }}
+        run: node .github/scripts/release.mjs publish

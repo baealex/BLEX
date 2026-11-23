@@ -11,6 +11,8 @@
 
 Write project guides, package READMEs, and linked architecture documents in English to match `README.md`. Keep `README.ko.md` as the Korean overview and label any additional localized guides explicitly.
 
+Keep release procedures independent of a particular release number. Use `MAJOR.MINOR` placeholders and derive actual release versions from repository metadata and Git tags.
+
 ## Local development
 
 Use the Node.js version required by the root `package.json` and `.nvmrc`.
@@ -65,6 +67,6 @@ Biome formats and lints the repository. Run `pnpm format` to apply fixes; `pnpm 
 
 `pnpm test` includes the application build. For web, UI, or editor changes, also run the workspace checks as described in the [Testing Guide](TESTING_GUIDE.md).
 
-Regular CI runs application and client checks. Container builds, image security scans, and the 512 MiB browser smoke test run in `BUILD.yml` for release tags or manual builds. The smoke test uses the candidate image digest and must pass before release tags are published. Published images also receive weekly security scans.
+Regular CI runs application and client checks. Explicit releases use the manual `BUILD.yml` workflow: application checks, a candidate build, AMD64/ARM64 runtime/browser/security checks, then publication of the verified digest and automatic Git tagging. Follow [Releasing BLEX](RELEASING.md); Git tag pushes do not trigger releases. Published images also receive weekly security scans.
 
 For dependency updates, read [Dependency Maintenance](DEPENDENCY_SECURITY.md). The [architecture diagram](blex4-architecture.html) illustrates request flows and code boundaries.
