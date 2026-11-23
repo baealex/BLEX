@@ -1,4 +1,4 @@
-import { renderApplicationDocument } from '../../application/document.js';
+import { renderApplicationDocument } from '../../platform/views.js';
 import formBody from '@fastify/formbody';
 import { Prisma, type PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';

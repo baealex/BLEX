@@ -7,7 +7,7 @@ const descriptions: Record<LoginPromptAction, string> = {
   like: '좋아요를 누르려면 로그인해 주세요.',
   comment: '댓글을 남기려면 로그인해 주세요.',
   reply: '답글을 작성하려면 로그인해 주세요.',
-  subscribe: '이 작가의 새 글 알림을 받으려면 로그인해 주세요.',
+  subscribe: '이 작가의 새 글 알림을 받으려면 로그인해 주세요.'
 };
 const actionClass = 'flex min-h-11 w-full items-center justify-center rounded-xl px-4 text-sm font-semibold transition-colors duration-150';
 
@@ -43,8 +43,14 @@ function userGlyph(): SVGSVGElement {
   const namespace = 'http://www.w3.org/2000/svg';
   const svg = document.createElementNS(namespace, 'svg');
   for (const [name, value] of Object.entries({
-    viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
-    class: 'size-5 text-content', 'aria-hidden': 'true',
+    viewBox: '0 0 24 24',
+fill: 'none',
+stroke: 'currentColor',
+'stroke-width': '2',
+'stroke-linecap': 'round',
+'stroke-linejoin': 'round',
+    class: 'size-5 text-content',
+'aria-hidden': 'true'
   })) svg.setAttribute(name, value);
   for (const [tag, attributes] of userIcon) {
     const part = document.createElementNS(namespace, tag);
@@ -93,7 +99,7 @@ function openLoginPrompt(action: LoginPromptAction, next: string): void {
     providers.replaceChildren(...items.map((provider) => nativeLink(
       `/login/start/${encodeURIComponent(provider.key)}?${new URLSearchParams({ next })}`,
       `${provider.name}로 계속하기`,
-      `${actionClass} border border-line bg-surface text-content hover:bg-surface-subtle`,
+      `${actionClass} border border-line bg-surface text-content hover:bg-surface-subtle`
     )));
   });
 }

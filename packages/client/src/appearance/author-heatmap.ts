@@ -4,7 +4,12 @@ const lightScale = ['#f9fafb', '#d1d5db', '#9ca3af', '#6b7280', '#1f2937'];
 const darkScale = ['#222222', '#393939', '#555555', '#737373', '#969696'];
 
 function endDate() {
-  const parts = new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'numeric', day: 'numeric', timeZone: 'Asia/Seoul' }).formatToParts();
+  const parts = new Intl.DateTimeFormat('en-US', {
+ year: 'numeric',
+month: 'numeric',
+day: 'numeric',
+timeZone: 'Asia/Seoul'
+}).formatToParts();
   const part = (type: string) => Number(parts.find((item) => item.type === type)?.value);
   return new Date(part('year'), part('month') - 1, part('day'));
 }
@@ -38,12 +43,15 @@ function draw(target: HTMLElement, signal: AbortSignal) {
   target.replaceChildren();
   new Chart(target, {
     type: 'heatmap',
-    data: { dataPoints: JSON.parse(target.dataset.heatmapDays ?? '{}'), end: endDate() },
+    data: {
+ dataPoints: JSON.parse(target.dataset.heatmapDays ?? '{}'),
+end: endDate()
+},
     countLabel: '활동',
     colors: scale,
     height: 150,
     radius: 2,
-    discreteDomains: 0,
+    discreteDomains: 0
   });
   // The chart finishes drawing after its first frames.
   for (const delay of [0, 220, 520]) {
@@ -57,6 +65,9 @@ export function mountAuthorHeatmaps(signal: AbortSignal) {
   const render = () => targets.forEach((target) => draw(target, signal));
   render();
   const observer = new MutationObserver(render);
-  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  observer.observe(document.documentElement, {
+ attributes: true,
+attributeFilter: ['data-theme']
+});
   signal.addEventListener('abort', () => observer.disconnect(), { once: true });
 }

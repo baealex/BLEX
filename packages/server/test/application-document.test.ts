@@ -2,9 +2,10 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createElement as h } from 'react';
 import { test } from 'node:test';
-import { isApplicationDocument, renderApplicationDocument } from '../src/application/document.js';
-import { opensOutsideApplication } from '../src/application/navigation.js';
-import { SiteHeader, SiteTheme } from '../src/appearance/shell.js';
+import { renderApplicationDocument } from '../src/platform/views.js';
+import { isApplicationDocument } from '../src/platform/document.js';
+import { opensOutsideApplication } from '../src/platform/views.js';
+import { SiteHeader, SiteTheme } from '../src/platform/views.js';
 import { clientAssets, readUiAsset } from '../src/platform/ui-assets.js';
 
 test('renders the SSR page and its canonical metadata under one application root', () => {

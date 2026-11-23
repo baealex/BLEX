@@ -1,3 +1,4 @@
+import type { CommentPayload } from '../../../../../client/src/contracts/engagement.js';
 import type { Prisma, PrismaClient } from '@prisma/client';
 import { timeSince } from '../../../platform/date-format.js';
 import { publicPostWhere } from '../../posts/data/visibility.js';
@@ -23,26 +24,7 @@ export interface CommentRow {
 
 interface PostCommentRow extends CommentRow { postUsername: string; postTitle: string; postSlug: string }
 
-export interface CommentPayload {
-  id: number;
-  author: string;
-  authorImage: string | null;
-  isMine: boolean;
-  isEdited: boolean;
-  isDeleted: boolean;
-  renderedContent: string;
-  createdDate: string;
-  countLikes: number;
-  isLiked: boolean;
-  permissions: {
-    canEdit: boolean;
-    canDelete: boolean;
-    canLike: boolean;
-    canReply: boolean;
-  };
-  parentId?: number;
-  replies?: CommentPayload[];
-}
+export type { CommentPayload };
 
 const DEFAULT_LANGUAGE_DELETED_COMMENT = '<p>삭제된 댓글입니다.</p>';
 

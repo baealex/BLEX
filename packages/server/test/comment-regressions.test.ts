@@ -6,7 +6,7 @@ import { timeSince } from '../src/features/engagement/index.js';
 import {
   appendCommentToTree, buildReplySubmissionText, commentAuthors, countComments, findRootParentId,
   isMentionQuery, isMentionStart, mergeCommentInTree,
-} from '../src/features/engagement/ui/comment-model.js';
+} from './support/comment-model.js';
 import type { CommentPayload } from '../src/features/engagement/index.js';
 import {
   createMigratedDatabase, insertRow, seedEditor, seedPost, signIn,
@@ -47,7 +47,7 @@ test('keeps replies one level deep in the comment tree', () => {
   assert.equal(findRootParentId(2, tree), 1);
   assert.deepEqual(commentAuthors(tree), ['a', 'b']);
   const appended = appendCommentToTree(tree, comment(4, 'c', { parentId: 1 }));
-  assert.deepEqual(appended[0].replies?.map((reply) => reply.id), [2, 4]);
+  assert.deepEqual(appended[0].replies?.map((reply: { id: number }) => reply.id), [2, 4]);
   assert.equal(countComments(appended), 4);
   assert.equal(mergeCommentInTree(appended, comment(2, 'Ghost', { parentId: 1, isDeleted: true }))[0].replies?.[0].isDeleted, true);
 });

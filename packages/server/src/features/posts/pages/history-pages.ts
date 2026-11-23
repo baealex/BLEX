@@ -1,4 +1,4 @@
-import { renderApplicationDocument } from '../../../application/document.js';
+import { renderApplicationDocument } from '../../../platform/views.js';
 import type { FastifyReply } from 'fastify';
 import { sanitizePostHtml } from '../post-html.js';
 import { managementDate } from '../services/management.js';

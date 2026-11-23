@@ -1,8 +1,8 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { renderApplicationDocument } from '../../application/document.js';
-import { SiteFooter, SiteHeader, SiteTheme } from '../../appearance/shell.js';
+import { renderApplicationDocument } from '../../platform/views.js';
+import { SiteFooter, SiteHeader, SiteTheme } from '../../platform/views.js';
 import { formInput, validCsrf } from '../../platform/csrf.js';
 import { readPublicSiteBrand } from '../discovery/pages/index.js';
 import type { AuthConfig } from './http.js';

@@ -1,29 +1,11 @@
-import { Children, cloneElement, isValidElement, type ReactElement, type ReactNode } from 'react';
+import {
+ Children, cloneElement, isValidElement, type ReactElement, type ReactNode
+} from 'react';
 import { renderToStaticMarkup, renderToString } from 'react-dom/server';
 import { SiteHeader, SiteTheme, type SiteHeaderProps } from '../appearance/shell.js';
-import { youtubeFrameSources } from '../features/posts/post-html.js';
 import { ApplicationFrame } from './frame.js';
 
 type Element = ReactElement<{ children?: ReactNode }>;
-
-const captchaSources = 'https://hcaptcha.com https://*.hcaptcha.com';
-const documentMarker = '<meta name="blex-application" content="1"/>';
-
-// Client routing can visit any application page from any initial document.
-export const applicationContentSecurityPolicy = [
-  "default-src 'none'", "img-src 'self' https: data: blob:", "media-src 'self' https: blob:",
-  "font-src 'self' data:", `style-src 'self' 'unsafe-inline' ${captchaSources}`,
-  `script-src 'self' ${captchaSources}`, `connect-src 'self' ${captchaSources}`,
-  `frame-src ${youtubeFrameSources} ${captchaSources}`,
-  "form-action 'self'", "base-uri 'none'", "frame-ancestors 'none'",
-].join('; ');
-
-export function isApplicationDocument(payload: unknown): payload is string {
-  if (typeof payload !== 'string' || !payload.startsWith('<!doctype html>')) return false;
-  const headEnd = payload.indexOf('</head>');
-  const marker = payload.indexOf(documentMarker);
-  return headEnd !== -1 && marker !== -1 && marker < headEnd;
-}
 
 export function scriptJson(value: unknown): string {
   return JSON.stringify(value).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
@@ -49,25 +31,41 @@ export function renderApplicationDocument(page: ReactElement, hydrateContent = f
   const headContent = Children.toArray(head.props.children);
   if (!headContent.some((node) => isValidElement(node) && node.type === SiteTheme)) headContent.unshift(<SiteTheme key="site-theme" />);
   const nextHead = cloneElement(head, {}, ...headContent,
-    <meta name="blex-application" content="1" />,
-    <script type="module" src="/assets/blex/app.js" data-blex-app-entry="" />,
+      <meta name="blex-application" content="1" />,
+      <script type="module" src="/assets/blex/app.js" data-blex-app-entry="" />
   );
   const nextBody = cloneElement(body, {},
-    <div id="blex-application" className="contents" data-header={JSON.stringify(header)}>
-      <ApplicationFrame view={{ header, html }} />
-    </div>,
-    ...scripts,
+      <div id="blex-application" className="contents" data-header={JSON.stringify(header)}>
+          <ApplicationFrame
+              view={{
+ header,
+html
+}}
+          />
+      </div>,
+    ...scripts
   );
   return '<!doctype html>' + renderToString(cloneElement(page, {}, nextHead, nextBody));
 }
 
-function clientHeader({ brand, viewer, searchPage, editorPage, hideAuthLinks }: SiteHeaderProps): SiteHeaderProps {
+function clientHeader({
+ brand, viewer, searchPage, editorPage, hideAuthLinks
+}: SiteHeaderProps): SiteHeaderProps {
   return {
-    brand: brand && { siteName: brand.siteName, logoUrl: brand.logoUrl, darkLogoUrl: brand.darkLogoUrl },
+    brand: brand && {
+ siteName: brand.siteName,
+logoUrl: brand.logoUrl,
+darkLogoUrl: brand.darkLogoUrl
+},
     viewer: viewer && {
-      username: viewer.username, hasEditorRole: viewer.hasEditorRole, isStaff: viewer.isStaff,
-      csrfToken: viewer.csrfToken, unreadCount: viewer.unreadCount,
+      username: viewer.username,
+hasEditorRole: viewer.hasEditorRole,
+isStaff: viewer.isStaff,
+      csrfToken: viewer.csrfToken,
+unreadCount: viewer.unreadCount
     },
-    searchPage, editorPage, hideAuthLinks,
+    searchPage,
+editorPage,
+hideAuthLinks
   };
 }

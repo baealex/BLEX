@@ -57,7 +57,12 @@ function parseLoginModel(serialized: string): LoginModel | null {
     if (!isRecord(value.pendingOAuth) || typeof value.pendingOAuth.username !== 'string') return null;
     pendingOAuth = { username: value.pendingOAuth.username };
   }
-  return { csrfToken: value.csrfToken, next: value.next, providers, pendingOAuth };
+  return {
+ csrfToken: value.csrfToken,
+next: value.next,
+providers,
+pendingOAuth
+};
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -1,6 +1,6 @@
 import { type PrismaClient } from '@prisma/client';
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { readPageChrome } from '../../appearance/page-chrome.js';
+import { readPageChrome } from '../../platform/page-chrome.js';
 import { renderWorkLogDetail } from './pages.js';
 import { WorkLogRow, countEntries, readEntries } from './services/logs.js';
 import { countShares, readShares } from './services/shares.js';

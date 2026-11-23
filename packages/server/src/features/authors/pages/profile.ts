@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react';
-import { SiteIcon, type SiteIconName } from '../../../appearance/icons.js';
-import { loginPromptProps } from '../../engagement/ui/login-prompt.js';
+import { SiteIcon, type SiteIconName } from '../../../platform/views.js';
+import { loginPromptProps } from '../../../platform/views.js';
 import { authorPath, isEditor } from '../services/profile.js';
 import { AuthorRow, AuthorSocialLink, PostRow, PublicPageViewer, SubscriptionState, avatarUrl, dateLabel, dateValue, h, mediaUrl, postCover, safeExternalUrl } from '../../discovery/shared.js';
 import { EmptyState, postPath } from '../../discovery/pages/post-list.js';

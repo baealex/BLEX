@@ -1,7 +1,7 @@
 import { timeSince } from '../../../platform/date-format.js';
 import { Fragment, type ReactNode } from 'react';
-import { SiteIcon, type SiteIconName } from '../../../appearance/icons.js';
-import { loginPromptProps } from '../../engagement/ui/login-prompt.js';
+import { SiteIcon, type SiteIconName } from '../../../platform/views.js';
+import { loginPromptProps } from '../../../platform/views.js';
 import { PostRow, avatarUrl, dateLabel, dateValue, h, mediaUrl, pageUrl } from '../shared.js';
 
 export function postPath(post: Pick<PostRow, 'authorUsername' | 'slug'>): string {

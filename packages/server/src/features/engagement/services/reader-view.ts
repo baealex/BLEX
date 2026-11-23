@@ -1,35 +1,10 @@
+import type { ReaderAuthorHeader, ReaderPostLikeState, ReaderPostView } from '../../../../../client/src/contracts/engagement.js';
 import { type PrismaClient } from '@prisma/client';
 import { CommentPayload, publicComments } from './comments.js';
 import { subscriptionState } from './subscriptions.js';
 import { ActiveUserRow, AuthorRow, DEFAULT_AVATAR, absoluteMediaUrl, ownedPost, publicPost, safeHttpUrl } from '../shared.js';
 
-export interface ReaderAuthorHeader {
-  id: number;
-  username: string;
-  name: string;
-  avatar: string;
-  cover: string | null;
-  bio: string;
-  homepage: string;
-  social: Array<{ id: number; name: string; value: string; order: number }>;
-  canSubscribe: boolean;
-  isSubscribed: boolean;
-}
-
-export interface ReaderPostLikeState {
-  countLikes: number;
-  isLiked: boolean;
-  canLike: boolean;
-}
-
-export interface ReaderPostView {
-  slug: string;
-  viewerAuthenticated: boolean;
-  postLike: ReaderPostLikeState;
-  author: ReaderAuthorHeader;
-  canComment: boolean;
-  comments: CommentPayload[];
-}
+export type { ReaderAuthorHeader, ReaderPostLikeState, ReaderPostView };
 
 export async function readReaderPostView(
   db: PrismaClient,

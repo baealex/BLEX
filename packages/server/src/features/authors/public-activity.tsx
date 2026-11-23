@@ -1,5 +1,5 @@
-import { SiteIcon, type SiteIconName } from '../../appearance/icons.js';
-import { renderApplicationDocument } from '../../application/document.js';
+import { SiteIcon, type SiteIconName } from '../../platform/views.js';
+import { renderApplicationDocument } from '../../platform/views.js';
 import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { toIsoDateTime } from '../developer-api/index.js';

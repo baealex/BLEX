@@ -119,7 +119,7 @@ const glyphs = {
   'user': IconUser,
   'user-plus': IconUserPlus,
   'writing': IconWriting,
-  'x': IconX,
+  'x': IconX
 };
 
 export type SiteIconName = keyof typeof glyphs;

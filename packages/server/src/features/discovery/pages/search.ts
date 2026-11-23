@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { SiteIcon } from '../../../appearance/icons.js';
+import { SiteIcon } from '../../../platform/views.js';
 import { PostRow, avatarUrl, dateLabel, dateValue, h, mediaUrl } from '../shared.js';
 import { postPath } from './post-list.js';
 

@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { type PrismaClient } from '@prisma/client';
 import { isoUtcMillis } from '../../../platform/date-format.js';
-import { SiteIcon } from '../../../appearance/icons.js';
+import { SiteIcon } from '../../../platform/views.js';
 import { sanitizePostHtml } from '../../posts/post-html.js';
 import { readCardLikes, readLikedPosts, readPublicPostCount, readPublicPosts } from '../services/public-posts.js';
 import { PAGE_SIZE, PageMeta, PublicPageOptions, canonicalPageUrl, description, h, hasUnexpected, makeAbsolute, makePaginationMeta, pageFrom, safeStructuredPageData, sendNotFound, staticPageStyles, totalPages, validPublicPage } from '../shared.js';

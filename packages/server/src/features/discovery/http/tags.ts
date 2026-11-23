@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import type { Prisma, PrismaClient } from '@prisma/client';
-import { SiteIcon } from '../../../appearance/icons.js';
+import { SiteIcon } from '../../../platform/views.js';
 import { publicPostWhere } from '../../posts/data/visibility.js';
 import { readCardLikes, readPublicPostCount, readPublicPosts } from '../services/public-posts.js';
 import { PAGE_SIZE, PublicPageOptions, TagRow, canonicalPageUrl, h, hasUnexpected, makeAbsolute, makePaginationMeta, pageFrom, sendNotFound, totalPages, validPublicPage } from '../shared.js';

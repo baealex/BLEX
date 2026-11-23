@@ -1,14 +1,15 @@
-import { renderApplicationDocument, scriptJson } from '../../../application/document.js';
+import { renderApplicationDocument } from '../../../platform/views.js';
+import { scriptJson } from '../../../platform/document.js';
 import { storedDateText } from '../../../platform/date-format.js';
 import type { ReactNode } from 'react';
-import { SiteIcon, type SiteIconName } from '../../../appearance/icons.js';
-import { SiteFooter, SiteHeader, SiteTheme, type HeaderViewer } from '../../../appearance/shell.js';
+import { SiteIcon, type SiteIconName } from '../../../platform/views.js';
+import { SiteFooter, SiteHeader, SiteTheme, type HeaderViewer } from '../../../platform/views.js';
 import { postOutline, youtubeFrameSources } from '../post-html.js';
 import { publicPostPath, type PostPresentation, type PostSeriesEntry, type PostSeriesNavigation, type PublicPost } from '../public-post.js';
 import type { RelatedPost } from '../../authors/public-activity.js';
 import type { ReaderPostView } from '../../engagement/index.js';
-import { PostComments } from '../../engagement/ui/index.js';
-import { loginPromptProps } from '../../engagement/ui/login-prompt.js';
+import { PostComments } from '../../../platform/views.js';
+import { loginPromptProps } from '../../../platform/views.js';
 
 export const postContentSecurityPolicy = `default-src 'none'; img-src 'self' https: data:; media-src 'self' https:; frame-src ${youtubeFrameSources}; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'`;
 

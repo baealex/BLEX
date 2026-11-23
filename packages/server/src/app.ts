@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import Fastify, { type FastifyError, type FastifyRequest } from 'fastify';
 import { stat } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { applicationContentSecurityPolicy, isApplicationDocument } from './application/document.js';
+import { applicationContentSecurityPolicy, isApplicationDocument } from './platform/document.js';
 import type { AuthConfig } from './features/auth/http.js';
 import { readSession } from './features/auth/session.js';
 import { searchIndexingEnabled } from './features/discovery/feeds/index.js';

@@ -1,8 +1,8 @@
-import { renderApplicationDocument } from '../../application/document.js';
+import { renderApplicationDocument } from '../../platform/views.js';
 import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
-import { SiteFooter, SiteHeader, SiteTheme } from '../../appearance/shell.js';
-import { AuthPanel, authField, authInput, authSubmit } from './ui/panel.js';
+import { SiteFooter, SiteHeader, SiteTheme } from '../../platform/views.js';
+import { AuthPanel, authField, authInput, authSubmit } from '../../platform/views.js';
 import { readPublicSiteBrand, type SiteBrand } from '../discovery/pages/index.js';
 import { updateAccountIdentity } from './account-identity.js';
 import { accountEmailPattern, accountUsernamePattern, describeInvalidPassword, normalizeAccountEmail, signupRegion } from './account-validation.js';

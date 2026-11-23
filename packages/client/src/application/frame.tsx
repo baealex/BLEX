@@ -9,7 +9,7 @@ export interface ApplicationView {
 
 export function ApplicationFrame({ view }: { view: ApplicationView }) {
   return <>
-    {view.header && <SiteHeader {...view.header} />}
-    <div key={view.contentKey} id="blex-route-content" className="contents" dangerouslySetInnerHTML={{ __html: view.html }} />
+      {view.header && <SiteHeader {...view.header} />}
+      <div key={view.contentKey} id="blex-route-content" className="contents" dangerouslySetInnerHTML={{ __html: view.html }} />
   </>;
 }

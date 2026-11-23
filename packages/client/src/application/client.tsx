@@ -5,7 +5,7 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
-  type RouterHistory,
+  type RouterHistory
 } from '@tanstack/react-router';
 import { useLayoutEffect, useState } from 'react';
 import { ApplicationFrame, type ApplicationView } from './frame.js';
@@ -142,11 +142,14 @@ function collectHead(source: Document, pageUrl: URL): PageHead {
     })
     .map((link) => ({ attributes: normalizedLinkAttributes(link, pageUrl) }));
   const styles = Array.from(source.head.querySelectorAll<HTMLStyleElement>('style'))
-    .map((style) => ({ text: style.textContent ?? '', nonce: style.nonce || undefined }));
+    .map((style) => ({
+ text: style.textContent ?? '',
+nonce: style.nonce || undefined
+}));
   const scripts = Array.from(source.head.querySelectorAll<HTMLScriptElement>('script[type="application/ld+json"]'))
     .map((script) => ({
       attributes: attributesOf(script, new Set(['src', routeHeadAttribute])),
-      text: script.textContent ?? '',
+      text: script.textContent ?? ''
     }));
   return {
     title: source.title,
@@ -154,7 +157,7 @@ function collectHead(source: Document, pageUrl: URL): PageHead {
     metas,
     links,
     styles,
-    scripts,
+    scripts
   };
 }
 
@@ -174,7 +177,10 @@ function pageModuleSources(source: Document): ApplicationDocument['pageModules']
       const name = script.dataset.blexPageModule;
       const src = script.getAttribute('src');
       if ((name !== 'login' && name !== 'editor' && name !== 'comments' && name !== 'screen') || !src) return null;
-      return { name, source: src };
+      return {
+ name,
+source: src
+};
     })
     .filter((entry): entry is ApplicationDocument['pageModules'][number] => entry !== null);
 }
@@ -192,7 +198,10 @@ function readScriptJson(source: Document, id: string): unknown {
 function readScreenData(source: Document, content: Element): ScreenData | null {
   if (!content.querySelector('[data-screen]')) return null;
   const globals = readScriptJson(source, 'blex-screen-globals');
-  return { configuration: readScriptJson(source, 'blex-screen-config'), globals: isRecord(globals) ? globals : {} };
+  return {
+ configuration: readScriptJson(source, 'blex-screen-config'),
+globals: isRecord(globals) ? globals : {}
+};
 }
 
 function applyScreenData(screen: ScreenData | null): void {
@@ -218,13 +227,17 @@ function readApplicationDocument(source: Document, url: string): ApplicationDocu
   try { pageUrl = new URL(url, window.location.href); } catch { return null; }
   const screen = readScreenData(source, content);
   return {
-    view: { header, html: content.innerHTML, contentKey: screen ? pageRequestKey(pageUrl) : undefined },
+    view: {
+ header,
+html: content.innerHTML,
+contentKey: screen ? pageRequestKey(pageUrl) : undefined
+},
     url: pageUrl.href,
     head: collectHead(source, pageUrl),
     bodyAttributes: bodyAttributes(source),
     pageModules: pageModuleSources(source),
     needsHcaptcha: hasTrustedHcaptchaScript(source, pageUrl),
-    screen,
+    screen
   };
 }
 
@@ -262,7 +275,10 @@ async function loadApplicationDocument({ abortController }: { abortController: A
       credentials: 'same-origin',
       redirect: 'follow',
       signal,
-      headers: { Accept: 'text/html,application/xhtml+xml', 'X-Blex-Application-Request': '1' },
+      headers: {
+ Accept: 'text/html,application/xhtml+xml',
+'X-Blex-Application-Request': '1'
+}
     });
   } catch (error) {
     if (signal.aborted) throw error;
@@ -304,7 +320,7 @@ function beginPageChange(to: string): void {
   dispatchLifecycle('blex:before-page-change', {
     from: currentDocument?.url ?? window.location.href,
     to,
-    navigationType,
+    navigationType
   });
   disposeActivePage();
 }
@@ -346,7 +362,10 @@ function pageRequestKey(url: URL): string {
 }
 
 function dispatchLifecycle(name: 'blex:before-page-change' | 'blex:page-change', detail: PageChangeDetail): void {
-  document.dispatchEvent(new CustomEvent<PageChangeDetail>(name, { bubbles: true, detail }));
+  document.dispatchEvent(new CustomEvent<PageChangeDetail>(name, {
+ bubbles: true,
+detail
+}));
 }
 
 function markExistingRouteHead(): void {
@@ -355,7 +374,7 @@ function markExistingRouteHead(): void {
     'link[rel~="canonical"]', 'link[rel~="alternate"]', 'link[rel~="icon"]',
     'link[rel~="apple-touch-icon"]', 'link[rel~="mask-icon"]',
     'meta[name]:not([name="blex-application"]):not([name="viewport"])', 'meta[property]', 'style',
-    'script[type="application/ld+json"]',
+    'script[type="application/ld+json"]'
   ];
   for (const element of document.head.querySelectorAll(selectors.join(','))) element.setAttribute(routeHeadAttribute, '');
 }
@@ -615,9 +634,12 @@ async function submitApplicationPost(
   action: URL,
   data: FormData,
   enctype: string,
-  controller: AbortController,
+  controller: AbortController
 ): Promise<void> {
-  const headers: Record<string, string> = { Accept: 'text/html,application/xhtml+xml', ...csrfHeader(data) };
+  const headers: Record<string, string> = {
+ Accept: 'text/html,application/xhtml+xml',
+...csrfHeader(data)
+};
   let body: FormData | URLSearchParams;
   if (enctype === 'application/x-www-form-urlencoded') {
     const values = new URLSearchParams();
@@ -642,7 +664,7 @@ async function submitApplicationPost(
       credentials: 'same-origin',
       mode: 'same-origin',
       redirect: 'follow',
-      signal: controller.signal,
+      signal: controller.signal
     });
     const finalUrl = new URL(response.url || action.href, action);
     if (finalUrl.origin !== window.location.origin) {
@@ -694,14 +716,22 @@ function readPosition(key: string): PagePosition | null {
   try {
     const value: unknown = JSON.parse(sessionStorage.getItem(`${scrollStoragePrefix}${key}`) ?? 'null');
     if (!isRecord(value) || typeof value.x !== 'number' || typeof value.y !== 'number' || typeof value.focusId !== 'string') return null;
-    return { x: value.x, y: value.y, focusId: value.focusId };
+    return {
+ x: value.x,
+y: value.y,
+focusId: value.focusId
+};
   } catch { return null; }
 }
 
 function savePosition(key: string): void {
   const focused = document.activeElement;
   const focusId = focused instanceof HTMLElement ? focused.id : '';
-  const value: PagePosition = { x: window.scrollX, y: window.scrollY, focusId };
+  const value: PagePosition = {
+ x: window.scrollX,
+y: window.scrollY,
+focusId
+};
   try { sessionStorage.setItem(`${scrollStoragePrefix}${key}`, JSON.stringify(value)); } catch { /* Scroll restoration is optional when storage is unavailable. */ }
 }
 
@@ -730,7 +760,11 @@ function installPositionTracking(): void {
 function restorePagePosition(type: PageChangeDetail['navigationType'], locationKey: string, hash: string): void {
   const saved = type === 'POP' ? readPosition(locationKey) : null;
   if (saved) {
-    window.scrollTo({ left: saved.x, top: saved.y, behavior: 'instant' });
+    window.scrollTo({
+ left: saved.x,
+top: saved.y,
+behavior: 'instant'
+});
     const target = saved.focusId ? document.getElementById(saved.focusId) : null;
     if (target instanceof HTMLElement) focusWithoutScroll(target);
     return;
@@ -741,12 +775,19 @@ function restorePagePosition(type: PageChangeDetail['navigationType'], locationK
     try { id = decodeURIComponent(id); } catch { /* Use the original fragment when it is malformed. */ }
     const target = document.getElementById(id);
     if (target) {
-      target.scrollIntoView({ block: 'start', behavior: 'instant' });
+      target.scrollIntoView({
+ block: 'start',
+behavior: 'instant'
+});
       if (target instanceof HTMLElement) focusWithoutScroll(target);
       return;
     }
   }
-  window.scrollTo({ left: 0, top: 0, behavior: 'instant' });
+  window.scrollTo({
+ left: 0,
+top: 0,
+behavior: 'instant'
+});
   const heading = document.querySelector<HTMLElement>('#blex-route-content h1, #blex-route-content [data-page-title], #blex-route-content main');
   if (heading) focusWithoutScroll(heading);
 }
@@ -780,7 +821,7 @@ function permittedPageModuleUrl(module: ApplicationDocument['pageModules'][numbe
 async function mountPageModules(
   page: ApplicationDocument,
   content: ParentNode,
-  generation: number,
+  generation: number
 ): Promise<(() => void) | null> {
   const cleanups: Array<() => void> = [];
   for (const source of page.pageModules) {
@@ -868,7 +909,7 @@ function loadHcaptchaApi(): Promise<HcaptchaApi> {
 async function mountHcaptcha(
   page: ApplicationDocument,
   content: ParentNode,
-  generation: number,
+  generation: number
 ): Promise<(() => void) | null> {
   if (!page.needsHcaptcha) return null;
   const api = await loadHcaptchaApi();
@@ -881,7 +922,10 @@ async function mountHcaptcha(
     try {
       const widgetId = api.render(element, { sitekey });
       element.dataset.hcaptchaWidgetId = widgetId;
-      mounted.push({ element, widgetId });
+      mounted.push({
+ element,
+widgetId
+});
     } catch (error) {
       console.error('The hCaptcha widget could not be rendered.', error);
     }
@@ -904,7 +948,7 @@ function cleanupAll(cleanups: Array<() => void>): void {
 async function activateRouteFeatures(
   page: ApplicationDocument,
   content: ParentNode,
-  generation: number,
+  generation: number
 ): Promise<(() => void) | null> {
   const cleanups: Array<() => void> = [];
   const moduleCleanup = await mountPageModules(page, content, generation);
@@ -960,14 +1004,19 @@ function commitApplicationPage(page: ApplicationDocument, hash: string): void {
         return;
       }
       currentPageCleanup = cleanup;
-      dispatchLifecycle('blex:page-change', { from: previousUrl, to: page.url, navigationType: changeType });
+      dispatchLifecycle('blex:page-change', {
+ from: previousUrl,
+to: page.url,
+navigationType: changeType
+});
     });
   }
   hasCommittedInitialDocument = true;
 }
 
 function renderLoadedPage(activeRouter: ApplicationRouter): void {
-  const match = activeRouter.state.matches.at(-1);
+  const { matches } = activeRouter.state;
+  const match = matches[matches.length - 1];
   if (match?.status === 'error') {
     // The failed destination already owns the current history entry.
     window.location.replace(match.error instanceof NativeNavigationRequired ? match.error.url : window.location.href);
@@ -1007,7 +1056,7 @@ const applicationRoute = createRoute({
   loaderDeps: ({ search }) => search,
   // A fragment change stays on the loaded page; saved forms still reload it through invalidate.
   shouldReload: ({ cause }) => cause !== 'stay',
-  loader: loadApplicationDocument,
+  loader: loadApplicationDocument
 });
 
 const createApplicationRouter = () => createRouter({
@@ -1018,7 +1067,7 @@ const createApplicationRouter = () => createRouter({
   parseSearch: (search) => ({ raw: search }),
   stringifySearch: (search) => (typeof search.raw === 'string' ? search.raw : ''),
   defaultStaleReloadMode: 'blocking',
-  defaultGcTime: 0,
+  defaultGcTime: 0
 });
 type ApplicationRouter = ReturnType<typeof createApplicationRouter>;
 
@@ -1044,9 +1093,7 @@ if (appRoot && initialDocument) {
     document.addEventListener('click', handleDocumentClick);
     document.addEventListener('submit', handleDocumentSubmit);
     installPositionTracking();
-    hydrateRoot(appRoot, <ApplicationRoute initialPage={initialDocument} />, {
-      onRecoverableError(error) { console.error('BLEX application hydration recovered from an error.', error); },
-    });
+    hydrateRoot(appRoot, <ApplicationRoute initialPage={initialDocument} />, { onRecoverableError(error) { console.error('BLEX application hydration recovered from an error.', error); } });
   });
 } else {
   console.error('BLEX client routing was skipped because the application document marker is missing.');

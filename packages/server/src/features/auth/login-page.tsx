@@ -1,8 +1,8 @@
-import { renderApplicationDocument } from '../../application/document.js';
+import { renderApplicationDocument } from '../../platform/views.js';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
-import { LoginForm, type LoginModel } from './ui/login-form.js';
-import { SiteFooter, SiteHeader, SiteTheme } from '../../appearance/shell.js';
+import { LoginForm, type LoginModel } from '../../platform/views.js';
+import { SiteFooter, SiteHeader, SiteTheme } from '../../platform/views.js';
 import { readPublicSiteBrand } from '../discovery/pages/index.js';
 import { readUiAsset } from '../../platform/ui-assets.js';
 import { authCookieOptions, csrfCookie, sessionCookie } from '../../platform/cookies.js';

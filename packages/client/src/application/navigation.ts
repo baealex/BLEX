@@ -24,11 +24,14 @@ export function navigateTo(to: string, options: NavigateOptions = {}): void {
   }
   if (!['http:', 'https:'].includes(destination.protocol)) return;
 
-  const detail: BlexNavigateDetail = { to: destination.href, replace: options.replace === true };
+  const detail: BlexNavigateDetail = {
+ to: destination.href,
+replace: options.replace === true
+};
   const event = new CustomEvent<BlexNavigateDetail>('blex:navigate', {
     bubbles: true,
     cancelable: true,
-    detail,
+    detail
   });
   document.dispatchEvent(event);
   if (event.defaultPrevented) return;

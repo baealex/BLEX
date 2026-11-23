@@ -7,7 +7,7 @@ export default defineConfig({
   base: '/assets/ui/',
   publicDir: false,
   build: {
-    outDir: 'dist/client',
+    outDir: '../server/dist/client',
     emptyOutDir: true,
     manifest: true,
     rolldownOptions: {

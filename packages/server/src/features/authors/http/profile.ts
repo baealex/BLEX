@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { FastifyInstance } from 'fastify';
 import type { Prisma, PrismaClient } from '@prisma/client';
-import { SiteIcon } from '../../../appearance/icons.js';
+import { SiteIcon } from '../../../platform/views.js';
 import { storedDateText } from '../../../platform/date-format.js';
 import { sanitizePostHtml } from '../../posts/post-html.js';
 import { AuthorActivitySection, readAuthorActivity } from '../public-activity.js';

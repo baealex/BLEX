@@ -7,7 +7,8 @@ COPY packages/server/package.json ./packages/server/package.json
 COPY packages/client/package.json ./packages/client/package.json
 RUN npm i -g pnpm@${PNPM_VERSION} && pnpm i --frozen-lockfile --filter . --filter '@blex/client...'
 COPY packages/client ./packages/client
-RUN pnpm exec turbo run build --filter=@blex/client && find /app/packages/server/dist/web -name '*.map' -delete
+COPY packages/server/src/features ./packages/server/src/features
+RUN pnpm exec turbo run build --filter=@blex/client && find /app/packages/server/dist -name '*.map' -delete
 
 FROM node:24.22.1-alpine AS node-base
 WORKDIR /app
@@ -24,11 +25,11 @@ COPY packages/server/package.json ./packages/server/package.json
 COPY packages/client/package.json ./packages/client/package.json
 COPY packages/server/prisma ./packages/server/prisma
 RUN pnpm i --frozen-lockfile --filter @blex/server
-COPY packages/server/tsconfig.json packages/server/vite.config.ts ./packages/server/
+COPY packages/server/tsconfig.json ./packages/server/
 COPY packages/server/src ./packages/server/src
 COPY packages/server/scripts ./packages/server/scripts
-# The shared Tailwind stylesheet scans the client for class names.
-COPY packages/client/src ./packages/client/src
+# The server type-checks against the view contracts the client publishes.
+COPY packages/client/src/contracts ./packages/client/src/contracts
 RUN pnpm --filter @blex/server run build
 
 FROM build AS traced-files
@@ -94,7 +95,8 @@ COPY packages/server/prisma ./prisma
 COPY --from=traced-files /traced/node_modules /app/node_modules
 COPY --from=traced-files /traced/packages/server/node_modules ./node_modules
 COPY --from=build /app/packages/server/dist/src ./dist/src
-COPY --from=build /app/packages/server/dist/client ./dist/client
+COPY --from=web-builder /app/packages/server/dist/client ./dist/client
+COPY --from=web-builder /app/packages/server/dist/ssr ./dist/ssr
 COPY --from=web-builder /app/packages/server/dist/web ./dist/web
 COPY packages/server/data ./data
 COPY packages/server/public ./public

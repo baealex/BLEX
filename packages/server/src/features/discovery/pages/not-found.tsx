@@ -1,9 +1,9 @@
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyRequest } from 'fastify';
-import { readPageChrome } from '../../../appearance/page-chrome.js';
-import { SiteIcon } from '../../../appearance/icons.js';
-import { SiteHeader, SiteTheme } from '../../../appearance/shell.js';
-import { renderApplicationDocument } from '../../../application/document.js';
+import { readPageChrome } from '../../../platform/page-chrome.js';
+import { SiteIcon } from '../../../platform/views.js';
+import { SiteHeader, SiteTheme } from '../../../platform/views.js';
+import { renderApplicationDocument } from '../../../platform/views.js';
 
 const pageButton = 'rounded-full border border-line bg-surface-elevated px-8 py-3.5 font-semibold text-content transition-all duration-150 hover:-translate-y-0.5 hover:border-line-strong hover:shadow-lg';
 const floatStyles = '@keyframes blex-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}.blex-float{animation:blex-float 6s ease-in-out infinite}.blex-float-delayed{animation:blex-float 6s ease-in-out infinite 2s}@media (prefers-reduced-motion:reduce){.blex-float,.blex-float-delayed{animation:none}}';

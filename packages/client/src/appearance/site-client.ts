@@ -187,7 +187,10 @@ function bindQuickSearch(search: HTMLElement, signal: AbortSignal) {
     const query = input!.value.trim();
     heading!.textContent = query ? '빠른 검색 결과' : '최근 검색';
     if (!query) {
-      setRows(recentSearches().map((entry) => ({ href: `/search?${new URLSearchParams({ q: entry })}`, title: entry })), '최근 검색어가 없습니다.');
+      setRows(recentSearches().map((entry) => ({
+ href: `/search?${new URLSearchParams({ q: entry })}`,
+title: entry
+})), '최근 검색어가 없습니다.');
       return;
     }
     setRows([], '검색 중…');
@@ -204,8 +207,11 @@ function bindQuickSearch(search: HTMLElement, signal: AbortSignal) {
         const matches: unknown = result.body?.results;
         const rows = Array.isArray(matches) ? matches.slice(0, 5).flatMap((post) => {
           if (typeof post?.author !== 'string' || typeof post?.url !== 'string' || typeof post?.title !== 'string') return [];
-          return [{ href: `/@${encodeURIComponent(post.author)}/${encodeURIComponent(post.url)}`, title: post.title,
-            description: `@${post.author}${typeof post.description === 'string' && post.description ? ` · ${post.description}` : ''}` }];
+          return [{
+ href: `/@${encodeURIComponent(post.author)}/${encodeURIComponent(post.url)}`,
+title: post.title,
+            description: `@${post.author}${typeof post.description === 'string' && post.description ? ` · ${post.description}` : ''}`
+}];
         }) : [];
         if (!signal.aborted && !controller.signal.aborted) setRows(rows, '빠른 검색 결과가 없습니다.');
       } catch {
@@ -291,14 +297,29 @@ async function saveAbout(url: string, content: string) {
   const token = /(?:^|; )csrftoken=([^;]+)/.exec(document.cookie)?.[1] ?? '';
   try {
     const response = await fetch(url, {
-      method: 'POST', body: new URLSearchParams({ aboutMarkdown: content }),
-      headers: { 'X-CSRFToken': token, Accept: 'application/json' },
+      method: 'POST',
+body: new URLSearchParams({ aboutMarkdown: content }),
+      headers: {
+ 'X-CSRFToken': token,
+Accept: 'application/json'
+}
     });
     const data = await response.json().catch(() => ({})) as { status?: string; message?: string; aboutMarkdown?: string; aboutHtml?: string };
-    if (response.ok && data.status === 'success') return { ok: true as const, message: data.message ?? '소개글을 저장했습니다.', markdown: data.aboutMarkdown ?? '', html: data.aboutHtml ?? '' };
-    return { ok: false as const, message: data.message ?? '소개글을 저장하지 못했습니다.' };
+    if (response.ok && data.status === 'success') return {
+ ok: true as const,
+message: data.message ?? '소개글을 저장했습니다.',
+markdown: data.aboutMarkdown ?? '',
+html: data.aboutHtml ?? ''
+};
+    return {
+ ok: false as const,
+message: data.message ?? '소개글을 저장하지 못했습니다.'
+};
   } catch {
-    return { ok: false as const, message: '네트워크 오류로 저장하지 못했습니다.' };
+    return {
+ ok: false as const,
+message: '네트워크 오류로 저장하지 못했습니다.'
+};
   }
 }
 
@@ -444,7 +465,10 @@ function bindRouteElements() {
       loading = true;
       status.textContent = '댓글을 불러오는 중입니다.';
       try {
-        const response = await fetch(`/v1/comments/${id}`, { cache: 'no-store', signal });
+        const response = await fetch(`/v1/comments/${id}`, {
+ cache: 'no-store',
+signal
+});
         const result = await response.json();
         if (!response.ok || typeof result.body?.textMd !== 'string') throw new Error('Comment unavailable');
         if (signal.aborted || !field.isConnected) return;

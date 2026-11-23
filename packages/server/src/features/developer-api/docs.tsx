@@ -2,9 +2,10 @@ import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { readFile } from 'node:fs/promises';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { readPageChrome } from '../../appearance/page-chrome.js';
-import { SiteFooter, SiteHeader, SiteTheme } from '../../appearance/shell.js';
-import { renderApplicationDocument, scriptJson } from '../../application/document.js';
+import { readPageChrome } from '../../platform/page-chrome.js';
+import { SiteFooter, SiteHeader, SiteTheme } from '../../platform/views.js';
+import { renderApplicationDocument } from '../../platform/views.js';
+import { scriptJson } from '../../platform/document.js';
 import { quickstartHtml } from './quickstart-content.js';
 
 interface DocumentationOptions {

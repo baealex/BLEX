@@ -1,4 +1,4 @@
-import type { CommentPayload } from '../index.js';
+import type { CommentPayload } from '../../../contracts/engagement';
 
 const mentionStartBlockers = /[\p{L}\p{N}_@.+\-`*~]/u;
 const replyMentionSeparator = /[\s,!?;:()[\]{}]/;
@@ -34,26 +34,35 @@ export function buildReplySubmissionText(replyText: string, targetAuthor: string
 export function updateCommentInTree(
   comments: CommentPayload[],
   commentId: number,
-  updater: (comment: CommentPayload) => CommentPayload,
+  updater: (comment: CommentPayload) => CommentPayload
 ): CommentPayload[] {
   return comments.map((comment) => {
     if (comment.id === commentId) return updater(comment);
     if (!comment.replies?.length) return comment;
-    return { ...comment, replies: updateCommentInTree(comment.replies, commentId, updater) };
+    return {
+ ...comment,
+replies: updateCommentInTree(comment.replies, commentId, updater)
+};
   });
 }
 
 export function mergeCommentInTree(comments: CommentPayload[], updated: CommentPayload): CommentPayload[] {
   return updateCommentInTree(comments, updated.id, (comment) => ({
-    ...comment, ...updated, replies: updated.replies ?? comment.replies,
+    ...comment,
+...updated,
+replies: updated.replies ?? comment.replies
   }));
 }
 
 export function appendCommentToTree(comments: CommentPayload[], created: CommentPayload): CommentPayload[] {
-  const entry = { ...created, replies: created.replies ?? [] };
+  const entry = {
+ ...created,
+replies: created.replies ?? []
+};
   if (!created.parentId) return [...comments, entry];
   return updateCommentInTree(comments, created.parentId, (comment) => ({
-    ...comment, replies: [...(comment.replies ?? []), entry],
+    ...comment,
+replies: [...(comment.replies ?? []), entry]
   }));
 }
 

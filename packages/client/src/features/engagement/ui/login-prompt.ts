@@ -7,6 +7,6 @@ export function loginPromptProps(returnTo: string, action: LoginPromptAction) {
   return {
     href: `/login?next=${encodeURIComponent(next)}`,
     'data-blex-login-prompt': action,
-    'data-blex-login-next': next,
+    'data-blex-login-next': next
   };
 }

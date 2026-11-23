@@ -1,6 +1,6 @@
-import { SiteIcon } from '../../appearance/icons.js';
-import { renderApplicationDocument } from '../../application/document.js';
-import { SiteFooter, SiteHeader, SiteTheme, type HeaderViewer, type SiteHeaderProps } from '../../appearance/shell.js';
+import { SiteIcon } from '../../platform/views.js';
+import { renderApplicationDocument } from '../../platform/views.js';
+import { SiteFooter, SiteHeader, SiteTheme, type HeaderViewer, type SiteHeaderProps } from '../../platform/views.js';
 import { koreanDate, koreanDateTime } from '../../platform/date-format.js';
 import { pageFields } from './shared.js';
 

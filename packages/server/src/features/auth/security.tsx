@@ -14,8 +14,8 @@ import { credentialTag, createToken, tokenHash } from './session.js';
 import { recoveredAccountPath } from './recovery-path.js';
 import { isRecoveryCode, verifySecondFactor } from './two-factor.js';
 import { acquireVerification, hasVerification, readVerificationAccount, recordVerification } from './verification.js';
-import { renderApplicationDocument } from '../../application/document.js';
-import { SiteFooter, SiteHeader, SiteTheme } from '../../appearance/shell.js';
+import { renderApplicationDocument } from '../../platform/views.js';
+import { SiteFooter, SiteHeader, SiteTheme } from '../../platform/views.js';
 import { readPublicSiteBrand } from '../discovery/pages/index.js';
 import { done, failure } from '../../platform/response.js';
 

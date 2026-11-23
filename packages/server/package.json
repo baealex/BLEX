@@ -8,7 +8,7 @@
   },
   "scripts": {
     "postinstall": "prisma generate",
-    "build": "tsc -p tsconfig.json && vite build",
+    "build": "tsc -p tsconfig.json",
     "dev": "pnpm run build && node dist/src/development.js",
     "type-check": "tsc -p tsconfig.json --noEmit",
     "db:migrate": "prisma migrate deploy",
@@ -21,8 +21,6 @@
     "@fastify/multipart": "^9.4.0",
     "@fastify/static": "^10.1.12",
     "@prisma/client": "6.19.3",
-    "@tabler/icons-react": "^3.52.0",
-    "@tanstack/react-router": "^1.170.46",
     "fastify": "^5.12.7",
     "htmlparser2": "^12.0.0",
     "otpauth": "^9.6.0",
@@ -33,20 +31,13 @@
     "sharp": "^0.35.5"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.3.2",
     "@types/node": "^24.0.0",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@types/sanitize-html": "^2.16.0",
     "@vercel/nft": "^1.11.11",
-    "frappe-charts": "^1.6.2",
-    "highlight.js": "^11.12.0",
     "prisma": "6.19.3",
-    "sass": "^1.108.2",
-    "tailwindcss": "^4.3.2",
-    "tailwindcss-animate": "^1.0.7",
-    "typescript": "^6.0.0",
-    "vite": "^8.3.5"
+    "typescript": "^6.0.0"
   }
 }

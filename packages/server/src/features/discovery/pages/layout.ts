@@ -1,9 +1,10 @@
-import { renderApplicationDocument, scriptJson } from '../../../application/document.js';
+import { renderApplicationDocument } from '../../../platform/views.js';
+import { scriptJson } from '../../../platform/document.js';
 import { type ReactNode } from 'react';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { type PrismaClient } from '@prisma/client';
-import { SiteIcon } from '../../../appearance/icons.js';
-import { SiteFooter, SiteHeader, SiteTheme } from '../../../appearance/shell.js';
+import { SiteIcon } from '../../../platform/views.js';
+import { SiteFooter, SiteHeader, SiteTheme } from '../../../platform/views.js';
 import { NoticeRow, PageMeta, PublicPageOptions, PublicPageViewer, SiteBrand, h, makeAbsolute } from '../shared.js';
 
 export function PublicSiteMark({ brand, siteName, imageClass }: { brand?: SiteBrand; siteName: string; imageClass?: string }): ReactNode {

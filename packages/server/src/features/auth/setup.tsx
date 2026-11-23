@@ -1,9 +1,9 @@
-import { renderApplicationDocument } from '../../application/document.js';
+import { renderApplicationDocument } from '../../platform/views.js';
 import { timingSafeEqual } from 'node:crypto';
 import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
-import { SiteFooter, SiteHeader, SiteTheme } from '../../appearance/shell.js';
-import { AuthPanel, authField, authInput, authSubmit } from './ui/panel.js';
+import { SiteFooter, SiteHeader, SiteTheme } from '../../platform/views.js';
+import { AuthPanel, authField, authInput, authSubmit } from '../../platform/views.js';
 import { accountEmailPattern, accountUsernamePattern, describeInvalidPassword, normalizeAccountEmail } from './account-validation.js';
 import { authCookieOptions, csrfCookie, sessionCookie, setSessionCookies } from '../../platform/cookies.js';
 import { formInput, validCsrf } from '../../platform/csrf.js';

@@ -1,7 +1,7 @@
 @import "tailwindcss" source(none);
 @plugin "tailwindcss-animate";
 @source "../";
-@source "../../../client/src";
+@source "../../../server/src/features";
 
 @theme inline {
     --color-surface: var(--color-surface);

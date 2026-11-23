@@ -8,7 +8,7 @@ import { PrismaClient } from '@prisma/client';
 import { after, beforeEach, test } from 'node:test';
 import { readReaderPostView, registerReaderActions } from '../src/features/engagement/index.js';
 import { installNotificationTables } from './fixtures/notifications.js';
-import { ReaderActions } from '../src/features/engagement/ui/index.js';
+import { ReaderActions } from '../src/platform/views.js';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { accountTables, migratedTableSql } from './fixtures/migrated-database.js';
 
