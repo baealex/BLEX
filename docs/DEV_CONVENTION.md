@@ -64,3 +64,5 @@ pnpm type-check
 Biome formats and lints the repository. Run `pnpm format` to apply fixes; `pnpm lint` is the CI check.
 
 `pnpm test` includes the application build. For web, UI, or editor changes, also run the workspace checks as described in the [Testing Guide](TESTING_GUIDE.md).
+
+Regular CI runs application and client checks. Container builds, image security scans, and the 512 MiB browser smoke test run in `BUILD.yml` for release tags or manual builds. The smoke test uses the candidate image digest and must pass before release tags are published. Published images also receive weekly security scans.
