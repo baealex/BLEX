@@ -33,15 +33,13 @@ function loadProviders(): Promise<SocialProvider[]> {
     return providersRequest;
 }
 
-function LoginPromptDialog({
-    action,
-    next,
-    onClose
-}: {
+export interface LoginPromptDialogProps {
     action: LoginPromptAction;
     next: string;
     onClose: () => void;
-}) {
+}
+
+export function LoginPromptDialog({ action, next, onClose }: LoginPromptDialogProps) {
     const dialog = useRef<HTMLDialogElement>(null);
     const [providers, setProviders] = useState<SocialProvider[]>([]);
 

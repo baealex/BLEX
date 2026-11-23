@@ -302,7 +302,8 @@ function bindRouteElements() {
             if (!signal.aborted) mountAuthorHeatmaps(signal);
         });
     }
-    if (/(?:^|; )blex_telegram_hint=/.test(document.cookie)) {
+    // A post page shows this prompt from its own React tree.
+    if (/(?:^|; )blex_telegram_hint=/.test(document.cookie) && !document.querySelector('[data-blex-post-page]')) {
         // The prompt is optional, and its cookie stays so the next page can try again.
         void import('../features/engagement/ui/telegram-hint').then(
             ({ showTelegramHint }) => {

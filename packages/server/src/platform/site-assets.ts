@@ -35,14 +35,6 @@ export function registerSiteAssets(app: FastifyInstance) {
       const { script } = await readUiAsset('src/application/screen-host/client.ts');
       return reply.header('Cache-Control', 'no-store').redirect(script, 302);
     });
-    routes.get('/assets/blex/comments.js', async (_request, reply) => {
-      const { script } = await readUiAsset('src/features/engagement/ui/comments-client.tsx');
-      return reply.header('Cache-Control', 'no-store').redirect(script, 302);
-    });
-    routes.get('/assets/blex/code-blocks.js', async (_request, reply) => {
-      const { script } = await readUiAsset('src/features/posts/code-blocks-client.ts');
-      return reply.header('Cache-Control', 'no-store').redirect(script, 302);
-    });
     routes.get('/favicon.ico', (_request, reply) => reply.sendFile('favicon.ico'));
     routes.get<{ Params: { name: string } }>('/resources/:name', (request, reply) => {
       const { name } = request.params;

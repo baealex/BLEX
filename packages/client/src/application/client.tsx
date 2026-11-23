@@ -11,7 +11,9 @@ import { useLayoutEffect, useState } from 'react';
 import { ApplicationFrame, type ApplicationView } from './frame.js';
 import { openLoginPromptFrom } from './login-prompt.js';
 import { opensOutsideApplication, type BlexNavigateDetail } from './navigation.js';
+import { postBodySelector, postPageDataSelector } from './route-data.js';
 import type { SiteHeaderProps } from '../appearance/shell.js';
+import type { PostPageData } from '../features/posts/post-page-data';
 
 interface HeadLink {
     attributes: Array<[string, string]>;
@@ -50,9 +52,17 @@ interface ApplicationDocument {
     url: string;
     head: PageHead;
     bodyAttributes: Array<[string, string]>;
-    pageModules: Array<{ name: 'login' | 'editor' | 'comments' | 'code-blocks' | 'screen'; source: string }>;
+    pageModules: Array<{ name: 'login' | 'editor' | 'screen'; source: string }>;
     needsHcaptcha: boolean;
     screen: ScreenData | null;
+    post: PostDocument | null;
+}
+
+/** A post's client data and the sanitized body read back from the server markup. */
+interface PostDocument {
+    data: PostPageData;
+    bodyHtml: string;
+    revision: number;
 }
 
 interface PageChangeDetail {
@@ -79,6 +89,7 @@ let navigationType: PageChangeDetail['navigationType'] = 'PUSH';
 let showApplicationPage: ((page: ApplicationDocument) => void) | null = null;
 let visitingFromApplication = false;
 let screenGlobalNames: string[] = [];
+let postRevision = 0;
 const stagedDocuments = new Map<string, ApplicationDocument>();
 const pendingPostForms = new WeakSet<HTMLFormElement>();
 const activePostRequests = new Set<AbortController>();
@@ -210,15 +221,7 @@ function pageModuleSources(source: Document): ApplicationDocument['pageModules']
         .map((script): ApplicationDocument['pageModules'][number] | null => {
             const name = script.dataset.blexPageModule;
             const src = script.getAttribute('src');
-            if (
-                (name !== 'login' &&
-                    name !== 'editor' &&
-                    name !== 'comments' &&
-                    name !== 'code-blocks' &&
-                    name !== 'screen') ||
-                !src
-            )
-                return null;
+            if ((name !== 'login' && name !== 'editor' && name !== 'screen') || !src) return null;
             return {
                 name,
                 source: src
@@ -232,7 +235,11 @@ function bodyAttributes(source: Document): Array<[string, string]> {
 }
 
 function readScriptJson(source: Document, id: string): unknown {
-    const text = source.getElementById(id)?.textContent;
+    return parseElementJson(source.getElementById(id));
+}
+
+function parseElementJson(element: Element | null): unknown {
+    const text = element?.textContent;
     if (!text) return undefined;
     try {
         return JSON.parse(text);
@@ -262,6 +269,35 @@ function applyScreenData(screen: ScreenData | null): void {
     }
 }
 
+function readPostDocument(source: Document, content: Element): PostDocument | null {
+    const data = parseElementJson(source.querySelector(postPageDataSelector));
+    const body = content.querySelector(postBodySelector);
+    if (!isRecord(data) || typeof data.postPath !== 'string' || !body) return null;
+    postRevision += 1;
+    return {
+        data: data as unknown as PostPageData,
+        bodyHtml: body.innerHTML,
+        revision: postRevision
+    };
+}
+
+/** Loads the post page before it is shown. Returns false when the browser cannot load it. */
+async function preparePostContent(page: ApplicationDocument): Promise<boolean> {
+    if (!page.post || page.view.content !== undefined) return true;
+    try {
+        const { PostPage } = await import('../features/posts/post-page');
+        page.view = {
+            ...page.view,
+            html: '',
+            content: <PostPage data={page.post.data} bodyHtml={page.post.bodyHtml} revision={page.post.revision} />
+        };
+        return true;
+    } catch (error) {
+        console.error('The post page could not be loaded.', error);
+        return false;
+    }
+}
+
 function readApplicationDocument(source: Document, url: string): ApplicationDocument | null {
     if (!source.head.querySelector('meta[name="blex-application"][content="1"]')) return null;
     const root = source.getElementById('blex-application');
@@ -276,18 +312,20 @@ function readApplicationDocument(source: Document, url: string): ApplicationDocu
         return null;
     }
     const screen = readScreenData(source, content);
+    const post = readPostDocument(source, content);
     return {
         view: {
             header,
             html: content.innerHTML,
-            contentKey: screen ? pageRequestKey(pageUrl) : undefined
+            contentKey: post ? `post:${post.data.postPath}` : screen ? pageRequestKey(pageUrl) : undefined
         },
         url: pageUrl.href,
         head: collectHead(source, pageUrl),
         bodyAttributes: bodyAttributes(source),
         pageModules: pageModuleSources(source),
         needsHcaptcha: hasTrustedHcaptchaScript(source, pageUrl),
-        screen
+        screen,
+        post
     };
 }
 
@@ -320,6 +358,9 @@ async function loadApplicationDocument({
     const staged = stagedDocuments.get(pageRequestKey(requestUrl));
     if (staged) {
         stagedDocuments.delete(pageRequestKey(requestUrl));
+        const stagedReady = await preparePostContent(staged);
+        if (signal.aborted) throw new DOMException('Navigation was cancelled.', 'AbortError');
+        if (!stagedReady) return requiredNavigation(staged.url);
         await loadPageStylesheets(staged);
         if (signal.aborted) throw new DOMException('Navigation was cancelled.', 'AbortError');
         beginPageChange(staged.url);
@@ -368,6 +409,9 @@ async function loadApplicationDocument({
         throw new DOMException('Navigation was redirected.', 'AbortError');
     }
 
+    const ready = await preparePostContent(page);
+    if (signal.aborted) throw new DOMException('Navigation was cancelled.', 'AbortError');
+    if (!ready) return requiredNavigation(page.url);
     await loadPageStylesheets(page);
     if (signal.aborted) throw new DOMException('Navigation was cancelled.', 'AbortError');
     beginPageChange(page.url);
@@ -1267,8 +1311,9 @@ if (appRoot && initialDocument) {
     history.scrollRestoration = initialDocument.screen ? 'auto' : 'manual';
     const appRouter = createApplicationRouter();
     router = appRouter;
-    void appRouter.load().then(() => {
-        // The page body is server HTML, so this router owns history and loading while React renders one stable frame.
+    // If the post page cannot load, its server markup stays readable and links still navigate.
+    void Promise.all([appRouter.load(), preparePostContent(initialDocument)]).then(() => {
+        // Most page bodies are server HTML, so this router owns history and loading while React renders one stable frame.
         appRouter.history.subscribe(({ location, action }) => {
             navigationType = action.type === 'PUSH' || action.type === 'REPLACE' ? action.type : 'POP';
             if (!appRouter.state.isLoading && staysInActiveScreen(location.pathname)) {
