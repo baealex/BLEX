@@ -192,9 +192,13 @@ function bindRouteElements() {
     }
 
     if (document.querySelector('[data-notice-carousel]')) {
-        void import('../features/discovery/notice-carousel-client').then(({ mountNoticeCarousels }) => {
-            if (!signal.aborted) mountNoticeCarousels(signal);
-        });
+        // Without the carousel, every notice stays visible in the server markup.
+        void import('../features/discovery/notice-carousel-client').then(
+            ({ mountNoticeCarousels }) => {
+                if (!signal.aborted) mountNoticeCarousels(signal);
+            },
+            () => undefined
+        );
     }
     for (const details of document.querySelectorAll<HTMLDetailsElement>('[data-comment-edit]')) {
         const id = details.dataset.commentEdit ?? '';
@@ -272,9 +276,13 @@ function bindRouteElements() {
         });
     }
     if (/(?:^|; )blex_telegram_hint=/.test(document.cookie)) {
-        void import('../features/engagement/ui/telegram-hint').then(({ showTelegramHint }) => {
-            if (!signal.aborted) showTelegramHint(signal);
-        });
+        // The prompt is optional, and its cookie stays so the next page can try again.
+        void import('../features/engagement/ui/telegram-hint').then(
+            ({ showTelegramHint }) => {
+                if (!signal.aborted) showTelegramHint(signal);
+            },
+            () => undefined
+        );
     }
 }
 
