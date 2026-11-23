@@ -4,8 +4,8 @@ import { storedDateText } from '../../../platform/date-format.js';
 import { postIdsMatching } from '../../posts/data/text-match.js';
 import { publicPostWhere } from '../../posts/data/visibility.js';
 import { AuthorRow, PAGE_SIZE, PostQueryOptions, PostRow, PublicPageViewer } from '../shared.js';
-import { csrfCookie } from '../pages/layout.js';
-import { CardLikes } from '../pages/post-list.js';
+import { csrfCookie } from '../page-context.js';
+import type { CardLikes } from '../../../../../client/src/contracts/public.js';
 
 const postCardSelect = {
   id: true, slug: true, title: true, subtitle: true, image: true, readTime: true, description: true, publishedAt: true,

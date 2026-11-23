@@ -11,7 +11,7 @@ import { registerDeveloperDocumentation } from '../features/developer-api/docs.j
 import { registerDeveloperApi } from '../features/developer-api/index.js';
 import { registerDeveloperTokens } from '../features/developer-api/tokens.js';
 import { registerPublicDiscovery } from '../features/discovery/feeds/index.js';
-import { registerPublicPages } from '../features/discovery/pages/index.js';
+import { registerPublicPages } from '../features/discovery/http/pages.js';
 import { registerReaderActions } from '../features/engagement/index.js';
 import { registerTelegram } from '../features/integrations/telegram.js';
 import { registerWebhooks } from '../features/integrations/webhooks/index.js';

@@ -2,7 +2,7 @@ import type { Prisma, PrismaClient } from '@prisma/client';
 import { storedDateText } from '../../platform/date-format.js';
 import { publicPostWhere } from './data/visibility.js';
 import { sanitizePostHtml } from './post-html.js';
-import { readPublicSiteBrand, type SiteBrand } from '../discovery/pages/index.js';
+import { readPublicSiteBrand, type SiteBrand } from '../discovery/http/pages.js';
 
 export interface PublicPost {
   id: number;

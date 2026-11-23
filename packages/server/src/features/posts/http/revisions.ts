@@ -3,7 +3,7 @@ import type { FastifyInstance } from 'fastify';
 import { storedDateText } from '../../../platform/date-format.js';
 import { sanitizePostHtml } from '../post-html.js';
 import { done, failure as failed } from '../../../platform/response.js';
-import { renderRevisionHistoryPage, renderTimelapsePage, sendPrivateHistoryPage } from '../pages/history-pages.js';
+import { renderRevisionHistoryPage, renderTimelapsePage, sendPrivateHistoryPage } from '../history-view.js';
 import { plainText } from '../services/post-content.js';
 import { PostValidationError, assertExpectedUpdatedAt, loadPost } from '../services/post-store.js';
 import { buildTimelapse, deleteRevision, listRevisions, loadRevision, restoreRevision, revisionSummary } from '../services/revisions.js';

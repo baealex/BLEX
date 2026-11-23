@@ -25,7 +25,12 @@ export interface SiteHeaderProps {
     hideAuthLinks?: boolean;
 }
 
-export type LoginModel = Record<string, unknown>;
+export interface LoginModel {
+    csrfToken: string;
+    next: string;
+    providers: Array<{ key: 'google' | 'github'; name: string }>;
+    pendingOAuth: { username: string } | null;
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Loose = any;
@@ -33,6 +38,7 @@ type Loose = any;
 /** What the server may call from the client's server-rendering bundle. */
 export interface ClientViews {
     renderApplicationDocument(page: ReactElement, hydrateContent?: boolean): string;
+    renderPage(id: string, props: unknown): string;
     SiteHeader: ComponentType<SiteHeaderProps>;
     SiteFooter: ComponentType<{ brand?: SiteHeaderBrand }>;
     SiteTheme: ComponentType;

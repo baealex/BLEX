@@ -1,6 +1,7 @@
 import 'react';
 import 'react/jsx-runtime';
 import 'react-dom/server';
+import type { PageProps } from '../../../client/src/contracts/pages.js';
 import type { ClientViews } from '../../../client/src/contracts/views.js';
 
 export type { HeaderViewer, LoginModel, SiteHeaderProps, SiteIconName } from '../../../client/src/contracts/views.js';
@@ -13,3 +14,7 @@ export const {
   AuthorHeader, PostComments, ReaderActions, LoginForm, AuthPanel, authField, authInput, authSubmit,
   opensOutsideApplication, commentModel,
 } = views;
+
+export function renderPage<Id extends keyof PageProps>(id: Id, props: PageProps[Id]): string {
+  return views.renderPage(id, props);
+}

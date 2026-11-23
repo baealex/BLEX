@@ -61,7 +61,8 @@ export default defineConfig(({ mode }) => {
                 routesDirectory: resolve(__dirname, 'src/routes'),
                 generatedRouteTree: resolve(__dirname, 'src/routeTree.gen.ts'),
                 quoteStyle: 'single',
-                semicolons: true
+                semicolons: true,
+                routeFileIgnorePattern: '\\.page\\.tsx$'
             }),
             react(),
             lingui(),

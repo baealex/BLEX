@@ -120,11 +120,6 @@ export function inputField(body: Record<string, unknown>, ...keys: string[]): st
   return '';
 }
 
-function optionalField(body: Record<string, unknown>, key: string): string | undefined {
-  if (!Object.hasOwn(body, key)) return undefined;
-  return field(body[key]);
-}
-
 export function booleanField(value: unknown): boolean {
   if (Array.isArray(value)) return booleanField(value.at(-1));
   if (typeof value === 'boolean') return value;

@@ -1,11 +1,9 @@
+import { renderPage } from '../../../platform/views.js';
 import type { FastifyInstance } from 'fastify';
 import { type PrismaClient } from '@prisma/client';
 import { rankPublicSearch, readSearchPage } from '../services/public-posts.js';
-import { PostRow, PublicPageOptions, dateValue, h, makeAbsolute, makePaginationMeta, pageFrom, sendNotFound, totalPages, validPublicPage } from '../shared.js';
-import { PageLayout, getLayoutContext, renderHtml } from '../pages/layout.js';
-import { EmptyState } from '../pages/post-list.js';
-import { SearchPagination, SearchResultCard, searchForm } from '../pages/search.js';
-
+import { PostRow, PublicPageOptions, dateValue, makeAbsolute, makePaginationMeta, pageFrom, sendNotFound, totalPages, validPublicPage } from '../shared.js';
+import { getLayoutContext, renderHtml } from '../page-context.js';
 export function registerSearchRoutes(app: FastifyInstance, db: PrismaClient, siteUrl: URL, options: PublicPageOptions = {}) {
   app.get('/v1/search', async (request) => {
     const parameters = new URL(request.url, siteUrl).searchParams;
@@ -60,8 +58,7 @@ export function registerSearchRoutes(app: FastifyInstance, db: PrismaClient, sit
     const pages = totalPages(count, 30);
     const path = '/search';
     const noindex = true;
-    return renderHtml(reply, PageLayout({
-      meta: {
+    return renderHtml(reply, renderPage('search', { meta: {
         title: searchText ? `검색: ${searchText} - ${siteName}` : `검색 - ${siteName}`,
         description: '제목, 설명, 태그, 본문에서 글을 검색합니다.',
         canonical: makeAbsolute(siteUrl, path),
@@ -71,27 +68,6 @@ export function registerSearchRoutes(app: FastifyInstance, db: PrismaClient, sit
         searchPage: true,
         robots: 'noindex,follow',
         ...(!noindex && count ? makePaginationMeta(siteUrl, path, query, ['q', 'username'], checkedPage, pages) : {}),
-      },
-      children: h('div', { className: 'mx-auto w-full max-w-7xl space-y-6 px-4 py-8 sm:px-6 sm:py-12' },
-        h('section', null,
-          h('h1', { className: 'mb-4 text-2xl font-bold tracking-tight text-content sm:text-3xl' }, '포스트 검색'),
-          searchForm(searchText, username),
-        ),
-        searchText
-          ? posts.length
-            ? h('section', { className: 'space-y-4' },
-              h('div', { className: 'rounded-2xl border border-line bg-surface-subtle px-4 py-3' },
-                h('h2', { className: 'text-lg font-semibold text-content' },
-                  h('strong', { className: 'text-content' }, count.toLocaleString('ko-KR')), '개의 결과',
-                  h('span', { className: 'ml-2 text-xs font-normal text-content-hint' }, `“${searchText}” 검색`),
-                ),
-              ),
-              h('div', { className: 'space-y-4' }, ...posts.map((post) => SearchResultCard({ post, query: searchText }))),
-              SearchPagination({ page: checkedPage, pages, query: searchText, username }),
-            )
-            : EmptyState({ title: '검색 결과가 없습니다', message: '다른 검색어 또는 작성자 이름으로 다시 검색해 보세요.', icon: 'search', framed: true })
-          : EmptyState({ title: '무엇을 찾고 있나요?', message: '검색어를 입력하면 제목, 설명, 태그, 본문에서 공개 글을 찾습니다.', icon: 'search', framed: true }),
-      ),
-    }));
+      }, searchText, username, posts, count, checkedPage, pages }));
   });
 }

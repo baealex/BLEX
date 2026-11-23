@@ -4,13 +4,9 @@ import {
 import { navigateTo } from '../../../application/navigation.js';
 import { recoveredAccountPath } from '../recovery-path.js';
 import { AuthPanel } from './panel.js';
+import type { LoginModel } from '../../../contracts/views';
 
-export interface LoginModel {
-  csrfToken: string;
-  next: string;
-  providers: Array<{ key: 'google' | 'github'; name: string }>;
-  pendingOAuth: { username: string } | null;
-}
+export type { LoginModel };
 
 interface LoginFormProps {
   model: LoginModel;

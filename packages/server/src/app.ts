@@ -6,7 +6,7 @@ import { applicationContentSecurityPolicy, isApplicationDocument } from './platf
 import type { AuthConfig } from './features/auth/http.js';
 import { readSession } from './features/auth/session.js';
 import { searchIndexingEnabled } from './features/discovery/feeds/index.js';
-import { renderForbiddenPage, renderNotFoundPage, wantsNotFoundPage } from './features/discovery/pages/not-found.js';
+import { renderForbiddenPage, renderNotFoundPage, wantsNotFoundPage } from './features/discovery/not-found.js';
 import { startNotificationWorker } from './features/notifications/delivery.js';
 import { readPublicPost } from './features/posts/public-post.js';
 import { csrfCookie, requestCookies, sessionCookie } from './platform/cookies.js';

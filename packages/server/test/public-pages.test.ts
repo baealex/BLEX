@@ -6,7 +6,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { PrismaClient } from '@prisma/client';
 import Fastify from 'fastify';
 import test from 'node:test';
-import { registerPublicPages } from '../src/features/discovery/pages/index.js';
+import { registerPublicPages } from '../src/features/discovery/http/pages.js';
 import { accountTables, createMigratedTables, migratedTableSql, prismaDate } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-public-pages-'));

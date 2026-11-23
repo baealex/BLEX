@@ -1,9 +1,8 @@
-import { renderApplicationDocument } from '../../platform/views.js';
+import { renderPage } from '../../platform/views.js';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
-import { LoginForm, type LoginModel } from '../../platform/views.js';
-import { SiteFooter, SiteHeader, SiteTheme } from '../../platform/views.js';
-import { readPublicSiteBrand } from '../discovery/pages/index.js';
+import { type LoginModel } from '../../platform/views.js';
+import { readPublicSiteBrand } from '../discovery/http/pages.js';
 import { readUiAsset } from '../../platform/ui-assets.js';
 import { authCookieOptions, csrfCookie, sessionCookie } from '../../platform/cookies.js';
 import { csrfPattern } from '../../platform/csrf.js';
@@ -38,22 +37,7 @@ export async function registerLoginPage(app: FastifyInstance, db: PrismaClient, 
       pendingOAuth: pending ? { username: pending.username } : null,
     };
 
-    const html = renderApplicationDocument(<html lang="ko">
-        <head>
-          <meta charSet="utf-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <meta name="robots" content="noindex" />
-          <title>{`로그인 - ${brand.siteName}`}</title>
-          <SiteTheme />
-          {loginAssets.css.map((file) => <link key={file} rel="stylesheet" href={file} />)}
-        </head>
-        <body className="bg-surface-page text-content antialiased">
-          <SiteHeader brand={brand} />
-          <div id="blex-login" data-model={JSON.stringify(model)}><LoginForm model={model} /></div>
-          <SiteFooter brand={brand} />
-          <script type="module" src={loginAssets.script} data-blex-page-module="login" />
-        </body>
-      </html>, true);
+    const html = renderPage('login', { brand, loginAssets, model });
     return reply.type('text/html; charset=utf-8')
       .header('Content-Security-Policy', "default-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
       .send(html);

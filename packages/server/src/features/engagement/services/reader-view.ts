@@ -1,6 +1,6 @@
 import type { ReaderAuthorHeader, ReaderPostLikeState, ReaderPostView } from '../../../../../client/src/contracts/engagement.js';
 import { type PrismaClient } from '@prisma/client';
-import { CommentPayload, publicComments } from './comments.js';
+import { publicComments } from './comments.js';
 import { subscriptionState } from './subscriptions.js';
 import { ActiveUserRow, AuthorRow, DEFAULT_AVATAR, absoluteMediaUrl, ownedPost, publicPost, safeHttpUrl } from '../shared.js';
 

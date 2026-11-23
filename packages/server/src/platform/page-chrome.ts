@@ -1,5 +1,5 @@
 import type { PrismaClient } from '@prisma/client';
-import { readPublicSiteBrand } from '../features/discovery/pages/index.js';
+import { readPublicSiteBrand } from '../features/discovery/http/pages.js';
 
 /** The brand and signed-in header state shared by standalone server-rendered pages. */
 export async function readPageChrome(db: PrismaClient, user: { id: number; username: string } | null, csrfToken: string) {

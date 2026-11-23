@@ -1,10 +1,9 @@
+import { renderPage } from '../../platform/views.js';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { readFile } from 'node:fs/promises';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { readPageChrome } from '../../platform/page-chrome.js';
-import { SiteFooter, SiteHeader, SiteTheme } from '../../platform/views.js';
-import { renderApplicationDocument } from '../../platform/views.js';
 import { scriptJson } from '../../platform/document.js';
 import { quickstartHtml } from './quickstart-content.js';
 
@@ -74,14 +73,7 @@ export async function registerDeveloperDocumentation(app: FastifyInstance, db: P
 
   app.get('/docs/developer-api/quickstart', { preHandler: checkEditor }, async (request, reply) => {
     const { brand, viewer } = await readPageChrome(db, await options.currentUser(request), csrfCookie(request));
-    return reply.type('text/html; charset=utf-8').header('Cache-Control', 'private, no-store').send(renderApplicationDocument(<html lang="ko"><head>
-        <meta charSet="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="robots" content="noindex" /><title>{`개발자 API 빠른 시작 | ${brand.siteName}`}</title>
-        <SiteTheme />
-      </head><body className="bg-surface-page text-content antialiased">
-        <SiteHeader brand={brand} viewer={viewer} />
-        <main className="min-h-[calc(100vh-10.5rem)]" dangerouslySetInnerHTML={{ __html: quickstartHtml.replaceAll('__SITE_ORIGIN__', options.siteUrl.origin) }} />
-        <SiteFooter brand={brand} />
-      </body></html>));
+    const quickstart = quickstartHtml.replaceAll('__SITE_ORIGIN__', options.siteUrl.origin);
+    return reply.type('text/html; charset=utf-8').header('Cache-Control', 'private, no-store').send(renderPage('docs/developer-api/quickstart', { brand, viewer, quickstart }));
   });
 }

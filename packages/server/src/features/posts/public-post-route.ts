@@ -5,7 +5,7 @@ import { csrfPattern } from '../../platform/csrf.js';
 import { createToken, type readSession } from '../auth/session.js';
 import { relatedPosts } from '../authors/public-activity.js';
 import { readReaderPostView } from '../engagement/index.js';
-import { postContentSecurityPolicy, renderPublicPostPage } from './pages/public-post-page.js';
+import { postContentSecurityPolicy, renderPublicPostPage } from './public-post-view.js';
 import { publicPostPath, readPostPresentation, readPublicPost } from './public-post.js';
 
 type PublicPostRouteOptions = {

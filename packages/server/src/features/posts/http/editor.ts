@@ -3,7 +3,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { syncPostPublication } from '../../notifications/model.js';
 import { localDate, timeSince } from '../../../platform/date-format.js';
 import { readDraftPreview, readPostPresentation } from '../public-post.js';
-import { postContentSecurityPolicy, renderPublicPostPage } from '../pages/public-post-page.js';
+import { postContentSecurityPolicy, renderPublicPostPage } from '../public-post-view.js';
 import { sanitizePostHtml } from '../post-html.js';
 import { done, failure as failed } from '../../../platform/response.js';
 import { editorBodyLimit, editorKeepsOriginalTags, isMultipartRequest, prepareEditorFields, readEditorForm } from '../services/editor-form.js';

@@ -35,12 +35,6 @@ export function pageLinks(
   };
 }
 
-function pageUrl(path: string, page: number, values: Record<string, number> = {}) {
-  const query = new URLSearchParams({ page: String(page) });
-  for (const [key, value] of Object.entries(values)) query.set(key, String(value));
-  return `${path}?${query.toString()}`;
-}
-
 export async function renderDetailPage(
   request: FastifyRequest,
   reply: FastifyReply,

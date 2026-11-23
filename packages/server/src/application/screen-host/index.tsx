@@ -13,7 +13,7 @@ import { decryptSecret } from '../../features/auth/encrypted-secret.js';
 import { safeReturnPath } from '../../features/auth/oauth.js';
 import { createToken } from '../../features/auth/session.js';
 import { hasAdministrator } from '../../features/auth/setup.js';
-import { readPublicSiteBrand } from '../../features/discovery/pages/index.js';
+import { readPublicSiteBrand } from '../../features/discovery/http/pages.js';
 
 interface ManifestEntry { file: string }
 type Manifest = Record<string, ManifestEntry>;
