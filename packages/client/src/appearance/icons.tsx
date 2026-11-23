@@ -124,14 +124,17 @@ const glyphs = {
 
 export type SiteIconName = keyof typeof glyphs;
 
-/** Follows the surrounding font size unless a size class is given. */
+/**
+ * Follows the surrounding font size unless a size class is given.
+ * Tabler draws inside a padded 24px grid, so the glyph is scaled to read at the size the class asks for.
+ */
 export function SiteIcon({ name, className }: { name: SiteIconName; className?: string }) {
     const Glyph = glyphs[name];
     return (
         <Glyph
             size="1em"
             aria-hidden="true"
-            className={`inline-block shrink-0 align-[-0.125em]${className ? ` ${className}` : ''}`}
+            className={`inline-block shrink-0 scale-125 align-[-0.125em]${className ? ` ${className}` : ''}`}
         />
     );
 }
