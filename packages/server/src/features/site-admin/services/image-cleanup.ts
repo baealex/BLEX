@@ -335,7 +335,11 @@ export function imageCleanupPlanApi(plan: ImageCleanupPlan, dryRun: boolean): Re
   };
 }
 
-async function verifyImageCandidate(root: string, file: ImageCleanupFile): Promise<boolean> {
+async function verifyImageCandidate(
+  root: string,
+  file: ImageCleanupFile,
+  hashFile: (path: string) => Promise<string>,
+): Promise<boolean> {
   const parts = file.relativePath.split('/');
   if (
     parts.length < 3 ||
@@ -357,7 +361,7 @@ async function verifyImageCandidate(root: string, file: ImageCleanupFile): Promi
     const fromRoot = relative(root, real);
     if (!info.isFile() || info.isSymbolicLink() || fromRoot !== file.relativePath.split('/').join(sep)) return false;
     if (info.size !== file.size || info.mtimeMs !== file.mtimeMs || Number(info.ino) !== file.inode) return false;
-    return (await streamFileHash(real)) === file.contentHash;
+    return (await hashFile(real)) === file.contentHash;
   } catch {
     return false;
   }
@@ -390,6 +394,7 @@ export async function executeImageCleanupPlan(
   db: PrismaClient,
   mediaRoot: string,
   plan: ImageCleanupPlan,
+  hashFile = streamFileHash,
 ): Promise<Record<string, unknown>> {
   const root = await mediaRootRealPath(mediaRoot);
   const messages: string[] = [];
@@ -400,7 +405,7 @@ export async function executeImageCleanupPlan(
   const deletedByCategory: Record<ImageCleanupFile['category'], number> = { content: 0, title: 0, avatar: 0 };
   const candidates: ImageCleanupFile[] = [];
   for (const file of plan.unusedFiles) {
-    if (await verifyImageCandidate(root, file)) candidates.push(file);
+    if (await verifyImageCandidate(root, file, hashFile)) candidates.push(file);
     else errors.push(`Skipped a changed file: ${file.relativePath}`);
   }
   const cacheByPath = new Map<string, Array<{ id: number; path: string }>>();

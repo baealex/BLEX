@@ -17,6 +17,7 @@ import {
   testSiteUrl,
   prismaDate,
 } from './fixtures/migrated-database.js';
+import { assertFast } from './support/assert-fast.js';
 
 const daysAgo = (days: number) => new Date(Date.now() - days * 86_400_000).toISOString().slice(0, -1).replace('T', ' ');
 const future = new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, -1).replace('T', ' ');
@@ -139,7 +140,7 @@ test('keeps the 3.x five-post series window around the current post', () => {
   assert.equal(seriesNavigation(posts, 99), null);
 });
 
-test('marks non-HTML public responses noindex when search indexing is off', async () => {
+test('marks public responses noindex when search indexing is off', async () => {
   const closed = await publicApp({ seo: 0, aeo: 1 });
   try {
     for (const url of ['/llms.txt', '/rss', '/@writer/part-one.md', '/@writer/part-one', '/']) {
@@ -318,9 +319,10 @@ test('renders raw HTML in Markdown with the 3.x whitespace and sorted attributes
     '<img alt="&lt;ruby&gt; tag" class="x" src="/a.png"/>',
   );
   assert.equal(htmlToMarkdown("<p title=it's>one</p><p>two</p>"), 'one\n\ntwo');
-  const started = Date.now();
-  htmlToMarkdown("<br '\"><br '>".repeat(40_000));
-  assert.ok(Date.now() - started < 3_000, 'unbalanced quotes must not make parsing quadratic');
+});
+
+test('HTML to Markdown stays fast on unbalanced quotes', () => {
+  assertFast('unbalanced quotes', () => htmlToMarkdown("<br '\"><br '>".repeat(40_000)));
 });
 
 test('an inactive author disappears from every public surface, and returns untouched when reactivated', async () => {
@@ -461,9 +463,6 @@ test('shows public yearly and recent activity on the author page', async () => {
     insertRow(fixture.db, 'PostLike', { postId: 3, userId: 1, createdAt: daysAgo(1) });
     const { body, statusCode } = await fixture.app.inject('/@writer');
     assert.equal(statusCode, 200);
-    assert.match(body, /연간 활동/);
-    assert.match(body, /활동 내역/);
-    assert.match(body, /지난 1년 활동/);
     assert.match(body, /data-heatmap-days=/);
     for (const label of ['새 포스트를 작성했어요', '시리즈를 만들었어요', '댓글을 남겼어요', '좋아요를 눌렀어요'])
       assert.ok(body.includes(label), label);

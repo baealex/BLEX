@@ -289,6 +289,19 @@ test('pinned APIs expose public rows, reserve trash, paginate, and guard author 
     'error:NL',
   );
 
+  for (const [postUrl, messageKey] of [
+    ['assigned-hidden', 'pinned_posts.hidden_post'],
+    ['assigned-draft', 'pinned_posts.published_only'],
+  ] as const) {
+    const refused = await app.inject({
+      method: 'POST',
+      url: '/v1/setting/pinned-posts',
+      headers: jsonHeaders(1),
+      payload: { postUrl },
+    });
+    assert.equal(refused.json().messageKey, messageKey);
+  }
+
   const added = await app.inject({
     method: 'POST',
     url: '/v1/setting/pinned-posts',

@@ -92,13 +92,16 @@ test('serves the site discovery file and respects runtime robots settings', asyn
   assert.match(robots.body, /# Custom rules\nUser-agent: ExampleBot\nDisallow: \/private\/\n/);
 
   await db.$executeRaw`UPDATE SiteSetting SET seoEnabled = 0, aeoEnabled = 0 WHERE id = 1`;
-  assert.equal((await app.inject('/llms.txt')).statusCode, 404);
-  const privateRobots = await app.inject('/robots.txt');
-  assert.match(privateRobots.body, /Disallow: \/llms\.txt/);
-  assert.match(privateRobots.body, /Disallow: \/\*\.md/);
-  assert.doesNotMatch(privateRobots.body, /Sitemap:/);
-  assert.match(privateRobots.body, /Search indexing is disabled at runtime\./);
-  await db.$executeRaw`UPDATE SiteSetting SET seoEnabled = 1, aeoEnabled = 1 WHERE id = 1`;
+  try {
+    assert.equal((await app.inject('/llms.txt')).statusCode, 404);
+    const privateRobots = await app.inject('/robots.txt');
+    assert.match(privateRobots.body, /Disallow: \/llms\.txt/);
+    assert.match(privateRobots.body, /Disallow: \/\*\.md/);
+    assert.doesNotMatch(privateRobots.body, /Sitemap:/);
+    assert.match(privateRobots.body, /Search indexing is disabled at runtime\./);
+  } finally {
+    await db.$executeRaw`UPDATE SiteSetting SET seoEnabled = 1, aeoEnabled = 1 WHERE id = 1`;
+  }
 });
 
 test('publishes sitemap sections and excludes non-public content everywhere', async () => {

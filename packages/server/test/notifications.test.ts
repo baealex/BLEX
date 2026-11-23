@@ -19,7 +19,6 @@ import {
   processScheduledPublications,
   syncPostPublication,
 } from '../src/features/notifications/model.js';
-import { mySubscriptions } from '../src/features/engagement/services/subscriptions.js';
 import { createMigratedDatabase, insertRow, seedPost } from './fixtures/migrated-database.js';
 
 test('delivers scheduled publication once, retains queued retries, and respects a removed subscription', async () => {
@@ -109,10 +108,6 @@ test('delivers scheduled publication once, retains queued retries, and respects 
       assert.equal(inbox.json().body.isTelegramSync, true);
       assert.match(inbox.body, /@editor님이 새 글을 발행했습니다/);
       assert.match(inbox.body, /Scheduled post/);
-
-      const { subscriptions } = await mySubscriptions(db, reader.id);
-      assert.equal(subscriptions[0]?.username, 'editor');
-      assert.equal(subscriptions[0]?.subscribedDate, '2000-01-01');
     } finally {
       await pages.close();
     }

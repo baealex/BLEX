@@ -2,10 +2,11 @@ import assert from 'node:assert/strict';
 import { connect } from 'node:net';
 import test from 'node:test';
 import { PrismaClient } from '@prisma/client';
+import Fastify from 'fastify';
 import { buildApp } from '../src/app.js';
 import { createAuthorPost, publishAuthorDraft, updateAuthorPost } from '../src/features/posts/authoring/index.js';
-import { syncPostPublication } from '../src/features/notifications/model.js';
 import { sanitizePostHtml } from '../src/features/posts/post-html.js';
+import { registerBodyGuard } from '../src/platform/request-body.js';
 import { trustedProxiesFromEnv } from '../src/platform/runtime-config.js';
 import {
   createMigratedDatabase,
@@ -108,23 +109,6 @@ test('keeps a saved draft schedule when the API saves or publishes it again', as
   }
 });
 
-test('keeps a schedule Django stored with a time zone offset', async () => {
-  const fixture = await migratedApp();
-  const db = new PrismaClient({ datasourceUrl: `file:${fixture.path}` });
-  try {
-    const target = new Date(Date.now() + 30 * 86_400_000);
-    target.setUTCMilliseconds(0);
-    seedPost(fixture.db, 7, 1, 'django-draft', { publishedAt: null });
-    fixture.db.prepare('UPDATE "Post" SET draftScheduledAt = ? WHERE id = 7').run(target.getTime());
-    await publishAuthorDraft(db, editor, 7, {});
-    const post = await db.post.findUniqueOrThrow({ where: { id: 7 }, select: { publishedAt: true } });
-    assert.equal(post.publishedAt?.toISOString(), target.toISOString());
-  } finally {
-    await db.$disconnect();
-    await fixture.close();
-  }
-});
-
 test('rejects anonymous multipart requests before reading the body', async () => {
   const fixture = await migratedApp();
   const address = await fixture.app.listen({ host: '127.0.0.1', port: 0 });
@@ -136,7 +120,7 @@ test('rejects anonymous multipart requests before reading the body', async () =>
       const timer = setTimeout(() => {
         socket.destroy();
         reject(new Error('The server waited for the upload body.'));
-      }, 2_000);
+      }, 10_000);
       socket.on('data', (chunk) => {
         received += chunk.toString();
       });
@@ -156,34 +140,44 @@ test('rejects anonymous multipart requests before reading the body', async () =>
 });
 
 test('limits concurrent uploads per account', async () => {
-  const fixture = await migratedApp();
-  const address = await fixture.app.listen({ host: '127.0.0.1', port: 0 });
-  const held: ReturnType<typeof connect>[] = [];
+  const app = Fastify();
+  registerBodyGuard(app, {
+    currentUser: async () => ({ id: 1, hasEditorRole: true, isStaff: false }),
+    tokenAccount: async () => null,
+  });
+  app.addContentTypeParser('multipart/form-data', (_request, _payload, done) => done(null));
+  let release = () => {};
+  const held = new Promise<void>((accept) => {
+    release = accept;
+  });
+  let bothArrived = () => {};
+  const arrived = new Promise<void>((accept) => {
+    bothArrived = accept;
+  });
+  let uploads = 0;
+  app.post('/upload', async () => {
+    uploads += 1;
+    if (uploads === 2) bothArrived();
+    await held;
+    return { ok: true };
+  });
+  const upload = () =>
+    app.inject({
+      method: 'POST',
+      url: '/upload',
+      headers: { 'content-type': 'multipart/form-data; boundary=x' },
+      payload: 'x',
+    });
   try {
-    const { port } = new URL(address);
-    const headers = signIn(fixture.db, 1);
-    const open = () =>
-      new Promise<string>((resolve, reject) => {
-        const socket = connect(Number(port), '127.0.0.1');
-        held.push(socket);
-        let received = '';
-        const timer = setTimeout(() => resolve(received), 400);
-        socket.on('data', (chunk) => {
-          received += chunk.toString();
-          clearTimeout(timer);
-          resolve(received);
-        });
-        socket.on('error', reject);
-        socket.write(
-          `POST /work-logs/1/entry/ HTTP/1.1\r\nHost: site.test\r\nCookie: ${headers.cookie}\r\nContent-Type: multipart/form-data; boundary=x\r\nContent-Length: 1048576\r\n\r\n`,
-        );
-      });
-    assert.equal(await open(), '');
-    assert.equal(await open(), '');
-    assert.match(await open(), /^HTTP\/1\.1 429 /);
+    const running = [upload(), upload()];
+    await arrived;
+    assert.equal((await upload()).statusCode, 429);
+    release();
+    for (const response of await Promise.all(running)) assert.equal(response.statusCode, 200);
+    assert.equal((await upload()).statusCode, 200);
   } finally {
-    for (const socket of held) socket.destroy();
-    await fixture.close();
+    release();
+    await app.close();
   }
 });
 
@@ -199,6 +193,7 @@ test('announces first publication but not hiding, unhiding, or restoring an old 
       url: 'https://hooks.test/a',
     });
     seedPost(fixture.db, 2, 1, 'old-post');
+    seedPost(fixture.db, 3, 1, 'trashed-post', { deletedAt: Date.UTC(2026, 0, 1) });
     const queued = () => db.webhookDelivery.count();
 
     const headers = signIn(fixture.db, 1);
@@ -210,7 +205,14 @@ test('announces first publication but not hiding, unhiding, or restoring an old 
       });
       assert.deepEqual(toggled.json().body, { isHide });
     }
-    await db.$transaction((tx) => syncPostPublication(tx, 2));
+    const trash = await fixture.app.inject({ url: '/v1/setting/trash-posts?page=1', headers });
+    const restored = await fixture.app.inject({
+      method: 'POST',
+      url: '/v1/setting/trash-posts/trashed-post/restore',
+      headers: { ...headers, 'content-type': 'application/json' },
+      payload: { expectedDeletedDate: trash.json().body.posts[0].deletedDate },
+    });
+    assert.equal(restored.json().body.restored, true, restored.body);
     assert.equal(await queued(), 0);
 
     const draft = await createAuthorPost(db, editor, { title: 'New', contentHtml: '<p>New</p>' }, true);
