@@ -4,6 +4,7 @@ import { loginPromptProps } from '../engagement/ui/login-prompt';
 import type { AuthorRow, AuthorSocialLink, PostRow, PublicPageViewer, SubscriptionState } from '../../contracts/public';
 import { avatarUrl, dateLabel, dateValue, mediaUrl, postCover, safeExternalUrl } from '../discovery/view-helpers';
 import { EmptyState, postPath } from '../discovery/post-list';
+import { AboutEditor, AboutHeading } from './about-editor';
 
 export function isEditor(author: AuthorRow): boolean {
     return author.isActive && author.role === 'EDITOR';
@@ -276,81 +277,17 @@ export function AboutSection({
     isOwner: boolean;
 }): ReactNode {
     if (!aboutHtml && !isOwner) return null;
-    const heading = (
-        <div className="mb-6">
-            <h2 className="text-2xl font-bold text-content">소개</h2>
-        </div>
-    );
     if (!isOwner)
         return (
             <section>
-                {heading}
+                <AboutHeading />
                 <div className="prose blog-post-content" dangerouslySetInnerHTML={{ __html: aboutHtml }} />
             </section>
         );
     const editPath = `${authorPath(author.username)}/about/edit`;
     return (
         <section data-about-editor="" data-about-url={editPath}>
-            {heading}
-            <p data-about-message="" hidden={true} className="mb-4 text-sm" />
-            <div
-                data-about-content=""
-                hidden={!aboutHtml}
-                className="prose blog-post-content"
-                dangerouslySetInnerHTML={{ __html: aboutHtml }}
-            />
-            <div
-                data-about-empty=""
-                hidden={Boolean(aboutHtml)}
-                className="rounded-2xl border border-dashed border-line bg-surface px-5 py-6"
-            >
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <p className="min-w-0 text-sm font-semibold text-content">아직 소개가 없습니다</p>
-                    <a
-                        href={editPath}
-                        data-about-edit=""
-                        className="inline-flex items-center justify-center rounded-lg bg-surface-subtle px-4 py-2 text-sm font-semibold text-content-secondary transition-colors hover:bg-surface-subtle/80 hover:text-content"
-                    >
-                        <SiteIcon name="edit" className="mr-2" />
-                        소개글 작성
-                    </a>
-                </div>
-            </div>
-            <div data-about-actions="" hidden={!aboutHtml} className="mt-6">
-                <a
-                    href={editPath}
-                    data-about-edit=""
-                    className="inline-flex items-center justify-center rounded-lg bg-surface-subtle px-4 py-2 text-sm font-semibold text-content-secondary transition-colors hover:bg-surface-subtle/80 hover:text-content"
-                >
-                    <SiteIcon name="edit" className="mr-2" />
-                    소개글 수정
-                </a>
-            </div>
-            <div data-about-form="" hidden={true} className="rounded-2xl border border-line bg-surface p-4">
-                <textarea
-                    data-about-input=""
-                    defaultValue={author.aboutMarkdown ?? ''}
-                    placeholder="소개글을 작성하세요"
-                    aria-label="소개"
-                    className="min-h-64 w-full resize-y rounded-xl border border-line bg-surface-subtle p-4 text-sm leading-relaxed text-content placeholder-content-hint focus:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/10"
-                />
-                <div className="mt-4 flex justify-end gap-2">
-                    <button
-                        type="button"
-                        data-about-cancel=""
-                        className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold text-content-secondary transition-colors hover:bg-surface-subtle hover:text-content disabled:opacity-50"
-                    >
-                        취소
-                    </button>
-                    <button
-                        type="button"
-                        data-about-save=""
-                        className="inline-flex items-center justify-center rounded-lg bg-action px-4 py-2 text-sm font-semibold text-content-inverted transition-colors hover:bg-action-hover disabled:opacity-50"
-                    >
-                        저장
-                    </button>
-                </div>
-            </div>
+            <AboutEditor aboutHtml={aboutHtml} aboutMarkdown={author.aboutMarkdown ?? ''} editPath={editPath} />
         </section>
     );
 }

@@ -1,3 +1,4 @@
+import { AboutPageEditor } from '~/features/authors/about-editor';
 import { authorPath, authorTabs, profileHeader } from '~/features/authors/profile-ui';
 import { PageLayout } from '~/features/discovery/layout';
 import { ReactFragment } from '~/features/discovery/search-ui';
@@ -30,21 +31,11 @@ export default function renderPage({
                             data-about-url={path}
                             data-about-return={authorPath(author.username)}
                         >
-                            <textarea
-                                data-about-input=""
-                                defaultValue={author.aboutMarkdown ?? ''}
-                                placeholder="마크다운으로 작성해 보세요."
-                                aria-label="소개"
-                                className="h-64 w-full rounded-lg border border-line p-4 focus:outline-none focus:ring-2 focus:ring-line-strong/70"
+                            <AboutPageEditor
+                                aboutMarkdown={author.aboutMarkdown ?? ''}
+                                saveUrl={path}
+                                returnPath={authorPath(author.username)}
                             />
-                            <button
-                                type="button"
-                                data-about-save=""
-                                className="mt-4 rounded-lg bg-action px-6 py-3 text-content-inverted hover:bg-action-hover focus:outline-none focus:ring-2 focus:ring-line-strong/70 focus:ring-offset-2 disabled:opacity-50"
-                            >
-                                저장
-                            </button>
-                            <div data-about-message="" hidden={true} className="mt-4 text-sm" />
                         </div>
                     </div>
                 </div>
