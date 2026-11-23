@@ -7,7 +7,7 @@ import {
     createRouter,
     type RouterHistory
 } from '@tanstack/react-router';
-import { useLayoutEffect, useState } from 'react';
+import { use, useLayoutEffect, useState } from 'react';
 import { ApplicationFrame, type ApplicationView } from './frame.js';
 import { openLoginPromptFrom } from './login-prompt.js';
 import { opensOutsideApplication, type BlexNavigateDetail } from './navigation.js';
@@ -65,6 +65,8 @@ interface PostDocument {
     revision: number;
 }
 
+type PostPageComponent = typeof import('../features/posts/post-page')['PostPage'];
+
 interface PageChangeDetail {
     from: string;
     to: string;
@@ -86,10 +88,13 @@ let currentHistoryKey = 'default';
 let hasCommittedInitialDocument = false;
 let router: ApplicationRouter | null = null;
 let navigationType: PageChangeDetail['navigationType'] = 'PUSH';
-let showApplicationPage: ((page: ApplicationDocument) => void) | null = null;
+let showApplicationPage: ((view: ApplicationView) => void) | null = null;
 let visitingFromApplication = false;
 let screenGlobalNames: string[] = [];
 let postRevision = 0;
+let loadedPostPage: PostPageComponent | null = null;
+let postPageRequest: Promise<PostPageComponent> | null = null;
+const postPageWaitMs = 3000;
 const stagedDocuments = new Map<string, ApplicationDocument>();
 const pendingPostForms = new WeakSet<HTMLFormElement>();
 const activePostRequests = new Set<AbortController>();
@@ -281,21 +286,69 @@ function readPostDocument(source: Document, content: Element): PostDocument | nu
     };
 }
 
-/** Loads the post page before it is shown. Returns false when the browser cannot load it. */
-async function preparePostContent(page: ApplicationDocument): Promise<boolean> {
-    if (!page.post || page.view.content !== undefined) return true;
-    try {
-        const { PostPage } = await import('../features/posts/post-page');
+function loadPostPage(): Promise<PostPageComponent> {
+    postPageRequest ??= import('../features/posts/post-page').then(
+        ({ PostPage }) => {
+            loadedPostPage = PostPage;
+            return PostPage;
+        },
+        (error: unknown) => {
+            postPageRequest = null;
+            throw error;
+        }
+    );
+    return postPageRequest;
+}
+
+function PostRoute({ post, loading }: { post: PostDocument; loading: Promise<PostPageComponent> }) {
+    const PostPage = loadedPostPage ?? use(loading);
+
+    return <PostPage data={post.data} bodyHtml={post.bodyHtml} revision={post.revision} />;
+}
+
+/** The first post hydrates whenever its code arrives, so the router and header never wait for it. */
+function hydratePostWhenLoaded(page: ApplicationDocument): void {
+    const { post } = page;
+    if (!post) return;
+    const request = loadPostPage();
+    // A rejection must not reach React, which would discard the readable server markup.
+    const loading = request.catch(() => new Promise<PostPageComponent>(() => {}));
+    page.view = {
+        ...page.view,
+        content: <PostRoute post={post} loading={loading} />
+    };
+    request.catch((error: unknown) => {
+        console.error('The post page could not be loaded.', error);
+        if (currentDocument && currentDocument !== page) return;
         page.view = {
             ...page.view,
-            html: '',
-            content: <PostPage data={page.post.data} bodyHtml={page.post.bodyHtml} revision={page.post.revision} />
+            content: undefined
         };
-        return true;
-    } catch (error) {
-        console.error('The post page could not be loaded.', error);
-        return false;
-    }
+        showApplicationPage?.(page.view);
+    });
+}
+
+/** After a navigation, a post that cannot load in time stays as server markup and ignores its late code. */
+async function preparePostContent(page: ApplicationDocument): Promise<void> {
+    const { post } = page;
+    if (!post || page.view.content !== undefined) return;
+    let timer: number | undefined;
+    const PostPage = await Promise.race([
+        loadPostPage().catch((error: unknown) => {
+            console.error('The post page could not be loaded.', error);
+            return null;
+        }),
+        new Promise<null>((resolve) => {
+            timer = window.setTimeout(() => resolve(null), postPageWaitMs);
+        })
+    ]);
+    window.clearTimeout(timer);
+    if (!PostPage) return;
+    page.view = {
+        ...page.view,
+        html: '',
+        content: <PostRoute post={post} loading={Promise.resolve(PostPage)} />
+    };
 }
 
 function readApplicationDocument(source: Document, url: string): ApplicationDocument | null {
@@ -358,10 +411,7 @@ async function loadApplicationDocument({
     const staged = stagedDocuments.get(pageRequestKey(requestUrl));
     if (staged) {
         stagedDocuments.delete(pageRequestKey(requestUrl));
-        const stagedReady = await preparePostContent(staged);
-        if (signal.aborted) throw new DOMException('Navigation was cancelled.', 'AbortError');
-        if (!stagedReady) return requiredNavigation(staged.url);
-        await loadPageStylesheets(staged);
+        await Promise.all([preparePostContent(staged), loadPageStylesheets(staged)]);
         if (signal.aborted) throw new DOMException('Navigation was cancelled.', 'AbortError');
         beginPageChange(staged.url);
         return staged;
@@ -409,10 +459,7 @@ async function loadApplicationDocument({
         throw new DOMException('Navigation was redirected.', 'AbortError');
     }
 
-    const ready = await preparePostContent(page);
-    if (signal.aborted) throw new DOMException('Navigation was cancelled.', 'AbortError');
-    if (!ready) return requiredNavigation(page.url);
-    await loadPageStylesheets(page);
+    await Promise.all([preparePostContent(page), loadPageStylesheets(page)]);
     if (signal.aborted) throw new DOMException('Navigation was cancelled.', 'AbortError');
     beginPageChange(page.url);
     return page;
@@ -1254,19 +1301,21 @@ function renderLoadedPage(activeRouter: ApplicationRouter): void {
     }
     const page = match?.status === 'success' ? (match.loaderData as ApplicationDocument | undefined) : undefined;
     if (!page) return;
-    flushSync(() => showApplicationPage?.(page));
+    flushSync(() => showApplicationPage?.(page.view));
     commitApplicationPage(page, window.location.hash);
 }
 
 function ApplicationRoute({ initialPage }: { initialPage: ApplicationDocument }) {
-    const [page, setPage] = useState(initialPage);
+    const [view, setView] = useState(initialPage.view);
 
     useLayoutEffect(() => {
-        showApplicationPage = setPage;
+        showApplicationPage = setView;
+        // The post chunk may have failed while this first render was in progress.
+        setView(initialPage.view);
         if (!hasCommittedInitialDocument) commitApplicationPage(initialPage, window.location.hash);
     }, [initialPage]);
 
-    return <ApplicationFrame view={page.view} />;
+    return <ApplicationFrame view={view} />;
 }
 
 declare global {
@@ -1311,8 +1360,8 @@ if (appRoot && initialDocument) {
     history.scrollRestoration = initialDocument.screen ? 'auto' : 'manual';
     const appRouter = createApplicationRouter();
     router = appRouter;
-    // If the post page cannot load, its server markup stays readable and links still navigate.
-    void Promise.all([appRouter.load(), preparePostContent(initialDocument)]).then(() => {
+    hydratePostWhenLoaded(initialDocument);
+    void appRouter.load().then(() => {
         // Most page bodies are server HTML, so this router owns history and loading while React renders one stable frame.
         appRouter.history.subscribe(({ location, action }) => {
             navigationType = action.type === 'PUSH' || action.type === 'REPLACE' ? action.type : 'POP';

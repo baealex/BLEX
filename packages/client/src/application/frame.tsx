@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { Suspense, type ReactNode } from 'react';
 import { SiteHeader, type SiteHeaderProps } from '../appearance/shell.js';
 
 export interface ApplicationView {
@@ -23,7 +23,8 @@ export function ApplicationFrame({ view }: { view: ApplicationView }) {
                 />
             ) : (
                 <div key={view.contentKey} id="blex-route-content" className="contents">
-                    {view.content}
+                    {/* React keeps the server markup in place here until the page's code arrives. */}
+                    <Suspense fallback={null}>{view.content}</Suspense>
                 </div>
             )}
         </>
