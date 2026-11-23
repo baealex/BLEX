@@ -106,7 +106,7 @@ export function registerTelegram(app: FastifyInstance, db: PrismaClient, options
   app.register(async (routes) => {
     await routes.register(formBody);
     routes.addHook('onRequest', async (_request, reply) => { reply.header('Cache-Control', 'private, no-store'); });
-    routes.post('/v1/telegram/webHook', { bodyLimit: 64 * 1024 }, async (request, reply) => {
+    routes.post('/v1/telegram/webHook', { bodyLimit: 64 * 1024, config: { bodyAccess: 'public' } }, async (request, reply) => {
       const config = await telegramConfig(db, options.cipherKey);
       if (!config.token) return done();
       const supplied = request.headers['x-telegram-bot-api-secret-token'];

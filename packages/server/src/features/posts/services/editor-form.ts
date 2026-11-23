@@ -1,11 +1,13 @@
 import { type PrismaClient } from '@prisma/client';
 import type { FastifyRequest } from 'fastify';
-import { ContentUploadError, contentUploadTooLargeMessage, saveContentFile } from '../../media/content-media.js';
+import { ContentUploadError, contentUploadLimit, contentUploadTooLargeMessage, saveContentFile } from '../../media/content-media.js';
 import { postTags } from './post-store.js';
 import { AuthoringOptions, StoredPost, UserRow, bodyObject, booleanField, field } from '../shared.js';
 
 // The editor posts whole documents, accepted up to the proxy limit.
 export const editorBodyLimit = 13 * 1024 * 1024;
+// A multipart save carries the document, one cover image, and part headers.
+export const editorMultipartLimit = editorBodyLimit + contentUploadLimit + 64 * 1024;
 
 export interface EditorForm {
   body: Record<string, unknown>;
@@ -31,8 +33,12 @@ export async function readEditorForm(request: FastifyRequest): Promise<EditorFor
         if (part.fieldname === 'image' && part.filename && buffer.length) image = { buffer, filename: part.filename };
         continue;
       }
+      if (typeof part.value !== 'string') {
+        uploadError = 'Send editor fields as plain text.';
+        continue;
+      }
       // Multipart parsing skips the route's body limit. Over-limit fields are still read so the request can finish.
-      fieldBytes += Buffer.byteLength(String(part.value));
+      fieldBytes += Buffer.byteLength(part.value);
       if (fieldBytes > editorBodyLimit) uploadError = 'The post is too large to save.';
       else body[part.fieldname] = part.value;
     }

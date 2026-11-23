@@ -5,11 +5,12 @@ import { PostRow, PublicPageOptions, dateValue, h, makeAbsolute, makePaginationM
 import { PageLayout, getLayoutContext, renderHtml } from '../pages/layout.js';
 import { EmptyState } from '../pages/post-list.js';
 import { SearchPagination, SearchResultCard, searchForm } from '../pages/search.js';
+import { searchTerm } from '../../../platform/search-term.js';
 
 export function registerSearchRoutes(app: FastifyInstance, db: PrismaClient, siteUrl: URL, options: PublicPageOptions = {}) {
   app.get('/v1/search', async (request) => {
     const parameters = new URL(request.url, siteUrl).searchParams;
-    const query = (parameters.get('q') ?? '').slice(0, 100).trim();
+    const query = searchTerm(parameters.get('q'));
     const username = (parameters.get('username') ?? '').trim();
     const invalid = (key: string, errorMessage: string) => ({ status: 'ERROR', errorCode: 'error:VA', errorMessage,
       messageKey: `search.validation.${key}`, messageParams: {} });
@@ -41,7 +42,7 @@ export function registerSearchRoutes(app: FastifyInstance, db: PrismaClient, sit
   app.get('/search', async (request, reply) => {
     const url = new URL(request.url, siteUrl);
     const query = url.searchParams;
-    const searchText = (query.get('q') ?? '').slice(0, 100).trim();
+    const searchText = searchTerm(query.get('q'));
     const username = (query.get('username') ?? '').trim();
     const page = pageFrom(query);
     if (page === null) return sendNotFound(reply);

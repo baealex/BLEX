@@ -7,7 +7,6 @@ import { mkdir, mkdtemp, realpath, rename, rm, stat, unlink, writeFile } from 'n
 import { extname, isAbsolute, relative, resolve, sep } from 'node:path';
 import sharp from 'sharp';
 import { failure } from '../../platform/response.js';
-import { limitNonMultipartBody } from './upload-guard.js';
 
 export class ContentUploadError extends Error {
   constructor(readonly code: string, message: string, readonly status: number) { super(message); }
@@ -216,7 +215,7 @@ interface ContentMediaOptions {
 export function registerContentMedia(app: FastifyInstance, db: PrismaClient, options: ContentMediaOptions) {
   app.register(async (routes) => {
     await registerContentMultipart(routes);
-    routes.post('/v1/image', { bodyLimit: contentUploadLimit + 8192, onRequest: limitNonMultipartBody() }, async (request, reply) => {
+    routes.post('/v1/image', { bodyLimit: contentUploadLimit + 8192, config: { bodyAccess: 'author' } }, async (request, reply) => {
       const user = await options.currentUser(request);
       if (!user) return reply.code(404).send('Not found');
       const error = failure;

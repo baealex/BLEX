@@ -2,7 +2,6 @@ import { type PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { isIP } from 'node:net';
 import { ContentUploadError, contentUploadLimit, registerContentMultipart, saveContentUpload } from '../media/content-media.js';
-import { limitNonMultipartBody } from '../media/upload-guard.js';
 import { DeveloperMutationInputError, developerPostInput } from './mutation-input.js';
 import { PaginationQuery, SearchQuery, listPosts, postDetail, postNotFound, postVersionIssue, readOwnedPost, summarizePost } from './services/posts.js';
 import { createDeveloperRateLimiter, developerRequestKind } from './services/rate-limit.js';
@@ -83,7 +82,7 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
   if (options.writable && options.mediaRoot) {
     app.register(async (routes) => {
       await registerContentMultipart(routes);
-      routes.post(`${API_PREFIX}/images`, { bodyLimit: contentUploadLimit + 8192, onRequest: limitNonMultipartBody() }, async (request, reply) => {
+      routes.post(`${API_PREFIX}/images`, { bodyLimit: contentUploadLimit + 8192, config: { bodyAccess: 'token' } }, async (request, reply) => {
         const token = await writeToken(request, reply);
         if (!token) return reply;
         try {
@@ -112,7 +111,7 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
       if (error.statusCode === 404) return postNotFound(reply);
       return errorReply(reply, error);
     };
-    app.post(`${API_PREFIX}/posts`, { bodyLimit: 1024 * 1024 }, async (request, reply) => {
+    app.post(`${API_PREFIX}/posts`, { bodyLimit: 1024 * 1024, config: { bodyAccess: 'token' } }, async (request, reply) => {
       const token = await writeToken(request, reply);
       if (!token) return reply;
       try {
@@ -129,6 +128,7 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
       const route = `${API_PREFIX}/posts/:postId${operation === 'publish' ? '/publish' : ''}`;
       app.route<{ Params: { postId: string } }>({ method: operation === 'publish' ? 'POST' : 'PATCH', url: route,
         bodyLimit: 1024 * 1024,
+        config: { bodyAccess: 'token' },
         // The publish body is optional, so an empty JSON request must still reach the handler.
         onRequest: async (request) => {
           if (operation === 'publish' && request.headers['content-length'] === '0') delete request.headers['content-type'];

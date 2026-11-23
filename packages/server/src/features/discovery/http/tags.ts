@@ -7,6 +7,7 @@ import { PAGE_SIZE, PublicPageOptions, TagRow, canonicalPageUrl, h, hasUnexpecte
 import { PageLayout, getLayoutContext, renderHtml } from '../pages/layout.js';
 import { EmptyState, Pagination, PostGrid } from '../pages/post-list.js';
 import { DropdownFilter, QueryFilter, ReactFragment } from '../pages/search.js';
+import { searchTerm } from '../../../platform/search-term.js';
 
 export function registerTagsRoutes(app: FastifyInstance, db: PrismaClient, siteUrl: URL, options: PublicPageOptions = {}) {
   app.get('/tags', async (request, reply) => {
@@ -14,7 +15,7 @@ export function registerTagsRoutes(app: FastifyInstance, db: PrismaClient, siteU
     const query = url.searchParams;
     const page = pageFrom(query);
     if (page === null) return sendNotFound(reply);
-    const searchText = (query.get('q') ?? '').slice(0, 100).trim();
+    const searchText = searchTerm(query.get('q'));
     const requestedSort = query.get('sort') ?? 'popular';
     const sort = ['popular', 'name', 'recent'].includes(requestedSort) ? requestedSort : 'popular';
     const { brand, siteName, viewer } = await getLayoutContext(request, reply, db, options);

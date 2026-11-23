@@ -27,6 +27,7 @@ export function htmlToMarkdown(html: string): string {
 function tokenizeHtml(html: string): string[] {
   const lastQuote = { '"': html.lastIndexOf('"'), "'": html.lastIndexOf("'") };
   const lastClose = html.lastIndexOf('>');
+  const lastCommentEnd = html.lastIndexOf('-->');
   const tagEnd = (start: number): number => {
     if (start > lastClose) return 0;
     for (let index = start; index < html.length; index += 1) {
@@ -46,10 +47,10 @@ function tokenizeHtml(html: string): string[] {
     if (html[at] !== '<') {
       const next = html.indexOf('<', at);
       end = next < 0 ? html.length : next;
-    } else if (html.startsWith('<!--', at) && html.indexOf('-->', at + 4) >= 0) {
+    } else if (html.startsWith('<!--', at) && lastCommentEnd >= at + 4) {
       end = html.indexOf('-->', at + 4) + 3;
     } else if (html[at + 1] === '!') {
-      end = html.indexOf('>', at) + 1;
+      end = at <= lastClose ? html.indexOf('>', at) + 1 : 0;
     } else if (/^<\/?[A-Za-z]/.test(html.slice(at, at + 3))) {
       end = tagEnd(at + 1);
     }
@@ -177,7 +178,7 @@ function htmlNodeToMarkdown(node: HtmlNode): string {
   if (name === 'pre') {
     const code = findNode(node, 'code');
     const language = code?.attrs.class?.split(/\s+/).find((value) => value.startsWith('language-'))?.slice(9) ?? '';
-    const text = textStrings(node).join('\n').replace(/^\n+|\n+$/g, '');
+    const text = textStrings(node).join('\n').replace(/^\n+|(?<!\n)\n+$/g, '');
     return text ? `\`\`\`${language}\n${text}\n\`\`\`` : '';
   }
   if (name === 'ul' || name === 'ol') {
@@ -298,7 +299,7 @@ function quoteAttribute(value: string): string {
 }
 
 function normalizeInlineSpacing(text: string): string {
-  return text.replace(/[ \t]+/g, ' ').trim().replace(/\s+([.,:;!?])/g, '$1');
+  return text.replace(/[ \t]+/g, ' ').trim().replace(/(?<!\s)\s+([.,:;!?])/g, '$1');
 }
 
 function collapseBlankLines(text: string): string {

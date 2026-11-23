@@ -24,6 +24,8 @@
     "@tabler/icons-react": "^3.52.0",
     "fastify": "^5.12.7",
     "htmlparser2": "^12.0.0",
+    "markdown-it": "15.0.3",
+    "markdown-it-cjk-friendly": "3.0.0",
     "otpauth": "^9.6.0",
     "qrcode": "^1.5.4",
     "react": "^19.2.0",

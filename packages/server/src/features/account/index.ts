@@ -3,7 +3,6 @@ import multipart from '@fastify/multipart';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import { updateAccountIdentity } from '../auth/account-identity.js';
-import { limitNonMultipartBody } from '../media/upload-guard.js';
 import { done as success, failure } from '../../platform/response.js';
 import { accountApiBody, accountExtras, readAccount, readAuthorAbout, readProfile, saveAuthorAbout, updateDisplayName, updateProfile, uploadedMediaUrl } from './services/profile.js';
 import { MAX_PROFILE_IMAGE_BYTES, ProfileImageKind, deleteProfileCover, saveProfileImage } from './services/profile-images.js';
@@ -25,7 +24,7 @@ export function registerPersonalSettings(app: FastifyInstance, db: PrismaClient,
     });
 
     const registerProfileImageUpload = (kind: ProfileImageKind) => {
-      routes.post<{ Body: unknown }>(`/v1/setting/${kind}`, { bodyLimit: MAX_PROFILE_IMAGE_BYTES + 32 * 1024, onRequest: limitNonMultipartBody() }, async (request, reply) => {
+      routes.post<{ Body: unknown }>(`/v1/setting/${kind}`, { bodyLimit: MAX_PROFILE_IMAGE_BYTES + 32 * 1024 }, async (request, reply) => {
         const user = await authenticatedDatabaseUser(db, request, options);
         if (!user) return needLogin();
         if (!options.validateCsrf(request)) return reply.code(403).send(failure('RJ'));

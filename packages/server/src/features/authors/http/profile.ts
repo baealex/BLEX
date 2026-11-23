@@ -13,6 +13,7 @@ import { PAGE_SIZE, PageMeta, PublicPageOptions, SeriesDetailRow, SeriesRow, Sub
 import { NoticeSection, PageLayout, advertiseMarkdown, authorFeed, csrfCookie, getLayoutContext, readNotices, readPublicSiteBrand, readViewer, renderHtml } from '../../discovery/pages/layout.js';
 import { EmptyState, Pagination, PostGrid, postPath } from '../../discovery/pages/post-list.js';
 import { DropdownFilter, QueryFilter, ReactFragment } from '../../discovery/pages/search.js';
+import { searchTerm } from '../../../platform/search-term.js';
 
 export function registerProfileRoutes(app: FastifyInstance, db: PrismaClient, siteUrl: URL, options: PublicPageOptions = {}) {
   app.get<{ Params: { username: string } }>('/@:username', async (request, reply) => {
@@ -139,7 +140,7 @@ export function registerProfileRoutes(app: FastifyInstance, db: PrismaClient, si
     const query = url.searchParams;
     const page = pageFrom(query);
     if (page === null) return sendNotFound(reply);
-    const searchText = (query.get('q') ?? '').slice(0, 100).trim();
+    const searchText = searchTerm(query.get('q'));
     const tagFilter = (query.get('tag') ?? '').trim();
     const where: Prisma.PostWhereInput = {
       authorId: author.id,
@@ -222,7 +223,7 @@ export function registerProfileRoutes(app: FastifyInstance, db: PrismaClient, si
     const query = url.searchParams;
     const page = pageFrom(query);
     if (page === null) return sendNotFound(reply);
-    const searchText = (query.get('q') ?? '').slice(0, 100).trim();
+    const searchText = searchTerm(query.get('q'));
     const requestedSort = query.get('sort') ?? 'custom';
     const sort = ['custom', 'newest', 'oldest', 'posts'].includes(requestedSort) ? requestedSort : 'custom';
     const publicPost = publicPostWhere();

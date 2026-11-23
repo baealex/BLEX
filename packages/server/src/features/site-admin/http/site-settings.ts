@@ -1,6 +1,5 @@
 import { type PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
-import { limitNonMultipartBody } from '../../media/upload-guard.js';
 import { done as success, failure } from '../../../platform/response.js';
 import { deleteBrandAsset, uploadBrandAsset, validateBrandTarget } from '../services/brand-assets.js';
 import { serializeIntegrationSettings, updateIntegrationSettings } from '../services/integrations.js';
@@ -10,7 +9,7 @@ import { userListQuery } from '../services/users.js';
 import { AdminSettingsOptions, Body, apiAccess, apiJsonBody, csrfValid, csrfValidWithBody, isRecord, readMultipartFields, sendApiResult, stringValue } from '../shared.js';
 
 export function registerSiteSettingsRoutes(routes: FastifyInstance, db: PrismaClient, options: AdminSettingsOptions) {
-    routes.post<{ Body: unknown }>('/v1/site-settings/brand-assets', { bodyLimit: 12 * 1024 * 1024, onRequest: limitNonMultipartBody() }, async (request, reply) => {
+    routes.post<{ Body: unknown }>('/v1/site-settings/brand-assets', { bodyLimit: 12 * 1024 * 1024 }, async (request, reply) => {
       const permission = await apiAccess(request, db, options);
       if ('response' in permission) return reply.send(permission.response);
       if (!permission.access.canManageSiteSettings) return reply.send(failure('RJ', 'Permission to change site settings is required.'));
