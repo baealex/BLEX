@@ -396,7 +396,9 @@ test('checks the stored PBKDF2 algorithm and iteration count without changing th
   assert.equal(await verifyPassword(password, '!unusable'), false);
 });
 
-test('keeps the legacy login envelope and issues a new session only after CSRF, password and 2FA checks', async () => {
+test('keeps the legacy login envelope and issues a new session only after CSRF, password and 2FA checks', async (t) => {
+  // Login attempts are counted per five-minute window, so the attempts below must share one.
+  t.mock.timers.enable({ apis: ['Date'], now: Date.now() });
   const directory = await mkdtemp(join(tmpdir(), 'blex-http-auth-'));
   const path = join(directory, 'accounts.sqlite3');
   const fixture = await migratedFixture(path);

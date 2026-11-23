@@ -177,8 +177,10 @@ test('sensitive actions need an unexpired, factor-complete verification, and ver
     (fixture) => seedUser(fixture, 1, 'writer'),
   ));
 
-test('login limits hold under concurrency and reject without consuming the other limit', () =>
-  withApp(async (_app, db) => {
+test('login limits hold under concurrency and reject without consuming the other limit', (t) => {
+  // Login attempts are counted per five-minute window, so the attempts below must share one.
+  t.mock.timers.enable({ apis: ['Date'], now: Date.now() });
+  return withApp(async (_app, db) => {
     const sameIp = await Promise.all(
       Array.from({ length: 12 }, (_, index) => reserveLoginAttempt(db, testSecretKey, '203.0.113.1', `name${index}`)),
     );
@@ -200,7 +202,8 @@ test('login limits hold under concurrency and reject without consuming the other
     await release();
     assert.ok(await reserveLoginAttempt(db, testSecretKey, '203.0.113.1', 'after-release'));
     assert.equal(await reserveLoginAttempt(db, testSecretKey, '203.0.113.1', 'over-limit'), null);
-  }));
+  });
+});
 
 test('a reused invite signs up exactly one editor under concurrency', () =>
   withApp(
