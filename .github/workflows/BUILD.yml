@@ -156,6 +156,7 @@ jobs:
           docker buildx imagetools create \
             --tag "${IMAGE}:${RELEASE_VERSION}" \
             --tag "${IMAGE}:${major}" \
+            --tag "${IMAGE}:latest" \
             "${IMAGE}@${IMAGE_DIGEST}"
 
       - name: Verify multi-platform release image
@@ -166,7 +167,7 @@ jobs:
         shell: bash
         run: |
           major="${RELEASE_VERSION%%.*}"
-          for tag in "$RELEASE_VERSION" "$major"; do
+          for tag in "$RELEASE_VERSION" "$major" latest; do
             manifest=$(docker buildx imagetools inspect "${IMAGE}:${tag}")
             grep -q 'linux/amd64' <<< "$manifest"
             grep -q 'linux/arm64' <<< "$manifest"
