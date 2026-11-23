@@ -45,4 +45,6 @@ export interface ReaderPostView {
     author: ReaderAuthorHeader;
     canComment: boolean;
     comments: CommentPayload[];
+    totalComments: number;
+    olderCommentsCursor: number | null;
 }

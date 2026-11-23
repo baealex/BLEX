@@ -10,6 +10,7 @@ import {
     isMentionQuery,
     isMentionStart,
     mergeCommentInTree,
+    mergeOlderComments,
     updateCommentInTree
 } from './comment-model.js';
 import { loginPromptProps } from './login-prompt.js';
@@ -21,6 +22,8 @@ export interface PostCommentsModel {
     canComment: boolean;
     csrfToken: string;
     comments: CommentPayload[];
+    totalComments: number;
+    olderCommentsCursor: number | null;
 }
 
 interface CommentHandlers {
@@ -75,6 +78,18 @@ function readCsrfToken(fallback: string): string {
     return cookie ? decodeURIComponent(cookie) : fallback;
 }
 
+class CommentRequestError extends Error {
+    constructor(readonly status: number) {
+        super('The comment request failed.');
+    }
+}
+
+function writeFailureMessage(error: unknown, fallback: string) {
+    return error instanceof CommentRequestError && error.status === 429
+        ? '댓글을 너무 빠르게 작성하고 있어요. 잠시 후 다시 시도해 주세요.'
+        : fallback;
+}
+
 async function requestComments<T>(
     model: PostCommentsModel,
     url: string,
@@ -93,7 +108,7 @@ async function requestComments<T>(
         body: fields ? new URLSearchParams(fields) : undefined
     });
     const result = (await response.json().catch(() => null)) as { status?: string; body?: T } | null;
-    if (!response.ok || result?.status !== 'DONE') throw new Error('The comment request failed.');
+    if (!response.ok || result?.status !== 'DONE') throw new CommentRequestError(response.status);
     return result.body as T;
 }
 
@@ -602,6 +617,11 @@ function CommentItem({ comment, handlers }: { comment: CommentPayload; handlers:
 
 export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
     const [comments, setComments] = useState(model.comments);
+    const [olderCursor, setOlderCursor] = useState(model.olderCommentsCursor);
+    const [hiddenCount, setHiddenCount] = useState(() =>
+        Math.max(0, model.totalComments - countComments(model.comments))
+    );
+    const [isLoadingOlder, setLoadingOlder] = useState(false);
     const [canComment, setCanComment] = useState(model.canComment);
     const [hydrated, setHydrated] = useState(false);
     const [commentText, setCommentText] = useState('');
@@ -669,10 +689,29 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
             setComments((current) => appendCommentToTree(current, created));
             scrollToLatest();
             success('댓글을 작성했습니다.');
-        } catch {
-            failure('댓글을 작성하는 중 문제가 발생했습니다.');
+        } catch (error) {
+            failure(writeFailureMessage(error, '댓글을 작성하는 중 문제가 발생했습니다.'));
         } finally {
             setSubmitting(false);
+        }
+    };
+    const handleLoadOlder = async () => {
+        if (olderCursor === null) return;
+        setLoadingOlder(true);
+        try {
+            const page = await requestComments<{
+                comments: CommentPayload[];
+                totalComments: number;
+                olderCommentsCursor: number | null;
+            }>(model, `/v1/posts/${encodeURIComponent(model.slug)}/comments?before=${olderCursor}`, 'GET');
+            const merged = mergeOlderComments(comments, page.comments);
+            setComments(merged);
+            setOlderCursor(page.olderCommentsCursor);
+            setHiddenCount(Math.max(0, page.totalComments - countComments(merged)));
+        } catch {
+            failure('이전 댓글을 불러오지 못했습니다.');
+        } finally {
+            setLoadingOlder(false);
         }
     };
     const handleLike = async (id: number) => {
@@ -757,8 +796,8 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
             setComments((current) => appendCommentToTree(current, created));
             scrollToLatest();
             success('답글을 작성했습니다.');
-        } catch {
-            failure('답글을 작성하는 중 문제가 발생했습니다.');
+        } catch (error) {
+            failure(writeFailureMessage(error, '답글을 작성하는 중 문제가 발생했습니다.'));
         } finally {
             setSubmitting(false);
         }
@@ -800,8 +839,22 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
                 <h2 id="comments-heading" className="min-w-0 text-lg font-bold leading-snug text-content">
                     댓글
                 </h2>
-                <span className="shrink-0 text-sm font-medium leading-6 text-content-secondary">{`댓글 ${countComments(comments)}개`}</span>
+                <span className="shrink-0 text-sm font-medium leading-6 text-content-secondary">{`댓글 ${countComments(comments) + hiddenCount}개`}</span>
             </div>
+            {olderCursor !== null && (
+                <button
+                    type="button"
+                    className="mb-4 w-full rounded-lg border border-line px-4 py-2 text-sm font-medium text-content-secondary transition-colors hover:bg-surface-subtle disabled:opacity-60"
+                    disabled={!hydrated || isLoadingOlder}
+                    onClick={() => void handleLoadOlder()}
+                >
+                    {isLoadingOlder
+                        ? '불러오는 중...'
+                        : hiddenCount > 0
+                          ? `이전 댓글 ${hiddenCount}개 더 보기`
+                          : '이전 댓글 더 보기'}
+                </button>
+            )}
             <div ref={listRef}>
                 {comments.length ? (
                     <div className="divide-y divide-line-light" role="list">

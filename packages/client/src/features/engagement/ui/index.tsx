@@ -64,7 +64,9 @@ function commentsModel(view: ReaderPostView, csrfToken: string, postPath: string
         isLoggedIn: view.viewerAuthenticated,
         canComment: view.canComment,
         csrfToken,
-        comments: view.comments
+        comments: view.comments,
+        totalComments: view.totalComments,
+        olderCommentsCursor: view.olderCommentsCursor
     };
 }
 

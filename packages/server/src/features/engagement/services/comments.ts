@@ -137,30 +137,76 @@ export async function commentForViewer(
   };
 }
 
+// Comments load newest first in pages, so one busy post cannot make every view read all of its text.
+const COMMENT_PAGE_ROWS = 100;
+const COMMENT_PAGE_BYTES = 512 * 1024;
+const COMMENT_BATCH_ROWS = 20;
+
+export interface PublicCommentPage {
+  canComment: boolean;
+  comments: CommentPayload[];
+  totalComments: number;
+  olderCommentsCursor: number | null;
+}
+
 export async function publicComments(
   db: PrismaClient,
   slug: string,
   viewerId: number | null,
-): Promise<{ canComment: boolean; comments: CommentPayload[] }> {
+  before: number | null = null,
+): Promise<PublicCommentPage> {
   const post = await db.post.findFirst({
     where: { slug, ...publicPostWhere() },
     select: { id: true, commentsBlocked: true },
   });
-  if (!post) return { canComment: false, comments: [] };
+  if (!post) return { canComment: false, comments: [], totalComments: 0, olderCommentsCursor: null };
 
   const blocked = post.commentsBlocked;
-  const comments = await db.comment.findMany({
-    // A legacy reply can point at a parent on another post or at another reply. Neither has a place in this tree.
-    where: { postId: post.id, OR: [{ parentId: null }, { parent: { postId: post.id, parentId: null } }] },
-    orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
-    select: commentSelect(viewerId),
-  });
-  const rows = comments.map((comment) => commentRow(comment, true, blocked));
+  // A legacy reply can point at a parent on another post or at another reply. Neither has a place in this tree.
+  const where: Prisma.CommentWhereInput = {
+    postId: post.id,
+    OR: [{ parentId: null }, { parent: { postId: post.id, parentId: null } }],
+  };
+  const select = commentSelect(viewerId);
+  const totalComments = await db.comment.count({ where });
+  const loaded = new Map<number, SelectedComment>();
+  let bytes = 0;
+  let rows = 0;
+  let cursor = before;
+  let hasOlder = false;
+  const keep = (comment: SelectedComment) => {
+    if (loaded.has(comment.id)) return;
+    loaded.set(comment.id, comment);
+    bytes += comment.html.length;
+  };
+  do {
+    const batch = await db.comment.findMany({
+      where,
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      take: COMMENT_BATCH_ROWS + 1,
+      ...(cursor === null ? {} : { cursor: { id: cursor }, skip: 1 }),
+      select,
+    });
+    hasOlder = batch.length > COMMENT_BATCH_ROWS;
+    const page = batch.slice(0, COMMENT_BATCH_ROWS);
+    page.forEach(keep);
+    rows += page.length;
+    const parentIds = new Set(
+      page.flatMap(({ parentId }) => (parentId !== null && !loaded.has(parentId) ? [parentId] : [])),
+    );
+    if (parentIds.size) {
+      const parents = await db.comment.findMany({ where: { id: { in: [...parentIds] }, postId: post.id }, select });
+      parents.forEach(keep);
+    }
+    cursor = page.at(-1)?.id ?? cursor;
+  } while (hasOlder && rows < COMMENT_PAGE_ROWS && bytes < COMMENT_PAGE_BYTES);
+
+  const ordered = [...loaded.values()].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime() || a.id - b.id);
   const canAcceptReplies = !blocked;
   const topLevel: CommentPayload[] = [];
   const parents = new Map<number, CommentPayload>();
 
-  for (const row of rows) {
+  for (const row of ordered.map((comment) => commentRow(comment, true, blocked))) {
     const payload = serializeComment(row, viewerId, canAcceptReplies);
     if (row.parentId === null) {
       payload.replies = [];
@@ -172,7 +218,12 @@ export async function publicComments(
     }
   }
 
-  return { canComment: canAcceptReplies, comments: topLevel };
+  return {
+    canComment: canAcceptReplies,
+    comments: topLevel,
+    totalComments,
+    olderCommentsCursor: hasOlder ? cursor : null,
+  };
 }
 
 export function serializeComment(
