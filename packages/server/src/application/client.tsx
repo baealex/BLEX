@@ -5,6 +5,7 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
+  type RouterHistory,
 } from '@tanstack/react-router';
 import { useLayoutEffect, useState } from 'react';
 import { ApplicationFrame, type ApplicationView } from './frame.js';
@@ -39,13 +40,19 @@ interface PageHead {
   scripts: HeadScript[];
 }
 
+interface ScreenData {
+  configuration: unknown;
+  globals: Record<string, unknown>;
+}
+
 interface ApplicationDocument {
   view: ApplicationView;
   url: string;
   head: PageHead;
   bodyAttributes: Array<[string, string]>;
-  pageModules: Array<{ name: 'login' | 'editor' | 'comments'; source: string }>;
+  pageModules: Array<{ name: 'login' | 'editor' | 'comments' | 'screen'; source: string }>;
   needsHcaptcha: boolean;
+  screen: ScreenData | null;
 }
 
 interface PageChangeDetail {
@@ -70,6 +77,8 @@ let hasCommittedInitialDocument = false;
 let router: ApplicationRouter | null = null;
 let navigationType: PageChangeDetail['navigationType'] = 'PUSH';
 let showApplicationPage: ((page: ApplicationDocument) => void) | null = null;
+let visitingFromApplication = false;
+let screenGlobalNames: string[] = [];
 const stagedDocuments = new Map<string, ApplicationDocument>();
 const pendingPostForms = new WeakSet<HTMLFormElement>();
 const activePostRequests = new Set<AbortController>();
@@ -164,7 +173,7 @@ function pageModuleSources(source: Document): ApplicationDocument['pageModules']
     .map((script): ApplicationDocument['pageModules'][number] | null => {
       const name = script.dataset.blexPageModule;
       const src = script.getAttribute('src');
-      if ((name !== 'login' && name !== 'editor' && name !== 'comments') || !src) return null;
+      if ((name !== 'login' && name !== 'editor' && name !== 'comments' && name !== 'screen') || !src) return null;
       return { name, source: src };
     })
     .filter((entry): entry is ApplicationDocument['pageModules'][number] => entry !== null);
@@ -172,6 +181,30 @@ function pageModuleSources(source: Document): ApplicationDocument['pageModules']
 
 function bodyAttributes(source: Document): Array<[string, string]> {
   return source.body ? attributesOf(source.body) : [];
+}
+
+function readScriptJson(source: Document, id: string): unknown {
+  const text = source.getElementById(id)?.textContent;
+  if (!text) return undefined;
+  try { return JSON.parse(text); } catch { return undefined; }
+}
+
+function readScreenData(source: Document, content: Element): ScreenData | null {
+  if (!content.querySelector('[data-screen]')) return null;
+  const globals = readScriptJson(source, 'blex-screen-globals');
+  return { configuration: readScriptJson(source, 'blex-screen-config'), globals: isRecord(globals) ? globals : {} };
+}
+
+function applyScreenData(screen: ScreenData | null): void {
+  const target = window as unknown as Record<string, unknown>;
+  for (const name of screenGlobalNames) delete target[name];
+  screenGlobalNames = screen ? Object.keys(screen.globals) : [];
+  if (screen) {
+    target.configuration = screen.configuration;
+    Object.assign(target, screen.globals);
+  } else {
+    delete target.configuration;
+  }
 }
 
 function readApplicationDocument(source: Document, url: string): ApplicationDocument | null {
@@ -183,13 +216,15 @@ function readApplicationDocument(source: Document, url: string): ApplicationDocu
 
   let pageUrl: URL;
   try { pageUrl = new URL(url, window.location.href); } catch { return null; }
+  const screen = readScreenData(source, content);
   return {
-    view: { header, html: content.innerHTML },
+    view: { header, html: content.innerHTML, contentKey: screen ? pageRequestKey(pageUrl) : undefined },
     url: pageUrl.href,
     head: collectHead(source, pageUrl),
     bodyAttributes: bodyAttributes(source),
     pageModules: pageModuleSources(source),
     needsHcaptcha: hasTrustedHcaptchaScript(source, pageUrl),
+    screen,
   };
 }
 
@@ -214,6 +249,7 @@ async function loadApplicationDocument({ abortController }: { abortController: A
   const staged = stagedDocuments.get(pageRequestKey(requestUrl));
   if (staged) {
     stagedDocuments.delete(pageRequestKey(requestUrl));
+    await loadPageStylesheets(staged);
     if (signal.aborted) throw new DOMException('Navigation was cancelled.', 'AbortError');
     beginPageChange(staged.url);
     return staged;
@@ -258,6 +294,8 @@ async function loadApplicationDocument({ abortController }: { abortController: A
     throw new DOMException('Navigation was redirected.', 'AbortError');
   }
 
+  await loadPageStylesheets(page);
+  if (signal.aborted) throw new DOMException('Navigation was cancelled.', 'AbortError');
   beginPageChange(page.url);
   return page;
 }
@@ -273,8 +311,28 @@ function beginPageChange(to: string): void {
 
 // History paths go in directly because a router destination would read a `$` segment as a route parameter.
 function visit(path: string, replace = false): void {
-  if (replace) router?.history.replace(path);
-  else router?.history.push(path);
+  visitingFromApplication = true;
+  try {
+    if (replace) router?.history.replace(path);
+    else router?.history.push(path);
+  } finally {
+    visitingFromApplication = false;
+  }
+}
+
+function screenScope(pathname: string): string | null {
+  if (/^\/(?:settings|admin-settings)(?:\/|$)/.test(pathname)) return 'settings';
+  if (/^\/search\/?$/.test(pathname)) return 'search';
+  if (/^\/sign\/?$/.test(pathname)) return 'sign';
+  return null;
+}
+
+// Settings owns its own routes. Search and signup only own the URL changes they make themselves.
+function staysInActiveScreen(pathname: string): boolean {
+  if (!currentDocument?.screen) return false;
+  const scope = screenScope(pathname);
+  if (!scope || scope !== screenScope(new URL(currentDocument.url).pathname)) return false;
+  return scope === 'settings' || !visitingFromApplication;
 }
 
 function sameRoute(left: URL, right: URL): boolean {
@@ -302,8 +360,46 @@ function markExistingRouteHead(): void {
   for (const element of document.head.querySelectorAll(selectors.join(','))) element.setAttribute(routeHeadAttribute, '');
 }
 
+function stylesheetHref(link: HeadLink): string | null {
+  const attributes = new Map(link.attributes.map(([name, value]) => [name.toLowerCase(), value]));
+  return attributes.get('rel')?.toLowerCase().split(/\s+/).includes('stylesheet') ? attributes.get('href') ?? null : null;
+}
+
+function createHeadLink(link: HeadLink): HTMLLinkElement {
+  const node = document.createElement('link');
+  for (const [name, value] of link.attributes) node.setAttribute(name, value);
+  node.setAttribute(routeHeadAttribute, '');
+  return node;
+}
+
+// New styles finish loading before the page swaps, so a screen never appears unstyled.
+async function loadPageStylesheets(page: ApplicationDocument): Promise<void> {
+  const present = new Set(Array.from(document.head.querySelectorAll<HTMLLinkElement>('link[rel~="stylesheet"]')).map((link) => link.href));
+  const loading = page.head.links
+    .filter((link) => {
+      const href = stylesheetHref(link);
+      return href !== null && !present.has(href);
+    })
+    .map((link) => new Promise<void>((resolve) => {
+      const node = createHeadLink(link);
+      node.addEventListener('load', () => resolve(), { once: true });
+      node.addEventListener('error', () => resolve(), { once: true });
+      document.head.append(node);
+    }));
+  if (!loading.length) return;
+  await Promise.race([Promise.all(loading), new Promise((resolve) => window.setTimeout(resolve, 3000))]);
+}
+
 function appendRouteHead(head: PageHead): void {
-  for (const node of document.head.querySelectorAll(`[${routeHeadAttribute}]`)) node.remove();
+  const nextStylesheets = new Set(head.links.map(stylesheetHref));
+  const keptStylesheets = new Set<string>();
+  for (const node of document.head.querySelectorAll(`[${routeHeadAttribute}]`)) {
+    if (node instanceof HTMLLinkElement && node.relList.contains('stylesheet') && nextStylesheets.has(node.href) && !keptStylesheets.has(node.href)) {
+      keptStylesheets.add(node.href);
+      continue;
+    }
+    node.remove();
+  }
   for (const meta of head.metas) {
     const node = document.createElement('meta');
     for (const [name, value] of meta.attributes) node.setAttribute(name, value);
@@ -311,10 +407,8 @@ function appendRouteHead(head: PageHead): void {
     document.head.append(node);
   }
   for (const link of head.links) {
-    const node = document.createElement('link');
-    for (const [name, value] of link.attributes) node.setAttribute(name, value);
-    node.setAttribute(routeHeadAttribute, '');
-    document.head.append(node);
+    const href = stylesheetHref(link);
+    if (href === null || !keptStylesheets.has(href)) document.head.append(createHeadLink(link));
   }
   for (const style of head.styles) {
     const node = document.createElement('style');
@@ -366,7 +460,7 @@ const excludedFileExtension = /\.(?:css|m?js|map|png|jpe?g|gif|webp|avif|svg|ico
 
 function isInternalApplicationUrl(url: URL): boolean {
   if (url.origin !== window.location.origin || !['http:', 'https:'].includes(url.protocol)) return false;
-  if (/^\/(?:assets|resources|images|media|settings|admin-settings|search|sign|api|docs)(?:\/|$)/i.test(url.pathname)) return false;
+  if (/^\/(?:assets|resources|images|media|api|docs)(?:\/|$)/i.test(url.pathname)) return false;
   if (/^\/write\/?$/i.test(url.pathname) || /^\/@[^/]+\/[^/]+\/(?:edit|timelapse)\/?$/i.test(url.pathname)) return false;
   if (excludedFileExtension.test(url.pathname)) return false;
   if (/^\/login\/(?:start|callback)(?:\/|$)/i.test(url.pathname) || /^\/oauth(?:\/|$)/i.test(url.pathname)) return false;
@@ -679,8 +773,7 @@ function permittedPageModuleUrl(module: ApplicationDocument['pageModules'][numbe
   try { url = new URL(module.source, pageUrl); } catch { return null; }
   if (url.origin !== window.location.origin || !['http:', 'https:'].includes(url.protocol) || url.search || url.hash) return null;
   const alias = url.pathname === '/assets/blex/' + module.name + '.js';
-  const manifestAsset = url.pathname.startsWith('/assets/ui/') &&
-    !url.pathname.includes('..') && /^\/assets\/ui\/[A-Za-z0-9._/-]+\.m?js$/i.test(url.pathname);
+  const manifestAsset = !url.pathname.includes('..') && /^\/assets\/(?:ui|web)\/[A-Za-z0-9._/-]+\.m?js$/i.test(url.pathname);
   return alias || manifestAsset ? url : null;
 }
 
@@ -853,6 +946,9 @@ function commitApplicationPage(page: ApplicationDocument, hash: string): void {
   const changeType = navigationType;
   currentDocument = page;
   currentHistoryKey = key;
+  applyScreenData(page.screen);
+  // Screens fill in after they mount, so the browser restores their scroll within the same document.
+  history.scrollRestoration = page.screen ? 'auto' : 'manual';
   applyDocumentState(page, initial);
   const content = document.getElementById('blex-route-content');
   if (content) {
@@ -894,6 +990,16 @@ function ApplicationRoute({ initialPage }: { initialPage: ApplicationDocument })
   return <ApplicationFrame view={page.view} />;
 }
 
+declare global {
+  interface Window { blexHistory?: RouterHistory }
+}
+
+// React screens reuse this history so unsaved-change blockers also cover links in the site header.
+function applicationHistory(): RouterHistory {
+  window.blexHistory ??= createBrowserHistory();
+  return window.blexHistory;
+}
+
 const rootRoute = createRootRoute();
 const applicationRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -906,7 +1012,7 @@ const applicationRoute = createRoute({
 
 const createApplicationRouter = () => createRouter({
   routeTree: rootRoute.addChildren([applicationRoute]),
-  history: createBrowserHistory(),
+  history: applicationHistory(),
   trailingSlash: 'preserve',
   // Server-rendered query strings stay byte-for-byte instead of being reparsed as JSON values.
   parseSearch: (search) => ({ raw: search }),
@@ -920,13 +1026,18 @@ const appRoot = document.getElementById('blex-application');
 const initialDocument = readApplicationDocument(document, window.location.href);
 
 if (appRoot && initialDocument) {
-  history.scrollRestoration = 'manual';
+  history.scrollRestoration = initialDocument.screen ? 'auto' : 'manual';
   const appRouter = createApplicationRouter();
   router = appRouter;
   void appRouter.load().then(() => {
     // The page body is server HTML, so this router owns history and loading while React renders one stable frame.
-    appRouter.history.subscribe(({ action }) => {
+    appRouter.history.subscribe(({ location, action }) => {
       navigationType = action.type === 'PUSH' || action.type === 'REPLACE' ? action.type : 'POP';
+      if (!appRouter.state.isLoading && staysInActiveScreen(location.pathname)) {
+        saveCurrentPosition();
+        queueMicrotask(() => { currentHistoryKey = browserHistoryKey(); });
+        return;
+      }
       void appRouter.load().then(() => renderLoadedPage(appRouter));
     });
     document.addEventListener('blex:navigate', dispatchNavigateEvent);

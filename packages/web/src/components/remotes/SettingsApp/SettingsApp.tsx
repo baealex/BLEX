@@ -14,11 +14,12 @@ import { useLingui } from '@lingui/react/macro';
 import { SettingsLayout } from './components/SettingsLayout';
 import { LoadingState } from '../../shared';
 import {
+    currentSettingsMode,
     hasSettingsBasePath,
     settingsBasePaths,
-    settingsModeFromPath,
     useSettingsMode
 } from './settings-mode';
+import { applicationHistory } from '~/lib/application-history';
 
 // Lazy load settings pages
 const NotifySetting = lazy(() => import('./pages/NotifySetting'));
@@ -474,26 +475,45 @@ const routeTree = rootRoute.addChildren([
 ]);
 
 // Both settings areas share this tree. The mode follows the URL, so moving between them never reloads the page.
-const createSettingsRouter = (context: SettingsRouterContext) => createRouter({
-    routeTree,
-    context,
-    defaultPreload: 'intent',
-    rewrite: {
-        input: ({ url }) => {
-            const basePath = settingsBasePaths[settingsModeFromPath(url.pathname)];
-            if (url.pathname === basePath || url.pathname.startsWith(`${basePath}/`)) {
+const createSettingsRouter = (context: SettingsRouterContext) => {
+    let shownLocation = {
+ pathname: '/',
+search: '',
+hash: ''
+};
+
+    return createRouter({
+        routeTree,
+        context,
+        history: applicationHistory(),
+        defaultPreload: 'intent',
+        rewrite: {
+            input: ({ url }) => {
+                if (!hasSettingsBasePath(url.pathname)) {
+                    // Another page is loading. This screen stays put until that page replaces it.
+                    url.pathname = shownLocation.pathname;
+                    url.search = shownLocation.search;
+                    url.hash = shownLocation.hash;
+                    return url;
+                }
+                const basePath = settingsBasePaths[currentSettingsMode(url.pathname)];
                 url.pathname = url.pathname.slice(basePath.length) || '/';
+                shownLocation = {
+ pathname: url.pathname,
+search: url.search,
+hash: url.hash
+};
+                return url;
+            },
+            output: ({ url }) => {
+                if (!hasSettingsBasePath(url.pathname)) {
+                    url.pathname = `${settingsBasePaths[currentSettingsMode(window.location.pathname)]}${url.pathname}`;
+                }
+                return url;
             }
-            return url;
-        },
-        output: ({ url }) => {
-            if (!hasSettingsBasePath(url.pathname)) {
-                url.pathname = `${settingsBasePaths[settingsModeFromPath(window.location.pathname)]}${url.pathname}`;
-            }
-            return url;
         }
-    }
-});
+    });
+};
 
 const SettingsApp = ({
     isEditor,

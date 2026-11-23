@@ -1,5 +1,5 @@
 import { StrictMode, useEffect } from 'react';
-import { createRoot } from 'react-dom/client';
+import { createRoot, type Root } from 'react-dom/client';
 import { I18nProvider } from '@lingui/react';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import App from './components/App';
@@ -8,6 +8,7 @@ import { activateDocumentLocale, i18n } from './i18n';
 import { createQueryClient, sessionStoragePersister, shouldPersistQuery } from './lib/query-client';
 
 const SCREEN_SELECTOR = '[data-screen]';
+const mountedScreens = new Map<HTMLElement, Root>();
 
 const markScreenFailed = (element: HTMLElement, reason: string) => {
     element.dataset.screenStatus = 'error';
@@ -40,6 +41,7 @@ const mountScreen = async (element: HTMLElement, name: string): Promise<void> =>
         const props = encodedProps ? JSON.parse(decodeURIComponent(encodedProps)) : {};
         const queryClient = createQueryClient();
         const root = createRoot(element);
+        mountedScreens.set(element, root);
         const handleMounted = () => {
             element.dataset.screenStatus = 'mounted';
         };
@@ -87,9 +89,25 @@ const startScreensIn = (node: Node) => {
     node.querySelectorAll<HTMLElement>(SCREEN_SELECTOR).forEach(startScreen);
 };
 
+const stopScreensIn = (node: Node) => {
+    if (!(node instanceof HTMLElement)) {
+        return;
+    }
+
+    const screens = node.matches(SCREEN_SELECTOR)
+        ? [node, ...node.querySelectorAll<HTMLElement>(SCREEN_SELECTOR)]
+        : [...node.querySelectorAll<HTMLElement>(SCREEN_SELECTOR)];
+    for (const screen of screens) {
+        if (screen.isConnected) continue;
+        mountedScreens.get(screen)?.unmount();
+        mountedScreens.delete(screen);
+    }
+};
+
 startScreensIn(document.body);
 new MutationObserver((mutations) => {
     for (const mutation of mutations) {
+        mutation.removedNodes.forEach(stopScreensIn);
         mutation.addedNodes.forEach(startScreensIn);
     }
 }).observe(document.body, {

@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { renderToString } from 'react-dom/server';
 import { readAdminAccess } from '../../features/site-admin/access.js';
 import { SiteFooter, SiteHeader, SiteTheme } from '../../appearance/shell.js';
-import { applicationContentSecurityPolicy, scriptJson } from '../document.js';
+import { applicationContentSecurityPolicy, renderApplicationDocument, scriptJson } from '../document.js';
 import { authCookieOptions, csrfCookie, requestCookies } from '../../platform/cookies.js';
 import { decryptSecret } from '../../features/auth/encrypted-secret.js';
 import { safeReturnPath } from '../../features/auth/oauth.js';
@@ -128,7 +128,9 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
     };
     const screen = `<div data-screen="${page.component}" data-screen-status="pending" data-screen-props="${encodeURIComponent(JSON.stringify(page.props))}"><div role="status" aria-live="polite" class="flex min-h-52 items-center justify-center gap-2 py-12 text-sm font-medium text-content-secondary"><span aria-hidden="true" class="h-4 w-4 animate-spin rounded-full border-2 border-line-strong border-t-action motion-reduce:animate-none"></span><span>불러오는 중...</span></div></div>`;
     const robots = page.robots ?? 'noindex,nofollow';
-    const html = renderToString(<html lang={configuration.locale}>
+    // The editor keeps full page loads so its unsaved-changes warning covers every way of leaving.
+    const movesInApplication = page.component !== 'PostEditor';
+    const documentPage = <html lang={configuration.locale}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -142,7 +144,7 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
         {styleEntries.map((entry) => <link key={entry} rel="stylesheet" href={manifestAsset(assets, entry)} />)}
         <script type="application/json" id="blex-screen-config" dangerouslySetInnerHTML={{ __html: scriptJson(configuration) }} />
         {page.globals && <script type="application/json" id="blex-screen-globals" dangerouslySetInnerHTML={{ __html: scriptJson(page.globals) }} />}
-        {page.captcha && <script src="https://js.hcaptcha.com/1/api.js" async defer />}
+        {page.captcha && <script src="https://js.hcaptcha.com/1/api.js" async defer data-blex-trusted-script="hcaptcha" />}
       </head>
       <body className="antialiased bg-surface-page text-content selection:bg-action selection:text-content-inverted">
         <input type="hidden" name="csrfmiddlewaretoken" value={csrf} />
@@ -151,14 +153,15 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
         <main className="min-h-[calc(100vh-10.5rem)]"><div className={page.contentClass} dangerouslySetInnerHTML={{ __html: screen }} /></main>
         {page.footer && <SiteFooter brand={brand} />}
         <script type="module" src="/assets/blex/screen-host.js" />
-        <script type="module" src={manifestAsset(assets, loaderEntry)} />
+        <script type="module" src={manifestAsset(assets, loaderEntry)} {...(movesInApplication ? { 'data-blex-page-module': 'screen' } : {})} />
       </body>
-    </html>);
+    </html>;
+    const html = movesInApplication ? renderApplicationDocument(documentPage) : `<!doctype html>${renderToString(documentPage)}`;
     return reply.type('text/html; charset=utf-8')
       .header('Cache-Control', 'private, no-store')
       .header('Vary', 'Cookie')
       .header('Content-Security-Policy', applicationContentSecurityPolicy)
-      .send(`<!doctype html>${html}`);
+      .send(html);
   };
 
   const sendScreen = async (
