@@ -62,8 +62,7 @@ type SitemapUrl = { location: string; lastmod?: DbDate; changefreq: string; prio
 async function rssOrigin(db: PrismaClient, siteUrl: URL): Promise<URL> {
   const site = await db.siteSetting.findUnique({ where: { id: 1 }, select: { domain: true } });
   const origin = site?.domain ? URL.parse(`${siteUrl.protocol}//${site.domain}`) : null;
-  return origin &&
-    origin.host &&
+  return origin?.host &&
     origin.pathname === '/' &&
     !origin.username &&
     !origin.password &&

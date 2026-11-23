@@ -1,7 +1,7 @@
 import { ui } from '../../../i18n/public-ui.js';
 import type { ReaderAuthorHeader, ReaderPostView } from '@blex/contracts/engagement';
 import { PostCommentsApp, type PostCommentsModel } from './comments.js';
-import { loginPromptProps } from './login-prompt.js';
+import { LoginPromptLink } from './login-prompt-link.js';
 
 export interface ReaderActionsProps {
     view: ReaderPostView;
@@ -89,13 +89,14 @@ export function AuthorHeader(props: AuthorHeaderProps) {
                 </button>
             </form>
         ) : (
-            <a
-                {...loginPromptProps(props.returnTo, 'subscribe')}
+            <LoginPromptLink
+                returnTo={props.returnTo}
+                action="subscribe"
                 className="reader-action-button"
                 aria-label={ui('Subscribe to {value0}', { value0: author.username })}
             >
                 {ui('Subscribe')}
-            </a>
+            </LoginPromptLink>
         )
     ) : null;
 
@@ -154,7 +155,9 @@ export function ReaderActions(props: ReaderActionsProps) {
             >{`${view.postLike.isLiked ? ui('Unlike') : ui('Like')} · ${view.postLike.countLikes}`}</button>
         </form>
     ) : (
-        <a {...loginPromptProps(returnTo, 'like')}>{ui('Like · {value0}', { value0: view.postLike.countLikes })}</a>
+        <LoginPromptLink returnTo={returnTo} action="like">
+            {ui('Like · {value0}', { value0: view.postLike.countLikes })}
+        </LoginPromptLink>
     );
 
     return (

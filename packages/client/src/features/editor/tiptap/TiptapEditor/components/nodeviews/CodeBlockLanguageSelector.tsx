@@ -27,6 +27,7 @@ const CodeBlockLanguageSelector = ({ node, updateAttributes }: CodeBlockLanguage
     };
 
     const dropdownItems = SUPPORTED_LANGUAGES.map((language) => ({
+        id: language.value,
         label: language.value === 'plaintext' ? t('code.language.plain_text') : language.label,
         onClick: () => handleLanguageChange(language.value),
         checked: currentLanguage === language.value

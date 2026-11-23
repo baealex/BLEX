@@ -119,7 +119,7 @@ export async function readDatabaseUser(db: PrismaClient, id: number, username: s
 }
 
 export function isActiveEditor(user: DatabaseUser | null): user is DatabaseUser {
-  return user !== null && user.active && user.role === 'EDITOR';
+  return user?.active === true && user.role === 'EDITOR';
 }
 
 export async function requireActiveEditor(

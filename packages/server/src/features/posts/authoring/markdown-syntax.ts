@@ -179,8 +179,8 @@ function backslashBreakRule(state: StateInline, silent: boolean) {
 
 /** Abbreviation titles do not survive the content sanitizer, so only their definition lines are removed. */
 function abbreviationRule(state: StateBlock, startLine: number, _endLine: number, silent: boolean) {
-  if (state.sCount[startLine]! - state.blkIndent >= 4) return false;
-  const line = state.src.slice(state.bMarks[startLine]! + state.tShift[startLine]!, state.eMarks[startLine]!);
+  if (state.sCount[startLine] - state.blkIndent >= 4) return false;
+  const line = state.src.slice(state.bMarks[startLine] + state.tShift[startLine], state.eMarks[startLine]);
   if (!/^\*\[[^\\\]]*\] ?:/.test(line)) return false;
   if (!silent) state.line = startLine + 1;
   return true;
@@ -188,9 +188,9 @@ function abbreviationRule(state: StateBlock, startLine: number, _endLine: number
 
 /** `#title` is a heading, a seventh `#` stays as text, and closing marks are dropped. */
 function hashHeadingRule(state: StateBlock, startLine: number, _endLine: number, silent: boolean) {
-  if (state.sCount[startLine]! - state.blkIndent >= 4) return false;
-  const start = state.bMarks[startLine]! + state.tShift[startLine]!;
-  const max = state.eMarks[startLine]!;
+  if (state.sCount[startLine] - state.blkIndent >= 4) return false;
+  const start = state.bMarks[startLine] + state.tShift[startLine];
+  const max = state.eMarks[startLine];
   if (state.src.charCodeAt(start) !== 0x23) return false;
   if (silent) return true;
   let level = 0;
@@ -222,7 +222,7 @@ function wrapBlockRule(parser: MarkdownIt, name: string, wrap: (rule: BlockRule)
 function legacyList(rule: BlockRule): BlockRule {
   return (state, startLine, endLine, silent) => {
     if (silent && state.parentType === 'paragraph' && state.listIndent < 0) return false;
-    const start = state.bMarks[startLine]! + state.tShift[startLine]!;
+    const start = state.bMarks[startLine] + state.tShift[startLine];
     if (/^\d+\)/.test(state.src.slice(start, start + 12))) return false;
     return rule(state, startLine, endLine, silent);
   };
@@ -234,11 +234,11 @@ function legacyTable(rule: BlockRule): BlockRule {
     if (silent && state.parentType === 'paragraph') return false;
     let rows = 0;
     for (let line = startLine; line < endLine && !state.isEmpty(line); line += 1) {
-      if (!state.src.slice(state.bMarks[line]!, state.eMarks[line]!).includes('|')) return false;
+      if (!state.src.slice(state.bMarks[line], state.eMarks[line]).includes('|')) return false;
       rows += 1;
     }
     const delimiter =
-      startLine + 1 < endLine ? state.src.slice(state.bMarks[startLine + 1]!, state.eMarks[startLine + 1]!) : '';
+      startLine + 1 < endLine ? state.src.slice(state.bMarks[startLine + 1], state.eMarks[startLine + 1]) : '';
     const cells = rows * (delimiter.split('|').length + 1);
     const used = Number(state.env.legacyTableCells ?? 0);
     if (used + cells > MAX_TABLE_CELLS_PER_DOCUMENT) return false;
@@ -260,7 +260,7 @@ function lastFenceLine(state: StateBlock, marker: number) {
   if (last === undefined) {
     last = -1;
     for (let line = state.bMarks.length - 2; line >= 0 && last < 0; line -= 1) {
-      const start = state.bMarks[line]! + state.tShift[line]!;
+      const start = state.bMarks[line] + state.tShift[line];
       if (
         state.src.charCodeAt(start) === marker &&
         state.src.charCodeAt(start + 1) === marker &&
@@ -276,7 +276,7 @@ function lastFenceLine(state: StateBlock, marker: number) {
 /** An unclosed fence is plain text. */
 function legacyFence(rule: BlockRule): BlockRule {
   return (state, startLine, endLine, silent) => {
-    const marker = state.src.charCodeAt(state.bMarks[startLine]! + state.tShift[startLine]!);
+    const marker = state.src.charCodeAt(state.bMarks[startLine] + state.tShift[startLine]);
     if ((marker === 0x60 || marker === 0x7e) && lastFenceLine(state, marker) <= startLine) return false;
     return rule(state, startLine, endLine, silent);
   };
@@ -303,10 +303,10 @@ function legacyListSource(source: string) {
       if (fenceLine?.[2]?.[0] === fence.mark) fence = null;
       return;
     }
-    if (fenceLine && (fenceLine[1]!.length < 4 || inList)) {
-      const indent = fenceLine[1]!.length;
+    if (fenceLine && (fenceLine[1].length < 4 || inList)) {
+      const indent = fenceLine[1].length;
       const leavesList = inList && previousBlank && indent < 4;
-      fence = { mark: fenceLine[2]![0]!, dedent: leavesList ? indent : 0 };
+      fence = { mark: fenceLine[2][0], dedent: leavesList ? indent : 0 };
       if (leavesList) {
         lines[index] = line.slice(indent);
         leaveList();
@@ -319,13 +319,13 @@ function legacyListSource(source: string) {
       return;
     }
     const item = line.match(/^( *)([-*+]|\d+\.)([ \t]+)/);
-    if (item && (inList || item[1]!.length < 4)) {
-      const indent = item[1]!.length;
+    if (item && (inList || item[1].length < 4)) {
+      const indent = item[1].length;
       const level = Math.floor(indent / 4);
-      const type = /\d/.test(item[2]!) ? 'ordered' : 'bullet';
-      const marker = item[2]!;
+      const type = /\d/.test(item[2]) ? 'ordered' : 'bullet';
+      const marker = item[2];
       const continuesItem = inList && !previousBlank && typeAtLevel.has(level) && typeAtLevel.get(level) !== type;
-      const rest = line.slice(indent + marker.length + item[3]!.length);
+      const rest = line.slice(indent + marker.length + item[3].length);
       lines[index] = continuesItem
         ? `${' '.repeat(level * 4)}${marker.slice(0, -1)}\\${marker.at(-1)}${item[3]}${rest}`
         : `${' '.repeat(level * 4)}${marker}${' '.repeat(Math.max(1, 4 - marker.length))}${rest}`;
@@ -335,7 +335,7 @@ function legacyListSource(source: string) {
       }
       inList = true;
     } else if (inList && previousBlank) {
-      const indent = line.match(/^ */)![0].length;
+      const indent = line.search(/[^ ]|$/);
       if (indent < 4) {
         lines[index] = line.slice(indent);
         leaveList();
@@ -357,7 +357,7 @@ function footnoteOrderRule(state: StateCore) {
   if (!footnotes?.refs) return;
   footnotes.list ??= [];
   for (const key of Object.keys(footnotes.refs)) {
-    if (footnotes.refs[key]! >= 0) continue;
+    if (footnotes.refs[key] >= 0) continue;
     footnotes.refs[key] = footnotes.list.length;
     footnotes.list.push({ label: key.slice(1), count: 0 });
   }
@@ -390,9 +390,9 @@ function headingRule(state: StateCore) {
     const level = Number(token.tag[1]);
     if (level % 2 === 1) {
       token.tag = `h${level + 1}`;
-      state.tokens[index + 2]!.tag = token.tag;
+      state.tokens[index + 2].tag = token.tag;
     }
-    const text = state.tokens[index + 1]!.content;
+    const text = state.tokens[index + 1].content;
     if (text) token.attrSet('id', headingId(text, used, nextIndex));
   });
 }
@@ -404,7 +404,7 @@ function markTaskItem(state: StateCore, index: number) {
   const checkbox = first.content.match(/^ *\[(?:x|X| )\](?: +|$)/);
   if (!checkbox) return false;
   first.content = ` ${first.content.slice(checkbox[0].length)}`;
-  state.tokens[index]!.attrJoin('class', 'task-list-item');
+  state.tokens[index].attrJoin('class', 'task-list-item');
   return true;
 }
 
@@ -421,9 +421,9 @@ function readAttributes(source: string) {
   const attributes: Array<[string, string]> = [];
   const pattern = /([#.])([^\s.#=]+)|([^\s=#.][^\s=]*)=(?:"([^"]*)"|'([^']*)'|(\S+))/g;
   for (const match of source.matchAll(pattern)) {
-    if (match[1] === '#') attributes.push(['id', match[2]!]);
-    else if (match[1] === '.') attributes.push(['class', match[2]!]);
-    else attributes.push([match[3]!, match[4] ?? match[5] ?? match[6] ?? '']);
+    if (match[1] === '#') attributes.push(['id', match[2]]);
+    else if (match[1] === '.') attributes.push(['class', match[2]]);
+    else attributes.push([match[3], match[4] ?? match[5] ?? match[6] ?? '']);
   }
   return attributes;
 }
@@ -493,7 +493,7 @@ function inlineAttributes(inline: Token) {
     if (next?.type !== 'text') return;
     const match = next.content.match(/^\{:?[ ]*([^}\n ][^}\n]*)\}/);
     if (!match) return;
-    if (target) applyAttributes(target, match[1]!);
+    if (target) applyAttributes(target, match[1]);
     next.content = next.content.slice(match[0].length);
   });
 }
@@ -548,7 +548,7 @@ function footnoteMeta(token: Token) {
 function renderFootnotes(parser: MarkdownIt) {
   const rules = parser.renderer.rules;
   rules.footnote_ref = (tokens, index) => {
-    const { number, label } = footnoteMeta(tokens[index]!);
+    const { number, label } = footnoteMeta(tokens[index]);
     return `<sup><a class="footnote-ref" href="#fn:${label}">${number}</a></sup>`;
   };
   rules.footnote_block_open = () => '<div class="footnote">\n<hr />\n<ol>\n';
@@ -556,7 +556,7 @@ function renderFootnotes(parser: MarkdownIt) {
   rules.footnote_open = () => '<li>\n';
   rules.footnote_close = () => '</li>\n';
   rules.footnote_anchor = (tokens, index) => {
-    const { number, subId, label } = footnoteMeta(tokens[index]!);
+    const { number, subId, label } = footnoteMeta(tokens[index]);
     // Each repeated reference adds a link back, so a capped count keeps the output proportional to the document.
     if (subId >= 100) return '';
     const target = subId ? `fnref${subId + 1}` : 'fnref';

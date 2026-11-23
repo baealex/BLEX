@@ -66,13 +66,13 @@ parser.validateLink = () => true;
 parser.core.ruler.push('blex_blocks', (state) => {
   const tokens: typeof state.tokens = [];
   for (let index = 0; index < state.tokens.length; index += 1) {
-    const token = state.tokens[index]!;
+    const token = state.tokens[index];
     if (token.type === 'fence') {
       const language = token.info.trim().split(/\s+/)[0] ?? '';
       token.info = /^[a-zA-Z0-9_-]{1,32}$/.test(language) ? language : '';
     }
     const inline = token.type === 'paragraph_open' ? state.tokens[index + 1] : undefined;
-    const image = inline?.children?.length === 1 && inline.children[0]!.type === 'image' ? inline.children[0]! : null;
+    const image = inline?.children?.length === 1 && inline.children[0].type === 'image' ? inline.children[0] : null;
     const video = image ? safeUploadedVideo(String(image.attrGet('src') ?? '')) : null;
     if (image && video) {
       const figure = new state.Token('html_block', '', 0);

@@ -179,22 +179,21 @@ export async function buildTimelapse(db: PrismaClient, post: StoredPost): Promis
     orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     select: { title: true, content: true, type: true, sourceUpdatedAt: true, createdAt: true },
   });
-  const newestFirst: Array<Omit<TimelapseFrame, 'savedAt'> & { savedDate: string }> = [
-    {
-      title: post.title,
-      contentHtml: post.contentHtml,
-      savedDate: dateAsIso(post.updatedDate) ?? new Date().toISOString(),
-      stage: post.publishedDate ? 'published' : 'draft',
-    },
-  ];
+  let later: Omit<TimelapseFrame, 'savedAt'> & { savedDate: string } = {
+    title: post.title,
+    contentHtml: post.contentHtml,
+    savedDate: dateAsIso(post.updatedDate) ?? new Date().toISOString(),
+    stage: post.publishedDate ? 'published' : 'draft',
+  };
+  const newestFirst = [later];
   for (const history of histories) {
-    const later = newestFirst.at(-1)!;
-    newestFirst.push({
+    later = {
       title: history.title === '_NO_CHANGED_' ? later.title : history.title,
       contentHtml: history.content === '_NO_CHANGED_' ? later.contentHtml : history.content,
       savedDate: dateAsIso(history.sourceUpdatedAt ?? history.createdAt) ?? '',
       stage: history.type === 'draft' ? 'draft' : 'published',
-    });
+    };
+    newestFirst.push(later);
   }
   const chronological = newestFirst.reverse();
   const collapsed: typeof chronological = [];
@@ -208,7 +207,7 @@ export async function buildTimelapse(db: PrismaClient, post: StoredPost): Promis
       ? collapsed
       : [
           ...new Set(Array.from({ length: 80 }, (_value, index) => Math.round((index * (collapsed.length - 1)) / 79))),
-        ].map((index) => collapsed[index]!);
+        ].map((index) => collapsed[index]);
   return {
     frames: frames.map((frame) => ({
       title: frame.title,

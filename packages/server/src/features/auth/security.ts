@@ -123,6 +123,8 @@ export function passwordUpdater(db: PrismaClient, siteUrl: URL, config: AuthConf
     if (passwordError) return securityError('VA', passwordError);
     const newPasswordHash = await hashPassword(password);
     const sessionToken = createToken();
+    const sessionHash = tokenHash(sessionToken);
+    if (!sessionHash) throw new Error('Invalid generated session token.');
     const revokedAt = new Date();
 
     const result = await db.$transaction<PasswordUpdate>(async (tx) => {
@@ -142,7 +144,7 @@ export function passwordUpdater(db: PrismaClient, siteUrl: URL, config: AuthConf
       await tx.session.updateMany({
         where: { tokenHash: account.sessionHash },
         data: {
-          tokenHash: tokenHash(sessionToken)!,
+          tokenHash: sessionHash,
           credentialTag: credentialTag(newPasswordHash, config.secretKey),
           verifiedUntil: null,
           verifiedFactorId: null,

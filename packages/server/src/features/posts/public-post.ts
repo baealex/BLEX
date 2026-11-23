@@ -152,12 +152,12 @@ export async function readPublicPost(
     },
     select: { ...publicPostSelect, author: { select: { username: true, profile: { select: { avatar: true } } } } },
   });
-  if (!post) return null;
+  if (!post?.publishedAt) return null;
   return {
     ...publicPostFields(post, post.author.username, post.author.profile?.avatar),
-    publishedDate: storedDateText(post.publishedAt!),
+    publishedDate: storedDateText(post.publishedAt),
     updatedDate: storedDateText(post.updatedAt),
-    visibility: post.isHidden ? 'hidden' : post.publishedAt! > now ? 'scheduled' : 'public',
+    visibility: post.isHidden ? 'hidden' : post.publishedAt > now ? 'scheduled' : 'public',
   };
 }
 

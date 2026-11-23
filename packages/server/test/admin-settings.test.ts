@@ -191,10 +191,6 @@ function jsonHeaders(userId?: number, csrf = true) {
   return { ...headers(userId, csrf), 'content-type': 'application/json' };
 }
 
-function formHeaders(userId?: number) {
-  return { ...headers(userId), 'content-type': 'application/x-www-form-urlencoded' };
-}
-
 function multipartPayload(
   fields: Record<string, string>,
   files: Record<string, { name: string; type: string; data: Buffer }>,

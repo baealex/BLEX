@@ -53,8 +53,9 @@ async function signupSettings(db: PrismaClient) {
 
 /** Requires a usable decrypted CAPTCHA secret. */
 function activeCaptcha(settings: SignupSettings | undefined, cipherKey: string) {
-  const secret = settings?.captchaEnabled ? decryptSecret(settings.secretKey, cipherKey) : null;
-  return secret ? { secret, siteKey: settings!.siteKey.trim() } : null;
+  if (!settings?.captchaEnabled) return null;
+  const secret = decryptSecret(settings.secretKey, cipherKey);
+  return secret ? { secret, siteKey: settings.siteKey.trim() } : null;
 }
 
 function legacyError(code: string, errorMessage: string) {
@@ -209,7 +210,8 @@ export function registerSignup(app: FastifyInstance, db: PrismaClient, siteUrl: 
     const next = safeReturnPath(request.query.next, siteUrl);
     if (!(await hasAdministrator(db))) return reply.redirect('/setup', 302);
     if (await readSession(db, request.cookies[sessionCookie], config.secretKey)) return reply.redirect(next, 302);
-    const csrf = csrfPattern.test(request.cookies[csrfCookie] ?? '') ? request.cookies[csrfCookie]! : createToken();
+    const suppliedCsrf = request.cookies[csrfCookie];
+    const csrf = suppliedCsrf && csrfPattern.test(suppliedCsrf) ? suppliedCsrf : createToken();
     const [settings, providers, brand] = await Promise.all([
       signupSettings(db),
       publicOAuthProviders(db, config.cipherKey),

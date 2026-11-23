@@ -155,14 +155,11 @@ export function NoticeSection({ notices, scope }: { notices: NoticeRow[]; scope:
                             'group block rounded-2xl border border-line/50 bg-transparent px-5 py-4 transition-colors duration-150 hover:border-line/70 active:bg-surface-subtle/40',
                         'data-notice-slide': ''
                     };
-                    return href ? (
-                        <a {...props} href={href} key={notice.id}>
+                    const Tag = href ? 'a' : 'div';
+                    return (
+                        <Tag key={notice.id} {...props} {...(href ? { href } : {})}>
                             {content}
-                        </a>
-                    ) : (
-                        <div {...props} key={notice.id}>
-                            {content}
-                        </div>
+                        </Tag>
                     );
                 })}
                 {notices.length > 1 ? (
@@ -205,14 +202,11 @@ export function NoticeSection({ notices, scope }: { notices: NoticeRow[]; scope:
                         className:
                             'group block py-3.5 transition-colors duration-150 hover:bg-surface-subtle/50 active:bg-surface-subtle/70'
                     };
-                    return href ? (
-                        <a {...props} href={href} key={notice.id}>
+                    const Tag = href ? 'a' : 'div';
+                    return (
+                        <Tag key={notice.id} {...props} {...(href ? { href } : {})}>
                             {content}
-                        </a>
-                    ) : (
-                        <div {...props} key={notice.id}>
-                            {content}
-                        </div>
+                        </Tag>
                     );
                 })}
             </div>

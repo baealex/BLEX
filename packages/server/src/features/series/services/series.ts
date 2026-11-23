@@ -57,7 +57,9 @@ async function countPublicPosts(db: PrismaClient, seriesIds: number[]): Promise<
       where: { seriesId: { in: seriesIds.slice(offset, offset + 500) }, ...publicPostWhere() },
       _count: { _all: true },
     });
-    for (const row of rows) counts.set(row.seriesId!, row._count._all);
+    for (const row of rows) {
+      if (row.seriesId !== null) counts.set(row.seriesId, row._count._all);
+    }
   }
   return counts;
 }
@@ -182,7 +184,8 @@ export async function saveSeries(
       let finalName = name;
       let finalDescription = (description ?? '').trim();
       if (id === undefined) {
-        url = await createUniqueSeriesUrl(tx, requestedUrl!);
+        if (!requestedUrl) throw { code: 'VA', message: 'Enter a valid series URL.' };
+        url = await createUniqueSeriesUrl(tx, requestedUrl);
         const now = currentSecond();
         const created = await tx.series.create({
           data: {

@@ -20,6 +20,21 @@ import {
 import { SettingsHeader, SettingsPagination } from '../layout';
 import { useModerationPaging, useModerationSearch } from '../shared/useModerationList';
 
+const statusLabels: Record<ModeratedPostStatus, MessageDescriptor> = {
+    public: msg({
+        id: 'settings.moderation.posts.status.public',
+        message: 'Public'
+    }),
+    hidden: msg({
+        id: 'settings.moderation.posts.status.hidden',
+        message: 'Hidden'
+    }),
+    trash: msg({
+        id: 'settings.moderation.posts.status.trash',
+        message: 'Trash'
+    })
+};
+
 const filterItems: Array<{ value: ModeratedPostFilter; label: MessageDescriptor }> = [
     {
         value: 'all',
@@ -28,27 +43,9 @@ const filterItems: Array<{ value: ModeratedPostFilter; label: MessageDescriptor 
             message: 'Public and hidden'
         })
     },
-    {
-        value: 'public',
-        label: msg({
-            id: 'settings.moderation.posts.status.public',
-            message: 'Public'
-        })
-    },
-    {
-        value: 'hidden',
-        label: msg({
-            id: 'settings.moderation.posts.status.hidden',
-            message: 'Hidden'
-        })
-    },
-    {
-        value: 'trash',
-        label: msg({
-            id: 'settings.moderation.posts.status.trash',
-            message: 'Trash'
-        })
-    }
+    { value: 'public', label: statusLabels.public },
+    { value: 'hidden', label: statusLabels.hidden },
+    { value: 'trash', label: statusLabels.trash }
 ];
 
 const statusClasses: Record<ModeratedPostStatus, string> = {
@@ -259,7 +256,7 @@ const ModerationPostsSetting = () => {
                                     <span
                                         className={`shrink-0 rounded-full px-2 py-1 text-xs font-semibold ${statusClasses[post.status]}`}
                                     >
-                                        {i18n._(filterItems.find((item) => item.value === post.status)!.label)}
+                                        {i18n._(statusLabels[post.status])}
                                     </span>
                                     {post.status === 'public' && post.authorActive ? (
                                         <a

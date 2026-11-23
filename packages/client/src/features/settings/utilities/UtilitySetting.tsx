@@ -258,6 +258,12 @@ const LogCleanupResult = ({ result }: { result: LogCleanResult }) => {
 
 const ImageCleanupResult = ({ result }: { result: ImageCleanResult }) => {
     const { i18n, t } = useLingui();
+    const occurrences = new Map<string, number>();
+    const messages = result.messages.map((message) => {
+        const occurrence = occurrences.get(message) ?? 0;
+        occurrences.set(message, occurrence + 1);
+        return { message, key: `${message}:${occurrence}` };
+    });
     const presentation = result.dryRun
         ? {
               variant: 'info' as const,
@@ -317,8 +323,8 @@ const ImageCleanupResult = ({ result }: { result: ImageCleanResult }) => {
                     </p>
                     {result.messages.length > 0 && (
                         <ul className="mt-2 space-y-0.5 text-xs">
-                            {result.messages.map((message, index) => (
-                                <li key={`${message}-${index}`}>{message}</li>
+                            {messages.map(({ message, key }) => (
+                                <li key={key}>{message}</li>
                             ))}
                         </ul>
                     )}

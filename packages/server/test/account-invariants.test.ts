@@ -12,7 +12,6 @@ import { decryptSecret, encryptSecret } from '../src/features/auth/encrypted-sec
 import { reserveLoginAttempt } from '../src/features/auth/login-attempts.js';
 import { consumePendingOAuth } from '../src/features/auth/oauth.js';
 import { createToken, tokenHash } from '../src/features/auth/session.js';
-import { verifySecondFactor } from '../src/features/auth/two-factor.js';
 import {
   createMigratedDatabase,
   insertRow,
@@ -197,7 +196,8 @@ test('login limits hold under concurrency and reject without consuming the other
     // A rejected account attempt must not have spent the IP's allowance.
     assert.ok(await reserveLoginAttempt(db, testSecretKey, '192.0.2.200', 'someone-else'));
 
-    const release = sameIp.find(Boolean)!;
+    const release = sameIp.find(Boolean);
+    assert.ok(release);
     await release();
     assert.ok(await reserveLoginAttempt(db, testSecretKey, '203.0.113.1', 'after-release'));
     assert.equal(await reserveLoginAttempt(db, testSecretKey, '203.0.113.1', 'over-limit'), null);
@@ -256,8 +256,11 @@ test('an OAuth state and a pending OAuth challenge are each consumed once under 
   return withApp(
     async (app, db) => {
       const started = await app.inject('/login/start/google');
-      const state = new URL(started.headers.location!).searchParams.get('state')!;
-      const cookie = cookiesFrom(started.headers['set-cookie']).find((item) => item.startsWith('blex_oauth_google='))!;
+      assert.ok(started.headers.location);
+      const state = new URL(started.headers.location).searchParams.get('state');
+      assert.ok(state);
+      const cookie = cookiesFrom(started.headers['set-cookie']).find((item) => item.startsWith('blex_oauth_google='));
+      assert.ok(cookie);
       await Promise.all(
         Array.from({ length: 6 }, () =>
           app.inject({
@@ -303,7 +306,9 @@ test('a factor setup activates once under concurrency, and only with a valid cod
       const setup = await app.inject({ method: 'POST', url: '/v1/auth/security', headers: verified });
       assert.equal(setup.json().status, 'DONE');
       const pending = await db.factorSetup.findFirstOrThrow({ select: { secret: true } });
-      const code = new TOTP({ secret: Secret.fromBase32(decryptSecret(pending.secret, testCipherKey)!) }).generate();
+      const secret = decryptSecret(pending.secret, testCipherKey);
+      assert.ok(secret);
+      const code = new TOTP({ secret: Secret.fromBase32(secret) }).generate();
       const wrongCode = code === '000000' ? '000001' : '000000';
       const wrong = await app.inject({
         method: 'POST',
@@ -405,7 +410,9 @@ test('an owner without their authenticator is never locked out after spending th
       const replacement = setup.json().body.recoveryKey as string;
       assert.notEqual(replacement, importedRecoveryCode);
       const pending = await db.factorSetup.findFirstOrThrow({ select: { secret: true } });
-      const code = new TOTP({ secret: Secret.fromBase32(decryptSecret(pending.secret, testCipherKey)!) }).generate();
+      const secret = decryptSecret(pending.secret, testCipherKey);
+      assert.ok(secret);
+      const code = new TOTP({ secret: Secret.fromBase32(secret) }).generate();
       assert.equal(
         (
           await app.inject({ method: 'POST', url: '/v1/auth/security/verify', headers: verified, payload: { code } })

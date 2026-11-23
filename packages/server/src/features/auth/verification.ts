@@ -97,7 +97,8 @@ export async function recordVerification(
   spentRecoveryKey?: string,
 ) {
   const token = createToken();
-  const storedToken = tokenHash(token)!;
+  const storedToken = tokenHash(token);
+  if (!storedToken) throw new Error('Invalid generated verification token.');
   const now = new Date();
   try {
     const recorded = await db.$transaction(async (tx) => {

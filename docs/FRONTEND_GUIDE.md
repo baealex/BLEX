@@ -37,6 +37,7 @@ The post detail page is the one server-rendered page in the main React tree: `fe
 ## Components, state, and requests
 
 - Keep props and API boundaries typed. Prefer composition and existing shared controls over new configurable component systems.
+- Decode screen-host JSON as `unknown` and validate it with `components/screen-props.ts` before rendering. Keep the screen name paired with its component props, and update the parser when a screen's inputs change.
 - Put shareable filters and pagination in the URL; keep transient form and interaction state local.
 - Follow the request pattern used by the code you are changing. The main app uses browser `fetch` and forms; web screens use their existing Axios client, React Query, and form libraries.
 - Preserve the runtime's CSRF handling and check API error responses before consuming their bodies.

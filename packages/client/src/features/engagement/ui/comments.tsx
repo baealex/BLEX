@@ -14,7 +14,7 @@ import {
     mergeOlderComments,
     updateCommentInTree
 } from './comment-model.js';
-import { loginPromptProps } from './login-prompt.js';
+import { LoginPromptLink } from './login-prompt-link.js';
 
 export interface PostCommentsModel {
     slug: string;
@@ -502,13 +502,14 @@ function CommentActions({ comment, handlers }: { comment: CommentPayload; handle
                         {likeContent}
                     </button>
                 ) : (
-                    <a
-                        {...loginPromptProps(`${model.postPath}#comment-${id}`, 'like')}
+                    <LoginPromptLink
+                        returnTo={`${model.postPath}#comment-${id}`}
+                        action="like"
                         className={likeClass}
                         aria-label={ui('Like')}
                     >
                         {likeContent}
-                    </a>
+                    </LoginPromptLink>
                 ))}
             {showCount && (
                 <span className={`${actionButton} text-content-secondary`}>
@@ -529,13 +530,14 @@ function CommentActions({ comment, handlers }: { comment: CommentPayload; handle
                         {replyContent}
                     </button>
                 ) : (
-                    <a
-                        {...loginPromptProps(`${model.postPath}?reply_to=${id}#post-comments`, 'reply')}
+                    <LoginPromptLink
+                        returnTo={`${model.postPath}?reply_to=${id}#post-comments`}
+                        action="reply"
                         className={`${actionButton} ${quietAction}`}
                         aria-label={ui('Write a reply')}
                     >
                         {replyContent}
-                    </a>
+                    </LoginPromptLink>
                 ))}
         </div>
     );
@@ -547,12 +549,7 @@ function CommentItem({ comment, handlers }: { comment: CommentPayload; handlers:
     const name = comment.isDeleted ? ui('Deleted user') : comment.author;
     const { canEdit, canDelete } = comment.permissions;
     return (
-        <div
-            className="group scroll-mt-24"
-            id={`comment-${comment.id}`}
-            data-comment-id={comment.id}
-            role={isReply ? undefined : 'listitem'}
-        >
+        <li className="group scroll-mt-24" id={`comment-${comment.id}`} data-comment-id={comment.id}>
             <article
                 className={`relative py-6 transition-colors duration-200 ${isReply ? 'ml-6 border-l border-line-light pl-6 sm:ml-14 sm:pl-8' : ''}`}
                 aria-label={
@@ -612,13 +609,13 @@ function CommentItem({ comment, handlers }: { comment: CommentPayload; handlers:
                 </div>
             )}
             {!isReply && Boolean(comment.replies?.length) && (
-                <div className="mt-2">
+                <ul className="mt-2">
                     {comment.replies?.map((reply) => (
                         <CommentItem key={reply.id} comment={reply} handlers={handlers} />
                     ))}
-                </div>
+                </ul>
             )}
-        </div>
+        </li>
     );
 }
 
@@ -873,11 +870,11 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
             )}
             <div ref={listRef}>
                 {comments.length ? (
-                    <div className="divide-y divide-line-light" role="list">
+                    <ul className="divide-y divide-line-light">
                         {comments.map((comment) => (
                             <CommentItem key={comment.id} comment={comment} handlers={handlers} />
                         ))}
-                    </div>
+                    </ul>
                 ) : (
                     <div className="py-8 text-center">
                         <Icon name="comment" className="mx-auto mb-2 size-8 text-content-hint" />
@@ -904,8 +901,9 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
                             }}
                         />
                     ) : (
-                        <a
-                            {...loginPromptProps(`${model.postPath}#post-comments`, 'comment')}
+                        <LoginPromptLink
+                            returnTo={`${model.postPath}#post-comments`}
+                            action="comment"
                             aria-label={ui('Sign in to comment')}
                             className="group flex min-h-28 w-full cursor-pointer flex-col items-start justify-between gap-4 rounded-xl border border-line bg-surface-subtle p-5 text-left transition-all duration-150 hover:border-line-strong hover:bg-surface focus:outline-none focus:ring-2 focus:ring-action/20"
                         >
@@ -916,7 +914,7 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
                                 <Icon name="lock" className="size-4" />
                                 {ui('Sign in to comment')}
                             </span>
-                        </a>
+                        </LoginPromptLink>
                     )}
                 </div>
             ) : (

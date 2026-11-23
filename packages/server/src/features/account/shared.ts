@@ -66,7 +66,7 @@ export function apiValidationError(reply: FastifyReply, result: Extract<UpdateRe
   );
 }
 
-export async function currentUser(request: FastifyRequest, reply: FastifyReply, options: PersonalSettingsOptions) {
+export async function currentUser(request: FastifyRequest, options: PersonalSettingsOptions) {
   const user = await options.currentUser(request);
   if (!user || !Number.isSafeInteger(user.id) || user.id <= 0 || !user.username) return null;
   return user;

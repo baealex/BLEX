@@ -1,7 +1,7 @@
 const WINDOWS = [
   { durationMs: 60_000, limit: 10 },
   { durationMs: 86_400_000, limit: 200 },
-];
+] as const;
 const MAX_TRACKED_ACCOUNTS = 10_000;
 
 /** Counts new comments per account. Deleting a comment does not give the allowance back. */
@@ -14,7 +14,7 @@ export function createCommentRateLimiter(now: () => number = Date.now) {
     const counters = accounts.get(accountId) ?? WINDOWS.map(() => ({ resetAt: 0, count: 0 }));
     let wait = 0;
     WINDOWS.forEach(({ durationMs, limit }, index) => {
-      const counter = counters[index]!;
+      const counter = counters[index];
       if (time >= counter.resetAt) {
         counter.resetAt = time + durationMs;
         counter.count = 0;

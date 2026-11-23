@@ -249,6 +249,7 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                                 </button>
                             }
                             items={platformOptions.map((opt) => ({
+                                id: opt.value,
                                 label: opt.label,
                                 onClick: () => onChange(index, 'name', opt.value),
                                 checked: social.name === opt.value

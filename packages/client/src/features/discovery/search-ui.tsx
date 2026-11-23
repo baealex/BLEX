@@ -168,15 +168,18 @@ function highlightText(text: string, query: string): ReactNode {
         'ig'
     );
     const parts = text.split(expression);
-    return parts.map((part, index) =>
-        index % 2 ? (
-            <mark key={`${index}:${part}`} className="rounded bg-warning-surface px-0.5 text-content">
+    let offset = 0;
+    return parts.map((part, index) => {
+        const start = offset;
+        offset += part.length;
+        return index % 2 ? (
+            <mark key={`match:${start}`} className="rounded bg-warning-surface px-0.5 text-content">
                 {part}
             </mark>
         ) : (
-            <span key={`${index}:${part}`}>{part}</span>
-        )
-    );
+            <span key={`text:${start}`}>{part}</span>
+        );
+    });
 }
 
 export function SearchResultCard({ post, query }: { post: PostRow; query: string }): ReactNode {

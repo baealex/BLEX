@@ -127,7 +127,8 @@ const trashedPostSelect = {
   isHidden: true,
 } satisfies Prisma.PostSelect;
 
-function trashedPost(row: Prisma.PostGetPayload<{ select: typeof trashedPostSelect }>): TrashedPostRow {
+function trashedPost(row: Prisma.PostGetPayload<{ select: typeof trashedPostSelect }>): TrashedPostRow | null {
+  if (!row.deletedAt) return null;
   return {
     id: row.id,
     url: row.slug,
@@ -135,7 +136,7 @@ function trashedPost(row: Prisma.PostGetPayload<{ select: typeof trashedPostSele
     image: row.image,
     publishedDate: row.publishedAt,
     updatedDate: row.updatedAt,
-    deletedDate: row.deletedAt!,
+    deletedDate: row.deletedAt,
     hide: row.isHidden,
   };
 }
@@ -162,25 +163,29 @@ export async function getTrashRows(
   });
   const now = new Date();
   return {
-    posts: rows.map(trashedPost).map((post) => {
-      const sourceStatus = !post.publishedDate
-        ? 'draft'
-        : post.publishedDate > post.deletedDate
-          ? 'scheduled'
-          : 'published';
-      const scheduleElapsed = sourceStatus === 'scheduled' && post.publishedDate! <= now;
-      return {
-        url: post.url,
-        title: post.title,
-        image: mediaUrl(post.image),
-        sourceStatus,
-        publishedDate: dateAsIso(post.publishedDate),
-        updatedDate: dateAsIso(post.updatedDate),
-        deletedDate: dateAsIso(post.deletedDate),
-        scheduleElapsed,
-        isHide: post.hide,
-      };
-    }),
+    posts: rows
+      .map(trashedPost)
+      .filter((post) => post !== null)
+      .map((post) => {
+        const sourceStatus = !post.publishedDate
+          ? 'draft'
+          : post.publishedDate > post.deletedDate
+            ? 'scheduled'
+            : 'published';
+        const scheduleElapsed =
+          sourceStatus === 'scheduled' && post.publishedDate !== null && post.publishedDate <= now;
+        return {
+          url: post.url,
+          title: post.title,
+          image: mediaUrl(post.image),
+          sourceStatus,
+          publishedDate: dateAsIso(post.publishedDate),
+          updatedDate: dateAsIso(post.updatedDate),
+          deletedDate: dateAsIso(post.deletedDate),
+          scheduleElapsed,
+          isHide: post.hide,
+        };
+      }),
     pagination: { page, totalCount, lastPage },
     retention: { mode: 'manual' },
   };

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Calendar, Check, FileText, Loader2, Search } from '~/ui/icons';
 import { Input, LoadingState, Modal } from '~/components/shared';
@@ -38,6 +38,7 @@ export const AddPinnedPostModal = ({
     const { i18n, t } = useLingui();
     const locale = normalizeLocale(i18n.locale);
     const [selectedPost, setSelectedPost] = useState<string | null>(null);
+    const selectionGroup = useId();
 
     useEffect(() => {
         setSelectedPost(null);
@@ -150,48 +151,51 @@ export const AddPinnedPostModal = ({
                         {pinnablePosts.map((post) => {
                             const isSelected = selectedPost === post.url;
                             return (
-                                <button
+                                <label
                                     key={post.url}
-                                    type="button"
-                                    role="radio"
-                                    aria-checked={isSelected}
-                                    aria-label={i18n._({
-                                        id: 'settings.pinned_posts.select.post_label',
-                                        message: 'Select post to pin: {title}',
-                                        values: { title: post.title }
-                                    })}
-                                    onClick={() => setSelectedPost(post.url)}
-                                    className={`group relative flex w-full items-center gap-4 rounded-xl border p-4 text-left transition-all duration-150 active:scale-[0.99] ${
+                                    className={`group relative flex w-full cursor-pointer items-center gap-4 rounded-xl border p-4 text-left transition-all duration-150 active:scale-[0.99] focus-within:ring-2 focus-within:ring-action/30 ${
                                         isSelected
                                             ? 'z-10 border-line-strong bg-surface shadow-subtle ring-1 ring-line-strong'
                                             : 'border-line bg-surface hover:border-line-strong hover:shadow-subtle'
                                     }`}
                                 >
+                                    <input
+                                        type="radio"
+                                        name={selectionGroup}
+                                        className="sr-only"
+                                        checked={isSelected}
+                                        onChange={() => setSelectedPost(post.url)}
+                                        aria-label={i18n._({
+                                            id: 'settings.pinned_posts.select.post_label',
+                                            message: 'Select post to pin: {title}',
+                                            values: { title: post.title }
+                                        })}
+                                    />
                                     {post.image ? (
-                                        <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg border border-line bg-surface-subtle">
+                                        <span className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg border border-line bg-surface-subtle">
                                             <img
                                                 src={getMediaPath(post.image)}
                                                 alt={post.title}
                                                 className="h-full w-full object-cover"
                                             />
-                                        </div>
+                                        </span>
                                     ) : (
-                                        <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg border border-line bg-surface-subtle text-content-hint">
+                                        <span className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg border border-line bg-surface-subtle text-content-hint">
                                             <FileText aria-hidden className="h-5 w-5" />
-                                        </div>
+                                        </span>
                                     )}
 
-                                    <div className="min-w-0 flex-1">
-                                        <h4 className="mb-1 truncate text-base font-semibold text-content">
+                                    <span className="min-w-0 flex-1">
+                                        <span className="mb-1 block truncate text-base font-semibold text-content">
                                             {post.title}
-                                        </h4>
-                                        <p className="flex items-center gap-2 text-sm text-content-secondary">
+                                        </span>
+                                        <span className="flex items-center gap-2 text-sm text-content-secondary">
                                             <Calendar aria-hidden className="h-4 w-4" />
                                             {formatPublishedDate(post.createdDate, post.createdDate, locale)}
-                                        </p>
-                                    </div>
+                                        </span>
+                                    </span>
 
-                                    <div
+                                    <span
                                         className={`absolute right-4 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full border transition-all ${
                                             isSelected
                                                 ? 'scale-100 border-line-strong bg-action text-content-inverted opacity-100'
@@ -199,8 +203,8 @@ export const AddPinnedPostModal = ({
                                         }`}
                                     >
                                         <Check aria-hidden className="h-3.5 w-3.5" />
-                                    </div>
-                                </button>
+                                    </span>
+                                </label>
                             );
                         })}
                         <PinnablePostsPager

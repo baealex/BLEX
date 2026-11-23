@@ -97,7 +97,7 @@ const changedPaths = [...paths]
 
 if (changedPaths.length > 0) {
     console.error('Lingui catalogs are stale:');
-    changedPaths.forEach((path) => console.error(`- ${path}`));
+    for (const path of changedPaths) console.error(`- ${path}`);
     console.error('Run "pnpm i18n:extract", translate missing messages, and compile again.');
     process.exit(1);
 }

@@ -34,7 +34,7 @@ const YoutubeModal = ({ isOpen, onClose, onUpload }: YoutubeModalProps) => {
                             let id = e.target.value;
                             if (id.includes('youtube.com') || id.includes('youtu.be')) {
                                 const match = id.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
-                                if (match && match[1]) {
+                                if (match?.[1]) {
                                     id = match[1];
                                 }
                             }

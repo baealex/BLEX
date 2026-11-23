@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/react/macro';
+import type { ReactNode } from 'react';
 import NewPostEditor from './NewPostEditor';
 import EditPostEditor from './EditPostEditor';
 
@@ -12,74 +13,61 @@ interface PostEditorProps {
     showFirstPublishGuide?: boolean;
 }
 
+const EditorError = ({ children }: { children: ReactNode }) => (
+    <div className="bg-surface-subtle py-4 sm:py-8">
+        <div className="max-w-7xl w-full mx-auto">
+            <div className="bg-surface rounded-xl shadow-sm border border-line p-6">
+                <div className="text-center text-content-secondary">{children}</div>
+            </div>
+        </div>
+    </div>
+);
+
 const PostEditor = ({ mode, username, postUrl, draftUrl, showFirstPublishGuide = false }: PostEditorProps) => {
-    if (mode === 'edit' && (!username || !postUrl)) {
-        return (
-            <div className="bg-surface-subtle py-4 sm:py-8">
-                <div className="max-w-7xl w-full mx-auto">
-                    <div className="bg-surface rounded-xl shadow-sm border border-line p-6">
-                        <div className="text-center text-content-secondary">
-                            <Trans id="editor.error.missing_edit_parameters">
-                                Edit mode requires a username and post URL.
-                            </Trans>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    if (mode === 'draft' && (!draftUrl || !username)) {
-        return (
-            <div className="bg-surface-subtle py-4 sm:py-8">
-                <div className="max-w-7xl w-full mx-auto">
-                    <div className="bg-surface rounded-xl shadow-sm border border-line p-6">
-                        <div className="text-center text-content-secondary">
-                            <Trans id="editor.error.missing_draft_parameters">
-                                Draft mode requires a draft URL and username.
-                            </Trans>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    if (mode === 'new' && !username) {
-        return (
-            <div className="bg-surface-subtle py-4 sm:py-8">
-                <div className="max-w-7xl w-full mx-auto">
-                    <div className="bg-surface rounded-xl shadow-sm border border-line p-6">
-                        <div className="text-center text-content-secondary">
-                            <Trans id="editor.error.missing_new_parameters">New post mode requires a username.</Trans>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
     switch (mode) {
         case 'new':
-        case 'draft':
+            if (!username) {
+                return (
+                    <EditorError>
+                        <Trans id="editor.error.missing_new_parameters">New post mode requires a username.</Trans>
+                    </EditorError>
+                );
+            }
             return (
-                <NewPostEditor username={username!} draftUrl={draftUrl} showFirstPublishGuide={showFirstPublishGuide} />
+                <NewPostEditor username={username} draftUrl={draftUrl} showFirstPublishGuide={showFirstPublishGuide} />
+            );
+
+        case 'draft':
+            if (!draftUrl || !username) {
+                return (
+                    <EditorError>
+                        <Trans id="editor.error.missing_draft_parameters">
+                            Draft mode requires a draft URL and username.
+                        </Trans>
+                    </EditorError>
+                );
+            }
+            return (
+                <NewPostEditor username={username} draftUrl={draftUrl} showFirstPublishGuide={showFirstPublishGuide} />
             );
 
         case 'edit':
-            return <EditPostEditor username={username!} postUrl={postUrl!} />;
+            if (!username || !postUrl) {
+                return (
+                    <EditorError>
+                        <Trans id="editor.error.missing_edit_parameters">
+                            Edit mode requires a username and post URL.
+                        </Trans>
+                    </EditorError>
+                );
+            }
+            return <EditPostEditor username={username} postUrl={postUrl} />;
 
         default:
             return (
-                <div className="bg-surface-subtle py-4 sm:py-8">
-                    <div className="max-w-7xl w-full mx-auto">
-                        <div className="bg-surface rounded-xl shadow-sm border border-line p-6">
-                            <div className="text-center text-content-secondary">
-                                <Trans id="editor.error.unsupported_mode">Unsupported editor mode: {mode}</Trans>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <EditorError>
+                    <Trans id="editor.error.unsupported_mode">Unsupported editor mode: {mode}</Trans>
+                </EditorError>
             );
     }
 };

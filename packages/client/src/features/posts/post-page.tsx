@@ -5,7 +5,7 @@ import { SiteFooter } from '../../appearance/shell.js';
 import type { PostSeriesEntry, PostSeriesNavigation } from '@blex/contracts/pages';
 import { ui } from '../../i18n/public-ui.js';
 import { PostCommentsApp } from '../engagement/ui/comments.js';
-import { loginPromptProps } from '../engagement/ui/login-prompt.js';
+import { LoginPromptLink } from '../engagement/ui/login-prompt-link.js';
 import { CodeBlockHeader } from './code-block-header';
 import type { DecoratedCodeBlock } from './code-blocks-client';
 import { publicPostPath } from './paths';
@@ -147,8 +147,8 @@ function OutlineLinks({ headings, mobile }: { headings: PostPageData['headings']
     return (
         <nav className="px-4 py-4" aria-label={ui('Table of contents')} data-site-outline>
             <ul className="space-y-1">
-                {headings.map((heading, index) => (
-                    <li key={`${heading.id}:${index}`}>
+                {headings.map((heading) => (
+                    <li key={heading.id}>
                         <a
                             href={`#${encodeURIComponent(heading.id)}`}
                             className={`toc-item block rounded-lg px-3 text-sm text-content-secondary transition-all duration-150 hover:bg-surface-subtle hover:text-content active:scale-95 ${mobile ? 'py-3' : 'py-2'}`}
@@ -279,18 +279,19 @@ function ArticleInfo({ data }: { data: PostPageData }) {
                 </button>
             </form>
         ) : (
-            <a
-                {...loginPromptProps(postPath, 'subscribe')}
+            <LoginPromptLink
+                returnTo={postPath}
+                action="subscribe"
                 aria-label={ui('Subscribe to new posts by {value0}', { value0: author.username })}
                 className="shrink-0 rounded-full border border-line px-3 py-1.5 text-xs font-semibold hover:bg-surface-subtle"
             >
                 {ui('Subscribe')}
-            </a>
+            </LoginPromptLink>
         ));
     const entries: Array<[string, ReactNode]> = [
         [
             ui('Author'),
-            <div className="flex items-start justify-between gap-4">
+            <div key="author" className="flex items-start justify-between gap-4">
                 <div>
                     <a href={authorPath} className="font-semibold hover:text-content-secondary">
                         {data.username}
@@ -304,14 +305,27 @@ function ArticleInfo({ data }: { data: PostPageData }) {
     if (published)
         entries.push([
             data.visibility === 'draft' ? ui('Preview source') : ui('First published'),
-            <time dateTime={published.iso}>{published.text}</time>
+            <time key="published" dateTime={published.iso}>
+                {published.text}
+            </time>
         ]);
     if (updated && published && updated.text !== published.text)
-        entries.push([ui('Updated'), <time dateTime={updated.iso}>{updated.text}</time>]);
+        entries.push([
+            ui('Updated'),
+            <time key="updated" dateTime={updated.iso}>
+                {updated.text}
+            </time>
+        ]);
     if (homepage)
         entries.push([
             ui('Author website'),
-            <a href={homepage} target="_blank" rel="noopener noreferrer" className="break-words hover:text-content">
+            <a
+                key="homepage"
+                href={homepage}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="break-words hover:text-content"
+            >
                 {homepage}
             </a>
         ]);
@@ -542,14 +556,15 @@ function PostDock({ data }: { data: PostPageData }) {
                                     </button>
                                 </form>
                             ) : (
-                                <a
-                                    {...loginPromptProps(postPath, 'like')}
+                                <LoginPromptLink
+                                    returnTo={postPath}
+                                    action="like"
                                     className={`${dockButton} px-2 text-sm font-medium`}
                                     aria-label={ui('Like ({value0})', { value0: like?.countLikes ?? 0 })}
                                 >
                                     <SiteIcon name="heart" className="size-4" />
                                     {like?.countLikes ?? 0}
-                                </a>
+                                </LoginPromptLink>
                             )}
                             <div className="post-action-divider" />
                         </>
