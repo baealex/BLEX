@@ -1,4 +1,4 @@
-import { type PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import { done as success, failure } from '../../../platform/response.js';
 import {
@@ -12,7 +12,14 @@ import {
   setMemberActive,
   updateManagedUserRole,
 } from '../services/users.js';
-import { AdminSettingsOptions, apiAccess, apiJsonBody, csrfValid, sendApiResult, validRouteId } from '../shared.js';
+import {
+  type AdminSettingsOptions,
+  apiAccess,
+  apiJsonBody,
+  csrfValid,
+  sendApiResult,
+  validRouteId,
+} from '../shared.js';
 
 export function registerUsersRoutes(routes: FastifyInstance, db: PrismaClient, options: AdminSettingsOptions) {
   routes.get('/v1/admin/users', async (request, reply) => {

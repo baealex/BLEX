@@ -4,7 +4,7 @@ import { localDate, localDateTimeText } from '../../../platform/date-format.js';
 import { deleteTrashedPost } from './deletions.js';
 import { mediaUrl } from './post-content.js';
 import { PostValidationError, comparableDate } from './post-store.js';
-import { DbDate, TrashedPostRow, UserRow, dateAsIso, field } from '../shared.js';
+import { type DbDate, type TrashedPostRow, type UserRow, dateAsIso, field } from '../shared.js';
 
 export class ManagementQueryError extends Error {}
 

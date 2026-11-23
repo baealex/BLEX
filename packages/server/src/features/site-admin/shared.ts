@@ -1,8 +1,8 @@
-import { Prisma, type PrismaClient } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { isoWithOffset } from '../../platform/date-format.js';
 import { readAdminAccess, type UserAccess } from './access.js';
-import { type AdminSettingsUser } from './types.js';
+import type { AdminSettingsUser } from './types.js';
 import { done as success, failure } from '../../platform/response.js';
 
 export interface AdminSettingsOptions {

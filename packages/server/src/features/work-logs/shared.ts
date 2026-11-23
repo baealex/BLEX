@@ -1,4 +1,4 @@
-import { type PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 export const MAX_REQUEST_SIZE = 13 * 1024 * 1024;

@@ -4,7 +4,7 @@ import { createReadStream } from 'node:fs';
 import { mkdir, realpath, stat, unlink, writeFile } from 'node:fs/promises';
 import { isAbsolute, relative, resolve, sep } from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { EntryRow } from './logs.js';
+import type { EntryRow } from './logs.js';
 import { notFound } from '../shared.js';
 
 export const MAX_ATTACHMENT_SIZE = 12 * 1024 * 1024;

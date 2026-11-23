@@ -1,4 +1,4 @@
-import { type PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import { storedDateText } from '../../../platform/date-format.js';
 import { sanitizePostHtml } from '../post-html.js';
@@ -15,7 +15,7 @@ import {
   revisionSummary,
 } from '../services/revisions.js';
 import {
-  AuthoringOptions,
+  type AuthoringOptions,
   bodyObject,
   cookieValue,
   dateAsIso,

@@ -1,4 +1,4 @@
-import { type PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { isoWithOffset } from '../../platform/date-format.js';
 import { failure as failed } from '../../platform/response.js';

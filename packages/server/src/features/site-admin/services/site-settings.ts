@@ -1,9 +1,17 @@
-import { type Prisma, type PrismaClient } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
 import { realpath, stat } from 'node:fs/promises';
 import { isAbsolute, relative, resolve, sep } from 'node:path';
-import { type AdminSiteSettings } from '../types.js';
+import type { AdminSiteSettings } from '../types.js';
 import { ICON_PNG_SIZES } from './brand-assets.js';
-import { AdminSettingsOptions, ApiResult, Body, isRecord, isoDate, recordAudit, stringValue } from '../shared.js';
+import {
+  type AdminSettingsOptions,
+  type ApiResult,
+  type Body,
+  isRecord,
+  isoDate,
+  recordAudit,
+  stringValue,
+} from '../shared.js';
 
 const SITE_DEFAULT_NAME = 'BLEX';
 

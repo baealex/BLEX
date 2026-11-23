@@ -1,4 +1,5 @@
-import React, { useRef } from 'react';
+import type React from 'react';
+import { useRef } from 'react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Button } from '~/ui/button';
 import { IconButton } from '~/ui/icon-button';

@@ -1,9 +1,9 @@
 import type { PrismaClient } from '@prisma/client';
 import { postOutline, sanitizeAboutHtml } from '../../posts/post-html.js';
 import { markdownToHtml } from '../../posts/authoring/markdown.js';
-import { type AccountSettingsView, type ProfileSettingsView } from '../types.js';
+import type { AccountSettingsView, ProfileSettingsView } from '../types.js';
 import { accountDate, regionalPreferences } from './regional.js';
-import { Body, UpdateResult } from '../shared.js';
+import type { Body, UpdateResult } from '../shared.js';
 
 const MAX_ABOUT_MARKDOWN_BYTES = 256 * 1024;
 

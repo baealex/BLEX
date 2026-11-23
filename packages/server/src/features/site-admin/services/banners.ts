@@ -1,7 +1,7 @@
 import type { BannerPosition, BannerType, Prisma, PrismaClient } from '@prisma/client';
 import { sanitizeBannerHtml } from '../../posts/post-html.js';
-import { type AdminBanner } from '../types.js';
-import { ApiResult, Body, isDatabaseInteger, isoDate, orderValue, stringValue } from '../shared.js';
+import type { AdminBanner } from '../types.js';
+import { type ApiResult, type Body, isDatabaseInteger, isoDate, orderValue, stringValue } from '../shared.js';
 
 type BannerScope = 'global' | 'user';
 

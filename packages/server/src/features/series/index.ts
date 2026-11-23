@@ -1,10 +1,10 @@
 import formBody from '@fastify/formbody';
-import { type PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { done as apiDone, messageFailure as apiError } from '../../platform/response.js';
 import {
   MAX_PINNED_POSTS,
-  PinnedServiceError,
+  type PinnedServiceError,
   addPinnedPost,
   parsePinnedUrls,
   pinnedError,
@@ -26,7 +26,7 @@ import {
   updateSeriesOrder,
 } from './services/series.js';
 import {
-  AuthorCollectionsOptions,
+  type AuthorCollectionsOptions,
   bodyRecord,
   errorMessage,
   isActiveEditor,

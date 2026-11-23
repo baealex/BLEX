@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { type PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import type { NoticeRow, PublicPageOptions, PublicPageViewer, SiteBrand } from './shared.js';
 import { makeAbsolute } from './shared.js';
 

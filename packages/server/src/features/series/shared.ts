@@ -1,4 +1,4 @@
-import { type PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import type { FastifyRequest } from 'fastify';
 import { messageFailure as apiError } from '../../platform/response.js';
 

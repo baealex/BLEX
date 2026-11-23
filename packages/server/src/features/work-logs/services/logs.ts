@@ -1,6 +1,6 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyRequest } from 'fastify';
-import { type WorkLogEntryView, type WorkLogView } from '../../../../../client/src/contracts/work-logs.js';
+import type { WorkLogEntryView, WorkLogView } from '../../../../../client/src/contracts/work-logs.js';
 import { PAGE_SIZE, bodyRecord } from '../shared.js';
 
 export interface WorkLogRow extends WorkLogView {

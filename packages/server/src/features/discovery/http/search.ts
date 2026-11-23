@@ -1,10 +1,10 @@
 import { renderPage } from '../../../platform/views.js';
 import type { FastifyInstance } from 'fastify';
-import { type PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import { rankPublicSearch, readSearchPage } from '../services/public-posts.js';
 import {
-  PostRow,
-  PublicPageOptions,
+  type PostRow,
+  type PublicPageOptions,
   dateValue,
   makeAbsolute,
   makePaginationMeta,
