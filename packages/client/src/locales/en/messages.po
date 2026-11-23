@@ -5087,11 +5087,6 @@ msgid "settings.profile.update_success"
 msgstr "Profile updated."
 
 #. js-lingui-explicit-id
-#: src/features/settings/account/components/RegionalPreferencesSection.tsx:63
-msgid "settings.regional_preferences.browser_language"
-msgstr "Browser language"
-
-#. js-lingui-explicit-id
 #: src/features/settings/account/components/RegionalPreferencesSection.tsx:57
 msgid "settings.regional_preferences.language"
 msgstr "Language"

@@ -5083,11 +5083,6 @@ msgid "settings.profile.update_success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/settings/account/components/RegionalPreferencesSection.tsx:63
-msgid "settings.regional_preferences.browser_language"
-msgstr ""
-
-#. js-lingui-explicit-id
 #: src/features/settings/account/components/RegionalPreferencesSection.tsx:57
 msgid "settings.regional_preferences.language"
 msgstr ""

@@ -2,6 +2,7 @@ import type { PrismaClient } from '@prisma/client';
 import { decryptSecret } from '../auth/encrypted-secret.js';
 import { deliverPostWebhook } from '../integrations/webhooks/delivery.js';
 import { notificationParams, notificationText, processScheduledPublications } from './model.js';
+import { resolveUiLocale } from '../../platform/locale.js';
 
 const maxAttempts = 8;
 const claimLeaseMs = 120_000;
@@ -61,7 +62,7 @@ export async function deliverTelegramNotification(
       where: { userId: message.userId },
       select: { language: true },
     });
-    const language = preferences?.language === 'en' && process.env.ENABLE_ENGLISH_UI === 'TRUE' ? 'en' : 'ko';
+    const language = resolveUiLocale(preferences?.language);
     const text = notificationText(
       message.messageKey,
       notificationParams(message.messageParams),

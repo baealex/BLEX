@@ -12,6 +12,7 @@ import { safeReturnPath } from '../../features/auth/oauth.js';
 import { createToken } from '../../features/auth/session.js';
 import { hasAdministrator } from '../../features/auth/setup.js';
 import { readPublicSiteBrand } from '../../features/discovery/http/pages.js';
+import { resolveUiLocale } from '../../platform/locale.js';
 
 interface ManifestEntry {
   file: string;
@@ -165,7 +166,7 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
     const configuration = {
       media: '/resources/media/',
       static: '/resources/',
-      locale: viewer?.state.language || 'ko',
+      locale: resolveUiLocale(viewer?.state.language),
       timeZone: viewer?.state.timeZone || process.env.TZ || 'Asia/Seoul',
       ...(viewer ? { user: { isAuthenticated: 'True', username: viewer.user.username } } : {}),
       googleClientId: '',
@@ -207,6 +208,7 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
     });
     return reply
       .type('text/html; charset=utf-8')
+      .header('Content-Language', configuration.locale)
       .header('Cache-Control', 'private, no-store')
       .header('Vary', 'Cookie')
       .header('Content-Security-Policy', applicationContentSecurityPolicy)

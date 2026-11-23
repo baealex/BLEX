@@ -15,7 +15,18 @@ The client-rendered React screens use Lingui, and the reusable editor has a type
 
 English is the source language for catalogs. Korean and English catalogs are included. The web runtime reads `window.configuration.locale`, falling back to the document language; it does not choose a separate locale from `navigator.language`.
 
-`ENABLE_ENGLISH_UI=TRUE` enables English in the server features that support it. English also appears in the regional settings language selector when `DEBUG=TRUE`. These flags do not provide full UI translation coverage.
+## Language priority
+
+The server selects the UI language through `packages/server/src/platform/locale.ts`:
+
+1. Use the user's saved language when it is supported and enabled.
+2. Otherwise use the site's `BLEX_DEFAULT_LANGUAGE`, falling back to Korean if it is unset or unavailable.
+
+Both `null` and an empty saved language inherit the site default. The language selector exposes this as **Site default**; existing `null` preferences continue to work. Browser language headers do not override these choices. New accounts inherit the site default unless an explicit language cookie supplies a supported choice.
+
+Web screen configuration, document language, API status messages, notifications, and localized Developer API post-not-found messages use the same selection rules. Telegram delivery resolves the recipient's preference at delivery time. Pages that still contain Korean text directly remain outside complete translation coverage.
+
+`ENABLE_ENGLISH_UI=TRUE` or `DEBUG=TRUE` enables English choices and resolution in the server features that support it. Set `BLEX_DEFAULT_LANGUAGE=en` with either flag to make English the site default. These flags do not provide full UI translation coverage.
 
 ## Update translations
 
@@ -36,7 +47,7 @@ For the reusable editor, update the translations in its type-checked locale file
 - Add its code to `SUPPORTED_LOCALES` in `packages/client/src/i18n/locale.ts` and its catalog loader in `src/i18n/index.ts` in the same app.
 - Add and translate the PO catalog. The Lingui configuration derives its locales from `SUPPORTED_LOCALES`.
 - If used by the reusable editor, add its type-checked message catalog and loader as described in the editor README.
-- Update the server's supported language choices and selection paths in `packages/server/src/features/account/services/regional.ts`, `packages/server/src/features/auth/account-validation.ts`, and any affected message handlers. Adding a browser catalog alone does not add server support.
+- Update the server's supported languages and release gate in `packages/server/src/platform/locale.ts`, and add any affected message templates. Adding a browser catalog alone does not add server support.
 - Verify the affected SSR pages, web screens, notifications, and editor before making the language available to users.
 
 ## Notifications and checks

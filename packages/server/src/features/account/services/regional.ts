@@ -1,22 +1,11 @@
 import type { PrismaClient } from '@prisma/client';
-import { type RegionalPreferences } from '../types.js';
-import { Body, UpdateResult } from '../shared.js';
+import type { RegionalPreferences } from '../types.js';
+import type { Body, UpdateResult } from '../shared.js';
+import { defaultUiLocale, supportedUiLocale, uiLanguageChoices } from '../../../platform/locale.js';
 
 type RegionalConfig = { language: string | null; timeZone: string };
 
-const DEFAULT_LANGUAGE = 'ko';
-
-const DEFAULT_LANGUAGES = [
-  { code: 'ko', label: '한국어' },
-  { code: 'en', label: '영어' },
-];
-
 const DEFAULT_TIME_ZONE = process.env.TZ || 'Asia/Seoul';
-
-function languageChoices(): Array<{ code: string; label: string }> {
-  const englishEnabled = process.env.DEBUG === 'TRUE' || process.env.ENABLE_ENGLISH_UI === 'TRUE';
-  return englishEnabled ? DEFAULT_LANGUAGES : DEFAULT_LANGUAGES.slice(0, 1);
-}
 
 function timeZoneChoices(): string[] {
   let zones: string[] = [];
@@ -43,10 +32,6 @@ function isSupportedTimeZone(value: string): boolean {
   }
 }
 
-function normalizedLanguage(value: string | null, languages: Array<{ code: string }>): string {
-  return value && languages.some(({ code }) => code === value) ? value : '';
-}
-
 function normalizedTimeZone(value: string | null): string {
   return value && isSupportedTimeZone(value) ? value : '';
 }
@@ -67,16 +52,16 @@ export function accountDate(date: Date, timeZone: string): string {
 }
 
 export function regionalPreferences(config: RegionalConfig | null): RegionalPreferences {
-  const languages = languageChoices();
+  const languages = uiLanguageChoices();
   const timeZones = [...availableTimeZones];
   if (config?.timeZone && isSupportedTimeZone(config.timeZone) && !timeZones.includes(config.timeZone)) {
     timeZones.push(config.timeZone);
     timeZones.sort();
   }
   return {
-    language: config === null || config.language === null ? null : normalizedLanguage(config.language, languages),
+    language: config === null || config.language === null ? null : (supportedUiLocale(config.language) ?? ''),
     timeZone: normalizedTimeZone(config?.timeZone ?? null),
-    defaultLanguage: DEFAULT_LANGUAGE,
+    defaultLanguage: defaultUiLocale(),
     defaultTimeZone: DEFAULT_TIME_ZONE,
     languages,
     timeZones,
@@ -100,7 +85,7 @@ function regionalError(field: 'language' | 'timeZone'): UpdateResult {
 export async function updateRegionalPreferences(db: PrismaClient, userId: number, body: Body): Promise<UpdateResult> {
   const language = body.language;
   const timeZone = body.timeZone;
-  const languages = languageChoices();
+  const languages = uiLanguageChoices();
   if (
     language !== null &&
     language !== '' &&
