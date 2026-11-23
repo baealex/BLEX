@@ -42,6 +42,13 @@
     --ease-apple: var(--ease-apple);
 }
 
+@layer base {
+    /* Tabler glyphs leave more padding than the icon sets these sizes were chosen for. */
+    .tabler-icon {
+        scale: 1.125;
+    }
+}
+
 @layer components {
     /* Shared by post detail, post editor, and banner preview. Keep post layout widths here. */
     .post-detail-frame,

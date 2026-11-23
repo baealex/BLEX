@@ -694,8 +694,14 @@ function handleGlobalKeydown(event: KeyboardEvent) {
     for (const details of document.querySelectorAll<HTMLDetailsElement>('[data-account-menu]')) details.open = false;
 }
 
+function showPendingTelegramHint() {
+    if (!/(?:^|; )blex_telegram_hint=/.test(document.cookie)) return;
+    void import('../application/telegram-hint').then(({ showTelegramHint }) => showTelegramHint());
+}
+
 function handleBeforePageChange() {
     routeGeneration += 1;
+    document.getElementById('blex-subscription-telegram-hint-root')?.remove();
     if (!hydrated) return;
     disposeRouteBindings();
     closeTransientUi();
@@ -723,6 +729,7 @@ function activateClientBindings() {
     setTheme();
     updateHeader();
     bindRouteElements();
+    showPendingTelegramHint();
 }
 
 systemTheme.addEventListener('change', () => setTheme(undefined, hydrated));

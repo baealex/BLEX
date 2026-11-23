@@ -50,6 +50,12 @@ async function createUnlessPresent(create: () => Promise<unknown>): Promise<bool
   }
 }
 
+/** A one-minute note for the page after the subscribe redirect, which offers Telegram once per account. */
+function telegramHintCookie(username: string, siteUrl?: URL): string {
+  const secure = siteUrl?.protocol === 'https:' ? '; Secure' : '';
+  return `blex_telegram_hint=${encodeURIComponent(username)}; Path=/; Max-Age=60; SameSite=Lax${secure}`;
+}
+
 export function registerReaderActions(app: FastifyInstance, db: PrismaClient, options: ReaderActionsOptions): void {
   app.register(async (routes) => {
     await routes.register(formBody);
@@ -329,7 +335,11 @@ export function registerReaderActions(app: FastifyInstance, db: PrismaClient, op
             isSubscribed: true,
             suggestTelegramConnection,
           };
-          if (returnTo) return reply.redirect(returnTo, 303);
+          if (returnTo) {
+            if (suggestTelegramConnection)
+              reply.header('set-cookie', telegramHintCookie(viewer.username, options.siteUrl));
+            return reply.redirect(returnTo, 303);
+          }
           return done(result);
         }
 
