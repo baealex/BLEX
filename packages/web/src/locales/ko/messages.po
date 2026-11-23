@@ -729,8 +729,8 @@ msgstr "생성"
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:86
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:356
 #: src/components/remotes/SettingsApp/pages/GlobalBannerSetting/components/GlobalBannerList.tsx:111
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:67
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:168
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:68
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:174
 #: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:233
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:307
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:539
@@ -815,7 +815,7 @@ msgstr "더 보기"
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/components/SettingsLayout.tsx:23
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:141
-#: src/components/remotes/SettingsApp/SettingsApp.tsx:101
+#: src/components/remotes/SettingsApp/SettingsApp.tsx:106
 msgid "common.loading"
 msgstr "로딩 중"
 
@@ -841,26 +841,28 @@ msgstr "없음"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:54
+#: src/components/remotes/SettingsApp/pages/shared/ModerationPager.tsx:47
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:937
 msgid "common.pagination.first"
 msgstr "첫 페이지"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:129
+#: src/components/remotes/SettingsApp/pages/shared/ModerationPager.tsx:94
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:984
 msgid "common.pagination.last"
 msgstr "마지막 페이지"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:117
-#: src/components/remotes/SettingsApp/pages/shared/ModerationPager.tsx:42
+#: src/components/remotes/SettingsApp/pages/shared/ModerationPager.tsx:82
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:972
 msgid "common.pagination.next"
 msgstr "다음 페이지"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:66
-#: src/components/remotes/SettingsApp/pages/shared/ModerationPager.tsx:30
+#: src/components/remotes/SettingsApp/pages/shared/ModerationPager.tsx:59
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:949
 msgid "common.pagination.previous"
 msgstr "이전 페이지"
@@ -936,8 +938,8 @@ msgid "common.saving_ellipsis"
 msgstr "저장 중..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:127
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:222
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:133
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:228
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:790
 msgid "common.search"
 msgstr "검색"
@@ -4016,97 +4018,94 @@ msgid "settings.login.welcome_url.label"
 msgstr "환영 알림 클릭 URL"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:25
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:80
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:26
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:81
 msgid "settings.moderation.action_failed"
 msgstr "이 작업을 완료하지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:62
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:63
 msgid "settings.moderation.comments.delete_message"
 msgstr "{author}님의 이 댓글을 삭제할까요? 방문자에게는 삭제된 댓글로 표시되며, 여기서 되돌릴 수 없습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:58
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:59
 msgid "settings.moderation.comments.delete_title"
 msgstr "댓글 삭제"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:47
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:48
 msgid "settings.moderation.comments.deleted"
 msgstr "댓글을 삭제했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:97
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:103
 msgid "settings.moderation.comments.description"
 msgstr "모든 글의 댓글을 찾아 삭제할 수 있습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:148
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:154
 msgid "settings.moderation.comments.edited"
 msgstr "수정됨"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:179
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:185
 msgid "settings.moderation.comments.empty"
 msgstr "검색 결과에 맞는 댓글이 없습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:104
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:110
 msgid "settings.moderation.comments.list_title"
 msgstr "최근 댓글"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:145
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:151
 msgid "settings.moderation.comments.reply"
 msgstr "답글"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:112
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:118
 msgid "settings.moderation.comments.search_label"
 msgstr "댓글 검색"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:116
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:122
 msgid "settings.moderation.comments.search_placeholder"
 msgstr "댓글 내용 또는 작성자 검색"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:93
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:99
 msgid "settings.moderation.comments.title"
 msgstr "전체 댓글"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:175
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:314
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:181
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:320
 msgid "settings.moderation.load_failed"
 msgstr "목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요."
 
 #. js-lingui-explicit-id
-#. placeholder {0}: pagination.page
-#. placeholder {1}: pagination.totalPages
-#. placeholder {2}: pagination.total
-#: src/components/remotes/SettingsApp/pages/shared/ModerationPager.tsx:19
+#: src/components/remotes/SettingsApp/pages/shared/ModerationPager.tsx:30
 msgid "settings.moderation.pagination"
-msgstr "{0} / {1} 페이지 · 전체 {2}개"
+msgstr "전체 {total}개 중 {start}–{end}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:266
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:272
 msgid "settings.moderation.posts.author_inactive"
 msgstr "(비활성 작성자)"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:176
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:182
 msgid "settings.moderation.posts.description"
 msgstr "모든 작성자의 발행 글을 숨기거나 휴지통으로 옮길 수 있습니다. 임시저장과 예약 글은 보이지 않습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:318
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:324
 msgid "settings.moderation.posts.empty"
 msgstr "검색 결과에 맞는 글이 없습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:208
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:214
 msgid "settings.moderation.posts.filter_label"
 msgstr "상태별로 글 필터링"
 
@@ -4116,52 +4115,52 @@ msgid "settings.moderation.posts.filter.all"
 msgstr "공개 및 숨김"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:103
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:104
 msgid "settings.moderation.posts.hidden_done"
 msgstr "글을 숨겼습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:295
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:301
 msgid "settings.moderation.posts.hide"
 msgstr "숨기기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:183
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:189
 msgid "settings.moderation.posts.list_title"
 msgstr "발행된 글"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:254
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:260
 msgid "settings.moderation.posts.meta"
 msgstr "{author} · {date} · 댓글 {comments}개 · 좋아요 {likes}개"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:280
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:286
 msgid "settings.moderation.posts.restore"
 msgstr "복원"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:115
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:116
 msgid "settings.moderation.posts.restored_done"
 msgstr "글을 복원했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:191
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:197
 msgid "settings.moderation.posts.search_label"
 msgstr "글 검색"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:195
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:201
 msgid "settings.moderation.posts.search_placeholder"
 msgstr "제목 또는 작성자 검색"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:294
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:300
 msgid "settings.moderation.posts.show"
 msgstr "공개하기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:107
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:108
 msgid "settings.moderation.posts.shown_done"
 msgstr "글을 다시 공개했습니다."
 
@@ -4181,34 +4180,34 @@ msgid "settings.moderation.posts.status.trash"
 msgstr "휴지통"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:172
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:178
 msgid "settings.moderation.posts.title"
 msgstr "전체 글"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:141
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:304
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:142
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:310
 msgid "settings.moderation.posts.trash_confirm"
 msgstr "휴지통으로 이동"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:133
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:134
 msgid "settings.moderation.posts.trash_message"
 msgstr "{author}님의 \"{title}\" 글을 휴지통으로 옮길까요? 사이트에서 사라지며, 휴지통 필터에서 복원할 수 있습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:129
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:130
 msgid "settings.moderation.posts.trash_title"
 msgstr "휴지통으로 이동"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:111
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:112
 msgid "settings.moderation.posts.trashed_done"
 msgstr "글을 휴지통으로 옮겼습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:133
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:228
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:139
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:234
 msgid "settings.moderation.updating"
 msgstr "목록을 업데이트하는 중…"
 

@@ -729,8 +729,8 @@ msgstr "Create"
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:86
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:356
 #: src/components/remotes/SettingsApp/pages/GlobalBannerSetting/components/GlobalBannerList.tsx:111
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:67
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:168
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:68
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:174
 #: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:233
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:307
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:539
@@ -815,7 +815,7 @@ msgstr "Load more"
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/components/SettingsLayout.tsx:23
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:141
-#: src/components/remotes/SettingsApp/SettingsApp.tsx:101
+#: src/components/remotes/SettingsApp/SettingsApp.tsx:106
 msgid "common.loading"
 msgstr "Loading"
 
@@ -841,26 +841,28 @@ msgstr "None"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:54
+#: src/components/remotes/SettingsApp/pages/shared/ModerationPager.tsx:47
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:937
 msgid "common.pagination.first"
 msgstr "First page"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:129
+#: src/components/remotes/SettingsApp/pages/shared/ModerationPager.tsx:94
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:984
 msgid "common.pagination.last"
 msgstr "Last page"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:117
-#: src/components/remotes/SettingsApp/pages/shared/ModerationPager.tsx:42
+#: src/components/remotes/SettingsApp/pages/shared/ModerationPager.tsx:82
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:972
 msgid "common.pagination.next"
 msgstr "Next page"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:66
-#: src/components/remotes/SettingsApp/pages/shared/ModerationPager.tsx:30
+#: src/components/remotes/SettingsApp/pages/shared/ModerationPager.tsx:59
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:949
 msgid "common.pagination.previous"
 msgstr "Previous page"
@@ -936,8 +938,8 @@ msgid "common.saving_ellipsis"
 msgstr "Saving..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:127
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:222
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:133
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:228
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:790
 msgid "common.search"
 msgstr "Search"
@@ -4016,97 +4018,94 @@ msgid "settings.login.welcome_url.label"
 msgstr "Welcome notification URL"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:25
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:80
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:26
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:81
 msgid "settings.moderation.action_failed"
 msgstr "Could not complete this action."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:62
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:63
 msgid "settings.moderation.comments.delete_message"
 msgstr "Delete this comment by {author}? Visitors will see it as a deleted comment, and this cannot be undone here."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:58
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:59
 msgid "settings.moderation.comments.delete_title"
 msgstr "Delete comment"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:47
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:48
 msgid "settings.moderation.comments.deleted"
 msgstr "Comment deleted."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:97
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:103
 msgid "settings.moderation.comments.description"
 msgstr "Find and remove comments from any post."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:148
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:154
 msgid "settings.moderation.comments.edited"
 msgstr "Edited"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:179
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:185
 msgid "settings.moderation.comments.empty"
 msgstr "No comments match your search."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:104
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:110
 msgid "settings.moderation.comments.list_title"
 msgstr "Recent comments"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:145
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:151
 msgid "settings.moderation.comments.reply"
 msgstr "Reply"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:112
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:118
 msgid "settings.moderation.comments.search_label"
 msgstr "Search comments"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:116
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:122
 msgid "settings.moderation.comments.search_placeholder"
 msgstr "Search comment text or author"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:93
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:99
 msgid "settings.moderation.comments.title"
 msgstr "All comments"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:175
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:314
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:181
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:320
 msgid "settings.moderation.load_failed"
 msgstr "Could not load the list. Try again shortly."
 
 #. js-lingui-explicit-id
-#. placeholder {0}: pagination.page
-#. placeholder {1}: pagination.totalPages
-#. placeholder {2}: pagination.total
-#: src/components/remotes/SettingsApp/pages/shared/ModerationPager.tsx:19
+#: src/components/remotes/SettingsApp/pages/shared/ModerationPager.tsx:30
 msgid "settings.moderation.pagination"
 msgstr "Page {0} of {1} · {2} total"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:266
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:272
 msgid "settings.moderation.posts.author_inactive"
 msgstr "(inactive author)"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:176
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:182
 msgid "settings.moderation.posts.description"
 msgstr "Hide or remove published posts from any author. Drafts and scheduled posts stay private."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:318
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:324
 msgid "settings.moderation.posts.empty"
 msgstr "No posts match your search."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:208
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:214
 msgid "settings.moderation.posts.filter_label"
 msgstr "Filter posts by status"
 
@@ -4116,52 +4115,52 @@ msgid "settings.moderation.posts.filter.all"
 msgstr "Public and hidden"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:103
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:104
 msgid "settings.moderation.posts.hidden_done"
 msgstr "Post hidden."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:295
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:301
 msgid "settings.moderation.posts.hide"
 msgstr "Hide"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:183
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:189
 msgid "settings.moderation.posts.list_title"
 msgstr "Published posts"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:254
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:260
 msgid "settings.moderation.posts.meta"
 msgstr "{author} · {date} · {comments} comments · {likes} likes"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:280
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:286
 msgid "settings.moderation.posts.restore"
 msgstr "Restore"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:115
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:116
 msgid "settings.moderation.posts.restored_done"
 msgstr "Post restored."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:191
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:197
 msgid "settings.moderation.posts.search_label"
 msgstr "Search posts"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:195
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:201
 msgid "settings.moderation.posts.search_placeholder"
 msgstr "Search title or author"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:294
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:300
 msgid "settings.moderation.posts.show"
 msgstr "Make public"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:107
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:108
 msgid "settings.moderation.posts.shown_done"
 msgstr "Post is public again."
 
@@ -4181,34 +4180,34 @@ msgid "settings.moderation.posts.status.trash"
 msgstr "Trash"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:172
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:178
 msgid "settings.moderation.posts.title"
 msgstr "All posts"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:141
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:304
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:142
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:310
 msgid "settings.moderation.posts.trash_confirm"
 msgstr "Move to trash"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:133
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:134
 msgid "settings.moderation.posts.trash_message"
 msgstr "Move \"{title}\" by {author} to the trash? It disappears from the site, and you can restore it from the Trash filter."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:129
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:130
 msgid "settings.moderation.posts.trash_title"
 msgstr "Move to trash"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:111
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:112
 msgid "settings.moderation.posts.trashed_done"
 msgstr "Post moved to trash."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:133
-#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:228
+#: src/components/remotes/SettingsApp/pages/ModerationCommentsSetting/index.tsx:139
+#: src/components/remotes/SettingsApp/pages/ModerationPostsSetting/index.tsx:234
 msgid "settings.moderation.updating"
 msgstr "Updating the list…"
 

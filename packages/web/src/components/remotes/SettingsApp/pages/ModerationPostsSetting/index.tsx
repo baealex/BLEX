@@ -20,7 +20,7 @@ import {
     type ModeratedPostStatus
 } from '~/lib/api/settings';
 import { SettingsHeader } from '../../components';
-import { ModerationPager } from '../shared/ModerationPager';
+import { ModerationPager, usePageScroll } from '../shared/ModerationPager';
 
 const filterItems: Array<{ value: ModeratedPostFilter; label: MessageDescriptor }> = [
     {
@@ -82,7 +82,7 @@ const ModerationPostsSetting = () => {
         message: 'Could not complete this action.'
     });
 
-    const { data, isError, isFetching } = useQuery({
+    const { data, isError, isFetching, isPlaceholderData } = useQuery({
         queryKey: ['admin-moderated-posts', appliedQuery, filter, page],
         queryFn: async () => {
             const { data: response } = await getModeratedPosts(appliedQuery, filter, page);
@@ -91,6 +91,7 @@ const ModerationPostsSetting = () => {
         },
         placeholderData: previous => previous
     });
+    const { listRef, markPageChange } = usePageScroll(!isPlaceholderData, data);
 
     const actionMutation = useMutation({
         mutationFn: ({ post, action }: { post: ModeratedPost; action: PostAction }) => runAction(post, action),
@@ -150,6 +151,12 @@ const ModerationPostsSetting = () => {
             post,
             action
         });
+    };
+
+    const handlePageChange = (nextPage: number) => {
+        if (nextPage === page) return;
+        markPageChange();
+        setPage(nextPage);
     };
 
     const handleSearch = () => {
@@ -229,7 +236,7 @@ const ModerationPostsSetting = () => {
                     </p>
                 )}
 
-                <div className="divide-y divide-line overflow-hidden rounded-xl border border-line">
+                <div ref={listRef} className="scroll-mt-24 divide-y divide-line overflow-hidden rounded-xl border border-line">
                     {posts.map(post => (
                         <div key={post.id} className="flex flex-col gap-3 px-4 py-4 lg:flex-row lg:items-center lg:justify-between">
                             <div className="min-w-0">
@@ -320,7 +327,7 @@ const ModerationPostsSetting = () => {
                     )}
                 </div>
 
-                {data && <ModerationPager pagination={data.pagination} onPageChange={setPage} />}
+                {data && <ModerationPager pagination={data.pagination} onPageChange={handlePageChange} />}
             </Card>
         </div>
     );

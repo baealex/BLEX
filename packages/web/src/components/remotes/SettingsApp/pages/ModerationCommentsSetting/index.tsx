@@ -12,7 +12,7 @@ import {
     type ModeratedComment
 } from '~/lib/api/settings';
 import { SettingsHeader } from '../../components';
-import { ModerationPager } from '../shared/ModerationPager';
+import { ModerationPager, usePageScroll } from '../shared/ModerationPager';
 
 const ModerationCommentsSetting = () => {
     const { i18n, t } = useLingui();
@@ -27,7 +27,7 @@ const ModerationCommentsSetting = () => {
         message: 'Could not complete this action.'
     });
 
-    const { data, isError, isFetching } = useQuery({
+    const { data, isError, isFetching, isPlaceholderData } = useQuery({
         queryKey: ['admin-moderated-comments', appliedQuery, page],
         queryFn: async () => {
             const { data: response } = await getModeratedComments(appliedQuery, page);
@@ -36,6 +36,7 @@ const ModerationCommentsSetting = () => {
         },
         placeholderData: previous => previous
     });
+    const { listRef, markPageChange } = usePageScroll(!isPlaceholderData, data);
 
     const deleteMutation = useMutation({
         mutationFn: (comment: ModeratedComment) => deleteModeratedComment(comment.id),
@@ -71,6 +72,12 @@ const ModerationCommentsSetting = () => {
             variant: 'danger'
         });
         if (confirmed) deleteMutation.mutate(comment);
+    };
+
+    const handlePageChange = (nextPage: number) => {
+        if (nextPage === page) return;
+        markPageChange();
+        setPage(nextPage);
     };
 
     const handleSearch = () => {
@@ -134,7 +141,7 @@ const ModerationCommentsSetting = () => {
                     </p>
                 )}
 
-                <div className="divide-y divide-line overflow-hidden rounded-xl border border-line">
+                <div ref={listRef} className="scroll-mt-24 divide-y divide-line overflow-hidden rounded-xl border border-line">
                     {comments.map(comment => (
                         <div key={comment.id} className="flex flex-col gap-3 px-4 py-4 lg:flex-row lg:items-start lg:justify-between">
                             <div className="min-w-0 flex-1">
@@ -181,7 +188,7 @@ const ModerationCommentsSetting = () => {
                     )}
                 </div>
 
-                {data && <ModerationPager pagination={data.pagination} onPageChange={setPage} />}
+                {data && <ModerationPager pagination={data.pagination} onPageChange={handlePageChange} />}
             </Card>
         </div>
     );
