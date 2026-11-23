@@ -24,6 +24,8 @@ Public pages and React screens share the theme, prose, and syntax styles in `pac
 
 Add a client URL by adding a file under `packages/client/src/routes/`. A `*.page.tsx` file renders on the server and ships no JavaScript of its own: its server route loads the data and calls `renderPage` with the file's path as the id, and `contracts/pages.d.ts` types those props. Any other route file is a browser route. Keep browser route files thin: they declare the path, access guard, and lazy page, and the page itself lives in `features/<domain>`. The Vite plugin regenerates `src/routeTree.gen.ts`; commit that file and do not edit it by hand.
 
+The post detail page is the one server-rendered page in the main React tree: `features/posts/post-page.tsx` renders on the server and hydrates in the browser. Its data is a JSON script built field by field in `post-page-data.ts`. Everything there is public in the HTML, and the post body stays out because hydration reads it from the server markup.
+
 ## Pages and browser behavior
 
 - Use `renderApplicationDocument` from a `*.page.tsx` file for pages in the main application so direct visits receive server-rendered HTML and internal navigation uses the app router.
