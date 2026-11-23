@@ -325,6 +325,19 @@ test('HTML to Markdown stays fast on unbalanced quotes', () => {
   assertFast('unbalanced quotes', () => htmlToMarkdown("<br '\"><br '>".repeat(40_000)));
 });
 
+test('a deeply nested post keeps its text in Markdown', () => {
+  for (const [open, close] of [
+    ['<div>', '</div>'],
+    ['<blockquote>', '</blockquote>'],
+    ['<ul><li>', '</li></ul>'],
+    ['<span>', '</span>'],
+  ]) {
+    const markdown = htmlToMarkdown(`${open.repeat(20_000)}deep${close.repeat(20_000)}<p>after</p>`);
+    assert.match(markdown, /deep/, open);
+    assert.match(markdown, /after/, open);
+  }
+});
+
 test('an inactive author disappears from every public surface, and returns untouched when reactivated', async () => {
   const fixture = await publicApp();
   const { app, db } = fixture;
