@@ -7,6 +7,7 @@ import { readPublicSiteBrand } from '../discovery/http/pages.js';
 import type { AuthConfig } from './http.js';
 import { hashPassword } from './password-hash.js';
 import { csrfForPage, submittedPasswordError } from './security.js';
+import { revokeAccountTokens } from '../developer-api/services/token-auth.js';
 
 const resetLifetimeMs = 24 * 60 * 60 * 1_000;
 const tokenShape = /^(\d{1,10})\.(\d{13})\.([A-Za-z0-9_-]{43})$/;
@@ -89,6 +90,7 @@ export function registerPasswordReset(app: FastifyInstance, db: PrismaClient, si
           });
           if (count !== 1) return false;
           await tx.session.deleteMany({ where: { userId: account.id } });
+          await revokeAccountTokens(tx, account.id);
           return true;
         });
         return saved
