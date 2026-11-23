@@ -41,3 +41,8 @@ jobs:
           pnpm test:client
           pnpm build:client
           pnpm check:entry-budgets
+      - name: Install the smoke test browser
+        run: pnpm --filter @blex/client exec playwright install --with-deps --only-shell chromium
+      - name: Verify writing and publishing in the browser
+        timeout-minutes: 5
+        run: pnpm test:browser

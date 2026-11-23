@@ -12,6 +12,7 @@
         "i18n:check": "node scripts/check-i18n.mjs",
         "test": "node --test test/*.test.mjs",
         "test:smoke": "node scripts/browser-smoke.mjs",
+        "test:browser": "node scripts/run-browser-smoke.mjs",
         "type-check": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json",
         "build:public": "vite build -c vite.public.config.ts && vite build -c vite.ssr.config.ts"
     },

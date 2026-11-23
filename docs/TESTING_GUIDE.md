@@ -49,17 +49,30 @@ pnpm check:entry-budgets
 
 Editor and web logic tests live in `packages/client/src/features/editor/tiptap/test/` and `packages/client/test/` and use Node's test runner. Use browser checks for behavior that needs real DOM APIs, built assets, or navigation. Avoid adding browser tests for pure logic or visual preferences.
 
-For the existing browser smoke test, start a new instance with a temporary database, built web assets, and a setup token you can provide to the test, then run:
+Run the browser smoke test against an automatically managed local instance after building both the server and web assets:
+
+```sh
+pnpm build
+pnpm build:client
+pnpm --filter @blex/client exec playwright install --only-shell chromium
+pnpm test:browser
+```
+
+The runner creates a temporary database, media directory, setup token, and local server, then removes them after the check. It does not use a developer's database.
+
+To check a running instance instead, start a new instance with a temporary database, built web assets, and a setup token you can provide to the test, then run:
 
 ```sh
 pnpm --filter @blex/client exec playwright install --only-shell chromium
 BLEX_SETUP_TOKEN=your-setup-token pnpm test:smoke
 ```
 
-The test creates the first administrator account, then checks signing out, signing back in, opening the mobile menu, keyboard editor commands, and keeping the author's text when the server rejects a publish. It also verifies that late draft responses cannot replace newer results, media controls retain keyboard focus, and settings labels activate their controls. `BLEX_SMOKE_URL` overrides the default `http://127.0.0.1:8040` target.
+The test creates the first administrator account, then checks signing out, signing back in, opening the mobile menu, keyboard editor commands, and keeping the author's text when the server rejects a publish. It also verifies that late draft responses cannot replace newer results, media controls retain keyboard focus, and settings labels activate their controls.
+
+The writing journey saves a draft with inline and cover images, reloads it, publishes it, recovers unsaved edits after a reload, updates the published post, and moves it to the trash and back. It also delays a real autosave request and verifies that edits typed while it is pending are subsequently saved. The checks cover mobile and desktop widths and reopen saved states to verify the content and images. These requests use the real server and database. `BLEX_SMOKE_URL` overrides the default `http://127.0.0.1:8040` target for `pnpm test:smoke`.
 
 ## Migrations and CI
 
 Verify schema changes on an empty SQLite database and a copy prepared with the [upgrade guide](UPGRADE_FROM_3.md). Cover constraint changes with representative data, including invalid duplicates where relevant. Until 4.0 ships, `0001_init` must match the output of the regeneration command in the [Backend Guide](BACKEND_GUIDE.md#database-changes).
 
-[CI](../.github/workflows/CI.yml) runs the server build and tests, Prisma validation, web checks, and fast release orchestration tests on PRs and main pushes. The manual [Release workflow](../.github/workflows/BUILD.yml) reuses these checks, then tests the same candidate image with 512 MiB and a browser on native AMD64 and ARM64 before publishing. See [Releasing BLEX](RELEASING.md) for the agent procedure and retry behavior.
+[CI](../.github/workflows/CI.yml) runs the server build and tests, Prisma validation, web checks, browser smoke test, and fast release orchestration tests on PRs and main pushes. The manual [Release workflow](../.github/workflows/BUILD.yml) reuses these checks, then tests the same candidate image with 512 MiB and a browser on native AMD64 and ARM64 before publishing. See [Releasing BLEX](RELEASING.md) for the agent procedure and retry behavior.
