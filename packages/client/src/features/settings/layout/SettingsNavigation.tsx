@@ -38,12 +38,13 @@ import {
     ENTRANCE_DURATION,
     INTERACTION_DURATION
 } from '~/ui/design-tokens';
-import type { AdminCapabilities } from '../SettingsApp';
+import type { FileRouteTypes } from '~/routeTree.gen';
+import type { AdminCapabilities, SettingsRouterContext } from '../access';
 import { useSettingsMode, type SettingsMode } from '../settings-mode';
 
 interface NavigationItem {
     name: MessageDescriptor;
-    path: string;
+    path: FileRouteTypes['to'];
     icon: IconComponent;
     requiresEditor?: boolean;
     requiresStaff?: boolean;
@@ -62,13 +63,6 @@ interface SettingsNavigationProps {
     currentPath: string;
 }
 
-interface SettingsRouterContext {
-    isEditor: boolean;
-    isStaff: boolean;
-    canUseTelegramIntegration: boolean;
-    adminCapabilities: AdminCapabilities;
-}
-
 const userNavigationSections: NavigationSection[] = [
     {
         title: msg({
@@ -81,7 +75,7 @@ const userNavigationSections: NavigationSection[] = [
                     id: 'settings.navigation.notifications',
                     message: 'Notifications'
                 }),
-                path: '/notify',
+                path: '/settings/notify',
                 icon: Bell
             },
             {
@@ -89,7 +83,7 @@ const userNavigationSections: NavigationSection[] = [
                     id: 'settings.navigation.subscriptions',
                     message: 'Subscriptions'
                 }),
-                path: '/subscriptions',
+                path: '/settings/subscriptions',
                 icon: BellRing
             },
             {
@@ -97,7 +91,7 @@ const userNavigationSections: NavigationSection[] = [
                     id: 'settings.navigation.account',
                     message: 'Account'
                 }),
-                path: '/account',
+                path: '/settings/account',
                 icon: UserCog
             },
             {
@@ -105,7 +99,7 @@ const userNavigationSections: NavigationSection[] = [
                     id: 'settings.navigation.profile',
                     message: 'Profile'
                 }),
-                path: '/profile',
+                path: '/settings/profile',
                 icon: UserRound
             },
             {
@@ -113,7 +107,7 @@ const userNavigationSections: NavigationSection[] = [
                     id: 'settings.navigation.social_links',
                     message: 'Social links'
                 }),
-                path: '/social-links',
+                path: '/settings/social-links',
                 icon: Share2
             }
         ]
@@ -130,7 +124,7 @@ const userNavigationSections: NavigationSection[] = [
                     id: 'settings.navigation.posts',
                     message: 'Posts'
                 }),
-                path: '/posts',
+                path: '/settings/posts',
                 icon: FileText,
                 requiresEditor: true
             },
@@ -139,7 +133,7 @@ const userNavigationSections: NavigationSection[] = [
                     id: 'settings.navigation.series',
                     message: 'Series'
                 }),
-                path: '/series',
+                path: '/settings/series',
                 icon: Layers3,
                 requiresEditor: true
             },
@@ -148,7 +142,7 @@ const userNavigationSections: NavigationSection[] = [
                     id: 'settings.navigation.forms',
                     message: 'Templates'
                 }),
-                path: '/forms',
+                path: '/settings/forms',
                 icon: AlignLeft,
                 requiresEditor: true
             },
@@ -157,7 +151,7 @@ const userNavigationSections: NavigationSection[] = [
                     id: 'settings.navigation.notices',
                     message: 'Notices'
                 }),
-                path: '/notices',
+                path: '/settings/notices',
                 icon: Megaphone,
                 requiresEditor: true
             },
@@ -166,7 +160,7 @@ const userNavigationSections: NavigationSection[] = [
                     id: 'settings.navigation.banners',
                     message: 'Banners'
                 }),
-                path: '/banners',
+                path: '/settings/banners',
                 icon: Ad,
                 requiresEditor: true
             }
@@ -183,7 +177,7 @@ const userNavigationSections: NavigationSection[] = [
                     id: 'settings.navigation.telegram_integration',
                     message: 'Telegram integration'
                 }),
-                path: '/integration',
+                path: '/settings/integration',
                 icon: Plug,
                 requiresTelegramIntegration: true
             },
@@ -192,7 +186,7 @@ const userNavigationSections: NavigationSection[] = [
                     id: 'settings.navigation.webhook_integration',
                     message: 'Webhook integration'
                 }),
-                path: '/webhook',
+                path: '/settings/webhook',
                 icon: Zap,
                 requiresEditor: true
             },
@@ -201,7 +195,7 @@ const userNavigationSections: NavigationSection[] = [
                     id: 'settings.navigation.developer_api',
                     message: 'Developer API'
                 }),
-                path: '/developer-api',
+                path: '/settings/developer-api',
                 icon: Code,
                 requiresEditor: true
             }
@@ -222,7 +216,7 @@ const adminNavigationSections: NavigationSection[] = [
                     id: 'settings.navigation.site_customization',
                     message: 'Blog customization'
                 }),
-                path: '/site-settings',
+                path: '/admin-settings/site-settings',
                 icon: Palette,
                 requiresStaff: true,
                 requiresAdminCapability: 'canManageSiteSettings'
@@ -232,7 +226,7 @@ const adminNavigationSections: NavigationSection[] = [
                     id: 'settings.navigation.login_management',
                     message: 'Login management'
                 }),
-                path: '/login',
+                path: '/admin-settings/login',
                 icon: LogIn,
                 requiresStaff: true,
                 requiresAdminCapability: 'canManageLoginSettings'
@@ -242,7 +236,7 @@ const adminNavigationSections: NavigationSection[] = [
                     id: 'settings.navigation.seo_aeo',
                     message: 'SEO/AEO'
                 }),
-                path: '/seo-aeo',
+                path: '/admin-settings/seo-aeo',
                 icon: Bot,
                 requiresStaff: true,
                 requiresAdminCapability: 'canManageSiteSettings'
@@ -252,7 +246,7 @@ const adminNavigationSections: NavigationSection[] = [
                     id: 'settings.navigation.static_pages',
                     message: 'Static pages'
                 }),
-                path: '/static-pages',
+                path: '/admin-settings/static-pages',
                 icon: FileText,
                 requiresStaff: true
             }
@@ -270,7 +264,7 @@ const adminNavigationSections: NavigationSection[] = [
                     id: 'settings.navigation.global_notices',
                     message: 'Global notices'
                 }),
-                path: '/global-notices',
+                path: '/admin-settings/global-notices',
                 icon: Megaphone,
                 requiresStaff: true
             },
@@ -279,7 +273,7 @@ const adminNavigationSections: NavigationSection[] = [
                     id: 'settings.navigation.global_banners',
                     message: 'Global banners'
                 }),
-                path: '/global-banners',
+                path: '/admin-settings/global-banners',
                 icon: Ad,
                 requiresStaff: true
             },
@@ -288,7 +282,7 @@ const adminNavigationSections: NavigationSection[] = [
                     id: 'settings.navigation.global_webhook_integration',
                     message: 'Global webhook integration'
                 }),
-                path: '/global-webhook',
+                path: '/admin-settings/global-webhook',
                 icon: Zap,
                 requiresStaff: true
             }
@@ -306,7 +300,7 @@ const adminNavigationSections: NavigationSection[] = [
                     id: 'settings.navigation.telegram',
                     message: 'Telegram'
                 }),
-                path: '/integrations',
+                path: '/admin-settings/integrations',
                 icon: Send,
                 requiresStaff: true,
                 requiresAdminCapability: 'canManageIntegrationSettings'
@@ -325,7 +319,7 @@ const adminNavigationSections: NavigationSection[] = [
                     id: 'settings.navigation.user_permissions',
                     message: 'User management'
                 }),
-                path: '/users',
+                path: '/admin-settings/users',
                 icon: Users,
                 requiresStaff: true
             },
@@ -334,7 +328,7 @@ const adminNavigationSections: NavigationSection[] = [
                     id: 'settings.navigation.moderation_posts',
                     message: 'All posts'
                 }),
-                path: '/moderation/posts',
+                path: '/admin-settings/moderation/posts',
                 icon: FileText,
                 requiresStaff: true
             },
@@ -343,7 +337,7 @@ const adminNavigationSections: NavigationSection[] = [
                     id: 'settings.navigation.moderation_comments',
                     message: 'All comments'
                 }),
-                path: '/moderation/comments',
+                path: '/admin-settings/moderation/comments',
                 icon: MessageCircle,
                 requiresStaff: true
             },
@@ -352,7 +346,7 @@ const adminNavigationSections: NavigationSection[] = [
                     id: 'settings.navigation.utilities',
                     message: 'Utilities'
                 }),
-                path: '/utilities',
+                path: '/admin-settings/utilities',
                 icon: Wrench,
                 requiresStaff: true,
                 requiresAdminCapability: 'canManageUtilities'

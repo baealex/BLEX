@@ -178,7 +178,7 @@ const IntegrationSettings = () => {
                     </div>
                 </Card>
             ) : !isConfigured ? (
-                <Navigate to="/notify" replace />
+                <Navigate to="/settings/notify" replace />
             ) : (
                 <TelegramConnectCard botUsername={botUsername} />
             )}

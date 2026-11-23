@@ -141,14 +141,14 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
     const handleEdit = (bannerId: number) => {
         if (isGlobal) {
             navigate({
-                to: '/global-banners/edit/$bannerId',
+                to: '/admin-settings/global-banners/edit/$bannerId',
                 params: { bannerId: String(bannerId) }
             });
             return;
         }
 
         navigate({
-            to: '/banners/edit/$bannerId',
+            to: '/settings/banners/edit/$bannerId',
             params: { bannerId: String(bannerId) }
         });
     };
@@ -167,11 +167,11 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
 
     const handleCreateBanner = () => {
         if (isGlobal) {
-            navigate({ to: '/global-banners/create' });
+            navigate({ to: '/admin-settings/global-banners/create' });
             return;
         }
 
-        navigate({ to: '/banners/create' });
+        navigate({ to: '/settings/banners/create' });
     };
 
     const createAction = (

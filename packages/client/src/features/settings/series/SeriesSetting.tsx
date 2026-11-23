@@ -234,12 +234,12 @@ const SeriesSetting = () => {
     };
 
     const handleCreateSeries = () => {
-        navigate({ to: '/series/create' });
+        navigate({ to: '/settings/series/create' });
     };
 
     const handleEditSeries = (seriesId: number) => {
         navigate({
-            to: '/series/edit/$seriesId',
+            to: '/settings/series/edit/$seriesId',
             params: { seriesId: String(seriesId) }
         });
     };

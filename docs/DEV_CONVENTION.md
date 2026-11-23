@@ -40,7 +40,7 @@ Read [Backend Guide](BACKEND_GUIDE.md) and [Testing Guide](TESTING_GUIDE.md).
 Read [Frontend Guide](FRONTEND_GUIDE.md), [Design Guide](DESIGN_GUIDE.md), and [UI Change Style Guide](UI_CHANGE_STYLE_GUIDE.md).
 
 - Use `renderApplicationDocument` for app pages. Include initial page data in the SSR response and clean up browser features when navigating away.
-- The main application and browser entry points live in `packages/server/src/`. React screens live in `packages/client/`; shared controls and the reusable Tiptap editor live in `packages/client/src/ui/` and `packages/client/src/features/editor/tiptap/`.
+- The main application and browser entry points live in `packages/server/src/`. Client routes live in `packages/client/src/routes/`, their screens in `packages/client/src/features/<domain>/`, and shared controls in `packages/client/src/ui/`.
 - Follow the existing screen's component and data-fetching patterns. Run the checks for the workspace you changed.
 
 ## Internationalization

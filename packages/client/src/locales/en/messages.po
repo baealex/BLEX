@@ -373,8 +373,8 @@ msgstr "Load more"
 
 #. js-lingui-explicit-id
 #: src/features/settings/layout/SettingsLayout.tsx:23
+#: src/features/settings/layout/SettingsRoot.tsx:26
 #: src/features/settings/posts/components/PostShareLinksDialog.tsx:141
-#: src/features/settings/SettingsApp.tsx:107
 msgid "common.loading"
 msgstr "Loading"
 
@@ -3533,196 +3533,196 @@ msgid "settings.moderation.updating"
 msgstr "Updating the list…"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:96
+#: src/features/settings/layout/SettingsNavigation.tsx:90
 msgid "settings.navigation.account"
 msgstr "Account"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:419
-#: src/features/settings/layout/SettingsNavigation.tsx:457
-#: src/features/settings/layout/SettingsNavigation.tsx:625
+#: src/features/settings/layout/SettingsNavigation.tsx:413
+#: src/features/settings/layout/SettingsNavigation.tsx:451
+#: src/features/settings/layout/SettingsNavigation.tsx:619
 msgid "settings.navigation.admin_settings"
 msgstr "Admin settings"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:529
+#: src/features/settings/layout/SettingsNavigation.tsx:523
 msgid "settings.navigation.aria_label"
 msgstr "{settings} navigation"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:415
+#: src/features/settings/layout/SettingsNavigation.tsx:409
 msgid "settings.navigation.back_to_personal"
 msgstr "Back to my settings"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:165
+#: src/features/settings/layout/SettingsNavigation.tsx:159
 msgid "settings.navigation.banners"
 msgstr "Banners"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:580
+#: src/features/settings/layout/SettingsNavigation.tsx:574
 msgid "settings.navigation.close_menu"
 msgstr "Close {settings} menu"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:200
+#: src/features/settings/layout/SettingsNavigation.tsx:194
 msgid "settings.navigation.developer_api"
 msgstr "Developer API"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:147
+#: src/features/settings/layout/SettingsNavigation.tsx:141
 msgid "settings.navigation.forms"
 msgstr "Forms"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:278
+#: src/features/settings/layout/SettingsNavigation.tsx:272
 msgid "settings.navigation.global_banners"
 msgstr "Global banners"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:269
+#: src/features/settings/layout/SettingsNavigation.tsx:263
 msgid "settings.navigation.global_notices"
 msgstr "Global notices"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:287
+#: src/features/settings/layout/SettingsNavigation.tsx:281
 msgid "settings.navigation.global_webhook_integration"
 msgstr "Global webhook integration"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:231
+#: src/features/settings/layout/SettingsNavigation.tsx:225
 msgid "settings.navigation.login_management"
 msgstr "Login management"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:567
+#: src/features/settings/layout/SettingsNavigation.tsx:561
 msgid "settings.navigation.menu_title"
 msgstr "{settings} menu"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:342
+#: src/features/settings/layout/SettingsNavigation.tsx:336
 msgid "settings.navigation.moderation_comments"
 msgstr "All comments"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:333
+#: src/features/settings/layout/SettingsNavigation.tsx:327
 msgid "settings.navigation.moderation_posts"
 msgstr "All posts"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:156
+#: src/features/settings/layout/SettingsNavigation.tsx:150
 msgid "settings.navigation.notices"
 msgstr "Notices"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:80
+#: src/features/settings/layout/SettingsNavigation.tsx:74
 msgid "settings.navigation.notifications"
 msgstr "Notifications"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:540
+#: src/features/settings/layout/SettingsNavigation.tsx:534
 msgid "settings.navigation.open_menu"
 msgstr "Open {settings} menu, current page: {current}"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:129
+#: src/features/settings/layout/SettingsNavigation.tsx:123
 msgid "settings.navigation.posts"
 msgstr "Posts"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:104
+#: src/features/settings/layout/SettingsNavigation.tsx:98
 msgid "settings.navigation.profile"
 msgstr "Profile"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:317
+#: src/features/settings/layout/SettingsNavigation.tsx:311
 msgid "settings.navigation.section.administration"
 msgstr "Administration"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:122
+#: src/features/settings/layout/SettingsNavigation.tsx:116
 msgid "settings.navigation.section.blog"
 msgstr "Blog"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:176
-#: src/features/settings/layout/SettingsNavigation.tsx:298
+#: src/features/settings/layout/SettingsNavigation.tsx:170
+#: src/features/settings/layout/SettingsNavigation.tsx:292
 msgid "settings.navigation.section.extensions"
 msgstr "Extensions"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:74
+#: src/features/settings/layout/SettingsNavigation.tsx:68
 msgid "settings.navigation.section.general"
 msgstr "General"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:262
+#: src/features/settings/layout/SettingsNavigation.tsx:256
 msgid "settings.navigation.section.operations"
 msgstr "Operations"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:214
+#: src/features/settings/layout/SettingsNavigation.tsx:208
 msgid "settings.navigation.section.site"
 msgstr "Site"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:241
+#: src/features/settings/layout/SettingsNavigation.tsx:235
 msgid "settings.navigation.seo_aeo"
 msgstr "SEO/AEO"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:138
+#: src/features/settings/layout/SettingsNavigation.tsx:132
 msgid "settings.navigation.series"
 msgstr "Series"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:461
-#: src/features/settings/layout/SettingsNavigation.tsx:629
+#: src/features/settings/layout/SettingsNavigation.tsx:455
+#: src/features/settings/layout/SettingsNavigation.tsx:623
 msgid "settings.navigation.settings"
 msgstr "Settings"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:221
+#: src/features/settings/layout/SettingsNavigation.tsx:215
 msgid "settings.navigation.site_customization"
 msgstr "Blog customization"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:112
+#: src/features/settings/layout/SettingsNavigation.tsx:106
 msgid "settings.navigation.social_links"
 msgstr "Social links"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:251
+#: src/features/settings/layout/SettingsNavigation.tsx:245
 msgid "settings.navigation.static_pages"
 msgstr "Static pages"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:88
+#: src/features/settings/layout/SettingsNavigation.tsx:82
 msgid "settings.navigation.subscriptions"
 msgstr "Subscriptions"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:305
+#: src/features/settings/layout/SettingsNavigation.tsx:299
 msgid "settings.navigation.telegram"
 msgstr "Telegram"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:182
+#: src/features/settings/layout/SettingsNavigation.tsx:176
 msgid "settings.navigation.telegram_integration"
 msgstr "Telegram integration"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:324
+#: src/features/settings/layout/SettingsNavigation.tsx:318
 msgid "settings.navigation.user_permissions"
 msgstr "User permissions"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:351
+#: src/features/settings/layout/SettingsNavigation.tsx:345
 msgid "settings.navigation.utilities"
 msgstr "Utilities"
 
 #. js-lingui-explicit-id
-#: src/features/settings/layout/SettingsNavigation.tsx:191
+#: src/features/settings/layout/SettingsNavigation.tsx:185
 msgid "settings.navigation.webhook_integration"
 msgstr "Webhook integration"
 

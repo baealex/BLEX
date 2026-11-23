@@ -2,6 +2,7 @@ import { defineConfig, type Plugin, type ViteDevServer } from 'vite';
 import babel from '@rolldown/plugin-babel';
 import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { lingui, linguiTransformerBabelPreset } from '@lingui/vite-plugin';
+import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { existsSync, mkdirSync, rmSync, writeFileSync } from 'fs';
 import { dirname, resolve } from 'path';
@@ -55,6 +56,13 @@ export default defineConfig(({ mode }) => {
 
         plugins: [
             writeDevServerInfoPlugin(),
+            tanstackRouter({
+                target: 'react',
+                routesDirectory: resolve(__dirname, 'src/routes'),
+                generatedRouteTree: resolve(__dirname, 'src/routeTree.gen.ts'),
+                quoteStyle: 'single',
+                semicolons: true
+            }),
             react(),
             lingui(),
             babel({

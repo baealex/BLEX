@@ -3,7 +3,7 @@ import baejinoReact from '@baejino/eslint-config-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 
 export default [
-    { ignores: ['dist/**', '*.cjs'] },
+    { ignores: ['dist/**', '*.cjs', 'src/routeTree.gen.ts'] },
     ...baejino,
     ...baejinoReact.map((config) => ({
         ...config,

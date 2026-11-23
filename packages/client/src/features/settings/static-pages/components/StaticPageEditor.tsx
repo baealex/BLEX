@@ -157,7 +157,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                 message: 'Static page created.'
             }));
             queryClient.invalidateQueries({ queryKey: ['static-pages'] });
-            navigate({ to: '/static-pages' });
+            navigate({ to: '/admin-settings/static-pages' });
         },
         onError: () => {
             toast.error(t({
@@ -186,7 +186,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                 message: 'Static page updated.'
             }));
             queryClient.invalidateQueries({ queryKey: ['static-pages'] });
-            navigate({ to: '/static-pages' });
+            navigate({ to: '/admin-settings/static-pages' });
         },
         onError: () => {
             toast.error(t({
@@ -215,7 +215,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                 message: 'Static page deleted.'
             }));
             queryClient.invalidateQueries({ queryKey: ['static-pages'] });
-            navigate({ to: '/static-pages' });
+            navigate({ to: '/admin-settings/static-pages' });
         },
         onError: () => {
             toast.error(t({
@@ -296,7 +296,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
             <div className="sticky top-0 z-10 bg-surface border-b border-line">
                 <div className="max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between h-14">
                     <Link
-                        to="/static-pages"
+                        to="/admin-settings/static-pages"
                         className="flex min-h-11 items-center gap-2 text-sm text-content-secondary transition-colors hover:text-content [@media(pointer:fine)]:min-h-9">
                         <ArrowLeft aria-hidden="true" className="h-4 w-4" />
                         <span><Trans id="settings.static_pages.editor.back_to_list">Back to list</Trans></span>

@@ -82,7 +82,7 @@ const StaticPagesSetting = () => {
 
     const handleEdit = (id: number) => {
         navigate({
-            to: '/static-pages/edit/$pageId',
+            to: '/admin-settings/static-pages/edit/$pageId',
             params: { pageId: String(id) }
         });
     };
@@ -101,7 +101,7 @@ const StaticPagesSetting = () => {
 
     const createAction = (
         <Link
-            to="/static-pages/create"
+            to="/admin-settings/static-pages/create"
             className="inline-flex min-h-11 items-center justify-center rounded-lg border border-transparent bg-action px-3 py-1.5 text-xs font-semibold text-content-inverted transition-all duration-150 hover:bg-action-hover focus:outline-none focus:ring-4 focus:ring-action/20 focus:ring-offset-1 active:scale-95 [@media(pointer:fine)]:min-h-9">
             <Trans id="settings.static_pages.create">Add page</Trans>
         </Link>

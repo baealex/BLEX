@@ -130,14 +130,14 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
     const navigateToList = (replace = false) => {
         if (isGlobal) {
             navigate({
-                to: '/global-banners',
+                to: '/admin-settings/global-banners',
                 replace
             });
             return;
         }
 
         navigate({
-            to: '/banners',
+            to: '/settings/banners',
             replace
         });
     };

@@ -206,7 +206,7 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
             invalidateSeriesQueries();
             allowNavigationRef.current = true;
             navigate({
-                to: '/series',
+                to: '/settings/series',
                 replace: true
             });
         },
@@ -246,7 +246,7 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
             invalidateSeriesQueries();
             allowNavigationRef.current = true;
             navigate({
-                to: '/series',
+                to: '/settings/series',
                 replace: true
             });
         },
@@ -281,7 +281,7 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
             invalidateSeriesQueries();
             allowNavigationRef.current = true;
             navigate({
-                to: '/series',
+                to: '/settings/series',
                 replace: true
             });
         },
@@ -357,7 +357,7 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                 <div className="sticky top-0 z-10 bg-surface border-b border-line">
                     <div className="max-w-4xl mx-auto px-4 md:px-6 h-14 flex items-center justify-between">
                         <Link
-                            to="/series"
+                            to="/settings/series"
                             className="flex min-h-11 items-center gap-2 py-2 text-sm text-content-secondary transition-colors hover:text-content active:text-content-secondary [@media(pointer:fine)]:min-h-9">
                             <ArrowLeft aria-hidden className="h-4 w-4" />
                             <span>

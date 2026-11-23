@@ -10,8 +10,9 @@ AI Agents must read `docs/DEV_CONVENTION.md` before starting any development.
 - One-time BLEX 3.14 import and verification: `packages/server/src/compat`, `packages/server/prisma/legacy`
 - SQLite schema and the `0001_init` migration: `packages/server/prisma`
 - Tests and fixtures: `packages/server/test`
-- React screens and browser runtime: `packages/client`
-- Shared UI and editor: `packages/client/src/ui`, `packages/client/src/features/editor/tiptap`
+- Client routes, where each URL is a file: `packages/client/src/routes`
+- Client features: `packages/client/src/features/<domain>`
+- Shared UI: `packages/client/src/ui`
 - Project docs: `docs`
 
 ## Development Commands
