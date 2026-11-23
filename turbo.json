@@ -18,7 +18,6 @@
             ],
             "cache": false
         },
-        "lint": {},
         "type-check": {
             "dependsOn": [
                 "^build"

@@ -61,4 +61,6 @@ pnpm test
 pnpm type-check
 ```
 
+Biome formats and lints the repository. Run `pnpm format` to apply fixes; `pnpm lint` is the CI check.
+
 `pnpm test` includes the application build. For web, UI, or editor changes, also run the workspace checks as described in the [Testing Guide](TESTING_GUIDE.md).

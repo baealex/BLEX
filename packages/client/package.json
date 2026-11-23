@@ -13,7 +13,6 @@
         "i18n:check": "node scripts/check-i18n.mjs",
         "test": "node --test test/*.test.mjs",
         "test:smoke": "node scripts/browser-smoke.mjs",
-        "lint": "eslint src test",
         "type-check": "tsc --noEmit",
         "build:public": "vite build -c vite.public.config.ts && vite build -c vite.ssr.config.ts"
     },
@@ -91,8 +90,6 @@
     },
     "devDependencies": {
         "@babel/core": "7.29.6",
-        "@baejino/eslint-config": "^0.1.1",
-        "@baejino/eslint-config-react": "^0.1.1",
         "@lingui/babel-plugin-lingui-macro": "^6.6.0",
         "@lingui/cli": "^6.6.0",
         "@lingui/vite-plugin": "^6.6.0",
@@ -106,8 +103,6 @@
         "@vitejs/plugin-react": "^6.0.3",
         "babel-plugin-react-compiler": "^1.0.0",
         "chokidar": "^5.0.0",
-        "eslint": "^9.39.5",
-        "eslint-plugin-react-hooks": "^7.1.1",
         "glob": "^14.0.6",
         "rollup-plugin-visualizer": "^7.0.1",
         "sass": "^1.101.0",

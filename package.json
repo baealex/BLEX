@@ -15,11 +15,12 @@
         "test": "pnpm --filter @blex/client run build:public && pnpm --filter @blex/server test",
         "test:client": "pnpm --filter @blex/client run test",
         "test:smoke": "pnpm --filter @blex/client run test:smoke",
-        "lint": "turbo run lint",
+        "lint": "biome check --diagnostic-level=error",
         "type-check": "turbo run type-check",
         "i18n:check": "pnpm --filter @blex/client run i18n:check",
         "check:entry-budgets": "pnpm --filter @blex/client run check:entry-budgets",
-        "db:migrate": "pnpm --filter @blex/server run db:migrate"
+        "db:migrate": "pnpm --filter @blex/server run db:migrate",
+        "format": "biome check --write"
     },
     "repository": {
         "type": "git",
@@ -32,9 +33,7 @@
     },
     "homepage": "https://github.com/baealex/BLEX#readme",
     "devDependencies": {
-        "@baejino/eslint-config": "^0.1.1",
-        "@baejino/eslint-config-react": "^0.1.1",
-        "eslint": "^9.39.5",
+        "@biomejs/biome": "2.6.8",
         "glob": "^14.0.6",
         "turbo": "^2.10.4",
         "typescript": "^5.9.3",
