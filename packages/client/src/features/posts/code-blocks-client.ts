@@ -1,18 +1,16 @@
+import { createElement } from 'react';
+import { renderIsland } from '../../application/island';
 import {
     getLanguageLabel,
     getLanguageLoader,
     highlightElement,
     registerLanguage
 } from '../editor/tiptap/utils/languages';
-
-const COPIED_RESET_MS = 2000;
-const copyIcon =
-    '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>';
-const checkIcon =
-    '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>';
+import { CodeBlockHeader } from './code-block-header';
 
 const loadedLanguages = new Set<string>();
 const activeMounts = new WeakMap<ParentNode, () => void>();
+const decoratedHeaders = new WeakMap<HTMLElement, HTMLElement>();
 
 function languageOf(code: HTMLElement) {
     return code.className.match(/language-(\w+)/)?.[1] ?? null;
@@ -30,54 +28,25 @@ async function loadLanguage(language: string) {
     }
 }
 
-function copyButton(code: HTMLElement, signal: AbortSignal) {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'code-copy-button';
-    button.title = 'Copy code';
-    button.setAttribute('aria-label', 'Copy code');
-    button.innerHTML = copyIcon;
-    let reset: ReturnType<typeof setTimeout> | undefined;
-    signal.addEventListener('abort', () => clearTimeout(reset), { once: true });
-    button.addEventListener(
-        'click',
-        async () => {
-            try {
-                await navigator.clipboard.writeText(code.textContent ?? '');
-            } catch (error) {
-                console.error('Could not copy the code.', error);
-                return;
-            }
-            button.innerHTML = checkIcon;
-            button.title = 'Copied!';
-            clearTimeout(reset);
-            reset = setTimeout(() => {
-                button.innerHTML = copyIcon;
-                button.title = 'Copy code';
-            }, COPIED_RESET_MS);
-        },
-        { signal }
-    );
-    return button;
-}
-
-function decorate(code: HTMLElement, language: string, signal: AbortSignal) {
+/** Wraps a block once. A page whose HTML did not change keeps its wrapper, so the header is reused. */
+function headerFor(code: HTMLElement): HTMLElement | null {
+    const existing = decoratedHeaders.get(code);
+    if (existing) return existing;
     const pre = code.parentElement;
-    if (!pre?.parentElement || pre.parentElement.classList.contains('code-block-wrapper')) return;
+    const parent = pre?.parentElement;
+    if (!pre || !parent || parent.classList.contains('code-block-wrapper')) return null;
     highlightElement(code);
 
     const wrapper = document.createElement('div');
     wrapper.className = 'code-block-wrapper';
     const header = document.createElement('div');
     header.className = 'code-block-header';
-    const label = document.createElement('span');
-    label.className = 'code-language';
-    label.textContent = getLanguageLabel(language);
-    header.append(label, copyButton(code, signal));
     wrapper.append(header);
-    pre.parentElement.insertBefore(wrapper, pre);
+    parent.insertBefore(wrapper, pre);
     wrapper.append(pre);
     pre.classList.add('hljs');
+    decoratedHeaders.set(code, header);
+    return header;
 }
 
 async function decorateAll(blocks: HTMLElement[], signal: AbortSignal) {
@@ -86,7 +55,9 @@ async function decorateAll(blocks: HTMLElement[], signal: AbortSignal) {
     if (signal.aborted) return;
     for (const code of blocks) {
         const language = languageOf(code);
-        if (language) decorate(code, language, signal);
+        const header = language ? headerFor(code) : null;
+        if (language && header)
+            renderIsland(header, createElement(CodeBlockHeader, { code, label: getLanguageLabel(language) }), signal);
     }
 }
 
