@@ -1,6 +1,9 @@
 @import "tailwindcss" source(none);
 @plugin "tailwindcss-animate";
 @source "../";
+@source "../../../web/src";
+@source "../../../ui/src";
+@source "../../../editor/src";
 
 @theme inline {
     --color-surface: var(--color-surface);
@@ -115,8 +118,8 @@
     background-color: var(--color-floating-glass-surface);
     border: 1px solid var(--color-floating-glass-border);
     box-shadow: var(--shadow-floating-glass);
-    backdrop-filter: saturate(140%) blur(var(--blur-floating-glass));
     -webkit-backdrop-filter: saturate(140%) blur(var(--blur-floating-glass));
+    backdrop-filter: saturate(140%) blur(var(--blur-floating-glass));
 }
 
 @utility motion-interaction {

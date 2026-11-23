@@ -27,7 +27,7 @@ export interface ScreenHostOptions {
 const adminPrefixes = ['site-settings', 'seo-aeo', 'static-pages', 'global-notices', 'global-banners', 'global-webhook', 'integrations', 'utilities', 'users', 'moderation'];
 const editorPrefixes = ['posts', 'series', 'pinned-posts', 'drafts', 'forms', 'notices', 'banners', 'webhook', 'developer-api'];
 const webAssetPrefix = '/assets/web/';
-const styleEntries = ['styles/tailwind.css', 'styles/main.scss', 'styles/post.scss'];
+const styleEntries = ['styles/main.scss', 'styles/post.scss'];
 const loaderEntry = 'src/scripts/screen-loader.ts';
 
 const hasPrefix = (path: string, prefixes: string[]) => {

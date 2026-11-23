@@ -1,7 +1,6 @@
 import { defineConfig, type Plugin, type ViteDevServer } from 'vite';
 import babel from '@rolldown/plugin-babel';
 import react, { reactCompilerPreset } from '@vitejs/plugin-react';
-import tailwindcss from '@tailwindcss/vite';
 import { lingui, linguiTransformerBabelPreset } from '@lingui/vite-plugin';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { existsSync, mkdirSync, rmSync, writeFileSync } from 'fs';
@@ -56,7 +55,6 @@ export default defineConfig(({ mode }) => {
 
         plugins: [
             writeDevServerInfoPlugin(),
-            tailwindcss(),
             react(),
             lingui(),
             babel({
@@ -88,7 +86,6 @@ export default defineConfig(({ mode }) => {
                 input: {
                     screenRuntime: resolve(__dirname, 'src/screen-runtime.tsx'),
                     mainStyle: resolve(__dirname, 'styles/main.scss'),
-                    tailwindStyle: resolve(__dirname, 'styles/tailwind.css'),
                     postStyle: resolve(__dirname, 'styles/post.scss'),
                     screenLoader: resolve(__dirname, 'src/scripts/screen-loader.ts')
                 },

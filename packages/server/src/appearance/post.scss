@@ -21,8 +21,8 @@
     border-radius: 999px;
     background: var(--color-floating-glass-surface);
     box-shadow: var(--shadow-floating-glass);
-    backdrop-filter: saturate(140%) blur(var(--blur-floating-glass));
     -webkit-backdrop-filter: saturate(140%) blur(var(--blur-floating-glass));
+    backdrop-filter: saturate(140%) blur(var(--blur-floating-glass));
 }
 
 .post-action-divider {

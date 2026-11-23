@@ -104,25 +104,23 @@ const budgets = [
         maxInitialGzipBytes: 175 * 1024
     },
     {
-        entries: ['styles/main.scss', 'styles/tailwind.css'],
+        entries: ['styles/main.scss'],
         label: 'base page styles',
-        maxInitialFiles: 2,
+        maxInitialFiles: 1,
         maxInitialBytes: 225 * 1024,
         maxInitialGzipBytes: 46 * 1024,
         allowedInitialNames: [
-            'styles/main.scss',
-            'styles/tailwind.css'
+            'styles/main.scss'
         ]
     },
     {
-        entries: ['styles/main.scss', 'styles/tailwind.css', 'styles/post.scss'],
+        entries: ['styles/main.scss', 'styles/post.scss'],
         label: 'post page styles',
-        maxInitialFiles: 3,
+        maxInitialFiles: 2,
         maxInitialBytes: 235 * 1024,
         maxInitialGzipBytes: 49 * 1024,
         allowedInitialNames: [
             'styles/main.scss',
-            'styles/tailwind.css',
             'styles/post.scss'
         ]
     }

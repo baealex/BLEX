@@ -32,7 +32,7 @@ async function screensApp({ assets = true } = {}) {
   seedPost(db, 3, 1, 'draft', { publishedAt: null });
   const webAssetsRoot = await mkdtemp(join(tmpdir(), 'blex-v4-web-'));
   await mkdir(join(webAssetsRoot, '.vite'));
-  const manifest = Object.fromEntries(['styles/tailwind.css', 'styles/main.scss', 'styles/post.scss', 'src/scripts/screen-loader.ts']
+  const manifest = Object.fromEntries(['styles/main.scss', 'styles/post.scss', 'src/scripts/screen-loader.ts']
     .map((entry) => [entry, { file: `${entry.split('/').pop()}.hash` }]));
   await writeFile(join(webAssetsRoot, '.vite/manifest.json'), JSON.stringify(manifest));
   const app = await buildApp(fixture.path, testSiteUrl, { secretKey: testSecretKey, cipherKey: testCipherKey, ...(assets ? { webAssetsRoot: `${webAssetsRoot}/` } : {}) }, fixture.mediaRoot);

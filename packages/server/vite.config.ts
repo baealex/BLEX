@@ -10,7 +10,7 @@ export default defineConfig({
     outDir: 'dist/client',
     emptyOutDir: true,
     manifest: true,
-    rollupOptions: {
+    rolldownOptions: {
       preserveEntrySignatures: 'exports-only',
       input: [
         fileURLToPath(new URL('./src/application/client.tsx', import.meta.url)),

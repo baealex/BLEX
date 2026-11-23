@@ -33,6 +33,10 @@ RUN pnpm i --frozen-lockfile --filter @blex/server
 COPY packages/server/tsconfig.json packages/server/vite.config.ts ./packages/server/
 COPY packages/server/src ./packages/server/src
 COPY packages/server/scripts ./packages/server/scripts
+# The shared Tailwind stylesheet scans these screens for class names.
+COPY packages/web/src ./packages/web/src
+COPY packages/ui/src ./packages/ui/src
+COPY packages/editor/src ./packages/editor/src
 RUN pnpm --filter @blex/server run build
 
 FROM build AS traced-files
