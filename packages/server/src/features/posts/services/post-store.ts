@@ -1,3 +1,4 @@
+import { systemMessage } from '../../../platform/messages.js';
 import { randomBytes } from 'node:crypto';
 import type { CoverImagePosition, CoverLayout, Prisma, PrismaClient } from '@prisma/client';
 import { syncPostPublication } from '../../notifications/model.js';
@@ -311,7 +312,10 @@ export async function createPost(
     if (asDraft) {
       const drafts = await tx.post.count({ where: { authorId: author.id, publishedAt: null } });
       if (drafts >= MAX_DRAFTS_PER_USER) {
-        throw new PostValidationError('OF', `임시 저장 글은 최대 ${MAX_DRAFTS_PER_USER}개까지 가능합니다.`);
+        throw new PostValidationError(
+          'OF',
+          systemMessage('You can save up to {value0} drafts.', { value0: MAX_DRAFTS_PER_USER }),
+        );
       }
     }
     const slug = await uniqueSlug(tx, title, input.url);

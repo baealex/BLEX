@@ -1,3 +1,4 @@
+import { systemMessage } from '../../../platform/messages.js';
 import type { CommentPayload } from '../../../../../client/src/contracts/engagement.js';
 import type { Prisma, PrismaClient } from '@prisma/client';
 import { timeSince } from '../../../platform/date-format.js';
@@ -30,7 +31,7 @@ interface PostCommentRow extends CommentRow {
 
 export type { CommentPayload };
 
-const DEFAULT_LANGUAGE_DELETED_COMMENT = '<p>삭제된 댓글입니다.</p>';
+const deletedCommentText = () => systemMessage('<p>This comment has been deleted.</p>');
 
 // A percent-encoded Korean character takes nine bytes, so 10,000 characters need about 90 KiB.
 export const commentBodyLimit = 128 * 1024;
@@ -238,7 +239,7 @@ export function serializeComment(
   const canEdit = mine && !deleted;
   const canDelete = mine && !deleted;
   const canReply = viewerId !== null && !deleted && canAcceptReplies;
-  const content = deleted ? DEFAULT_LANGUAGE_DELETED_COMMENT : sanitizeCommentHtml(comment.html);
+  const content = deleted ? deletedCommentText() : sanitizeCommentHtml(comment.html);
   return {
     id: comment.id,
     author: deleted ? 'Ghost' : (comment.username ?? 'Ghost'),

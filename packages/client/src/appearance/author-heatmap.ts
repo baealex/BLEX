@@ -1,3 +1,4 @@
+import { ui } from '../i18n/public-ui.js';
 import { Chart } from 'frappe-charts';
 
 const lightScale = ['#f9fafb', '#d1d5db', '#9ca3af', '#6b7280', '#1f2937'];
@@ -50,7 +51,7 @@ function draw(target: HTMLElement, signal: AbortSignal) {
             dataPoints: JSON.parse(target.dataset.heatmapDays ?? '{}'),
             end: endDate()
         },
-        countLabel: '활동',
+        countLabel: ui('Activity'),
         colors: scale,
         height: 150,
         radius: 2,

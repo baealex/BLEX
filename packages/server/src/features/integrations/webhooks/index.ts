@@ -1,3 +1,4 @@
+import { systemMessage } from '../../../platform/messages.js';
 import formBody from '@fastify/formbody';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
@@ -73,7 +74,7 @@ export function registerWebhooks(app: FastifyInstance, db: PrismaClient, options
     if (testRequests >= 2) return false;
     testRequests += 1;
     try {
-      return await send(url, 'BLEX 웹훅 연결 테스트입니다.', options.siteUrl.origin);
+      return await send(url, systemMessage('This is a BLEX webhook connection test.'), options.siteUrl.origin);
     } finally {
       testRequests -= 1;
     }
@@ -106,10 +107,14 @@ export function registerWebhooks(app: FastifyInstance, db: PrismaClient, options
           return done({ success: true });
         }
         const url = typeof body.webhookUrl === 'string' ? body.webhookUrl.trim() : '';
-        if (!parseWebhookUrl(url)) return failure(url ? 'VA' : 'RE', 'Webhook URL을 확인해 주세요.');
+        if (!parseWebhookUrl(url)) return failure(url ? 'VA' : 'RE', systemMessage('Check the webhook URL.'));
         const name = typeof body.name === 'string' ? body.name.trim().slice(0, 100) : '';
         const channelId = await saveChannel(db, scope, owner, url, name);
-        if (channelId === null) return failure('VA', `웹훅 채널은 ${MAX_USER_CHANNELS}개까지 등록할 수 있습니다.`);
+        if (channelId === null)
+          return failure(
+            'VA',
+            systemMessage('You can register up to {value0} webhook channels.', { value0: MAX_USER_CHANNELS }),
+          );
         return done({ success: true, channelId });
       };
       routes.route<Params>({ method: ['GET', 'POST'], url: apiPath, handler });
@@ -121,7 +126,7 @@ export function registerWebhooks(app: FastifyInstance, db: PrismaClient, options
       if (!user.hasEditorRole && !user.isStaff) return failure('RJ');
       if (!options.validateCsrf(request)) return reply.code(403).send(failure('RJ'));
       const url = parseWebhookUrl(formInput(request).webhookUrl);
-      if (!url) return failure('VA', 'Webhook URL을 확인해 주세요.');
+      if (!url) return failure('VA', systemMessage('Check the webhook URL.'));
       return done({ success: await test(url) });
     });
   });

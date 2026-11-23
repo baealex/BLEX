@@ -1,5 +1,6 @@
 import { hydrateIsland } from '../../../application/island.js';
 import { PostCommentsApp, type PostCommentsModel } from './comments.js';
+import { activateDocumentLocale } from '../../../i18n';
 
 const activeMounts = new WeakMap<HTMLElement, () => void>();
 
@@ -27,5 +28,5 @@ export function mountPage(scope: ParentNode): (() => void) | undefined {
 }
 
 if (typeof document !== 'undefined' && !document.getElementById('blex-application')) {
-    mountPage(document);
+    void activateDocumentLocale().then(() => mountPage(document));
 }

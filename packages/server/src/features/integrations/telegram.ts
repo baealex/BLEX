@@ -1,3 +1,5 @@
+import { systemMessage } from '../../platform/messages.js';
+import { resolveUiLocale } from '../../platform/locale.js';
 import formBody from '@fastify/formbody';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
@@ -81,7 +83,7 @@ async function handleBotLink(
   botToken: string,
   message: NonNullable<ReturnType<typeof extractMessage>>,
 ) {
-  let text = `BLEX를 둘러보세요.\n\n${options.siteUrl.origin}`;
+  let text = systemMessage('Explore BLEX.\n\n{value0}', { value0: options.siteUrl.origin });
   if (message.code) {
     const pending = await db.telegramConnection.findFirst({
       where: { authToken: message.code, user: { isActive: true } },
@@ -89,6 +91,11 @@ async function handleBotLink(
       select: { userId: true, authTokenExpiresAt: true },
     });
     if (pending) {
+      const preference = await db.userPreference.findUnique({
+        where: { userId: pending.userId },
+        select: { language: true },
+      });
+      const locale = resolveUiLocale(preference?.language);
       const isValid = Boolean(pending.authTokenExpiresAt && pending.authTokenExpiresAt > new Date());
       // Matching the code again makes it single-use when the same code arrives twice.
       const { count } = await db.telegramConnection.updateMany({
@@ -100,7 +107,9 @@ async function handleBotLink(
         },
       });
       if (count)
-        text = isValid ? '텔레그램을 연결했습니다.' : '연결 코드가 만료되었습니다. 사이트에서 다시 발급해 주세요.';
+        text = isValid
+          ? systemMessage('Telegram connected.', {}, undefined, locale)
+          : systemMessage('This connection code has expired. Generate a new one on the site.', {}, undefined, locale);
     }
   }
   try {
@@ -164,12 +173,12 @@ export function registerTelegram(app: FastifyInstance, db: PrismaClient, options
           const { count } = await db.telegramConnection.deleteMany({
             where: { userId: user.id, telegramId: { not: '' } },
           });
-          return count ? done() : failure('AU', '이미 연동이 해제되었습니다.');
+          return count ? done() : failure('AU', systemMessage('Telegram is already disconnected.'));
         }
         const config = await telegramConfig(db, options.cipherKey);
         return config.configured
           ? done(await issueConnection(db, user.id, config.username))
-          : failure('NT', '텔레그램 봇이 설정되지 않았습니다.');
+          : failure('NT', systemMessage('The Telegram bot has not been configured.'));
       });
     }
   });

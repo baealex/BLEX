@@ -1,3 +1,4 @@
+import { ui } from '../../i18n/public-ui.js';
 import { SiteIcon } from '~/appearance/icons';
 import { PageLayout } from '~/features/discovery/layout';
 import { EmptyState, Pagination, PostGrid } from '~/features/discovery/post-list';
@@ -27,7 +28,7 @@ export default function renderPage({
                             name="arrow-left"
                             className="mr-2 text-xs transition-transform duration-200 group-hover:-translate-x-0.5"
                         />
-                        전체 태그
+                        {ui('All tags')}
                     </a>
                 </nav>
                 <header className="mb-12 text-center sm:mb-16">
@@ -42,8 +43,8 @@ export default function renderPage({
                     </ReactFragment>
                 ) : (
                     <EmptyState
-                        title="포스트가 없습니다"
-                        message={`#${tagName} 태그로 작성된 포스트가 아직 없습니다.`}
+                        title={ui('No posts')}
+                        message={ui('No posts have the #{value0} tag yet.', { value0: tagName })}
                         icon="hash"
                         framed={true}
                     />

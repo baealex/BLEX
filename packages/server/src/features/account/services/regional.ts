@@ -1,3 +1,4 @@
+import { systemMessage } from '../../../platform/messages.js';
 import type { PrismaClient } from '@prisma/client';
 import type { RegionalPreferences } from '../types.js';
 import type { Body, UpdateResult } from '../shared.js';
@@ -72,12 +73,12 @@ function regionalError(field: 'language' | 'timeZone'): UpdateResult {
   return field === 'language'
     ? {
         ok: false,
-        message: '지원하는 언어를 선택하세요.',
+        message: systemMessage('Select a supported language.'),
         messageKey: 'settings.regional_preferences.invalid_language',
       }
     : {
         ok: false,
-        message: '유효한 시간대를 선택하세요.',
+        message: systemMessage('Select a valid time zone.'),
         messageKey: 'settings.regional_preferences.invalid_time_zone',
       };
 }

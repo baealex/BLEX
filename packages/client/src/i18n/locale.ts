@@ -4,6 +4,19 @@ export type AppLocale = (typeof SUPPORTED_LOCALES)[number];
 
 export const DEFAULT_LOCALE: AppLocale = 'ko';
 
+let renderingLocale: AppLocale | undefined;
+
+/** SSR renders synchronously; restore the previous locale before another request can render. */
+export function withDocumentLocale<T>(locale: AppLocale, render: () => T): T {
+    const previous = renderingLocale;
+    renderingLocale = locale;
+    try {
+        return render();
+    } finally {
+        renderingLocale = previous;
+    }
+}
+
 export const normalizeLocale = (locale: string | null | undefined): AppLocale => {
     const language = locale?.trim().toLowerCase().replace('_', '-').split('-')[0];
 
@@ -12,10 +25,10 @@ export const normalizeLocale = (locale: string | null | undefined): AppLocale =>
 
 export const getDocumentLocale = (): AppLocale => {
     if (typeof window === 'undefined') {
-        return DEFAULT_LOCALE;
+        return renderingLocale ?? DEFAULT_LOCALE;
     }
 
-    return normalizeLocale(window.configuration?.locale || document.documentElement.lang);
+    return normalizeLocale(document.documentElement.lang || window.configuration?.locale);
 };
 
 export const getBrowserTimeZone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;

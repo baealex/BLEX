@@ -1,3 +1,4 @@
+import { ui } from '../../i18n/public-ui.js';
 import { SiteIcon, type SiteIconName } from '../../appearance/icons';
 
 interface RecentActivity {
@@ -10,19 +11,27 @@ interface RecentActivity {
 
 const activityLabels: Record<RecentActivity['type'], { label: string; icon: SiteIconName }> = {
     post: {
-        label: '새 포스트를 작성했어요',
+        get label() {
+            return ui('New post published');
+        },
         icon: 'writing'
     },
     series: {
-        label: '시리즈를 만들었어요',
+        get label() {
+            return ui('Series created');
+        },
         icon: 'stack-2'
     },
     comment: {
-        label: '댓글을 남겼어요',
+        get label() {
+            return ui('Comment posted');
+        },
         icon: 'message'
     },
     like: {
-        label: '좋아요를 눌렀어요',
+        get label() {
+            return ui('Post liked');
+        },
         icon: 'heart'
     }
 };
@@ -33,10 +42,12 @@ function ActivityHeatmap({ days }: { days: Record<string, number> }) {
         <div className="overflow-x-auto">
             <div className="mb-4 flex items-end justify-between gap-3">
                 <div>
-                    <p className="text-xs font-medium text-content-secondary">지난 1년 활동</p>
-                    <p className="text-lg font-semibold tabular-nums text-content">{total}회</p>
+                    <p className="text-xs font-medium text-content-secondary">{ui('Activity over the past year')}</p>
+                    <p className="text-lg font-semibold tabular-nums text-content">
+                        {ui('{count, plural, one{# activity} other{# activities}}', { count: total })}
+                    </p>
                 </div>
-                <p className="text-xs text-content-hint">단위: 활동</p>
+                <p className="text-xs text-content-hint">{ui('Unit: activities')}</p>
             </div>
             <div
                 className="author-heatmap-chart mx-auto min-h-[150px] w-fit"
@@ -49,15 +60,15 @@ function ActivityHeatmap({ days }: { days: Record<string, number> }) {
 export function AuthorActivitySection({ days, recent }: { days: Record<string, number>; recent: RecentActivity[] }) {
     return (
         <section>
-            <h2 className="mb-4 text-2xl font-bold tracking-tight text-content">연간 활동</h2>
+            <h2 className="mb-4 text-2xl font-bold tracking-tight text-content">{ui('Annual activity')}</h2>
             <div className="mb-6 rounded-2xl bg-surface p-6 ring-1 ring-line/60 md:p-7">
                 <ActivityHeatmap days={days} />
                 {recent.length > 0 ? (
                     <div className="mt-8 border-t border-line-light pt-6">
                         <div className="mb-3 flex items-center justify-between px-1">
-                            <h3 className="text-sm font-semibold text-content">활동 내역</h3>
+                            <h3 className="text-sm font-semibold text-content">{ui('Activity history')}</h3>
                             <span className="rounded-md bg-surface-subtle px-2 py-0.5 text-[11px] font-medium text-content-secondary">
-                                {recent.length}개
+                                {ui('{count, plural, one{# item} other{# items}}', { count: recent.length })}
                             </span>
                         </div>
                         <div className="space-y-3">
@@ -84,7 +95,7 @@ export function AuthorActivitySection({ days, recent }: { days: Record<string, n
                         </div>
                     </div>
                 ) : (
-                    <p className="mt-6 text-center text-sm text-content-secondary">표시할 활동이 없습니다</p>
+                    <p className="mt-6 text-center text-sm text-content-secondary">{ui('No activity to display')}</p>
                 )}
             </div>
         </section>

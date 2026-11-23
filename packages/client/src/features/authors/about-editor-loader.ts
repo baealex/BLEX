@@ -1,3 +1,4 @@
+import { ui } from '../../i18n/public-ui.js';
 const draftKey = () => `blex:about-draft:${location.pathname}`;
 
 function readDraft(): string | null {
@@ -35,11 +36,11 @@ function showLoadError(page: HTMLElement, input: HTMLTextAreaElement, signal: Ab
     if (!message || !save) return;
 
     const status = document.createElement('span');
-    status.textContent = '편집기를 불러오지 못했습니다. 입력한 내용은 그대로 있습니다.';
+    status.textContent = ui('Could not load the editor. Your input is preserved.');
     const retry = document.createElement('button');
     retry.type = 'button';
     retry.className = 'ml-2 font-semibold underline';
-    retry.textContent = '다시 시도';
+    retry.textContent = ui('Try again');
     retry.addEventListener(
         'click',
         () => {
@@ -49,8 +50,9 @@ function showLoadError(page: HTMLElement, input: HTMLTextAreaElement, signal: Ab
                 location.reload();
                 return;
             }
-            status.textContent =
-                '입력한 내용을 보관할 수 없어 새로고침하지 않았습니다. 내용을 복사한 뒤 새로고침해 주세요.';
+            status.textContent = ui(
+                'Your input could not be preserved, so the page was not refreshed. Copy your content before refreshing.'
+            );
         },
         { signal }
     );

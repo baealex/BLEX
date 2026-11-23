@@ -1,3 +1,4 @@
+import { systemMessage } from '../../../platform/messages.js';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import { storedDateText } from '../../../platform/date-format.js';
@@ -42,13 +43,13 @@ export function registerRevisionsRoutes(routes: FastifyInstance, db: PrismaClien
     const updatedDate = storedDateText(post.updatedDate);
     const notice =
       field(query.restored) === '1'
-        ? '이 기록으로 복원했습니다.'
+        ? systemMessage('Restored this revision.')
         : field(query.restored) === 'already'
-          ? '현재 글이 이미 이 기록과 같습니다.'
+          ? systemMessage('The current post already matches this revision.')
           : field(query.deleted) === '1'
-            ? '수정 기록을 삭제했습니다.'
+            ? systemMessage('Revision deleted.')
             : field(query.conflict) === '1'
-              ? '글이 다른 곳에서 변경됐습니다. 기록을 새로 불러왔습니다.'
+              ? systemMessage('The post changed elsewhere. Its history has been refreshed.')
               : '';
     return sendPrivateHistoryPage(
       reply,

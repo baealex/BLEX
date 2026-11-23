@@ -1,3 +1,4 @@
+import { systemMessage } from '../../../platform/messages.js';
 import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyRequest } from 'fastify';
 import { storedDateText } from '../../../platform/date-format.js';
@@ -33,22 +34,24 @@ export const MAX_SEARCH_LENGTH = 100;
 
 export function pinnedError(error: PinnedServiceError) {
   const labels: Record<string, string> = {
-    'pinned_posts.already_pinned': '이미 프로필에 고정된 글입니다.',
-    'pinned_posts.editor_required': '작성자 권한이 필요합니다.',
-    'pinned_posts.invalid_page': '페이지 번호가 올바르지 않습니다.',
-    'pinned_posts.limit_reached': `프로필에는 글을 최대 ${MAX_PINNED_POSTS}개까지 고정할 수 있습니다.`,
-    'pinned_posts.post_not_found': '고정할 글을 찾을 수 없습니다.',
-    'pinned_posts.hidden_post': '숨긴 글은 프로필에 고정할 수 없습니다.',
-    'pinned_posts.published_only': '발행된 글만 고정할 수 있습니다.',
-    'pinned_posts.pinned_post_not_found': '고정된 글을 찾을 수 없습니다.',
-    'pinned_posts.reorder_contains_unpinned': '고정되지 않은 글이 순서 목록에 있습니다.',
-    'pinned_posts.post_url_required': '글 URL을 입력해 주세요.',
-    'pinned_posts.invalid_format': '요청 형식이 올바르지 않습니다.',
+    'pinned_posts.already_pinned': systemMessage('This post is already pinned to your profile.'),
+    'pinned_posts.editor_required': systemMessage('Author access is required.'),
+    'pinned_posts.invalid_page': systemMessage('The page number is invalid.'),
+    'pinned_posts.limit_reached': systemMessage('You can pin up to {value0} posts to your profile.', {
+      value0: MAX_PINNED_POSTS,
+    }),
+    'pinned_posts.post_not_found': systemMessage('Post to pin not found.'),
+    'pinned_posts.hidden_post': systemMessage('Hidden posts cannot be pinned.'),
+    'pinned_posts.published_only': systemMessage('Only published posts can be pinned.'),
+    'pinned_posts.pinned_post_not_found': systemMessage('Pinned post not found.'),
+    'pinned_posts.reorder_contains_unpinned': systemMessage('The order includes a post that is not pinned.'),
+    'pinned_posts.post_url_required': systemMessage('Enter the post URL.'),
+    'pinned_posts.invalid_format': systemMessage('Invalid request format.'),
   };
   const suffix = error.key === 'pinned_posts.reorder_contains_unpinned' ? ` (${error.params?.url ?? ''})` : '';
   return apiError(
     error.code,
-    `${labels[error.key] ?? '고정 글을 변경하지 못했습니다.'}${suffix}`,
+    `${labels[error.key] ?? systemMessage('Could not update pinned posts.')}${suffix}`,
     error.key,
     error.params ?? {},
   );

@@ -1,3 +1,4 @@
+import { ui } from '../../i18n/public-ui.js';
 import { timeSince } from '../../lib/date-format';
 import type { ReactNode } from 'react';
 import { SiteIcon, type SiteIconName } from '../../appearance/icons';
@@ -17,7 +18,7 @@ function PostCardLike({ post, likes }: { post: PostRow; likes?: CardLikes }): Re
             ? 'border-danger-line bg-danger-surface text-danger'
             : 'border-line bg-surface-elevated text-content-hint hover:border-line-strong hover:bg-surface-subtle hover:text-content-secondary'
     }`;
-    const label = `${liked ? '좋아요 취소' : '좋아요'} (${count})`;
+    const label = `${liked ? ui('Unlike') : ui('Like')} (${count})`;
     const content = (
         <>
             <SiteIcon name="heart" />
@@ -67,7 +68,7 @@ function PostCard({
             className="inline-flex max-w-32 items-center truncate rounded-full bg-surface-subtle px-3 py-1.5 text-xs font-semibold text-content transition-all duration-150 hover:bg-line-light"
         >
             <SiteIcon name="stack-2" className="mr-1.5" />
-            <span className="truncate">{post.seriesName ?? '시리즈'}</span>
+            <span className="truncate">{post.seriesName ?? ui('Series')}</span>
         </a>
     ) : null;
     return (
@@ -104,7 +105,7 @@ function PostCard({
                     </div>
                     <div className="flex items-center gap-1.5">
                         <SiteIcon name="clock" className="text-content-hint" />
-                        <span>{`${post.readTime}분`}</span>
+                        <span>{ui('{value0} min', { value0: post.readTime })}</span>
                     </div>
                 </div>
                 <p
@@ -136,9 +137,12 @@ function PostCard({
                     <div className="flex items-center gap-4 text-content-secondary">
                         <span className="flex items-center gap-1.5 text-xs">
                             <SiteIcon name="message-circle" />
-                            <span className="sr-only">댓글 </span>
-                            <span>{String(post.commentCount ?? 0)}</span>
-                            <span className="sr-only">개</span>
+                            <span aria-hidden="true">{String(post.commentCount ?? 0)}</span>
+                            <span className="sr-only">
+                                {ui('{value0, plural, one{# comment} other{# comments}}', {
+                                    value0: post.commentCount ?? 0
+                                })}
+                            </span>
                         </span>
                         {PostCardLike({
                             post,
@@ -216,9 +220,7 @@ export function PostGrid({
     relativeDate?: boolean;
 }): ReactNode {
     if (!posts.length)
-        return (
-            <EmptyState title="아직 공개된 포스트가 없습니다." message="공개된 포스트가 발행되면 이곳에 표시됩니다." />
-        );
+        return <EmptyState title={ui('No public posts yet.')} message={ui('Published posts will appear here.')} />;
     return (
         <div className={`masonry-grid ${className}`.trim()}>
             {posts.map((post, index) =>
@@ -282,17 +284,17 @@ export function Pagination({
     const end = pages <= 5 ? pages : page <= 2 ? 5 : Math.min(pages, start + 4);
     const numbers = Array.from({ length: end - start + 1 }, (_, index) => start + index);
     return (
-        <nav className="pagination-nav" aria-label="페이지 탐색">
+        <nav className="pagination-nav" aria-label={ui('Page navigation')}>
             <div className="pagination-action prev">
-                {item(1, 'chevrons-left', false, page <= 1, undefined, '첫 페이지')}
-                {item(page - 1, 'chevron-left', false, page <= 1, 'prev', '이전 페이지')}
+                {item(1, 'chevrons-left', false, page <= 1, undefined, ui('First page'))}
+                {item(page - 1, 'chevron-left', false, page <= 1, 'prev', ui('Previous page'))}
             </div>
             <div className="pagination-pages">
                 {numbers.map((number) => item(number, String(number), number === page))}
             </div>
             <div className="pagination-action next">
-                {item(page + 1, 'chevron-right', false, page >= pages, 'next', '다음 페이지')}
-                {item(pages, 'chevrons-right', false, page >= pages, undefined, '마지막 페이지')}
+                {item(page + 1, 'chevron-right', false, page >= pages, 'next', ui('Next page'))}
+                {item(pages, 'chevrons-right', false, page >= pages, undefined, ui('Last page'))}
             </div>
         </nav>
     );

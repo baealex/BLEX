@@ -1,3 +1,5 @@
+import { requestLocale } from '../../../platform/request-locale.js';
+import { systemMessage } from '../../../platform/messages.js';
 import { renderPage } from '../../../platform/views.js';
 import type { FastifyInstance } from 'fastify';
 import type { PrismaClient } from '@prisma/client';
@@ -33,22 +35,22 @@ export function registerSearchRoutes(
       messageKey: `search.validation.${key}`,
       messageParams: {},
     });
-    if (!query) return invalid('query_required', '검색어를 입력하세요.');
+    if (!query) return invalid('query_required', systemMessage('Enter a search term.'));
     const rawPage = parameters.get('page') ?? '1';
     const page = Math.max(1, Number(rawPage));
     if (!/^[+-]?\d+$/.test(rawPage) || !Number.isSafeInteger(page))
-      return invalid('invalid_page', '잘못된 페이지 번호입니다.');
+      return invalid('invalid_page', systemMessage('Invalid page number.'));
     const started = performance.now();
     const ranked = await rankPublicSearch(db, query.split(/\s+/), username);
     const totalSize = ranked.length;
     const lastPage = totalPages(totalSize, 30);
-    if (page > lastPage) return invalid('invalid_page', '잘못된 페이지 번호입니다.');
+    if (page > lastPage) return invalid('invalid_page', systemMessage('Invalid page number.'));
     const matches = await readSearchPage(db, ranked, 30, (page - 1) * 30);
     const fields = [
-      ['titleScore', 'title', '제목'],
-      ['descriptionScore', 'description', '설명'],
-      ['tagScore', 'tag', '태그'],
-      ['contentScore', 'content', '내용'],
+      ['titleScore', 'title', systemMessage('Title')],
+      ['descriptionScore', 'description', systemMessage('Description')],
+      ['tagScore', 'tag', systemMessage('Tag')],
+      ['contentScore', 'content', systemMessage('Content')],
     ] as const;
     const results = matches.map((post) => {
       const scored = fields.filter(([key]) => (post[key] ?? 0) > 0);
@@ -61,7 +63,7 @@ export function registerSearchRoutes(
         description: post.description,
         readTime: post.readTime,
         createdDate: published
-          ? new Intl.DateTimeFormat('ko-KR', { timeZone, dateStyle: 'long' }).format(new Date(published))
+          ? new Intl.DateTimeFormat(requestLocale(), { timeZone, dateStyle: 'long' }).format(new Date(published))
           : '',
         publishedDate: published
           ? new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(
@@ -106,8 +108,10 @@ export function registerSearchRoutes(
       reply,
       renderPage('search', {
         meta: {
-          title: searchText ? `검색: ${searchText} - ${siteName}` : `검색 - ${siteName}`,
-          description: '제목, 설명, 태그, 본문에서 글을 검색합니다.',
+          title: searchText
+            ? systemMessage('Search: {value0} - {value1}', { value0: searchText, value1: siteName })
+            : systemMessage('Search - {value0}', { value0: siteName }),
+          description: systemMessage('Search posts by title, description, tags, and content.'),
           canonical: makeAbsolute(siteUrl, path),
           siteName,
           brand,

@@ -1,3 +1,4 @@
+import { systemMessage } from '../../../platform/messages.js';
 import type { Prisma, PrismaClient } from '@prisma/client';
 import { safeExternalUrl } from './profile.js';
 import { type Body, type UpdateResult, positiveId, stringValue } from '../shared.js';
@@ -19,7 +20,10 @@ function splitLegacyItems(value: string): string[] {
 }
 
 function socialValueError(): UpdateResult {
-  return { ok: false, message: '소셜 링크를 확인해 주세요. HTTPS 주소와 쉼표, 앰퍼샌드가 없는 값을 사용하세요.' };
+  return {
+    ok: false,
+    message: systemMessage('Check your social link. Use an HTTPS URL without commas or ampersands.'),
+  };
 }
 
 function validateSocialFields(name: string, value: string, orderValue: string): number | null {

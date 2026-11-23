@@ -44,7 +44,7 @@ Add a client URL by adding a file under `packages/client/src/routes/`. A `*.page
 
 Use semantic Tailwind tokens and follow the [Design Guide](DESIGN_GUIDE.md) and [UI Change Style Guide](UI_CHANGE_STYLE_GUIDE.md). Keep screen-specific CSS close to the feature.
 
-Web screens read the server-provided locale from `window.configuration.locale`, with the document language as fallback. Use the existing Lingui runtime and catalogs; do not create a separate instance per screen. See [Translation Guide](TRANSLATION_GUIDE.md) for current coverage and checks.
+The server sets the document language from the user preference or site default. Public SSR and browser components use `ui()` with literal English product copy; React screens use the existing Lingui macros. Both use the same PO catalogs. Activate the document catalog before hydration and the destination catalog before internal navigation. Resolve translated labels during rendering, never at module initialization. Do not pass authored content through translation helpers or create a separate runtime per feature. See [Translation Guide](TRANSLATION_GUIDE.md) for current coverage and checks.
 
 ## Development and checks
 

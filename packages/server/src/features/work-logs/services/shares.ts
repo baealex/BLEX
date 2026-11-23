@@ -1,3 +1,4 @@
+import { systemMessage } from '../../../platform/messages.js';
 import type { Prisma, PrismaClient } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
 import type { WorkLogShareView } from '../../../../../client/src/contracts/work-logs.js';
@@ -108,15 +109,15 @@ export function selectedEntryIds(
     ...arrayValue(fields[pageFields.selectedEntries]).flatMap((value) => value.split(',')),
     ...arrayValue(fields.entries),
   ];
-  if (values.length > 997) return { ids: [], error: '링크 하나에 기록을 최대 997개까지 담을 수 있어요.' };
+  if (values.length > 997) return { ids: [], error: systemMessage('A share link can contain up to 997 entries.') };
   if (values.some((value) => !/^\d{1,18}$/.test(value))) {
-    return { ids: [], error: '이 작업 일지의 기록을 선택해 주세요.' };
+    return { ids: [], error: systemMessage('Choose entries from this work log.') };
   }
   const ids = [...new Set(values.map(Number))];
   if (ids.some((id) => !Number.isSafeInteger(id) || id <= 0)) {
-    return { ids: [], error: '이 작업 일지의 기록을 선택해 주세요.' };
+    return { ids: [], error: systemMessage('Choose entries from this work log.') };
   }
-  if (ids.length === 0 && !allowEmpty) return { ids, error: '공유할 기록을 하나 이상 선택해 주세요.' };
+  if (ids.length === 0 && !allowEmpty) return { ids, error: systemMessage('Choose at least one entry to share.') };
   return { ids };
 }
 

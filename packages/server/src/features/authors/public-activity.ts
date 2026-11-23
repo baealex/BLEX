@@ -1,3 +1,4 @@
+import { requestLocale } from '../../platform/request-locale.js';
 import { renderPage } from '../../platform/views.js';
 import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
@@ -14,10 +15,10 @@ interface ActivityOptions {
 
 const timeZone = process.env.TZ || 'Asia/Seoul';
 const dateFormat = new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' });
-const dateLabel = new Intl.DateTimeFormat('ko-KR', { timeZone, dateStyle: 'long' });
-const relative = new Intl.RelativeTimeFormat('ko', { numeric: 'always' });
 
 function since(date: Date) {
+  const dateLabel = new Intl.DateTimeFormat(requestLocale(), { timeZone, dateStyle: 'long' });
+  const relative = new Intl.RelativeTimeFormat(requestLocale(), { numeric: 'always' });
   const age = Math.max(0, (Date.now() - date.getTime()) / 60_000);
   if (!Number.isFinite(age)) return '';
   if (age > 525_600) return dateLabel.format(date);
@@ -260,7 +261,7 @@ export function registerPublicActivity(app: FastifyInstance, db: PrismaClient, o
     return done({
       oldUsername: request.params.username,
       newUsername: changed.user.username,
-      createdDate: dateLabel.format(changed.createdAt),
+      createdDate: new Intl.DateTimeFormat(requestLocale(), { timeZone, dateStyle: 'long' }).format(changed.createdAt),
     });
   });
   app.get<{ Params: { username: string } }>('/v1/users/@:username/heatmap', async (request, reply) => {

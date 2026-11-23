@@ -1,9 +1,11 @@
 import { fileURLToPath } from 'node:url';
 import tailwind from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
+import babel from '@rolldown/plugin-babel';
+import { lingui, linguiTransformerBabelPreset } from '@lingui/vite-plugin';
 
 export default defineConfig({
-    plugins: [tailwind()],
+    plugins: [tailwind(), lingui(), babel({ presets: [linguiTransformerBabelPreset()] })],
     base: '/assets/ui/',
     publicDir: false,
     build: {
