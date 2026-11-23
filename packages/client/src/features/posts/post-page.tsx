@@ -561,7 +561,8 @@ function PostDock({ data }: { data: PostPageData }) {
                     )}
                     {data.visibility !== 'draft' && (
                         <>
-                            <details className="blex-user-menu relative" data-account-menu>
+                            {/* The browser can open this menu natively before the page's code arrives. */}
+                            <details className="blex-user-menu relative" data-account-menu suppressHydrationWarning>
                                 <summary
                                     className={`${dockButton} cursor-pointer`}
                                     aria-label="포스트 공유 또는 링크 복사"

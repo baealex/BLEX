@@ -646,6 +646,9 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
 
     useEffect(() => {
         setHydrated(true);
+        // Text typed before this code arrived is in the field but not yet in state.
+        const typedEarly = mainField.current?.value;
+        if (typedEarly) setCommentText(typedEarly);
         if (!model.isLoggedIn || window.location.hash !== '#post-comments') return;
         const replyTo = Number(new URLSearchParams(window.location.search).get('reply_to'));
         if (Number.isSafeInteger(replyTo) && replyTo > 0) setReplyTargetId(replyTo);
