@@ -1,16 +1,21 @@
 import { hydrateIsland } from '../../application/island.js';
 import { AboutEditor, AboutPageEditor } from './about-editor.js';
 
-/** Follows the writer's text and caret until hydration commits, then restores them on the hydrated textarea. */
+const draftEvents = ['input', 'keydown', 'selectionchange'];
+
+/**
+ * Follows the writer's text and caret until hydration commits, then restores them on the hydrated textarea.
+ * A key press can make React hydrate during that event, so this listens on the window ahead of React's root.
+ */
 function followDraft(input: HTMLTextAreaElement, signal: AbortSignal) {
     const read = () => ({ value: input.value, start: input.selectionStart, end: input.selectionEnd });
     let draft = read();
-    const record = () => {
-        draft = read();
+    const record = (event: Event) => {
+        if (event.target === input || document.activeElement === input) draft = read();
     };
-    input.addEventListener('input', record, { signal });
+    for (const type of draftEvents) window.addEventListener(type, record, { capture: true, signal });
     return (hydrated: HTMLTextAreaElement) => {
-        input.removeEventListener('input', record);
+        for (const type of draftEvents) window.removeEventListener(type, record, { capture: true });
         if (hydrated.value === draft.value) return;
         hydrated.value = draft.value;
         hydrated.setSelectionRange(draft.start, draft.end);
