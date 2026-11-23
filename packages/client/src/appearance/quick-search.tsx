@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { SiteIcon } from './icons.js';
+import { escapeAction } from './quick-search-escape.js';
 import { recentSearches, rememberSearch } from './recent-searches.js';
 
 interface SearchRow {
@@ -32,8 +33,11 @@ function resultRows(matches: unknown): SearchRow[] {
     });
 }
 
-/** `onReady` runs once this component's own handlers are live. */
-export function QuickSearch({ onReady }: { onReady?: () => void }) {
+/**
+ * `onReady` runs once this component's own handlers are live.
+ * `startClosed` reports that the reader already dismissed the box with Esc while this code was loading.
+ */
+export function QuickSearch({ onReady, startClosed }: { onReady?: () => void; startClosed?: () => boolean }) {
     const container = useRef<HTMLDivElement>(null);
     const input = useRef<HTMLInputElement>(null);
     const list = useRef<HTMLUListElement>(null);
@@ -118,7 +122,7 @@ export function QuickSearch({ onReady }: { onReady?: () => void }) {
         document.addEventListener('keydown', focusOnShortcut);
         document.addEventListener('blex:before-page-change', closeOnPageChange);
         // The box can take focus before this code has loaded.
-        if (document.activeElement === input.current) suggest();
+        if (document.activeElement === input.current && !startClosed?.()) suggest();
         onReady?.();
         return () => {
             cancel();
@@ -130,7 +134,11 @@ export function QuickSearch({ onReady }: { onReady?: () => void }) {
 
     const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Escape') {
-            setOpen(false);
+            const action = escapeAction(event.nativeEvent, open, event.currentTarget.value !== '');
+            if (action !== 'none') event.preventDefault();
+            if (action === 'close' || action === 'clear') cancel();
+            if (action === 'close') setOpen(false);
+            if (action === 'clear') event.currentTarget.value = '';
             return;
         }
         if (!open) return;
