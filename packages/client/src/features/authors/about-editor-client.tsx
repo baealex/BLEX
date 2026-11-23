@@ -1,6 +1,22 @@
 import { hydrateIsland } from '../../application/island.js';
 import { AboutEditor, AboutPageEditor } from './about-editor.js';
 
+/** Follows the writer's text and caret until hydration commits, then restores them on the hydrated textarea. */
+function followDraft(input: HTMLTextAreaElement, signal: AbortSignal) {
+    const read = () => ({ value: input.value, start: input.selectionStart, end: input.selectionEnd });
+    let draft = read();
+    const record = () => {
+        draft = read();
+    };
+    input.addEventListener('input', record, { signal });
+    return (hydrated: HTMLTextAreaElement) => {
+        input.removeEventListener('input', record);
+        if (hydrated.value === draft.value) return;
+        hydrated.value = draft.value;
+        hydrated.setSelectionRange(draft.start, draft.end);
+    };
+}
+
 export function mountAboutEditors(signal: AbortSignal): void {
     for (const page of document.querySelectorAll<HTMLElement>('[data-about-page]')) {
         const input = page.querySelector<HTMLTextAreaElement>('[data-about-input]');
@@ -9,7 +25,7 @@ export function mountAboutEditors(signal: AbortSignal): void {
             page,
             <AboutPageEditor
                 aboutMarkdown={input.defaultValue}
-                draft={input.value}
+                onHydrated={followDraft(input, signal)}
                 saveUrl={page.dataset.aboutUrl ?? ''}
                 returnPath={page.dataset.aboutReturn ?? '/'}
             />,

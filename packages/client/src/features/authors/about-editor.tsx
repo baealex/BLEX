@@ -171,25 +171,28 @@ export function AboutEditor({
     );
 }
 
-/** The inside of the dedicated edit page. `draft` keeps text typed before this island loaded. */
+/**
+ * The inside of the dedicated edit page.
+ * Hydration resets the textarea to its server text, so `onHydrated` puts the writer's text back in the same commit.
+ */
 export function AboutPageEditor({
     aboutMarkdown,
     saveUrl,
     returnPath,
-    draft
+    onHydrated
 }: {
     aboutMarkdown: string;
     saveUrl: string;
     returnPath: string;
-    draft?: string;
+    onHydrated?: (input: HTMLTextAreaElement) => void;
 }) {
     const input = useRef<HTMLTextAreaElement>(null);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState('');
 
     useLayoutEffect(() => {
-        if (draft !== undefined && input.current && input.current.value !== draft) input.current.value = draft;
-    }, [draft]);
+        if (input.current) onHydrated?.(input.current);
+    }, [onHydrated]);
 
     const save = () => {
         setSaving(true);
