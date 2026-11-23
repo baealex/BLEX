@@ -37,7 +37,13 @@ BLEX 4 imports a 3.14 installation once, the first time it starts. The original 
 
 3. If your environment file sets `BLEX_PORT_MAPPING`, change its container port from `80` to `8040`. Behind an HTTPS proxy, set `BLEX_TRUSTED_PROXIES` to the proxy's IP address or CIDR range. BLEX also reads the previous `TRUSTED_PROXY_IPS` setting.
 
-4. Start BLEX 4 and read the log.
+4. If `backend/src/resources/media/_work_logs` exists, let BLEX 4 read it. BLEX 3.14 ran as root and kept work log attachments private, while BLEX 4 runs as user 1000. BLEX 3.14 can still read the folder afterward.
+
+   ```sh
+   sudo chown -R 1000:1000 backend/src/resources/media/_work_logs
+   ```
+
+5. Start BLEX 4 and read the log.
 
    ```sh
    docker compose pull

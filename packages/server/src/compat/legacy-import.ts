@@ -1,6 +1,6 @@
 import { cp, lstat, rename, rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, relative, sep } from 'node:path';
 import { DatabaseSync, type SQLInputValue } from 'node:sqlite';
 import { verifyLegacyDatabase } from './legacy-database.js';
 
@@ -758,12 +758,24 @@ function copyRows(sourcePath: string, targetPath: string) {
 async function copyMedia(legacyRoot: string, mediaRoot: string) {
   const source = join(legacyRoot, 'resources', 'media');
   if (!existsSync(source)) return;
-  await cp(source, mediaRoot, {
-    recursive: true,
-    force: true,
-    preserveTimestamps: true,
-    filter: async (path) => !(await lstat(path)).isSymbolicLink(),
-  });
+  try {
+    await cp(source, mediaRoot, {
+      recursive: true,
+      force: true,
+      preserveTimestamps: true,
+      filter: async (path) => !(await lstat(path)).isSymbolicLink(),
+    });
+  } catch (error) {
+    const { code, path } = error as NodeJS.ErrnoException;
+    if (code !== 'EACCES' && code !== 'EPERM') throw error;
+    // 3.14 ran as root and kept work log attachments private, while BLEX 4 runs as uid 1000.
+    const folder = path ? relative(source, path).split(sep)[0] : '';
+    const hostPath = ['backend/src/resources/media', ...(folder && folder !== '..' ? [folder] : [])].join('/');
+    throw new Error(
+      `BLEX 4 cannot read ${hostPath}. On the host, run "sudo chown -R 1000:1000 ${hostPath}", then start BLEX again.`,
+      { cause: error },
+    );
+  }
 }
 
 async function removeDatabase(path: string) {
