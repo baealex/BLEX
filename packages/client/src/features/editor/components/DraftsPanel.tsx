@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { logger } from '~/utils/logger';
 import { Dialog } from '~/ui/dialog';
@@ -21,6 +21,7 @@ const DraftsPanel = ({ isOpen, onClose, onSelectPost, currentDraftUrl }: DraftsP
     const [drafts, setDrafts] = useState<DraftSummary[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState(false);
+    const requestId = useRef(0);
 
     const formatRelativeTime = (dateString: string): string => {
         const date = new Date(dateString);
@@ -67,30 +68,35 @@ const DraftsPanel = ({ isOpen, onClose, onSelectPost, currentDraftUrl }: DraftsP
         }).format(date);
     };
 
-    useEffect(() => {
-        if (isOpen) {
-            fetchDrafts();
-        }
-    }, [isOpen]);
-
-    const fetchDrafts = async () => {
+    const fetchDrafts = useCallback(async () => {
+        const request = ++requestId.current;
         setIsLoading(true);
         setHasError(false);
         try {
             const { data } = await getDrafts();
+            if (request !== requestId.current) return;
             if (data.status === 'DONE' && data.body?.drafts) {
                 setDrafts(Array.isArray(data.body.drafts) ? data.body.drafts : []);
             } else {
                 setDrafts([]);
             }
         } catch (error) {
+            if (request !== requestId.current) return;
             logger.error('Failed to fetch drafts:', error);
             setHasError(true);
             setDrafts([]);
         } finally {
-            setIsLoading(false);
+            if (request === requestId.current) setIsLoading(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        void fetchDrafts();
+        return () => {
+            requestId.current += 1;
+        };
+    }, [isOpen, fetchDrafts]);
 
     return (
         <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -153,6 +159,7 @@ const DraftsPanel = ({ isOpen, onClose, onSelectPost, currentDraftUrl }: DraftsP
                             <div className="divide-y divide-line-light">
                                 {drafts.map((draft) => (
                                     <button
+                                        type="button"
                                         key={draft.url}
                                         onClick={() => onSelectPost(draft.url)}
                                         className={cx(

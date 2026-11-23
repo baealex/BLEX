@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Editor } from '@tiptap/react';
 
 interface SlashCommandState {
@@ -11,21 +11,28 @@ export const useSlashCommand = (editor: Editor | null) => {
         isVisible: false,
         slashPos: null
     });
+    const pendingMenu = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const hideMenu = () => {
+    const cancelPendingMenu = useCallback(() => {
+        if (pendingMenu.current !== null) clearTimeout(pendingMenu.current);
+        pendingMenu.current = null;
+    }, []);
+
+    const hideMenu = useCallback(() => {
+        cancelPendingMenu();
         setState((prev) => ({
             ...prev,
             isVisible: false,
             slashPos: null
         }));
-    };
+    }, [cancelPendingMenu]);
 
-    const showMenu = (slashPos: number) => {
+    const showMenu = useCallback((slashPos: number) => {
         setState({
             isVisible: true,
             slashPos
         });
-    };
+    }, []);
 
     useEffect(() => {
         if (!editor || !editor.isEditable) return;
@@ -43,7 +50,7 @@ export const useSlashCommand = (editor: Editor | null) => {
             const { selection } = editor.state;
             const { from } = selection;
 
-            if (event.key === 'Escape' && state.isVisible) {
+            if (event.key === 'Escape' && (state.isVisible || pendingMenu.current !== null)) {
                 hideMenu();
                 return;
             }
@@ -56,7 +63,13 @@ export const useSlashCommand = (editor: Editor | null) => {
                     // Capture the insertion position before the slash key is applied.
                     const slashPosition = from;
 
-                    setTimeout(() => {
+                    cancelPendingMenu();
+                    pendingMenu.current = setTimeout(() => {
+                        pendingMenu.current = null;
+                        if (editor.isDestroyed || !editor.isEditable) return;
+                        const { doc, selection } = editor.state;
+                        if (slashPosition + 1 > doc.content.size || selection.from <= slashPosition) return;
+                        if (doc.textBetween(slashPosition, slashPosition + 1) !== '/') return;
                         showMenu(slashPosition);
                     }, 10);
                 }
@@ -75,7 +88,7 @@ export const useSlashCommand = (editor: Editor | null) => {
         };
 
         const handleClick = () => {
-            if (state.isVisible) {
+            if (state.isVisible || pendingMenu.current !== null) {
                 hideMenu();
             }
         };
@@ -85,13 +98,14 @@ export const useSlashCommand = (editor: Editor | null) => {
         document.addEventListener('click', handleClick);
 
         return () => {
+            cancelPendingMenu();
             if (editorElement) {
                 editorElement.removeEventListener('keydown', handleKeyDown);
             }
             editor.off('transaction', handleTransaction);
             document.removeEventListener('click', handleClick);
         };
-    }, [editor, state]);
+    }, [editor, state, hideMenu, showMenu, cancelPendingMenu]);
 
     const closeMenu = () => {
         if (state.slashPos !== null && editor) {

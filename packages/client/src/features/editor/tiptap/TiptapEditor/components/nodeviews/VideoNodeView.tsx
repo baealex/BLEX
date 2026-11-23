@@ -105,8 +105,11 @@ export const VideoNodeView = ({ node, selected, editor, getPos }: NodeViewProps)
                     >
                         <source src={src} type="video/mp4" />
                     </video>
-                    {/* 투명 오버레이: 클릭 시 노드 선택 (네이티브 재생 차단) */}
+                    {/* Tiptap ignores button mousedown events, so the drag handle stays a keyboard-accessible div. */}
                     <div
+                        role="button"
+                        tabIndex={0}
+                        aria-label={t('media.settings')}
                         data-drag-handle=""
                         onMouseDown={(event) => {
                             if (event.button === 0) {
@@ -114,6 +117,12 @@ export const VideoNodeView = ({ node, selected, editor, getPos }: NodeViewProps)
                             }
                         }}
                         onClick={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            selectNode();
+                        }}
+                        onKeyDown={(event) => {
+                            if (event.key !== 'Enter' && event.key !== ' ') return;
                             event.preventDefault();
                             event.stopPropagation();
                             selectNode();

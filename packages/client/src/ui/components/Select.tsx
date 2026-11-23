@@ -21,6 +21,7 @@ const selectDensityStyles = {
 } as const;
 
 interface SelectProps {
+    id?: string;
     value: string;
     onValueChange: (value: string) => void;
     items: SelectItem[];
@@ -33,6 +34,7 @@ interface SelectProps {
 }
 
 const Select = ({
+    id,
     value,
     onValueChange,
     items,
@@ -60,6 +62,7 @@ const Select = ({
         <div>
             <RadixSelect.Root value={internalValue} onValueChange={handleValueChange} disabled={disabled}>
                 <RadixSelect.Trigger
+                    id={id}
                     aria-label={ariaLabel}
                     aria-invalid={!!error}
                     className={`

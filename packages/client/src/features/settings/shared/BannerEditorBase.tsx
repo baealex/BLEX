@@ -503,9 +503,9 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                 />
 
                 <div className="space-y-1.5">
-                    <label className="ml-1 block text-sm font-medium text-content">
+                    <p className="ml-1 block text-sm font-medium text-content">
                         <Trans id="settings.banners.editor.active.heading">Banner visibility</Trans>
-                    </label>
+                    </p>
                     <div className="min-h-12 rounded-lg border border-line bg-surface px-3 py-2">
                         <Checkbox
                             checked={isActive}

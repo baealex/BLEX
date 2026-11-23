@@ -183,9 +183,12 @@ export async function listPosts(
     const matched = ordered.filter(({ id }) => matchedIds.has(id)).map(({ id }) => id);
     total = matched.length;
     const pageIds = matched.slice(offset, offset + limit);
-    const found = await db.post.findMany({ where: { id: { in: pageIds } }, select: postSelect });
+    const found = await db.post.findMany({ where: { AND: [where, { id: { in: pageIds } }] }, select: postSelect });
     const byId = new Map(found.map((row) => [row.id, row]));
-    rows = pageIds.map((id) => byId.get(id)!);
+    rows = pageIds.flatMap((id) => {
+      const post = byId.get(id);
+      return post ? [post] : [];
+    });
   } else {
     total = await db.post.count({ where });
     rows = await db.post.findMany({

@@ -510,9 +510,11 @@ function CommentActions({ comment, handlers }: { comment: CommentPayload; handle
                     </a>
                 ))}
             {showCount && (
-                <span className={`${actionButton} text-content-secondary`} aria-label={`좋아요 ${countLikes}개`}>
+                <span className={`${actionButton} text-content-secondary`}>
                     <Icon name="heart" className="size-4" />
+                    <span className="sr-only">좋아요 </span>
                     <span>{countLikes}</span>
+                    <span className="sr-only">개</span>
                 </span>
             )}
             {showReply &&

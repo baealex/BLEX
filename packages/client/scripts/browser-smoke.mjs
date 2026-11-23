@@ -19,6 +19,11 @@ const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
 
 page.on('pageerror', (error) => failures.push(`Page error: ${error.message}`));
+page.on('dialog', (dialog) => {
+    if (dialog.type() === 'beforeunload') return dialog.accept();
+    failures.push(`Unexpected ${dialog.type()}: ${dialog.message()}`);
+    return dialog.dismiss();
+});
 page.on('response', (response) => {
     const type = response.request().resourceType();
     if (response.url().startsWith(origin) && response.status() >= 400 && ['script', 'stylesheet'].includes(type)) {
@@ -70,6 +75,98 @@ const openMobileMenu = async () => {
 const openEditor = async () => {
     await open('/write');
     await expect(page.getByPlaceholder('제목을 입력하세요')).toBeVisible();
+    await page.locator('.ProseMirror').click();
+    await page.keyboard.type('/');
+    const search = page.getByPlaceholder('명령어 검색...');
+    await expect(search).toBeFocused();
+    await search.press('Tab');
+    const command = page.getByRole('dialog').getByRole('button').first();
+    await expect(command).toBeFocused();
+    await command.press('Enter');
+    await expect(search).toHaveCount(0);
+};
+
+const keepLatestDraftList = async () => {
+    await open('/write');
+    let requests = 0;
+    const { promise: firstStarted, resolve: markFirstStarted } = Promise.withResolvers();
+    const { promise: firstReleased, resolve: releaseFirst } = Promise.withResolvers();
+    const draftsUrl = '**/v1/drafts';
+    await page.route(draftsUrl, async (route) => {
+        const first = ++requests === 1;
+        if (first) {
+            markFirstStarted();
+            await firstReleased;
+        }
+        await route.fulfill({
+            json: {
+                status: 'DONE',
+                body: {
+                    drafts: [
+                        {
+                            url: first ? 'older-draft' : 'newer-draft',
+                            title: first ? 'Older draft response' : 'Latest draft response',
+                            createdDate: new Date().toISOString()
+                        }
+                    ]
+                }
+            }
+        });
+    });
+    try {
+        const openDrafts = page.getByRole('button', { name: '임시 포스트', exact: true });
+        await openDrafts.click();
+        await firstStarted;
+        await page.getByRole('dialog', { name: '임시 포스트' }).getByRole('button', { name: '닫기' }).click();
+        await openDrafts.click();
+        await expect(page.getByText('Latest draft response')).toBeVisible();
+        const olderResponse = page.waitForResponse((response) => response.url().endsWith('/v1/drafts'));
+        releaseFirst();
+        await (await olderResponse).finished();
+        await page.evaluate(
+            () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+        );
+        await expect(page.getByText('Latest draft response')).toBeVisible();
+        await expect(page.getByText('Older draft response')).toHaveCount(0);
+        await page.getByRole('dialog', { name: '임시 포스트' }).getByRole('button', { name: '닫기' }).click();
+    } finally {
+        releaseFirst();
+        await page.unroute(draftsUrl);
+    }
+};
+
+const keepMediaControlFocus = async () => {
+    await open('/write');
+    const editor = page.locator('.ProseMirror');
+    await editor.click();
+    await page.locator('input[type=file][multiple][accept*="image/"]').setInputFiles({
+        name: 'focus-test.png',
+        mimeType: 'image/png',
+        buffer: Buffer.from(
+            'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAACXBIWXMAAAPoAAAD6AG1e1JrAAAAHElEQVQokWNoIBEwjGogAjAQowgZjGogBtA+lAAlhIAQFdpNuQAAAABJRU5ErkJggg==',
+            'base64'
+        )
+    });
+    await expect(editor.locator('img')).toBeVisible();
+    const media = editor.getByRole('button', { name: '미디어 설정' });
+    await media.focus();
+    await media.press('Enter');
+    await page.getByRole('button', { name: '미디어 설정' }).last().click();
+    const alignLeft = page.getByRole('button', { name: '왼쪽 정렬' });
+    await alignLeft.focus();
+    await alignLeft.press('Enter');
+    await expect(alignLeft).toBeFocused();
+
+    await page.getByRole('button', { name: '게시 설정', exact: true }).click();
+    const settings = page.getByRole('dialog', { name: '게시 설정' });
+    await settings
+        .locator('label')
+        .filter({ hasText: /^시리즈$/ })
+        .click();
+    await expect(page.getByRole('listbox')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('listbox')).toHaveCount(0);
+    await settings.getByRole('button', { name: '닫기' }).click();
 };
 
 const keepRejectedPublishInEditor = async () => {
@@ -98,6 +195,8 @@ try {
         ['login', logIn],
         ['mobile menu', openMobileMenu],
         ['editor', openEditor],
+        ['latest draft list survives an older response', keepLatestDraftList],
+        ['media keyboard controls keep focus and settings labels activate their controls', keepMediaControlFocus],
         ['rejected publish keeps the post', keepRejectedPublishInEditor]
     ]) {
         await step();

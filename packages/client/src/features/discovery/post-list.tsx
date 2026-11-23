@@ -1,5 +1,5 @@
 import { timeSince } from '../../lib/date-format';
-import { type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { SiteIcon, type SiteIconName } from '../../appearance/icons';
 import { loginPromptProps } from '../engagement/ui/login-prompt';
 import type { CardLikes, PostRow } from '../../contracts/public';
@@ -134,12 +134,11 @@ function PostCard({
                         (series ?? <div />)
                     )}
                     <div className="flex items-center gap-4 text-content-secondary">
-                        <span
-                            className="flex items-center gap-1.5 text-xs"
-                            aria-label={`댓글 ${post.commentCount ?? 0}개`}
-                        >
+                        <span className="flex items-center gap-1.5 text-xs">
                             <SiteIcon name="message-circle" />
+                            <span className="sr-only">댓글 </span>
                             <span>{String(post.commentCount ?? 0)}</span>
+                            <span className="sr-only">개</span>
                         </span>
                         {PostCardLike({
                             post,

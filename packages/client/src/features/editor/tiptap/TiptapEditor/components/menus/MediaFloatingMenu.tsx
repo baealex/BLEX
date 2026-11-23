@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useId, useRef } from 'react';
+import type React from 'react';
+import { useState, useEffect, useId, useRef } from 'react';
 import type { Editor } from '@tiptap/react';
 import * as Popover from '@radix-ui/react-popover';
 import { useEditorI18n } from '../../i18n';
@@ -22,6 +23,31 @@ const fieldClassName =
     'px-2 py-1 text-xs bg-surface-elevated text-content border border-line rounded-md hover:bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-action/20 focus:border-action placeholder:text-content-hint';
 const dividerClassName = 'w-px h-5 bg-line';
 const mediaTypesWithStyle = ['image', 'video'];
+
+const IconButton = ({
+    icon,
+    active,
+    onClick,
+    title
+}: {
+    icon: IconComponent;
+    active?: boolean;
+    onClick: (e: React.MouseEvent) => void;
+    title: string;
+}) => (
+    <button
+        type="button"
+        onClick={onClick}
+        className={`
+            w-7 h-7 rounded-md flex items-center justify-center transition-all
+            ${active ? 'bg-action text-content-inverted' : 'text-content-secondary hover:text-content hover:bg-surface-subtle active:scale-95'}
+        `}
+        title={title}
+        aria-label={title}
+    >
+        <InlineIcon icon={icon} className="text-sm" />
+    </button>
+);
 
 const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
     const { t } = useEditorI18n();
@@ -152,35 +178,6 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                 .run();
         }
     };
-
-    const IconButton = ({
-        icon,
-        active,
-        onClick,
-        title
-    }: {
-        icon: IconComponent;
-        active?: boolean;
-        onClick: (e: React.MouseEvent) => void;
-        title: string;
-    }) => (
-        <button
-            type="button"
-            onClick={onClick}
-            className={`
-                w-7 h-7 rounded-md flex items-center justify-center transition-all
-                ${
-                    active
-                        ? 'bg-action text-content-inverted'
-                        : 'text-content-secondary hover:text-content hover:bg-surface-subtle active:scale-95'
-                }
-            `}
-            title={title}
-            aria-label={title}
-        >
-            <InlineIcon icon={icon} className="text-sm" />
-        </button>
-    );
 
     return (
         <>

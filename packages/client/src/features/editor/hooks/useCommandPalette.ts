@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface UseCommandPaletteOptions {
     shortcut?: string;
@@ -16,9 +16,9 @@ export const useCommandPalette = (options: UseCommandPaletteOptions = {}) => {
         setIsOpen(false);
     };
 
-    const toggleCommandPalette = () => {
+    const toggleCommandPalette = useCallback(() => {
         setIsOpen((prev) => !prev);
-    };
+    }, []);
 
     // Keyboard shortcut: Cmd/Ctrl + K (or custom)
     useEffect(() => {
@@ -31,7 +31,7 @@ export const useCommandPalette = (options: UseCommandPaletteOptions = {}) => {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [shortcut]);
+    }, [shortcut, toggleCommandPalette]);
 
     return {
         isOpen,

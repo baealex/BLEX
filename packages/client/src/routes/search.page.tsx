@@ -31,7 +31,7 @@ export default function renderPage({
                             </div>
                             <div className="space-y-4">
                                 {posts.map((post) => (
-                                    <SearchResultCard post={post} query={searchText} />
+                                    <SearchResultCard key={post.id} post={post} query={searchText} />
                                 ))}
                             </div>
                             <SearchPagination page={checkedPage} pages={pages} query={searchText} username={username} />

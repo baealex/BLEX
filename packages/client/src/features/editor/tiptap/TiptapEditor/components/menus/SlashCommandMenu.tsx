@@ -73,7 +73,7 @@ const SlashCommandMenu = ({
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
     const inputRef = useRef<HTMLInputElement>(null);
-    const selectedItemRef = useRef<HTMLDivElement>(null);
+    const selectedItemRef = useRef<HTMLButtonElement>(null);
     const [virtualAnchor, setVirtualAnchor] = useState<HTMLElement | null>(null);
     const [forms, setForms] = useState<Form[]>([]);
     const getKeywords = (key: EditorMessageKey) =>
@@ -355,7 +355,7 @@ const SlashCommandMenu = ({
         if (isVisible && slashPos !== null && editor) {
             setSelectedIndex(0);
             setSearchTerm('');
-            setTimeout(() => inputRef.current?.focus(), 10);
+            const focusTimer = setTimeout(() => inputRef.current?.focus(), 10);
 
             // Resolve coordinates on each measurement so the menu follows the caret.
             const anchor = {
@@ -389,14 +389,11 @@ const SlashCommandMenu = ({
                 }
             } as unknown as HTMLElement;
             setVirtualAnchor(anchor);
+            return () => clearTimeout(focusTimer);
         } else {
             setVirtualAnchor(null);
         }
     }, [isVisible, slashPos, editor]);
-
-    useEffect(() => {
-        setSelectedIndex(0);
-    }, [searchTerm]);
 
     if (!isVisible || !editor || !virtualAnchor) return null;
 
@@ -419,7 +416,10 @@ const SlashCommandMenu = ({
                             placeholder={t('slash.search.placeholder')}
                             className="w-full px-2 py-1 text-sm border-none outline-none"
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={(e) => {
+                                setSearchTerm(e.target.value);
+                                setSelectedIndex(0);
+                            }}
                             onKeyDown={handleKeyDown}
                         />
                     </div>
@@ -437,21 +437,24 @@ const SlashCommandMenu = ({
                                                 {item.category}
                                             </div>
                                         )}
-                                        <div
+                                        <button
+                                            type="button"
                                             ref={index === selectedIndex ? selectedItemRef : null}
                                             className={`w-full px-3 py-2 text-left hover:bg-gray-50 flex items-center gap-3 cursor-pointer ${
                                                 index === selectedIndex ? 'bg-gray-50' : ''
                                             }`}
                                             onClick={() => handleCommandClick(item)}
                                         >
-                                            <div className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded">
+                                            <span className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded">
                                                 <InlineIcon icon={item.icon} className="text-sm text-gray-600" />
-                                            </div>
-                                            <div>
-                                                <div className="text-sm font-medium text-gray-900">{item.title}</div>
-                                                <div className="text-xs text-gray-500">{item.description}</div>
-                                            </div>
-                                        </div>
+                                            </span>
+                                            <span>
+                                                <span className="block text-sm font-medium text-gray-900">
+                                                    {item.title}
+                                                </span>
+                                                <span className="block text-xs text-gray-500">{item.description}</span>
+                                            </span>
+                                        </button>
                                     </React.Fragment>
                                 );
                             })

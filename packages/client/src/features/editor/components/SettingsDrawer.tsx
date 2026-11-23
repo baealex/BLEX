@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { Dialog } from '~/ui/dialog';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Select } from '~/ui/select';
@@ -196,6 +197,7 @@ const SettingsDrawer = ({
     pendingScheduleAction = null
 }: SettingsDrawerProps) => {
     const { t } = useLingui();
+    const controlId = useId();
     const canEditSchedule = !isEdit || isScheduled;
     const coverLayoutOptions = getCoverLayoutOptions();
     const coverPositionItems = getCoverPositionItems();
@@ -412,10 +414,14 @@ const SettingsDrawer = ({
                                     <Trans id="editor.settings.classification">Classification</Trans>
                                 </h3>
                                 <div>
-                                    <label className="block text-sm font-medium text-content mb-2">
+                                    <label
+                                        htmlFor={`${controlId}-series`}
+                                        className="block text-sm font-medium text-content mb-2"
+                                    >
                                         <Trans id="editor.settings.series">Series</Trans>
                                     </label>
                                     <Select
+                                        id={`${controlId}-series`}
                                         value={selectedSeries.id}
                                         ariaLabel={t({
                                             id: 'editor.settings.series',
@@ -501,10 +507,14 @@ const SettingsDrawer = ({
 
                                     {supportsCoverImagePosition(formData.coverLayout) && (
                                         <div>
-                                            <label className="block text-sm font-medium text-content mb-2">
+                                            <label
+                                                htmlFor={`${controlId}-position`}
+                                                className="block text-sm font-medium text-content mb-2"
+                                            >
                                                 <Trans id="editor.cover.image_position">Image position</Trans>
                                             </label>
                                             <Select
+                                                id={`${controlId}-position`}
                                                 value={formData.coverImagePosition}
                                                 ariaLabel={t({
                                                     id: 'editor.cover.image_position',
@@ -518,10 +528,14 @@ const SettingsDrawer = ({
 
                                     {supportsCoverImageRatio(formData.coverLayout) && (
                                         <div>
-                                            <label className="block text-sm font-medium text-content mb-2">
+                                            <label
+                                                htmlFor={`${controlId}-ratio`}
+                                                className="block text-sm font-medium text-content mb-2"
+                                            >
                                                 <Trans id="editor.cover.image_ratio">Image ratio</Trans>
                                             </label>
                                             <Select
+                                                id={`${controlId}-ratio`}
                                                 value={formData.coverImageRatio}
                                                 ariaLabel={t({
                                                     id: 'editor.cover.image_ratio',
