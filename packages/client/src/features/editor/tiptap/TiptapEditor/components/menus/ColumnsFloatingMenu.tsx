@@ -4,12 +4,7 @@ import { Fragment } from '@tiptap/pm/model';
 import * as Popover from '@radix-ui/react-popover';
 import type { ColumnLayout } from '../../extensions/ColumnsNode';
 import { useEditorI18n } from '../../i18n';
-import {
-    InlineIcon,
-    ArrowUp,
-    ArrowDown,
-    Trash2
-} from '~/ui/icons';
+import { InlineIcon, ArrowUp, ArrowDown, Trash2 } from '~/ui/icons';
 
 interface ColumnsFloatingMenuProps {
     editor: Editor | null;
@@ -173,11 +168,7 @@ const ColumnsFloatingMenu = ({ editor }: ColumnsFloatingMenuProps) => {
         const rangeEnd = pos + columnsNode.nodeSize;
 
         const { tr } = editor.state;
-        tr.replaceWith(
-            prevNodePos,
-            rangeEnd,
-            Fragment.from([columnsNode, prevNode])
-        );
+        tr.replaceWith(prevNodePos, rangeEnd, Fragment.from([columnsNode, prevNode]));
         editor.view.dispatch(tr);
         editor.commands.focus();
     };
@@ -201,11 +192,7 @@ const ColumnsFloatingMenu = ({ editor }: ColumnsFloatingMenuProps) => {
         const rangeEnd = pos + columnsNode.nodeSize + nextNode.nodeSize;
 
         const { tr } = editor.state;
-        tr.replaceWith(
-            pos,
-            rangeEnd,
-            Fragment.from([nextNode, columnsNode])
-        );
+        tr.replaceWith(pos, rangeEnd, Fragment.from([nextNode, columnsNode]));
         editor.view.dispatch(tr);
         editor.commands.focus();
     };
@@ -237,15 +224,13 @@ const ColumnsFloatingMenu = ({ editor }: ColumnsFloatingMenuProps) => {
                     onOpenAutoFocus={(e) => e.preventDefault()}
                     onCloseAutoFocus={(e) => e.preventDefault()}
                     onMouseDown={(e) => {
-                        if (
-                            e.target instanceof HTMLElement &&
-                            !['INPUT', 'SELECT'].includes(e.target.tagName)
-                        ) {
+                        if (e.target instanceof HTMLElement && !['INPUT', 'SELECT'].includes(e.target.tagName)) {
                             e.preventDefault();
                         }
                         e.stopPropagation();
                     }}
-                    onClick={(e) => e.stopPropagation()}>
+                    onClick={(e) => e.stopPropagation()}
+                >
                     {/* 비율 프리셋 */}
                     <div className="flex gap-0.5">
                         {currentLayouts.map((preset) => (
@@ -255,11 +240,14 @@ const ColumnsFloatingMenu = ({ editor }: ColumnsFloatingMenuProps) => {
                                 onClick={(e) => handleLayoutChange(e, preset.value)}
                                 className={`
                                     h-8 px-2.5 rounded-lg flex items-center justify-center gap-1.5 transition-all text-xs font-medium
-                                    ${currentLayout === preset.value
-                                        ? 'bg-gray-900 text-white'
-                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200 active:scale-95'}
+                                    ${
+                                        currentLayout === preset.value
+                                            ? 'bg-gray-900 text-white'
+                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200 active:scale-95'
+                                    }
                                 `}
-                                title={preset.label}>
+                                title={preset.label}
+                            >
                                 <LayoutPreview layout={preset.value} active={currentLayout === preset.value} />
                                 <span>{preset.label}</span>
                             </button>
@@ -276,11 +264,14 @@ const ColumnsFloatingMenu = ({ editor }: ColumnsFloatingMenuProps) => {
                             disabled={!canMove.up}
                             className={`
                                 w-7 h-7 rounded-md flex items-center justify-center transition-all
-                                ${!canMove.up
-                                    ? 'text-gray-300 cursor-not-allowed'
-                                    : 'text-gray-600 hover:bg-gray-100 active:scale-95'}
+                                ${
+                                    !canMove.up
+                                        ? 'text-gray-300 cursor-not-allowed'
+                                        : 'text-gray-600 hover:bg-gray-100 active:scale-95'
+                                }
                             `}
-                            title={t('columns.move_up')}>
+                            title={t('columns.move_up')}
+                        >
                             <InlineIcon icon={ArrowUp} className="text-xs" />
                         </button>
                         <button
@@ -289,18 +280,22 @@ const ColumnsFloatingMenu = ({ editor }: ColumnsFloatingMenuProps) => {
                             disabled={!canMove.down}
                             className={`
                                 w-7 h-7 rounded-md flex items-center justify-center transition-all
-                                ${!canMove.down
-                                    ? 'text-gray-300 cursor-not-allowed'
-                                    : 'text-gray-600 hover:bg-gray-100 active:scale-95'}
+                                ${
+                                    !canMove.down
+                                        ? 'text-gray-300 cursor-not-allowed'
+                                        : 'text-gray-600 hover:bg-gray-100 active:scale-95'
+                                }
                             `}
-                            title={t('columns.move_down')}>
+                            title={t('columns.move_down')}
+                        >
                             <InlineIcon icon={ArrowDown} className="text-xs" />
                         </button>
                         <button
                             type="button"
                             onClick={handleDeleteColumns}
                             className="w-7 h-7 rounded-md flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
-                            title={t('columns.delete')}>
+                            title={t('columns.delete')}
+                        >
                             <InlineIcon icon={Trash2} className="text-xs" />
                         </button>
                     </div>

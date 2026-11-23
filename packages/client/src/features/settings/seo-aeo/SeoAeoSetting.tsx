@@ -220,10 +220,12 @@ const SeoAeoSetting = () => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error(t({
-                id: 'settings.seo_aeo.load_error',
-                message: 'Failed to load SEO/AEO settings.'
-            }));
+            throw new Error(
+                t({
+                    id: 'settings.seo_aeo.load_error',
+                    message: 'Failed to load SEO/AEO settings.'
+                })
+            );
         }
     });
 
@@ -259,17 +261,21 @@ const SeoAeoSetting = () => {
                 setRobotsTxtDefault(data.body.robotsTxtDefault);
             }
             void queryClient.invalidateQueries({ queryKey: ['site-settings'] });
-            toast.success(t({
-                id: 'settings.seo_aeo.seo.save_success',
-                message: 'SEO settings saved.'
-            }));
+            toast.success(
+                t({
+                    id: 'settings.seo_aeo.seo.save_success',
+                    message: 'SEO settings saved.'
+                })
+            );
         },
         onError: () => {
             setSeoEnabled(settingData.seoEnabled);
-            toast.error(t({
-                id: 'settings.seo_aeo.seo.save_error',
-                message: 'Failed to save SEO settings.'
-            }));
+            toast.error(
+                t({
+                    id: 'settings.seo_aeo.seo.save_error',
+                    message: 'Failed to save SEO settings.'
+                })
+            );
         }
     });
 
@@ -281,17 +287,21 @@ const SeoAeoSetting = () => {
                 setRobotsTxtDefault(data.body.robotsTxtDefault);
             }
             void queryClient.invalidateQueries({ queryKey: ['site-settings'] });
-            toast.success(t({
-                id: 'settings.seo_aeo.aeo.save_success',
-                message: 'AEO settings saved.'
-            }));
+            toast.success(
+                t({
+                    id: 'settings.seo_aeo.aeo.save_success',
+                    message: 'AEO settings saved.'
+                })
+            );
         },
         onError: () => {
             setAeoEnabled(settingData.aeoEnabled);
-            toast.error(t({
-                id: 'settings.seo_aeo.aeo.save_error',
-                message: 'Failed to save AEO settings.'
-            }));
+            toast.error(
+                t({
+                    id: 'settings.seo_aeo.aeo.save_error',
+                    message: 'Failed to save AEO settings.'
+                })
+            );
         }
     });
 
@@ -305,17 +315,21 @@ const SeoAeoSetting = () => {
             setRobotsTxtExtraRules(savedRules);
             setSavedRobotsTxtExtraRules(savedRules);
             void queryClient.invalidateQueries({ queryKey: ['site-settings'] });
-            toast.success(t({
-                id: 'settings.seo_aeo.robots.save_success',
-                message: 'robots.txt settings saved.'
-            }));
+            toast.success(
+                t({
+                    id: 'settings.seo_aeo.robots.save_success',
+                    message: 'robots.txt settings saved.'
+                })
+            );
         },
         onError: () => {
             setRobotsTxtExtraRules(savedRobotsTxtExtraRules);
-            toast.error(t({
-                id: 'settings.seo_aeo.robots.save_error',
-                message: 'Failed to save robots.txt settings.'
-            }));
+            toast.error(
+                t({
+                    id: 'settings.seo_aeo.robots.save_error',
+                    message: 'Failed to save robots.txt settings.'
+                })
+            );
         }
     });
 
@@ -351,37 +365,39 @@ const SeoAeoSetting = () => {
     const normalizedSavedRobotsTxtExtraRules = savedRobotsTxtExtraRules.trim();
     const hasUnsavedRobotsChanges = robotsTxtExtraRules !== savedRobotsTxtExtraRules;
     const savedRobotsRuleLineCount = normalizedSavedRobotsTxtExtraRules
-        ? normalizedSavedRobotsTxtExtraRules.split(/\r?\n/).filter(line => line.trim()).length
+        ? normalizedSavedRobotsTxtExtraRules.split(/\r?\n/).filter((line) => line.trim()).length
         : 0;
     const robotsStatus = robotsMutation.isPending
         ? t({
-            id: 'settings.seo_aeo.robots.status.saving',
-            message: 'Saving custom rules'
-        })
+              id: 'settings.seo_aeo.robots.status.saving',
+              message: 'Saving custom rules'
+          })
         : robotsMutation.isError
-            ? t({
+          ? t({
                 id: 'settings.seo_aeo.robots.status.save_failed',
                 message: 'Save failed · Existing rules kept'
             })
-            : hasUnsavedRobotsChanges
-                ? t({
-                    id: 'settings.seo_aeo.robots.status.unsaved',
-                    message: 'Unsaved changes'
+          : hasUnsavedRobotsChanges
+            ? t({
+                  id: 'settings.seo_aeo.robots.status.unsaved',
+                  message: 'Unsaved changes'
+              })
+            : savedRobotsRuleLineCount > 0
+              ? i18n._({
+                    id: 'settings.seo_aeo.robots.status.active_lines',
+                    message: '{count, plural, one {# custom rule line active} other {# custom rule lines active}}',
+                    values: { count: savedRobotsRuleLineCount }
                 })
-                : savedRobotsRuleLineCount > 0
-                    ? i18n._({
-                        id: 'settings.seo_aeo.robots.status.active_lines',
-                        message: '{count, plural, one {# custom rule line active} other {# custom rule lines active}}',
-                        values: { count: savedRobotsRuleLineCount }
-                    })
-                    : t({
-                        id: 'settings.seo_aeo.robots.status.default_only',
-                        message: 'Default policy only'
-                    });
+              : t({
+                    id: 'settings.seo_aeo.robots.status.default_only',
+                    message: 'Default policy only'
+                });
     const robotsTxtPreview = [
         normalizedRobotsTxtDefault,
         normalizedRobotsTxtExtraRules ? `# Custom rules\n${normalizedRobotsTxtExtraRules}` : ''
-    ].filter(Boolean).join('\n\n');
+    ]
+        .filter(Boolean)
+        .join('\n\n');
 
     return (
         <div className="space-y-8">
@@ -392,11 +408,13 @@ const SeoAeoSetting = () => {
                     id: 'settings.seo_aeo.visibility.title',
                     message: 'Current visibility'
                 })}
-                icon={<Eye aria-hidden="true" className="h-5 w-5" />}>
+                icon={<Eye aria-hidden="true" className="h-5 w-5" />}
+            >
                 <div className="grid gap-4 lg:grid-cols-2">
                     <section
                         aria-labelledby="seo-exposure-title"
-                        className="rounded-xl border border-line bg-surface-elevated p-4 sm:p-5">
+                        className="rounded-xl border border-line bg-surface-elevated p-4 sm:p-5"
+                    >
                         <div className="flex items-start justify-between gap-4">
                             <div className="min-w-0">
                                 <h3 id="seo-exposure-title" className="text-sm font-semibold text-content">
@@ -408,13 +426,14 @@ const SeoAeoSetting = () => {
                                 <p className="mt-2 text-sm leading-relaxed text-content-secondary">
                                     {seoEnabled
                                         ? t({
-                                            id: 'settings.seo_aeo.seo.enabled_description',
-                                            message: 'Allows pages to be indexed and advertises the sitemap in robots.txt.'
-                                        })
+                                              id: 'settings.seo_aeo.seo.enabled_description',
+                                              message:
+                                                  'Allows pages to be indexed and advertises the sitemap in robots.txt.'
+                                          })
                                         : t({
-                                            id: 'settings.seo_aeo.seo.disabled_description',
-                                            message: 'Hides the sitemap notice and adds noindex, nofollow to pages.'
-                                        })}
+                                              id: 'settings.seo_aeo.seo.disabled_description',
+                                              message: 'Hides the sitemap notice and adds noindex, nofollow to pages.'
+                                          })}
                                 </p>
                             </div>
                             <Toggle
@@ -432,7 +451,8 @@ const SeoAeoSetting = () => {
 
                     <section
                         aria-labelledby="aeo-exposure-title"
-                        className="rounded-xl border border-line bg-surface-elevated p-4 sm:p-5">
+                        className="rounded-xl border border-line bg-surface-elevated p-4 sm:p-5"
+                    >
                         <div className="flex items-start justify-between gap-4">
                             <div className="min-w-0">
                                 <h3 id="aeo-exposure-title" className="text-sm font-semibold text-content">
@@ -444,13 +464,15 @@ const SeoAeoSetting = () => {
                                 <p className="mt-2 text-sm leading-relaxed text-content-secondary">
                                     {aeoEnabled
                                         ? t({
-                                            id: 'settings.seo_aeo.aeo.enabled_description',
-                                            message: 'Publishes llms.txt and Markdown endpoints with discovery signals.'
-                                        })
+                                              id: 'settings.seo_aeo.aeo.enabled_description',
+                                              message:
+                                                  'Publishes llms.txt and Markdown endpoints with discovery signals.'
+                                          })
                                         : t({
-                                            id: 'settings.seo_aeo.aeo.disabled_description',
-                                            message: 'Returns 404 for AI-specific endpoints and removes discovery signals.'
-                                        })}
+                                              id: 'settings.seo_aeo.aeo.disabled_description',
+                                              message:
+                                                  'Returns 404 for AI-specific endpoints and removes discovery signals.'
+                                          })}
                                 </p>
                             </div>
                             <Toggle
@@ -470,7 +492,8 @@ const SeoAeoSetting = () => {
 
             <details
                 className="group overflow-hidden rounded-2xl bg-surface ring-1 ring-line/60"
-                onToggle={(event) => setIsRobotsAdvancedOpen(event.currentTarget.open)}>
+                onToggle={(event) => setIsRobotsAdvancedOpen(event.currentTarget.open)}
+            >
                 <summary className="flex min-h-20 cursor-pointer list-none items-center gap-4 px-6 py-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-line-strong md:px-8 [&::-webkit-details-marker]:hidden">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-subtle text-content-secondary">
                         <SlidersHorizontal aria-hidden="true" className="h-5 w-5" />
@@ -484,7 +507,8 @@ const SeoAeoSetting = () => {
                         </span>
                         <span
                             aria-live="polite"
-                            className={`mt-1 block text-sm ${robotsMutation.isError ? 'text-danger' : hasUnsavedRobotsChanges ? 'text-warning' : 'text-content-secondary'}`}>
+                            className={`mt-1 block text-sm ${robotsMutation.isError ? 'text-danger' : hasUnsavedRobotsChanges ? 'text-warning' : 'text-content-secondary'}`}
+                        >
                             {robotsStatus}
                         </span>
                     </span>
@@ -509,7 +533,8 @@ const SeoAeoSetting = () => {
                                         key={template.snippet}
                                         type="button"
                                         onClick={() => handleAppendRobotsSnippet(template.snippet)}
-                                        className="min-h-11 rounded-lg border border-line bg-surface-elevated px-3 py-2 text-left transition-colors hover:border-line-strong hover:bg-surface-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-line-strong motion-reduce:transition-none">
+                                        className="min-h-11 rounded-lg border border-line bg-surface-elevated px-3 py-2 text-left transition-colors hover:border-line-strong hover:bg-surface-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-line-strong motion-reduce:transition-none"
+                                    >
                                         <span className="block text-xs font-semibold text-content">
                                             {i18n._(template.title)}
                                         </span>
@@ -559,13 +584,13 @@ const SeoAeoSetting = () => {
                                 <span className="text-xs text-content-secondary">
                                     {normalizedRobotsTxtExtraRules
                                         ? t({
-                                            id: 'settings.seo_aeo.robots.preview.custom_rules',
-                                            message: 'Includes custom rules'
-                                        })
+                                              id: 'settings.seo_aeo.robots.preview.custom_rules',
+                                              message: 'Includes custom rules'
+                                          })
                                         : t({
-                                            id: 'settings.seo_aeo.robots.preview.default_only',
-                                            message: 'Default policy only'
-                                        })}
+                                              id: 'settings.seo_aeo.robots.preview.default_only',
+                                              message: 'Default policy only'
+                                          })}
                                 </span>
                                 <ChevronDown
                                     aria-hidden="true"
@@ -574,10 +599,11 @@ const SeoAeoSetting = () => {
                             </summary>
                             <div className="border-t border-line p-4">
                                 <pre className="max-h-72 overflow-auto whitespace-pre-wrap break-all rounded-lg bg-surface-subtle p-4 font-mono text-xs leading-relaxed text-content-secondary">
-                                    {robotsTxtPreview || t({
-                                        id: 'settings.seo_aeo.robots.preview.loading',
-                                        message: 'Loading preview...'
-                                    })}
+                                    {robotsTxtPreview ||
+                                        t({
+                                            id: 'settings.seo_aeo.robots.preview.loading',
+                                            message: 'Loading preview...'
+                                        })}
                                 </pre>
                             </div>
                         </details>
@@ -589,7 +615,8 @@ const SeoAeoSetting = () => {
                                 size="md"
                                 disabled={!normalizedRobotsTxtExtraRules || robotsMutation.isPending}
                                 onClick={() => handleRobotsRulesChange('')}
-                                leftIcon={<RotateCw aria-hidden="true" className="h-4 w-4" />}>
+                                leftIcon={<RotateCw aria-hidden="true" className="h-4 w-4" />}
+                            >
                                 {t({
                                     id: 'settings.seo_aeo.robots.clear',
                                     message: 'Clear custom rules'
@@ -601,16 +628,21 @@ const SeoAeoSetting = () => {
                                 size="md"
                                 isLoading={robotsMutation.isPending}
                                 onClick={handleRobotsSave}
-                                leftIcon={!robotsMutation.isPending ? <Save aria-hidden="true" className="h-4 w-4" /> : undefined}>
+                                leftIcon={
+                                    !robotsMutation.isPending ? (
+                                        <Save aria-hidden="true" className="h-4 w-4" />
+                                    ) : undefined
+                                }
+                            >
                                 {robotsMutation.isPending
                                     ? t({
-                                        id: 'common.saving_ellipsis',
-                                        message: 'Saving...'
-                                    })
+                                          id: 'common.saving_ellipsis',
+                                          message: 'Saving...'
+                                      })
                                     : t({
-                                        id: 'settings.seo_aeo.robots.save',
-                                        message: 'Save robots.txt'
-                                    })}
+                                          id: 'settings.seo_aeo.robots.save',
+                                          message: 'Save robots.txt'
+                                      })}
                             </Button>
                         </div>
                     </div>

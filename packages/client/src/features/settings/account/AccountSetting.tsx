@@ -40,10 +40,12 @@ const AccountSettings = () => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error(t({
-                id: 'settings.account.load_failed',
-                message: 'Could not load account information.'
-            }));
+            throw new Error(
+                t({
+                    id: 'settings.account.load_failed',
+                    message: 'Could not load account information.'
+                })
+            );
         }
     });
 
@@ -67,7 +69,8 @@ const AccountSettings = () => {
             }),
             message: t({
                 id: 'settings.account.username.confirm_message',
-                message: 'Change your username? If you have published posts, you can change it only once every six months.'
+                message:
+                    'Change your username? If you have published posts, you can change it only once every six months.'
             }),
             confirmText: t({
                 id: 'common.change',
@@ -82,17 +85,21 @@ const AccountSettings = () => {
             const { data } = await updateAccountSettings({ username });
 
             if (data.status === 'DONE') {
-                toast.success(t({
-                    id: 'settings.account.username.update_success',
-                    message: 'Username changed.'
-                }));
+                toast.success(
+                    t({
+                        id: 'settings.account.username.update_success',
+                        message: 'Username changed.'
+                    })
+                );
                 void refetch();
                 return { success: true };
             } else {
-                const error = data.errorMessage || t({
-                    id: 'settings.account.username.update_failed',
-                    message: 'Could not change the username.'
-                });
+                const error =
+                    data.errorMessage ||
+                    t({
+                        id: 'settings.account.username.update_failed',
+                        message: 'Could not change the username.'
+                    });
                 toast.error(error);
                 return {
                     success: false,
@@ -117,17 +124,21 @@ const AccountSettings = () => {
             const { data } = await updateAccountSettings({ name });
 
             if (data.status === 'DONE') {
-                toast.success(t({
-                    id: 'settings.account.name.update_success',
-                    message: 'Name updated.'
-                }));
+                toast.success(
+                    t({
+                        id: 'settings.account.name.update_success',
+                        message: 'Name updated.'
+                    })
+                );
                 void refetch();
                 return { success: true };
             } else {
-                const error = data.errorMessage || t({
-                    id: 'settings.account.name.update_failed',
-                    message: 'Could not update the name.'
-                });
+                const error =
+                    data.errorMessage ||
+                    t({
+                        id: 'settings.account.name.update_failed',
+                        message: 'Could not update the name.'
+                    });
                 toast.error(error);
                 return {
                     success: false,
@@ -155,17 +166,21 @@ const AccountSettings = () => {
             });
 
             if (data.status === 'DONE') {
-                toast.success(t({
-                    id: 'settings.account.password.update_success',
-                    message: 'Password changed.'
-                }));
+                toast.success(
+                    t({
+                        id: 'settings.account.password.update_success',
+                        message: 'Password changed.'
+                    })
+                );
                 void refetch();
                 return { success: true };
             } else {
-                const error = data.errorMessage || t({
-                    id: 'settings.account.password.update_failed',
-                    message: 'Could not change the password.'
-                });
+                const error =
+                    data.errorMessage ||
+                    t({
+                        id: 'settings.account.password.update_failed',
+                        message: 'Could not change the password.'
+                    });
                 toast.error(error);
                 return {
                     success: false,
@@ -214,31 +229,36 @@ const AccountSettings = () => {
                     setRecoveryKey(data.body.recoveryKey);
                     setShowQRModal(true);
                 } else {
-                    const errorMsg = data.errorMessage || t({
-                        id: 'settings.account.two_factor.enable_failed',
-                        message: 'Could not enable two-factor authentication.'
-                    });
+                    const errorMsg =
+                        data.errorMessage ||
+                        t({
+                            id: 'settings.account.two_factor.enable_failed',
+                            message: 'Could not enable two-factor authentication.'
+                        });
                     toast.error(errorMsg);
                 }
             } else {
                 const { data } = await disable2FA();
 
                 if (data.status === 'DONE') {
-                    toast.success(t({
-                        id: 'settings.account.two_factor.disable_success',
-                        message: 'Two-factor authentication disabled.'
-                    }));
+                    toast.success(
+                        t({
+                            id: 'settings.account.two_factor.disable_success',
+                            message: 'Two-factor authentication disabled.'
+                        })
+                    );
                     setTimeout(() => location.reload(), 1000);
                 } else {
-                    const errorMsg = data.errorMessage || t({
-                        id: 'settings.account.two_factor.disable_failed',
-                        message: 'Could not disable two-factor authentication.'
-                    });
+                    const errorMsg =
+                        data.errorMessage ||
+                        t({
+                            id: 'settings.account.two_factor.disable_failed',
+                            message: 'Could not disable two-factor authentication.'
+                        });
                     toast.error(errorMsg);
                 }
             }
         } catch {
-
             toast.error(networkErrorMessage);
         }
     };
@@ -248,24 +268,27 @@ const AccountSettings = () => {
             const { data } = await verify2FASetup(code);
 
             if (data.status === 'DONE') {
-                toast.success(t({
-                    id: 'settings.account.two_factor.enable_success',
-                    message: 'Two-factor authentication enabled.'
-                }));
+                toast.success(
+                    t({
+                        id: 'settings.account.two_factor.enable_success',
+                        message: 'Two-factor authentication enabled.'
+                    })
+                );
                 setShowQRModal(false);
                 setTimeout(() => location.reload(), 1000);
                 return { success: true };
             } else {
                 return {
                     success: false,
-                    error: data.errorMessage || t({
-                        id: 'settings.account.two_factor.invalid_code',
-                        message: 'The verification code is incorrect.'
-                    })
+                    error:
+                        data.errorMessage ||
+                        t({
+                            id: 'settings.account.two_factor.invalid_code',
+                            message: 'The verification code is incorrect.'
+                        })
                 };
             }
         } catch {
-
             return {
                 success: false,
                 error: networkErrorMessage
@@ -296,10 +319,12 @@ const AccountSettings = () => {
             const { data } = await deleteAccount();
 
             if (data.status === 'DONE') {
-                toast.success(t({
-                    id: 'settings.account.delete.success',
-                    message: 'Account deleted.'
-                }));
+                toast.success(
+                    t({
+                        id: 'settings.account.delete.success',
+                        message: 'Account deleted.'
+                    })
+                );
 
                 // Use configured redirect URL from site settings, or fallback to home page
                 const redirectUrl = accountData?.accountDeletionRedirectUrl || '/';
@@ -308,10 +333,13 @@ const AccountSettings = () => {
                     window.location.assign(redirectUrl);
                 }, 1500);
             } else {
-                toast.error(data.errorMessage || t({
-                    id: 'settings.account.delete.failed',
-                    message: 'Could not delete the account.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'settings.account.delete.failed',
+                            message: 'Could not delete the account.'
+                        })
+                );
             }
         } catch {
             toast.error(networkErrorMessage);
@@ -328,10 +356,7 @@ const AccountSettings = () => {
             />
 
             {/* Account Info */}
-            <AccountInfoSection
-                createdDate={accountData?.createdDate || ''}
-                email={accountData?.email || ''}
-            />
+            <AccountInfoSection createdDate={accountData?.createdDate || ''} email={accountData?.email || ''} />
 
             <RegionalPreferencesSection preferences={accountData.regionalPreferences} />
 
@@ -342,7 +367,8 @@ const AccountSettings = () => {
                     message: 'Basic information'
                 })}
                 icon={<UserRound className="h-5 w-5" />}
-                className="mb-6">
+                className="mb-6"
+            >
                 <div className="divide-y divide-line">
                     <UsernameSection
                         initialUsername={accountData?.username || ''}
@@ -358,10 +384,7 @@ const AccountSettings = () => {
             </Card>
 
             {/* Password */}
-            <PasswordSection
-                isLoading={isPasswordLoading}
-                onSubmit={handlePasswordSubmit}
-            />
+            <PasswordSection isLoading={isPasswordLoading} onSubmit={handlePasswordSubmit} />
 
             {/* Security */}
             <SecuritySection

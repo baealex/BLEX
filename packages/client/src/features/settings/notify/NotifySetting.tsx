@@ -4,11 +4,7 @@ import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { useRouter } from '@tanstack/react-router';
 import NotificationsSection from './components/NotificationsSection';
 import NotifyConfigModal from './components/NotifyConfigModal';
-import {
-    getNotifications,
-    getNotifyConfig,
-    type Activity
-} from '~/lib/api/settings';
+import { getNotifications, getNotifyConfig, type Activity } from '~/lib/api/settings';
 
 export type { Activity };
 
@@ -29,24 +25,33 @@ const NotifySetting = () => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error(t({
-                id: 'settings.notifications.load_failed',
-                message: 'Could not load notifications.'
-            }));
+            throw new Error(
+                t({
+                    id: 'settings.notifications.load_failed',
+                    message: 'Could not load notifications.'
+                })
+            );
         }
     });
 
-    const { data: notifyConfig, isLoading: isConfigLoading, isError: isConfigError, refetch: refetchConfig } = useQuery({
+    const {
+        data: notifyConfig,
+        isLoading: isConfigLoading,
+        isError: isConfigError,
+        refetch: refetchConfig
+    } = useQuery({
         queryKey: ['notify-config'],
         queryFn: async () => {
             const { data } = await getNotifyConfig();
             if (data.status === 'DONE') {
                 return data.body.config;
             }
-            throw new Error(t({
-                id: 'settings.notifications.config.load_failed',
-                message: 'Could not load notification settings.'
-            }));
+            throw new Error(
+                t({
+                    id: 'settings.notifications.config.load_failed',
+                    message: 'Could not load notification settings.'
+                })
+            );
         },
         enabled: isOpenConfig
     });

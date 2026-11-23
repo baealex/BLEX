@@ -36,7 +36,7 @@ describe('toPostLinkCandidates', () => {
 
     test('leaves out the post that is being edited', () => {
         assert.deepEqual(
-            toPostLinkCandidates(result, 'first-post').map(candidate => candidate.href),
+            toPostLinkCandidates(result, 'first-post').map((candidate) => candidate.href),
             ['/@writer/두-번째-글']
         );
     });

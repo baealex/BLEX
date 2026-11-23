@@ -32,7 +32,8 @@ const Button = ({
 
     const variantStyles = {
         primary: 'text-content-inverted bg-action hover:bg-action-hover focus:ring-action/20 border-transparent',
-        secondary: 'text-content bg-surface-elevated border-line-strong shadow-sm hover:bg-surface-subtle hover:border-line focus:ring-line-strong/70 active:bg-line-light',
+        secondary:
+            'text-content bg-surface-elevated border-line-strong shadow-sm hover:bg-surface-subtle hover:border-line focus:ring-line-strong/70 active:bg-line-light',
         danger: 'text-danger bg-transparent border-danger hover:bg-danger-surface focus:ring-danger/30',
         'danger-solid': 'text-content-inverted bg-danger border-danger hover:bg-danger focus:ring-danger/30',
         ghost: 'text-content-secondary hover:text-content hover:bg-surface-subtle focus:ring-line/70 border-transparent'
@@ -71,7 +72,8 @@ const Button = ({
             aria-busy={isLoading || undefined}
             disabled={disabled || isLoading}
             type={type}
-            {...props}>
+            {...props}
+        >
             {isLoading ? (
                 <>
                     <Loader2 aria-hidden="true" className="-ml-1 h-4 w-4 animate-spin" />

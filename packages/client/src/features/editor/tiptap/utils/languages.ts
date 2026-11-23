@@ -135,12 +135,12 @@ export const SUPPORTED_LANGUAGES: Language[] = [
 ];
 
 export function getLanguageLabel(value: string): string {
-    const language = SUPPORTED_LANGUAGES.find(lang => lang.value === value);
+    const language = SUPPORTED_LANGUAGES.find((lang) => lang.value === value);
     return language?.label || 'Plain Text';
 }
 
 export function getLanguageLoader(value: string): (() => Promise<{ default: LanguageFn }>) | null {
-    const language = SUPPORTED_LANGUAGES.find(lang => lang.value === value);
+    const language = SUPPORTED_LANGUAGES.find((lang) => lang.value === value);
     return language?.loader || null;
 }
 

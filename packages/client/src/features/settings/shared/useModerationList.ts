@@ -7,18 +7,21 @@ type SearchChanges = Record<string, string | number | undefined>;
 /** Keeps a moderation list's search, filter, and page in the URL so it survives reloads and back navigation. */
 export const useModerationSearch = () => {
     const navigate = useNavigate();
-    const search = useRouterState({ select: state => state.location.search as Record<string, unknown> });
+    const search = useRouterState({ select: (state) => state.location.search as Record<string, unknown> });
     const requestedPage = Number(search.page);
-    const updateSearch = useCallback((changes: SearchChanges, replace = false) => {
-        void navigate({
-            to: '.',
-            replace,
-            search: (current: Record<string, unknown>) => ({
-                ...current,
-                ...changes
-            })
-        } as never);
-    }, [navigate]);
+    const updateSearch = useCallback(
+        (changes: SearchChanges, replace = false) => {
+            void navigate({
+                to: '.',
+                replace,
+                search: (current: Record<string, unknown>) => ({
+                    ...current,
+                    ...changes
+                })
+            } as never);
+        },
+        [navigate]
+    );
 
     return {
         page: Number.isSafeInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1,

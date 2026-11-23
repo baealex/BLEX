@@ -1,21 +1,10 @@
 import { useState } from 'react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import {
-    BellOff,
-    ChevronRight,
-    Clock,
-    Send,
-    Settings2
-} from '~/ui/icons';
+import { BellOff, ChevronRight, Clock, Send, Settings2 } from '~/ui/icons';
 import { Button } from '~/components/shared';
 import { toast } from '~/utils/toast';
 import { SETTINGS_LIST_TITLE } from '~/styles/settingsStyles';
-import {
-    SettingsEmptyState,
-    SettingsHeader,
-    SettingsHeaderAction,
-    SettingsListItem
-} from '../../layout';
+import { SettingsEmptyState, SettingsHeader, SettingsHeaderAction, SettingsListItem } from '../../layout';
 import { markNotificationAsRead, type NotifyItem } from '~/lib/api/settings';
 import { getSafeNotificationNavigationUrl } from '../notificationNavigation';
 
@@ -25,15 +14,9 @@ interface NotificationsSectionProps {
     onOpenConfig: () => void;
 }
 
-const NotificationsSection = ({
-    notifyList,
-    showTelegramIntegration,
-    onOpenConfig
-}: NotificationsSectionProps) => {
+const NotificationsSection = ({ notifyList, showTelegramIntegration, onOpenConfig }: NotificationsSectionProps) => {
     const { t } = useLingui();
-    const [locallyReadNotificationIds, setLocallyReadNotificationIds] = useState<Set<number>>(
-        () => new Set()
-    );
+    const [locallyReadNotificationIds, setLocallyReadNotificationIds] = useState<Set<number>>(() => new Set());
     const [markingReadNotificationId, setMarkingReadNotificationId] = useState<number | null>(null);
 
     const isNotificationRead = (notify: NotifyItem) => {
@@ -52,21 +35,25 @@ const NotificationsSection = ({
                     nextNotificationIds.add(notify.id);
                     return nextNotificationIds;
                 });
-                window.dispatchEvent(new CustomEvent(
-                    'blex:notification-read',
-                    { detail: { notificationId: notify.id } }
-                ));
+                window.dispatchEvent(
+                    new CustomEvent('blex:notification-read', { detail: { notificationId: notify.id } })
+                );
             } else {
-                toast.error(data.errorMessage || t({
-                    id: 'settings.notifications.mark_read_failed',
-                    message: 'Could not mark the notification as read.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'settings.notifications.mark_read_failed',
+                            message: 'Could not mark the notification as read.'
+                        })
+                );
             }
         } catch {
-            toast.error(t({
-                id: 'settings.notifications.mark_read_failed',
-                message: 'Could not mark the notification as read.'
-            }));
+            toast.error(
+                t({
+                    id: 'settings.notifications.mark_read_failed',
+                    message: 'Could not mark the notification as read.'
+                })
+            );
         } finally {
             setMarkingReadNotificationId(null);
         }
@@ -89,7 +76,8 @@ const NotificationsSection = ({
                     <SettingsHeaderAction
                         variant="secondary"
                         leftIcon={<Settings2 aria-hidden="true" className="h-4 w-4" />}
-                        onClick={onOpenConfig}>
+                        onClick={onOpenConfig}
+                    >
                         <Trans id="settings.notifications.configure">Settings</Trans>
                     </SettingsHeaderAction>
                 }
@@ -98,13 +86,12 @@ const NotificationsSection = ({
             {showTelegramIntegration && (
                 <a
                     href="/settings/integration"
-                    className="group relative block overflow-hidden rounded-2xl bg-surface ring-1 ring-line/60 transition-all duration-200 hover:ring-line">
+                    className="group relative block overflow-hidden rounded-2xl bg-surface ring-1 ring-line/60 transition-all duration-200 hover:ring-line"
+                >
                     <div className="relative p-5 sm:p-6 flex items-center justify-between">
                         <div>
                             <h3 className="text-base font-semibold text-content mb-1.5">
-                                <Trans id="settings.notifications.telegram.title">
-                                    Connect Telegram
-                                </Trans>
+                                <Trans id="settings.notifications.telegram.title">Connect Telegram</Trans>
                             </h3>
                             <p className="text-content-secondary text-sm max-w-xl leading-relaxed">
                                 <Trans id="settings.notifications.telegram.description">
@@ -125,19 +112,14 @@ const NotificationsSection = ({
             <div className="space-y-3">
                 {notifyList.length > 0 ? (
                     notifyList.map((item) => {
-                        const targetUrl = getSafeNotificationNavigationUrl(
-                            item.url,
-                            window.location.href
-                        );
+                        const targetUrl = getSafeNotificationNavigationUrl(item.url, window.location.href);
                         const isRead = isNotificationRead(item);
 
                         return (
                             <SettingsListItem
                                 key={item.id}
                                 className="items-start"
-                                onClick={targetUrl
-                                    ? () => handleClickNotify(item, targetUrl)
-                                    : undefined}
+                                onClick={targetUrl ? () => handleClickNotify(item, targetUrl) : undefined}
                                 actions={
                                     <div className="flex-shrink-0 self-center text-content-hint">
                                         {targetUrl ? (
@@ -149,10 +131,9 @@ const NotificationsSection = ({
                                                 size="sm"
                                                 className="min-h-11! [@media(pointer:fine)]:min-h-9!"
                                                 isLoading={markingReadNotificationId === item.id}
-                                                onClick={() => markAsRead(item)}>
-                                                <Trans id="settings.notifications.mark_read">
-                                                    Mark as read
-                                                </Trans>
+                                                onClick={() => markAsRead(item)}
+                                            >
+                                                <Trans id="settings.notifications.mark_read">Mark as read</Trans>
                                             </Button>
                                         ) : (
                                             <span className="text-xs">
@@ -162,8 +143,11 @@ const NotificationsSection = ({
                                             </span>
                                         )}
                                     </div>
-                                }>
-                                <div className={`${SETTINGS_LIST_TITLE} ${!isRead ? 'font-semibold text-content' : 'font-medium text-content-secondary'} mb-1.5 leading-relaxed`}>
+                                }
+                            >
+                                <div
+                                    className={`${SETTINGS_LIST_TITLE} ${!isRead ? 'font-semibold text-content' : 'font-medium text-content-secondary'} mb-1.5 leading-relaxed`}
+                                >
                                     {item.content}
                                 </div>
                                 <div className="flex items-center gap-2 text-xs text-content-hint">

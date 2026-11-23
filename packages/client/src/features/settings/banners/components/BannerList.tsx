@@ -24,10 +24,7 @@ import { Dropdown } from '~/components/shared';
 import { SETTINGS_LIST_TITLE } from '~/styles/settingsStyles';
 import { SettingsListItem } from '../../layout';
 import type { BannerData } from '~/lib/api/settings';
-import {
-    bannerPositionMessages,
-    bannerTypeMessages
-} from '../../shared/bannerI18n';
+import { bannerPositionMessages, bannerTypeMessages } from '../../shared/bannerI18n';
 
 interface BannerListProps {
     banners: BannerData[];
@@ -46,14 +43,7 @@ interface SortableBannerItemProps {
 
 const SortableBannerItem = ({ banner, onEdit, onDelete, onToggleActive }: SortableBannerItemProps) => {
     const { i18n, t } = useLingui();
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging
-    } = useSortable({ id: banner.id });
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: banner.id });
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -89,13 +79,13 @@ const SortableBannerItem = ({ banner, onEdit, onDelete, onToggleActive }: Sortab
                             {
                                 label: banner.isActive
                                     ? t({
-                                        id: 'settings.banners.action.deactivate',
-                                        message: 'Deactivate'
-                                    })
+                                          id: 'settings.banners.action.deactivate',
+                                          message: 'Deactivate'
+                                      })
                                     : t({
-                                        id: 'settings.banners.action.activate',
-                                        message: 'Activate'
-                                    }),
+                                          id: 'settings.banners.action.activate',
+                                          message: 'Activate'
+                                      }),
                                 icon: <Power aria-hidden className="h-4 w-4" />,
                                 onClick: () => onToggleActive(banner)
                             },
@@ -118,22 +108,25 @@ const SortableBannerItem = ({ banner, onEdit, onDelete, onToggleActive }: Sortab
                             }
                         ]}
                     />
-                }>
+                }
+            >
                 <div className="space-y-2">
                     <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className={`${SETTINGS_LIST_TITLE} mb-0`}>
-                            {banner.title}
-                        </h3>
+                        <h3 className={`${SETTINGS_LIST_TITLE} mb-0`}>{banner.title}</h3>
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-subtle text-content border border-line">
                             {i18n._(bannerPositionMessages[banner.position])}
                         </span>
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-subtle text-content border border-line">
                             {i18n._(bannerTypeMessages[banner.bannerType])}
                         </span>
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${banner.isActive ? 'bg-action text-content-inverted border-line-strong' : 'bg-surface-subtle text-content-secondary border-line-light'}`}>
-                            {banner.isActive
-                                ? <Trans id="settings.banners.status.active">Active</Trans>
-                                : <Trans id="settings.banners.status.inactive">Inactive</Trans>}
+                        <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${banner.isActive ? 'bg-action text-content-inverted border-line-strong' : 'bg-surface-subtle text-content-secondary border-line-light'}`}
+                        >
+                            {banner.isActive ? (
+                                <Trans id="settings.banners.status.active">Active</Trans>
+                            ) : (
+                                <Trans id="settings.banners.status.inactive">Inactive</Trans>
+                            )}
                         </span>
                     </div>
 
@@ -146,13 +139,7 @@ const SortableBannerItem = ({ banner, onEdit, onDelete, onToggleActive }: Sortab
     );
 };
 
-export const BannerList = ({
-    banners,
-    onEdit,
-    onDelete,
-    onToggleActive,
-    onReorder
-}: BannerListProps) => {
+export const BannerList = ({ banners, onEdit, onDelete, onToggleActive, onReorder }: BannerListProps) => {
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
         useSensor(TouchSensor, {
@@ -181,10 +168,9 @@ export const BannerList = ({
             sensors={sensors}
             modifiers={[restrictToVerticalAxis, restrictToFirstScrollableAncestor]}
             collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}>
-            <SortableContext
-                items={banners.map(item => item.id)}
-                strategy={verticalListSortingStrategy}>
+            onDragEnd={handleDragEnd}
+        >
+            <SortableContext items={banners.map((item) => item.id)} strategy={verticalListSortingStrategy}>
                 <div>
                     {banners.map((banner) => (
                         <SortableBannerItem

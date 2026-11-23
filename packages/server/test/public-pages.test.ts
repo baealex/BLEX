@@ -104,14 +104,30 @@ for (let index = 1; index <= 25; index += 1) {
   const id = 100 + index;
   const published = `2019-12-${String(index).padStart(2, '0')} 00:00:00.123456`;
   const slug = `archive-post-${String(index).padStart(2, '0')}`;
-  bulkPosts.run(id, `Archive post ${index}`, slug, prismaDate(published), prismaDate(published), null, prismaDate(published));
+  bulkPosts.run(
+    id,
+    `Archive post ${index}`,
+    slug,
+    prismaDate(published),
+    prismaDate(published),
+    null,
+    prismaDate(published),
+  );
   publicContents.run(id, `<p>Archive content ${index}</p>`);
 }
 for (let index = 1; index <= 10; index += 1) {
   const id = 200 + index;
   const published = `2019-11-${String(index).padStart(2, '0')} 00:00:00.654321`;
   const slug = `series-post-${String(index).padStart(2, '0')}`;
-  bulkPosts.run(id, `Series post ${index}`, slug, prismaDate(published), prismaDate(published), 1, prismaDate(published));
+  bulkPosts.run(
+    id,
+    `Series post ${index}`,
+    slug,
+    prismaDate(published),
+    prismaDate(published),
+    1,
+    prismaDate(published),
+  );
   publicContents.run(id, `<p>Series content ${index}</p>`);
 }
 database.close();
@@ -154,7 +170,10 @@ test('renders the public home, tag cloud, and tag posts from visible published r
 
   const headers = { 'x-test-user': 'reader', cookie: `csrftoken=${'a'.repeat(43)}` };
   const signedIn = await app.inject({ url: '/', headers });
-  assert.match(signedIn.body, /action="\/like\/public-new".*?aria-label="좋아요 취소 \(1\)" aria-pressed="true"><svg[^>]*tabler-icon-heart[^>]*>.*?<\/svg><span>1<\/span>/);
+  assert.match(
+    signedIn.body,
+    /action="\/like\/public-new".*?aria-label="좋아요 취소 \(1\)" aria-pressed="true"><svg[^>]*tabler-icon-heart[^>]*>.*?<\/svg><span>1<\/span>/,
+  );
   assert.equal(signedIn.headers['cache-control'], 'private, no-store');
   const interests = await app.inject({ url: '/interests', headers });
   assert.match(interests.body, /Public new article/);
@@ -258,7 +277,8 @@ test('renders scoped author notices, safe links, and subscription state', async 
   assert.doesNotMatch(anonymous.body, /로그인하고 새 글 구독/);
 
   const token = 'a'.repeat(43);
-  const reader = await app.inject({ url: '/@writer',
+  const reader = await app.inject({
+    url: '/@writer',
     headers: { 'x-test-user': 'reader', cookie: `csrftoken=${token}` },
   });
   assert.equal(reader.statusCode, 200, reader.body);
@@ -331,7 +351,10 @@ test('lists only public series and renders public series detail in the selected 
   assert.match(detail.body, /최신순/);
   const ascendingSecondPage = await app.inject('/@writer/series/public-series?sort=asc&page=2');
   assert.equal(ascendingSecondPage.statusCode, 200, ascendingSecondPage.body);
-  assert.match(ascendingSecondPage.body, /rel="canonical" href="https:\/\/blog\.example\/@writer\/series\/public-series\?sort=asc&amp;page=2"/);
+  assert.match(
+    ascendingSecondPage.body,
+    /rel="canonical" href="https:\/\/blog\.example\/@writer\/series\/public-series\?sort=asc&amp;page=2"/,
+  );
   assert.match(ascendingSecondPage.body, /rel="prev"/);
   const oldSeriesAlias = await app.inject('/@old-writer/series/public-series');
   assert.equal(oldSeriesAlias.statusCode, 302);

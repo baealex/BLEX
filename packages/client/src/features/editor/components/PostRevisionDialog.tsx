@@ -3,21 +3,8 @@ import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { Button } from '~/ui/button';
 import { Dialog } from '~/ui/dialog';
 import { IconButton } from '~/ui/icon-button';
-import {
-    AlertTriangle,
-    ArrowLeft,
-    ChevronRight,
-    Clock,
-    History,
-    Loader2,
-    RotateCcw,
-    Trash2,
-    X
-} from '~/ui/icons';
-import {
-    DIM_OVERLAY_DEFAULT,
-    ENTRANCE_DURATION
-} from '~/ui/design-tokens';
+import { AlertTriangle, ArrowLeft, ChevronRight, Clock, History, Loader2, RotateCcw, Trash2, X } from '~/ui/icons';
+import { DIM_OVERLAY_DEFAULT, ENTRANCE_DURATION } from '~/ui/design-tokens';
 import { cx } from '~/lib/classnames';
 import { normalizeLocale } from '~/i18n/locale';
 import { formatDateTime } from '~/i18n/formatters';
@@ -93,41 +80,49 @@ const PostRevisionDialog = ({
         setIsConfirmingDelete(false);
     }, []);
 
-    const loadDetail = useCallback(async (revisionId: number) => {
-        const requestId = detailRequestIdRef.current + 1;
-        detailRequestIdRef.current = requestId;
-        setSelectedRevisionId(revisionId);
-        setSelectedRevision(null);
-        setIsConfirmingRestore(false);
-        setIsConfirmingDelete(false);
-        setIsLoadingDetail(true);
+    const loadDetail = useCallback(
+        async (revisionId: number) => {
+            const requestId = detailRequestIdRef.current + 1;
+            detailRequestIdRef.current = requestId;
+            setSelectedRevisionId(revisionId);
+            setSelectedRevision(null);
+            setIsConfirmingRestore(false);
+            setIsConfirmingDelete(false);
+            setIsLoadingDetail(true);
 
-        try {
-            const { data } = await getPostRevision(username, postUrl, revisionId);
-            if (detailRequestIdRef.current !== requestId) return;
-            if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || t({
-                    id: 'editor.revisions.error.load_detail',
-                    message: 'Could not load the revision.'
-                }));
-                handleBackToList();
-                return;
+            try {
+                const { data } = await getPostRevision(username, postUrl, revisionId);
+                if (detailRequestIdRef.current !== requestId) return;
+                if (data.status === 'ERROR') {
+                    toast.error(
+                        data.errorMessage ||
+                            t({
+                                id: 'editor.revisions.error.load_detail',
+                                message: 'Could not load the revision.'
+                            })
+                    );
+                    handleBackToList();
+                    return;
+                }
+                setSelectedRevision(data.body.revision);
+            } catch {
+                if (detailRequestIdRef.current === requestId) {
+                    toast.error(
+                        t({
+                            id: 'editor.revisions.error.load_detail',
+                            message: 'Could not load the revision.'
+                        })
+                    );
+                    handleBackToList();
+                }
+            } finally {
+                if (detailRequestIdRef.current === requestId) {
+                    setIsLoadingDetail(false);
+                }
             }
-            setSelectedRevision(data.body.revision);
-        } catch {
-            if (detailRequestIdRef.current === requestId) {
-                toast.error(t({
-                    id: 'editor.revisions.error.load_detail',
-                    message: 'Could not load the revision.'
-                }));
-                handleBackToList();
-            }
-        } finally {
-            if (detailRequestIdRef.current === requestId) {
-                setIsLoadingDetail(false);
-            }
-        }
-    }, [username, postUrl, handleBackToList, t]);
+        },
+        [username, postUrl, handleBackToList, t]
+    );
 
     const loadFirstPage = useCallback(async () => {
         setIsLoading(true);
@@ -142,10 +137,13 @@ const PostRevisionDialog = ({
         try {
             const { data } = await getPostRevisions(username, postUrl);
             if (data.status === 'ERROR') {
-                setErrorMessage(data.errorMessage || t({
-                    id: 'editor.revisions.error.load_list',
-                    message: 'Could not load revision history.'
-                }));
+                setErrorMessage(
+                    data.errorMessage ||
+                        t({
+                            id: 'editor.revisions.error.load_list',
+                            message: 'Could not load revision history.'
+                        })
+                );
                 return;
             }
 
@@ -155,10 +153,12 @@ const PostRevisionDialog = ({
             setTotalCount(data.body.pagination.totalCount);
             setServerUpdatedDate(data.body.currentUpdatedDate);
         } catch {
-            setErrorMessage(t({
-                id: 'editor.revisions.error.load_list',
-                message: 'Could not load revision history.'
-            }));
+            setErrorMessage(
+                t({
+                    id: 'editor.revisions.error.load_list',
+                    message: 'Could not load revision history.'
+                })
+            );
         } finally {
             setIsLoading(false);
         }
@@ -180,31 +180,34 @@ const PostRevisionDialog = ({
         try {
             const { data } = await getPostRevisions(username, postUrl, currentPage + 1);
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || t({
-                    id: 'editor.revisions.error.load_more',
-                    message: 'Could not load more revision history.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'editor.revisions.error.load_more',
+                            message: 'Could not load more revision history.'
+                        })
+                );
                 return;
             }
-            setRevisions(current => [...current, ...data.body.revisions]);
+            setRevisions((current) => [...current, ...data.body.revisions]);
             setCurrentPage(data.body.pagination.page);
             setLastPage(data.body.pagination.lastPage);
             setTotalCount(data.body.pagination.totalCount);
             setServerUpdatedDate(data.body.currentUpdatedDate);
         } catch {
-            toast.error(t({
-                id: 'editor.revisions.error.load_more',
-                message: 'Could not load more revision history.'
-            }));
+            toast.error(
+                t({
+                    id: 'editor.revisions.error.load_more',
+                    message: 'Could not load more revision history.'
+                })
+            );
         } finally {
             setIsLoadingMore(false);
         }
     };
 
     const hasVersionConflict = Boolean(
-        serverUpdatedDate
-        && expectedUpdatedDate
-        && serverUpdatedDate !== expectedUpdatedDate
+        serverUpdatedDate && expectedUpdatedDate && serverUpdatedDate !== expectedUpdatedDate
     );
 
     const handleDelete = async () => {
@@ -212,29 +215,32 @@ const PostRevisionDialog = ({
 
         setIsDeleting(true);
         try {
-            const { data } = await deletePostRevision(
-                username,
-                postUrl,
-                selectedRevision.id
-            );
+            const { data } = await deletePostRevision(username, postUrl, selectedRevision.id);
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || t({
-                    id: 'editor.revisions.error.delete',
-                    message: 'Could not delete the revision.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'editor.revisions.error.delete',
+                            message: 'Could not delete the revision.'
+                        })
+                );
                 return;
             }
 
-            toast.success(t({
-                id: 'editor.revisions.success.deleted',
-                message: 'Revision deleted.'
-            }));
+            toast.success(
+                t({
+                    id: 'editor.revisions.success.deleted',
+                    message: 'Revision deleted.'
+                })
+            );
             await loadFirstPage();
         } catch {
-            toast.error(t({
-                id: 'editor.revisions.error.delete',
-                message: 'Could not delete the revision.'
-            }));
+            toast.error(
+                t({
+                    id: 'editor.revisions.error.delete',
+                    message: 'Could not delete the revision.'
+                })
+            );
         } finally {
             setIsDeleting(false);
         }
@@ -245,38 +251,42 @@ const PostRevisionDialog = ({
 
         setIsRestoring(true);
         try {
-            const { data } = await restorePostRevision(
-                username,
-                postUrl,
-                selectedRevision.id,
-                expectedUpdatedDate
-            );
+            const { data } = await restorePostRevision(username, postUrl, selectedRevision.id, expectedUpdatedDate);
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || t({
-                    id: 'editor.revisions.error.restore',
-                    message: 'Could not restore the revision.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'editor.revisions.error.restore',
+                            message: 'Could not restore the revision.'
+                        })
+                );
                 return;
             }
             if (!data.body.restored) {
-                toast.info(t({
-                    id: 'editor.revisions.info.already_current',
-                    message: 'The current post already matches this revision.'
-                }));
+                toast.info(
+                    t({
+                        id: 'editor.revisions.info.already_current',
+                        message: 'The current post already matches this revision.'
+                    })
+                );
                 setIsConfirmingRestore(false);
                 return;
             }
 
-            toast.success(t({
-                id: 'editor.revisions.success.restored',
-                message: 'Revision restored.'
-            }));
+            toast.success(
+                t({
+                    id: 'editor.revisions.success.restored',
+                    message: 'Revision restored.'
+                })
+            );
             onRestored();
         } catch {
-            toast.error(t({
-                id: 'editor.revisions.error.restore',
-                message: 'Could not restore the revision.'
-            }));
+            toast.error(
+                t({
+                    id: 'editor.revisions.error.restore',
+                    message: 'Could not restore the revision.'
+                })
+            );
         } finally {
             setIsRestoring(false);
         }
@@ -303,7 +313,8 @@ const PostRevisionDialog = ({
                         'data-[state=open]:animate-in data-[state=closed]:animate-out',
                         'data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left',
                         `${ENTRANCE_DURATION} ease-in-out`
-                    )}>
+                    )}
+                >
                     <header className="flex items-start justify-between gap-3 border-b border-line bg-surface-elevated p-5">
                         <div className="flex min-w-0 items-start gap-2">
                             {isDetailView && (
@@ -317,7 +328,8 @@ const PostRevisionDialog = ({
                                         id: 'editor.revisions.back_to_list',
                                         message: 'Back to revision history'
                                     })}
-                                    onClick={handleBackToList}>
+                                    onClick={handleBackToList}
+                                >
                                     <ArrowLeft className="h-5 w-5" />
                                 </IconButton>
                             )}
@@ -357,7 +369,8 @@ const PostRevisionDialog = ({
                                 id: 'editor.revisions.close',
                                 message: 'Close revision history'
                             })}
-                            onClick={onClose}>
+                            onClick={onClose}
+                        >
                             <X className="h-5 w-5" />
                         </IconButton>
                     </header>
@@ -398,37 +411,44 @@ const PostRevisionDialog = ({
                                         aria-label={t({
                                             id: 'editor.revisions.list_aria_label',
                                             message: 'Revisions'
-                                        })}>
-                                        {revisions.map(revision => (
+                                        })}
+                                    >
+                                        {revisions.map((revision) => (
                                             <li key={revision.id}>
                                                 <button
                                                     type="button"
                                                     onClick={() => void loadDetail(revision.id)}
-                                                    className="flex min-h-24 w-full items-center gap-3 px-4 py-4 text-left transition-colors hover:bg-surface-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-action/30">
+                                                    className="flex min-h-24 w-full items-center gap-3 px-4 py-4 text-left transition-colors hover:bg-surface-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-action/30"
+                                                >
                                                     <div className="min-w-0 flex-1">
                                                         <div className="flex items-center gap-2">
                                                             <span className="min-w-0 truncate text-sm font-semibold text-content">
-                                                                {revision.title || t({
-                                                                    id: 'editor.common.untitled',
-                                                                    message: 'Untitled'
-                                                                })}
+                                                                {revision.title ||
+                                                                    t({
+                                                                        id: 'editor.common.untitled',
+                                                                        message: 'Untitled'
+                                                                    })}
                                                             </span>
                                                             <span className="shrink-0 rounded-full bg-line-light px-2 py-0.5 text-[11px] font-medium text-content-secondary">
                                                                 {changeTypeLabels[revision.changeType]}
                                                             </span>
                                                         </div>
                                                         <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-content-secondary">
-                                                            {revision.contentExcerpt || t({
-                                                                id: 'editor.revisions.no_content_preview',
-                                                                message: 'No content preview'
-                                                            })}
+                                                            {revision.contentExcerpt ||
+                                                                t({
+                                                                    id: 'editor.revisions.no_content_preview',
+                                                                    message: 'No content preview'
+                                                                })}
                                                         </p>
                                                         <span className="mt-2 flex items-center gap-1 text-[11px] text-content-hint">
                                                             <Clock className="h-3 w-3" aria-hidden="true" />
                                                             {formatRevisionDate(revision.createdDate)}
                                                         </span>
                                                     </div>
-                                                    <ChevronRight aria-hidden="true" className="h-4 w-4 shrink-0 text-content-hint" />
+                                                    <ChevronRight
+                                                        aria-hidden="true"
+                                                        className="h-4 w-4 shrink-0 text-content-hint"
+                                                    />
                                                 </button>
                                             </li>
                                         ))}
@@ -443,7 +463,8 @@ const PostRevisionDialog = ({
                                         variant="ghost"
                                         fullWidth
                                         isLoading={isLoadingMore}
-                                        onClick={() => void handleLoadMore()}>
+                                        onClick={() => void handleLoadMore()}
+                                    >
                                         <Trans id="common.load_more">Load more</Trans>
                                     </Button>
                                 )}
@@ -451,7 +472,8 @@ const PostRevisionDialog = ({
                                     className={cx(
                                         'text-center text-xs text-content-secondary',
                                         currentPage < lastPage && 'mt-2'
-                                    )}>
+                                    )}
+                                >
                                     <Plural
                                         id="editor.revisions.total"
                                         value={totalCount}
@@ -475,13 +497,15 @@ const PostRevisionDialog = ({
                                     <article>
                                         <div className="border-b border-line pb-4">
                                             <p className="text-xs text-content-hint">
-                                                {formatRevisionDate(selectedRevision.createdDate)} · {changeTypeLabels[selectedRevision.changeType]}
+                                                {formatRevisionDate(selectedRevision.createdDate)} ·{' '}
+                                                {changeTypeLabels[selectedRevision.changeType]}
                                             </p>
                                             <h3 className="mt-2 break-words text-xl font-bold text-content">
-                                                {selectedRevision.title || t({
-                                                    id: 'editor.common.untitled',
-                                                    message: 'Untitled'
-                                                })}
+                                                {selectedRevision.title ||
+                                                    t({
+                                                        id: 'editor.common.untitled',
+                                                        message: 'Untitled'
+                                                    })}
                                             </h3>
                                             {selectedRevision.subtitle && (
                                                 <p className="mt-2 break-words text-sm text-content-secondary">
@@ -494,11 +518,13 @@ const PostRevisionDialog = ({
                                                     aria-label={t({
                                                         id: 'editor.revisions.tags_aria_label',
                                                         message: 'Revision tags'
-                                                    })}>
-                                                    {selectedRevision.tags.map(tag => (
+                                                    })}
+                                                >
+                                                    {selectedRevision.tags.map((tag) => (
                                                         <span
                                                             key={tag}
-                                                            className="rounded-full bg-surface-subtle px-2.5 py-1 text-xs text-content-secondary">
+                                                            className="rounded-full bg-surface-subtle px-2.5 py-1 text-xs text-content-secondary"
+                                                        >
                                                             #{tag}
                                                         </span>
                                                     ))}
@@ -522,10 +548,11 @@ const PostRevisionDialog = ({
                                                 <Trans id="editor.fields.content">Content</Trans>
                                             </h4>
                                             <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-7 text-content">
-                                                {selectedRevision.contentText || t({
-                                                    id: 'editor.revisions.no_content',
-                                                    message: 'No content in this revision.'
-                                                })}
+                                                {selectedRevision.contentText ||
+                                                    t({
+                                                        id: 'editor.revisions.no_content',
+                                                        message: 'No content in this revision.'
+                                                    })}
                                             </p>
                                         </section>
 
@@ -534,7 +561,8 @@ const PostRevisionDialog = ({
                                                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
                                                 <p>
                                                     <Trans id="editor.revisions.legacy_read_only">
-                                                        Legacy revisions are read-only because their original format cannot be verified.
+                                                        Legacy revisions are read-only because their original format
+                                                        cannot be verified.
                                                     </Trans>
                                                 </p>
                                             </div>
@@ -546,11 +574,15 @@ const PostRevisionDialog = ({
                             {selectedRevision && (
                                 <footer className="border-t border-line bg-surface-elevated p-4">
                                     {hasVersionConflict && (
-                                        <div className="mb-3 flex gap-2 rounded-xl border border-danger/30 bg-danger-surface p-3 text-sm text-danger" role="alert">
+                                        <div
+                                            className="mb-3 flex gap-2 rounded-xl border border-danger/30 bg-danger-surface p-3 text-sm text-danger"
+                                            role="alert"
+                                        >
                                             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
                                             <p>
                                                 <Trans id="editor.revisions.version_conflict">
-                                                    The post changed after you opened this page. Refresh before restoring.
+                                                    The post changed after you opened this page. Refresh before
+                                                    restoring.
                                                 </Trans>
                                             </p>
                                         </div>
@@ -559,15 +591,19 @@ const PostRevisionDialog = ({
                                         <div className="mb-3 rounded-xl border border-danger/30 bg-danger-surface p-3 text-sm leading-relaxed text-danger">
                                             <strong>
                                                 <Trans id="editor.revisions.confirm_delete_title">
-                                                    Delete the revision “{selectedRevision.title || t({
-                                                        id: 'editor.common.untitled',
-                                                        message: 'Untitled'
-                                                    })}”?
+                                                    Delete the revision “
+                                                    {selectedRevision.title ||
+                                                        t({
+                                                            id: 'editor.common.untitled',
+                                                            message: 'Untitled'
+                                                        })}
+                                                    ”?
                                                 </Trans>
                                             </strong>
                                             <p className="mt-1">
                                                 <Trans id="editor.revisions.confirm_delete_description">
-                                                    Deleted revisions cannot be recovered. The current post will not change.
+                                                    Deleted revisions cannot be recovered. The current post will not
+                                                    change.
                                                 </Trans>
                                             </p>
                                         </div>
@@ -576,15 +612,19 @@ const PostRevisionDialog = ({
                                         <div className="mb-3 rounded-xl border border-line bg-surface-subtle p-3 text-sm leading-relaxed text-content-secondary">
                                             <strong className="text-content">
                                                 <Trans id="editor.revisions.confirm_restore_title">
-                                                    Restore the revision “{selectedRevision.title || t({
-                                                        id: 'editor.common.untitled',
-                                                        message: 'Untitled'
-                                                    })}”?
+                                                    Restore the revision “
+                                                    {selectedRevision.title ||
+                                                        t({
+                                                            id: 'editor.common.untitled',
+                                                            message: 'Untitled'
+                                                        })}
+                                                    ”?
                                                 </Trans>
                                             </strong>
                                             <p className="mt-1">
                                                 <Trans id="editor.revisions.confirm_restore_description">
-                                                    The current content will be saved as a revision first. The URL, publication, visibility, and comment settings will not change.
+                                                    The current content will be saved as a revision first. The URL,
+                                                    publication, visibility, and comment settings will not change.
                                                 </Trans>
                                             </p>
                                         </div>
@@ -596,7 +636,8 @@ const PostRevisionDialog = ({
                                                     variant="secondary"
                                                     size="md"
                                                     disabled={isDeleting}
-                                                    onClick={() => setIsConfirmingDelete(false)}>
+                                                    onClick={() => setIsConfirmingDelete(false)}
+                                                >
                                                     <Trans id="common.cancel">Cancel</Trans>
                                                 </Button>
                                                 <Button
@@ -604,7 +645,8 @@ const PostRevisionDialog = ({
                                                     size="md"
                                                     isLoading={isDeleting}
                                                     leftIcon={<Trash2 className="h-4 w-4" />}
-                                                    onClick={() => void handleDelete()}>
+                                                    onClick={() => void handleDelete()}
+                                                >
                                                     <Trans id="common.delete">Delete</Trans>
                                                 </Button>
                                             </>
@@ -614,7 +656,8 @@ const PostRevisionDialog = ({
                                                     variant="secondary"
                                                     size="md"
                                                     disabled={isRestoring}
-                                                    onClick={() => setIsConfirmingRestore(false)}>
+                                                    onClick={() => setIsConfirmingRestore(false)}
+                                                >
                                                     <Trans id="common.cancel">Cancel</Trans>
                                                 </Button>
                                                 <Button
@@ -622,7 +665,8 @@ const PostRevisionDialog = ({
                                                     isLoading={isRestoring}
                                                     disabled={!selectedRevision.canRestore || hasVersionConflict}
                                                     leftIcon={<RotateCcw className="h-4 w-4" />}
-                                                    onClick={() => void handleRestore()}>
+                                                    onClick={() => void handleRestore()}
+                                                >
                                                     <Trans id="editor.revisions.restore">Restore</Trans>
                                                 </Button>
                                             </>
@@ -635,7 +679,8 @@ const PostRevisionDialog = ({
                                                     onClick={() => {
                                                         setIsConfirmingRestore(false);
                                                         setIsConfirmingDelete(true);
-                                                    }}>
+                                                    }}
+                                                >
                                                     <Trans id="common.delete">Delete</Trans>
                                                 </Button>
                                                 <Button
@@ -645,8 +690,11 @@ const PostRevisionDialog = ({
                                                     onClick={() => {
                                                         setIsConfirmingDelete(false);
                                                         setIsConfirmingRestore(true);
-                                                    }}>
-                                                    <Trans id="editor.revisions.restore_this">Restore this revision</Trans>
+                                                    }}
+                                                >
+                                                    <Trans id="editor.revisions.restore_this">
+                                                        Restore this revision
+                                                    </Trans>
                                                 </Button>
                                             </>
                                         )}

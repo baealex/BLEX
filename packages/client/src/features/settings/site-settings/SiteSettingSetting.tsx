@@ -1,22 +1,8 @@
-import {
-    type ChangeEvent,
-    type FormEvent,
-    useEffect,
-    useRef,
-    useState
-} from 'react';
+import { type ChangeEvent, type FormEvent, useEffect, useRef, useState } from 'react';
 import { useLingui } from '@lingui/react/macro';
 import { toast } from '~/utils/toast';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
-import {
-    AlertTriangle,
-    Check,
-    ChevronDown,
-    Code2,
-    Image,
-    Palette,
-    Upload
-} from '~/ui/icons';
+import { AlertTriangle, Check, ChevronDown, Code2, Image, Palette, Upload } from '~/ui/icons';
 import { SettingsHeader } from '../layout';
 import { Button, Card, Input } from '~/components/shared';
 import { CodeEditor } from '~/components/CodeEditor';
@@ -122,29 +108,17 @@ const getEditableSiteSettings = (data: SiteSettingData): EditableSiteSettings =>
 const hasSiteSettingsChanged = (current: EditableSiteSettings, saved: EditableSiteSettings | null) => {
     if (!saved) return false;
 
-    return Object.keys(current).some((key) => (
-        current[key as keyof EditableSiteSettings] !== saved[key as keyof EditableSiteSettings]
-    ));
+    return Object.keys(current).some(
+        (key) => current[key as keyof EditableSiteSettings] !== saved[key as keyof EditableSiteSettings]
+    );
 };
 
-const AssetUploadButton = ({
-    label,
-    loadingLabel,
-    disabled,
-    isLoading,
-    onUpload
-}: AssetUploadButtonProps) => {
+const AssetUploadButton = ({ label, loadingLabel, disabled, isLoading, onUpload }: AssetUploadButtonProps) => {
     const inputRef = useRef<HTMLInputElement>(null);
 
     return (
         <>
-            <input
-                ref={inputRef}
-                type="file"
-                accept=".svg,image/svg+xml"
-                className="hidden"
-                onChange={onUpload}
-            />
+            <input ref={inputRef} type="file" accept=".svg,image/svg+xml" className="hidden" onChange={onUpload} />
             <Button
                 density="compact"
                 variant="secondary"
@@ -153,7 +127,8 @@ const AssetUploadButton = ({
                 disabled={disabled}
                 isLoading={isLoading}
                 leftIcon={!isLoading ? <Upload aria-hidden="true" className="h-3.5 w-3.5" /> : undefined}
-                onClick={() => inputRef.current?.click()}>
+                onClick={() => inputRef.current?.click()}
+            >
                 {isLoading ? loadingLabel : label}
             </Button>
         </>
@@ -182,18 +157,19 @@ const BrandAssetSlot = ({
                 <div className="text-[11px] font-medium text-content-hint">
                     {hasAsset
                         ? t({
-                            id: 'settings.site.brand.status.custom',
-                            message: 'Custom'
-                        })
+                              id: 'settings.site.brand.status.custom',
+                              message: 'Custom'
+                          })
                         : t({
-                            id: 'settings.site.brand.status.default',
-                            message: 'Default'
-                        })}
+                              id: 'settings.site.brand.status.default',
+                              message: 'Default'
+                          })}
                 </div>
             </div>
             <div
                 data-theme={dark ? 'dark' : 'light'}
-                className="flex h-24 items-center justify-center rounded-xl bg-surface p-4">
+                className="flex h-24 items-center justify-center rounded-xl bg-surface p-4"
+            >
                 <img
                     src={url}
                     alt=""
@@ -222,16 +198,17 @@ const BrandAssetSlot = ({
                         disabled={deleteDisabled}
                         isLoading={isDeleting}
                         className="h-11 flex-1 [@media(pointer:fine)]:h-9 sm:flex-none"
-                        onClick={onDelete}>
+                        onClick={onDelete}
+                    >
                         {isDeleting
                             ? t({
-                                id: 'common.deleting',
-                                message: 'Deleting...'
-                            })
+                                  id: 'common.deleting',
+                                  message: 'Deleting...'
+                              })
                             : t({
-                                id: 'common.delete',
-                                message: 'Delete'
-                            })}
+                                  id: 'common.delete',
+                                  message: 'Delete'
+                              })}
                     </Button>
                 )}
             </div>
@@ -262,9 +239,14 @@ const BrandAssetPanel = ({
             title={title}
             subtitle={description}
             headingLevel={3}
-            icon={assetType === 'logo'
-                ? <Image aria-hidden="true" className="h-4 w-4" />
-                : <Palette aria-hidden="true" className="h-4 w-4" />}>
+            icon={
+                assetType === 'logo' ? (
+                    <Image aria-hidden="true" className="h-4 w-4" />
+                ) : (
+                    <Palette aria-hidden="true" className="h-4 w-4" />
+                )
+            }
+        >
             <div className="grid gap-3 sm:grid-cols-2">
                 <BrandAssetSlot
                     label={t({
@@ -319,10 +301,12 @@ const SiteSettingSetting = () => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error(t({
-                id: 'settings.site.load_error',
-                message: 'Failed to load site settings.'
-            }));
+            throw new Error(
+                t({
+                    id: 'settings.site.load_error',
+                    message: 'Failed to load site settings.'
+                })
+            );
         }
     });
 
@@ -348,10 +332,13 @@ const SiteSettingSetting = () => {
     const updateMutation = useMutation({
         mutationFn: async (data: SiteSettingUpdateData) => {
             const response = await updateSiteSettings(data);
-            return assertDone(response, t({
-                id: 'settings.site.save_error',
-                message: 'Failed to save site settings.'
-            }));
+            return assertDone(
+                response,
+                t({
+                    id: 'settings.site.save_error',
+                    message: 'Failed to save site settings.'
+                })
+            );
         },
         onSuccess: (body: SiteSettingData) => {
             const editableSettings = getEditableSiteSettings(body);
@@ -361,44 +348,61 @@ const SiteSettingSetting = () => {
             savedSettingsRef.current = editableSettings;
             syncSettingsDocumentTitle(body.siteName, settingsDocumentTitle);
             void queryClient.invalidateQueries({ queryKey: ['site-settings'] });
-            toast.success(t({
-                id: 'settings.site.save_success',
-                message: 'Site settings saved.'
-            }));
+            toast.success(
+                t({
+                    id: 'settings.site.save_success',
+                    message: 'Site settings saved.'
+                })
+            );
         },
         onError: (error) => {
-            toast.error(getErrorMessage(error, t({
-                id: 'settings.site.save_error',
-                message: 'Failed to save site settings.'
-            })));
+            toast.error(
+                getErrorMessage(
+                    error,
+                    t({
+                        id: 'settings.site.save_error',
+                        message: 'Failed to save site settings.'
+                    })
+                )
+            );
         }
     });
 
     const uploadMutation = useMutation({
         mutationFn: async ({ assetType, theme, file }: BrandAssetUploadPayload) => {
-            const formData = assetType === 'icon' && theme === 'default'
-                ? await createIconBrandAssetFormData(file)
-                : createSvgBrandAssetFormData(assetType, theme, file);
+            const formData =
+                assetType === 'icon' && theme === 'default'
+                    ? await createIconBrandAssetFormData(file)
+                    : createSvgBrandAssetFormData(assetType, theme, file);
             const response = await uploadBrandAsset(formData);
-            return assertDone(response, t({
-                id: 'settings.site.brand.save_error',
-                message: 'Failed to save the brand asset.'
-            }));
+            return assertDone(
+                response,
+                t({
+                    id: 'settings.site.brand.save_error',
+                    message: 'Failed to save the brand asset.'
+                })
+            );
         },
         onSuccess: () => {
             void queryClient.invalidateQueries({ queryKey: ['site-settings'] });
-            toast.success(t({
-                id: 'settings.site.brand.save_success',
-                message: 'Brand asset saved.'
-            }));
+            toast.success(
+                t({
+                    id: 'settings.site.brand.save_success',
+                    message: 'Brand asset saved.'
+                })
+            );
         },
         onError: (error) => {
-            const message = error instanceof BrandAssetGenerationError
-                ? i18n._(getBrandAssetGenerationErrorMessage(error))
-                : getErrorMessage(error, t({
-                    id: 'settings.site.brand.save_error',
-                    message: 'Failed to save the brand asset.'
-                }));
+            const message =
+                error instanceof BrandAssetGenerationError
+                    ? i18n._(getBrandAssetGenerationErrorMessage(error))
+                    : getErrorMessage(
+                          error,
+                          t({
+                              id: 'settings.site.brand.save_error',
+                              message: 'Failed to save the brand asset.'
+                          })
+                      );
             toast.error(message);
         }
     });
@@ -406,23 +410,33 @@ const SiteSettingSetting = () => {
     const deleteMutation = useMutation({
         mutationFn: async ({ assetType, theme }: BrandAssetDeletePayload) => {
             const response = await deleteBrandAsset(assetType, theme);
-            return assertDone(response, t({
-                id: 'settings.site.brand.delete_error',
-                message: 'Failed to delete the brand asset.'
-            }));
+            return assertDone(
+                response,
+                t({
+                    id: 'settings.site.brand.delete_error',
+                    message: 'Failed to delete the brand asset.'
+                })
+            );
         },
         onSuccess: () => {
             void queryClient.invalidateQueries({ queryKey: ['site-settings'] });
-            toast.success(t({
-                id: 'settings.site.brand.delete_success',
-                message: 'Brand asset deleted.'
-            }));
+            toast.success(
+                t({
+                    id: 'settings.site.brand.delete_success',
+                    message: 'Brand asset deleted.'
+                })
+            );
         },
         onError: (error) => {
-            toast.error(getErrorMessage(error, t({
-                id: 'settings.site.brand.delete_error',
-                message: 'Failed to delete the brand asset.'
-            })));
+            toast.error(
+                getErrorMessage(
+                    error,
+                    t({
+                        id: 'settings.site.brand.delete_error',
+                        message: 'Failed to delete the brand asset.'
+                    })
+                )
+            );
         }
     });
 
@@ -432,61 +446,59 @@ const SiteSettingSetting = () => {
             siteName,
             ...(settingData.canManageScripts
                 ? {
-                    headerScript,
-                    footerScript
-                }
+                      headerScript,
+                      footerScript
+                  }
                 : {})
         });
     };
 
-    const handleBrandAssetUpload = (assetType: BrandAssetType, theme: BrandAssetTheme) => (
-        event: ChangeEvent<HTMLInputElement>
-    ) => {
-        const file = event.target.files?.[0];
-        event.target.value = '';
-        if (!file) {
-            return;
-        }
-        uploadMutation.mutate({
-            assetType,
-            theme,
-            file
-        });
-    };
+    const handleBrandAssetUpload =
+        (assetType: BrandAssetType, theme: BrandAssetTheme) => (event: ChangeEvent<HTMLInputElement>) => {
+            const file = event.target.files?.[0];
+            event.target.value = '';
+            if (!file) {
+                return;
+            }
+            uploadMutation.mutate({
+                assetType,
+                theme,
+                file
+            });
+        };
 
     const handleBrandAssetDelete = async (assetType: BrandAssetType, theme: BrandAssetTheme) => {
-        const title = theme === 'default'
-            ? (
-                assetType === 'icon'
+        const title =
+            theme === 'default'
+                ? assetType === 'icon'
                     ? t({
-                        id: 'settings.site.brand.delete.default_icon.title',
-                        message: 'Delete default icon'
-                    })
+                          id: 'settings.site.brand.delete.default_icon.title',
+                          message: 'Delete default icon'
+                      })
                     : t({
-                        id: 'settings.site.brand.delete.default_logo.title',
-                        message: 'Delete default logo'
-                    })
-            )
-            : t({
-                id: 'settings.site.brand.delete.dark.title',
-                message: 'Delete dark mode asset'
-            });
-        const message = theme === 'default'
-            ? (
-                assetType === 'icon'
+                          id: 'settings.site.brand.delete.default_logo.title',
+                          message: 'Delete default logo'
+                      })
+                : t({
+                      id: 'settings.site.brand.delete.dark.title',
+                      message: 'Delete dark mode asset'
+                  });
+        const message =
+            theme === 'default'
+                ? assetType === 'icon'
                     ? t({
-                        id: 'settings.site.brand.delete.default_icon.message',
-                        message: 'Deleting the default icon also deletes the dark icon, favicon, and PNG icons. Continue?'
-                    })
+                          id: 'settings.site.brand.delete.default_icon.message',
+                          message:
+                              'Deleting the default icon also deletes the dark icon, favicon, and PNG icons. Continue?'
+                      })
                     : t({
-                        id: 'settings.site.brand.delete.default_logo.message',
-                        message: 'Deleting the default logo also deletes the dark mode logo. Continue?'
-                    })
-            )
-            : t({
-                id: 'settings.site.brand.delete.dark.message',
-                message: 'Delete this dark mode asset?'
-            });
+                          id: 'settings.site.brand.delete.default_logo.message',
+                          message: 'Deleting the default logo also deletes the dark mode logo. Continue?'
+                      })
+                : t({
+                      id: 'settings.site.brand.delete.dark.message',
+                      message: 'Delete this dark mode asset?'
+                  });
         const confirmed = await confirm({
             title,
             message,
@@ -515,22 +527,22 @@ const SiteSettingSetting = () => {
         footerScript
     };
     const isDirty = hasSiteSettingsChanged(currentSettings, savedSettingsRef.current);
-    const isGlobalCodeDirty = savedSettingsRef.current !== null && (
-        headerScript !== savedSettingsRef.current.headerScript
-        || footerScript !== savedSettingsRef.current.footerScript
-    );
+    const isGlobalCodeDirty =
+        savedSettingsRef.current !== null &&
+        (headerScript !== savedSettingsRef.current.headerScript ||
+            footerScript !== savedSettingsRef.current.footerScript);
     const hasGlobalCode = Boolean(headerScript.trim() || footerScript.trim());
     const globalCodeStatus = isGlobalCodeDirty
         ? t({
-            id: 'settings.site.global_code.status.unsaved',
-            message: 'You have unsaved changes.'
-        })
+              id: 'settings.site.global_code.status.unsaved',
+              message: 'You have unsaved changes.'
+          })
         : hasGlobalCode
-            ? t({
+          ? t({
                 id: 'settings.site.global_code.status.active',
                 message: 'Currently active on all public pages.'
             })
-            : t({
+          : t({
                 id: 'settings.site.global_code.status.empty',
                 message: 'No global code is currently configured.'
             });
@@ -595,7 +607,8 @@ const SiteSettingSetting = () => {
                         })}
                         description={t({
                             id: 'settings.site.brand.logo.description',
-                            message: 'Used in the header and footer. After uploading the default logo, you can optionally add a dark mode SVG.'
+                            message:
+                                'Used in the header and footer. After uploading the default logo, you can optionally add a dark mode SVG.'
                         })}
                         assetType="logo"
                         defaultUrl={settingData.logoSvgUrl}
@@ -617,7 +630,8 @@ const SiteSettingSetting = () => {
                         })}
                         description={t({
                             id: 'settings.site.brand.icon.description',
-                            message: 'Uploading the default icon SVG also generates the favicon and PNG icons in your browser.'
+                            message:
+                                'Uploading the default icon SVG also generates the favicon and PNG icons in your browser.'
                         })}
                         assetType="icon"
                         defaultUrl={settingData.iconSvgUrl}
@@ -646,7 +660,8 @@ const SiteSettingSetting = () => {
                     <details
                         className="group overflow-hidden rounded-2xl bg-surface ring-1 ring-line/60"
                         open={isGlobalCodeOpen}
-                        onToggle={(event) => setIsGlobalCodeOpen(event.currentTarget.open)}>
+                        onToggle={(event) => setIsGlobalCodeOpen(event.currentTarget.open)}
+                    >
                         <summary className="flex min-h-20 cursor-pointer list-none items-center gap-4 px-6 py-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-line-strong md:px-8 [&::-webkit-details-marker]:hidden">
                             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning-surface text-warning">
                                 <Code2 aria-hidden="true" className="h-5 w-5" />
@@ -660,7 +675,8 @@ const SiteSettingSetting = () => {
                                 </span>
                                 <span
                                     aria-live="polite"
-                                    className={`mt-1 block text-sm ${isGlobalCodeDirty ? 'text-warning' : 'text-content-secondary'}`}>
+                                    className={`mt-1 block text-sm ${isGlobalCodeDirty ? 'text-warning' : 'text-content-secondary'}`}
+                                >
                                     {globalCodeStatus}
                                 </span>
                             </span>
@@ -677,7 +693,8 @@ const SiteSettingSetting = () => {
                                     <p className="text-xs leading-relaxed">
                                         {i18n._({
                                             id: 'settings.site.global_code.warning',
-                                            message: 'Saved code runs immediately on every public page. Meta tags and early-loading code are inserted inside {headTag}; later scripts are inserted just before {bodyTag}. Use only code you trust.',
+                                            message:
+                                                'Saved code runs immediately on every public page. Meta tags and early-loading code are inserted inside {headTag}; later scripts are inserted just before {bodyTag}. Use only code you trust.',
                                             values: {
                                                 headTag: '<head>',
                                                 bodyTag: '</body>'
@@ -736,18 +753,17 @@ const SiteSettingSetting = () => {
                     className="h-11 w-full [@media(pointer:fine)]:h-10 sm:w-auto"
                     isLoading={updateMutation.isPending}
                     disabled={saveDisabled}
-                    leftIcon={!updateMutation.isPending
-                        ? <Check aria-hidden="true" className="h-4 w-4" />
-                        : undefined}>
+                    leftIcon={!updateMutation.isPending ? <Check aria-hidden="true" className="h-4 w-4" /> : undefined}
+                >
                     {updateMutation.isPending
                         ? t({
-                            id: 'common.saving_ellipsis',
-                            message: 'Saving...'
-                        })
+                              id: 'common.saving_ellipsis',
+                              message: 'Saving...'
+                          })
                         : t({
-                            id: 'settings.site.save',
-                            message: 'Save site settings'
-                        })}
+                              id: 'settings.site.save',
+                              message: 'Save site settings'
+                          })}
                 </Button>
             </div>
         </form>

@@ -3,11 +3,35 @@ import type { Prisma } from '@prisma/client';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { sanitizePostHtml } from '../posts/post-html.js';
 import { authorPath } from '../authors/services/profile.js';
-import type { SiteBrand, NoticeRow, SubscriptionState, PostRow, AuthorRow, TagRow, SeriesRow, SeriesDetailRow, AuthorSocialLink, PageMeta, PublicPageViewer } from '../../../../client/src/contracts/public.js';
+import type {
+  SiteBrand,
+  NoticeRow,
+  SubscriptionState,
+  PostRow,
+  AuthorRow,
+  TagRow,
+  SeriesRow,
+  SeriesDetailRow,
+  AuthorSocialLink,
+  PageMeta,
+  PublicPageViewer,
+} from '../../../../client/src/contracts/public.js';
 
 type StoredDate = string | Date;
 
-export type { SiteBrand, NoticeRow, SubscriptionState, PostRow, AuthorRow, TagRow, SeriesRow, SeriesDetailRow, AuthorSocialLink, PageMeta, PublicPageViewer };
+export type {
+  SiteBrand,
+  NoticeRow,
+  SubscriptionState,
+  PostRow,
+  AuthorRow,
+  TagRow,
+  SeriesRow,
+  SeriesDetailRow,
+  AuthorSocialLink,
+  PageMeta,
+  PublicPageViewer,
+};
 
 export interface PostQueryOptions {
   where?: Prisma.PostWhereInput;
@@ -53,7 +77,12 @@ export function hasUnexpected(search: URLSearchParams, allowed: string[]): boole
   return [...search.keys()].some((key) => !allowed.includes(key));
 }
 
-export function validPublicPage(reply: FastifyReply, requestedPage: number | null, count: number, pageSize: number): number | null {
+export function validPublicPage(
+  reply: FastifyReply,
+  requestedPage: number | null,
+  count: number,
+  pageSize: number,
+): number | null {
   if (requestedPage === null || requestedPage > totalPages(count, pageSize)) {
     reply.code(404).type('text/plain; charset=utf-8').send('Not found');
     return null;
@@ -74,7 +103,7 @@ function resourceUrl(path: string): string {
 export function postCover(post: PostRow): string {
   if (post.image) return mediaUrl(post.image) ?? resourceUrl('assets/images/default-cover-1.jpg');
   const digest = createHash('md5').update(post.slug).digest('hex');
-  const index = Number.parseInt(digest.slice(0, 8), 16) % 6 + 1;
+  const index = (Number.parseInt(digest.slice(0, 8), 16) % 6) + 1;
   return resourceUrl(`assets/images/default-cover-${index}.jpg`);
 }
 
@@ -161,11 +190,13 @@ export function safeStructuredPageData(
   authorUsername: string | null,
   siteUrl: URL,
 ): Record<string, unknown> {
-  const author = authorUsername ? {
-    '@type': 'Person',
-    name: authorUsername,
-    url: makeAbsolute(siteUrl, authorPath(authorUsername)),
-  } : undefined;
+  const author = authorUsername
+    ? {
+        '@type': 'Person',
+        name: authorUsername,
+        url: makeAbsolute(siteUrl, authorPath(authorUsername)),
+      }
+    : undefined;
   return {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
@@ -191,5 +222,7 @@ export interface PublicPageOptions {
 
 /** Static pages are written by administrators and may carry their own stylesheet, as they did in 3.x. */
 export function staticPageStyles(content: string): string {
-  return [...content.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi)].map((match) => `<style>${match[1]}</style>`).join('');
+  return [...content.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi)]
+    .map((match) => `<style>${match[1]}</style>`)
+    .join('');
 }

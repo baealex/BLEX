@@ -40,12 +40,13 @@ const getCroppedFileName = (name: string, outputType: string) => {
     return `${baseName}-cropped.${extension}`;
 };
 
-const createImage = async (sourceUrl: string) => new Promise<HTMLImageElement>((resolve, reject) => {
-    const image = new Image();
-    image.onload = () => resolve(image);
-    image.onerror = () => reject(new Error('Failed to load image.'));
-    image.src = sourceUrl;
-});
+const createImage = async (sourceUrl: string) =>
+    new Promise<HTMLImageElement>((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = () => reject(new Error('Failed to load image.'));
+        image.src = sourceUrl;
+    });
 
 const createCroppedFile = async ({
     sourceUrl,
@@ -70,27 +71,21 @@ const createCroppedFile = async ({
 
     canvas.width = outputWidth;
     canvas.height = outputHeight;
-    context.drawImage(
-        image,
-        cropArea.x,
-        cropArea.y,
-        cropArea.width,
-        cropArea.height,
-        0,
-        0,
-        outputWidth,
-        outputHeight
-    );
+    context.drawImage(image, cropArea.x, cropArea.y, cropArea.width, cropArea.height, 0, 0, outputWidth, outputHeight);
 
     const outputType = getOutputType(file.type);
     const blob = await new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob((nextBlob) => {
-            if (nextBlob) {
-                resolve(nextBlob);
-                return;
-            }
-            reject(new Error('Failed to create cropped image.'));
-        }, outputType, JPEG_QUALITY);
+        canvas.toBlob(
+            (nextBlob) => {
+                if (nextBlob) {
+                    resolve(nextBlob);
+                    return;
+                }
+                reject(new Error('Failed to create cropped image.'));
+            },
+            outputType,
+            JPEG_QUALITY
+        );
     });
 
     return new File([blob], getCroppedFileName(file.name, outputType), {
@@ -160,10 +155,12 @@ export const ImageCropDialog = ({
             await onComplete(croppedFile);
             onClose();
         } catch {
-            setErrorMessage(t({
-                id: 'common.image_crop.apply_failed',
-                message: 'Could not apply the image.'
-            }));
+            setErrorMessage(
+                t({
+                    id: 'common.image_crop.apply_failed',
+                    message: 'Could not apply the image.'
+                })
+            );
         } finally {
             setIsProcessing(false);
         }
@@ -176,18 +173,15 @@ export const ImageCropDialog = ({
     };
 
     return (
-        <Modal
-            isOpen={isOpen}
-            onClose={handleClose}
-            title={title}
-            maxWidth="3xl">
+        <Modal isOpen={isOpen} onClose={handleClose} title={title} maxWidth="3xl">
             <Modal.Body className="space-y-5">
                 <div
                     className={cx(
                         'relative mx-auto w-full overflow-hidden bg-line-light ring-1 ring-line',
                         'max-w-2xl rounded-2xl'
                     )}
-                    style={{ aspectRatio }}>
+                    style={{ aspectRatio }}
+                >
                     {sourceUrl && (
                         <Cropper
                             image={sourceUrl}
@@ -226,22 +220,14 @@ export const ImageCropDialog = ({
                     />
                 </div>
 
-                {errorMessage && (
-                    <p className="text-sm font-medium text-danger">{errorMessage}</p>
-                )}
+                {errorMessage && <p className="text-sm font-medium text-danger">{errorMessage}</p>}
             </Modal.Body>
 
             <Modal.Footer>
-                <Modal.FooterAction
-                    variant="secondary"
-                    onClick={handleClose}
-                    disabled={isProcessing}>
+                <Modal.FooterAction variant="secondary" onClick={handleClose} disabled={isProcessing}>
                     <Trans id="common.cancel">Cancel</Trans>
                 </Modal.FooterAction>
-                <Modal.FooterAction
-                    onClick={handleApply}
-                    isLoading={isProcessing}
-                    disabled={!sourceUrl || !cropArea}>
+                <Modal.FooterAction onClick={handleApply} isLoading={isProcessing} disabled={!sourceUrl || !cropArea}>
                     <Trans id="common.apply">Apply</Trans>
                 </Modal.FooterAction>
             </Modal.Footer>

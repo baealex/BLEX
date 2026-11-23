@@ -3,14 +3,7 @@ import type { MessageDescriptor } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react/macro';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
-import {
-    Check,
-    ChevronDown,
-    KeyRound,
-    LogIn,
-    ShieldCheck,
-    UserCog
-} from '~/ui/icons';
+import { Check, ChevronDown, KeyRound, LogIn, ShieldCheck, UserCog } from '~/ui/icons';
 import { SettingsHeader } from '../layout';
 import { Toggle } from '~/ui/toggle';
 import { Button, Card, Checkbox, Input } from '~/components/shared';
@@ -100,38 +93,35 @@ const toSavedLoginSettingsForm = (form: LoginSettingsForm): SavedLoginSettingsFo
     hcaptchaHasSecretKey: form.hcaptchaHasSecretKey
 });
 
-const hasLoginSettingsChanged = (
-    current: LoginSettingsForm,
-    saved: SavedLoginSettingsForm | null
-) => {
+const hasLoginSettingsChanged = (current: LoginSettingsForm, saved: SavedLoginSettingsForm | null) => {
     if (!saved) return false;
 
-    return current.welcomeMessage !== saved.welcomeMessage
-        || current.welcomeUrl !== saved.welcomeUrl
-        || current.deletionRedirectUrl !== saved.deletionRedirectUrl
-        || current.hcaptchaEnabled !== saved.hcaptchaEnabled
-        || current.hcaptchaSiteKey !== saved.hcaptchaSiteKey
-        || current.hcaptchaHasSecretKey !== saved.hcaptchaHasSecretKey
-        || current.hcaptchaSecretKey.trim().length > 0
-        || current.clearHcaptchaSecretKey;
+    return (
+        current.welcomeMessage !== saved.welcomeMessage ||
+        current.welcomeUrl !== saved.welcomeUrl ||
+        current.deletionRedirectUrl !== saved.deletionRedirectUrl ||
+        current.hcaptchaEnabled !== saved.hcaptchaEnabled ||
+        current.hcaptchaSiteKey !== saved.hcaptchaSiteKey ||
+        current.hcaptchaHasSecretKey !== saved.hcaptchaHasSecretKey ||
+        current.hcaptchaSecretKey.trim().length > 0 ||
+        current.clearHcaptchaSecretKey
+    );
 };
 
-const toSocialAuthProviderForms = (providers: SocialAuthProviderSetting[] | undefined): SocialAuthProviderForm[] => (
-    providers ?? []
-).map((provider) => ({
-    ...provider,
-    clientSecret: '',
-    clearClientSecret: false
-}));
+const toSocialAuthProviderForms = (providers: SocialAuthProviderSetting[] | undefined): SocialAuthProviderForm[] =>
+    (providers ?? []).map((provider) => ({
+        ...provider,
+        clientSecret: '',
+        clearClientSecret: false
+    }));
 
-const toSavedSocialAuthProviderForms = (providers: SocialAuthProviderForm[]): SavedSocialAuthProviderForm[] => (
+const toSavedSocialAuthProviderForms = (providers: SocialAuthProviderForm[]): SavedSocialAuthProviderForm[] =>
     providers.map((provider) => ({
         key: provider.key,
         isEnabled: provider.isEnabled,
         clientId: provider.clientId,
         hasClientSecret: provider.hasClientSecret
-    }))
-);
+    }));
 
 const hasSocialAuthProvidersChanged = (
     current: SocialAuthProviderForm[],
@@ -142,19 +132,20 @@ const hasSocialAuthProvidersChanged = (
     return current.some((provider) => {
         const savedProvider = saved.find((item) => item.key === provider.key);
         if (!savedProvider) return true;
-        return provider.isEnabled !== savedProvider.isEnabled
-            || provider.clientId !== savedProvider.clientId
-            || provider.hasClientSecret !== savedProvider.hasClientSecret
-            || provider.clientSecret.trim().length > 0
-            || provider.clearClientSecret;
+        return (
+            provider.isEnabled !== savedProvider.isEnabled ||
+            provider.clientId !== savedProvider.clientId ||
+            provider.hasClientSecret !== savedProvider.hasClientSecret ||
+            provider.clientSecret.trim().length > 0 ||
+            provider.clearClientSecret
+        );
     });
 };
 
 const getProviderCredentialState = (provider: SocialAuthProviderForm) => {
     const hasClientId = provider.clientId.trim().length > 0;
-    const hasClientSecret = !provider.clearClientSecret && (
-        provider.hasClientSecret || provider.clientSecret.trim().length > 0
-    );
+    const hasClientSecret =
+        !provider.clearClientSecret && (provider.hasClientSecret || provider.clientSecret.trim().length > 0);
 
     return {
         hasClientId,
@@ -271,11 +262,7 @@ interface ProviderCredentialFieldsProps {
     onUpdate: (key: string, patch: Partial<SocialAuthProviderForm>) => void;
 }
 
-const ProviderCredentialFields = ({
-    provider,
-    isPending,
-    onUpdate
-}: ProviderCredentialFieldsProps) => {
+const ProviderCredentialFields = ({ provider, isPending, onUpdate }: ProviderCredentialFieldsProps) => {
     const { t } = useLingui();
 
     return (
@@ -306,23 +293,29 @@ const ProviderCredentialFields = ({
                     data-1p-ignore="true"
                     data-bwignore="true"
                     data-lpignore="true"
-                    placeholder={provider.hasClientSecret
-                        ? t({
-                            id: 'settings.login.secret.keep_placeholder',
-                            message: 'Keep saved value'
-                        })
-                        : `${provider.name} OAuth Client Secret`}
+                    placeholder={
+                        provider.hasClientSecret
+                            ? t({
+                                  id: 'settings.login.secret.keep_placeholder',
+                                  message: 'Keep saved value'
+                              })
+                            : `${provider.name} OAuth Client Secret`
+                    }
                     value={provider.clientSecret}
-                    onChange={(event) => onUpdate(provider.key, {
-                        clientSecret: event.target.value,
-                        clearClientSecret: false
-                    })}
-                    helperText={provider.hasClientSecret
-                        ? t({
-                            id: 'settings.login.secret.keep_help',
-                            message: 'Leave this blank to keep the existing secret.'
+                    onChange={(event) =>
+                        onUpdate(provider.key, {
+                            clientSecret: event.target.value,
+                            clearClientSecret: false
                         })
-                        : undefined}
+                    }
+                    helperText={
+                        provider.hasClientSecret
+                            ? t({
+                                  id: 'settings.login.secret.keep_help',
+                                  message: 'Leave this blank to keep the existing secret.'
+                              })
+                            : undefined
+                    }
                 />
             </div>
 
@@ -331,10 +324,12 @@ const ProviderCredentialFields = ({
                     checked={provider.clearClientSecret}
                     disabled={isPending}
                     className="min-h-11 py-2"
-                    onCheckedChange={(checked) => onUpdate(provider.key, {
-                        clearClientSecret: checked,
-                        clientSecret: checked ? '' : provider.clientSecret
-                    })}
+                    onCheckedChange={(checked) =>
+                        onUpdate(provider.key, {
+                            clearClientSecret: checked,
+                            clientSecret: checked ? '' : provider.clientSecret
+                        })
+                    }
                     label={t({
                         id: 'settings.login.social.secret.delete',
                         message: 'Delete saved Client Secret'
@@ -352,27 +347,20 @@ interface SocialAuthProviderPanelProps {
     onUpdate: (key: string, patch: Partial<SocialAuthProviderForm>) => void;
 }
 
-const SocialAuthProviderPanel = ({
-    provider,
-    savedProvider,
-    isPending,
-    onUpdate
-}: SocialAuthProviderPanelProps) => {
+const SocialAuthProviderPanel = ({ provider, savedProvider, isPending, onUpdate }: SocialAuthProviderPanelProps) => {
     const { i18n, t } = useLingui();
     const { isComplete } = getProviderCredentialState(provider);
     const wasAvailable = Boolean(
-        savedProvider?.isEnabled
-        && savedProvider.clientId.trim()
-        && savedProvider.hasClientSecret
+        savedProvider?.isEnabled && savedProvider.clientId.trim() && savedProvider.hasClientSecret
     );
     const willBeAvailable = provider.isEnabled && isComplete;
-    const hasDraftChanges = Boolean(savedProvider) && (
-        provider.isEnabled !== savedProvider?.isEnabled
-        || provider.clientId !== savedProvider?.clientId
-        || provider.hasClientSecret !== savedProvider?.hasClientSecret
-        || provider.clientSecret.trim().length > 0
-        || provider.clearClientSecret
-    );
+    const hasDraftChanges =
+        Boolean(savedProvider) &&
+        (provider.isEnabled !== savedProvider?.isEnabled ||
+            provider.clientId !== savedProvider?.clientId ||
+            provider.hasClientSecret !== savedProvider?.hasClientSecret ||
+            provider.clientSecret.trim().length > 0 ||
+            provider.clearClientSecret);
     const status = getProviderAvailabilityStatus({
         hasDraftChanges,
         isEnabled: provider.isEnabled,
@@ -383,18 +371,18 @@ const SocialAuthProviderPanel = ({
     return (
         <section
             aria-labelledby={`provider-${provider.key}-title`}
-            className="overflow-hidden rounded-xl border border-line">
+            className="overflow-hidden rounded-xl border border-line"
+        >
             <div className="flex items-start justify-between gap-4 p-4 sm:p-5">
                 <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                        <h3
-                            id={`provider-${provider.key}-title`}
-                            className="text-sm font-semibold text-content">
+                        <h3 id={`provider-${provider.key}-title`} className="text-sm font-semibold text-content">
                             {provider.name}
                         </h3>
                         <span
                             aria-live="polite"
-                            className={`rounded-full px-2 py-1 text-[11px] font-semibold ${status.className}`}>
+                            className={`rounded-full px-2 py-1 text-[11px] font-semibold ${status.className}`}
+                        >
                             {i18n._(status.label)}
                         </span>
                     </div>
@@ -402,7 +390,8 @@ const SocialAuthProviderPanel = ({
                         {t({
                             id: 'settings.login.social.callback_url',
                             message: 'Callback URL'
-                        })}: <code className="break-all font-mono">/login/callback/{provider.key}</code>
+                        })}
+                        : <code className="break-all font-mono">/login/callback/{provider.key}</code>
                     </p>
                 </div>
                 <Toggle
@@ -423,15 +412,12 @@ const SocialAuthProviderPanel = ({
                         <p className="rounded-lg bg-warning-surface px-3 py-2 text-xs leading-relaxed text-warning">
                             {t({
                                 id: 'settings.login.social.credentials_required_help',
-                                message: 'Enter and save both the Client ID and Client Secret to show this provider on the login page.'
+                                message:
+                                    'Enter and save both the Client ID and Client Secret to show this provider on the login page.'
                             })}
                         </p>
                     )}
-                    <ProviderCredentialFields
-                        provider={provider}
-                        isPending={isPending}
-                        onUpdate={onUpdate}
-                    />
+                    <ProviderCredentialFields provider={provider} isPending={isPending} onUpdate={onUpdate} />
                 </div>
             ) : (
                 <details className="group border-t border-line">
@@ -452,11 +438,7 @@ const SocialAuthProviderPanel = ({
                         />
                     </summary>
                     <div className="border-t border-line bg-surface-subtle/40 p-4 sm:p-5">
-                        <ProviderCredentialFields
-                            provider={provider}
-                            isPending={isPending}
-                            onUpdate={onUpdate}
-                        />
+                        <ProviderCredentialFields provider={provider} isPending={isPending} onUpdate={onUpdate} />
                     </div>
                 </details>
             )}
@@ -477,10 +459,12 @@ const LoginSetting = () => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error(t({
-                id: 'settings.login.load_error',
-                message: 'Failed to load login settings.'
-            }));
+            throw new Error(
+                t({
+                    id: 'settings.login.load_error',
+                    message: 'Failed to load login settings.'
+                })
+            );
         }
     });
 
@@ -502,10 +486,13 @@ const LoginSetting = () => {
     const updateMutation = useMutation({
         mutationFn: async (data: LoginSettingUpdateData) => {
             const response = await updateLoginSettings(data);
-            return assertDone(response, t({
-                id: 'settings.login.save_error',
-                message: 'Failed to save login settings.'
-            }));
+            return assertDone(
+                response,
+                t({
+                    id: 'settings.login.save_error',
+                    message: 'Failed to save login settings.'
+                })
+            );
         },
         onSuccess: (body: LoginSettingData) => {
             const loginSettingsForm = toLoginSettingsForm(body);
@@ -515,16 +502,23 @@ const LoginSetting = () => {
             savedLoginSettingsRef.current = toSavedLoginSettingsForm(loginSettingsForm);
             savedSocialAuthProvidersRef.current = toSavedSocialAuthProviderForms(providerForms);
             void queryClient.invalidateQueries({ queryKey: ['login-settings'] });
-            toast.success(t({
-                id: 'settings.login.save_success',
-                message: 'Login settings saved.'
-            }));
+            toast.success(
+                t({
+                    id: 'settings.login.save_success',
+                    message: 'Login settings saved.'
+                })
+            );
         },
         onError: (error) => {
-            toast.error(getErrorMessage(error, t({
-                id: 'settings.login.save_error',
-                message: 'Failed to save login settings.'
-            })));
+            toast.error(
+                getErrorMessage(
+                    error,
+                    t({
+                        id: 'settings.login.save_error',
+                        message: 'Failed to save login settings.'
+                    })
+                )
+            );
         }
     });
 
@@ -536,14 +530,16 @@ const LoginSetting = () => {
     };
 
     const updateSocialProvider = (key: string, patch: Partial<SocialAuthProviderForm>) => {
-        setSocialAuthProviders((providers) => providers.map((provider) => (
-            provider.key === key
-                ? {
-                    ...provider,
-                    ...patch
-                }
-                : provider
-        )));
+        setSocialAuthProviders((providers) =>
+            providers.map((provider) =>
+                provider.key === key
+                    ? {
+                          ...provider,
+                          ...patch
+                      }
+                    : provider
+            )
+        );
     };
 
     const handleSave = (event?: FormEvent<HTMLFormElement>) => {
@@ -577,14 +573,10 @@ const LoginSetting = () => {
             const savedProvider = savedSocialAuthProvidersRef.current?.find((item) => item.key === provider.key);
             const wasEnabled = savedProvider?.isEnabled ?? provider.isEnabled;
             const hadCompleteCredentials = Boolean(
-                (savedProvider?.clientId ?? provider.clientId).trim()
-                && (savedProvider?.hasClientSecret ?? provider.hasClientSecret)
+                (savedProvider?.clientId ?? provider.clientId).trim() &&
+                    (savedProvider?.hasClientSecret ?? provider.hasClientSecret)
             );
-            const priority = wasEnabled && hadCompleteCredentials
-                ? 0
-                : wasEnabled
-                    ? 1
-                    : 2;
+            const priority = wasEnabled && hadCompleteCredentials ? 0 : wasEnabled ? 1 : 2;
             return {
                 provider,
                 index,
@@ -595,28 +587,25 @@ const LoginSetting = () => {
         .map(({ provider }) => provider);
     const availableSocialProviders = socialAuthProviders.filter((provider) => {
         const savedProvider = savedSocialAuthProvidersRef.current?.find((item) => item.key === provider.key);
-        return Boolean(
-            savedProvider?.isEnabled
-            && savedProvider.clientId.trim()
-            && savedProvider.hasClientSecret
-        );
+        return Boolean(savedProvider?.isEnabled && savedProvider.clientId.trim() && savedProvider.hasClientSecret);
     });
     const hasEnabledSocialProvider = savedSocialAuthProvidersRef.current?.some((provider) => provider.isEnabled);
-    const socialLoginSummary = availableSocialProviders.length > 0
-        ? i18n._({
-            id: 'settings.login.social.summary.visible',
-            message: 'Available on the login page: {providers}.',
-            values: { providers: availableSocialProviders.map((provider) => provider.name).join(', ') }
-        })
-        : hasEnabledSocialProvider
-            ? t({
-                id: 'settings.login.social.summary.credentials_required',
-                message: 'Complete the app credentials for enabled providers to show them on the login page.'
-            })
-            : t({
-                id: 'settings.login.social.summary.none',
-                message: 'No social login providers are currently visible on the login page.'
-            });
+    const socialLoginSummary =
+        availableSocialProviders.length > 0
+            ? i18n._({
+                  id: 'settings.login.social.summary.visible',
+                  message: 'Available on the login page: {providers}.',
+                  values: { providers: availableSocialProviders.map((provider) => provider.name).join(', ') }
+              })
+            : hasEnabledSocialProvider
+              ? t({
+                    id: 'settings.login.social.summary.credentials_required',
+                    message: 'Complete the app credentials for enabled providers to show them on the login page.'
+                })
+              : t({
+                    id: 'settings.login.social.summary.none',
+                    message: 'No social login providers are currently visible on the login page.'
+                });
 
     return (
         <form className="space-y-8" onSubmit={handleSave} autoComplete="off">
@@ -632,7 +621,8 @@ const LoginSetting = () => {
                     id: 'settings.login.member_experience.title',
                     message: 'Member experience'
                 })}
-                icon={<UserCog aria-hidden="true" className="h-4 w-4" />}>
+                icon={<UserCog aria-hidden="true" className="h-4 w-4" />}
+            >
                 <div className="space-y-4">
                     <Input
                         density="compact"
@@ -651,7 +641,7 @@ const LoginSetting = () => {
                         onChange={(event) => updateLoginSettingsForm({ welcomeMessage: event.target.value })}
                         helperText={i18n._({
                             id: 'settings.login.welcome_message.help',
-                            message: '{name} is replaced with the member\'s username.',
+                            message: "{name} is replaced with the member's username.",
                             values: { name: '{name}' }
                         })}
                     />
@@ -688,13 +678,16 @@ const LoginSetting = () => {
                     message: 'Social login'
                 })}
                 subtitle={socialLoginSummary}
-                icon={<LogIn aria-hidden="true" className="h-4 w-4" />}>
+                icon={<LogIn aria-hidden="true" className="h-4 w-4" />}
+            >
                 <div className="space-y-4">
                     {prioritizedSocialAuthProviders.map((provider) => (
                         <SocialAuthProviderPanel
                             key={provider.key}
                             provider={provider}
-                            savedProvider={savedSocialAuthProvidersRef.current?.find((item) => item.key === provider.key) ?? null}
+                            savedProvider={
+                                savedSocialAuthProvidersRef.current?.find((item) => item.key === provider.key) ?? null
+                            }
                             isPending={updateMutation.isPending}
                             onUpdate={updateSocialProvider}
                         />
@@ -707,7 +700,8 @@ const LoginSetting = () => {
                     id: 'settings.login.signup_protection.title',
                     message: 'Sign-up protection'
                 })}
-                icon={<ShieldCheck aria-hidden="true" className="h-4 w-4" />}>
+                icon={<ShieldCheck aria-hidden="true" className="h-4 w-4" />}
+            >
                 <div className="space-y-5">
                     <div className="flex items-start justify-between gap-4 border-b border-line pb-5">
                         <div className="min-w-0 flex-1">
@@ -768,22 +762,28 @@ const LoginSetting = () => {
                             data-bwignore="true"
                             data-lpignore="true"
                             value={loginSettings.hcaptchaSecretKey}
-                            onChange={(event) => updateLoginSettingsForm({
-                                hcaptchaSecretKey: event.target.value,
-                                clearHcaptchaSecretKey: false
-                            })}
-                            placeholder={loginSettings.hcaptchaHasSecretKey
-                                ? t({
-                                    id: 'settings.login.secret.keep_placeholder',
-                                    message: 'Keep saved value'
+                            onChange={(event) =>
+                                updateLoginSettingsForm({
+                                    hcaptchaSecretKey: event.target.value,
+                                    clearHcaptchaSecretKey: false
                                 })
-                                : 'hCaptcha Secret Key'}
-                            helperText={loginSettings.hcaptchaHasSecretKey
-                                ? t({
-                                    id: 'settings.login.secret.keep_help',
-                                    message: 'Leave this blank to keep the existing secret.'
-                                })
-                                : undefined}
+                            }
+                            placeholder={
+                                loginSettings.hcaptchaHasSecretKey
+                                    ? t({
+                                          id: 'settings.login.secret.keep_placeholder',
+                                          message: 'Keep saved value'
+                                      })
+                                    : 'hCaptcha Secret Key'
+                            }
+                            helperText={
+                                loginSettings.hcaptchaHasSecretKey
+                                    ? t({
+                                          id: 'settings.login.secret.keep_help',
+                                          message: 'Leave this blank to keep the existing secret.'
+                                      })
+                                    : undefined
+                            }
                         />
                     </div>
 
@@ -792,10 +792,12 @@ const LoginSetting = () => {
                             checked={loginSettings.clearHcaptchaSecretKey}
                             disabled={updateMutation.isPending}
                             className="min-h-11 py-2"
-                            onCheckedChange={(checked) => updateLoginSettingsForm({
-                                clearHcaptchaSecretKey: checked,
-                                hcaptchaSecretKey: checked ? '' : loginSettings.hcaptchaSecretKey
-                            })}
+                            onCheckedChange={(checked) =>
+                                updateLoginSettingsForm({
+                                    clearHcaptchaSecretKey: checked,
+                                    hcaptchaSecretKey: checked ? '' : loginSettings.hcaptchaSecretKey
+                                })
+                            }
                             label={t({
                                 id: 'settings.login.hcaptcha.secret.delete',
                                 message: 'Delete saved hCaptcha Secret Key'
@@ -818,18 +820,17 @@ const LoginSetting = () => {
                     className="h-11 w-full [@media(pointer:fine)]:h-10 sm:w-auto"
                     isLoading={updateMutation.isPending}
                     disabled={!isDirty || updateMutation.isPending}
-                    leftIcon={!updateMutation.isPending
-                        ? <Check aria-hidden="true" className="h-4 w-4" />
-                        : undefined}>
+                    leftIcon={!updateMutation.isPending ? <Check aria-hidden="true" className="h-4 w-4" /> : undefined}
+                >
                     {updateMutation.isPending
                         ? t({
-                            id: 'common.saving',
-                            message: 'Saving'
-                        })
+                              id: 'common.saving',
+                              message: 'Saving'
+                          })
                         : t({
-                            id: 'settings.login.save',
-                            message: 'Save login settings'
-                        })}
+                              id: 'settings.login.save',
+                              message: 'Save login settings'
+                          })}
                 </Button>
             </div>
         </form>

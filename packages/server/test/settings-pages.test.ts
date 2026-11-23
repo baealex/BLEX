@@ -64,11 +64,20 @@ registerNotifications(app, db, {
     const value = request.headers['x-test-user'];
     const id = typeof value === 'string' ? Number(value) : NaN;
     if (id !== 1) return null;
-    return { id, username: 'reader', hasEditorRole: false, isStaff: false, hasConnectedTelegram: false, notifyCount: 1 };
+    return {
+      id,
+      username: 'reader',
+      hasEditorRole: false,
+      isStaff: false,
+      hasConnectedTelegram: false,
+      notifyCount: 1,
+    };
   },
-  validateCsrf: (request) => request.headers.origin === siteUrl.origin
-    && request.headers.cookie?.includes(`csrftoken=${csrfToken}`) === true
-    && (request.headers['x-csrftoken'] === csrfToken || (request.body as Record<string, unknown> | undefined)?.csrfmiddlewaretoken === csrfToken),
+  validateCsrf: (request) =>
+    request.headers.origin === siteUrl.origin &&
+    request.headers.cookie?.includes(`csrftoken=${csrfToken}`) === true &&
+    (request.headers['x-csrftoken'] === csrfToken ||
+      (request.body as Record<string, unknown> | undefined)?.csrfmiddlewaretoken === csrfToken),
 });
 await app.ready();
 
@@ -94,19 +103,43 @@ test('protects the notification API and keeps read and preference changes scoped
   const inbox = await app.inject({ url: '/v1/setting/notify', headers: signedInHeaders });
   assert.equal(inbox.statusCode, 200);
   assert.equal(inbox.headers['cache-control'], 'private, no-store');
-  assert.deepEqual(inbox.json().body.notify.map((item: { id: number; isRead: boolean }) => [item.id, item.isRead]).sort(), [[1, false], [2, true]]);
+  assert.deepEqual(
+    inbox
+      .json()
+      .body.notify.map((item: { id: number; isRead: boolean }) => [item.id, item.isRead])
+      .sort(),
+    [
+      [1, false],
+      [2, true],
+    ],
+  );
 
   const config = await app.inject({ url: '/v1/setting/notify-config', headers: signedInHeaders });
-  assert.deepEqual(config.json().body.config.map((item: { name: string }) => item.name), ['NOTIFY_COMMENT_LIKE', 'NOTIFY_MENTION']);
+  assert.deepEqual(
+    config.json().body.config.map((item: { name: string }) => item.name),
+    ['NOTIFY_COMMENT_LIKE', 'NOTIFY_MENTION'],
+  );
 
-  const noCsrf = await app.inject({ method: 'PUT', url: '/v1/setting/notify', headers: { 'x-test-user': '1' }, payload: { id: 1 } });
+  const noCsrf = await app.inject({
+    method: 'PUT',
+    url: '/v1/setting/notify',
+    headers: { 'x-test-user': '1' },
+    payload: { id: 1 },
+  });
   assert.equal(noCsrf.statusCode, 403);
-  const marked = await app.inject({ method: 'PUT', url: '/v1/setting/notify', headers: signedInHeaders, payload: { id: 1 } });
+  const marked = await app.inject({
+    method: 'PUT',
+    url: '/v1/setting/notify',
+    headers: signedInHeaders,
+    payload: { id: 1 },
+  });
   assert.equal(marked.json().status, 'DONE');
   assert.equal((await db.notification.findUnique({ where: { id: 1 } }))?.isRead, true);
 
   const saved = await app.inject({
-    method: 'PUT', url: '/v1/setting/notify-config', headers: signedInHeaders,
+    method: 'PUT',
+    url: '/v1/setting/notify-config',
+    headers: signedInHeaders,
     payload: { NOTIFY_MENTION: true, NOTIFY_COMMENT_LIKE: false, NOTIFY_POSTS_LIKE: true },
   });
   assert.equal(saved.json().status, 'DONE');
@@ -114,7 +147,12 @@ test('protects the notification API and keeps read and preference changes scoped
     where: { userId: 1 },
     select: { notifyCommentLike: true, notifyMention: true, notifyPostLike: true, notifyPostComment: true },
   });
-  assert.deepEqual(prefs, { notifyCommentLike: false, notifyMention: true, notifyPostLike: null, notifyPostComment: null });
+  assert.deepEqual(prefs, {
+    notifyCommentLike: false,
+    notifyMention: true,
+    notifyPostLike: null,
+    notifyPostComment: null,
+  });
 });
 
 test('reads subscriptions with author details and the Telegram connection state', async () => {

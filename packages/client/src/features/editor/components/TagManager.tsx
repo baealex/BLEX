@@ -48,7 +48,8 @@ const TagManager = ({ tags, onTagsChange }: TagManagerProps) => {
             {tags.map((tag, index) => (
                 <span
                     key={tag}
-                    className="group inline-flex min-h-11 items-center rounded-full border border-line-light bg-surface-subtle pl-4 pr-1 text-sm font-medium text-content-secondary transition-all duration-300 hover:border-line-strong hover:bg-action hover:text-content-inverted">
+                    className="group inline-flex min-h-11 items-center rounded-full border border-line-light bg-surface-subtle pl-4 pr-1 text-sm font-medium text-content-secondary transition-all duration-300 hover:border-line-strong hover:bg-action hover:text-content-inverted"
+                >
                     <span className="mr-1 opacity-50">#</span>
                     <span className="break-all">{tag}</span>
                     <button
@@ -59,7 +60,8 @@ const TagManager = ({ tags, onTagsChange }: TagManagerProps) => {
                             id: 'editor.tags.remove',
                             message: 'Remove {tag} tag',
                             values: { tag }
-                        })}>
+                        })}
+                    >
                         <X aria-hidden className="h-3.5 w-3.5" />
                     </button>
                 </span>
@@ -102,7 +104,8 @@ const TagManager = ({ tags, onTagsChange }: TagManagerProps) => {
                     variant="ghost"
                     size="sm"
                     leftIcon={<Plus aria-hidden className="h-4 w-4" />}
-                    className="min-h-11! rounded-full">
+                    className="min-h-11! rounded-full"
+                >
                     <Trans id="editor.tags.add">Add tag</Trans>
                 </Button>
             )}

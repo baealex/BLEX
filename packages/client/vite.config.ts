@@ -9,8 +9,8 @@ import { dirname, resolve } from 'path';
 
 const DEFAULT_DEV_SERVER_PORT = 8100;
 const DEV_SERVER_HOST = process.env.VITE_DEV_SERVER_HOST || 'localhost';
-const DEV_SERVER_INFO_PATH = process.env.VITE_DEV_SERVER_INFO_PATH
-    || resolve(__dirname, '../server/dist/web/.vite/dev-server.json');
+const DEV_SERVER_INFO_PATH =
+    process.env.VITE_DEV_SERVER_INFO_PATH || resolve(__dirname, '../server/dist/web/.vite/dev-server.json');
 
 const getDevServerPort = () => {
     const rawPort = process.env.VITE_DEV_SERVER_PORT;
@@ -69,7 +69,9 @@ export default defineConfig(({ mode }) => {
             babel({
                 presets: [
                     // The shared UI and Tiptap editor hold mutable editor state and have never been compiled.
-                    reactCompilerPreset({ sources: (filename: string) => !/\/src\/(?:ui|features\/editor\/tiptap)\//.test(filename) }),
+                    reactCompilerPreset({
+                        sources: (filename: string) => !/\/src\/(?:ui|features\/editor\/tiptap)\//.test(filename)
+                    }),
                     linguiTransformerBabelPreset()
                 ]
             }),
@@ -95,9 +97,8 @@ export default defineConfig(({ mode }) => {
             rolldownOptions: {
                 // Shared UI and editor modules stay side-effect free, so importing one export never pulls in Tiptap.
                 treeshake: {
-                    moduleSideEffects: (id: string) => (
+                    moduleSideEffects: (id: string) =>
                         /\/src\/(?:ui|features\/editor\/tiptap)\//.test(id) ? false : undefined
-                    )
                 },
                 input: {
                     screenRuntime: resolve(__dirname, 'src/screen-runtime.tsx'),
@@ -123,9 +124,7 @@ export default defineConfig(({ mode }) => {
         css: {
             modules: {
                 localsConvention: 'camelCase',
-                generateScopedName: isDevelopment
-                    ? '[name]__[local]--[hash:base64:5]'
-                    : '[hash:base64:8]'
+                generateScopedName: isDevelopment ? '[name]__[local]--[hash:base64:5]' : '[hash:base64:8]'
             }
         }
     };

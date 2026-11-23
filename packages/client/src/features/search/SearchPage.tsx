@@ -5,13 +5,7 @@ import { normalizeLocale } from '~/i18n/locale';
 import { searchPosts, type SearchMatchedField, type SearchResult } from '~/lib/api';
 import { getMediaPath, userResource } from '~/modules/static.module';
 import { logger } from '~/utils/logger';
-import {
-    InlineIcon,
-    Search as SearchIcon,
-    X,
-    AlertCircle,
-    Image
-} from '~/ui/icons';
+import { InlineIcon, Search as SearchIcon, X, AlertCircle, Image } from '~/ui/icons';
 
 interface SearchPageProps {
     username?: string;
@@ -28,10 +22,10 @@ interface SearchResultsData {
 const RECENT_SEARCHES_KEY = 'blex_recent_searches';
 const MAX_RECENT_SEARCHES = 8;
 const LEGACY_MATCH_FIELDS: Record<string, SearchMatchedField> = {
-    '제목': 'title',
-    '설명': 'description',
-    '태그': 'tag',
-    '내용': 'content'
+    제목: 'title',
+    설명: 'description',
+    태그: 'tag',
+    내용: 'content'
 };
 
 const getRecentSearches = (): string[] => {
@@ -46,10 +40,7 @@ const getRecentSearches = (): string[] => {
 const saveRecentSearch = (query: string) => {
     const searches = getRecentSearches().filter((item) => item !== query);
     searches.unshift(query);
-    localStorage.setItem(
-        RECENT_SEARCHES_KEY,
-        JSON.stringify(searches.slice(0, MAX_RECENT_SEARCHES))
-    );
+    localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(searches.slice(0, MAX_RECENT_SEARCHES)));
 };
 
 const removeRecentSearch = (query: string) => {
@@ -108,11 +99,7 @@ const escapeRegExp = (value: string) => {
 };
 
 const highlightText = (text: string, query: string): ReactNode => {
-    const keywords = query
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean)
-        .map(escapeRegExp);
+    const keywords = query.trim().split(/\s+/).filter(Boolean).map(escapeRegExp);
 
     if (keywords.length === 0) {
         return text;
@@ -167,74 +154,81 @@ const SearchPage = ({ username }: SearchPageProps) => {
     const [page, setPage] = useState(1);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    const runSearch = useCallback(async (
-        searchQuery: string,
-        pageNumber: number,
-        authorUsername?: string,
-        saveRecent: boolean = false
-    ) => {
-        const trimmedQuery = searchQuery.trim();
-        if (!trimmedQuery) {
-            return;
-        }
-
-        setIsLoading(true);
-        setHasSearched(true);
-        setErrorMessage(null);
-
-        try {
-            const { data } = await searchPosts(trimmedQuery, {
-                page: pageNumber,
-                username: authorUsername?.trim() || undefined
-            });
-
-            if (data.status === 'DONE') {
-                setSearchResults({
-                    results: data.body.results || [],
-                    lastPage: data.body.lastPage || 1,
-                    query: data.body.query || trimmedQuery,
-                    totalSize: data.body.totalSize,
-                    elapsedTime: data.body.elapsedTime
-                });
-                setActiveQuery(data.body.query || trimmedQuery);
-                setPage(pageNumber);
-
-                if (saveRecent) {
-                    saveRecentSearch(trimmedQuery);
-                    setRecentSearches(getRecentSearches());
-                }
-            } else {
-                setSearchResults(null);
-                if (data.errorMessage) {
-                    setErrorMessage(data.errorMessage);
-                } else if (data.messageKey === 'search.validation.query_required') {
-                    setErrorMessage(t({
-                        id: 'search.validation.query_required',
-                        message: 'Enter a search term.'
-                    }));
-                } else if (data.messageKey === 'search.validation.invalid_page') {
-                    setErrorMessage(t({
-                        id: 'search.validation.invalid_page',
-                        message: 'Invalid page number.'
-                    }));
-                } else {
-                    setErrorMessage(data.errorMessage || t({
-                        id: 'search.error.generic',
-                        message: 'Something went wrong while searching.'
-                    }));
-                }
+    const runSearch = useCallback(
+        async (searchQuery: string, pageNumber: number, authorUsername?: string, saveRecent: boolean = false) => {
+            const trimmedQuery = searchQuery.trim();
+            if (!trimmedQuery) {
+                return;
             }
-        } catch (error) {
-            logger.error('Search page error:', error);
-            setSearchResults(null);
-            setErrorMessage(t({
-                id: 'search.error.network',
-                message: 'Search is temporarily unavailable. Please try again shortly.'
-            }));
-        } finally {
-            setIsLoading(false);
-        }
-    }, [t]);
+
+            setIsLoading(true);
+            setHasSearched(true);
+            setErrorMessage(null);
+
+            try {
+                const { data } = await searchPosts(trimmedQuery, {
+                    page: pageNumber,
+                    username: authorUsername?.trim() || undefined
+                });
+
+                if (data.status === 'DONE') {
+                    setSearchResults({
+                        results: data.body.results || [],
+                        lastPage: data.body.lastPage || 1,
+                        query: data.body.query || trimmedQuery,
+                        totalSize: data.body.totalSize,
+                        elapsedTime: data.body.elapsedTime
+                    });
+                    setActiveQuery(data.body.query || trimmedQuery);
+                    setPage(pageNumber);
+
+                    if (saveRecent) {
+                        saveRecentSearch(trimmedQuery);
+                        setRecentSearches(getRecentSearches());
+                    }
+                } else {
+                    setSearchResults(null);
+                    if (data.errorMessage) {
+                        setErrorMessage(data.errorMessage);
+                    } else if (data.messageKey === 'search.validation.query_required') {
+                        setErrorMessage(
+                            t({
+                                id: 'search.validation.query_required',
+                                message: 'Enter a search term.'
+                            })
+                        );
+                    } else if (data.messageKey === 'search.validation.invalid_page') {
+                        setErrorMessage(
+                            t({
+                                id: 'search.validation.invalid_page',
+                                message: 'Invalid page number.'
+                            })
+                        );
+                    } else {
+                        setErrorMessage(
+                            data.errorMessage ||
+                                t({
+                                    id: 'search.error.generic',
+                                    message: 'Something went wrong while searching.'
+                                })
+                        );
+                    }
+                }
+            } catch (error) {
+                logger.error('Search page error:', error);
+                setSearchResults(null);
+                setErrorMessage(
+                    t({
+                        id: 'search.error.network',
+                        message: 'Search is temporarily unavailable. Please try again shortly.'
+                    })
+                );
+            } finally {
+                setIsLoading(false);
+            }
+        },
+        [t]
+    );
 
     useEffect(() => {
         const syncFromUrl = () => {
@@ -277,10 +271,12 @@ const SearchPage = ({ username }: SearchPageProps) => {
         if (!searchQuery) {
             setSearchResults(null);
             setHasSearched(true);
-            setErrorMessage(t({
-                id: 'search.validation.query_required',
-                message: 'Enter a search term.'
-            }));
+            setErrorMessage(
+                t({
+                    id: 'search.validation.query_required',
+                    message: 'Enter a search term.'
+                })
+            );
             pushSearchUrl('', 1, usernameFilter);
             return;
         }
@@ -328,9 +324,7 @@ const SearchPage = ({ username }: SearchPageProps) => {
         setRecentSearches(getRecentSearches());
     };
 
-    const visiblePages = searchResults
-        ? getVisiblePages(page, searchResults.lastPage)
-        : [];
+    const visiblePages = searchResults ? getVisiblePages(page, searchResults.lastPage) : [];
     const displayedQuery = searchResults?.query || activeQuery;
 
     const matchFieldLabels: Record<SearchMatchedField, string> = {
@@ -353,10 +347,12 @@ const SearchPage = ({ username }: SearchPageProps) => {
     };
 
     const getMatchedFieldLabels = (result: SearchResult): string[] => {
-        const fields = result.matchedFields ?? result.positions
-            ?.map((position) => LEGACY_MATCH_FIELDS[position])
-            .filter((field): field is SearchMatchedField => Boolean(field))
-            ?? [];
+        const fields =
+            result.matchedFields ??
+            result.positions
+                ?.map((position) => LEGACY_MATCH_FIELDS[position])
+                .filter((field): field is SearchMatchedField => Boolean(field)) ??
+            [];
 
         return fields.map((field) => matchFieldLabels[field]);
     };
@@ -406,7 +402,8 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                 aria-label={t({
                                     id: 'search.input.clear',
                                     message: 'Clear search term'
-                                })}>
+                                })}
+                            >
                                 <InlineIcon icon={X} className="text-xs" />
                             </button>
                         )}
@@ -415,7 +412,8 @@ const SearchPage = ({ username }: SearchPageProps) => {
                     {usernameFilter && (
                         <p className="text-xs text-content-secondary mt-2">
                             <Trans id="search.author_filter">
-                                Filtering by author: <span className="font-semibold text-content">@{usernameFilter}</span>
+                                Filtering by author:{' '}
+                                <span className="font-semibold text-content">@{usernameFilter}</span>
                             </Trans>
                         </p>
                     )}
@@ -430,11 +428,13 @@ const SearchPage = ({ username }: SearchPageProps) => {
                             {recentSearches.map((recentSearch) => (
                                 <div
                                     key={recentSearch}
-                                    className="inline-flex items-center gap-1 pl-3 pr-1 h-11 rounded-full bg-surface-subtle border border-line">
+                                    className="inline-flex items-center gap-1 pl-3 pr-1 h-11 rounded-full bg-surface-subtle border border-line"
+                                >
                                     <button
                                         type="button"
                                         onClick={() => handleRecentSearchClick(recentSearch)}
-                                        className="h-11 inline-flex items-center text-sm text-content hover:text-content max-w-[180px] truncate active:scale-[0.98] transition-all duration-150">
+                                        className="h-11 inline-flex items-center text-sm text-content hover:text-content max-w-[180px] truncate active:scale-[0.98] transition-all duration-150"
+                                    >
                                         {recentSearch}
                                     </button>
                                     <button
@@ -444,7 +444,8 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                         aria-label={t({
                                             id: 'search.recent.remove',
                                             message: `Remove “${{ query: recentSearch }}” from recent searches`
-                                        })}>
+                                        })}
+                                    >
                                         <InlineIcon icon={X} className="text-[10px]" />
                                     </button>
                                 </div>
@@ -491,10 +492,12 @@ const SearchPage = ({ username }: SearchPageProps) => {
                             {searchResults.results.map((result) => (
                                 <article
                                     key={`${result.author}-${result.url}`}
-                                    className="bg-surface border border-line-light rounded-2xl overflow-hidden hover:border-line hover:shadow-subtle transition-all duration-150">
+                                    className="bg-surface border border-line-light rounded-2xl overflow-hidden hover:border-line hover:shadow-subtle transition-all duration-150"
+                                >
                                     <a
                                         href={`/@${result.author}/${result.url}`}
-                                        className="block p-4 sm:p-5 transition-all duration-150 active:scale-[0.99]">
+                                        className="block p-4 sm:p-5 transition-all duration-150 active:scale-[0.99]"
+                                    >
                                         <div className="flex flex-col sm:flex-row gap-4">
                                             <div className="w-full sm:w-44 sm:flex-shrink-0">
                                                 <div className="h-36 sm:h-28 rounded-xl bg-surface-subtle border border-line overflow-hidden">
@@ -523,11 +526,13 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                                     />
                                                     <span className="font-medium text-content">{result.author}</span>
                                                     <span aria-hidden="true">·</span>
-                                                    <span>{formatPublishedDate(
-                                                        result.publishedDate,
-                                                        result.createdDate,
-                                                        locale
-                                                    )}</span>
+                                                    <span>
+                                                        {formatPublishedDate(
+                                                            result.publishedDate,
+                                                            result.createdDate,
+                                                            locale
+                                                        )}
+                                                    </span>
                                                     {result.readTime && result.readTime > 0 && (
                                                         <>
                                                             <span aria-hidden="true">·</span>
@@ -558,7 +563,8 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                                         {getMatchedFieldLabels(result).map((position) => (
                                                             <span
                                                                 key={`${result.url}-${position}`}
-                                                                className="inline-flex items-center px-2.5 py-1 rounded-md bg-surface-subtle text-content-secondary text-xs font-semibold">
+                                                                className="inline-flex items-center px-2.5 py-1 rounded-md bg-surface-subtle text-content-secondary text-xs font-semibold"
+                                                            >
                                                                 {position}
                                                             </span>
                                                         ))}
@@ -590,7 +596,8 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                 type="button"
                                 onClick={() => handlePageChange(page - 1)}
                                 disabled={page === 1}
-                                className="h-11 min-h-11 px-4 rounded-lg border border-line bg-surface text-sm font-medium text-content disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-subtle active:bg-surface-subtle active:scale-95 transition-all duration-150">
+                                className="h-11 min-h-11 px-4 rounded-lg border border-line bg-surface text-sm font-medium text-content disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-subtle active:bg-surface-subtle active:scale-95 transition-all duration-150"
+                            >
                                 <Trans id="search.pagination.previous">Previous</Trans>
                             </button>
 
@@ -605,10 +612,12 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                             message: `Go to page ${{ page: pageNumber }}`
                                         })}
                                         aria-current={pageNumber === page ? 'page' : undefined}
-                                        className={`w-11 h-11 min-w-11 min-h-11 rounded-lg text-sm font-semibold transition-all duration-150 active:scale-95 ${pageNumber === page
-                                            ? 'bg-action text-content-inverted hover:bg-action-hover'
-                                            : 'bg-surface border border-line text-content-secondary hover:bg-surface-subtle active:bg-surface-subtle'
-                                            }`}>
+                                        className={`w-11 h-11 min-w-11 min-h-11 rounded-lg text-sm font-semibold transition-all duration-150 active:scale-95 ${
+                                            pageNumber === page
+                                                ? 'bg-action text-content-inverted hover:bg-action-hover'
+                                                : 'bg-surface border border-line text-content-secondary hover:bg-surface-subtle active:bg-surface-subtle'
+                                        }`}
+                                    >
                                         {pageNumber}
                                     </button>
                                 ))}
@@ -618,14 +627,14 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                 type="button"
                                 onClick={() => handlePageChange(page + 1)}
                                 disabled={page === searchResults.lastPage}
-                                className="h-11 min-h-11 px-4 rounded-lg border border-line bg-surface text-sm font-medium text-content disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-subtle active:bg-surface-subtle active:scale-95 transition-all duration-150">
+                                className="h-11 min-h-11 px-4 rounded-lg border border-line bg-surface text-sm font-medium text-content disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-subtle active:bg-surface-subtle active:scale-95 transition-all duration-150"
+                            >
                                 <Trans id="search.pagination.next">Next</Trans>
                             </button>
                         </div>
                     )}
                 </section>
             )}
-
         </div>
     );
 };

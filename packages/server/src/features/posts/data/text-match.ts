@@ -19,8 +19,14 @@ const fieldText = {
   subtitle: { select: { subtitle: true }, read: (row: { subtitle: string }) => [row.subtitle] },
   slug: { select: { slug: true }, read: (row: { slug: string }) => [row.slug] },
   description: { select: { description: true }, read: (row: { description: string }) => [row.description] },
-  tags: { select: { tags: { select: { name: true } } }, read: (row: { tags: Array<{ name: string }> }) => row.tags.map(({ name }) => name) },
-  content: { select: { content: { select: { html: true } } }, read: (row: { content: { html: string } | null }) => [row.content?.html ?? ''] },
+  tags: {
+    select: { tags: { select: { name: true } } },
+    read: (row: { tags: Array<{ name: string }> }) => row.tags.map(({ name }) => name),
+  },
+  content: {
+    select: { content: { select: { html: true } } },
+    read: (row: { content: { html: string } | null }) => [row.content?.html ?? ''],
+  },
 } as const;
 
 /** SQLite LIKE folds ASCII letters only. */
@@ -46,19 +52,22 @@ export async function postIdsMatching(
   const plain = keywords.filter((keyword) => !likeWildcard.test(keyword));
   const wildcards = keywords.filter((keyword) => likeWildcard.test(keyword));
   if (plain.length) {
-    const rows = await db.post.findMany({ where: { AND: [base, { OR: plain.map(fieldFilter[field]) }] }, select: { id: true } });
+    const rows = await db.post.findMany({
+      where: { AND: [base, { OR: plain.map(fieldFilter[field]) }] },
+      select: { id: true },
+    });
     for (const { id } of rows) ids.add(id);
   }
   if (!wildcards.length) return ids;
   const { select, read } = fieldText[field];
   const candidates = { AND: [base, { OR: wildcards.map(fieldFilter[field]) }] };
-  for (let cursor = 0; ;) {
-    const batch = await db.post.findMany({
+  for (let cursor = 0; ; ) {
+    const batch = (await db.post.findMany({
       where: { AND: [candidates, { id: { gt: cursor } }] },
       orderBy: { id: 'asc' },
       take: confirmBatch,
       select: { id: true, ...select },
-    }) as unknown as Array<{ id: number } & Parameters<typeof read>[0]>;
+    })) as unknown as Array<{ id: number } & Parameters<typeof read>[0]>;
     for (const row of batch) {
       const texts = (read as (value: unknown) => string[])(row);
       if (texts.some((text) => wildcards.some((keyword) => containsLiteral(text, keyword)))) ids.add(row.id);

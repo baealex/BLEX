@@ -51,14 +51,12 @@ const Select = ({
     };
 
     // Convert items with empty value to internal placeholder value
-    const internalItems = items.map(item => ({
+    const internalItems = items.map((item) => ({
         ...item,
         value: item.value === '' ? EMPTY_VALUE : item.value
     }));
 
-    const errorStyles = error
-        ? 'border-danger-line focus:border-danger focus:ring-danger/20 bg-danger-surface/70'
-        : '';
+    const errorStyles = error ? 'border-danger-line focus:border-danger focus:ring-danger/20 bg-danger-surface/70' : '';
 
     return (
         <div>
@@ -77,7 +75,8 @@ const Select = ({
                         ${selectDensityStyles[density].trigger}
                         ${errorStyles}
                         ${className}
-                    `}>
+                    `}
+                >
                     <RadixSelect.Value placeholder={placeholder} />
                     <RadixSelect.Icon>
                         <ChevronDown className="w-4 h-4 text-content-hint shrink-0" />
@@ -89,7 +88,8 @@ const Select = ({
                         className="z-50 bg-surface-elevated border border-line rounded-xl shadow-lg overflow-hidden data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
                         position="popper"
                         sideOffset={5}
-                        style={{ width: 'var(--radix-select-trigger-width)' }}>
+                        style={{ width: 'var(--radix-select-trigger-width)' }}
+                    >
                         <RadixSelect.Viewport className="p-1 max-h-60">
                             {internalItems.map((item) => (
                                 <RadixSelect.Item
@@ -103,7 +103,8 @@ const Select = ({
                                         data-[state=checked]:bg-line-light data-[state=checked]:text-content data-[state=checked]:font-medium
                                         transition-colors
                                         ${selectDensityStyles[density].item}
-                                    `}>
+                                    `}
+                                >
                                     <RadixSelect.ItemText>{item.label}</RadixSelect.ItemText>
                                     <RadixSelect.ItemIndicator className="absolute right-3">
                                         <Check className="w-4 h-4 text-content-secondary" />

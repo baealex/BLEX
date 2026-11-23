@@ -17,15 +17,8 @@ const budgets = [
         maxInitialFiles: 6,
         maxInitialBytes: 65 * 1024,
         maxInitialGzipBytes: 24 * 1024,
-        allowedInitialNames: [
-            'src/scripts/screen-loader.ts',
-            'preload-helper',
-            'theme'
-        ],
-        requiredDynamicNames: [
-            'src/screen-runtime.tsx',
-            'toast'
-        ]
+        allowedInitialNames: ['src/scripts/screen-loader.ts', 'preload-helper', 'theme'],
+        requiredDynamicNames: ['src/screen-runtime.tsx', 'toast']
     },
     {
         entries: ['src/screen-runtime.tsx'],
@@ -94,9 +87,7 @@ const budgets = [
         maxInitialFiles: 1,
         maxInitialBytes: 225 * 1024,
         maxInitialGzipBytes: 46 * 1024,
-        allowedInitialNames: [
-            'styles/main.scss'
-        ]
+        allowedInitialNames: ['styles/main.scss']
     },
     {
         entries: ['styles/main.scss', 'styles/post.scss'],
@@ -104,10 +95,7 @@ const budgets = [
         maxInitialFiles: 2,
         maxInitialBytes: 235 * 1024,
         maxInitialGzipBytes: 49 * 1024,
-        allowedInitialNames: [
-            'styles/main.scss',
-            'styles/post.scss'
-        ]
+        allowedInitialNames: ['styles/main.scss', 'styles/post.scss']
     }
 ];
 
@@ -124,8 +112,7 @@ const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
 
 const formatKiB = (bytes) => `${(bytes / 1024).toFixed(1)} KiB`;
 
-const getSearchValue = (item, key) =>
-    [key, item.name, item.src, item.file].filter(Boolean).join(' ');
+const getSearchValue = (item, key) => [key, item.name, item.src, item.file].filter(Boolean).join(' ');
 
 const collectInitialGraph = (entryKeys) => {
     const visited = new Set();
@@ -157,11 +144,8 @@ const getItemName = (key) => {
     return item?.src ?? item?.name ?? key;
 };
 
-const collectDynamicNames = (entryKeys) => new Set(
-    entryKeys.flatMap((entryKey) =>
-        (manifest[entryKey]?.dynamicImports ?? []).map(getItemName)
-    )
-);
+const collectDynamicNames = (entryKeys) =>
+    new Set(entryKeys.flatMap((entryKey) => (manifest[entryKey]?.dynamicImports ?? []).map(getItemName)));
 
 const getFileStats = (key) => {
     const item = manifest[key];
@@ -191,16 +175,15 @@ for (const budget of budgets) {
         : [];
     const blockedStats = budget.blockedHints
         ? stats
-            .map((item) => {
-                const haystack = `${item.value}\n${item.source}`.toLowerCase();
-                const hits = budget.blockedHints.filter((hint) => haystack.includes(hint));
-                return { ...item, hits };
-            })
-            .filter((item) => item.hits.length > 0)
+              .map((item) => {
+                  const haystack = `${item.value}\n${item.source}`.toLowerCase();
+                  const hits = budget.blockedHints.filter((hint) => haystack.includes(hint));
+                  return { ...item, hits };
+              })
+              .filter((item) => item.hits.length > 0)
         : [];
     const dynamicNames = collectDynamicNames(budget.entries);
-    const missingDynamicNames = (budget.requiredDynamicNames ?? [])
-        .filter((name) => !dynamicNames.has(name));
+    const missingDynamicNames = (budget.requiredDynamicNames ?? []).filter((name) => !dynamicNames.has(name));
 
     console.log(`Entry budget report: ${budget.label}`);
     console.log(`- Files: ${stats.length}`);
@@ -218,9 +201,7 @@ for (const budget of budgets) {
     const violations = [];
 
     if (budget.maxInitialFiles && stats.length > budget.maxInitialFiles) {
-        violations.push(
-            `${budget.label} imports ${stats.length} files, limit is ${budget.maxInitialFiles}`
-        );
+        violations.push(`${budget.label} imports ${stats.length} files, limit is ${budget.maxInitialFiles}`);
     }
 
     if (totalRawBytes > budget.maxInitialBytes) {
@@ -248,9 +229,7 @@ for (const budget of budgets) {
     }
 
     if (missingDynamicNames.length > 0) {
-        violations.push(
-            `${budget.label} no longer defers required modules: ${missingDynamicNames.join(', ')}`
-        );
+        violations.push(`${budget.label} no longer defers required modules: ${missingDynamicNames.join(', ')}`);
     }
 
     if (violations.length > 0) {
@@ -269,10 +248,7 @@ for (const budget of assetBudgets) {
     }
 
     const assets = item.assets ?? [];
-    const totalBytes = assets.reduce(
-        (sum, file) => sum + statSync(resolve(outDir, file)).size,
-        0
-    );
+    const totalBytes = assets.reduce((sum, file) => sum + statSync(resolve(outDir, file)).size, 0);
     const violations = [];
 
     console.log(`Asset budget report: ${budget.label}`);
@@ -280,15 +256,11 @@ for (const budget of assetBudgets) {
     console.log(`- Raw size: ${formatKiB(totalBytes)}`);
 
     if (assets.length > budget.maxAssets) {
-        violations.push(
-            `${budget.label} includes ${assets.length} assets, limit is ${budget.maxAssets}`
-        );
+        violations.push(`${budget.label} includes ${assets.length} assets, limit is ${budget.maxAssets}`);
     }
 
     if (totalBytes > budget.maxBytes) {
-        violations.push(
-            `${budget.label} raw size is ${formatKiB(totalBytes)}, limit is ${formatKiB(budget.maxBytes)}`
-        );
+        violations.push(`${budget.label} raw size is ${formatKiB(totalBytes)}, limit is ${formatKiB(budget.maxBytes)}`);
     }
 
     if (violations.length > 0) {

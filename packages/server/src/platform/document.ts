@@ -5,11 +5,17 @@ const documentMarker = '<meta name="blex-application" content="1"/>';
 
 // Client routing can visit any application page from any initial document.
 export const applicationContentSecurityPolicy = [
-  "default-src 'none'", "img-src 'self' https: data: blob:", "media-src 'self' https: blob:",
-  "font-src 'self' data:", `style-src 'self' 'unsafe-inline' ${captchaSources}`,
-  `script-src 'self' ${captchaSources}`, `connect-src 'self' ${captchaSources}`,
+  "default-src 'none'",
+  "img-src 'self' https: data: blob:",
+  "media-src 'self' https: blob:",
+  "font-src 'self' data:",
+  `style-src 'self' 'unsafe-inline' ${captchaSources}`,
+  `script-src 'self' ${captchaSources}`,
+  `connect-src 'self' ${captchaSources}`,
   `frame-src ${youtubeFrameSources} ${captchaSources}`,
-  "form-action 'self'", "base-uri 'none'", "frame-ancestors 'none'",
+  "form-action 'self'",
+  "base-uri 'none'",
+  "frame-ancestors 'none'",
 ].join('; ');
 
 export function isApplicationDocument(payload: unknown): payload is string {

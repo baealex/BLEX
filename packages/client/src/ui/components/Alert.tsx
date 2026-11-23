@@ -10,14 +10,7 @@ interface AlertProps {
     headingLevel?: 3 | 4;
 }
 
-const Alert = ({
-    variant = 'info',
-    title,
-    children,
-    icon,
-    className = '',
-    headingLevel = 4
-}: AlertProps) => {
+const Alert = ({ variant = 'info', title, children, icon, className = '', headingLevel = 4 }: AlertProps) => {
     const variants = {
         info: {
             container: 'bg-surface-subtle border-line',
@@ -56,18 +49,10 @@ const Alert = ({
     return (
         <div className={`${config.container} border rounded-xl p-4 ${className}`}>
             <div className="flex items-start gap-3">
-                <div className={`${config.iconColor} flex-shrink-0 mt-0.5`}>
-                    {displayIcon}
-                </div>
+                <div className={`${config.iconColor} flex-shrink-0 mt-0.5`}>{displayIcon}</div>
                 <div className="flex-1 min-w-0">
-                    {title && (
-                        <Heading className={`text-sm font-semibold ${config.titleColor} mb-1`}>
-                            {title}
-                        </Heading>
-                    )}
-                    <div className={`text-sm ${config.textColor} ${title ? '' : 'leading-relaxed'}`}>
-                        {children}
-                    </div>
+                    {title && <Heading className={`text-sm font-semibold ${config.titleColor} mb-1`}>{title}</Heading>}
+                    <div className={`text-sm ${config.textColor} ${title ? '' : 'leading-relaxed'}`}>{children}</div>
                 </div>
             </div>
         </div>

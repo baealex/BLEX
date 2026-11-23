@@ -1,14 +1,47 @@
 import { randomBytes } from 'node:crypto';
 import type { CoverImagePosition, CoverLayout, Prisma, PrismaClient } from '@prisma/client';
 import { syncPostPublication } from '../../notifications/model.js';
-import { descriptionFromHtml, normalizedTags, plainText, readingTime, resolveContent, resolveCoverImage, slugify, validatePostInput } from './post-content.js';
-import { AuthoringPostInput, DbDate, POST_URL_MAX, RESERVED_URLS, StoredPost, UserRow, dateAsIso, field } from '../shared.js';
+import {
+  descriptionFromHtml,
+  normalizedTags,
+  plainText,
+  readingTime,
+  resolveContent,
+  resolveCoverImage,
+  slugify,
+  validatePostInput,
+} from './post-content.js';
+import {
+  AuthoringPostInput,
+  DbDate,
+  POST_URL_MAX,
+  RESERVED_URLS,
+  StoredPost,
+  UserRow,
+  dateAsIso,
+  field,
+} from '../shared.js';
 
 const storedPostSelect = {
-  id: true, title: true, subtitle: true, slug: true, image: true, description: true,
-  createdAt: true, updatedAt: true, publishedAt: true, deletedAt: true, authorId: true, readTime: true, seriesId: true,
-  isHidden: true, isAdvertised: true, commentsBlocked: true,
-  coverLayout: true, coverImagePosition: true, coverImageRatio: true,
+  id: true,
+  title: true,
+  subtitle: true,
+  slug: true,
+  image: true,
+  description: true,
+  createdAt: true,
+  updatedAt: true,
+  publishedAt: true,
+  deletedAt: true,
+  authorId: true,
+  readTime: true,
+  seriesId: true,
+  isHidden: true,
+  isAdvertised: true,
+  commentsBlocked: true,
+  coverLayout: true,
+  coverImagePosition: true,
+  coverImageRatio: true,
   author: { select: { username: true, isActive: true, profile: { select: { avatar: true } } } },
   series: { select: { name: true, slug: true, isHidden: true } },
   content: { select: { html: true } },
@@ -18,22 +51,49 @@ export async function loadPost(
   db: PrismaClient,
   where: { username?: string; userId?: number; slug: string },
 ): Promise<StoredPost | null> {
-  const owner = where.userId !== undefined ? { authorId: where.userId } : { author: { username: where.username ?? '' } };
-  const row = await db.post.findFirst({ where: { slug: where.slug, deletedAt: null, ...owner }, select: storedPostSelect });
+  const owner =
+    where.userId !== undefined ? { authorId: where.userId } : { author: { username: where.username ?? '' } };
+  const row = await db.post.findFirst({
+    where: { slug: where.slug, deletedAt: null, ...owner },
+    select: storedPostSelect,
+  });
   if (!row) return null;
   return {
-    id: row.id, title: row.title, subtitle: row.subtitle, url: row.slug, image: row.image, description: row.description,
-    createdDate: row.createdAt, updatedDate: row.updatedAt, publishedDate: row.publishedAt, deletedDate: row.deletedAt,
-    authorId: row.authorId, authorUsername: row.author.username, authorActive: row.author.isActive, authorAvatar: row.author.profile?.avatar ?? null,
-    readTime: row.readTime, seriesId: row.seriesId, seriesName: row.series?.name ?? null, seriesUrl: row.series?.slug ?? null,
-    seriesHidden: row.series?.isHidden ?? false, contentHtml: row.content?.html ?? '',
-    hide: row.isHidden, advertise: row.isAdvertised, blockComment: row.commentsBlocked,
-    coverLayout: row.coverLayout, coverImagePosition: row.coverImagePosition, coverImageRatio: row.coverImageRatio,
+    id: row.id,
+    title: row.title,
+    subtitle: row.subtitle,
+    url: row.slug,
+    image: row.image,
+    description: row.description,
+    createdDate: row.createdAt,
+    updatedDate: row.updatedAt,
+    publishedDate: row.publishedAt,
+    deletedDate: row.deletedAt,
+    authorId: row.authorId,
+    authorUsername: row.author.username,
+    authorActive: row.author.isActive,
+    authorAvatar: row.author.profile?.avatar ?? null,
+    readTime: row.readTime,
+    seriesId: row.seriesId,
+    seriesName: row.series?.name ?? null,
+    seriesUrl: row.series?.slug ?? null,
+    seriesHidden: row.series?.isHidden ?? false,
+    contentHtml: row.content?.html ?? '',
+    hide: row.isHidden,
+    advertise: row.isAdvertised,
+    blockComment: row.commentsBlocked,
+    coverLayout: row.coverLayout,
+    coverImagePosition: row.coverImagePosition,
+    coverImageRatio: row.coverImageRatio,
   };
 }
 
 export async function postTags(db: PrismaClient, postId: number): Promise<string[]> {
-  const tags = await db.tag.findMany({ where: { posts: { some: { id: postId } } }, orderBy: { name: 'asc' }, select: { name: true } });
+  const tags = await db.tag.findMany({
+    where: { posts: { some: { id: postId } } },
+    orderBy: { name: 'asc' },
+    select: { name: true },
+  });
   return tags.map(({ name }) => name);
 }
 
@@ -48,14 +108,22 @@ async function publicSeriesId(db: Prisma.TransactionClient, userId: number, url:
   return series?.id ?? null;
 }
 
-async function uniqueSlug(tx: Prisma.TransactionClient, title: string, customUrl: string, excludeId?: number): Promise<string> {
+async function uniqueSlug(
+  tx: Prisma.TransactionClient,
+  title: string,
+  customUrl: string,
+  excludeId?: number,
+): Promise<string> {
   const base = slugify(customUrl || title) || `post-${randomBytes(4).toString('hex')}`;
   let candidate = base.slice(0, POST_URL_MAX);
   let attempt = 0;
-  while (RESERVED_URLS.has(candidate) || await tx.post.findFirst({
-    where: { slug: candidate, id: { not: excludeId ?? -1 } },
-    select: { id: true },
-  })) {
+  while (
+    RESERVED_URLS.has(candidate) ||
+    (await tx.post.findFirst({
+      where: { slug: candidate, id: { not: excludeId ?? -1 } },
+      select: { id: true },
+    }))
+  ) {
     attempt += 1;
     const suffix = randomBytes(4).toString('hex');
     candidate = `${base.slice(0, Math.max(1, POST_URL_MAX - suffix.length - 1))}-${suffix}`;
@@ -94,7 +162,10 @@ const MAX_DRAFTS_PER_USER = 100;
 export class PostValidationError extends Error {
   readonly code: string;
 
-  constructor(readonly errorCode: 'VA' | 'RJ' | 'CF' | 'OF', message: string) {
+  constructor(
+    readonly errorCode: 'VA' | 'RJ' | 'CF' | 'OF',
+    message: string,
+  ) {
     super(message);
     this.name = 'PostValidationError';
     this.code = errorCode;
@@ -136,26 +207,42 @@ export interface EditorialSnapshot {
   publishedDate: Date | null;
 }
 
-export async function captureEditorialSnapshot(tx: Prisma.TransactionClient, postId: number): Promise<EditorialSnapshot> {
+export async function captureEditorialSnapshot(
+  tx: Prisma.TransactionClient,
+  postId: number,
+): Promise<EditorialSnapshot> {
   const row = await tx.post.findUnique({
     where: { id: postId },
     select: {
-      title: true, subtitle: true, description: true, updatedAt: true, publishedAt: true,
+      title: true,
+      subtitle: true,
+      description: true,
+      updatedAt: true,
+      publishedAt: true,
       content: { select: { html: true } },
       tags: { orderBy: { name: 'asc' }, select: { name: true } },
     },
   });
   if (!row) throw new PostValidationError('RJ', 'The post was not found.');
   return {
-    title: row.title, subtitle: row.subtitle, description: row.description, content: row.content?.html ?? '',
-    updatedDate: row.updatedAt, publishedDate: row.publishedAt, tags: row.tags.map(({ name }) => name),
+    title: row.title,
+    subtitle: row.subtitle,
+    description: row.description,
+    content: row.content?.html ?? '',
+    updatedDate: row.updatedAt,
+    publishedDate: row.publishedAt,
+    tags: row.tags.map(({ name }) => name),
   };
 }
 
 export function sameEditorialSnapshot(left: EditorialSnapshot, right: EditorialSnapshot): boolean {
-  return left.title === right.title && left.subtitle === right.subtitle
-    && left.content === right.content && left.description === right.description
-    && JSON.stringify(left.tags) === JSON.stringify(right.tags);
+  return (
+    left.title === right.title &&
+    left.subtitle === right.subtitle &&
+    left.content === right.content &&
+    left.description === right.description &&
+    JSON.stringify(left.tags) === JSON.stringify(right.tags)
+  );
 }
 
 function revisionExcerpt(content: string): string {
@@ -175,9 +262,18 @@ export async function insertRevision(
 ): Promise<number> {
   const { id } = await tx.postRevision.create({
     data: {
-      postId, actorId, restoredFromId, type, sourceUpdatedAt, createdAt: new Date(),
-      title: snapshot.title, subtitle: snapshot.subtitle, description: snapshot.description,
-      content: snapshot.content, contentExcerpt: revisionExcerpt(snapshot.content), tags: snapshot.tags,
+      postId,
+      actorId,
+      restoredFromId,
+      type,
+      sourceUpdatedAt,
+      createdAt: new Date(),
+      title: snapshot.title,
+      subtitle: snapshot.subtitle,
+      description: snapshot.description,
+      content: snapshot.content,
+      contentExcerpt: revisionExcerpt(snapshot.content),
+      tags: snapshot.tags,
     },
     select: { id: true },
   });
@@ -208,7 +304,7 @@ export async function createPost(
   const title = input.title || 'Untitled';
   const description = input.description || (input.text ? descriptionFromHtml(html) : '');
   const now = new Date();
-  const publishAt = asDraft ? null : reserved.value ?? now;
+  const publishAt = asDraft ? null : (reserved.value ?? now);
   const coverImage = await resolveCoverImage(db, author.id, input.coverImage, '', input.removeCoverImage);
 
   return db.$transaction(async (tx) => {
@@ -222,10 +318,22 @@ export async function createPost(
     const seriesId = await publicSeriesId(tx, author.id, input.series);
     const { id: postId } = await tx.post.create({
       data: {
-        title, subtitle: input.subtitle, slug, image: coverImage, readTime: readingTime(html), createdAt: now, updatedAt: now,
-        authorId: author.id, seriesId, description, publishedAt: publishAt,
-        isHidden: input.hide, isAdvertised: input.advertise, commentsBlocked: input.blockComment,
-        coverLayout: input.coverLayout as CoverLayout, coverImagePosition: input.coverImagePosition as CoverImagePosition,
+        title,
+        subtitle: input.subtitle,
+        slug,
+        image: coverImage,
+        readTime: readingTime(html),
+        createdAt: now,
+        updatedAt: now,
+        authorId: author.id,
+        seriesId,
+        description,
+        publishedAt: publishAt,
+        isHidden: input.hide,
+        isAdvertised: input.advertise,
+        commentsBlocked: input.blockComment,
+        coverLayout: input.coverLayout as CoverLayout,
+        coverImagePosition: input.coverImagePosition as CoverImagePosition,
         coverImageRatio: input.coverImageRatio,
         draftScheduledAt: asDraft ? draftScheduleValue(input.reservedDate) : null,
         content: { create: { html } },
@@ -258,7 +366,11 @@ export async function updatePost(
   const isStoredDraft = post.publishedDate === null;
   const html = options.preserveExistingHtml
     ? post.contentHtml
-    : input.text ? resolveContent(input) : options.clearContent ? '' : null;
+    : input.text
+      ? resolveContent(input)
+      : options.clearContent
+        ? ''
+        : null;
   if (!options.allowEmptyBody && !html) throw new PostValidationError('VA', 'Enter some content.');
   if (html !== null && !options.allowEmptyBody && !html) throw new PostValidationError('VA', 'Enter some content.');
   const schedule = input.reservedDate ? scheduledDate(input.reservedDate) : { value: null, error: null };
@@ -288,24 +400,38 @@ export async function updatePost(
   return db.$transaction(async (tx) => {
     const previousSnapshot = await captureEditorialSnapshot(tx, post.id);
     const previousUpdatedDate = post.updatedDate;
-    const shouldRecordDraftSnapshot = isStoredDraft
-      && Boolean(options.updateDraft || options.publishDraft)
-      && await draftSnapshotDue(tx, post.id);
+    const shouldRecordDraftSnapshot =
+      isStoredDraft && Boolean(options.updateDraft || options.publishDraft) && (await draftSnapshotDue(tx, post.id));
     const seriesId = await publicSeriesId(tx, author.id, input.series);
-    const nextUrl = isStoredDraft && requestedUrl !== post.url
-      ? await uniqueSlug(tx, title, requestedUrl, post.id)
-      : post.url;
+    const nextUrl =
+      isStoredDraft && requestedUrl !== post.url ? await uniqueSlug(tx, title, requestedUrl, post.id) : post.url;
     const nextPublishDate = options.publishDraft
-      ? schedule.value ?? now
-      : isScheduledPost && schedule.value ? schedule.value : post.publishedDate;
+      ? (schedule.value ?? now)
+      : isScheduledPost && schedule.value
+        ? schedule.value
+        : post.publishedDate;
     const { count: changed } = await tx.post.updateMany({
-      where: { id: post.id, authorId: author.id, deletedAt: null, updatedAt: options.expectedUpdatedDate ?? post.updatedDate },
+      where: {
+        id: post.id,
+        authorId: author.id,
+        deletedAt: null,
+        updatedAt: options.expectedUpdatedDate ?? post.updatedDate,
+      },
       data: {
-        title, subtitle: input.subtitle, slug: nextUrl, image: coverImage, seriesId, description,
+        title,
+        subtitle: input.subtitle,
+        slug: nextUrl,
+        image: coverImage,
+        seriesId,
+        description,
         readTime: html === null ? readingTime(post.contentHtml) : readingTime(html),
-        updatedAt: now, publishedAt: nextPublishDate,
-        isHidden: input.hide, isAdvertised: input.advertise, commentsBlocked: input.blockComment,
-        coverLayout: input.coverLayout as CoverLayout, coverImagePosition: input.coverImagePosition as CoverImagePosition,
+        updatedAt: now,
+        publishedAt: nextPublishDate,
+        isHidden: input.hide,
+        isAdvertised: input.advertise,
+        commentsBlocked: input.blockComment,
+        coverLayout: input.coverLayout as CoverLayout,
+        coverImagePosition: input.coverImagePosition as CoverImagePosition,
         coverImageRatio: input.coverImageRatio,
       },
     });
@@ -345,7 +471,12 @@ export async function trashPost(
   const deletedAt = new Date();
   await db.$transaction(async (tx) => {
     const { count } = await tx.post.updateMany({
-      where: { id: post.id, authorId: author.id, deletedAt: null, ...(expectedUpdatedDate ? { updatedAt: expectedUpdatedDate } : {}) },
+      where: {
+        id: post.id,
+        authorId: author.id,
+        deletedAt: null,
+        ...(expectedUpdatedDate ? { updatedAt: expectedUpdatedDate } : {}),
+      },
       data: { deletedAt },
     });
     if (expectedUpdatedDate !== undefined && count === 0) {
@@ -357,7 +488,13 @@ export async function trashPost(
 }
 
 export function postPublic(post: StoredPost): boolean {
-  return post.authorActive && post.deletedDate === null && post.publishedDate !== null && post.publishedDate.valueOf() <= Date.now() && !post.hide;
+  return (
+    post.authorActive &&
+    post.deletedDate === null &&
+    post.publishedDate !== null &&
+    post.publishedDate.valueOf() <= Date.now() &&
+    !post.hide
+  );
 }
 
 export async function updatePostSettings(
@@ -390,18 +527,23 @@ export async function updatePostSettings(
   if (field(query.series)) {
     const seriesId = await publicSeriesId(db, author.id, field(body.series));
     await db.post.update({ where: { id: post.id }, data: { seriesId, updatedAt: now }, select: { id: true } });
-    const series = seriesId === null ? null : await db.series.findUnique({ where: { id: seriesId }, select: { slug: true } });
+    const series =
+      seriesId === null ? null : await db.series.findUnique({ where: { id: seriesId }, select: { slug: true } });
     return { series: series?.slug ?? null };
   }
   if (field(query.reservedDate)) {
     const value = field(body.reservedDate);
     const parsed = scheduledDate(value);
-    if (!value || parsed.error || !parsed.value) throw new PostValidationError('VA', parsed.error ?? 'Check the scheduled time.');
+    if (!value || parsed.error || !parsed.value)
+      throw new PostValidationError('VA', parsed.error ?? 'Check the scheduled time.');
     if (!post.publishedDate || post.publishedDate.valueOf() <= Date.now()) {
       throw new PostValidationError('RJ', 'Only scheduled posts can have their scheduled time changed.');
     }
     await db.$transaction(async (tx) => {
-      await tx.post.updateMany({ where: { id: post.id, authorId: author.id }, data: { publishedAt: parsed.value, updatedAt: now } });
+      await tx.post.updateMany({
+        where: { id: post.id, authorId: author.id },
+        data: { publishedAt: parsed.value, updatedAt: now },
+      });
       await syncPostPublication(tx, post.id);
     });
     return {};

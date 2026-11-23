@@ -8,19 +8,29 @@ export function authorFeed(siteUrl: URL, username: string) {
 }
 
 /** Sends the agent discovery headers and returns the Markdown URL when AEO is enabled. */
-export async function advertiseMarkdown(reply: FastifyReply, db: PrismaClient, siteUrl: URL, path: string): Promise<string | undefined> {
+export async function advertiseMarkdown(
+  reply: FastifyReply,
+  db: PrismaClient,
+  siteUrl: URL,
+  path: string,
+): Promise<string | undefined> {
   const site = await db.siteSetting.findUnique({ where: { id: 1 }, select: { aeoEnabled: true } });
   if (!site?.aeoEnabled) return undefined;
   const markdown = makeAbsolute(siteUrl, `${path}.md`);
   const llms = makeAbsolute(siteUrl, '/llms.txt');
-  reply.header('Link', `<${markdown}>; rel="alternate"; type="text/markdown", <${llms}>; rel="llms-txt"`).header('X-Llms-Txt', llms);
+  reply
+    .header('Link', `<${markdown}>; rel="alternate"; type="text/markdown", <${llms}>; rel="llms-txt"`)
+    .header('X-Llms-Txt', llms);
   return markdown;
 }
 
 export function renderHtml(reply: FastifyReply, html: string): FastifyReply {
   return reply
     .type('text/html; charset=utf-8')
-    .header('Content-Security-Policy', "default-src 'none'; img-src 'self' https:; media-src 'self' https:; frame-src https://youtube.com https://www.youtube.com https://youtube-nocookie.com https://www.youtube-nocookie.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'")
+    .header(
+      'Content-Security-Policy',
+      "default-src 'none'; img-src 'self' https:; media-src 'self' https:; frame-src https://youtube.com https://www.youtube.com https://youtube-nocookie.com https://www.youtube-nocookie.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+    )
     .send(html);
 }
 
@@ -30,10 +40,7 @@ export async function getLayoutContext(
   db: PrismaClient,
   options: PublicPageOptions,
 ): Promise<{ brand: SiteBrand; siteName: string; viewer: PublicPageViewer | null }> {
-  const [brand, viewer] = await Promise.all([
-    readPublicSiteBrand(db),
-    readViewer(request, reply, options),
-  ]);
+  const [brand, viewer] = await Promise.all([readPublicSiteBrand(db), readViewer(request, reply, options)]);
   return { brand, siteName: brand.siteName, viewer };
 }
 
@@ -94,13 +101,15 @@ export async function readViewer(
   reply: FastifyReply,
   options: PublicPageOptions,
 ): Promise<PublicPageViewer | null> {
-  const viewer = await options.currentUser?.(request) ?? null;
+  const viewer = (await options.currentUser?.(request)) ?? null;
   if (viewer) reply.header('Cache-Control', 'private, no-store').header('Vary', 'Cookie');
   return viewer;
 }
 
 export function csrfCookie(request: FastifyRequest): string {
-  const entry = (request.headers.cookie ?? '').split(';').map((part) => part.trim())
+  const entry = (request.headers.cookie ?? '')
+    .split(';')
+    .map((part) => part.trim())
     .find((part) => part.startsWith('csrftoken='));
   const value = entry?.slice('csrftoken='.length) ?? '';
   return /^[A-Za-z0-9_-]{43}$/.test(value) ? value : '';

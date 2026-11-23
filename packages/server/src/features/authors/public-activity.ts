@@ -56,7 +56,11 @@ async function heatmap(db: PrismaClient, userId: number, own: boolean) {
   const maxDay = dateFormat.format(end);
   const days: Record<string, number> = {};
   // Day keys keep their first-seen order in the JSON: posts, then comments, then likes.
-  const entries = [...posts.map(({ publishedAt }) => publishedAt!), ...comments.map(({ createdAt }) => createdAt), ...likes.map(({ createdAt }) => createdAt)];
+  const entries = [
+    ...posts.map(({ publishedAt }) => publishedAt!),
+    ...comments.map(({ createdAt }) => createdAt),
+    ...likes.map(({ createdAt }) => createdAt),
+  ];
   for (const date of entries) {
     const day = dateFormat.format(date);
     if (day >= minDay && day <= maxDay) days[day] = (days[day] ?? 0) + 1;
@@ -111,23 +115,48 @@ async function recentActivities(db: PrismaClient, userId: number): Promise<Recen
       select: { createdAt: true, post: linkedPost },
     }),
   ]);
-  const linked = ({ createdAt, post }: { createdAt: Date; post: { title: string; slug: string; author: { username: string } } }): PostActivity => ({
-    title: post.title, slug: post.slug, username: post.author.username, date: createdAt,
+  const linked = ({
+    createdAt,
+    post,
+  }: {
+    createdAt: Date;
+    post: { title: string; slug: string; author: { username: string } };
+  }): PostActivity => ({
+    title: post.title,
+    slug: post.slug,
+    username: post.author.username,
+    date: createdAt,
   });
-  const posts = postRows.map((row): PostActivity => ({ title: row.title, slug: row.slug, username: row.author.username, date: row.publishedAt! }));
-  const series = seriesRows.map((row): PostActivity => ({ title: row.name, slug: row.slug, username: row.owner.username, date: row.createdAt }));
+  const posts = postRows.map(
+    (row): PostActivity => ({
+      title: row.title,
+      slug: row.slug,
+      username: row.author.username,
+      date: row.publishedAt!,
+    }),
+  );
+  const series = seriesRows.map(
+    (row): PostActivity => ({ title: row.name, slug: row.slug, username: row.owner.username, date: row.createdAt }),
+  );
   const comments = commentRows.map(linked);
   const likes = likeRows.map(linked);
   const item = (type: RecentActivity['type'], row: PostActivity, url: string): RecentActivity => ({
-    type, title: row.title, url, date: since(row.date), sortDate: row.date.getTime(),
+    type,
+    title: row.title,
+    url,
+    date: since(row.date),
+    sortDate: row.date.getTime(),
   });
-  const seriesPath = (row: PostActivity) => `/@${encodeURIComponent(row.username)}/series/${encodeURIComponent(row.slug)}`;
+  const seriesPath = (row: PostActivity) =>
+    `/@${encodeURIComponent(row.username)}/series/${encodeURIComponent(row.slug)}`;
   return [
     ...posts.map((row) => item('post', row, publicPostPath(row.username, row.slug))),
     ...series.map((row) => item('series', row, seriesPath(row))),
     ...comments.map((row) => item('comment', row, publicPostPath(row.username, row.slug))),
     ...likes.map((row) => item('like', row, publicPostPath(row.username, row.slug))),
-  ].sort((left, right) => right.sortDate - left.sortDate).slice(0, RECENT_ACTIVITY_LIMIT);
+  ]
+    .sort((left, right) => right.sortDate - left.sortDate)
+    .slice(0, RECENT_ACTIVITY_LIMIT);
 }
 
 export async function readAuthorActivity(db: PrismaClient, userId: number) {
@@ -135,39 +164,71 @@ export async function readAuthorActivity(db: PrismaClient, userId: number) {
   return { days, recent };
 }
 
-export interface RelatedPost { slug: string; title: string; image: string; description: string; readTime: number; published: Date; username: string; name: string; avatar: string }
+export interface RelatedPost {
+  slug: string;
+  title: string;
+  image: string;
+  description: string;
+  readTime: number;
+  published: Date;
+  username: string;
+  name: string;
+  avatar: string;
+}
 
 export async function relatedPosts(db: PrismaClient, sourceId: number, sourceAuthor: number): Promise<RelatedPost[]> {
   const now = new Date();
-  const sourceTags = (await db.tag.findMany({ where: { posts: { some: { id: sourceId } } }, select: { id: true } })).map(({ id }) => id);
+  const sourceTags = (
+    await db.tag.findMany({ where: { posts: { some: { id: sourceId } } }, select: { id: true } })
+  ).map(({ id }) => id);
   if (!sourceTags.length) return [];
   // Ranks on ids, dates, and counts only, then loads the eight winners.
   const candidates = await db.post.findMany({
     where: { AND: [publicPostWhere(now), { id: { not: sourceId }, tags: { some: { id: { in: sourceTags } } } }] },
     select: {
-      id: true, authorId: true, publishedAt: true,
+      id: true,
+      authorId: true,
+      publishedAt: true,
       tags: { where: { id: { in: sourceTags } }, select: { id: true } },
       _count: { select: { tags: true, likes: true, comments: true } },
     },
   });
-  const ranked = candidates.map((post) => {
-    const overlap = post.tags.length;
-    const age = (now.getTime() - post.publishedAt!.getTime()) / 86_400_000;
-    return {
-      id: post.id,
-      published: post.publishedAt!.getTime(),
-      overlap,
-      tagScore: Math.min(overlap * 3, 10),
-      similarity: overlap / (sourceTags.length + post._count.tags - overlap),
-      sameAuthor: post.authorId === sourceAuthor ? 1 : 0,
-      quality: Math.min(post._count.likes * 2 + post._count.comments, 10) + (age < 7 ? 5 : age < 30 ? 3 : age < 90 ? 1 : 0),
-    };
-  }).sort((left, right) => right.tagScore - left.tagScore || right.overlap - left.overlap || right.similarity - left.similarity
-    || left.sameAuthor - right.sameAuthor || right.quality - left.quality || right.published - left.published || right.id - left.id).slice(0, 8);
+  const ranked = candidates
+    .map((post) => {
+      const overlap = post.tags.length;
+      const age = (now.getTime() - post.publishedAt!.getTime()) / 86_400_000;
+      return {
+        id: post.id,
+        published: post.publishedAt!.getTime(),
+        overlap,
+        tagScore: Math.min(overlap * 3, 10),
+        similarity: overlap / (sourceTags.length + post._count.tags - overlap),
+        sameAuthor: post.authorId === sourceAuthor ? 1 : 0,
+        quality:
+          Math.min(post._count.likes * 2 + post._count.comments, 10) + (age < 7 ? 5 : age < 30 ? 3 : age < 90 ? 1 : 0),
+      };
+    })
+    .sort(
+      (left, right) =>
+        right.tagScore - left.tagScore ||
+        right.overlap - left.overlap ||
+        right.similarity - left.similarity ||
+        left.sameAuthor - right.sameAuthor ||
+        right.quality - left.quality ||
+        right.published - left.published ||
+        right.id - left.id,
+    )
+    .slice(0, 8);
   const rows = await db.post.findMany({
     where: { id: { in: ranked.map(({ id }) => id) } },
     select: {
-      id: true, slug: true, title: true, image: true, description: true, readTime: true, publishedAt: true,
+      id: true,
+      slug: true,
+      title: true,
+      image: true,
+      description: true,
+      readTime: true,
+      publishedAt: true,
       author: { select: { username: true, name: true, profile: { select: { avatar: true } } } },
     },
   });
@@ -175,8 +236,14 @@ export async function relatedPosts(db: PrismaClient, sourceId: number, sourceAut
   return ranked.map(({ id }) => {
     const post = byId.get(id)!;
     return {
-      slug: post.slug, title: post.title, image: post.image, description: post.description, readTime: post.readTime,
-      published: post.publishedAt!, username: post.author.username, name: post.author.name,
+      slug: post.slug,
+      title: post.title,
+      image: post.image,
+      description: post.description,
+      readTime: post.readTime,
+      published: post.publishedAt!,
+      username: post.author.username,
+      name: post.author.name,
       avatar: post.author.profile?.avatar ?? '',
     };
   });
@@ -190,7 +257,11 @@ export function registerPublicActivity(app: FastifyInstance, db: PrismaClient, o
       select: { createdAt: true, user: { select: { username: true } } },
     });
     if (!changed) return reply.code(404).send('Not found');
-    return done({ oldUsername: request.params.username, newUsername: changed.user.username, createdDate: dateLabel.format(changed.createdAt) });
+    return done({
+      oldUsername: request.params.username,
+      newUsername: changed.user.username,
+      createdDate: dateLabel.format(changed.createdAt),
+    });
   });
   app.get<{ Params: { username: string } }>('/v1/users/@:username/heatmap', async (request, reply) => {
     const account = await db.user.findUnique({ where: { username: request.params.username }, select: { id: true } });
@@ -206,17 +277,27 @@ export function registerPublicActivity(app: FastifyInstance, db: PrismaClient, o
     const page = Number(new URL(request.url, options.siteUrl).searchParams.get('page') || '1');
     if (!Number.isSafeInteger(page) || page < 1) return reply.code(404).send('Not found');
     const mine = { authorId: user.id, post: { deletedAt: null } };
-    const lastPage = Math.max(1, Math.ceil(await db.comment.count({ where: mine }) / 10));
+    const lastPage = Math.max(1, Math.ceil((await db.comment.count({ where: mine })) / 10));
     if (page > lastPage) return reply.code(404).send('Not found');
     const rows = await db.comment.findMany({
       where: mine,
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       skip: (page - 1) * 10,
       take: 10,
-      select: { html: true, createdAt: true, post: { select: { title: true, slug: true, author: { select: { username: true } } } } },
+      select: {
+        html: true,
+        createdAt: true,
+        post: { select: { title: true, slug: true, author: { select: { username: true } } } },
+      },
     });
-    return done({ comments: rows.map((row) => ({ posts: { author: row.post.author.username, title: row.post.title, url: row.post.slug },
-      content: sanitizePostHtml(row.html), createdDate: since(row.createdAt) })), lastPage });
+    return done({
+      comments: rows.map((row) => ({
+        posts: { author: row.post.author.username, title: row.post.title, url: row.post.slug },
+        content: sanitizePostHtml(row.html),
+        createdDate: since(row.createdAt),
+      })),
+      lastPage,
+    });
   });
 
   type PostRoute = { Params: { username: string; slug: string } };
@@ -231,12 +312,25 @@ export function registerPublicActivity(app: FastifyInstance, db: PrismaClient, o
       if (!source) return reply.code(404).send('Not found');
       const items = await relatedPosts(db, source.id, source.authorId);
       reply.header('Cache-Control', 'private, no-store');
-      if (route.startsWith('/v1/')) return done({ posts: items.map((item) => ({
-        url: item.slug, title: item.title, image: item.image || null, metaDescription: item.description, readTime: item.readTime,
-        publishedDate: since(item.published), publishedDateIso: dateFormat.format(item.published), publishedAt: toIsoDateTime(item.published),
-        authorUsername: item.username, authorName: item.name, authorImage: item.avatar || null,
-      })) });
-      return reply.type('text/html; charset=utf-8').send(renderPage('@{$username}/{$slug}/related', { source, username, slug, items }));
+      if (route.startsWith('/v1/'))
+        return done({
+          posts: items.map((item) => ({
+            url: item.slug,
+            title: item.title,
+            image: item.image || null,
+            metaDescription: item.description,
+            readTime: item.readTime,
+            publishedDate: since(item.published),
+            publishedDateIso: dateFormat.format(item.published),
+            publishedAt: toIsoDateTime(item.published),
+            authorUsername: item.username,
+            authorName: item.name,
+            authorImage: item.avatar || null,
+          })),
+        });
+      return reply
+        .type('text/html; charset=utf-8')
+        .send(renderPage('@{$username}/{$slug}/related', { source, username, slug, items }));
     });
   }
 }

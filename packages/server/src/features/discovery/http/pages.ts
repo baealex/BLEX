@@ -9,7 +9,12 @@ import { registerProfileRoutes } from '../../authors/http/profile.js';
 export { SiteBrand, PublicPageViewer } from '../shared.js';
 export { readPublicSiteBrand } from '../page-context.js';
 
-export function registerPublicPages(app: FastifyInstance, db: PrismaClient, siteUrl: URL, options: PublicPageOptions = {}): void {
+export function registerPublicPages(
+  app: FastifyInstance,
+  db: PrismaClient,
+  siteUrl: URL,
+  options: PublicPageOptions = {},
+): void {
   registerSearchRoutes(app, db, siteUrl, options);
   registerHomeRoutes(app, db, siteUrl, options);
   registerTagsRoutes(app, db, siteUrl, options);

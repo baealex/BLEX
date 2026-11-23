@@ -31,12 +31,7 @@ export const PostListContent = ({
     emptyAction
 }: PostListContentProps) => {
     const { i18n, t } = useLingui();
-    const {
-        posts,
-        setPosts,
-        postsData,
-        refetch
-    } = usePostsQuery(filters, source);
+    const { posts, setPosts, postsData, refetch } = usePostsQuery(filters, source);
 
     const {
         handleVisibilityToggle,
@@ -63,10 +58,12 @@ export const PostListContent = ({
     if (!postsData) return null;
 
     const isScheduled = source === 'scheduled';
-    const resolvedEmptyMessage = emptyMessage || t({
-        id: 'settings.posts.empty.default',
-        message: 'No posts'
-    });
+    const resolvedEmptyMessage =
+        emptyMessage ||
+        t({
+            id: 'settings.posts.empty.default',
+            message: 'No posts'
+        });
 
     return (
         <>
@@ -87,28 +84,34 @@ export const PostListContent = ({
                             onSeriesChange={handleSeriesChange}
                             onSeriesSubmit={handleSeriesSubmit}
                             isSeriesSaving={savingSeriesPostUrls.has(post.url)}
-                            dateDisplay={isScheduled
-                                ? i18n._({
-                                    id: 'settings.posts.scheduled_for',
-                                    message: 'Scheduled for {date}',
-                                    values: {
-                                        date: formatLocalDateTime(
-                                            post.createdDate,
-                                            normalizeLocale(i18n.locale),
-                                            post.createdDate
-                                        )
-                                    }
-                                })
-                                : undefined}
-                            dateIcon={isScheduled
-                                ? <CalendarDays aria-hidden className="h-3.5 w-3.5 text-content-hint" />
-                                : undefined}
-                            statusLabel={isScheduled
-                                ? t({
-                                    id: 'settings.posts.status.scheduled',
-                                    message: 'Scheduled'
-                                })
-                                : undefined}
+                            dateDisplay={
+                                isScheduled
+                                    ? i18n._({
+                                          id: 'settings.posts.scheduled_for',
+                                          message: 'Scheduled for {date}',
+                                          values: {
+                                              date: formatLocalDateTime(
+                                                  post.createdDate,
+                                                  normalizeLocale(i18n.locale),
+                                                  post.createdDate
+                                              )
+                                          }
+                                      })
+                                    : undefined
+                            }
+                            dateIcon={
+                                isScheduled ? (
+                                    <CalendarDays aria-hidden className="h-3.5 w-3.5 text-content-hint" />
+                                ) : undefined
+                            }
+                            statusLabel={
+                                isScheduled
+                                    ? t({
+                                          id: 'settings.posts.status.scheduled',
+                                          message: 'Scheduled'
+                                      })
+                                    : undefined
+                            }
                             showUpdatedBadge={!isScheduled}
                             isScheduled={isScheduled}
                         />
@@ -116,9 +119,13 @@ export const PostListContent = ({
                 </div>
             ) : (
                 <SettingsEmptyState
-                    icon={isScheduled
-                        ? <CalendarDays aria-hidden className="h-5 w-5" />
-                        : <FileText aria-hidden className="h-5 w-5" />}
+                    icon={
+                        isScheduled ? (
+                            <CalendarDays aria-hidden className="h-5 w-5" />
+                        ) : (
+                            <FileText aria-hidden className="h-5 w-5" />
+                        )
+                    }
                     title={resolvedEmptyMessage}
                     action={emptyAction}
                 />

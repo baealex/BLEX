@@ -1,10 +1,4 @@
-import {
-    useState,
-    useRef,
-    useEffect,
-    useCallback,
-    type ReactNode
-} from 'react';
+import { useState, useRef, useEffect, useCallback, type ReactNode } from 'react';
 import { useLingui } from '@lingui/react/macro';
 import { Modal } from '~/ui/modal';
 import { ConfirmContext, type ConfirmOptions } from './internal/ConfirmContextDef';
@@ -83,31 +77,30 @@ export const ConfirmProvider = ({ children }: { children: ReactNode }) => {
                 onClose={handleClose}
                 ariaTitle={dialogState.title}
                 maxWidth="md"
-                showCloseButton={false}>
+                showCloseButton={false}
+            >
                 <Modal.Body>
                     <h3 className="text-lg font-semibold text-content mb-2">{dialogState.title}</h3>
-                    <p className="text-sm text-content-secondary mb-6">
-                        {dialogState.message}
-                    </p>
+                    <p className="text-sm text-content-secondary mb-6">{dialogState.message}</p>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Modal.FooterAction
-                        type="button"
-                        variant="secondary"
-                        onClick={handleClose}>
-                        {dialogState.cancelText || t({
-                            id: 'common.cancel',
-                            message: 'Cancel'
-                        })}
+                    <Modal.FooterAction type="button" variant="secondary" onClick={handleClose}>
+                        {dialogState.cancelText ||
+                            t({
+                                id: 'common.cancel',
+                                message: 'Cancel'
+                            })}
                     </Modal.FooterAction>
                     <Modal.FooterAction
                         type="button"
                         variant={dialogState.variant === 'danger' ? 'danger-solid' : 'primary'}
-                        onClick={handleConfirm}>
-                        {dialogState.confirmText || t({
-                            id: 'common.confirm',
-                            message: 'Confirm'
-                        })}
+                        onClick={handleConfirm}
+                    >
+                        {dialogState.confirmText ||
+                            t({
+                                id: 'common.confirm',
+                                message: 'Confirm'
+                            })}
                     </Modal.FooterAction>
                 </Modal.Footer>
             </Modal>

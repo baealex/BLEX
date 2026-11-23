@@ -1,14 +1,14 @@
-/* eslint-disable no-console */
-
 import React from 'react';
 
-class ErrorBoundary extends React.Component<{
-    fallback: React.ReactNode;
-    children: React.ReactNode;
-}, {
-    hasError: boolean;
-}> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+class ErrorBoundary extends React.Component<
+    {
+        fallback: React.ReactNode;
+        children: React.ReactNode;
+    },
+    {
+        hasError: boolean;
+    }
+> {
     constructor(props: any) {
         super(props);
         this.state = { hasError: false };

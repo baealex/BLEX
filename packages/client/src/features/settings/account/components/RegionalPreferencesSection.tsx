@@ -8,7 +8,8 @@ interface RegionalPreferencesSectionProps {
     preferences: RegionalPreferences;
 }
 
-const selectClassName = 'mt-2 min-h-12 w-full rounded-lg border border-line bg-surface px-3 text-content focus-visible:outline-2 focus-visible:outline-line-strong';
+const selectClassName =
+    'mt-2 min-h-12 w-full rounded-lg border border-line bg-surface px-3 text-content focus-visible:outline-2 focus-visible:outline-line-strong';
 
 const RegionalPreferencesSection = ({ preferences }: RegionalPreferencesSectionProps) => {
     const { t } = useLingui();
@@ -16,9 +17,9 @@ const RegionalPreferencesSection = ({ preferences }: RegionalPreferencesSectionP
     const [timeZone, setTimeZone] = useState(preferences.timeZone);
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState('');
-    const defaultLanguageLabel = preferences.languages.find(
-        ({ code }) => code === preferences.defaultLanguage
-    )?.label || preferences.defaultLanguage;
+    const defaultLanguageLabel =
+        preferences.languages.find(({ code }) => code === preferences.defaultLanguage)?.label ||
+        preferences.defaultLanguage;
 
     const save = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -30,15 +31,20 @@ const RegionalPreferencesSection = ({ preferences }: RegionalPreferencesSectionP
                 window.location.reload();
                 return;
             }
-            setError(data.errorMessage || t({
-                id: 'settings.regional_preferences.save_failed',
-                message: 'Could not save your regional preferences.'
-            }));
+            setError(
+                data.errorMessage ||
+                    t({
+                        id: 'settings.regional_preferences.save_failed',
+                        message: 'Could not save your regional preferences.'
+                    })
+            );
         } catch {
-            setError(t({
-                id: 'common.network_error',
-                message: 'A network error occurred.'
-            }));
+            setError(
+                t({
+                    id: 'common.network_error',
+                    message: 'A network error occurred.'
+                })
+            );
         }
         setIsSaving(false);
     };
@@ -50,7 +56,8 @@ const RegionalPreferencesSection = ({ preferences }: RegionalPreferencesSectionP
                 message: 'Language and time zone'
             })}
             icon={<Clock className="h-5 w-5" />}
-            className="mb-6">
+            className="mb-6"
+        >
             <form onSubmit={save}>
                 <fieldset disabled={isSaving} className="grid gap-4 sm:grid-cols-2">
                     <label className="min-w-0 text-sm font-medium text-content-secondary">
@@ -58,7 +65,10 @@ const RegionalPreferencesSection = ({ preferences }: RegionalPreferencesSectionP
                         <select
                             className={selectClassName}
                             value={language ?? 'browser'}
-                            onChange={(event) => setLanguage(event.target.value === 'browser' ? null : event.target.value)}>
+                            onChange={(event) =>
+                                setLanguage(event.target.value === 'browser' ? null : event.target.value)
+                            }
+                        >
                             <option value="browser">
                                 <Trans id="settings.regional_preferences.browser_language">Browser language</Trans>
                             </option>
@@ -68,7 +78,9 @@ const RegionalPreferencesSection = ({ preferences }: RegionalPreferencesSectionP
                                 </Trans>
                             </option>
                             {preferences.languages.map(({ code, label }) => (
-                                <option key={code} value={code}>{label}</option>
+                                <option key={code} value={code}>
+                                    {label}
+                                </option>
                             ))}
                         </select>
                     </label>
@@ -77,26 +89,34 @@ const RegionalPreferencesSection = ({ preferences }: RegionalPreferencesSectionP
                         <select
                             className={selectClassName}
                             value={timeZone}
-                            onChange={(event) => setTimeZone(event.target.value)}>
+                            onChange={(event) => setTimeZone(event.target.value)}
+                        >
                             <option value="">
                                 <Trans id="settings.regional_preferences.site_default_time_zone">
                                     Site default ({preferences.defaultTimeZone})
                                 </Trans>
                             </option>
                             {preferences.timeZones.map((zone) => (
-                                <option key={zone} value={zone}>{zone.replace(/_/g, ' ')}</option>
+                                <option key={zone} value={zone}>
+                                    {zone.replace(/_/g, ' ')}
+                                </option>
                             ))}
                         </select>
                     </label>
                 </fieldset>
-                {error && <p role="alert" className="mt-3 text-sm text-danger">{error}</p>}
+                {error && (
+                    <p role="alert" className="mt-3 text-sm text-danger">
+                        {error}
+                    </p>
+                )}
                 <div className="mt-4 flex justify-end">
                     <Button
                         type="submit"
                         density="compact"
                         variant="primary"
                         isLoading={isSaving}
-                        disabled={isSaving || (language === preferences.language && timeZone === preferences.timeZone)}>
+                        disabled={isSaving || (language === preferences.language && timeZone === preferences.timeZone)}
+                    >
                         <Trans id="common.save">Save</Trans>
                     </Button>
                 </div>

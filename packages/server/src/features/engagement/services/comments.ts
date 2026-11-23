@@ -22,7 +22,11 @@ export interface CommentRow {
   postBlockComment: boolean;
 }
 
-interface PostCommentRow extends CommentRow { postUsername: string; postTitle: string; postSlug: string }
+interface PostCommentRow extends CommentRow {
+  postUsername: string;
+  postTitle: string;
+  postSlug: string;
+}
 
 export type { CommentPayload };
 
@@ -32,21 +36,23 @@ const DEFAULT_LANGUAGE_DELETED_COMMENT = '<p>삭제된 댓글입니다.</p>';
 export const commentBodyLimit = 128 * 1024;
 
 function escapeHtml(value: string): string {
-  return value.replace(/[&<>"']/g, (character) => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#x27;',
-  })[character] ?? character);
+  return value.replace(
+    /[&<>"']/g,
+    (character) =>
+      ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#x27;',
+      })[character] ?? character,
+  );
 }
 
 export function commentHtml(text: string): string {
   if (!text) return '';
   const paragraphs = text.replace(/\r\n?/g, '\n').split(/\n{2,}/);
-  return paragraphs
-    .map((paragraph) => `<p>${escapeHtml(paragraph).replace(/\n/g, '<br>')}</p>`)
-    .join('\n\n');
+  return paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph).replace(/\n/g, '<br>')}</p>`).join('\n\n');
 }
 
 function commentSelect(viewerId: number | null) {
@@ -96,12 +102,22 @@ export async function commentForViewer(
   const post = await db.post.findUnique({
     where: { id: comment.postId },
     select: {
-      title: true, slug: true, commentsBlocked: true, deletedAt: true, publishedAt: true, isHidden: true,
+      title: true,
+      slug: true,
+      commentsBlocked: true,
+      deletedAt: true,
+      publishedAt: true,
+      isHidden: true,
       author: { select: { username: true, isActive: true } },
     },
   });
   if (!post) return null;
-  const postPublic = post.author.isActive && post.deletedAt === null && post.publishedAt !== null && post.publishedAt <= new Date() && !post.isHidden;
+  const postPublic =
+    post.author.isActive &&
+    post.deletedAt === null &&
+    post.publishedAt !== null &&
+    post.publishedAt <= new Date() &&
+    !post.isHidden;
   return {
     ...commentRow(comment, postPublic, post.commentsBlocked),
     postTitle: post.title,
@@ -159,13 +175,11 @@ export function serializeComment(
   const canEdit = mine && !deleted;
   const canDelete = mine && !deleted;
   const canReply = viewerId !== null && !deleted && canAcceptReplies;
-  const content = deleted
-    ? DEFAULT_LANGUAGE_DELETED_COMMENT
-    : sanitizeCommentHtml(comment.html);
+  const content = deleted ? DEFAULT_LANGUAGE_DELETED_COMMENT : sanitizeCommentHtml(comment.html);
   return {
     id: comment.id,
-    author: deleted ? 'Ghost' : comment.username ?? 'Ghost',
-    authorImage: deleted ? null : absoluteMediaUrl(comment.avatar) ?? DEFAULT_AVATAR,
+    author: deleted ? 'Ghost' : (comment.username ?? 'Ghost'),
+    authorImage: deleted ? null : (absoluteMediaUrl(comment.avatar) ?? DEFAULT_AVATAR),
     isMine: mine,
     isEdited: comment.isEdited,
     isDeleted: deleted,

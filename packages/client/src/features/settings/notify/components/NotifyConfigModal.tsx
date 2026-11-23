@@ -12,14 +12,7 @@ interface NotifyConfigModalProps {
     refetch: () => void;
 }
 
-const NotifyConfigModal = ({
-    isOpen,
-    onClose,
-    notifyConfig,
-    isLoading,
-    isError,
-    refetch
-}: NotifyConfigModalProps) => {
+const NotifyConfigModal = ({ isOpen, onClose, notifyConfig, isLoading, isError, refetch }: NotifyConfigModalProps) => {
     const { t } = useLingui();
     const getNotifyLabel = (name: string) => {
         switch (name) {
@@ -64,29 +57,36 @@ const NotifyConfigModal = ({
         try {
             // Convert array to NotifyConfig object
             const config: Record<string, boolean> = {};
-            nextState.forEach(item => {
+            nextState.forEach((item) => {
                 config[item.name] = item.value;
             });
 
             const { data } = await updateNotifyConfig(config);
 
             if (data.status === 'DONE') {
-                toast.success(t({
-                    id: 'settings.notifications.config.update_success',
-                    message: 'Notification settings updated.'
-                }));
+                toast.success(
+                    t({
+                        id: 'settings.notifications.config.update_success',
+                        message: 'Notification settings updated.'
+                    })
+                );
                 refetch();
             } else {
-                toast.error(data.errorMessage || t({
-                    id: 'settings.notifications.config.update_failed',
-                    message: 'Could not update notification settings.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'settings.notifications.config.update_failed',
+                            message: 'Could not update notification settings.'
+                        })
+                );
             }
         } catch {
-            toast.error(t({
-                id: 'settings.notifications.config.update_failed',
-                message: 'Could not update notification settings.'
-            }));
+            toast.error(
+                t({
+                    id: 'settings.notifications.config.update_failed',
+                    message: 'Could not update notification settings.'
+                })
+            );
         }
     };
 
@@ -98,7 +98,8 @@ const NotifyConfigModal = ({
                 id: 'settings.notifications.config.title',
                 message: 'Notification settings'
             })}
-            maxWidth="md">
+            maxWidth="md"
+        >
             <div className="p-6 space-y-2">
                 {isLoading ? (
                     <LoadingState
@@ -116,12 +117,7 @@ const NotifyConfigModal = ({
                                 message: 'Could not load notification settings.'
                             })}
                         </p>
-                        <Button
-                            density="compact"
-                            type="button"
-                            variant="secondary"
-                            size="sm"
-                            onClick={refetch}>
+                        <Button density="compact" type="button" variant="secondary" size="sm" onClick={refetch}>
                             {t({
                                 id: 'common.retry',
                                 message: 'Try again'
@@ -130,7 +126,10 @@ const NotifyConfigModal = ({
                     </div>
                 ) : notifyConfig && notifyConfig.length > 0 ? (
                     notifyConfig.map((item) => (
-                        <div key={item.name} className="flex items-center justify-between py-4 px-2 hover:bg-surface-subtle rounded-xl transition-colors group">
+                        <div
+                            key={item.name}
+                            className="flex items-center justify-between py-4 px-2 hover:bg-surface-subtle rounded-xl transition-colors group"
+                        >
                             <span className="text-sm font-semibold text-content group-hover:text-content transition-colors">
                                 {getNotifyLabel(item.name)}
                             </span>

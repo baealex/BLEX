@@ -19,9 +19,7 @@ export interface PublishFields {
     reservedDate?: string;
 }
 
-type PublishResponse =
-    | { status: 'DONE'; body: { url: string } }
-    | { status: 'ERROR'; errorMessage?: string };
+type PublishResponse = { status: 'DONE'; body: { url: string } } | { status: 'ERROR'; errorMessage?: string };
 
 interface PublishSubmission {
     readForm: () => FormData;
@@ -34,11 +32,7 @@ interface PublishSubmission {
     onRejected: (message: string) => void;
 }
 
-export const buildPublishPayload = (
-    source: FormData,
-    fields: PublishFields,
-    draftUrl?: string
-) => {
+export const buildPublishPayload = (source: FormData, fields: PublishFields, draftUrl?: string) => {
     const payload = source;
     payload.set('title', fields.title);
     payload.set('subtitle', fields.subtitle);

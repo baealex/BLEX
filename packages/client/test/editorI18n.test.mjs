@@ -11,10 +11,7 @@ import { koEditorMessages } from '../src/features/editor/tiptap/TiptapEditor/i18
 
 describe('editor message catalogs', () => {
     it('keeps every built-in locale structurally complete', () => {
-        assert.deepEqual(
-            Object.keys(koEditorMessages).sort(),
-            Object.keys(enEditorMessages).sort()
-        );
+        assert.deepEqual(Object.keys(koEditorMessages).sort(), Object.keys(enEditorMessages).sort());
     });
 
     it('loads regional locale tags and falls back to English', async () => {

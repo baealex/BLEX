@@ -69,10 +69,12 @@ const hasIntegrationSettingsChanged = (
 ) => {
     if (!saved) return false;
 
-    return current.telegramEnabled !== saved.telegramEnabled
-        || current.telegramHasBotToken !== saved.telegramHasBotToken
-        || current.telegramBotToken.trim().length > 0
-        || current.clearTelegramBotToken;
+    return (
+        current.telegramEnabled !== saved.telegramEnabled ||
+        current.telegramHasBotToken !== saved.telegramHasBotToken ||
+        current.telegramBotToken.trim().length > 0 ||
+        current.clearTelegramBotToken
+    );
 };
 
 const AdminIntegrationSetting = () => {
@@ -87,10 +89,13 @@ const AdminIntegrationSetting = () => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error(data.errorMessage || t({
-                id: 'settings.admin.telegram.load_failed',
-                message: 'Could not load Telegram settings.'
-            }));
+            throw new Error(
+                data.errorMessage ||
+                    t({
+                        id: 'settings.admin.telegram.load_failed',
+                        message: 'Could not load Telegram settings.'
+                    })
+            );
         },
         meta: { persist: false }
     });
@@ -111,10 +116,13 @@ const AdminIntegrationSetting = () => {
     const updateMutation = useMutation({
         mutationFn: async (data: IntegrationSettingUpdateData) => {
             const response = await updateIntegrationSettings(data);
-            return assertDone(response, t({
-                id: 'settings.admin.telegram.save_failed',
-                message: 'Could not save Telegram settings.'
-            }));
+            return assertDone(
+                response,
+                t({
+                    id: 'settings.admin.telegram.save_failed',
+                    message: 'Could not save Telegram settings.'
+                })
+            );
         },
         onSuccess: (body: IntegrationSettingData) => {
             const integrationSettingsForm = toIntegrationSettingsForm(body);
@@ -123,22 +131,31 @@ const AdminIntegrationSetting = () => {
             queryClient.setQueryData(INTEGRATION_SETTINGS_QUERY_KEY, body);
             const connectionState = body.telegramConnection.state;
             if (connectionState === 'connected' || connectionState === 'disabled') {
-                toast.success(t({
-                    id: 'settings.admin.telegram.save_success',
-                    message: 'Telegram settings saved.'
-                }));
+                toast.success(
+                    t({
+                        id: 'settings.admin.telegram.save_success',
+                        message: 'Telegram settings saved.'
+                    })
+                );
             } else {
-                toast.warning(t({
-                    id: 'settings.admin.telegram.save_connection_warning',
-                    message: 'Settings saved, but Telegram is not connected yet. Check the status above.'
-                }));
+                toast.warning(
+                    t({
+                        id: 'settings.admin.telegram.save_connection_warning',
+                        message: 'Settings saved, but Telegram is not connected yet. Check the status above.'
+                    })
+                );
             }
         },
         onError: (error) => {
-            toast.error(getErrorMessage(error, t({
-                id: 'settings.admin.telegram.save_failed',
-                message: 'Could not save Telegram settings.'
-            })));
+            toast.error(
+                getErrorMessage(
+                    error,
+                    t({
+                        id: 'settings.admin.telegram.save_failed',
+                        message: 'Could not save Telegram settings.'
+                    })
+                )
+            );
         }
     });
 
@@ -180,7 +197,8 @@ const AdminIntegrationSetting = () => {
                     id: 'settings.admin.telegram.bot.title',
                     message: 'Bot settings'
                 })}
-                icon={<Send aria-hidden="true" className="h-4 w-4" />}>
+                icon={<Send aria-hidden="true" className="h-4 w-4" />}
+            >
                 <div className="space-y-5">
                     <TelegramConnectionNotice
                         connection={settingData.telegramConnection}
@@ -231,26 +249,33 @@ const AdminIntegrationSetting = () => {
                             data-1p-ignore="true"
                             data-bwignore="true"
                             data-lpignore="true"
-                            placeholder={integrationSettings.telegramHasBotToken
-                                ? t({
-                                    id: 'settings.admin.telegram.bot.token.keep_placeholder',
-                                    message: 'Keep saved value'
-                                })
-                                : 'Telegram Bot Token'}
+                            placeholder={
+                                integrationSettings.telegramHasBotToken
+                                    ? t({
+                                          id: 'settings.admin.telegram.bot.token.keep_placeholder',
+                                          message: 'Keep saved value'
+                                      })
+                                    : 'Telegram Bot Token'
+                            }
                             value={integrationSettings.telegramBotToken}
-                            onChange={(event) => updateIntegrationSettingsForm({
-                                telegramBotToken: event.target.value,
-                                clearTelegramBotToken: false
-                            })}
-                            helperText={integrationSettings.telegramHasBotToken
-                                ? t({
-                                    id: 'settings.admin.telegram.bot.token.helper',
-                                    message: 'Leave this blank to keep the existing token.'
+                            onChange={(event) =>
+                                updateIntegrationSettingsForm({
+                                    telegramBotToken: event.target.value,
+                                    clearTelegramBotToken: false
                                 })
-                                : t({
-                                    id: 'settings.admin.telegram.bot.token.new_helper',
-                                    message: 'Paste the token from @BotFather. BLEX finds the bot name and connects it to Telegram when you save.'
-                                })}
+                            }
+                            helperText={
+                                integrationSettings.telegramHasBotToken
+                                    ? t({
+                                          id: 'settings.admin.telegram.bot.token.helper',
+                                          message: 'Leave this blank to keep the existing token.'
+                                      })
+                                    : t({
+                                          id: 'settings.admin.telegram.bot.token.new_helper',
+                                          message:
+                                              'Paste the token from @BotFather. BLEX finds the bot name and connects it to Telegram when you save.'
+                                      })
+                            }
                         />
                     </div>
 
@@ -258,10 +283,12 @@ const AdminIntegrationSetting = () => {
                         <Checkbox
                             checked={integrationSettings.clearTelegramBotToken}
                             disabled={updateMutation.isPending}
-                            onCheckedChange={(checked) => updateIntegrationSettingsForm({
-                                clearTelegramBotToken: checked,
-                                telegramBotToken: checked ? '' : integrationSettings.telegramBotToken
-                            })}
+                            onCheckedChange={(checked) =>
+                                updateIntegrationSettingsForm({
+                                    clearTelegramBotToken: checked,
+                                    telegramBotToken: checked ? '' : integrationSettings.telegramBotToken
+                                })
+                            }
                             label={t({
                                 id: 'settings.admin.telegram.bot.token.clear_label',
                                 message: 'Delete saved Telegram bot token'
@@ -283,18 +310,17 @@ const AdminIntegrationSetting = () => {
                     size="md"
                     isLoading={updateMutation.isPending}
                     disabled={!isDirty || updateMutation.isPending}
-                    leftIcon={!updateMutation.isPending
-                        ? <Check aria-hidden="true" className="h-4 w-4" />
-                        : undefined}>
+                    leftIcon={!updateMutation.isPending ? <Check aria-hidden="true" className="h-4 w-4" /> : undefined}
+                >
                     {updateMutation.isPending
                         ? t({
-                            id: 'common.saving',
-                            message: 'Saving'
-                        })
+                              id: 'common.saving',
+                              message: 'Saving'
+                          })
                         : t({
-                            id: 'settings.admin.telegram.save',
-                            message: 'Save Telegram settings'
-                        })}
+                              id: 'settings.admin.telegram.save',
+                              message: 'Save Telegram settings'
+                          })}
                 </Button>
             </div>
         </form>

@@ -71,15 +71,19 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
 
     const isMediaFile = (file: File) => {
         const extension = getFileExtension(file);
-        return ACCEPTED_IMAGE_TYPES.includes(file.type as typeof ACCEPTED_IMAGE_TYPES[number])
-            || ACCEPTED_VIDEO_TYPES.includes(file.type as typeof ACCEPTED_VIDEO_TYPES[number])
-            || ACCEPTED_IMAGE_EXTENSIONS.includes(extension as typeof ACCEPTED_IMAGE_EXTENSIONS[number])
-            || ACCEPTED_VIDEO_EXTENSIONS.includes(extension as typeof ACCEPTED_VIDEO_EXTENSIONS[number]);
+        return (
+            ACCEPTED_IMAGE_TYPES.includes(file.type as (typeof ACCEPTED_IMAGE_TYPES)[number]) ||
+            ACCEPTED_VIDEO_TYPES.includes(file.type as (typeof ACCEPTED_VIDEO_TYPES)[number]) ||
+            ACCEPTED_IMAGE_EXTENSIONS.includes(extension as (typeof ACCEPTED_IMAGE_EXTENSIONS)[number]) ||
+            ACCEPTED_VIDEO_EXTENSIONS.includes(extension as (typeof ACCEPTED_VIDEO_EXTENSIONS)[number])
+        );
     };
 
     const isVideoFile = (file: File) => {
-        return ACCEPTED_VIDEO_TYPES.includes(file.type as typeof ACCEPTED_VIDEO_TYPES[number])
-            || ACCEPTED_VIDEO_EXTENSIONS.includes(getFileExtension(file) as typeof ACCEPTED_VIDEO_EXTENSIONS[number]);
+        return (
+            ACCEPTED_VIDEO_TYPES.includes(file.type as (typeof ACCEPTED_VIDEO_TYPES)[number]) ||
+            ACCEPTED_VIDEO_EXTENSIONS.includes(getFileExtension(file) as (typeof ACCEPTED_VIDEO_EXTENSIONS)[number])
+        );
     };
 
     const getSupportedFileMessage = () => t('upload.error.supported_files');
@@ -118,7 +122,10 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
         });
     };
 
-    const getDropPositionForNode = (node: NonNullable<ReturnType<typeof createUploadPlaceholder>>, position: number) => {
+    const getDropPositionForNode = (
+        node: NonNullable<ReturnType<typeof createUploadPlaceholder>>,
+        position: number
+    ) => {
         if (!editor) return null;
 
         const insertPosition = dropPoint(
@@ -158,9 +165,7 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
         }
 
         editor.view.dispatch(
-            editor.state.tr
-                .delete(deletePosition, deletePosition + node.nodeSize)
-                .setMeta('addToHistory', false)
+            editor.state.tr.delete(deletePosition, deletePosition + node.nodeSize).setMeta('addToHistory', false)
         );
         return true;
     };
@@ -182,12 +187,13 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
         if (!editor) return position;
 
         const insertPosition = clampPosition(position);
-        const target = typeof replaceTo === 'number'
-            ? {
-                from: insertPosition,
-                to: clampPosition(replaceTo)
-            }
-            : insertPosition;
+        const target =
+            typeof replaceTo === 'number'
+                ? {
+                      from: insertPosition,
+                      to: clampPosition(replaceTo)
+                  }
+                : insertPosition;
 
         if (isVideoFile(file) || url.includes('.mp4') || url.includes('.webm')) {
             const attrs = {
@@ -198,7 +204,8 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
                 objectFit: 'cover'
             };
 
-            editor.chain()
+            editor
+                .chain()
                 .focus()
                 .insertContentAt(target, [
                     {
@@ -219,7 +226,8 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
             objectFit: 'cover'
         };
 
-        editor.chain()
+        editor
+            .chain()
             .focus()
             .insertContentAt(target, [
                 {
@@ -276,10 +284,7 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
 
         const position = slot.placeholderTracker.getPosition();
         const node = editor.state.doc.nodeAt(position);
-        if (
-            node?.type.name === 'uploadPlaceholder'
-            && node.attrs.id === slot.placeholderId
-        ) {
+        if (node?.type.name === 'uploadPlaceholder' && node.attrs.id === slot.placeholderId) {
             return {
                 position,
                 node
@@ -289,10 +294,7 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
         let foundPlaceholder: ActivePlaceholder | null = null;
         editor.state.doc.descendants((descendant, descendantPosition) => {
             if (foundPlaceholder) return false;
-            if (
-                descendant.type.name === 'uploadPlaceholder'
-                && descendant.attrs.id === slot.placeholderId
-            ) {
+            if (descendant.type.name === 'uploadPlaceholder' && descendant.attrs.id === slot.placeholderId) {
                 foundPlaceholder = {
                     position: descendantPosition,
                     node: descendant
@@ -337,13 +339,11 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
             }
         } catch (error) {
             deleteActivePlaceholder(slot);
-            onImageUploadError?.(
-                error instanceof Error ? error.message : t('upload.error.failed')
-            );
+            onImageUploadError?.(error instanceof Error ? error.message : t('upload.error.failed'));
         } finally {
             slot.positionTracker.stop();
             slot.placeholderTracker.stop();
-            setUploadingCount(prev => Math.max(0, prev - 1));
+            setUploadingCount((prev) => Math.max(0, prev - 1));
         }
     };
 
@@ -363,7 +363,7 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
 
         if (uploadSlots.length === 0) return;
 
-        setUploadingCount(prev => prev + uploadSlots.length);
+        setUploadingCount((prev) => prev + uploadSlots.length);
 
         for (const slot of uploadSlots) {
             await uploadPreparedMedia(slot);
@@ -374,7 +374,7 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
         const files = Array.from(fileList);
         return {
             mediaFiles: files.filter(isMediaFile),
-            rejectedFiles: files.filter(file => !isMediaFile(file))
+            rejectedFiles: files.filter((file) => !isMediaFile(file))
         };
     };
 

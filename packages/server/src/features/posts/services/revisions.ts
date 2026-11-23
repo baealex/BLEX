@@ -1,7 +1,15 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
 import { sanitizePostHtml } from '../post-html.js';
 import { readingTime } from './post-content.js';
-import { EditorialSnapshot, PostValidationError, assertExpectedUpdatedAt, captureEditorialSnapshot, insertRevision, sameEditorialSnapshot, setPostTags } from './post-store.js';
+import {
+  EditorialSnapshot,
+  PostValidationError,
+  assertExpectedUpdatedAt,
+  captureEditorialSnapshot,
+  insertRevision,
+  sameEditorialSnapshot,
+  setPostTags,
+} from './post-store.js';
 import { StoredPost, UserRow, dateAsIso } from '../shared.js';
 
 export interface StoredRevision {
@@ -20,21 +28,40 @@ export interface StoredRevision {
 }
 
 const revisionSelect = {
-  id: true, title: true, subtitle: true, content: true, contentExcerpt: true, description: true, tags: true,
-  type: true, restoredFromId: true, sourceUpdatedAt: true, createdAt: true,
+  id: true,
+  title: true,
+  subtitle: true,
+  content: true,
+  contentExcerpt: true,
+  description: true,
+  tags: true,
+  type: true,
+  restoredFromId: true,
+  sourceUpdatedAt: true,
+  createdAt: true,
   actor: { select: { username: true } },
 } satisfies Prisma.PostRevisionSelect;
 
 function storedRevision(row: Prisma.PostRevisionGetPayload<{ select: typeof revisionSelect }>): StoredRevision {
   return {
-    id: row.id, title: row.title, subtitle: row.subtitle, content: row.content, contentExcerpt: row.contentExcerpt,
-    description: row.description, tags: row.tags, changeType: row.type, actor: row.actor?.username ?? null,
-    restoredFromId: row.restoredFromId, sourceUpdatedDate: row.sourceUpdatedAt, createdDate: row.createdAt,
+    id: row.id,
+    title: row.title,
+    subtitle: row.subtitle,
+    content: row.content,
+    contentExcerpt: row.contentExcerpt,
+    description: row.description,
+    tags: row.tags,
+    changeType: row.type,
+    actor: row.actor?.username ?? null,
+    restoredFromId: row.restoredFromId,
+    sourceUpdatedDate: row.sourceUpdatedAt,
+    createdDate: row.createdAt,
   };
 }
 
 /** Draft autosaves stay out of the history screens and are only used by the timelapse. */
-const visibleRevision = (postId: number) => ({ postId, type: { not: 'draft' } }) satisfies Prisma.PostRevisionWhereInput;
+const visibleRevision = (postId: number) =>
+  ({ postId, type: { not: 'draft' } }) satisfies Prisma.PostRevisionWhereInput;
 
 export async function listRevisions(db: PrismaClient, postId: number, page: number, limit: number) {
   const totalCount = await db.postRevision.count({ where: visibleRevision(postId) });
@@ -75,7 +102,10 @@ export async function loadRevision(
   postId: number,
   revisionId: number,
 ): Promise<StoredRevision | null> {
-  const row = await db.postRevision.findFirst({ where: { ...visibleRevision(postId), id: revisionId }, select: revisionSelect });
+  const row = await db.postRevision.findFirst({
+    where: { ...visibleRevision(postId), id: revisionId },
+    select: revisionSelect,
+  });
   return row ? storedRevision(row) : null;
 }
 
@@ -91,7 +121,8 @@ export async function restoreRevision(
   revision: StoredRevision,
   expectedUpdatedAt: string,
 ): Promise<{ updatedDate: string; restored: boolean }> {
-  if (revision.changeType === 'legacy') throw new PostValidationError('RJ', 'Legacy revisions cannot be restored safely.');
+  if (revision.changeType === 'legacy')
+    throw new PostValidationError('RJ', 'Legacy revisions cannot be restored safely.');
   assertExpectedUpdatedAt(post.updatedDate, expectedUpdatedAt);
   const target: EditorialSnapshot = {
     title: revision.title,
@@ -110,8 +141,11 @@ export async function restoreRevision(
     const { count } = await tx.post.updateMany({
       where: { id: post.id, authorId: author.id, deletedAt: null, updatedAt: post.updatedDate },
       data: {
-        title: target.title, subtitle: target.subtitle, description: target.description,
-        readTime: readingTime(target.content), updatedAt: now,
+        title: target.title,
+        subtitle: target.subtitle,
+        description: target.description,
+        readTime: readingTime(target.content),
+        updatedAt: now,
       },
     });
     if (count === 0) throw new PostValidationError('CF', 'Another request changed this post. Refresh and try again.');
@@ -145,12 +179,14 @@ export async function buildTimelapse(db: PrismaClient, post: StoredPost): Promis
     orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     select: { title: true, content: true, type: true, sourceUpdatedAt: true, createdAt: true },
   });
-  const newestFirst: Array<Omit<TimelapseFrame, 'savedAt'> & { savedDate: string }> = [{
-    title: post.title,
-    contentHtml: post.contentHtml,
-    savedDate: dateAsIso(post.updatedDate) ?? new Date().toISOString(),
-    stage: post.publishedDate ? 'published' : 'draft',
-  }];
+  const newestFirst: Array<Omit<TimelapseFrame, 'savedAt'> & { savedDate: string }> = [
+    {
+      title: post.title,
+      contentHtml: post.contentHtml,
+      savedDate: dateAsIso(post.updatedDate) ?? new Date().toISOString(),
+      stage: post.publishedDate ? 'published' : 'draft',
+    },
+  ];
   for (const history of histories) {
     const later = newestFirst.at(-1)!;
     newestFirst.push({
@@ -167,9 +203,12 @@ export async function buildTimelapse(db: PrismaClient, post: StoredPost): Promis
     if (previous && previous.title === frame.title && previous.contentHtml === frame.contentHtml) continue;
     collapsed.push(frame);
   }
-  const frames = collapsed.length <= 80
-    ? collapsed
-    : [...new Set(Array.from({ length: 80 }, (_value, index) => Math.round(index * (collapsed.length - 1) / 79)))].map((index) => collapsed[index]!);
+  const frames =
+    collapsed.length <= 80
+      ? collapsed
+      : [
+          ...new Set(Array.from({ length: 80 }, (_value, index) => Math.round((index * (collapsed.length - 1)) / 79))),
+        ].map((index) => collapsed[index]!);
   return {
     frames: frames.map((frame) => ({
       title: frame.title,

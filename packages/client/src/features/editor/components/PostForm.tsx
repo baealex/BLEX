@@ -97,10 +97,12 @@ const PostForm = ({
                             onImageUpload={onEditorImageUpload}
                             onImageUploadError={onEditorImageUploadError}
                             onUploadStateChange={onEditorUploadStateChange}
-                            onSearchPostLinks={(query, { signal }) => searchPostLinks(query, {
-                                signal,
-                                currentPostUrl: formData.url
-                            })}
+                            onSearchPostLinks={(query, { signal }) =>
+                                searchPostLinks(query, {
+                                    signal,
+                                    currentPostUrl: formData.url
+                                })
+                            }
                         />
                     )}
                 </div>

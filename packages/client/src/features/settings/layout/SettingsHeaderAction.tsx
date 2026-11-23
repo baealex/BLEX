@@ -3,10 +3,7 @@ import { Button } from '~/components/shared';
 
 type SettingsHeaderActionProps = Omit<ComponentProps<typeof Button>, 'size'>;
 
-const SettingsHeaderAction = ({
-    className = '',
-    ...props
-}: SettingsHeaderActionProps) => {
+const SettingsHeaderAction = ({ className = '', ...props }: SettingsHeaderActionProps) => {
     return (
         <Button
             density="compact"

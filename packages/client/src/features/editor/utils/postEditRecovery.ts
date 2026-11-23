@@ -19,9 +19,12 @@ export interface PostEditRecoverySnapshot {
 }
 
 /** Only an empty saved series means "none". One that no longer exists leaves the post's series alone. */
-export const resolveRecoveredSeries = <T extends { url: string }>(seriesUrl: string, seriesList: T[], current: T, none: T) => (
-    seriesList.find(series => series.url === seriesUrl) ?? (seriesUrl ? current : none)
-);
+export const resolveRecoveredSeries = <T extends { url: string }>(
+    seriesUrl: string,
+    seriesList: T[],
+    current: T,
+    none: T
+) => seriesList.find((series) => series.url === seriesUrl) ?? (seriesUrl ? current : none);
 
 export interface PostEditRecovery {
     savedAt: string;
@@ -60,9 +63,7 @@ const getLocalStorage = () => {
     }
 };
 
-const isRecord = (value: unknown): value is Record<string, unknown> => (
-    typeof value === 'object' && value !== null
-);
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null;
 
 const isRecoverySnapshot = (value: unknown): value is PostEditRecoverySnapshot => {
     if (!isRecord(value)) return false;
@@ -78,38 +79,31 @@ const isRecoverySnapshot = (value: unknown): value is PostEditRecoverySnapshot =
         'reservedDate',
         'seriesUrl'
     ];
-    const booleanFields = [
-        'hide',
-        'advertise',
-        'allowComments',
-        'imageDeleted'
-    ];
+    const booleanFields = ['hide', 'advertise', 'allowComments', 'imageDeleted'];
 
-    return stringFields.every(field => typeof value[field] === 'string')
-        && booleanFields.every(field => typeof value[field] === 'boolean')
-        && Array.isArray(value.tags)
-        && value.tags.every(tag => typeof tag === 'string');
+    return (
+        stringFields.every((field) => typeof value[field] === 'string') &&
+        booleanFields.every((field) => typeof value[field] === 'boolean') &&
+        Array.isArray(value.tags) &&
+        value.tags.every((tag) => typeof tag === 'string')
+    );
 };
 
-const isStoredRecovery = (value: unknown): value is StoredPostEditRecovery => (
-    isRecord(value)
-    && value.version === POST_EDIT_RECOVERY_VERSION
-    && typeof value.username === 'string'
-    && typeof value.postUrl === 'string'
-    && typeof value.baseRevision === 'string'
-    && typeof value.savedAt === 'string'
-    && !Number.isNaN(Date.parse(value.savedAt))
-    && isRecoverySnapshot(value.snapshot)
-);
+const isStoredRecovery = (value: unknown): value is StoredPostEditRecovery =>
+    isRecord(value) &&
+    value.version === POST_EDIT_RECOVERY_VERSION &&
+    typeof value.username === 'string' &&
+    typeof value.postUrl === 'string' &&
+    typeof value.baseRevision === 'string' &&
+    typeof value.savedAt === 'string' &&
+    !Number.isNaN(Date.parse(value.savedAt)) &&
+    isRecoverySnapshot(value.snapshot);
 
-const snapshotsMatch = (
-    left: PostEditRecoverySnapshot,
-    right: PostEditRecoverySnapshot
-) => JSON.stringify(left) === JSON.stringify(right);
+const snapshotsMatch = (left: PostEditRecoverySnapshot, right: PostEditRecoverySnapshot) =>
+    JSON.stringify(left) === JSON.stringify(right);
 
-export const buildPostEditRecoveryKey = ({ username, postUrl }: RecoveryIdentity) => (
-    `${POST_EDIT_RECOVERY_PREFIX}:v${POST_EDIT_RECOVERY_VERSION}:${encodeURIComponent(username)}:${encodeURIComponent(postUrl)}`
-);
+export const buildPostEditRecoveryKey = ({ username, postUrl }: RecoveryIdentity) =>
+    `${POST_EDIT_RECOVERY_PREFIX}:v${POST_EDIT_RECOVERY_VERSION}:${encodeURIComponent(username)}:${encodeURIComponent(postUrl)}`;
 
 export const readPostEditRecovery = ({
     username,
@@ -130,11 +124,11 @@ export const readPostEditRecovery = ({
 
         const recovery: unknown = JSON.parse(rawRecovery);
         if (
-            !isStoredRecovery(recovery)
-            || recovery.username !== username
-            || recovery.postUrl !== postUrl
-            || recovery.baseRevision !== baseRevision
-            || snapshotsMatch(recovery.snapshot, baseline)
+            !isStoredRecovery(recovery) ||
+            recovery.username !== username ||
+            recovery.postUrl !== postUrl ||
+            recovery.baseRevision !== baseRevision ||
+            snapshotsMatch(recovery.snapshot, baseline)
         ) {
             storage.removeItem(key);
             return null;
@@ -154,12 +148,7 @@ export const readPostEditRecovery = ({
     }
 };
 
-export const writePostEditRecovery = ({
-    username,
-    postUrl,
-    baseRevision,
-    snapshot
-}: WritePostEditRecoveryOptions) => {
+export const writePostEditRecovery = ({ username, postUrl, baseRevision, snapshot }: WritePostEditRecoveryOptions) => {
     const storage = getLocalStorage();
     if (!storage) return false;
 

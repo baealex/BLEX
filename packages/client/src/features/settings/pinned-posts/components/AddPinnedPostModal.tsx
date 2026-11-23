@@ -1,12 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import {
-    Calendar,
-    Check,
-    FileText,
-    Loader2,
-    Search
-} from '~/ui/icons';
+import { Calendar, Check, FileText, Loader2, Search } from '~/ui/icons';
 import { Input, LoadingState, Modal } from '~/components/shared';
 import { getMediaPath } from '~/modules/static.module';
 import type { PinnablePostData, PinnablePostsPaginationData } from '~/lib/api/settings';
@@ -69,7 +63,9 @@ export const AddPinnedPostModal = ({
     };
 
     const content = (
-        <div className={`flex flex-col ${presentation === 'inline' ? 'max-h-[68vh] rounded-2xl border border-line bg-surface-elevated shadow-subtle' : 'h-[70vh]'}`}>
+        <div
+            className={`flex flex-col ${presentation === 'inline' ? 'max-h-[68vh] rounded-2xl border border-line bg-surface-elevated shadow-subtle' : 'h-[70vh]'}`}
+        >
             {presentation === 'inline' && (
                 <div className="flex items-start justify-between gap-3 border-b border-line px-5 py-4">
                     <div className="space-y-1">
@@ -77,14 +73,17 @@ export const AddPinnedPostModal = ({
                             <Trans id="settings.pinned_posts.select.title">Select a post to pin</Trans>
                         </h3>
                         <p className="text-sm text-content-secondary">
-                            <Trans id="settings.pinned_posts.select.description">Choose a post to feature on your profile.</Trans>
+                            <Trans id="settings.pinned_posts.select.description">
+                                Choose a post to feature on your profile.
+                            </Trans>
                         </p>
                     </div>
                     <div>
                         <button
                             type="button"
                             onClick={handleClose}
-                            className="inline-flex min-h-11 items-center justify-center rounded-lg px-3 text-sm font-semibold text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content active:scale-95 [@media(pointer:fine)]:min-h-9">
+                            className="inline-flex min-h-11 items-center justify-center rounded-lg px-3 text-sm font-semibold text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content active:scale-95 [@media(pointer:fine)]:min-h-9"
+                        >
                             <Trans id="settings.pinned_posts.select.cancel_selection">Cancel selection</Trans>
                         </button>
                     </div>
@@ -94,7 +93,9 @@ export const AddPinnedPostModal = ({
             <div className={`space-y-3 border-b border-line ${presentation === 'inline' ? 'px-5 py-4' : 'px-6 py-4'}`}>
                 {presentation === 'modal' && (
                     <p className="text-sm text-content-secondary">
-                        <Trans id="settings.pinned_posts.select.modal_description">Choose a post to display on your profile.</Trans>
+                        <Trans id="settings.pinned_posts.select.modal_description">
+                            Choose a post to display on your profile.
+                        </Trans>
                     </p>
                 )}
                 <Input
@@ -114,7 +115,9 @@ export const AddPinnedPostModal = ({
                 />
             </div>
 
-            <div className={`flex-1 overflow-y-auto bg-surface-subtle/30 ${presentation === 'inline' ? 'min-h-0 px-4 py-4' : 'p-4'}`}>
+            <div
+                className={`flex-1 overflow-y-auto bg-surface-subtle/30 ${presentation === 'inline' ? 'min-h-0 px-4 py-4' : 'p-4'}`}
+            >
                 {isFetchingPosts && pinnablePosts.length === 0 ? (
                     <LoadingState
                         type="list"
@@ -142,7 +145,8 @@ export const AddPinnedPostModal = ({
                         aria-label={t({
                             id: 'settings.pinned_posts.select.group_label',
                             message: 'Select a post to pin'
-                        })}>
+                        })}
+                    >
                         {pinnablePosts.map((post) => {
                             const isSelected = selectedPost === post.url;
                             return (
@@ -161,8 +165,8 @@ export const AddPinnedPostModal = ({
                                         isSelected
                                             ? 'z-10 border-line-strong bg-surface shadow-subtle ring-1 ring-line-strong'
                                             : 'border-line bg-surface hover:border-line-strong hover:shadow-subtle'
-                                    }`}>
-
+                                    }`}
+                                >
                                     {post.image ? (
                                         <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg border border-line bg-surface-subtle">
                                             <img
@@ -189,10 +193,11 @@ export const AddPinnedPostModal = ({
 
                                     <div
                                         className={`absolute right-4 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full border transition-all ${
-                                        isSelected
-                                            ? 'scale-100 border-line-strong bg-action text-content-inverted opacity-100'
-                                            : 'border-line bg-surface text-transparent group-hover:border-line-strong'
-                                    }`}>
+                                            isSelected
+                                                ? 'scale-100 border-line-strong bg-action text-content-inverted opacity-100'
+                                                : 'border-line bg-surface text-transparent group-hover:border-line-strong'
+                                        }`}
+                                    >
                                         <Check aria-hidden className="h-3.5 w-3.5" />
                                     </div>
                                 </button>
@@ -211,10 +216,7 @@ export const AddPinnedPostModal = ({
                 <Modal.FooterAction variant="secondary" onClick={handleClose}>
                     <Trans id="common.cancel">Cancel</Trans>
                 </Modal.FooterAction>
-                <Modal.FooterAction
-                    variant="primary"
-                    onClick={handleAdd}
-                    disabled={!selectedPost || isLoading}>
+                <Modal.FooterAction variant="primary" onClick={handleAdd} disabled={!selectedPost || isLoading}>
                     {isLoading ? (
                         <span className="flex items-center gap-2">
                             <Loader2 aria-hidden className="h-4 w-4 animate-spin" />
@@ -244,7 +246,8 @@ export const AddPinnedPostModal = ({
                 id: 'settings.pinned_posts.select.modal_title',
                 message: 'Pin a post'
             })}
-            maxWidth="2xl">
+            maxWidth="2xl"
+        >
             {content}
         </Modal>
     );

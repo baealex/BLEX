@@ -71,14 +71,7 @@ export const IframeNode = Node.create({
     },
 
     renderHTML({ HTMLAttributes }) {
-        const {
-            src,
-            height,
-            frameborder,
-            align,
-            aspectRatio,
-            caption
-        } = HTMLAttributes;
+        const { src, height, frameborder, align, aspectRatio, caption } = HTMLAttributes;
 
         // iframe 속성
         const iframeAttrs: Record<string, string> = {
@@ -108,28 +101,37 @@ export const IframeNode = Node.create({
         if (align) {
             figureStyles.push(`text-align: ${align}`);
             if (align === 'center') {
-                figureStyles.push('display: flex', 'justify-content: center', 'flex-direction: column', 'align-items: center');
+                figureStyles.push(
+                    'display: flex',
+                    'justify-content: center',
+                    'flex-direction: column',
+                    'align-items: center'
+                );
             } else if (align === 'left') {
-                figureStyles.push('display: flex', 'justify-content: flex-start', 'flex-direction: column', 'align-items: flex-start');
+                figureStyles.push(
+                    'display: flex',
+                    'justify-content: flex-start',
+                    'flex-direction: column',
+                    'align-items: flex-start'
+                );
             } else if (align === 'right') {
-                figureStyles.push('display: flex', 'justify-content: flex-end', 'flex-direction: column', 'align-items: flex-end');
+                figureStyles.push(
+                    'display: flex',
+                    'justify-content: flex-end',
+                    'flex-direction: column',
+                    'align-items: flex-end'
+                );
             }
         }
 
         figureAttrs.style = figureStyles.join('; ');
 
-        const content: Array<[string, Record<string, string>, ...unknown[]]> = [
-            ['iframe', iframeAttrs]
-        ];
+        const content: Array<[string, Record<string, string>, ...unknown[]]> = [['iframe', iframeAttrs]];
 
         if (caption) {
             content.push(['figcaption', {}, caption]);
         }
 
-        return [
-            'figure',
-            figureAttrs,
-            ...content
-        ];
+        return ['figure', figureAttrs, ...content];
     }
 });

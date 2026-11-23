@@ -4,8 +4,14 @@ import { PrismaClient } from '@prisma/client';
 import { buildApp } from '../src/app.js';
 import { PostValidationError, updateAuthorPost } from '../src/features/posts/authoring/index.js';
 import {
-  createMigratedDatabase, insertRow, seedEditor, seedPost, signIn,
-  testCipherKey, testSecretKey, testSiteUrl,
+  createMigratedDatabase,
+  insertRow,
+  seedEditor,
+  seedPost,
+  signIn,
+  testCipherKey,
+  testSecretKey,
+  testSiteUrl,
 } from './fixtures/migrated-database.js';
 
 const djangoDeletedDate = '2026-02-01 03:04:05.123456';
@@ -17,13 +23,28 @@ async function migratedApp() {
   const fixture = await createMigratedDatabase();
   seedEditor(fixture.db, 1, 'writer');
   seedEditor(fixture.db, 2, 'reader');
-  const app = await buildApp(fixture.path, testSiteUrl, { secretKey: testSecretKey, cipherKey: testCipherKey }, fixture.mediaRoot);
+  const app = await buildApp(
+    fixture.path,
+    testSiteUrl,
+    { secretKey: testSecretKey, cipherKey: testCipherKey },
+    fixture.mediaRoot,
+  );
   await app.ready();
   const headers = signIn(fixture.db, 1);
-  const count = (table: string, where: string) => Number(
-    (fixture.db.prepare(`SELECT COUNT(*) AS total FROM "${table}" WHERE ${where}`).get() as { total: number }).total,
-  );
-  return { ...fixture, app, headers, count, async close() { await app.close(); await fixture.cleanup(); } };
+  const count = (table: string, where: string) =>
+    Number(
+      (fixture.db.prepare(`SELECT COUNT(*) AS total FROM "${table}" WHERE ${where}`).get() as { total: number }).total,
+    );
+  return {
+    ...fixture,
+    app,
+    headers,
+    count,
+    async close() {
+      await app.close();
+      await fixture.cleanup();
+    },
+  };
 }
 
 async function trashToken(fixture: Awaited<ReturnType<typeof migratedApp>>) {
@@ -56,11 +77,12 @@ test('permanently deletes a Django-era trashed post with the rows Django cascade
     insertRow(db, 'PostRevision', { id: 2, postId: 10, type: 'restore', restoredFromId: 1 });
     insertRow(db, 'PostRevision', { id: 3, postId: 11, type: 'restore', restoredFromId: 2 });
 
-    const purge = (expected: string) => fixture.app.inject({
-      method: 'DELETE',
-      url: `/v1/setting/trash-posts/trashed?expectedDeletedDate=${encodeURIComponent(expected)}`,
-      headers: fixture.headers,
-    });
+    const purge = (expected: string) =>
+      fixture.app.inject({
+        method: 'DELETE',
+        url: `/v1/setting/trash-posts/trashed?expectedDeletedDate=${encodeURIComponent(expected)}`,
+        headers: fixture.headers,
+      });
     assert.equal((await purge('2026-02-01T03:04:06.000Z')).json().status, 'ERROR');
     assert.equal(fixture.count('Comment', 'id IN (1, 2, 4, 5)'), 4);
 
@@ -91,10 +113,13 @@ test('restores a Django-era trashed post and still refuses a stale trash version
   const fixture = await migratedApp();
   try {
     seedPost(fixture.db, 10, 1, 'trashed', { deletedAt: djangoDeletedDate });
-    const restore = (expected: string) => fixture.app.inject({
-      method: 'POST', url: '/v1/setting/trash-posts/trashed/restore', headers: fixture.headers,
-      payload: { expectedDeletedDate: expected },
-    });
+    const restore = (expected: string) =>
+      fixture.app.inject({
+        method: 'POST',
+        url: '/v1/setting/trash-posts/trashed/restore',
+        headers: fixture.headers,
+        payload: { expectedDeletedDate: expected },
+      });
     assert.equal((await restore('2026-02-01T03:04:06.000Z')).json().status, 'ERROR');
     assert.equal(fixture.count('Post', 'id = 10 AND deletedAt IS NOT NULL'), 1);
 
@@ -111,11 +136,21 @@ test('restores a revision of a post Django last updated with microseconds', asyn
   try {
     seedPost(fixture.db, 10, 1, 'history', { updatedAt: djangoDeletedDate });
     insertRow(fixture.db, 'PostRevision', {
-      id: 1, postId: 10, type: 'edit', title: 'Earlier', content: '<p>Earlier</p>', tags: '[]',
+      id: 1,
+      postId: 10,
+      type: 'edit',
+      title: 'Earlier',
+      content: '<p>Earlier</p>',
+      tags: '[]',
     });
-    const list = await fixture.app.inject({ url: '/v1/users/@writer/posts/history/revisions', headers: fixture.headers });
+    const list = await fixture.app.inject({
+      url: '/v1/users/@writer/posts/history/revisions',
+      headers: fixture.headers,
+    });
     const restored = await fixture.app.inject({
-      method: 'POST', url: '/v1/users/@writer/posts/history/revisions/1/restore', headers: fixture.headers,
+      method: 'POST',
+      url: '/v1/users/@writer/posts/history/revisions/1/restore',
+      headers: fixture.headers,
       payload: { expectedUpdatedDate: list.json().body.currentUpdatedDate },
     });
     assert.equal(restored.json().status, 'DONE', restored.body);
@@ -132,7 +167,9 @@ test('deletes a revision that a later restore points to', async () => {
     insertRow(fixture.db, 'PostRevision', { id: 1, postId: 10, type: 'edit' });
     insertRow(fixture.db, 'PostRevision', { id: 2, postId: 10, type: 'restore', restoredFromId: 1 });
     const response = await fixture.app.inject({
-      method: 'DELETE', url: '/v1/users/@writer/posts/history/revisions/1', headers: fixture.headers,
+      method: 'DELETE',
+      url: '/v1/users/@writer/posts/history/revisions/1',
+      headers: fixture.headers,
     });
     assert.equal(response.statusCode, 200, response.body);
     assert.equal(fixture.count('PostRevision', 'id = 1'), 0);
@@ -146,10 +183,16 @@ test('creates a writing form on the real schema', async () => {
   const fixture = await migratedApp();
   try {
     const response = await fixture.app.inject({
-      method: 'POST', url: '/v1/forms', headers: fixture.headers, payload: { title: 'Template', content: 'Body' },
+      method: 'POST',
+      url: '/v1/forms',
+      headers: fixture.headers,
+      payload: { title: 'Template', content: 'Body' },
     });
     assert.equal(response.json().status, 'DONE', response.body);
-    assert.equal(fixture.count('FormTemplate', `title = 'Template' AND userId = 1 AND isPublic = 0 AND updatedAt IS NOT NULL`), 1);
+    assert.equal(
+      fixture.count('FormTemplate', `title = 'Template' AND userId = 1 AND isPublic = 0 AND updatedAt IS NOT NULL`),
+      1,
+    );
   } finally {
     await fixture.close();
   }
@@ -172,7 +215,9 @@ test('keeps Django work log share links working and revocable', async () => {
     assert.ok(owner.body.includes(`/work-logs/share/${publicShareToken}/`), 'owner page links the public URL');
 
     const revoked = await fixture.app.inject({
-      method: 'POST', url: `/work-logs/1/share/${publicShareToken}/revoke/`, headers: fixture.headers,
+      method: 'POST',
+      url: `/work-logs/1/share/${publicShareToken}/revoke/`,
+      headers: fixture.headers,
     });
     assert.ok(revoked.statusCode < 400, revoked.body);
     assert.equal(fixture.count('WorkLogShare', 'id = 1'), 0);
@@ -188,9 +233,16 @@ test('stores new work log share tokens in the Django column format', async () =>
     insertRow(fixture.db, 'WorkLog', { id: 1, title: 'Log', ownerId: 1 });
     insertRow(fixture.db, 'WorkLogEntry', { id: 1, logId: 1, title: 'Entry', text: 'Shared entry', mediaType: 'text' });
     const created = await fixture.app.inject({
-      method: 'POST', url: '/work-logs/1/share/',
+      method: 'POST',
+      url: '/work-logs/1/share/',
       headers: { ...fixture.headers, 'content-type': 'application/x-www-form-urlencoded' },
-      payload: new URLSearchParams({ action: 'publish', headline: 'New link', entries: '1', selected_entries: '1', entry_ids: '1' }).toString(),
+      payload: new URLSearchParams({
+        action: 'publish',
+        headline: 'New link',
+        entries: '1',
+        selected_entries: '1',
+        entry_ids: '1',
+      }).toString(),
     });
     assert.equal(created.statusCode, 302, created.body);
     const { token } = fixture.db.prepare('SELECT token FROM WorkLogShare').get() as { token: string };
@@ -211,7 +263,8 @@ test('removes reply cycles and threads deeper than a SQLite cascade across posts
     seedPost(db, 11, 1, 'kept');
     db.exec('BEGIN; PRAGMA defer_foreign_keys = ON');
     insertRow(db, 'Comment', { id: 1, postId: 10, authorId: 2 });
-    for (let id = 2; id <= 1_500; id += 1) insertRow(db, 'Comment', { id, postId: id % 2 ? 10 : 11, authorId: 2, parentId: id - 1 });
+    for (let id = 2; id <= 1_500; id += 1)
+      insertRow(db, 'Comment', { id, postId: id % 2 ? 10 : 11, authorId: 2, parentId: id - 1 });
     insertRow(db, 'Comment', { id: 2_000, postId: 10, authorId: 2, parentId: 2_001 });
     insertRow(db, 'Comment', { id: 2_001, postId: 11, authorId: 2, parentId: 2_000 });
     insertRow(db, 'Comment', { id: 2_002, postId: 10, authorId: 2, parentId: 2_002 });
@@ -227,8 +280,20 @@ test('removes reply cycles and threads deeper than a SQLite cascade across posts
       headers: fixture.headers,
     });
     assert.equal(response.json().status, 'DONE', response.body);
-    assert.deepEqual(db.prepare('SELECT id FROM Comment').all().map((row) => row.id), [2_003]);
-    assert.deepEqual(db.prepare('SELECT commentId FROM CommentLike').all().map((row) => row.commentId), [2_003]);
+    assert.deepEqual(
+      db
+        .prepare('SELECT id FROM Comment')
+        .all()
+        .map((row) => row.id),
+      [2_003],
+    );
+    assert.deepEqual(
+      db
+        .prepare('SELECT commentId FROM CommentLike')
+        .all()
+        .map((row) => row.commentId),
+      [2_003],
+    );
   } finally {
     await fixture.close();
   }
@@ -280,9 +345,12 @@ test('keeps the advertising flag when the web editor saves a post', async () => 
     const boundary = 'blexboundary';
     const fields = { title: 'Promoted', contentHtml: '<p>Changed body</p>', url: 'promoted', tag: '' };
     const saved = await fixture.app.inject({
-      method: 'POST', url: '/v1/users/@writer/posts/promoted',
+      method: 'POST',
+      url: '/v1/users/@writer/posts/promoted',
       headers: { ...fixture.headers, 'content-type': `multipart/form-data; boundary=${boundary}` },
-      payload: `${Object.entries(fields).map(([name, value]) => `--${boundary}\r\nContent-Disposition: form-data; name="${name}"\r\n\r\n${value}\r\n`).join('')}--${boundary}--\r\n`,
+      payload: `${Object.entries(fields)
+        .map(([name, value]) => `--${boundary}\r\nContent-Disposition: form-data; name="${name}"\r\n\r\n${value}\r\n`)
+        .join('')}--${boundary}--\r\n`,
     });
     assert.equal(saved.json().status, 'DONE', saved.body);
     assert.equal(fixture.count('Post', `id = 10 AND title = 'Promoted'`), 1);

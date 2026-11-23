@@ -21,7 +21,12 @@ export function isRecoveryCode(code: string): boolean {
  * their device would otherwise have nothing left to sign in with. Deleting only the row that still
  * holds this key lets exactly one concurrent use win.
  */
-export async function spendRecoveryKey(tx: Prisma.TransactionClient, userId: number, storedKey: string, keptSessionHash?: string) {
+export async function spendRecoveryKey(
+  tx: Prisma.TransactionClient,
+  userId: number,
+  storedKey: string,
+  keptSessionHash?: string,
+) {
   const { count } = storedKey.trim()
     ? await tx.twoFactorAuth.deleteMany({ where: { userId, recoveryKey: storedKey } })
     : { count: 0 };
@@ -53,7 +58,12 @@ export function verifySecondFactor(
   const secret = decryptSecret(encoded, cipherKey) ?? encoded;
   if (!/^[A-Z2-7]{16,64}=*$/i.test(secret)) return false;
   try {
-    const totp = new TOTP({ secret: Secret.fromBase32(secret.toUpperCase()), algorithm: 'SHA1', digits: 6, period: 30 });
+    const totp = new TOTP({
+      secret: Secret.fromBase32(secret.toUpperCase()),
+      algorithm: 'SHA1',
+      digits: 6,
+      period: 30,
+    });
     return totp.validate({ token: code, window: 1, timestamp }) !== null;
   } catch {
     return false;

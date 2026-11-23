@@ -9,4 +9,6 @@ const EditGlobalBannerEditor = () => {
     return <GlobalBannerEditor bannerId={Number(bannerId)} />;
 };
 
-export const Route = createFileRoute('/admin-settings/global-banners/edit/$bannerId')({ component: EditGlobalBannerEditor });
+export const Route = createFileRoute('/admin-settings/global-banners/edit/$bannerId')({
+    component: EditGlobalBannerEditor
+});

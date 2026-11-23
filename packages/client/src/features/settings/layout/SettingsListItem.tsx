@@ -8,7 +8,8 @@ const LIST_ITEM_SHELL = 'bg-surface ring-1 ring-line/60 rounded-2xl transition-a
 const LIST_ITEM_CONTENT = 'p-5';
 const LIST_ITEM_ROW = 'flex items-center gap-3';
 const LIST_ITEM_ACTIONS = 'flex gap-2 flex-shrink-0';
-const LIST_ITEM_DRAG_HANDLE = 'inline-flex min-h-11 min-w-11 cursor-grab items-center justify-center active:cursor-grabbing text-content-hint hover:text-content-secondary hover:bg-surface-subtle rounded-lg transition-colors -ml-2 [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9';
+const LIST_ITEM_DRAG_HANDLE =
+    'inline-flex min-h-11 min-w-11 cursor-grab items-center justify-center active:cursor-grabbing text-content-hint hover:text-content-secondary hover:bg-surface-subtle rounded-lg transition-colors -ml-2 [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9';
 
 interface DragHandleProps {
     attributes: DraggableAttributes;
@@ -25,14 +26,7 @@ interface SettingsListItemProps {
     children: ReactNode;
 }
 
-const SettingsListItem = ({
-    onClick,
-    className,
-    dragHandleProps,
-    left,
-    actions,
-    children
-}: SettingsListItemProps) => {
+const SettingsListItem = ({ onClick, className, dragHandleProps, left, actions, children }: SettingsListItemProps) => {
     const { t } = useLingui();
 
     const handleContentKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -45,10 +39,7 @@ const SettingsListItem = ({
     };
 
     return (
-        <div
-            className={`${LIST_ITEM_SHELL}${onClick
-                ? ' hover:ring-line'
-                : ''}`}>
+        <div className={`${LIST_ITEM_SHELL}${onClick ? ' hover:ring-line' : ''}`}>
             <div className={LIST_ITEM_CONTENT}>
                 <div className={`${LIST_ITEM_ROW}${className ? ` ${className}` : ''}`}>
                     {dragHandleProps && (
@@ -58,10 +49,14 @@ const SettingsListItem = ({
                             onClick={(e) => e.stopPropagation()}
                             {...dragHandleProps.attributes}
                             {...dragHandleProps.listeners}
-                            aria-label={dragHandleProps.ariaLabel || t({
-                                id: 'common.change_order',
-                                message: 'Change order'
-                            })}>
+                            aria-label={
+                                dragHandleProps.ariaLabel ||
+                                t({
+                                    id: 'common.change_order',
+                                    message: 'Change order'
+                                })
+                            }
+                        >
                             <GripVertical aria-hidden="true" className="h-4 w-4" />
                         </div>
                     )}
@@ -72,18 +67,15 @@ const SettingsListItem = ({
                             tabIndex={0}
                             className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-line-strong"
                             onClick={onClick}
-                            onKeyDown={handleContentKeyDown}>
+                            onKeyDown={handleContentKeyDown}
+                        >
                             {left}
-                            <div className="min-w-0 flex-1">
-                                {children}
-                            </div>
+                            <div className="min-w-0 flex-1">{children}</div>
                         </div>
                     ) : (
                         <>
                             {left}
-                            <div className="flex-1 min-w-0">
-                                {children}
-                            </div>
+                            <div className="flex-1 min-w-0">{children}</div>
                         </>
                     )}
 

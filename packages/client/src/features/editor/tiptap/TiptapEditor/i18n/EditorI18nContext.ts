@@ -1,13 +1,6 @@
 import { createContext, useContext } from 'react';
-import {
-    formatEditorMessage,
-    resolveEditorMessages
-} from './messages';
-import type {
-    EditorMessageKey,
-    EditorMessages,
-    EditorMessageValues
-} from './messages';
+import { formatEditorMessage, resolveEditorMessages } from './messages';
+import type { EditorMessageKey, EditorMessages, EditorMessageValues } from './messages';
 
 export interface EditorI18nValue {
     messages: EditorMessages;

@@ -31,10 +31,12 @@ async function callTelegramApi(
   try {
     const response = await fetcher(`https://api.telegram.org/bot${botToken}/${method}`, {
       method: payload ? 'POST' : 'GET',
-      ...(payload ? {
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(payload),
-      } : {}),
+      ...(payload
+        ? {
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify(payload),
+          }
+        : {}),
       signal: AbortSignal.timeout(5000),
     });
     const data: unknown = await response.json();
@@ -69,7 +71,7 @@ async function inspectTelegramConnection(
   setting: Omit<IntegrationRow, 'updatedAt'>,
   webhookUrl: string,
 ): Promise<AdminIntegrationSettings['telegramConnection']> {
-  const token = setting.telegramEnabled ? decryptSecret(setting.telegramBotToken, options.cipherKey) ?? '' : '';
+  const token = setting.telegramEnabled ? (decryptSecret(setting.telegramBotToken, options.cipherKey) ?? '') : '';
   if (!token) return connection('disabled');
   if (!setting.telegramBotUsername.trim()) return connection('not_connected');
   const result = await callTelegramApi(options, token, 'getWebhookInfo');
@@ -111,9 +113,7 @@ export async function updateIntegrationSettings(
   let tokenCiphertext = current?.telegramBotToken ?? '';
   if ('telegramEnabled' in input) enabled = input.telegramEnabled === true;
   if ('telegramBotUsername' in input) {
-    username = typeof input.telegramBotUsername === 'string'
-      ? input.telegramBotUsername.trim().replace(/^@+/, '')
-      : '';
+    username = typeof input.telegramBotUsername === 'string' ? input.telegramBotUsername.trim().replace(/^@+/, '') : '';
   }
   if (input.clearTelegramBotToken === true) tokenCiphertext = '';
   if (typeof input.telegramBotToken === 'string' && input.telegramBotToken.trim()) {
@@ -140,14 +140,25 @@ export async function updateIntegrationSettings(
   }
 
   const saved = await db.$transaction(async (transaction) => {
-    const changes = { telegramEnabled: enabled, telegramBotUsername: username, telegramBotToken: tokenCiphertext, updatedAt: new Date() };
+    const changes = {
+      telegramEnabled: enabled,
+      telegramBotUsername: username,
+      telegramBotToken: tokenCiphertext,
+      updatedAt: new Date(),
+    };
     const row = await transaction.integrationSetting.upsert({
       where: { id: 1 },
       create: { id: 1, ...changes },
       update: changes,
       select: { updatedAt: true },
     });
-    await recordAudit(transaction, userId, 'integrationsetting', 'Integration settings', 'Updated notification integration settings');
+    await recordAudit(
+      transaction,
+      userId,
+      'integrationsetting',
+      'Integration settings',
+      'Updated notification integration settings',
+    );
     return row;
   });
 
@@ -174,4 +185,3 @@ export async function updateIntegrationSettings(
     },
   };
 }
-

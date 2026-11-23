@@ -6,17 +6,17 @@ import { loginPromptProps } from './login-prompt.js';
 const h = createElement;
 
 export interface ReaderActionsProps {
-  view: ReaderPostView;
-  csrfToken: string;
-  returnTo?: string;
+    view: ReaderPostView;
+    csrfToken: string;
+    returnTo?: string;
 }
 
 export interface AuthorHeaderProps {
-  author: ReaderAuthorHeader;
-  viewerAuthenticated: boolean;
-  csrfToken: string;
-  returnTo: string;
-  compact?: boolean;
+    author: ReaderAuthorHeader;
+    viewerAuthenticated: boolean;
+    csrfToken: string;
+    returnTo: string;
+    compact?: boolean;
 }
 
 const styles = `
@@ -41,167 +41,224 @@ const styles = `
 `;
 
 function hiddenCsrf(token: string) {
-  return h('input', {
- type: 'hidden',
-name: 'csrfmiddlewaretoken',
-value: token
-});
+    return h('input', {
+        type: 'hidden',
+        name: 'csrfmiddlewaretoken',
+        value: token
+    });
 }
 
 function hiddenReturnTo(returnTo: string) {
-  return h('input', {
- type: 'hidden',
-name: 'returnTo',
-value: returnTo
-});
+    return h('input', {
+        type: 'hidden',
+        name: 'returnTo',
+        value: returnTo
+    });
 }
 
 function authorPath(username: string): string {
-  return `/@${encodeURIComponent(username)}`;
+    return `/@${encodeURIComponent(username)}`;
 }
 
 function socialLabel(name: string): string {
-  const normalized = name.toLowerCase();
-  if (normalized === 'twitter' || normalized === 'x') return 'X';
-  if (normalized === 'github') return 'GitHub';
-  if (normalized === 'linkedin') return 'LinkedIn';
-  return name || '링크';
+    const normalized = name.toLowerCase();
+    if (normalized === 'twitter' || normalized === 'x') return 'X';
+    if (normalized === 'github') return 'GitHub';
+    if (normalized === 'linkedin') return 'LinkedIn';
+    return name || '링크';
 }
 
 function commentsModel(view: ReaderPostView, csrfToken: string, postPath: string): PostCommentsModel {
-  return {
-    slug: view.slug,
-    postPath,
-    isLoggedIn: view.viewerAuthenticated,
-    canComment: view.canComment,
-    csrfToken,
-    comments: view.comments
-  };
+    return {
+        slug: view.slug,
+        postPath,
+        isLoggedIn: view.viewerAuthenticated,
+        canComment: view.canComment,
+        csrfToken,
+        comments: view.comments
+    };
 }
 
 function defaultPostPath(view: ReaderPostView): string {
-  return `/@${encodeURIComponent(view.author.username)}/${encodeURIComponent(view.slug)}`;
+    return `/@${encodeURIComponent(view.author.username)}/${encodeURIComponent(view.slug)}`;
 }
 
 export function AuthorHeader(props: AuthorHeaderProps) {
-  const author = props.author;
-  const subscribeUrl = `/v1/users/@${encodeURIComponent(author.username)}/subscription`;
-  const subscription = author.canSubscribe
-    ? props.viewerAuthenticated
-      ? h('form', {
- method: 'post',
-action: subscribeUrl
-},
-        hiddenCsrf(props.csrfToken),
-        hiddenReturnTo(props.returnTo),
-        ...(author.isSubscribed ? [h('input', {
- key: 'action',
-type: 'hidden',
-name: 'action',
-value: 'unsubscribe'
-})] : []),
-        h('button', {
-          className: 'reader-action-button',
-          type: 'submit',
-          'aria-pressed': author.isSubscribed
-        }, author.isSubscribed ? '구독 중' : '구독')
-      )
-      : h('a', {
- ...loginPromptProps(props.returnTo, 'subscribe'),
-className: 'reader-action-button',
-'aria-label': `${author.username} 구독`
-}, '구독')
-    : null;
+    const author = props.author;
+    const subscribeUrl = `/v1/users/@${encodeURIComponent(author.username)}/subscription`;
+    const subscription = author.canSubscribe
+        ? props.viewerAuthenticated
+            ? h(
+                  'form',
+                  {
+                      method: 'post',
+                      action: subscribeUrl
+                  },
+                  hiddenCsrf(props.csrfToken),
+                  hiddenReturnTo(props.returnTo),
+                  ...(author.isSubscribed
+                      ? [
+                            h('input', {
+                                key: 'action',
+                                type: 'hidden',
+                                name: 'action',
+                                value: 'unsubscribe'
+                            })
+                        ]
+                      : []),
+                  h(
+                      'button',
+                      {
+                          className: 'reader-action-button',
+                          type: 'submit',
+                          'aria-pressed': author.isSubscribed
+                      },
+                      author.isSubscribed ? '구독 중' : '구독'
+                  )
+              )
+            : h(
+                  'a',
+                  {
+                      ...loginPromptProps(props.returnTo, 'subscribe'),
+                      className: 'reader-action-button',
+                      'aria-label': `${author.username} 구독`
+                  },
+                  '구독'
+              )
+        : null;
 
-  return h('section', {
- className: 'reader-card',
-'aria-label': `${author.username} 작성자 정보`
-},
-    author.cover ? h('img', {
- className: 'reader-author-cover',
-src: author.cover,
-alt: `${author.username}님의 커버`,
-loading: 'lazy'
-}) : null,
-    h('div', { className: 'reader-author' },
-      h('img', {
- className: 'reader-author-avatar',
-src: author.avatar,
-alt: '',
-loading: 'lazy'
-}),
-      h('div', { className: 'reader-author-copy' },
-        h('a', {
- className: 'reader-author-name',
-href: authorPath(author.username)
-}, author.name),
-        author.bio ? h('p', { className: 'reader-author-bio' }, author.bio) : null,
-        h('div', { className: 'reader-author-links' },
-          author.homepage ? h('a', {
- href: author.homepage,
-target: '_blank',
-rel: 'noopener noreferrer'
-}, '홈페이지') : null,
-          ...author.social.map((link) => h('a', {
-            key: link.id,
-            href: link.value,
-            target: '_blank',
-            rel: 'noopener noreferrer',
-            title: socialLabel(link.name)
-          }, socialLabel(link.name)))
+    return h(
+        'section',
+        {
+            className: 'reader-card',
+            'aria-label': `${author.username} 작성자 정보`
+        },
+        author.cover
+            ? h('img', {
+                  className: 'reader-author-cover',
+                  src: author.cover,
+                  alt: `${author.username}님의 커버`,
+                  loading: 'lazy'
+              })
+            : null,
+        h(
+            'div',
+            { className: 'reader-author' },
+            h('img', {
+                className: 'reader-author-avatar',
+                src: author.avatar,
+                alt: '',
+                loading: 'lazy'
+            }),
+            h(
+                'div',
+                { className: 'reader-author-copy' },
+                h(
+                    'a',
+                    {
+                        className: 'reader-author-name',
+                        href: authorPath(author.username)
+                    },
+                    author.name
+                ),
+                author.bio ? h('p', { className: 'reader-author-bio' }, author.bio) : null,
+                h(
+                    'div',
+                    { className: 'reader-author-links' },
+                    author.homepage
+                        ? h(
+                              'a',
+                              {
+                                  href: author.homepage,
+                                  target: '_blank',
+                                  rel: 'noopener noreferrer'
+                              },
+                              '홈페이지'
+                          )
+                        : null,
+                    ...author.social.map((link) =>
+                        h(
+                            'a',
+                            {
+                                key: link.id,
+                                href: link.value,
+                                target: '_blank',
+                                rel: 'noopener noreferrer',
+                                title: socialLabel(link.name)
+                            },
+                            socialLabel(link.name)
+                        )
+                    )
+                )
+            ),
+            subscription
         )
-      ),
-      subscription
-    )
-  );
+    );
 }
 
 export function PostComments(props: ReaderActionsProps) {
-  const model = commentsModel(props.view, props.csrfToken, props.returnTo ?? defaultPostPath(props.view));
-  return h(Fragment, null,
-    h('div', {
- 'data-blex-post-comments': '',
-'data-model': JSON.stringify(model)
-}, h(PostCommentsApp, { model })),
-    h('script', {
- type: 'module',
-src: '/assets/blex/comments.js',
-'data-blex-page-module': 'comments'
-})
-  );
+    const model = commentsModel(props.view, props.csrfToken, props.returnTo ?? defaultPostPath(props.view));
+    return h(
+        Fragment,
+        null,
+        h(
+            'div',
+            {
+                'data-blex-post-comments': '',
+                'data-model': JSON.stringify(model)
+            },
+            h(PostCommentsApp, { model })
+        ),
+        h('script', {
+            type: 'module',
+            src: '/assets/blex/comments.js',
+            'data-blex-page-module': 'comments'
+        })
+    );
 }
 
 export function ReaderActions(props: ReaderActionsProps) {
-  const { view } = props;
-  const returnTo = props.returnTo ?? defaultPostPath(view);
-  const like = view.postLike.canLike
-    ? h('form', {
- method: 'post',
-action: `/like/${encodeURIComponent(view.slug)}`
-},
-      hiddenCsrf(props.csrfToken), hiddenReturnTo(returnTo),
-      h('button', {
- type: 'submit',
-'aria-pressed': view.postLike.isLiked
-}, `${view.postLike.isLiked ? '좋아요 취소' : '좋아요'} · ${view.postLike.countLikes}`)
-    )
-    : h('a', loginPromptProps(returnTo, 'like'), `좋아요 · ${view.postLike.countLikes}`);
+    const { view } = props;
+    const returnTo = props.returnTo ?? defaultPostPath(view);
+    const like = view.postLike.canLike
+        ? h(
+              'form',
+              {
+                  method: 'post',
+                  action: `/like/${encodeURIComponent(view.slug)}`
+              },
+              hiddenCsrf(props.csrfToken),
+              hiddenReturnTo(returnTo),
+              h(
+                  'button',
+                  {
+                      type: 'submit',
+                      'aria-pressed': view.postLike.isLiked
+                  },
+                  `${view.postLike.isLiked ? '좋아요 취소' : '좋아요'} · ${view.postLike.countLikes}`
+              )
+          )
+        : h('a', loginPromptProps(returnTo, 'like'), `좋아요 · ${view.postLike.countLikes}`);
 
-  return h('div', { className: 'reader-actions' },
-    h('style', null, styles),
-    h(AuthorHeader, {
-      author: view.author,
-      viewerAuthenticated: view.viewerAuthenticated,
-      csrfToken: props.csrfToken,
-      returnTo
-    }),
-    h('section', {
- className: 'reader-card reader-post-like',
-'aria-label': '글 공감'
-},
-      h('span', { className: 'reader-count' }, `${view.postLike.countLikes}명이 이 글에 공감했습니다.`),
-      like
-    ),
-    h(PostCommentsApp, { model: commentsModel(view, props.csrfToken, returnTo) })
-  );
+    return h(
+        'div',
+        { className: 'reader-actions' },
+        h('style', null, styles),
+        h(AuthorHeader, {
+            author: view.author,
+            viewerAuthenticated: view.viewerAuthenticated,
+            csrfToken: props.csrfToken,
+            returnTo
+        }),
+        h(
+            'section',
+            {
+                className: 'reader-card reader-post-like',
+                'aria-label': '글 공감'
+            },
+            h('span', { className: 'reader-count' }, `${view.postLike.countLikes}명이 이 글에 공감했습니다.`),
+            like
+        ),
+        h(PostCommentsApp, { model: commentsModel(view, props.csrfToken, returnTo) })
+    );
 }

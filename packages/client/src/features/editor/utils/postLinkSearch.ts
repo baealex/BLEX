@@ -12,10 +12,13 @@ export const searchPostLinks = async (
     query: string,
     { signal, currentPostUrl }: PostLinkSearchOptions
 ): Promise<PostLinkCandidate[]> => {
-    const { data } = await getPosts({
-        search: query,
-        visibility: 'public'
-    }, { signal });
+    const { data } = await getPosts(
+        {
+            search: query,
+            visibility: 'public'
+        },
+        { signal }
+    );
 
     if (data.status !== 'DONE') {
         throw new Error(data.errorMessage || 'Post link search failed.');

@@ -44,8 +44,7 @@ const normalizeSeriesUrlInput = (text: string) => {
 };
 
 const normalizeSeriesUrlForSubmit = (text: string) => {
-    return normalizeSeriesUrlInput(text)
-        .replace(/^-|-$/g, '');
+    return normalizeSeriesUrlInput(text).replace(/^-|-$/g, '');
 };
 
 const generateSeriesUrlFromTitle = (title: string) => normalizeSeriesUrlForSubmit(title);
@@ -56,26 +55,50 @@ interface SeriesEditorProps {
 
 const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
     const { i18n, t } = useLingui();
-    const seriesSchema = useMemo(() => z.object({
-        name: z.string().trim()
-            .min(1, t({
-                id: 'settings.series.editor.name.validation.required',
-                message: 'Enter a series title.'
-            }))
-            .max(50, t({
-                id: 'settings.series.editor.name.validation.max_length',
-                message: 'Series title must be 50 characters or fewer.'
-            })),
-        customUrl: z.string().max(50, t({
-            id: 'settings.series.editor.url.validation.max_length',
-            message: 'URL must be 50 characters or fewer.'
-        })).optional(),
-        description: z.string().trim().max(500, t({
-            id: 'settings.series.editor.description.validation.max_length',
-            message: 'Series description must be 500 characters or fewer.'
-        })),
-        postIds: z.array(z.number())
-    }), [t]);
+    const seriesSchema = useMemo(
+        () =>
+            z.object({
+                name: z
+                    .string()
+                    .trim()
+                    .min(
+                        1,
+                        t({
+                            id: 'settings.series.editor.name.validation.required',
+                            message: 'Enter a series title.'
+                        })
+                    )
+                    .max(
+                        50,
+                        t({
+                            id: 'settings.series.editor.name.validation.max_length',
+                            message: 'Series title must be 50 characters or fewer.'
+                        })
+                    ),
+                customUrl: z
+                    .string()
+                    .max(
+                        50,
+                        t({
+                            id: 'settings.series.editor.url.validation.max_length',
+                            message: 'URL must be 50 characters or fewer.'
+                        })
+                    )
+                    .optional(),
+                description: z
+                    .string()
+                    .trim()
+                    .max(
+                        500,
+                        t({
+                            id: 'settings.series.editor.description.validation.max_length',
+                            message: 'Series description must be 500 characters or fewer.'
+                        })
+                    ),
+                postIds: z.array(z.number())
+            }),
+        [t]
+    );
     const isEditMode = seriesId !== undefined;
     const navigate = useNavigate();
     const queryClient = useQueryClient();
@@ -93,10 +116,13 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error(data.errorMessage || t({
-                id: 'settings.series.editor.load_detail_failed',
-                message: 'Could not load the series.'
-            }));
+            throw new Error(
+                data.errorMessage ||
+                    t({
+                        id: 'settings.series.editor.load_detail_failed',
+                        message: 'Could not load the series.'
+                    })
+            );
         }
     });
 
@@ -107,10 +133,13 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error(data.errorMessage || t({
-                id: 'settings.series.editor.load_posts_failed',
-                message: 'Could not load posts.'
-            }));
+            throw new Error(
+                data.errorMessage ||
+                    t({
+                        id: 'settings.series.editor.load_posts_failed',
+                        message: 'Could not load posts.'
+                    })
+            );
         }
     });
 
@@ -121,10 +150,13 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error(data.errorMessage || t({
-                id: 'settings.series.editor.load_account_failed',
-                message: 'Could not load account information.'
-            }));
+            throw new Error(
+                data.errorMessage ||
+                    t({
+                        id: 'settings.series.editor.load_account_failed',
+                        message: 'Could not load account information.'
+                    })
+            );
         }
     });
 
@@ -184,25 +216,31 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
     };
 
     const createMutation = useMutation({
-        mutationFn: (formData: SeriesFormInputs) => createSeries({
-            name: formData.name,
-            url: normalizeSeriesUrlForSubmit(formData.customUrl ?? ''),
-            description: formData.description,
-            postIds: formData.postIds
-        }),
+        mutationFn: (formData: SeriesFormInputs) =>
+            createSeries({
+                name: formData.name,
+                url: normalizeSeriesUrlForSubmit(formData.customUrl ?? ''),
+                description: formData.description,
+                postIds: formData.postIds
+            }),
         onSuccess: ({ data }) => {
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || t({
-                    id: 'settings.series.editor.create_failed',
-                    message: 'Could not create the series.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'settings.series.editor.create_failed',
+                            message: 'Could not create the series.'
+                        })
+                );
                 return;
             }
 
-            toast.success(t({
-                id: 'settings.series.editor.create_success',
-                message: 'Series created.'
-            }));
+            toast.success(
+                t({
+                    id: 'settings.series.editor.create_success',
+                    message: 'Series created.'
+                })
+            );
             invalidateSeriesQueries();
             allowNavigationRef.current = true;
             navigate({
@@ -211,10 +249,12 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
             });
         },
         onError: () => {
-            toast.error(t({
-                id: 'settings.series.editor.create_failed',
-                message: 'Could not create the series.'
-            }));
+            toast.error(
+                t({
+                    id: 'settings.series.editor.create_failed',
+                    message: 'Could not create the series.'
+                })
+            );
         }
     });
 
@@ -232,17 +272,22 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
         },
         onSuccess: ({ data }) => {
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || t({
-                    id: 'settings.series.editor.update_failed',
-                    message: 'Could not update the series.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'settings.series.editor.update_failed',
+                            message: 'Could not update the series.'
+                        })
+                );
                 return;
             }
 
-            toast.success(t({
-                id: 'settings.series.editor.update_success',
-                message: 'Series updated.'
-            }));
+            toast.success(
+                t({
+                    id: 'settings.series.editor.update_success',
+                    message: 'Series updated.'
+                })
+            );
             invalidateSeriesQueries();
             allowNavigationRef.current = true;
             navigate({
@@ -251,10 +296,12 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
             });
         },
         onError: () => {
-            toast.error(t({
-                id: 'settings.series.editor.update_failed',
-                message: 'Could not update the series.'
-            }));
+            toast.error(
+                t({
+                    id: 'settings.series.editor.update_failed',
+                    message: 'Could not update the series.'
+                })
+            );
         }
     });
 
@@ -267,17 +314,22 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
         },
         onSuccess: ({ data }) => {
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || t({
-                    id: 'settings.series.delete.failed',
-                    message: 'Could not delete the series.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'settings.series.delete.failed',
+                            message: 'Could not delete the series.'
+                        })
+                );
                 return;
             }
 
-            toast.success(t({
-                id: 'settings.series.delete.success',
-                message: 'Series deleted.'
-            }));
+            toast.success(
+                t({
+                    id: 'settings.series.delete.success',
+                    message: 'Series deleted.'
+                })
+            );
             invalidateSeriesQueries();
             allowNavigationRef.current = true;
             navigate({
@@ -286,10 +338,12 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
             });
         },
         onError: () => {
-            toast.error(t({
-                id: 'settings.series.delete.failed',
-                message: 'Could not delete the series.'
-            }));
+            toast.error(
+                t({
+                    id: 'settings.series.delete.failed',
+                    message: 'Could not delete the series.'
+                })
+            );
         }
     });
 
@@ -301,7 +355,8 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
             }),
             message: i18n._({
                 id: 'settings.series.editor.delete_confirm',
-                message: 'Deleting "{title}" keeps its posts but removes their series assignment.\n\nThis action cannot be undone. Continue?',
+                message:
+                    'Deleting "{title}" keeps its posts but removes their series assignment.\n\nThis action cannot be undone. Continue?',
                 values: { title: titleValue }
             }),
             confirmText: t({
@@ -333,21 +388,25 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
     const isSaving = createMutation.isPending || updateMutation.isPending;
     const customSlug = normalizeSeriesUrlForSubmit(customUrlValue);
     const previewSlug = customSlug || generateSeriesUrlFromTitle(titleValue || '');
-    const fixedSlug = isEditMode ? (seriesDetail?.url || previewSlug) : previewSlug;
+    const fixedSlug = isEditMode ? seriesDetail?.url || previewSlug : previewSlug;
     const seriesPath = `/@${accountSettings.username}/series/${fixedSlug || 'series-url'}`;
 
     const handleCopySeriesUrl = async () => {
         try {
             await navigator.clipboard.writeText(`${window.location.origin}${seriesPath}`);
-            toast.success(t({
-                id: 'settings.series.editor.url.copy_success',
-                message: 'Series URL copied.'
-            }));
+            toast.success(
+                t({
+                    id: 'settings.series.editor.url.copy_success',
+                    message: 'Series URL copied.'
+                })
+            );
         } catch {
-            toast.error(t({
-                id: 'settings.series.editor.url.copy_failed',
-                message: 'Could not copy the series URL.'
-            }));
+            toast.error(
+                t({
+                    id: 'settings.series.editor.url.copy_failed',
+                    message: 'Could not copy the series URL.'
+                })
+            );
         }
     };
 
@@ -358,12 +417,11 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                     <div className="max-w-4xl mx-auto px-4 md:px-6 h-14 flex items-center justify-between">
                         <Link
                             to="/settings/series"
-                            className="flex min-h-11 items-center gap-2 py-2 text-sm text-content-secondary transition-colors hover:text-content active:text-content-secondary [@media(pointer:fine)]:min-h-9">
+                            className="flex min-h-11 items-center gap-2 py-2 text-sm text-content-secondary transition-colors hover:text-content active:text-content-secondary [@media(pointer:fine)]:min-h-9"
+                        >
                             <ArrowLeft aria-hidden className="h-4 w-4" />
                             <span>
-                                <Trans id="settings.series.editor.back_to_list">
-                                    Back to series
-                                </Trans>
+                                <Trans id="settings.series.editor.back_to_list">Back to series</Trans>
                             </span>
                         </Link>
                     </div>
@@ -374,22 +432,21 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                         <h1 className="sr-only">
                             {isEditMode
                                 ? t({
-                                    id: 'settings.series.editor.edit_title',
-                                    message: 'Edit series'
-                                })
+                                      id: 'settings.series.editor.edit_title',
+                                      message: 'Edit series'
+                                  })
                                 : t({
-                                    id: 'settings.series.editor.create_title',
-                                    message: 'Create series'
-                                })}
+                                      id: 'settings.series.editor.create_title',
+                                      message: 'Create series'
+                                  })}
                         </h1>
 
                         <div className="space-y-2">
                             <label
                                 htmlFor="series-name"
-                                className="ml-1 block text-sm font-medium text-content-secondary">
-                                <Trans id="settings.series.editor.name.label">
-                                    Series title
-                                </Trans>
+                                className="ml-1 block text-sm font-medium text-content-secondary"
+                            >
+                                <Trans id="settings.series.editor.name.label">Series title</Trans>
                             </label>
                             <div className="relative rounded-lg border border-line bg-surface-elevated px-3 py-3 transition-all duration-150 focus-within:border-line-strong focus-within:ring-2 focus-within:ring-line/70">
                                 <input
@@ -403,14 +460,14 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                                     className="w-full border-none bg-transparent pr-20 text-2xl font-bold text-content outline-none placeholder-content-hint"
                                     {...register('name')}
                                 />
-                                <span className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium ${titleValue.length > 40 ? 'text-danger' : 'text-content-hint'}`}>
+                                <span
+                                    className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium ${titleValue.length > 40 ? 'text-danger' : 'text-content-hint'}`}
+                                >
                                     {titleValue.length}/50
                                 </span>
                             </div>
                         </div>
-                        {errors.name?.message && (
-                            <p className="text-sm text-danger">{errors.name.message}</p>
-                        )}
+                        {errors.name?.message && <p className="text-sm text-danger">{errors.name.message}</p>}
                     </section>
 
                     <PostSelector
@@ -447,9 +504,7 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                     <section className="space-y-3 border-t border-line-light pt-5">
                         <div className="flex items-center justify-between gap-3">
                             <h2 className="text-sm font-semibold text-content-secondary">
-                                <Trans id="settings.series.editor.url.title">
-                                    Series URL
-                                </Trans>
+                                <Trans id="settings.series.editor.url.title">Series URL</Trans>
                             </h2>
                             {isEditMode && (
                                 <Button
@@ -458,7 +513,8 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                                     variant="ghost"
                                     size="sm"
                                     className="h-10 shrink-0"
-                                    onClick={handleCopySeriesUrl}>
+                                    onClick={handleCopySeriesUrl}
+                                >
                                     <Trans id="common.copy">Copy</Trans>
                                 </Button>
                             )}
@@ -467,10 +523,11 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                         {!isEditMode && (
                             <details className="group">
                                 <summary className="flex min-h-11 cursor-pointer list-none items-center text-sm text-content-secondary transition-colors hover:text-content [@media(pointer:fine)]:min-h-9">
-                                    <Trans id="settings.series.editor.url.customize">
-                                        Customize URL
-                                    </Trans>
-                                    <ChevronDown aria-hidden className="ml-2 inline h-3.5 w-3.5 transition-transform group-open:rotate-180" />
+                                    <Trans id="settings.series.editor.url.customize">Customize URL</Trans>
+                                    <ChevronDown
+                                        aria-hidden
+                                        className="ml-2 inline h-3.5 w-3.5 transition-transform group-open:rotate-180"
+                                    />
                                 </summary>
                                 <div className="mt-3 space-y-2">
                                     <Input
@@ -500,28 +557,25 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                             </details>
                         )}
 
-                        <div className="break-all text-xs font-mono text-content-hint">
-                            {seriesPath}
-                        </div>
+                        <div className="break-all text-xs font-mono text-content-hint">{seriesPath}</div>
 
                         <p className="text-xs text-content-secondary">
                             {isEditMode
                                 ? t({
-                                    id: 'settings.series.editor.url.edit_helper',
-                                    message: 'The URL stays the same when you edit the series title.'
-                                })
+                                      id: 'settings.series.editor.url.edit_helper',
+                                      message: 'The URL stays the same when you edit the series title.'
+                                  })
                                 : customSlug
-                                    ? t({
+                                  ? t({
                                         id: 'settings.series.editor.url.custom_helper',
                                         message: 'The series will use your custom URL.'
                                     })
-                                    : t({
+                                  : t({
                                         id: 'settings.series.editor.url.auto_helper',
                                         message: 'Leave the URL empty to generate one from the title.'
                                     })}
                         </p>
                     </section>
-
                 </div>
 
                 <FloatingBottomBar>
@@ -535,7 +589,8 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                                 isLoading={deleteMutation.isPending}
                                 disabled={isSaving}
                                 onClick={handleDelete}
-                                className="!rounded-full !text-danger hover:!text-danger hover:!bg-danger-surface">
+                                className="!rounded-full !text-danger hover:!text-danger hover:!bg-danger-surface"
+                            >
                                 <Trans id="common.delete">Delete</Trans>
                             </Button>
                             <div className="w-px h-8 bg-line/60 mx-1" />
@@ -549,18 +604,19 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                         className="!rounded-full"
                         leftIcon={!isSaving ? <Send className="w-4 h-4" /> : undefined}
                         isLoading={isSaving}
-                        disabled={deleteMutation.isPending}>
+                        disabled={deleteMutation.isPending}
+                    >
                         {isSaving
                             ? t({
-                                id: 'settings.series.editor.saving',
-                                message: 'Saving...'
-                            })
+                                  id: 'settings.series.editor.saving',
+                                  message: 'Saving...'
+                              })
                             : isEditMode
-                                ? t({
+                              ? t({
                                     id: 'settings.series.editor.update',
                                     message: 'Update'
                                 })
-                                : t({
+                              : t({
                                     id: 'settings.series.editor.create',
                                     message: 'Create'
                                 })}

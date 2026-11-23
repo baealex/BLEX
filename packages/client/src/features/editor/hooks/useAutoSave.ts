@@ -30,11 +30,7 @@ interface UseAutoSaveOptions {
     onError?: (error: Error) => void;
 }
 
-const buildDraftPayload = (
-    data: AutoSaveData,
-    useFormData: boolean,
-    untitledLabel: string
-) => {
+const buildDraftPayload = (data: AutoSaveData, useFormData: boolean, untitledLabel: string) => {
     if (useFormData) {
         const formData = new FormData();
         formData.append('title', data.title || untitledLabel);
@@ -74,10 +70,7 @@ const buildDraftPayload = (
     };
 };
 
-const ensureDraftSaved = (
-    response: Response<{ url: string }>,
-    fallbackErrorMessage: string
-) => {
+const ensureDraftSaved = (response: Response<{ url: string }>, fallbackErrorMessage: string) => {
     if (response.status === 'DONE') {
         return response.body;
     }
@@ -103,32 +96,42 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
     // A timer cancelled by a pause or a finishing save still owes the author a save.
     const hasUnsavedEditsRef = useRef(false);
     const [resumeCount, setResumeCount] = useState(0);
-    const getContentSignature = useCallback((value: AutoSaveData) => JSON.stringify({
-        title: value.title,
-        content: value.content,
-        tags: value.tags,
-        subtitle: value.subtitle,
-        description: value.description,
-        seriesUrl: value.seriesUrl,
-        customUrl: value.customUrl,
-        coverLayout: value.coverLayout,
-        coverImagePosition: value.coverImagePosition,
-        coverImageRatio: value.coverImageRatio,
-        hide: value.hide,
-        advertise: value.advertise,
-        blockComment: value.blockComment,
-        reservedDate: value.reservedDate
-    }), []);
+    const getContentSignature = useCallback(
+        (value: AutoSaveData) =>
+            JSON.stringify({
+                title: value.title,
+                content: value.content,
+                tags: value.tags,
+                subtitle: value.subtitle,
+                description: value.description,
+                seriesUrl: value.seriesUrl,
+                customUrl: value.customUrl,
+                coverLayout: value.coverLayout,
+                coverImagePosition: value.coverImagePosition,
+                coverImageRatio: value.coverImageRatio,
+                hide: value.hide,
+                advertise: value.advertise,
+                blockComment: value.blockComment,
+                reservedDate: value.reservedDate
+            }),
+        []
+    );
 
-    const getDataSignature = useCallback((value: AutoSaveData) => JSON.stringify({
-        content: JSON.parse(getContentSignature(value)),
-        imageDeleted: value.imageDeleted,
-        imageFile: value.imageFile ? {
-            name: value.imageFile.name,
-            size: value.imageFile.size,
-            lastModified: value.imageFile.lastModified
-        } : null
-    }), [getContentSignature]);
+    const getDataSignature = useCallback(
+        (value: AutoSaveData) =>
+            JSON.stringify({
+                content: JSON.parse(getContentSignature(value)),
+                imageDeleted: value.imageDeleted,
+                imageFile: value.imageFile
+                    ? {
+                          name: value.imageFile.name,
+                          size: value.imageFile.size,
+                          lastModified: value.imageFile.lastModified
+                      }
+                    : null
+            }),
+        [getContentSignature]
+    );
 
     const prevDataStringRef = useRef<string>(getDataSignature(data));
     const prevContentStringRef = useRef<string>(getContentSignature(data));
@@ -175,11 +178,7 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
                 id: 'editor.autosave.error',
                 message: 'Could not save the draft.'
             });
-            const payload = buildDraftPayload(
-                currentData,
-                needsFormData,
-                untitledLabel
-            );
+            const payload = buildDraftPayload(currentData, needsFormData, untitledLabel);
 
             if (draftUrlRef.current) {
                 const response = await updateDraft(draftUrlRef.current, payload);
@@ -240,7 +239,7 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
 
     const resumeAutoSave = useCallback(() => {
         pausedRef.current = false;
-        setResumeCount(count => count + 1);
+        setResumeCount((count) => count + 1);
     }, []);
 
     // Auto-save effect
@@ -280,7 +279,7 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         const totalSeconds = Math.ceil(intervalMs / 1000);
         setAutoSaveCountdown(totalSeconds);
         countdownRef.current = window.setInterval(() => {
-            setAutoSaveCountdown(prev => {
+            setAutoSaveCountdown((prev) => {
                 if (prev === null || prev <= 1) return null;
                 return prev - 1;
             });

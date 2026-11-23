@@ -13,7 +13,9 @@ import { createToken } from '../../features/auth/session.js';
 import { hasAdministrator } from '../../features/auth/setup.js';
 import { readPublicSiteBrand } from '../../features/discovery/http/pages.js';
 
-interface ManifestEntry { file: string }
+interface ManifestEntry {
+  file: string;
+}
 type Manifest = Record<string, ManifestEntry>;
 
 export interface ScreenHostOptions {
@@ -23,8 +25,29 @@ export interface ScreenHostOptions {
   cipherKey: string;
 }
 
-const adminPrefixes = ['site-settings', 'seo-aeo', 'static-pages', 'global-notices', 'global-banners', 'global-webhook', 'integrations', 'utilities', 'users', 'moderation'];
-const editorPrefixes = ['posts', 'series', 'pinned-posts', 'drafts', 'forms', 'notices', 'banners', 'webhook', 'developer-api'];
+const adminPrefixes = [
+  'site-settings',
+  'seo-aeo',
+  'static-pages',
+  'global-notices',
+  'global-banners',
+  'global-webhook',
+  'integrations',
+  'utilities',
+  'users',
+  'moderation',
+];
+const editorPrefixes = [
+  'posts',
+  'series',
+  'pinned-posts',
+  'drafts',
+  'forms',
+  'notices',
+  'banners',
+  'webhook',
+  'developer-api',
+];
 const webAssetPrefix = '/assets/web/';
 const styleEntries = ['styles/main.scss', 'styles/post.scss'];
 const loaderEntry = 'src/scripts/screen-loader.ts';
@@ -64,18 +87,30 @@ async function readViewerState(db: PrismaClient, userId: number, cipherKey: stri
     where: { id: 1 },
     select: { telegramEnabled: true, telegramBotUsername: true, telegramBotToken: true },
   });
-  const telegramToken = telegram?.telegramEnabled && telegram.telegramBotUsername.trim() ? telegram.telegramBotToken : '';
+  const telegramToken =
+    telegram?.telegramEnabled && telegram.telegramBotUsername.trim() ? telegram.telegramBotToken : '';
   const row = await db.user.findUnique({
     where: { id: userId },
     select: { profile: { select: { role: true } }, preference: { select: { language: true, timeZone: true } } },
   });
   const unread = await db.notification.count({ where: { userId, isRead: false } });
   const telegramConnected = await db.telegramConnection.count({ where: { userId, telegramId: { not: '' } } });
-  return { role: row?.profile?.role ?? null, language: row?.preference?.language ?? null, timeZone: row?.preference?.timeZone ?? null, unread, telegramConnected, telegramConfigured: Boolean(telegramToken && decryptsToValue(telegramToken, cipherKey)) };
+  return {
+    role: row?.profile?.role ?? null,
+    language: row?.preference?.language ?? null,
+    timeZone: row?.preference?.timeZone ?? null,
+    unread,
+    telegramConnected,
+    telegramConfigured: Boolean(telegramToken && decryptsToValue(telegramToken, cipherKey)),
+  };
 }
 
 type ViewerState = Awaited<ReturnType<typeof readViewerState>>;
-interface ScreenViewer { user: { id: number; username: string }; isStaff: boolean; state: ViewerState }
+interface ScreenViewer {
+  user: { id: number; username: string };
+  isStaff: boolean;
+  state: ViewerState;
+}
 interface ScreenPage {
   component: string;
   props: Record<string, unknown>;
@@ -101,17 +136,27 @@ async function readCaptchaSiteKey(db: PrismaClient, cipherKey: string): Promise<
 export function registerScreenHost(app: FastifyInstance, db: PrismaClient, options: ScreenHostOptions) {
   let manifest: Promise<Manifest> | undefined;
   const { webAssetsRoot } = options;
-  const readManifest = () => manifest ??= readFile(`${webAssetsRoot}.vite/manifest.json`, 'utf8').then((text) => JSON.parse(text) as Manifest);
+  const readManifest = () =>
+    (manifest ??= readFile(`${webAssetsRoot}.vite/manifest.json`, 'utf8').then((text) => JSON.parse(text) as Manifest));
 
   if (webAssetsRoot) {
     app.register(async (routes) => {
       await routes.register(fastifyStatic, {
-        root: webAssetsRoot, prefix: webAssetPrefix, maxAge: '1y', immutable: true, decorateReply: false,
+        root: webAssetsRoot,
+        prefix: webAssetPrefix,
+        maxAge: '1y',
+        immutable: true,
+        decorateReply: false,
       });
     });
   }
 
-  const sendDocument = async (request: FastifyRequest, reply: FastifyReply, viewer: ScreenViewer | null, page: ScreenPage) => {
+  const sendDocument = async (
+    request: FastifyRequest,
+    reply: FastifyReply,
+    viewer: ScreenViewer | null,
+    page: ScreenPage,
+  ) => {
     const [brand, assets] = await Promise.all([readPublicSiteBrand(db), readManifest()]);
     let csrf = requestCookies(request)[csrfCookie] ?? '';
     if (!/^[A-Za-z0-9_-]{43}$/.test(csrf)) {
@@ -119,26 +164,50 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
       reply.setCookie(csrfCookie, csrf, authCookieOptions(options.siteUrl));
     }
     const configuration = {
-      media: '/resources/media/', static: '/resources/',
+      media: '/resources/media/',
+      static: '/resources/',
       locale: viewer?.state.language || 'ko',
       timeZone: viewer?.state.timeZone || process.env.TZ || 'Asia/Seoul',
       ...(viewer ? { user: { isAuthenticated: 'True', username: viewer.user.username } } : {}),
-      googleClientId: '', githubClientId: '',
+      googleClientId: '',
+      githubClientId: '',
     };
     const screen = `<div data-screen="${page.component}" data-screen-status="pending" data-screen-props="${encodeURIComponent(JSON.stringify(page.props))}"><div role="status" aria-live="polite" class="flex min-h-52 items-center justify-center gap-2 py-12 text-sm font-medium text-content-secondary"><span aria-hidden="true" class="h-4 w-4 animate-spin rounded-full border-2 border-line-strong border-t-action motion-reduce:animate-none"></span><span>불러오는 중...</span></div></div>`;
     const robots = page.robots ?? 'noindex,nofollow';
     // The editor keeps full page loads so its unsaved-changes warning covers every way of leaving.
     const movesInApplication = page.component !== 'PostEditor';
     const html = renderPage('screen-host', {
-      movesInApplication, lang: configuration.locale, robots, title: page.title(brand.siteName), canonical: page.canonical,
-      faviconUrl: brand.faviconUrl, rssUrl: page.searchPage ? new URL('/rss', options.siteUrl).href : undefined, brand,
-      styleHrefs: styleEntries.map((entry) => manifestAsset(assets, entry)), configurationJson: scriptJson(configuration),
-      globalsJson: page.globals ? scriptJson(page.globals) : undefined, captcha: Boolean(page.captcha), csrf,
-      searchPage: page.searchPage, editorPage: page.component === 'PostEditor',
-      viewer: viewer ? { username: viewer.user.username, hasEditorRole: viewer.state.role === 'EDITOR', isStaff: viewer.isStaff, csrfToken: csrf, unreadCount: Number(viewer.state.unread) } : null,
-      contentClass: page.contentClass, screen, footer: Boolean(page.footer), loaderHref: manifestAsset(assets, loaderEntry),
+      movesInApplication,
+      lang: configuration.locale,
+      robots,
+      title: page.title(brand.siteName),
+      canonical: page.canonical,
+      faviconUrl: brand.faviconUrl,
+      rssUrl: page.searchPage ? new URL('/rss', options.siteUrl).href : undefined,
+      brand,
+      styleHrefs: styleEntries.map((entry) => manifestAsset(assets, entry)),
+      configurationJson: scriptJson(configuration),
+      globalsJson: page.globals ? scriptJson(page.globals) : undefined,
+      captcha: Boolean(page.captcha),
+      csrf,
+      searchPage: page.searchPage,
+      editorPage: page.component === 'PostEditor',
+      viewer: viewer
+        ? {
+            username: viewer.user.username,
+            hasEditorRole: viewer.state.role === 'EDITOR',
+            isStaff: viewer.isStaff,
+            csrfToken: csrf,
+            unreadCount: Number(viewer.state.unread),
+          }
+        : null,
+      contentClass: page.contentClass,
+      screen,
+      footer: Boolean(page.footer),
+      loaderHref: manifestAsset(assets, loaderEntry),
     });
-    return reply.type('text/html; charset=utf-8')
+    return reply
+      .type('text/html; charset=utf-8')
       .header('Cache-Control', 'private, no-store')
       .header('Vary', 'Cookie')
       .header('Content-Security-Policy', applicationContentSecurityPolicy)
@@ -146,58 +215,105 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
   };
 
   const sendScreen = async (
-    request: FastifyRequest, reply: FastifyReply, user: { id: number; username: string }, isStaff: boolean,
-    component: string, componentProps: (isEditor: boolean, state: ViewerState) => Record<string, unknown>, pageTitle: string,
+    request: FastifyRequest,
+    reply: FastifyReply,
+    user: { id: number; username: string },
+    isStaff: boolean,
+    component: string,
+    componentProps: (isEditor: boolean, state: ViewerState) => Record<string, unknown>,
+    pageTitle: string,
   ) => {
     if (!webAssetsRoot) {
-      return reply.code(503).type('text/plain; charset=utf-8').header('Cache-Control', 'no-store')
+      return reply
+        .code(503)
+        .type('text/plain; charset=utf-8')
+        .header('Cache-Control', 'no-store')
         .send('The web screens are not built. Run `pnpm build:client` and restart the server.');
     }
     const state = await readViewerState(db, user.id, options.cipherKey);
-    return sendDocument(request, reply, { user, isStaff, state }, {
-      component, props: componentProps(state.role === 'EDITOR', state), title: (site) => pageTitle.replace('{site}', () => site),
-    });
+    return sendDocument(
+      request,
+      reply,
+      { user, isStaff, state },
+      {
+        component,
+        props: componentProps(state.role === 'EDITOR', state),
+        title: (site) => pageTitle.replace('{site}', () => site),
+      },
+    );
   };
 
   // Signed-in visitors and first-run installs keep the existing /sign redirects.
   const sendSignup = async (request: FastifyRequest, reply: FastifyReply, query: URLSearchParams) => {
-    if (await options.currentUser(request) || !await hasAdministrator(db)) return undefined;
+    if ((await options.currentUser(request)) || !(await hasAdministrator(db))) return undefined;
     const next = safeReturnPath(query.get('next') ?? undefined, options.siteUrl);
     const siteKey = await readCaptchaSiteKey(db, options.cipherKey);
     return sendDocument(request, reply, null, {
-      component: 'Signup', props: {}, title: (site) => `회원가입 - ${site}`, robots: 'noindex',
-      contentClass: 'flex items-center justify-center my-16 px-4 md:px-6', footer: true, captcha: Boolean(siteKey),
-      globals: { HCAPTCHA_SITE_KEY: siteKey, NEXT_URL: next === '/' ? '' : next, INVITE_CODE: (query.get('invite') ?? '').trim() },
+      component: 'Signup',
+      props: {},
+      title: (site) => `회원가입 - ${site}`,
+      robots: 'noindex',
+      contentClass: 'flex items-center justify-center my-16 px-4 md:px-6',
+      footer: true,
+      captcha: Boolean(siteKey),
+      globals: {
+        HCAPTCHA_SITE_KEY: siteKey,
+        NEXT_URL: next === '/' ? '' : next,
+        INVITE_CODE: (query.get('invite') ?? '').trim(),
+      },
     });
   };
 
   const sendSearch = async (request: FastifyRequest, reply: FastifyReply, query: URLSearchParams) => {
     const user = await options.currentUser(request);
     const account = user ? await readAdminAccess(db, user.id) : null;
-    const viewer = user && account?.active
-      ? { user, isStaff: account.staff, state: await readViewerState(db, user.id, options.cipherKey) }
-      : null;
+    const viewer =
+      user && account?.active
+        ? { user, isStaff: account.staff, state: await readViewerState(db, user.id, options.cipherKey) }
+        : null;
     const username = (query.get('username') ?? '').trim();
     const searchText = query.get('q');
     return sendDocument(request, reply, viewer, {
-      component: 'SearchPage', props: username ? { username } : {},
+      component: 'SearchPage',
+      props: username ? { username } : {},
       title: (site) => (searchText ? `검색: ${searchText} - ${site}` : `검색 - ${site}`),
-      robots: 'noindex,follow', canonical: new URL('/search', options.siteUrl).href,
-      contentClass: 'max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12', searchPage: true, footer: true,
+      robots: 'noindex,follow',
+      canonical: new URL('/search', options.siteUrl).href,
+      contentClass: 'max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12',
+      searchPage: true,
+      footer: true,
     });
   };
 
-  const sendHost = (request: FastifyRequest, reply: FastifyReply, mode: 'user' | 'admin', user: { id: number; username: string }, isStaff: boolean, isSuperuser: boolean, canManageSiteSettings: boolean) =>
-    sendScreen(request, reply, user, isStaff, 'SettingsApp', (isEditor, state) => ({
-      isEditor, isStaff, isSuperuser,
-      canUseTelegramIntegration: state.telegramConfigured || state.telegramConnected > 0,
-      adminCapabilities: {
-        canManageSiteSettings: isStaff && canManageSiteSettings,
-        canManageLoginSettings: isStaff && isSuperuser,
-        canManageIntegrationSettings: isStaff && isSuperuser,
-        canManageUtilities: isStaff && isSuperuser,
-      },
-    }), `${mode === 'admin' ? '관리자 설정' : '설정'} | {site}`);
+  const sendHost = (
+    request: FastifyRequest,
+    reply: FastifyReply,
+    mode: 'user' | 'admin',
+    user: { id: number; username: string },
+    isStaff: boolean,
+    isSuperuser: boolean,
+    canManageSiteSettings: boolean,
+  ) =>
+    sendScreen(
+      request,
+      reply,
+      user,
+      isStaff,
+      'SettingsApp',
+      (isEditor, state) => ({
+        isEditor,
+        isStaff,
+        isSuperuser,
+        canUseTelegramIntegration: state.telegramConfigured || state.telegramConnected > 0,
+        adminCapabilities: {
+          canManageSiteSettings: isStaff && canManageSiteSettings,
+          canManageLoginSettings: isStaff && isSuperuser,
+          canManageIntegrationSettings: isStaff && isSuperuser,
+          canManageUtilities: isStaff && isSuperuser,
+        },
+      }),
+      `${mode === 'admin' ? '관리자 설정' : '설정'} | {site}`,
+    );
 
   // Requests the 3.x editor cannot serve fall through to the existing login, role, and 404 handling.
   const sendEditor = async (request: FastifyRequest, reply: FastifyReply, path: string, query: string) => {
@@ -213,16 +329,47 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
       if (username !== user.username) return undefined;
       const post = await db.post.findFirst({ where: { authorId: user.id, slug }, select: { slug: true } });
       if (!post) return undefined;
-      return sendScreen(request, reply, user, account.staff, 'PostEditor', () => ({ mode: 'edit', username, postUrl: post.slug }), '수정하기 - {site}');
+      return sendScreen(
+        request,
+        reply,
+        user,
+        account.staff,
+        'PostEditor',
+        () => ({ mode: 'edit', username, postUrl: post.slug }),
+        '수정하기 - {site}',
+      );
     }
-    const published = await db.post.findFirst({ where: { authorId: user.id, publishedAt: { not: null } }, select: { id: true } });
+    const published = await db.post.findFirst({
+      where: { authorId: user.id, publishedAt: { not: null } },
+      select: { id: true },
+    });
     const showFirstPublishGuide = !published;
     const draftUrl = new URLSearchParams(query).get('draft');
     const draft = draftUrl
-      ? await db.post.findFirst({ where: { authorId: user.id, slug: draftUrl, publishedAt: null }, select: { slug: true } })
+      ? await db.post.findFirst({
+          where: { authorId: user.id, slug: draftUrl, publishedAt: null },
+          select: { slug: true },
+        })
       : null;
-    if (draft) return sendScreen(request, reply, user, account.staff, 'PostEditor', () => ({ mode: 'draft', username: user.username, draftUrl: draft.slug, showFirstPublishGuide }), '임시저장 - {site}');
-    return sendScreen(request, reply, user, account.staff, 'PostEditor', () => ({ mode: 'new', username: user.username, showFirstPublishGuide }), '새 포스트 - {site}');
+    if (draft)
+      return sendScreen(
+        request,
+        reply,
+        user,
+        account.staff,
+        'PostEditor',
+        () => ({ mode: 'draft', username: user.username, draftUrl: draft.slug, showFirstPublishGuide }),
+        '임시저장 - {site}',
+      );
+    return sendScreen(
+      request,
+      reply,
+      user,
+      account.staff,
+      'PostEditor',
+      () => ({ mode: 'new', username: user.username, showFirstPublishGuide }),
+      '새 포스트 - {site}',
+    );
   };
 
   app.addHook('onRequest', async (request, reply) => {

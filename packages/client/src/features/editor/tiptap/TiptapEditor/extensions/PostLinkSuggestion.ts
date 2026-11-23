@@ -56,8 +56,7 @@ export const PostLinkSuggestion = Extension.create<PostLinkSuggestionOptions>({
                 allowedPrefixes: null,
                 debounce: POST_LINK_SEARCH_DEBOUNCE_MS,
                 allow: ({ state, range }) => {
-                    const query = state.doc.textBetween(range.from, range.to)
-                        .slice(POST_LINK_TRIGGER.length);
+                    const query = state.doc.textBetween(range.from, range.to).slice(POST_LINK_TRIGGER.length);
                     return isPostLinkQuery(query) && !isInsideCode(state, range);
                 },
                 items: async ({ query, signal }) => {
@@ -79,21 +78,19 @@ export const PostLinkSuggestion = Extension.create<PostLinkSuggestionOptions>({
                         Math.min(range.to + 1, editor.state.doc.content.size)
                     );
                     // Reuse an existing following space instead of leaving two spaces after the link.
-                    const replaceRange = nextText === ' '
-                        ? {
-                            ...range,
-                            to: range.to + 1
-                        }
-                        : range;
+                    const replaceRange =
+                        nextText === ' '
+                            ? {
+                                  ...range,
+                                  to: range.to + 1
+                              }
+                            : range;
 
-                    editor
-                        .chain()
-                        .focus()
-                        .insertContentAt(replaceRange, buildPostLinkContent(props))
-                        .run();
+                    editor.chain().focus().insertContentAt(replaceRange, buildPostLinkContent(props)).run();
                 },
                 render: () => {
-                    let component: ReactRenderer<PostLinkSuggestionListHandle, PostLinkSuggestionListProps> | null = null;
+                    let component: ReactRenderer<PostLinkSuggestionListHandle, PostLinkSuggestionListProps> | null =
+                        null;
                     let unmount: (() => void) | null = null;
 
                     const toListProps = (props: {

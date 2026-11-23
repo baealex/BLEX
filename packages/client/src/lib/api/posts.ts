@@ -48,10 +48,9 @@ export const getPosts = async (filters: PostsFilters = {}, options: { signal?: A
     });
 
     const queryString = params.toString();
-    return http.get<PostsResponse>(
-        `v1/setting/posts${queryString ? `?${queryString}` : ''}`,
-        { signal: options.signal }
-    );
+    return http.get<PostsResponse>(`v1/setting/posts${queryString ? `?${queryString}` : ''}`, {
+        signal: options.signal
+    });
 };
 
 export const getReservedPosts = async (filters: PostsFilters = {}) => {
@@ -94,33 +93,32 @@ export const updatePostShareLink = (
     postUrl: string,
     linkId: number,
     changes: { label: string } | { isPaused: boolean }
-) => http.patch<Response<Record<string, never>>>(
-    `${postShareLinksPath(username, postUrl)}/${linkId}`,
-    changes
-);
+) => http.patch<Response<Record<string, never>>>(`${postShareLinksPath(username, postUrl)}/${linkId}`, changes);
 
 export const togglePostVisibility = async (username: string, postUrl: string) => {
     return http.put<Response<{ isHide: boolean }>>(`v1/users/@${username}/posts/${postUrl}?hide=hide`);
 };
 
 export const deletePost = async (username: string, postUrl: string) => {
-    return http.delete<Response<{ trashed: boolean; deletedDate: string }>>(
-        `v1/users/@${username}/posts/${postUrl}`
-    );
+    return http.delete<Response<{ trashed: boolean; deletedDate: string }>>(`v1/users/@${username}/posts/${postUrl}`);
 };
 
 export const updatePostTags = async (username: string, postUrl: string, tags: string) => {
     const formData = new URLSearchParams();
     formData.append('tag', tags);
 
-    return http.put<Response<{ tag: string }>>(`v1/users/@${username}/posts/${postUrl}?tag=tag`, formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+    return http.put<Response<{ tag: string }>>(`v1/users/@${username}/posts/${postUrl}?tag=tag`, formData, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
 };
 
 export const updatePostSeries = async (username: string, postUrl: string, series: string) => {
     const formData = new URLSearchParams();
     formData.append('series', series);
 
-    return http.put<Response<{ series: string }>>(`v1/users/@${username}/posts/${postUrl}?series=series`, formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+    return http.put<Response<{ series: string }>>(`v1/users/@${username}/posts/${postUrl}?series=series`, formData, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
 };
 
 export interface RelatedPost {
@@ -173,18 +171,61 @@ export interface DraftSummary {
     updatedDate: string;
 }
 
-export const createDraft = async (data: { title: string; content: string; tags: string; subtitle?: string; description?: string; seriesUrl?: string; coverLayout?: string; coverImagePosition?: string; coverImageRatio?: string; isHide?: boolean; isAdvertise?: boolean; blockComment?: boolean; reservedDate?: string } | FormData) => {
+export const createDraft = async (
+    data:
+        | {
+              title: string;
+              content: string;
+              tags: string;
+              subtitle?: string;
+              description?: string;
+              seriesUrl?: string;
+              coverLayout?: string;
+              coverImagePosition?: string;
+              coverImageRatio?: string;
+              isHide?: boolean;
+              isAdvertise?: boolean;
+              blockComment?: boolean;
+              reservedDate?: string;
+          }
+        | FormData
+) => {
     if (data instanceof FormData) {
-        return http.post<Response<{ url: string }>>('v1/drafts', data, { headers: { 'Content-Type': 'multipart/form-data' } });
+        return http.post<Response<{ url: string }>>('v1/drafts', data, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
     }
     return http.post<Response<{ url: string }>>('v1/drafts', data, { headers: { 'Content-Type': 'application/json' } });
 };
 
-export const updateDraft = async (url: string, data: { title?: string; content?: string; tags?: string; subtitle?: string; description?: string; seriesUrl?: string; coverLayout?: string; coverImagePosition?: string; coverImageRatio?: string; isHide?: boolean; isAdvertise?: boolean; blockComment?: boolean; reservedDate?: string } | FormData) => {
+export const updateDraft = async (
+    url: string,
+    data:
+        | {
+              title?: string;
+              content?: string;
+              tags?: string;
+              subtitle?: string;
+              description?: string;
+              seriesUrl?: string;
+              coverLayout?: string;
+              coverImagePosition?: string;
+              coverImageRatio?: string;
+              isHide?: boolean;
+              isAdvertise?: boolean;
+              blockComment?: boolean;
+              reservedDate?: string;
+          }
+        | FormData
+) => {
     if (data instanceof FormData) {
-        return http.put<Response<{ url: string }>>(`v1/drafts/${url}`, data, { headers: { 'Content-Type': 'multipart/form-data' } });
+        return http.put<Response<{ url: string }>>(`v1/drafts/${url}`, data, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
     }
-    return http.put<Response<{ url: string }>>(`v1/drafts/${url}`, data, { headers: { 'Content-Type': 'application/json' } });
+    return http.put<Response<{ url: string }>>(`v1/drafts/${url}`, data, {
+        headers: { 'Content-Type': 'application/json' }
+    });
 };
 
 export const getDraft = async (url: string) => {
@@ -226,29 +267,20 @@ interface TrashedPostsBody {
 }
 
 export const getTrashedPosts = async (page = 1) => {
-    return http.get<Response<TrashedPostsBody>>(
-        `v1/setting/trash-posts?page=${page}`
-    );
+    return http.get<Response<TrashedPostsBody>>(`v1/setting/trash-posts?page=${page}`);
 };
 
-export const restoreTrashedPost = async (
-    postUrl: string,
-    expectedDeletedDate: string
-) => {
-    return http.post<Response<{
-        url: string;
-        status: TrashedPostSourceStatus;
-        restored: boolean;
-    }>>(
-        `v1/setting/trash-posts/${postUrl}/restore`,
-        { expectedDeletedDate }
-    );
+export const restoreTrashedPost = async (postUrl: string, expectedDeletedDate: string) => {
+    return http.post<
+        Response<{
+            url: string;
+            status: TrashedPostSourceStatus;
+            restored: boolean;
+        }>
+    >(`v1/setting/trash-posts/${postUrl}/restore`, { expectedDeletedDate });
 };
 
-export const permanentlyDeleteTrashedPost = async (
-    postUrl: string,
-    expectedDeletedDate: string
-) => {
+export const permanentlyDeleteTrashedPost = async (postUrl: string, expectedDeletedDate: string) => {
     const params = new URLSearchParams({ expectedDeletedDate });
     return http.delete<Response<{ deleted: boolean; id: number }>>(
         `v1/setting/trash-posts/${postUrl}?${params.toString()}`
@@ -285,19 +317,15 @@ export const getPostForEdit = async (username: string, postUrl: string) => {
 };
 
 export const submitPostEdit = async (username: string, postUrl: string, data: FormData) => {
-    return http.post<Response<Record<string, never>>>(
-        `v1/users/@${username}/posts/${postUrl}`,
-        data,
-        { headers: { 'Content-Type': 'multipart/form-data' } }
-    );
+    return http.post<Response<Record<string, never>>>(`v1/users/@${username}/posts/${postUrl}`, data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    });
 };
 
 export const publishPost = async (data: FormData) => {
-    return http.post<Response<{ url: string }>>(
-        'v1/posts',
-        data,
-        { headers: { 'Content-Type': 'multipart/form-data' } }
-    );
+    return http.post<Response<{ url: string }>>('v1/posts', data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    });
 };
 
 interface ScheduledPostActionResult {
@@ -307,9 +335,7 @@ interface ScheduledPostActionResult {
 }
 
 export const cancelPostSchedule = async (username: string, postUrl: string) => {
-    return http.post<Response<ScheduledPostActionResult>>(
-        `v1/users/@${username}/posts/${postUrl}/schedule/cancel`
-    );
+    return http.post<Response<ScheduledPostActionResult>>(`v1/users/@${username}/posts/${postUrl}/schedule/cancel`);
 };
 
 export const publishScheduledPostNow = async (username: string, postUrl: string) => {
@@ -354,37 +380,23 @@ interface PostRevisionListBody {
     };
 }
 
-export const getPostRevisions = async (
-    username: string,
-    postUrl: string,
-    page = 1
-) => {
-    return http.get<Response<PostRevisionListBody>>(
-        `v1/users/@${username}/posts/${postUrl}/revisions?page=${page}`
-    );
+export const getPostRevisions = async (username: string, postUrl: string, page = 1) => {
+    return http.get<Response<PostRevisionListBody>>(`v1/users/@${username}/posts/${postUrl}/revisions?page=${page}`);
 };
 
-export const getPostRevision = async (
-    username: string,
-    postUrl: string,
-    revisionId: number
-) => {
+export const getPostRevision = async (username: string, postUrl: string, revisionId: number) => {
     return http.get<Response<{ revision: PostRevisionDetail }>>(
         `v1/users/@${username}/posts/${postUrl}/revisions/${revisionId}`
     );
 };
 
-export const deletePostRevision = async (
-    username: string,
-    postUrl: string,
-    revisionId: number
-) => {
-    return http.delete<Response<{
-        revisionId: number;
-        deleted: boolean;
-    }>>(
-        `v1/users/@${username}/posts/${postUrl}/revisions/${revisionId}`
-    );
+export const deletePostRevision = async (username: string, postUrl: string, revisionId: number) => {
+    return http.delete<
+        Response<{
+            revisionId: number;
+            deleted: boolean;
+        }>
+    >(`v1/users/@${username}/posts/${postUrl}/revisions/${revisionId}`);
 };
 
 export const restorePostRevision = async (
@@ -393,14 +405,13 @@ export const restorePostRevision = async (
     revisionId: number,
     expectedUpdatedDate: string
 ) => {
-    return http.post<Response<{
-        url: string;
-        updatedDate: string;
-        restored: boolean;
-    }>>(
-        `v1/users/@${username}/posts/${postUrl}/revisions/${revisionId}/restore`,
-        { expectedUpdatedDate }
-    );
+    return http.post<
+        Response<{
+            url: string;
+            updatedDate: string;
+            restored: boolean;
+        }>
+    >(`v1/users/@${username}/posts/${postUrl}/revisions/${revisionId}/restore`, { expectedUpdatedDate });
 };
 
 export type PostTimelapseStage = 'draft' | 'published';
@@ -419,14 +430,14 @@ export interface PostTimelapse {
 }
 
 export const getPostTimelapse = async (username: string, postUrl: string) => {
-    return http.get<Response<PostTimelapse>>(
-        `v1/users/@${username}/posts/${postUrl}/timelapse`
-    );
+    return http.get<Response<PostTimelapse>>(`v1/users/@${username}/posts/${postUrl}/timelapse`);
 };
 
 export const uploadImage = async (file: File) => {
     const formData = new FormData();
     formData.append('image', file);
 
-    return http.post<Response<{ url: string }>>('v1/image', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+    return http.post<Response<{ url: string }>>('v1/image', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    });
 };

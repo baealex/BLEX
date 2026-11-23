@@ -18,13 +18,18 @@ interface MediaFloatingMenuProps {
 }
 
 const MEDIA_TYPES = ['image', 'video', 'iframe'];
-const fieldClassName = 'px-2 py-1 text-xs bg-surface-elevated text-content border border-line rounded-md hover:bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-action/20 focus:border-action placeholder:text-content-hint';
+const fieldClassName =
+    'px-2 py-1 text-xs bg-surface-elevated text-content border border-line rounded-md hover:bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-action/20 focus:border-action placeholder:text-content-hint';
 const dividerClassName = 'w-px h-5 bg-line';
 const mediaTypesWithStyle = ['image', 'video'];
 
 const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
     const { t } = useEditorI18n();
-    const [selectedNode, setSelectedNode] = useState<{ type: string; attrs: Record<string, unknown>; pos: number } | null>(null);
+    const [selectedNode, setSelectedNode] = useState<{
+        type: string;
+        attrs: Record<string, unknown>;
+        pos: number;
+    } | null>(null);
     const [isOpen, setIsOpen] = useState(false);
     const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
     const altInputId = useId();
@@ -75,7 +80,10 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
 
     const updateAttribute = (attr: string, value: unknown) => {
         if (selectedNode) {
-            editor.chain().updateAttributes(selectedNode.type, { [attr]: value }).run();
+            editor
+                .chain()
+                .updateAttributes(selectedNode.type, { [attr]: value })
+                .run();
         }
     };
 
@@ -125,7 +133,8 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
         const mode = e.target.value;
         updateAttribute('playMode', mode);
         if (mode === 'gif') {
-            editor.chain()
+            editor
+                .chain()
                 .updateAttributes('video', {
                     autoplay: true,
                     muted: true,
@@ -133,7 +142,8 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                 })
                 .run();
         } else {
-            editor.chain()
+            editor
+                .chain()
                 .updateAttributes('video', {
                     autoplay: false,
                     muted: false,
@@ -159,13 +169,15 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
             onClick={onClick}
             className={`
                 w-7 h-7 rounded-md flex items-center justify-center transition-all
-                ${active
-                    ? 'bg-action text-content-inverted'
-                    : 'text-content-secondary hover:text-content hover:bg-surface-subtle active:scale-95'
+                ${
+                    active
+                        ? 'bg-action text-content-inverted'
+                        : 'text-content-secondary hover:text-content hover:bg-surface-subtle active:scale-95'
                 }
             `}
             title={title}
-            aria-label={title}>
+            aria-label={title}
+        >
             <InlineIcon icon={icon} className="text-sm" />
         </button>
     );
@@ -183,14 +195,16 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                             sideOffset={-36}
                             alignOffset={-8}
                             className="z-[1100] outline-none"
-                            onOpenAutoFocus={(e) => e.preventDefault()}>
+                            onOpenAutoFocus={(e) => e.preventDefault()}
+                        >
                             <button
                                 type="button"
                                 onClick={() => setIsOpen(true)}
                                 onMouseDown={(e) => e.preventDefault()}
                                 className="w-7 h-7 rounded-full floating-glass-surface flex items-center justify-center text-content-secondary hover:text-content transition-all"
                                 title={t('media.settings')}
-                                aria-label={t('media.settings')}>
+                                aria-label={t('media.settings')}
+                            >
                                 <InlineIcon icon={Settings2} className="text-xs" />
                             </button>
                         </Popover.Content>
@@ -209,20 +223,35 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                         onOpenAutoFocus={(e) => e.preventDefault()}
                         onCloseAutoFocus={(e) => e.preventDefault()}
                         onMouseDown={(e) => {
-                            if (e.target instanceof HTMLElement &&
-                                !['INPUT', 'SELECT'].includes(e.target.tagName)) {
+                            if (e.target instanceof HTMLElement && !['INPUT', 'SELECT'].includes(e.target.tagName)) {
                                 e.preventDefault();
                             }
                             e.stopPropagation();
                         }}
-                        onClick={(e) => e.stopPropagation()}>
+                        onClick={(e) => e.stopPropagation()}
+                    >
                         <div className="flex items-center gap-2">
                             {/* 정렬 (image, video) */}
                             {(selectedNode.type === 'image' || selectedNode.type === 'video') && (
                                 <div className="flex gap-0.5 bg-surface-subtle rounded-lg p-0.5">
-                                    <IconButton icon={AlignLeft} active={selectedNode.attrs.align === 'left'} onClick={(e) => handleAlignChange(e, 'left')} title={t('media.align.left')} />
-                                    <IconButton icon={AlignCenter} active={selectedNode.attrs.align === 'center'} onClick={(e) => handleAlignChange(e, 'center')} title={t('media.align.center')} />
-                                    <IconButton icon={AlignRight} active={selectedNode.attrs.align === 'right'} onClick={(e) => handleAlignChange(e, 'right')} title={t('media.align.right')} />
+                                    <IconButton
+                                        icon={AlignLeft}
+                                        active={selectedNode.attrs.align === 'left'}
+                                        onClick={(e) => handleAlignChange(e, 'left')}
+                                        title={t('media.align.left')}
+                                    />
+                                    <IconButton
+                                        icon={AlignCenter}
+                                        active={selectedNode.attrs.align === 'center'}
+                                        onClick={(e) => handleAlignChange(e, 'center')}
+                                        title={t('media.align.center')}
+                                    />
+                                    <IconButton
+                                        icon={AlignRight}
+                                        active={selectedNode.attrs.align === 'right'}
+                                        onClick={(e) => handleAlignChange(e, 'right')}
+                                        title={t('media.align.right')}
+                                    />
                                 </div>
                             )}
 
@@ -231,13 +260,14 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                                 <>
                                     <div className={dividerClassName} />
                                     <select
-                                        value={selectedNode.attrs.sizePreset as string || ''}
+                                        value={(selectedNode.attrs.sizePreset as string) || ''}
                                         onChange={(e) => {
                                             e.preventDefault();
                                             e.stopPropagation();
                                             updateAttribute('sizePreset', e.target.value || null);
                                         }}
-                                        className={fieldClassName}>
+                                        className={fieldClassName}
+                                    >
                                         <option value="">{t('media.size.original')}</option>
                                         <option value="full">{t('media.size.full')}</option>
                                         <option value="large">{t('media.size.large')}</option>
@@ -250,9 +280,13 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                             {/* 비율 */}
                             <div className={dividerClassName} />
                             <select
-                                value={selectedNode.attrs.aspectRatio as string || (selectedNode.type === 'iframe' ? '16:9' : '')}
+                                value={
+                                    (selectedNode.attrs.aspectRatio as string) ||
+                                    (selectedNode.type === 'iframe' ? '16:9' : '')
+                                }
                                 onChange={handleAspectRatioChange}
-                                className={fieldClassName}>
+                                className={fieldClassName}
+                            >
                                 {selectedNode.type === 'iframe' ? (
                                     <>
                                         <option value="16:9">16:9 ({t('media.ratio.wide')})</option>
@@ -277,9 +311,10 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                                 <>
                                     <div className={dividerClassName} />
                                     <select
-                                        value={selectedNode.attrs.playMode as string || 'gif'}
+                                        value={(selectedNode.attrs.playMode as string) || 'gif'}
                                         onChange={handlePlayModeChange}
-                                        className={fieldClassName}>
+                                        className={fieldClassName}
+                                    >
                                         <option value="gif">{t('media.play.gif')}</option>
                                         <option value="video">{t('media.play.video')}</option>
                                     </select>
@@ -291,9 +326,10 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                         {mediaTypesWithStyle.includes(selectedNode.type) && (
                             <div className="flex items-center gap-2">
                                 <select
-                                    value={selectedNode.attrs.objectFit as string || 'cover'}
+                                    value={(selectedNode.attrs.objectFit as string) || 'cover'}
                                     onChange={handleObjectFitChange}
-                                    className={fieldClassName}>
+                                    className={fieldClassName}
+                                >
                                     <option value="cover">{t('media.fit.cover')}</option>
                                     <option value="contain">{t('media.fit.contain')}</option>
                                     <option value="fill">{t('media.fit.fill')}</option>
@@ -302,15 +338,26 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
 
                                 <div className={dividerClassName} />
                                 <div className="flex gap-0.5 bg-surface-subtle rounded-lg p-0.5">
-                                    <IconButton icon={BorderAll} active={!!selectedNode.attrs.border} onClick={(e) => handleToggle(e, 'border')} title={t('media.border')} />
-                                    <IconButton icon={Copy} active={!!selectedNode.attrs.shadow} onClick={(e) => handleToggle(e, 'shadow')} title={t('media.shadow')} />
+                                    <IconButton
+                                        icon={BorderAll}
+                                        active={!!selectedNode.attrs.border}
+                                        onClick={(e) => handleToggle(e, 'border')}
+                                        title={t('media.border')}
+                                    />
+                                    <IconButton
+                                        icon={Copy}
+                                        active={!!selectedNode.attrs.shadow}
+                                        onClick={(e) => handleToggle(e, 'shadow')}
+                                        title={t('media.shadow')}
+                                    />
                                 </div>
 
                                 <div className={dividerClassName} />
                                 <select
-                                    value={selectedNode.attrs.borderRadius as string || ''}
+                                    value={(selectedNode.attrs.borderRadius as string) || ''}
                                     onChange={handleBorderRadiusChange}
-                                    className={fieldClassName}>
+                                    className={fieldClassName}
+                                >
                                     <option value="">{t('media.radius.label')}</option>
                                     <option value="0">{t('media.radius.square')}</option>
                                     <option value="4">{t('media.radius.slight')}</option>
@@ -331,7 +378,7 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                                         id={altInputId}
                                         type="text"
                                         placeholder={t('media.alt.placeholder')}
-                                        value={selectedNode.attrs.alt as string || ''}
+                                        value={(selectedNode.attrs.alt as string) || ''}
                                         onChange={(e) => handleAltChange(e.target.value)}
                                         onKeyDown={(e) => {
                                             if (e.key === 'Enter') {
@@ -351,7 +398,7 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                                     id={captionInputId}
                                     type="text"
                                     placeholder={t('media.caption.placeholder')}
-                                    value={selectedNode.attrs.caption as string || ''}
+                                    value={(selectedNode.attrs.caption as string) || ''}
                                     onChange={(e) => handleCaptionChange(e.target.value)}
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter') {

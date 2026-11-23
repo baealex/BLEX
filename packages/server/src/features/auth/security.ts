@@ -38,8 +38,11 @@ function factorError(code: string | null, action?: string) {
   if (!code) return success;
   if (code === 'RE') return verificationRequired;
   const messages: Record<string, string> = {
-    AU: '2단계 인증을 이미 해제했습니다.', AC: '2단계 인증을 이미 연결했습니다.', EP: '2FA 설정 세션이 만료되었습니다. 다시 시도해주세요.',
-    IP: '인증 코드를 입력해주세요.', RJ: action === 'disable' ? '24시간 동안 해제할 수 없습니다.' : '잘못된 인증 코드입니다.',
+    AU: '2단계 인증을 이미 해제했습니다.',
+    AC: '2단계 인증을 이미 연결했습니다.',
+    EP: '2FA 설정 세션이 만료되었습니다. 다시 시도해주세요.',
+    IP: '인증 코드를 입력해주세요.',
+    RJ: action === 'disable' ? '24시간 동안 해제할 수 없습니다.' : '잘못된 인증 코드입니다.',
   };
   return securityError(code, messages[code]);
 }
@@ -49,10 +52,13 @@ async function readSecurityViewer(db: PrismaClient, accountId: number) {
     where: { id: accountId },
     select: { isStaff: true, profile: { select: { role: true } } },
   });
-  return viewer && {
-    role: viewer.profile?.role ?? null, isStaff: viewer.isStaff,
-    unreadCount: await db.notification.count({ where: { userId: accountId, isRead: false } }),
-  };
+  return (
+    viewer && {
+      role: viewer.profile?.role ?? null,
+      isStaff: viewer.isStaff,
+      unreadCount: await db.notification.count({ where: { userId: accountId, isRead: false } }),
+    }
+  );
 }
 
 export function csrfForPage(request: FastifyRequest, reply: FastifyReply, siteUrl: URL) {
@@ -64,7 +70,12 @@ export function csrfForPage(request: FastifyRequest, reply: FastifyReply, siteUr
 }
 
 export function submittedPasswordError(password: string, account: { username: string; name: string; email: string }) {
-  if (!/\p{N}/u.test(password) || !/\p{Ll}/u.test(password) || !/\p{Lu}/u.test(password) || !/[^\p{N}\p{Ll}\p{Lu}]/u.test(password)) {
+  if (
+    !/\p{N}/u.test(password) ||
+    !/\p{Ll}/u.test(password) ||
+    !/\p{Lu}/u.test(password) ||
+    !/[^\p{N}\p{Ll}\p{Lu}]/u.test(password)
+  ) {
     return '비밀번호에는 숫자, 소문자, 대문자, 특수문자를 모두 넣어 주세요.';
   }
   return describeInvalidPassword(password, [account.username, account.name, account.email]);
@@ -73,25 +84,40 @@ export function submittedPasswordError(password: string, account: { username: st
 type PasswordUpdate = typeof success | ReturnType<typeof securityError> | typeof verificationRequired;
 
 export function passwordUpdater(db: PrismaClient, siteUrl: URL, config: AuthConfig) {
-  return async (request: FastifyRequest, reply: FastifyReply, user: { id: number }, input: Record<string, unknown>): Promise<PasswordUpdate> => {
+  return async (
+    request: FastifyRequest,
+    reply: FastifyReply,
+    user: { id: number },
+    input: Record<string, unknown>,
+  ): Promise<PasswordUpdate> => {
     const account = await readVerificationAccount(db, request, config.secretKey);
     if (!account || user.id !== account.id) return securityError('NL');
     if (!validCsrf(request, siteUrl)) return reply.code(403).send(securityError('RJ'));
     if (!hasVerification(account)) return verificationRequired;
     const { password, username, name, revokeTokens } = input;
-    if (typeof password !== 'string' || !password ||
-        (username !== undefined && typeof username !== 'string') || (name !== undefined && typeof name !== 'string')) return securityError('VA');
+    if (
+      typeof password !== 'string' ||
+      !password ||
+      (username !== undefined && typeof username !== 'string') ||
+      (name !== undefined && typeof name !== 'string')
+    )
+      return securityError('VA');
     const newUsername = username || account.username;
     const newName = name || account.name;
-    if ((newUsername !== account.username && !accountUsernamePattern.test(newUsername)) || newName.length > 150) return securityError('VA');
-    const passwordError = submittedPasswordError(password, { username: newUsername, name: newName, email: account.email });
+    if ((newUsername !== account.username && !accountUsernamePattern.test(newUsername)) || newName.length > 150)
+      return securityError('VA');
+    const passwordError = submittedPasswordError(password, {
+      username: newUsername,
+      name: newName,
+      email: account.email,
+    });
     if (passwordError) return securityError('VA', passwordError);
     const newPasswordHash = await hashPassword(password);
     const sessionToken = createToken();
     const revokedAt = new Date();
 
     const result = await db.$transaction<PasswordUpdate>(async (tx) => {
-      if (!await acquireVerification(tx, account)) return verificationRequired;
+      if (!(await acquireVerification(tx, account))) return verificationRequired;
       if (username) {
         const current = await tx.user.findUniqueOrThrow({ where: { id: account.id }, select: { username: true } });
         const invalid = await prepareUsernameChange(tx, account.id, current.username, newUsername, 'account');
@@ -107,12 +133,18 @@ export function passwordUpdater(db: PrismaClient, siteUrl: URL, config: AuthConf
       await tx.session.updateMany({
         where: { tokenHash: account.sessionHash },
         data: {
-          tokenHash: tokenHash(sessionToken)!, credentialTag: credentialTag(newPasswordHash, config.secretKey),
-          verifiedUntil: null, verifiedFactorId: null, requiresFactor: false,
+          tokenHash: tokenHash(sessionToken)!,
+          credentialTag: credentialTag(newPasswordHash, config.secretKey),
+          verifiedUntil: null,
+          verifiedFactorId: null,
+          requiresFactor: false,
         },
       });
       if (revokeTokens === true || revokeTokens === 'true') {
-        await tx.developerToken.updateMany({ where: { userId: account.id, revokedAt: null }, data: { revokedAt, updatedAt: revokedAt } });
+        await tx.developerToken.updateMany({
+          where: { userId: account.id, revokedAt: null },
+          data: { revokedAt, updatedAt: revokedAt },
+        });
       }
       return success;
     });
@@ -136,16 +168,32 @@ export function registerAccountSecurity(app: FastifyInstance, db: PrismaClient, 
       const attempt = await reserveLoginAttempt(db, config.secretKey, request.ip, account.username);
       if (!attempt) error = '너무 많은 실패로 인해 잠시 후 다시 시도해주세요.';
       else {
-        const isAccount = pendingFactor || (hasPassword && typeof input.password === 'string' && await verifyPassword(input.password, account.passwordHash));
+        const isAccount =
+          pendingFactor ||
+          (hasPassword &&
+            typeof input.password === 'string' &&
+            (await verifyPassword(input.password, account.passwordHash)));
         const code = typeof input.code === 'string' ? input.code : '';
-        const isFactor = account.factorId === null || (account.totpSecret !== null && account.recoveryKey !== null &&
-          verifySecondFactor({ totpSecret: account.totpSecret, recoveryKey: account.recoveryKey }, code, config.cipherKey));
+        const isFactor =
+          account.factorId === null ||
+          (account.totpSecret !== null &&
+            account.recoveryKey !== null &&
+            verifySecondFactor(
+              { totpSecret: account.totpSecret, recoveryKey: account.recoveryKey },
+              code,
+              config.cipherKey,
+            ));
         if (!isAccount || !isFactor) error = '비밀번호 또는 인증 코드가 올바르지 않습니다.';
         else {
-          const spentRecoveryKey = account.factorId !== null && isRecoveryCode(code) ? account.recoveryKey ?? undefined : undefined;
+          const spentRecoveryKey =
+            account.factorId !== null && isRecoveryCode(code) ? (account.recoveryKey ?? undefined) : undefined;
           const token = await recordVerification(db, account, false, spentRecoveryKey);
           await attempt();
-          if (token) return setSessionCookies(reply, siteUrl, token).redirect(spentRecoveryKey === undefined ? next : recoveredAccountPath, 302);
+          if (token)
+            return setSessionCookies(reply, siteUrl, token).redirect(
+              spentRecoveryKey === undefined ? next : recoveredAccountPath,
+              302,
+            );
           return reply.redirect(reauthenticationPath(next), 302);
         }
       }
@@ -156,13 +204,28 @@ export function registerAccountSecurity(app: FastifyInstance, db: PrismaClient, 
       where: { userId: account.id, provider: { isEnabled: true } },
       select: { provider: { select: { key: true } } },
     });
-    const providers = (await publicOAuthProviders(db, config.cipherKey)).filter((choice) => links.some((link) => link.provider.key === choice.key));
+    const providers = (await publicOAuthProviders(db, config.cipherKey)).filter((choice) =>
+      links.some((link) => link.provider.key === choice.key),
+    );
     const showForm = hasPassword || pendingFactor;
     const visibleProviders = pendingFactor ? [] : providers;
     const viewer = await readSecurityViewer(db, account.id);
     const brand = await readPublicSiteBrand(db);
     const fieldClass = 'block h-12 w-full rounded-lg border border-line bg-surface px-3';
-    return reply.type('text/html; charset=utf-8').header('Cache-Control', 'private, no-store').send(renderPage('reauthenticate', { brand, account, viewer, csrf, error, showForm, next, pendingFactor, fieldClass, visibleProviders }));
+    return reply.type('text/html; charset=utf-8').header('Cache-Control', 'private, no-store').send(
+      renderPage('reauthenticate', {
+        brand,
+        account,
+        viewer,
+        csrf,
+        error,
+        showForm,
+        next,
+        pendingFactor,
+        fieldClass,
+        visibleProviders,
+      }),
+    );
   };
 
   app.get('/reauthenticate', reauthenticate);
@@ -192,21 +255,28 @@ export function registerAccountSecurity(app: FastifyInstance, db: PrismaClient, 
     { url: '/v1/auth/security', method: 'DELETE', action: 'disable' },
   ] as const;
   for (const { url, method, action } of factorRoutes) {
-    app.route({ method, url, async handler(request, reply) {
-      const account = await readVerificationAccount(db, request, config.secretKey);
-      if (!account || !hasVerification(account)) return account ? verificationRequired : securityError('NL');
-      if (!validCsrf(request, siteUrl)) return reply.code(403).send(securityError('RJ'));
-      let error: string | null;
-      if (action === 'setup') {
-        const setup = await beginFactorSetup(db, account, config.cipherKey);
-        if (!setup.error) return { status: 'DONE', body: { qrCode: setup.image, recoveryKey: setup.recovery } };
-        error = setup.error;
-      } else {
-        error = action === 'activate' ? await activateFactor(db, account, config.cipherKey, formInput(request).code) :
-          await disableFactor(db, account);
-        if (!error && action === 'activate') return { status: 'DONE', body: { message: '2차 인증이 활성화되었습니다.' } };
-      }
-      return factorError(error, action);
-    } });
+    app.route({
+      method,
+      url,
+      async handler(request, reply) {
+        const account = await readVerificationAccount(db, request, config.secretKey);
+        if (!account || !hasVerification(account)) return account ? verificationRequired : securityError('NL');
+        if (!validCsrf(request, siteUrl)) return reply.code(403).send(securityError('RJ'));
+        let error: string | null;
+        if (action === 'setup') {
+          const setup = await beginFactorSetup(db, account, config.cipherKey);
+          if (!setup.error) return { status: 'DONE', body: { qrCode: setup.image, recoveryKey: setup.recovery } };
+          error = setup.error;
+        } else {
+          error =
+            action === 'activate'
+              ? await activateFactor(db, account, config.cipherKey, formInput(request).code)
+              : await disableFactor(db, account);
+          if (!error && action === 'activate')
+            return { status: 'DONE', body: { message: '2차 인증이 활성화되었습니다.' } };
+        }
+        return factorError(error, action);
+      },
+    });
   }
 }

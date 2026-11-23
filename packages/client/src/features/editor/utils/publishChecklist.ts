@@ -49,10 +49,7 @@ export const hasPublishableContent = (value: string) => {
     return text.length > 0;
 };
 
-export const getPublishChecklist = (
-    input: PublishChecklistInput,
-    locale: AppLocale
-): PublishChecklistResult => {
+export const getPublishChecklist = (input: PublishChecklistInput, locale: AppLocale): PublishChecklistResult => {
     const items: PublishChecklistItem[] = [
         {
             id: 'title',
@@ -114,47 +111,49 @@ export const getPublishChecklist = (
             }),
             description: i18n._({
                 id: 'editor.publish.field.cover_image_description',
-                message: 'Set the first impression in listings and shared cards. This does not replace images in the post.'
+                message:
+                    'Set the first impression in listings and shared cards. This does not replace images in the post.'
             }),
             severity: 'recommended',
             status: input.hasCoverImage ? 'pass' : 'missing'
         }
     ];
 
-    const missingRequired = items.filter(item => item.severity === 'required' && item.status === 'missing');
-    const missingRecommended = items.filter(item => item.severity === 'recommended' && item.status === 'missing');
+    const missingRequired = items.filter((item) => item.severity === 'required' && item.status === 'missing');
+    const missingRecommended = items.filter((item) => item.severity === 'recommended' && item.status === 'missing');
     const scheduledLabel = formatDateTime(input.scheduledAt, locale, input.scheduledAt);
     const visibilityTitle = input.scheduledAt
-        ? (input.isHidden
+        ? input.isHidden
             ? i18n._({
-                id: 'editor.publish.visibility.private_scheduled_title',
-                message: 'This is a private scheduled post'
-            })
+                  id: 'editor.publish.visibility.private_scheduled_title',
+                  message: 'This is a private scheduled post'
+              })
             : i18n._({
-                id: 'editor.publish.visibility.scheduled_title',
-                message: 'This post will be published on schedule'
-            }))
-        : (input.isHidden
-            ? i18n._({
+                  id: 'editor.publish.visibility.scheduled_title',
+                  message: 'This post will be published on schedule'
+              })
+        : input.isHidden
+          ? i18n._({
                 id: 'editor.publish.visibility.private_title',
                 message: 'This post will be private'
             })
-            : i18n._({
+          : i18n._({
                 id: 'editor.publish.visibility.public_title',
                 message: 'This post will be public'
-            }));
+            });
     const visibilityDescription = input.scheduledAt
         ? i18n._({
-            id: 'editor.publish.visibility.scheduled_description',
-            message: 'This post will be published on {scheduledAt}. Only you can view it before then.',
-            values: { scheduledAt: scheduledLabel }
-        })
+              id: 'editor.publish.visibility.scheduled_description',
+              message: 'This post will be published on {scheduledAt}. Only you can view it before then.',
+              values: { scheduledAt: scheduledLabel }
+          })
         : input.isHidden
-            ? i18n._({
+          ? i18n._({
                 id: 'editor.publish.visibility.private_description',
-                message: 'Only you can view it. It will be excluded from public URLs, RSS, sitemaps, and Markdown endpoints.'
+                message:
+                    'Only you can view it. It will be excluded from public URLs, RSS, sitemaps, and Markdown endpoints.'
             })
-            : i18n._({
+          : i18n._({
                 id: 'editor.publish.visibility.public_description',
                 message: 'It will be available at its public URL immediately and included in RSS and sitemaps.'
             });
@@ -168,21 +167,21 @@ export const getPublishChecklist = (
         visibilityDescription,
         confirmLabel: input.scheduledAt
             ? i18n._({
-                id: 'editor.publish.confirm_schedule',
-                message: 'Review and schedule'
-            })
+                  id: 'editor.publish.confirm_schedule',
+                  message: 'Review and schedule'
+              })
             : i18n._({
-                id: 'editor.publish.confirm_publish',
-                message: 'Review and publish'
-            }),
+                  id: 'editor.publish.confirm_publish',
+                  message: 'Review and publish'
+              }),
         submittingLabel: input.scheduledAt
             ? i18n._({
-                id: 'editor.publish.scheduling',
-                message: 'Scheduling...'
-            })
+                  id: 'editor.publish.scheduling',
+                  message: 'Scheduling...'
+              })
             : i18n._({
-                id: 'editor.publish.publishing',
-                message: 'Publishing...'
-            })
+                  id: 'editor.publish.publishing',
+                  message: 'Publishing...'
+              })
     };
 };

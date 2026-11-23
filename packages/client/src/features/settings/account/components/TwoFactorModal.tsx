@@ -10,13 +10,7 @@ interface TwoFactorModalProps {
     onVerify: (code: string) => Promise<{ success: boolean; error?: string }>;
 }
 
-const TwoFactorModal = ({
-    isOpen,
-    qrCode,
-    recoveryKey,
-    onClose,
-    onVerify
-}: TwoFactorModalProps) => {
+const TwoFactorModal = ({ isOpen, qrCode, recoveryKey, onClose, onVerify }: TwoFactorModalProps) => {
     const { t } = useLingui();
     const [verificationCode, setVerificationCode] = useState('');
     const [isVerifying, setIsVerifying] = useState(false);
@@ -24,10 +18,12 @@ const TwoFactorModal = ({
 
     const handleVerify = async () => {
         if (!verificationCode || verificationCode.length !== 6) {
-            setVerificationError(t({
-                id: 'settings.account.two_factor.validation.six_digits',
-                message: 'Enter a valid 6-digit code.'
-            }));
+            setVerificationError(
+                t({
+                    id: 'settings.account.two_factor.validation.six_digits',
+                    message: 'Enter a valid 6-digit code.'
+                })
+            );
             return;
         }
 
@@ -37,10 +33,13 @@ const TwoFactorModal = ({
         const result = await onVerify(verificationCode);
 
         if (!result.success) {
-            setVerificationError(result.error || t({
-                id: 'settings.account.two_factor.invalid_code',
-                message: 'The verification code is incorrect.'
-            }));
+            setVerificationError(
+                result.error ||
+                    t({
+                        id: 'settings.account.two_factor.invalid_code',
+                        message: 'The verification code is incorrect.'
+                    })
+            );
         }
 
         setIsVerifying(false);
@@ -60,7 +59,8 @@ const TwoFactorModal = ({
             title={t({
                 id: 'settings.account.two_factor.setup_title',
                 message: 'Set up two-factor authentication'
-            })}>
+            })}
+        >
             <div className="p-6 space-y-4">
                 <div>
                     <p className="text-sm text-content-secondary mb-3">
@@ -82,13 +82,12 @@ const TwoFactorModal = ({
 
                 <div>
                     <p className="text-sm font-medium text-content mb-2">
-                        <Trans id="settings.account.two_factor.recovery_key">
-                            Recovery key
-                        </Trans>
+                        <Trans id="settings.account.two_factor.recovery_key">Recovery key</Trans>
                     </p>
                     <p className="text-xs text-content-secondary mb-2">
                         <Trans id="settings.account.two_factor.recovery_key_description">
-                            You can use this key once to sign in if you lose your device. Using it turns off two-factor authentication until you enable it again. Store it somewhere safe.
+                            You can use this key once to sign in if you lose your device. Using it turns off two-factor
+                            authentication until you enable it again. Store it somewhere safe.
                         </Trans>
                     </p>
                     <div className="bg-surface-subtle p-3 rounded-md border border-line">
@@ -103,7 +102,10 @@ const TwoFactorModal = ({
                 </Alert>
 
                 <div>
-                    <label htmlFor="two-factor-verification-code" className="block text-sm font-medium text-content mb-2">
+                    <label
+                        htmlFor="two-factor-verification-code"
+                        className="block text-sm font-medium text-content mb-2"
+                    >
                         <Trans id="settings.account.two_factor.code_label">
                             Enter the 6-digit code from your authenticator app
                         </Trans>
@@ -131,7 +133,8 @@ const TwoFactorModal = ({
                         size="md"
                         className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                         fullWidth
-                        onClick={handleClose}>
+                        onClick={handleClose}
+                    >
                         <Trans id="common.cancel">Cancel</Trans>
                     </Button>
                     <Button
@@ -141,16 +144,17 @@ const TwoFactorModal = ({
                         className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                         fullWidth
                         isLoading={isVerifying}
-                        onClick={handleVerify}>
+                        onClick={handleVerify}
+                    >
                         {isVerifying
                             ? t({
-                                id: 'settings.account.two_factor.verifying',
-                                message: 'Verifying...'
-                            })
+                                  id: 'settings.account.two_factor.verifying',
+                                  message: 'Verifying...'
+                              })
                             : t({
-                                id: 'settings.account.two_factor.verify',
-                                message: 'Verify'
-                            })}
+                                  id: 'settings.account.two_factor.verify',
+                                  message: 'Verify'
+                              })}
                     </Button>
                 </div>
             </div>

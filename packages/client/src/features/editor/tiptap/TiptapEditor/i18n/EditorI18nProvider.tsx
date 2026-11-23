@@ -9,10 +9,7 @@ import {
     normalizeEditorLocale,
     resolveEditorMessages
 } from './messages';
-import type {
-    EditorMessageOverrides,
-    EditorMessages
-} from './messages';
+import type { EditorMessageOverrides, EditorMessages } from './messages';
 
 interface EditorI18nProviderProps {
     children: ReactNode;
@@ -20,11 +17,7 @@ interface EditorI18nProviderProps {
     messages?: EditorMessageOverrides;
 }
 
-export const EditorI18nProvider = ({
-    children,
-    locale,
-    messages: messageOverrides
-}: EditorI18nProviderProps) => {
+export const EditorI18nProvider = ({ children, locale, messages: messageOverrides }: EditorI18nProviderProps) => {
     const normalizedLocale = normalizeEditorLocale(locale);
     const [loadedCatalog, setLoadedCatalog] = useState<{
         locale: string;
@@ -33,14 +26,13 @@ export const EditorI18nProvider = ({
         const messages = getLoadedEditorMessages(normalizedLocale);
         return messages
             ? {
-                locale: normalizedLocale,
-                messages
-            }
+                  locale: normalizedLocale,
+                  messages
+              }
             : null;
     });
-    const builtinMessages = loadedCatalog?.locale === normalizedLocale
-        ? loadedCatalog.messages
-        : getLoadedEditorMessages(normalizedLocale);
+    const builtinMessages =
+        loadedCatalog?.locale === normalizedLocale ? loadedCatalog.messages : getLoadedEditorMessages(normalizedLocale);
 
     useEffect(() => {
         if (builtinMessages) {
@@ -63,11 +55,7 @@ export const EditorI18nProvider = ({
     }, [builtinMessages, normalizedLocale]);
 
     const value = useMemo<EditorI18nValue>(() => {
-        const messages = resolveEditorMessages(
-            normalizedLocale,
-            messageOverrides,
-            builtinMessages
-        );
+        const messages = resolveEditorMessages(normalizedLocale, messageOverrides, builtinMessages);
         return {
             messages,
             t: (key, values) => formatEditorMessage(messages[key], values)
@@ -78,9 +66,5 @@ export const EditorI18nProvider = ({
         return null;
     }
 
-    return (
-        <EditorI18nContext.Provider value={value}>
-            {children}
-        </EditorI18nContext.Provider>
-    );
+    return <EditorI18nContext.Provider value={value}>{children}</EditorI18nContext.Provider>;
 };

@@ -18,13 +18,7 @@ export interface PostLinkSuggestionListProps {
 
 const isSelectKey = (event: KeyboardEvent) => event.key === 'Enter' || event.key === 'Tab';
 
-const PostLinkSuggestionList = ({
-    ref,
-    items,
-    loading,
-    failed,
-    command
-}: PostLinkSuggestionListProps) => {
+const PostLinkSuggestionList = ({ ref, items, loading, failed, command }: PostLinkSuggestionListProps) => {
     const { t } = useEditorI18n();
     const [selectedIndex, setSelectedIndex] = useState(0);
     const optionRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -60,12 +54,12 @@ const PostLinkSuggestionList = ({
             }
 
             if (event.key === 'ArrowDown') {
-                setSelectedIndex(index => (index + 1) % items.length);
+                setSelectedIndex((index) => (index + 1) % items.length);
                 return true;
             }
 
             if (event.key === 'ArrowUp') {
-                setSelectedIndex(index => (index + items.length - 1) % items.length);
+                setSelectedIndex((index) => (index + items.length - 1) % items.length);
                 return true;
             }
 
@@ -91,7 +85,8 @@ const PostLinkSuggestionList = ({
                     role="listbox"
                     aria-label={t('postLink.label')}
                     aria-busy={loading}
-                    className="max-h-72 overflow-y-auto">
+                    className="max-h-72 overflow-y-auto"
+                >
                     {items.map((item, index) => {
                         const isSelected = index === selectedIndex;
 
@@ -106,15 +101,10 @@ const PostLinkSuggestionList = ({
                                 className={`flex flex-col gap-0.5 rounded-lg px-3 py-3 sm:py-2 cursor-pointer transition-colors duration-150 ${isSelected ? 'bg-surface-subtle' : ''}`}
                                 onMouseDown={(event) => event.preventDefault()}
                                 onMouseEnter={() => setSelectedIndex(index)}
-                                onClick={() => selectItem(index)}>
-                                <span className="truncate text-sm font-medium text-content">
-                                    {item.title}
-                                </span>
-                                {item.meta && (
-                                    <span className="text-xs text-content-hint">
-                                        {item.meta}
-                                    </span>
-                                )}
+                                onClick={() => selectItem(index)}
+                            >
+                                <span className="truncate text-sm font-medium text-content">{item.title}</span>
+                                {item.meta && <span className="text-xs text-content-hint">{item.meta}</span>}
                             </div>
                         );
                     })}

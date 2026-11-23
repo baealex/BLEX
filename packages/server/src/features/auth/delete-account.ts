@@ -13,22 +13,28 @@ export async function removeAccountData(tx: Prisma.TransactionClient, userId: nu
   return attachments;
 }
 
-export async function removeAccountAttachments(attachments: Awaited<ReturnType<typeof removeAccountData>>, mediaRoot?: string) {
+export async function removeAccountAttachments(
+  attachments: Awaited<ReturnType<typeof removeAccountData>>,
+  mediaRoot?: string,
+) {
   for (const { attachment } of attachments) await removeAttachment(mediaRoot, attachment);
 }
 
 export async function deleteAccount(db: PrismaClient, account: VerificationAccount, mediaRoot?: string) {
-  const result = await db.$transaction(async (tx) => {
-    if (!await acquireVerification(tx, account)) return { error: 'RE' } as const;
-    if (await isLastAdministrator(tx, account.id)) return { error: 'RJ' } as const;
+  const result = await db.$transaction(
+    async (tx) => {
+      if (!(await acquireVerification(tx, account))) return { error: 'RE' } as const;
+      if (await isLastAdministrator(tx, account.id)) return { error: 'RJ' } as const;
 
-    const setting = await tx.loginSetting.findUnique({
-      where: { id: 1 },
-      select: { accountDeletionRedirectUrl: true },
-    });
-    const attachments = await removeAccountData(tx, account.id);
-    return { attachments, url: setting?.accountDeletionRedirectUrl ?? '' } as const;
-  }, { timeout: 15_000, isolationLevel: 'Serializable' });
+      const setting = await tx.loginSetting.findUnique({
+        where: { id: 1 },
+        select: { accountDeletionRedirectUrl: true },
+      });
+      const attachments = await removeAccountData(tx, account.id);
+      return { attachments, url: setting?.accountDeletionRedirectUrl ?? '' } as const;
+    },
+    { timeout: 15_000, isolationLevel: 'Serializable' },
+  );
   if (!result.error) await removeAccountAttachments(result.attachments, mediaRoot);
   return result;
 }

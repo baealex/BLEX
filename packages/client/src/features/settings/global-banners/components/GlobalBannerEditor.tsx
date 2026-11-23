@@ -5,12 +5,7 @@ interface GlobalBannerEditorProps {
 }
 
 const GlobalBannerEditor = ({ bannerId }: GlobalBannerEditorProps) => {
-    return (
-        <BannerEditorBase
-            scope="global"
-            bannerId={bannerId}
-        />
-    );
+    return <BannerEditorBase scope="global" bannerId={bannerId} />;
 };
 
 export default GlobalBannerEditor;

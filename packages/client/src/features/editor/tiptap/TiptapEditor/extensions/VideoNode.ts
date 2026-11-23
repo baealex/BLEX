@@ -35,29 +35,29 @@ export const VideoNode = Node.create({
             playMode: { default: 'gif' },
             autoplay: {
                 default: true,
-                parseHTML: element => element.hasAttribute('autoplay'),
-                renderHTML: attributes => {
+                parseHTML: (element) => element.hasAttribute('autoplay'),
+                renderHTML: (attributes) => {
                     return attributes.autoplay ? { autoplay: '' } : {};
                 }
             },
             muted: {
                 default: true,
-                parseHTML: element => element.hasAttribute('muted'),
-                renderHTML: attributes => {
+                parseHTML: (element) => element.hasAttribute('muted'),
+                renderHTML: (attributes) => {
                     return attributes.muted ? { muted: '' } : {};
                 }
             },
             loop: {
                 default: true,
-                parseHTML: element => element.hasAttribute('loop'),
-                renderHTML: attributes => {
+                parseHTML: (element) => element.hasAttribute('loop'),
+                renderHTML: (attributes) => {
                     return attributes.loop ? { loop: '' } : {};
                 }
             },
             playsinline: {
                 default: true,
-                parseHTML: element => element.hasAttribute('playsinline'),
-                renderHTML: attributes => {
+                parseHTML: (element) => element.hasAttribute('playsinline'),
+                renderHTML: (attributes) => {
                     return attributes.playsinline ? { playsinline: '' } : {};
                 }
             }
@@ -79,7 +79,8 @@ export const VideoNode = Node.create({
                     const source = video.querySelector('source');
 
                     // data-src가 있으면 즉시 src로 사용 (lazy 로딩 제거)
-                    let finalSrc = video.getAttribute('src') || source?.getAttribute('src') || video.src || source?.src || null;
+                    let finalSrc =
+                        video.getAttribute('src') || source?.getAttribute('src') || video.src || source?.src || null;
                     const dataSrc = source?.getAttribute('data-src') || video.getAttribute('data-src') || null;
                     if (dataSrc) {
                         finalSrc = dataSrc;
@@ -118,7 +119,8 @@ export const VideoNode = Node.create({
                     const source = video.querySelector('source');
 
                     // data-src가 있으면 즉시 src로 사용 (lazy 로딩 제거)
-                    let finalSrc = video.getAttribute('src') || source?.getAttribute('src') || video.src || source?.src || null;
+                    let finalSrc =
+                        video.getAttribute('src') || source?.getAttribute('src') || video.src || source?.src || null;
                     const dataSrc = source?.getAttribute('data-src') || video.getAttribute('data-src') || null;
                     if (dataSrc) {
                         finalSrc = dataSrc;
@@ -221,19 +223,12 @@ export const VideoNode = Node.create({
             sizePreset
         });
 
-        const content = [
-            ['video', videoAttrs, ['source', sourceAttrs]]
-        ];
+        const content = [['video', videoAttrs, ['source', sourceAttrs]]];
 
         if (caption) {
             content.push(['figcaption', {}, caption]);
         }
 
-        return [
-            'figure',
-            figureAttrs,
-            ...content
-        ];
+        return ['figure', figureAttrs, ...content];
     }
-
 });

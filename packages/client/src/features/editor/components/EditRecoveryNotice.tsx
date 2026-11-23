@@ -11,22 +11,18 @@ interface EditRecoveryNoticeProps {
     onDiscard: () => void;
 }
 
-const EditRecoveryNotice = ({
-    recovery,
-    onRecover,
-    onDiscard
-}: EditRecoveryNoticeProps) => {
+const EditRecoveryNotice = ({ recovery, onRecover, onDiscard }: EditRecoveryNoticeProps) => {
     const { i18n, t } = useLingui();
     const savedDate = new Date(recovery.savedAt);
     const savedAt = Number.isNaN(savedDate.getTime())
         ? recovery.savedAt
         : new Intl.DateTimeFormat(normalizeLocale(i18n.locale), {
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            timeZone: getDocumentTimeZone()
-        }).format(savedDate);
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              timeZone: getDocumentTimeZone()
+          }).format(savedDate);
 
     return (
         <section
@@ -35,13 +31,15 @@ const EditRecoveryNotice = ({
                 id: 'editor.recovery.aria_label',
                 message: 'Post edit backup'
             })}
-            data-post-edit-recovery>
+            data-post-edit-recovery
+        >
             <Alert
                 variant="warning"
                 title={t({
                     id: 'editor.recovery.title',
                     message: 'You have unsaved edits'
-                })}>
+                })}
+            >
                 <p>
                     <Trans id="editor.recovery.description">
                         You can recover edits saved in this browser. The published post has not changed.
@@ -57,7 +55,8 @@ const EditRecoveryNotice = ({
                         size="sm"
                         variant="primary"
                         onClick={onRecover}
-                        leftIcon={<RotateCw className="h-4 w-4" />}>
+                        leftIcon={<RotateCw className="h-4 w-4" />}
+                    >
                         <Trans id="editor.recovery.recover">Recover</Trans>
                     </Button>
                     <Button
@@ -65,7 +64,8 @@ const EditRecoveryNotice = ({
                         size="sm"
                         variant="danger"
                         onClick={onDiscard}
-                        leftIcon={<Trash2 className="h-4 w-4" />}>
+                        leftIcon={<Trash2 className="h-4 w-4" />}
+                    >
                         <Trans id="editor.recovery.delete_backup">Delete backup</Trans>
                     </Button>
                 </div>

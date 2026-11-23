@@ -32,11 +32,7 @@ const snapshotCatalogs = () => {
 };
 
 const runLingui = (args) => {
-    const result = spawnSync(
-        pnpmCommand,
-        ['exec', 'lingui', ...args],
-        { cwd: appDir, stdio: 'inherit' }
-    );
+    const result = spawnSync(pnpmCommand, ['exec', 'lingui', ...args], { cwd: appDir, stdio: 'inherit' });
 
     if (result.status !== 0) {
         process.exit(result.status ?? 1);
@@ -44,9 +40,7 @@ const runLingui = (args) => {
 };
 
 const loadCompiledCatalog = async (locale) => {
-    const catalogUrl = pathToFileURL(
-        resolve(catalogDir, locale, 'messages.mjs')
-    );
+    const catalogUrl = pathToFileURL(resolve(catalogDir, locale, 'messages.mjs'));
     catalogUrl.searchParams.set('check', String(Date.now()));
 
     const { messages } = await import(catalogUrl.href);
@@ -65,9 +59,7 @@ const verifyRuntimeCatalogs = async () => {
             locale,
             messages: { [locale]: messages }
         });
-        const actual = [0, 1, 2].map((count) => (
-            runtime._('search.results.count', { 0: count })
-        ));
+        const actual = [0, 1, 2].map((count) => runtime._('search.results.count', { 0: count }));
 
         if (JSON.stringify(actual) !== JSON.stringify(expected)) {
             console.error(`Unexpected ${locale} plural output: ${actual.join(' | ')}`);

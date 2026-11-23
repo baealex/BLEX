@@ -20,7 +20,11 @@ function resetSignature(userId: number, expiresAt: number, passwordHash: string,
     .digest('base64url');
 }
 
-export function createPasswordResetToken(account: { id: number; passwordHash: string }, secretKey: string, now = Date.now()) {
+export function createPasswordResetToken(
+  account: { id: number; passwordHash: string },
+  secretKey: string,
+  now = Date.now(),
+) {
   const expiresAt = now + resetLifetimeMs;
   return {
     token: `${account.id}.${expiresAt}.${resetSignature(account.id, expiresAt, account.passwordHash, secretKey)}`,
@@ -52,8 +56,11 @@ type ResetView =
 async function sendResetPage(db: PrismaClient, reply: FastifyReply, view: ResetView, status = 200) {
   const brand = await readPublicSiteBrand(db);
   const fieldClass = 'block h-12 w-full rounded-lg border border-line bg-surface px-3';
-  const linkClass = 'mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-action px-4 text-content-inverted hover:bg-action-hover active:scale-95';
-  return reply.code(status).type('text/html; charset=utf-8')
+  const linkClass =
+    'mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-action px-4 text-content-inverted hover:bg-action-hover active:scale-95';
+  return reply
+    .code(status)
+    .type('text/html; charset=utf-8')
     .header('Cache-Control', 'private, no-store')
     .header('Referrer-Policy', 'no-referrer')
     .header('X-Robots-Tag', 'noindex, nofollow, noarchive')
@@ -84,12 +91,18 @@ export function registerPasswordReset(app: FastifyInstance, db: PrismaClient, si
           await tx.session.deleteMany({ where: { userId: account.id } });
           return true;
         });
-        return saved ? sendResetPage(db, reply, { state: 'done' }) : sendResetPage(db, reply, { state: 'invalid' }, 404);
+        return saved
+          ? sendResetPage(db, reply, { state: 'done' })
+          : sendResetPage(db, reply, { state: 'invalid' }, 404);
       }
     }
     const csrf = csrfForPage(request, reply, siteUrl);
     return sendResetPage(db, reply, {
-      state: 'form', username: account.username, csrf, action: `/password-reset/${token}`, error,
+      state: 'form',
+      username: account.username,
+      csrf,
+      action: `/password-reset/${token}`,
+      error,
     });
   };
 

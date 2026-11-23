@@ -133,9 +133,19 @@ export function buildFigureAttrsForHTML(attrs: {
         if (attrs.align === 'center') {
             styles.push('display: flex', 'justify-content: center', 'flex-direction: column', 'align-items: center');
         } else if (attrs.align === 'left') {
-            styles.push('display: flex', 'justify-content: flex-start', 'flex-direction: column', 'align-items: flex-start');
+            styles.push(
+                'display: flex',
+                'justify-content: flex-start',
+                'flex-direction: column',
+                'align-items: flex-start'
+            );
         } else if (attrs.align === 'right') {
-            styles.push('display: flex', 'justify-content: flex-end', 'flex-direction: column', 'align-items: flex-end');
+            styles.push(
+                'display: flex',
+                'justify-content: flex-end',
+                'flex-direction: column',
+                'align-items: flex-end'
+            );
         }
     }
 

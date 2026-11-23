@@ -4,7 +4,14 @@ import { storedDateText } from '../../../platform/date-format.js';
 import { messageFailure as apiError } from '../../../platform/response.js';
 import { containsLiteral } from '../../posts/data/text-match.js';
 import { publicPostWhere } from '../../posts/data/visibility.js';
-import { type PinnablePagination, type PinnablePostItem, type PinnedPostItem, bodyRecord, localDate, stringValue } from '../shared.js';
+import {
+  type PinnablePagination,
+  type PinnablePostItem,
+  type PinnedPostItem,
+  bodyRecord,
+  localDate,
+  stringValue,
+} from '../shared.js';
 
 interface StoredPinnedPost extends PinnedPostItem {
   publishedDate: string | null;
@@ -39,19 +46,34 @@ export function pinnedError(error: PinnedServiceError) {
     'pinned_posts.invalid_format': '요청 형식이 올바르지 않습니다.',
   };
   const suffix = error.key === 'pinned_posts.reorder_contains_unpinned' ? ` (${error.params?.url ?? ''})` : '';
-  return apiError(error.code, `${labels[error.key] ?? '고정 글을 변경하지 못했습니다.'}${suffix}`, error.key, error.params ?? {});
+  return apiError(
+    error.code,
+    `${labels[error.key] ?? '고정 글을 변경하지 못했습니다.'}${suffix}`,
+    error.key,
+    error.params ?? {},
+  );
 }
 
-const pinOrder = [{ order: 'asc' }, { createdAt: 'asc' }, { postId: 'asc' }] satisfies Prisma.PinnedPostOrderByWithRelationInput[];
+const pinOrder = [
+  { order: 'asc' },
+  { createdAt: 'asc' },
+  { postId: 'asc' },
+] satisfies Prisma.PinnedPostOrderByWithRelationInput[];
 
 export async function readPinnedPosts(db: PrismaClient, userId: number): Promise<StoredPinnedPost[]> {
   const rows = await db.pinnedPost.findMany({
     where: { userId, post: publicPostWhere() },
     orderBy: pinOrder,
-    select: { postId: true, order: true, post: { select: { slug: true, title: true, image: true, publishedAt: true } } },
+    select: {
+      postId: true,
+      order: true,
+      post: { select: { slug: true, title: true, image: true, publishedAt: true } },
+    },
   });
   return rows.map(({ postId, order, post }) => ({
-    id: postId, order, publishedDate: post.publishedAt && storedDateText(post.publishedAt),
+    id: postId,
+    order,
+    publishedDate: post.publishedAt && storedDateText(post.publishedAt),
     post: { url: post.slug, title: post.title, image: post.image || null, createdDate: localDate(post.publishedAt) },
   }));
 }
@@ -60,9 +82,18 @@ export async function reservedPinnedCount(db: PrismaClient, userId: number): Pro
   return db.pinnedPost.count({ where: { userId, post: { deletedAt: { not: null } } } });
 }
 
-function normalizedPagination(query: string | undefined, limitRaw: string | undefined, pageRaw: string | undefined): {
-  query: string; limit: number | null; page: number; hasPagination: boolean;
-} | PinnedServiceError {
+function normalizedPagination(
+  query: string | undefined,
+  limitRaw: string | undefined,
+  pageRaw: string | undefined,
+):
+  | {
+      query: string;
+      limit: number | null;
+      page: number;
+      hasPagination: boolean;
+    }
+  | PinnedServiceError {
   const search = (query ?? '').trim().slice(0, MAX_SEARCH_LENGTH);
   const hasPagination = limitRaw !== undefined || pageRaw !== undefined;
   let page = 1;
@@ -106,17 +137,30 @@ export async function readPinnablePosts(
     ? matches.slice(offset, offset + queryLimit)
     : await db.post.findMany({ where, orderBy: order, skip: offset, take: queryLimit, select });
   return {
-    posts: rows.map((row) => ({ url: row.slug, title: row.title, image: row.image || null, createdDate: localDate(row.publishedAt) })),
+    posts: rows.map((row) => ({
+      url: row.slug,
+      title: row.title,
+      image: row.image || null,
+      createdDate: localDate(row.publishedAt),
+    })),
     pagination: {
-      page, limit: responseLimit, lastPage, totalCount,
-      hasNext: page < lastPage, hasPrevious: page > 1,
+      page,
+      limit: responseLimit,
+      lastPage,
+      totalCount,
+      hasNext: page < lastPage,
+      hasPrevious: page > 1,
     },
   };
 }
 
-export async function addPinnedPost(db: PrismaClient, userId: number, postUrl: string): Promise<PinnedServiceError | null> {
+export async function addPinnedPost(
+  db: PrismaClient,
+  userId: number,
+  postUrl: string,
+): Promise<PinnedServiceError | null> {
   return db.$transaction(async (tx: Prisma.TransactionClient): Promise<PinnedServiceError | null> => {
-    if (await tx.pinnedPost.count({ where: { userId } }) >= MAX_PINNED_POSTS) {
+    if ((await tx.pinnedPost.count({ where: { userId } })) >= MAX_PINNED_POSTS) {
       return { code: 'RJ', key: 'pinned_posts.limit_reached', params: { count: MAX_PINNED_POSTS } };
     }
     const post = await tx.post.findFirst({
@@ -129,25 +173,43 @@ export async function addPinnedPost(db: PrismaClient, userId: number, postUrl: s
       return { code: 'RJ', key: 'pinned_posts.published_only' };
     }
     const key = { userId_postId: { userId, postId: post.id } };
-    if (await tx.pinnedPost.findUnique({ where: key, select: { postId: true } })) return { code: 'RJ', key: 'pinned_posts.already_pinned' };
+    if (await tx.pinnedPost.findUnique({ where: key, select: { postId: true } }))
+      return { code: 'RJ', key: 'pinned_posts.already_pinned' };
     const { _max } = await tx.pinnedPost.aggregate({ where: { userId }, _max: { order: true } });
-    await tx.pinnedPost.create({ data: { userId, postId: post.id, order: _max.order === null ? 0 : _max.order + 1, createdAt: new Date() } });
+    await tx.pinnedPost.create({
+      data: { userId, postId: post.id, order: _max.order === null ? 0 : _max.order + 1, createdAt: new Date() },
+    });
     return null;
   });
 }
 
-export async function removePinnedPost(db: PrismaClient, userId: number, postUrl: string): Promise<PinnedServiceError | null> {
+export async function removePinnedPost(
+  db: PrismaClient,
+  userId: number,
+  postUrl: string,
+): Promise<PinnedServiceError | null> {
   return db.$transaction(async (tx: Prisma.TransactionClient): Promise<PinnedServiceError | null> => {
-    const pinned = await tx.pinnedPost.findFirst({ where: { userId, post: { slug: postUrl } }, select: { postId: true, order: true } });
+    const pinned = await tx.pinnedPost.findFirst({
+      where: { userId, post: { slug: postUrl } },
+      select: { postId: true, order: true },
+    });
     if (!pinned) return { code: 'RJ', key: 'pinned_posts.pinned_post_not_found' };
     await tx.pinnedPost.delete({ where: { userId_postId: { userId, postId: pinned.postId } } });
-    await tx.pinnedPost.updateMany({ where: { userId, order: { gt: pinned.order } }, data: { order: { decrement: 1 } } });
+    await tx.pinnedPost.updateMany({
+      where: { userId, order: { gt: pinned.order } },
+      data: { order: { decrement: 1 } },
+    });
     return null;
   });
 }
 
-export async function reorderPinnedPosts(db: PrismaClient, userId: number, postUrls: string[]): Promise<PinnedServiceError | null> {
-  if (postUrls.length > MAX_PINNED_POSTS) return { code: 'RJ', key: 'pinned_posts.limit_reached', params: { count: MAX_PINNED_POSTS } };
+export async function reorderPinnedPosts(
+  db: PrismaClient,
+  userId: number,
+  postUrls: string[],
+): Promise<PinnedServiceError | null> {
+  if (postUrls.length > MAX_PINNED_POSTS)
+    return { code: 'RJ', key: 'pinned_posts.limit_reached', params: { count: MAX_PINNED_POSTS } };
   return db.$transaction(async (tx: Prisma.TransactionClient): Promise<PinnedServiceError | null> => {
     const pins = await tx.pinnedPost.findMany({
       where: { userId },
@@ -163,7 +225,11 @@ export async function reorderPinnedPosts(db: PrismaClient, userId: number, postU
     const ordered = [...postUrls.map((url) => byUrl.get(url)!), ...rows.filter((row) => !requested.has(row.url))];
     for (let index = 0; index < ordered.length; index += 1) {
       const row = ordered[index]!;
-      if (row.order !== index) await tx.pinnedPost.update({ where: { userId_postId: { userId, postId: row.postId } }, data: { order: index } });
+      if (row.order !== index)
+        await tx.pinnedPost.update({
+          where: { userId_postId: { userId, postId: row.postId } },
+          data: { order: index },
+        });
     }
     return null;
   });
@@ -178,7 +244,7 @@ export function parsePinnedUrls(value: unknown): string[] | null {
       return null;
     }
   }
-  return Array.isArray(value) && value.every((item) => typeof item === 'string') ? value as string[] : null;
+  return Array.isArray(value) && value.every((item) => typeof item === 'string') ? (value as string[]) : null;
 }
 
 export function pinnedPostUrl(request: FastifyRequest) {

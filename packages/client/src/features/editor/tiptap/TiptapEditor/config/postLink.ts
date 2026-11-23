@@ -15,26 +15,23 @@ export interface PostLinkSearchOptions {
     signal: AbortSignal;
 }
 
-export type PostLinkSearch = (
-    query: string,
-    options: PostLinkSearchOptions
-) => Promise<PostLinkCandidate[]>;
+export type PostLinkSearch = (query: string, options: PostLinkSearchOptions) => Promise<PostLinkCandidate[]>;
 
-export const isPostLinkQuery = (query: string) => (
-    query.length <= POST_LINK_QUERY_MAX_LENGTH && !query.includes(']')
-);
+export const isPostLinkQuery = (query: string) => query.length <= POST_LINK_QUERY_MAX_LENGTH && !query.includes(']');
 
 export const buildPostLinkContent = (candidate: PostLinkCandidate) => [
     {
         type: 'text',
         text: candidate.title,
-        marks: [{
-            type: 'link',
-            attrs: {
-                href: candidate.href,
-                class: POST_LINK_CLASS
+        marks: [
+            {
+                type: 'link',
+                attrs: {
+                    href: candidate.href,
+                    class: POST_LINK_CLASS
+                }
             }
-        }]
+        ]
     },
     {
         type: 'text',

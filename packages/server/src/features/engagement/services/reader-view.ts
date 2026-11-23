@@ -1,8 +1,20 @@
-import type { ReaderAuthorHeader, ReaderPostLikeState, ReaderPostView } from '../../../../../client/src/contracts/engagement.js';
+import type {
+  ReaderAuthorHeader,
+  ReaderPostLikeState,
+  ReaderPostView,
+} from '../../../../../client/src/contracts/engagement.js';
 import { type PrismaClient } from '@prisma/client';
 import { publicComments } from './comments.js';
 import { subscriptionState } from './subscriptions.js';
-import { ActiveUserRow, AuthorRow, DEFAULT_AVATAR, absoluteMediaUrl, ownedPost, publicPost, safeHttpUrl } from '../shared.js';
+import {
+  ActiveUserRow,
+  AuthorRow,
+  DEFAULT_AVATAR,
+  absoluteMediaUrl,
+  ownedPost,
+  publicPost,
+  safeHttpUrl,
+} from '../shared.js';
 
 export type { ReaderAuthorHeader, ReaderPostLikeState, ReaderPostView };
 
@@ -18,7 +30,10 @@ export async function readReaderPostView(
   const author = await db.user.findUnique({
     where: { id: post.authorId },
     select: {
-      id: true, username: true, name: true, isActive: true,
+      id: true,
+      username: true,
+      name: true,
+      isActive: true,
       profile: { select: { role: true, bio: true, avatar: true, cover: true, homepage: true } },
     },
   });
@@ -42,7 +57,12 @@ export async function readReaderPostView(
   const subscription = await subscriptionState(db, viewer, authorRow);
   const [countLikes, viewerLike] = await Promise.all([
     db.postLike.count({ where: { postId: post.id } }),
-    viewer ? db.postLike.findUnique({ where: { postId_userId: { postId: post.id, userId: viewer.id } }, select: { postId: true } }) : null,
+    viewer
+      ? db.postLike.findUnique({
+          where: { postId_userId: { postId: post.id, userId: viewer.id } },
+          select: { postId: true },
+        })
+      : null,
   ]);
   const socialRows = await db.socialLink.findMany({
     where: { userId: author.id },

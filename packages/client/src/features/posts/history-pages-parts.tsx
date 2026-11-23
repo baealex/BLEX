@@ -1,4 +1,3 @@
-
 export const historyPageCss = `
   :root { color-scheme: light dark; font: 16px/1.65 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color:CanvasText; background:Canvas; }
   * { box-sizing:border-box; }

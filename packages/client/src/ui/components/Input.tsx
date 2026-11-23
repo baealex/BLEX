@@ -46,12 +46,15 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
         const inputId = id ?? `input-${generatedId}`;
         const errorId = `${inputId}-error`;
         const helperId = `${inputId}-helper`;
-        const describedBy = [
-            ariaDescribedBy,
-            error ? errorId : helperText ? helperId : undefined
-        ].filter(Boolean).join(' ') || undefined;
-        const errorStyles = error ? 'border-danger-line focus:border-danger focus:ring-danger/20 bg-danger-surface/70' : '';
-        const readOnlyStyles = readOnly ? '!bg-surface-subtle !text-content-hint cursor-default focus:!ring-0 focus:!border-line' : '';
+        const describedBy =
+            [ariaDescribedBy, error ? errorId : helperText ? helperId : undefined].filter(Boolean).join(' ') ||
+            undefined;
+        const errorStyles = error
+            ? 'border-danger-line focus:border-danger focus:ring-danger/20 bg-danger-surface/70'
+            : '';
+        const readOnlyStyles = readOnly
+            ? '!bg-surface-subtle !text-content-hint cursor-default focus:!ring-0 focus:!border-line'
+            : '';
 
         // Padding logic
         const leftPadding = leftIcon ? 'pl-11' : '';
@@ -80,11 +83,7 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
                 )}
 
                 <div className="relative">
-                    {leftIcon && (
-                        <div className={cx(iconBase, iconPosition, 'left-0')}>
-                            {leftIcon}
-                        </div>
-                    )}
+                    {leftIcon && <div className={cx(iconBase, iconPosition, 'left-0')}>{leftIcon}</div>}
 
                     {multiline ? (
                         <textarea
@@ -109,11 +108,7 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
                         />
                     )}
 
-                    {rightIcon && (
-                        <div className={cx(iconBase, iconPosition, 'right-0')}>
-                            {rightIcon}
-                        </div>
-                    )}
+                    {rightIcon && <div className={cx(iconBase, iconPosition, 'right-0')}>{rightIcon}</div>}
                 </div>
 
                 {error && (
@@ -124,7 +119,9 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
                 )}
 
                 {helperText && !error && (
-                    <p id={helperId} className="text-content-secondary text-xs mt-1.5 ml-1">{helperText}</p>
+                    <p id={helperId} className="text-content-secondary text-xs mt-1.5 ml-1">
+                        {helperText}
+                    </p>
                 )}
             </div>
         );

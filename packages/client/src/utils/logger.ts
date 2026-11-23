@@ -1,9 +1,7 @@
-/* eslint-disable no-console */
-
 class Logger {
     private static instance: Logger;
 
-    private constructor() { }
+    private constructor() {}
 
     public static getInstance(): Logger {
         if (!Logger.instance) {
@@ -26,7 +24,6 @@ class Logger {
 
     public debug(message: string, ...args: unknown[]) {
         // Only log debug messages in development
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if ((import.meta as any).env.DEV) {
             console.debug(message, ...args);
         }

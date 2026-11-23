@@ -8,10 +8,7 @@ import SlashCommandMenu from './SlashCommandMenu';
 import EditorHelpText from '../ui/EditorHelpText';
 import { useImageUpload } from '../../hooks/useImageUpload';
 import { useSlashCommand } from '../../hooks/useSlashCommand';
-import {
-    ACCEPTED_IMAGE_INPUT_TYPES,
-    ACCEPTED_VIDEO_INPUT_TYPES
-} from '../../config/mediaUpload';
+import { ACCEPTED_IMAGE_INPUT_TYPES, ACCEPTED_VIDEO_INPUT_TYPES } from '../../config/mediaUpload';
 
 interface MenuBarProps {
     editor: Editor | null;
@@ -48,7 +45,8 @@ const MenuBar = ({
     const handleYoutubeUpload = (id: string) => {
         if (id) {
             // iframe 노드로 직접 삽입
-            editor.chain()
+            editor
+                .chain()
                 .focus()
                 .insertContent([
                     {

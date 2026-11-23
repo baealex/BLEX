@@ -21,7 +21,7 @@ const IconButton = ({
     const baseStyles = `inline-flex items-center justify-center transition-all ${INTERACTION_DURATION} focus:outline-none focus:ring-2 focus:ring-action/20 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95`;
 
     const variantStyles = {
-        'ghost': 'text-content-secondary hover:text-content hover:bg-surface-subtle active:bg-line-light',
+        ghost: 'text-content-secondary hover:text-content hover:bg-surface-subtle active:bg-line-light',
         'danger-ghost': 'text-danger hover:text-danger hover:bg-danger-surface active:bg-danger-surface'
     };
 
@@ -40,7 +40,8 @@ const IconButton = ({
         <button
             type="button"
             className={cx(baseStyles, variantStyles[variant], sizeStyles[size], roundedStyles[rounded], className)}
-            {...props}>
+            {...props}
+        >
             {children}
         </button>
     );

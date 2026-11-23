@@ -1,11 +1,4 @@
-
-import {
-    useState,
-    useEffect,
-    useMemo,
-    useRef,
-    useCallback
-} from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import type { MouseEvent } from 'react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { toast } from '~/utils/toast';
@@ -54,11 +47,7 @@ const generateUrlFromTitle = (title: string) => {
     return normalizeUrlForSubmit(title);
 };
 
-const NewPostEditor = ({
-    username,
-    draftUrl,
-    showFirstPublishGuide = false
-}: NewPostEditorProps) => {
+const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: NewPostEditorProps) => {
     const { i18n, t } = useLingui();
     const { confirm } = useConfirm();
     const [isLoading, setIsLoading] = useState(true);
@@ -134,42 +123,50 @@ const NewPostEditor = ({
         markImageSaved
     } = useImageUpload();
 
-    const buildDirtySnapshot = useCallback((): DirtySnapshot => ({
-        title: formData.title,
-        subtitle: formData.subtitle,
-        url: formData.url,
-        content: formData.content,
-        metaDescription: formData.metaDescription,
-        hide: formData.hide,
-        advertise: formData.advertise,
-        allowComments: formData.allowComments,
-        coverLayout: formData.coverLayout,
-        coverImagePosition: formData.coverImagePosition,
-        coverImageRatio: formData.coverImageRatio,
-        reservedDate: formData.reservedDate,
-        tags,
-        seriesUrl: selectedSeries.url || '',
-        imagePreview: imagePreview || '',
-        imageFilePending: Boolean(imageFile),
-        imageDeleted
-    }), [formData, tags, selectedSeries.url, imagePreview, imageFile, imageDeleted]);
+    const buildDirtySnapshot = useCallback(
+        (): DirtySnapshot => ({
+            title: formData.title,
+            subtitle: formData.subtitle,
+            url: formData.url,
+            content: formData.content,
+            metaDescription: formData.metaDescription,
+            hide: formData.hide,
+            advertise: formData.advertise,
+            allowComments: formData.allowComments,
+            coverLayout: formData.coverLayout,
+            coverImagePosition: formData.coverImagePosition,
+            coverImageRatio: formData.coverImageRatio,
+            reservedDate: formData.reservedDate,
+            tags,
+            seriesUrl: selectedSeries.url || '',
+            imagePreview: imagePreview || '',
+            imageFilePending: Boolean(imageFile),
+            imageDeleted
+        }),
+        [formData, tags, selectedSeries.url, imagePreview, imageFile, imageDeleted]
+    );
 
     const handleEditorImageUpload = async (file: File) => {
         const { data } = await api.uploadImage(file).catch(() => {
-            throw new Error(t({
-                id: 'editor.media.error.upload',
-                message: 'File upload failed.'
-            }));
+            throw new Error(
+                t({
+                    id: 'editor.media.error.upload',
+                    message: 'File upload failed.'
+                })
+            );
         });
 
         if (data.status === 'DONE') {
             return data.body.url;
         }
 
-        throw new Error(data.errorMessage || t({
-            id: 'editor.media.error.upload',
-            message: 'File upload failed.'
-        }));
+        throw new Error(
+            data.errorMessage ||
+                t({
+                    id: 'editor.media.error.upload',
+                    message: 'File upload failed.'
+                })
+        );
     };
 
     const handleAutoSaveSuccess = (url?: string) => {
@@ -243,23 +240,38 @@ const NewPostEditor = ({
         onRejected: resumeAutoSave
     });
 
-    const publishChecklist = useMemo(() => getPublishChecklist(
-        {
-            title: formData.title,
-            content: formData.content,
-            description: formData.metaDescription,
+    const publishChecklist = useMemo(
+        () =>
+            getPublishChecklist(
+                {
+                    title: formData.title,
+                    content: formData.content,
+                    description: formData.metaDescription,
+                    tags,
+                    hasCoverImage: Boolean(imagePreview),
+                    isHidden: formData.hide,
+                    scheduledAt: formData.reservedDate || undefined
+                },
+                normalizeLocale(i18n.locale)
+            ),
+        [
+            formData.title,
+            formData.content,
+            formData.metaDescription,
+            formData.hide,
+            formData.reservedDate,
             tags,
-            hasCoverImage: Boolean(imagePreview),
-            isHidden: formData.hide,
-            scheduledAt: formData.reservedDate || undefined
-        },
-        normalizeLocale(i18n.locale)
-    ), [formData.title, formData.content, formData.metaDescription, formData.hide, formData.reservedDate, tags, imagePreview, i18n.locale]);
+            imagePreview,
+            i18n.locale
+        ]
+    );
 
     const shouldShowFirstPublishGuide = !isLoading && showFirstPublishGuide;
-    const editorTitle = draftUrl
-        ? <Trans id="editor.heading.edit_draft">Edit draft</Trans>
-        : <Trans id="editor.heading.new_post">New post</Trans>;
+    const editorTitle = draftUrl ? (
+        <Trans id="editor.heading.edit_draft">Edit draft</Trans>
+    ) : (
+        <Trans id="editor.heading.new_post">New post</Trans>
+    );
 
     // Fetch series list and draft data if draftUrl exists
     useEffect(() => {
@@ -271,7 +283,7 @@ const NewPostEditor = ({
                 const { data: seriesResponse } = await getSeries();
                 let mappedSeries: Series[] = [];
                 if (seriesResponse.status === 'DONE') {
-                    mappedSeries = (seriesResponse.body.series || []).map(s => ({
+                    mappedSeries = (seriesResponse.body.series || []).map((s) => ({
                         id: String(s.id),
                         name: s.title,
                         url: s.url
@@ -291,7 +303,7 @@ const NewPostEditor = ({
                         const newDescription = draftData.description || '';
                         const newReservedDate = toReservedDateValue(draftData.reservedDate);
 
-                        setFormData(prev => ({
+                        setFormData((prev) => ({
                             ...prev,
                             title: newTitle,
                             subtitle: newSubtitle,
@@ -307,14 +319,12 @@ const NewPostEditor = ({
                             reservedDate: newReservedDate
                         }));
                         setCurrentDraftUrl(draftData.url || draftUrl);
-                        setIsUrlAutoSync(
-                            !draftData.url || draftData.url === generateUrlFromTitle(newTitle)
-                        );
+                        setIsUrlAutoSync(!draftData.url || draftData.url === generateUrlFromTitle(newTitle));
                         setTags(newTags);
 
                         // Restore series
                         if (draftData.series) {
-                            const matchingSeries = mappedSeries.find(s => s.url === draftData.series?.url);
+                            const matchingSeries = mappedSeries.find((s) => s.url === draftData.series?.url);
                             if (matchingSeries) {
                                 setSelectedSeries(matchingSeries);
                             }
@@ -329,15 +339,17 @@ const NewPostEditor = ({
                     }
                 }
             } catch {
-                toast.error(draftUrl
-                    ? t({
-                        id: 'editor.error.load_draft',
-                        message: 'Could not load the draft.'
-                    })
-                    : t({
-                        id: 'editor.error.load_series',
-                        message: 'Could not load the series list.'
-                    }));
+                toast.error(
+                    draftUrl
+                        ? t({
+                              id: 'editor.error.load_draft',
+                              message: 'Could not load the draft.'
+                          })
+                        : t({
+                              id: 'editor.error.load_series',
+                              message: 'Could not load the series list.'
+                          })
+                );
             } finally {
                 setIsLoading(false);
             }
@@ -416,24 +428,30 @@ const NewPostEditor = ({
 
     const handleManualSave = async () => {
         if (isEditorMediaUploading) {
-            toast.warning(t({
-                id: 'editor.media.wait_before_save',
-                message: 'Wait for the upload to finish before saving.'
-            }));
+            toast.warning(
+                t({
+                    id: 'editor.media.wait_before_save',
+                    message: 'Wait for the upload to finish before saving.'
+                })
+            );
             return;
         }
 
         const savedDraftUrl = await manualSave();
         if (savedDraftUrl) {
-            toast.success(t({
-                id: 'editor.autosave.saved',
-                message: 'Draft saved.'
-            }));
+            toast.success(
+                t({
+                    id: 'editor.autosave.saved',
+                    message: 'Draft saved.'
+                })
+            );
         } else {
-            toast.error(t({
-                id: 'editor.autosave.error',
-                message: 'Could not save the draft.'
-            }));
+            toast.error(
+                t({
+                    id: 'editor.autosave.error',
+                    message: 'Could not save the draft.'
+                })
+            );
         }
     };
 
@@ -441,10 +459,12 @@ const NewPostEditor = ({
         previewTriggerRef.current = event.currentTarget;
 
         if (isEditorMediaUploading) {
-            toast.warning(t({
-                id: 'editor.media.wait_before_preview',
-                message: 'Wait for the upload to finish before opening the preview.'
-            }));
+            toast.warning(
+                t({
+                    id: 'editor.media.wait_before_preview',
+                    message: 'Wait for the upload to finish before opening the preview.'
+                })
+            );
             return;
         }
 
@@ -452,10 +472,12 @@ const NewPostEditor = ({
         try {
             const savedDraftUrl = await manualSave();
             if (!savedDraftUrl) {
-                toast.error(t({
-                    id: 'editor.preview.error.save_draft',
-                    message: 'Could not save the draft for preview.'
-                }));
+                toast.error(
+                    t({
+                        id: 'editor.preview.error.save_draft',
+                        message: 'Could not save the draft for preview.'
+                    })
+                );
                 return;
             }
 
@@ -470,15 +492,17 @@ const NewPostEditor = ({
         try {
             await startFirstPublishTourDriver({ returnFocusTo: firstPublishGuideButtonRef.current });
         } catch {
-            toast.error(t({
-                id: 'editor.guide.error.load',
-                message: 'Could not load the guide.'
-            }));
+            toast.error(
+                t({
+                    id: 'editor.guide.error.load',
+                    message: 'Could not load the guide.'
+                })
+            );
         }
     };
 
     const handleTitleChange = (title: string) => {
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
             title,
             url: isUrlAutoSync ? (title ? generateUrlFromTitle(title) : '') : prev.url
@@ -486,7 +510,7 @@ const NewPostEditor = ({
     };
 
     const handleSubtitleChange = (subtitle: string) => {
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
             subtitle
         }));
@@ -497,7 +521,7 @@ const NewPostEditor = ({
         const autoGeneratedUrl = generateUrlFromTitle(formData.title);
         setIsUrlAutoSync(cleanUrl === '' || cleanUrl === autoGeneratedUrl);
 
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
             url: cleanUrl
         }));
@@ -530,15 +554,17 @@ const NewPostEditor = ({
 
     const handleSubmit = () => {
         if (isEditorMediaUploading) {
-            toast.warning(formData.reservedDate
-                ? t({
-                    id: 'editor.media.wait_before_schedule',
-                    message: 'Wait for the upload to finish before scheduling.'
-                })
-                : t({
-                    id: 'editor.media.wait_before_publish',
-                    message: 'Wait for the upload to finish before publishing.'
-                }));
+            toast.warning(
+                formData.reservedDate
+                    ? t({
+                          id: 'editor.media.wait_before_schedule',
+                          message: 'Wait for the upload to finish before scheduling.'
+                      })
+                    : t({
+                          id: 'editor.media.wait_before_publish',
+                          message: 'Wait for the upload to finish before publishing.'
+                      })
+            );
             return;
         }
 
@@ -547,25 +573,29 @@ const NewPostEditor = ({
 
     const handleConfirmPublish = async () => {
         if (isEditorMediaUploading) {
-            toast.warning(formData.reservedDate
-                ? t({
-                    id: 'editor.media.wait_before_schedule',
-                    message: 'Wait for the upload to finish before scheduling.'
-                })
-                : t({
-                    id: 'editor.media.wait_before_publish',
-                    message: 'Wait for the upload to finish before publishing.'
-                }));
+            toast.warning(
+                formData.reservedDate
+                    ? t({
+                          id: 'editor.media.wait_before_schedule',
+                          message: 'Wait for the upload to finish before scheduling.'
+                      })
+                    : t({
+                          id: 'editor.media.wait_before_publish',
+                          message: 'Wait for the upload to finish before publishing.'
+                      })
+            );
             return;
         }
 
         if (publishChecklist.missingRecommended.length > 0) {
-            const labels = publishChecklist.missingRecommended.map(item => item.label).join(', ');
-            toast.warning(i18n._({
-                id: 'editor.publish.recommended_missing',
-                message: 'Recommended fields are empty: {fields}',
-                values: { fields: labels }
-            }));
+            const labels = publishChecklist.missingRecommended.map((item) => item.label).join(', ');
+            toast.warning(
+                i18n._({
+                    id: 'editor.publish.recommended_missing',
+                    message: 'Recommended fields are empty: {fields}',
+                    values: { fields: labels }
+                })
+            );
         }
 
         setShowPublishChecklist(false);
@@ -588,9 +618,12 @@ const NewPostEditor = ({
                         title={t({
                             id: 'editor.guide.open',
                             message: 'Open first-publish guide'
-                        })}>
+                        })}
+                    >
                         <Info className="h-4 w-4 shrink-0" />
-                        <span><Trans id="editor.guide.title">First-publish guide</Trans></span>
+                        <span>
+                            <Trans id="editor.guide.title">First-publish guide</Trans>
+                        </span>
                     </button>
                 </div>
             )}
@@ -605,10 +638,12 @@ const NewPostEditor = ({
                 selectedSeries={selectedSeries}
                 onTitleChange={handleTitleChange}
                 onSubtitleChange={handleSubtitleChange}
-                onContentChange={(content) => setFormData(prev => ({
-                    ...prev,
-                    content
-                }))}
+                onContentChange={(content) =>
+                    setFormData((prev) => ({
+                        ...prev,
+                        content
+                    }))
+                }
                 onTagsChange={setTags}
                 onImageUpload={handleImageUpload}
                 onEditorImageUpload={handleEditorImageUpload}
@@ -633,12 +668,14 @@ const NewPostEditor = ({
                 onPreview={handleOpenPreview}
                 isPreviewing={isPreparingPreview}
                 onOpenSettings={() => setIsSettingsDrawerOpen(true)}
-                submitLabel={formData.reservedDate
-                    ? t({
-                        id: 'editor.actions.schedule',
-                        message: 'Schedule'
-                    })
-                    : undefined}
+                submitLabel={
+                    formData.reservedDate
+                        ? t({
+                              id: 'editor.actions.schedule',
+                              message: 'Schedule'
+                          })
+                        : undefined
+                }
             />
 
             <PublishChecklist
@@ -668,15 +705,19 @@ const NewPostEditor = ({
                 formData={formData}
                 imagePreview={imagePreview}
                 onUrlChange={handleUrlChange}
-                onMetaDescriptionChange={(metaDescription) => setFormData(prev => ({
-                    ...prev,
-                    metaDescription
-                }))}
+                onMetaDescriptionChange={(metaDescription) =>
+                    setFormData((prev) => ({
+                        ...prev,
+                        metaDescription
+                    }))
+                }
                 onSeriesChange={handleSeriesChange}
-                onFormDataChange={(field, value) => setFormData(prev => ({
-                    ...prev,
-                    [field]: value
-                }))}
+                onFormDataChange={(field, value) =>
+                    setFormData((prev) => ({
+                        ...prev,
+                        [field]: value
+                    }))
+                }
             />
 
             {/* Drafts Panel */}

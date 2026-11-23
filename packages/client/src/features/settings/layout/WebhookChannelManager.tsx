@@ -5,33 +5,15 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import type { AxiosResponse } from 'axios';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
-import {
-    AlertTriangle,
-    CheckCircle,
-    Clock,
-    Code2,
-    Info,
-    Link as LinkIcon,
-    Trash2,
-    Zap
-} from '~/ui/icons';
+import { AlertTriangle, CheckCircle, Clock, Code2, Info, Link as LinkIcon, Trash2, Zap } from '~/ui/icons';
 import type { IconComponent } from '~/ui/icons';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from '~/utils/toast';
 import { useConfirm } from '~/hooks/useConfirm';
 import { Button, Dropdown, Input } from '~/components/shared';
-import {
-    getSettingsIconClass,
-    SETTINGS_LIST_META,
-    SETTINGS_LIST_TITLE
-} from '~/styles/settingsStyles';
-import {
-    SettingsEmptyState,
-    SettingsHeader,
-    SettingsHeaderAction,
-    SettingsListItem
-} from '.';
+import { getSettingsIconClass, SETTINGS_LIST_META, SETTINGS_LIST_TITLE } from '~/styles/settingsStyles';
+import { SettingsEmptyState, SettingsHeader, SettingsHeaderAction, SettingsListItem } from '.';
 import type { WebhookChannel } from '~/lib/api/settings';
 import type { Response } from '~/lib/http.module';
 import { formatDateTime } from '~/i18n/formatters';
@@ -81,10 +63,7 @@ const WEBHOOK_MESSAGE_PREVIEW = msg({
     message: '[baealex] Published a new post: [BLEX update](https://blex.me/@baealex/blex-update)'
 });
 
-const getWebhookProviderInfo = (
-    webhookUrl: string,
-    messagePreview: string
-): WebhookProviderInfo => {
+const getWebhookProviderInfo = (webhookUrl: string, messagePreview: string): WebhookProviderInfo => {
     const normalizedUrl = webhookUrl.trim().toLowerCase();
 
     if (!normalizedUrl) {
@@ -110,10 +89,7 @@ const getWebhookProviderInfo = (
         };
     }
 
-    if (
-        normalizedUrl.includes('discord.com/api/webhooks') ||
-        normalizedUrl.includes('discordapp.com/api/webhooks')
-    ) {
+    if (normalizedUrl.includes('discord.com/api/webhooks') || normalizedUrl.includes('discordapp.com/api/webhooks')) {
         return {
             title: msg({
                 id: 'settings.webhooks.provider.discord.title',
@@ -147,10 +123,14 @@ const getWebhookProviderInfo = (
                 id: 'settings.webhooks.provider.slack.description',
                 message: 'Recognized as a Slack Incoming Webhook URL.'
             }),
-            payload: JSON.stringify({
-                text: messagePreview,
-                unfurl_links: true
-            }, null, 2),
+            payload: JSON.stringify(
+                {
+                    text: messagePreview,
+                    unfurl_links: true
+                },
+                null,
+                2
+            ),
             icon: CheckCircle,
             statusClassName: 'text-success'
         };
@@ -169,12 +149,16 @@ const getWebhookProviderInfo = (
             id: 'settings.webhooks.provider.generic.description',
             message: 'BLEX sends a JSON POST request to this URL. The receiver must handle the fields below.'
         }),
-        payload: JSON.stringify({
-            content: messagePreview,
-            text: messagePreview,
-            message: messagePreview,
-            url: 'https://blex.me/@baealex/blex-update'
-        }, null, 2),
+        payload: JSON.stringify(
+            {
+                content: messagePreview,
+                text: messagePreview,
+                message: messagePreview,
+                url: 'https://blex.me/@baealex/blex-update'
+            },
+            null,
+            2
+        ),
         icon: Code2,
         statusClassName: 'text-content-secondary'
     };
@@ -200,21 +184,34 @@ const WebhookChannelManager = ({
     deleteFailMessage
 }: WebhookChannelManagerProps) => {
     const { i18n, t } = useLingui();
-    const webhookSchema = useMemo(() => z.object({
-        webhookUrl: z.string()
-            .min(1, t({
-                id: 'settings.webhooks.validation.url_required',
-                message: 'Enter a webhook URL.'
-            }))
-            .url(t({
-                id: 'settings.webhooks.validation.url_invalid',
-                message: 'Enter a valid URL.'
-            })),
-        webhookName: z.string().max(100, t({
-            id: 'settings.webhooks.validation.name_max_length',
-            message: 'The display name must be 100 characters or fewer.'
-        }))
-    }), [t]);
+    const webhookSchema = useMemo(
+        () =>
+            z.object({
+                webhookUrl: z
+                    .string()
+                    .min(
+                        1,
+                        t({
+                            id: 'settings.webhooks.validation.url_required',
+                            message: 'Enter a webhook URL.'
+                        })
+                    )
+                    .url(
+                        t({
+                            id: 'settings.webhooks.validation.url_invalid',
+                            message: 'Enter a valid URL.'
+                        })
+                    ),
+                webhookName: z.string().max(
+                    100,
+                    t({
+                        id: 'settings.webhooks.validation.name_max_length',
+                        message: 'The display name must be 100 characters or fewer.'
+                    })
+                )
+            }),
+        [t]
+    );
     const { confirm } = useConfirm();
     const [isAdding, setIsAdding] = useState(false);
     const [isTesting, setIsTesting] = useState(false);
@@ -242,25 +239,26 @@ const WebhookChannelManager = ({
             if (data.status === 'DONE') {
                 return (data.body.channels ?? []) as WebhookChannel[];
             }
-            throw new Error(data.errorMessage || t({
-                id: 'settings.webhooks.load_failed',
-                message: 'Could not load webhook destinations.'
-            }));
+            throw new Error(
+                data.errorMessage ||
+                    t({
+                        id: 'settings.webhooks.load_failed',
+                        message: 'Could not load webhook destinations.'
+                    })
+            );
         }
     });
     const webhookMessagePreview = i18n._(WEBHOOK_MESSAGE_PREVIEW);
-    const webhookProvider = getWebhookProviderInfo(
-        watch('webhookUrl'),
-        webhookMessagePreview
-    );
-    const webhookPayload = typeof webhookProvider.payload === 'string'
-        ? webhookProvider.payload
-        : i18n._(webhookProvider.payload);
+    const webhookProvider = getWebhookProviderInfo(watch('webhookUrl'), webhookMessagePreview);
+    const webhookPayload =
+        typeof webhookProvider.payload === 'string' ? webhookProvider.payload : i18n._(webhookProvider.payload);
     const WebhookProviderIcon = webhookProvider.icon;
-    const resolvedAddButtonLabel = addButtonLabel || t({
-        id: 'settings.webhooks.add_destination',
-        message: 'Add destination'
-    });
+    const resolvedAddButtonLabel =
+        addButtonLabel ||
+        t({
+            id: 'settings.webhooks.add_destination',
+            message: 'Add destination'
+        });
 
     const handleTest = async () => {
         const isValid = await trigger('webhookUrl');
@@ -275,27 +273,36 @@ const WebhookChannelManager = ({
             const { data } = await testChannel(webhookUrl);
             if (data.status === 'DONE') {
                 if (data.body?.success) {
-                    toast.success(t({
-                        id: 'settings.webhooks.test.success',
-                        message: 'Test message sent.'
-                    }));
+                    toast.success(
+                        t({
+                            id: 'settings.webhooks.test.success',
+                            message: 'Test message sent.'
+                        })
+                    );
                 } else {
-                    toast.error(t({
-                        id: 'settings.webhooks.test.failed',
-                        message: 'Webhook test failed. Check the URL and try again.'
-                    }));
+                    toast.error(
+                        t({
+                            id: 'settings.webhooks.test.failed',
+                            message: 'Webhook test failed. Check the URL and try again.'
+                        })
+                    );
                 }
             } else {
-                toast.error(data.errorMessage || t({
-                    id: 'settings.webhooks.test.failed',
-                    message: 'Webhook test failed. Check the URL and try again.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'settings.webhooks.test.failed',
+                            message: 'Webhook test failed. Check the URL and try again.'
+                        })
+                );
             }
         } catch {
-            toast.error(t({
-                id: 'settings.webhooks.test.error',
-                message: 'An error occurred while testing the webhook.'
-            }));
+            toast.error(
+                t({
+                    id: 'settings.webhooks.test.error',
+                    message: 'An error occurred while testing the webhook.'
+                })
+            );
         } finally {
             setIsTesting(false);
         }
@@ -388,7 +395,8 @@ const WebhookChannelManager = ({
             onClick={() => {
                 reset();
                 setShowAddForm(true);
-            }}>
+            }}
+        >
             {resolvedAddButtonLabel}
         </SettingsHeaderAction>
     );
@@ -405,7 +413,8 @@ const WebhookChannelManager = ({
             {showAddForm && (
                 <form
                     className="mb-6 bg-surface-subtle border border-line rounded-2xl p-6 animate-in fade-in-0 slide-in-from-top-2 motion-interaction"
-                    onSubmit={handleSubmit(onSubmit)}>
+                    onSubmit={handleSubmit(onSubmit)}
+                >
                     <h3 className="text-base font-semibold text-content mb-4">{formTitle}</h3>
                     <div className="space-y-4">
                         <div>
@@ -432,7 +441,9 @@ const WebhookChannelManager = ({
                                             <p className="text-sm font-semibold text-content">
                                                 {i18n._(webhookProvider.title)}
                                             </p>
-                                            <span className={`text-xs font-semibold ${webhookProvider.statusClassName}`}>
+                                            <span
+                                                className={`text-xs font-semibold ${webhookProvider.statusClassName}`}
+                                            >
                                                 {i18n._(webhookProvider.badge)}
                                             </span>
                                         </div>
@@ -450,9 +461,13 @@ const WebhookChannelManager = ({
                                             </div>
                                             <div>
                                                 <p className="text-[11px] font-semibold text-content-secondary">
-                                                    <Trans id="settings.webhooks.preview.json_label">JSON payload</Trans>
+                                                    <Trans id="settings.webhooks.preview.json_label">
+                                                        JSON payload
+                                                    </Trans>
                                                 </p>
-                                                <pre className="mt-1 overflow-x-auto rounded-md bg-surface px-3 py-2 text-xs leading-relaxed text-content-secondary"><code>{webhookPayload}</code></pre>
+                                                <pre className="mt-1 overflow-x-auto rounded-md bg-surface px-3 py-2 text-xs leading-relaxed text-content-secondary">
+                                                    <code>{webhookPayload}</code>
+                                                </pre>
                                             </div>
                                         </div>
                                     </div>
@@ -482,7 +497,8 @@ const WebhookChannelManager = ({
                                 type="button"
                                 className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                                 onClick={handleCancel}
-                                disabled={isAdding || isTesting}>
+                                disabled={isAdding || isTesting}
+                            >
                                 <Trans id="common.cancel">Cancel</Trans>
                             </Button>
 
@@ -495,10 +511,13 @@ const WebhookChannelManager = ({
                                     className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                                     isLoading={isTesting}
                                     disabled={isAdding}
-                                    onClick={handleTest}>
-                                    {isTesting
-                                        ? <Trans id="settings.webhooks.test.sending">Sending…</Trans>
-                                        : <Trans id="settings.webhooks.test.action">Test</Trans>}
+                                    onClick={handleTest}
+                                >
+                                    {isTesting ? (
+                                        <Trans id="settings.webhooks.test.sending">Sending…</Trans>
+                                    ) : (
+                                        <Trans id="settings.webhooks.test.action">Test</Trans>
+                                    )}
                                 </Button>
                                 <Button
                                     density="compact"
@@ -507,10 +526,13 @@ const WebhookChannelManager = ({
                                     type="submit"
                                     className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                                     isLoading={isAdding}
-                                    disabled={isTesting}>
-                                    {isAdding
-                                        ? <Trans id="settings.webhooks.adding">Adding…</Trans>
-                                        : <Trans id="settings.webhooks.add">Add</Trans>}
+                                    disabled={isTesting}
+                                >
+                                    {isAdding ? (
+                                        <Trans id="settings.webhooks.adding">Adding…</Trans>
+                                    ) : (
+                                        <Trans id="settings.webhooks.add">Add</Trans>
+                                    )}
                                 </Button>
                             </div>
                         </div>
@@ -521,19 +543,23 @@ const WebhookChannelManager = ({
             {channels && channels.length > 0 ? (
                 <div className="space-y-3">
                     {channels.map((channel) => {
-                        const channelName = channel.name || t({
-                            id: 'settings.webhooks.unnamed_channel',
-                            message: 'Unnamed destination'
-                        });
+                        const channelName =
+                            channel.name ||
+                            t({
+                                id: 'settings.webhooks.unnamed_channel',
+                                message: 'Unnamed destination'
+                            });
 
                         return (
                             <SettingsListItem
                                 key={channel.id}
                                 left={
                                     <div className={getSettingsIconClass('default')}>
-                                        {channel.isActive
-                                            ? <Zap aria-hidden="true" className="h-4 w-4" />
-                                            : <AlertTriangle aria-hidden="true" className="h-4 w-4" />}
+                                        {channel.isActive ? (
+                                            <Zap aria-hidden="true" className="h-4 w-4" />
+                                        ) : (
+                                            <AlertTriangle aria-hidden="true" className="h-4 w-4" />
+                                        )}
                                     </div>
                                 }
                                 actions={
@@ -557,12 +583,14 @@ const WebhookChannelManager = ({
                                             }
                                         ]}
                                     />
-                                }>
-                                <h3 className={`${SETTINGS_LIST_TITLE} mb-0.5`}>
-                                    {channelName}
-                                </h3>
+                                }
+                            >
+                                <h3 className={`${SETTINGS_LIST_TITLE} mb-0.5`}>{channelName}</h3>
                                 <div className={`${SETTINGS_LIST_META} flex flex-wrap items-center gap-3`}>
-                                    <span className="flex items-center truncate max-w-[200px]" title={channel.webhookUrl}>
+                                    <span
+                                        className="flex items-center truncate max-w-[200px]"
+                                        title={channel.webhookUrl}
+                                    >
                                         <LinkIcon aria-hidden="true" className="mr-1.5 h-3.5 w-3.5 shrink-0" />
                                         {channel.webhookUrl.replace(/^https?:\/\//, '').slice(0, 30)}...
                                     </span>

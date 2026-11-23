@@ -20,7 +20,7 @@ export const useCommandPalette = (options: UseCommandPaletteOptions = {}) => {
     };
 
     const toggleCommandPalette = () => {
-        setIsOpen(prev => !prev);
+        setIsOpen((prev) => !prev);
     };
 
     // Keyboard shortcut: Cmd/Ctrl + K (or custom)

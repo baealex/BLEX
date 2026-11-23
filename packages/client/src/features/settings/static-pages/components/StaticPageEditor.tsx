@@ -4,27 +4,13 @@ import { Link, useNavigate, useBlocker } from '@tanstack/react-router';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { toast } from '~/utils/toast';
 import { useConfirm } from '~/hooks/useConfirm';
-import {
-    Button,
-    Input,
-    DIM_OVERLAY_DEFAULT,
-    ENTRANCE_DURATION
-} from '~/components/shared';
+import { Button, Input, DIM_OVERLAY_DEFAULT, ENTRANCE_DURATION } from '~/components/shared';
 import { CodeEditor } from '~/components/CodeEditor';
 import { Dialog } from '~/ui/dialog';
 import { FloatingBottomBar } from '~/ui/floating-bottom-bar';
 import { IconButton } from '~/ui/icon-button';
 import { Toggle } from '~/ui/toggle';
-import {
-    ArrowLeft,
-    ChevronDown,
-    ExternalLink,
-    Search,
-    Send,
-    Settings2,
-    SlidersHorizontal,
-    X
-} from '~/ui/icons';
+import { ArrowLeft, ChevronDown, ExternalLink, Search, Send, Settings2, SlidersHorizontal, X } from '~/ui/icons';
 import { cx } from '~/lib/classnames';
 import {
     getStaticPage,
@@ -67,10 +53,12 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error(t({
-                id: 'settings.static_pages.editor.load_failed',
-                message: 'Could not load the static page.'
-            }));
+            throw new Error(
+                t({
+                    id: 'settings.static_pages.editor.load_failed',
+                    message: 'Could not load the static page.'
+                })
+            );
         }
     });
 
@@ -145,25 +133,32 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
         mutationFn: (pageData: StaticPageCreateData) => createStaticPage(pageData),
         onSuccess: ({ data }) => {
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || t({
-                    id: 'settings.static_pages.editor.create_failed',
-                    message: 'Could not create the static page.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'settings.static_pages.editor.create_failed',
+                            message: 'Could not create the static page.'
+                        })
+                );
                 return;
             }
             isDirtyRef.current = false;
-            toast.success(t({
-                id: 'settings.static_pages.editor.create_success',
-                message: 'Static page created.'
-            }));
+            toast.success(
+                t({
+                    id: 'settings.static_pages.editor.create_success',
+                    message: 'Static page created.'
+                })
+            );
             queryClient.invalidateQueries({ queryKey: ['static-pages'] });
             navigate({ to: '/admin-settings/static-pages' });
         },
         onError: () => {
-            toast.error(t({
-                id: 'settings.static_pages.editor.create_failed',
-                message: 'Could not create the static page.'
-            }));
+            toast.error(
+                t({
+                    id: 'settings.static_pages.editor.create_failed',
+                    message: 'Could not create the static page.'
+                })
+            );
         }
     });
 
@@ -174,25 +169,32 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
         },
         onSuccess: ({ data }) => {
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || t({
-                    id: 'settings.static_pages.editor.update_failed',
-                    message: 'Could not update the static page.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'settings.static_pages.editor.update_failed',
+                            message: 'Could not update the static page.'
+                        })
+                );
                 return;
             }
             isDirtyRef.current = false;
-            toast.success(t({
-                id: 'settings.static_pages.editor.update_success',
-                message: 'Static page updated.'
-            }));
+            toast.success(
+                t({
+                    id: 'settings.static_pages.editor.update_success',
+                    message: 'Static page updated.'
+                })
+            );
             queryClient.invalidateQueries({ queryKey: ['static-pages'] });
             navigate({ to: '/admin-settings/static-pages' });
         },
         onError: () => {
-            toast.error(t({
-                id: 'settings.static_pages.editor.update_failed',
-                message: 'Could not update the static page.'
-            }));
+            toast.error(
+                t({
+                    id: 'settings.static_pages.editor.update_failed',
+                    message: 'Could not update the static page.'
+                })
+            );
         }
     });
 
@@ -203,25 +205,32 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
         },
         onSuccess: ({ data }) => {
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || t({
-                    id: 'settings.static_pages.delete.failed',
-                    message: 'Could not delete the static page.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'settings.static_pages.delete.failed',
+                            message: 'Could not delete the static page.'
+                        })
+                );
                 return;
             }
             isDirtyRef.current = false;
-            toast.success(t({
-                id: 'settings.static_pages.delete.success',
-                message: 'Static page deleted.'
-            }));
+            toast.success(
+                t({
+                    id: 'settings.static_pages.delete.success',
+                    message: 'Static page deleted.'
+                })
+            );
             queryClient.invalidateQueries({ queryKey: ['static-pages'] });
             navigate({ to: '/admin-settings/static-pages' });
         },
         onError: () => {
-            toast.error(t({
-                id: 'settings.static_pages.delete.failed',
-                message: 'Could not delete the static page.'
-            }));
+            toast.error(
+                t({
+                    id: 'settings.static_pages.delete.failed',
+                    message: 'Could not delete the static page.'
+                })
+            );
         }
     });
 
@@ -229,17 +238,21 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
 
     const handleSubmit = () => {
         if (!title.trim()) {
-            toast.error(t({
-                id: 'settings.static_pages.editor.validation.title',
-                message: 'Enter a page name.'
-            }));
+            toast.error(
+                t({
+                    id: 'settings.static_pages.editor.validation.title',
+                    message: 'Enter a page name.'
+                })
+            );
             return;
         }
         if (!slug.trim()) {
-            toast.error(t({
-                id: 'settings.static_pages.editor.validation.slug',
-                message: 'Enter a URL slug.'
-            }));
+            toast.error(
+                t({
+                    id: 'settings.static_pages.editor.validation.slug',
+                    message: 'Enter a URL slug.'
+                })
+            );
             return;
         }
 
@@ -288,25 +301,31 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
     return (
         <div className="min-h-screen bg-surface pb-16">
             <h1 className="sr-only">
-                {isEditMode
-                    ? <Trans id="settings.static_pages.editor.edit_title">Edit static page</Trans>
-                    : <Trans id="settings.static_pages.editor.create_title">Create static page</Trans>}
+                {isEditMode ? (
+                    <Trans id="settings.static_pages.editor.edit_title">Edit static page</Trans>
+                ) : (
+                    <Trans id="settings.static_pages.editor.create_title">Create static page</Trans>
+                )}
             </h1>
             {/* Top bar */}
             <div className="sticky top-0 z-10 bg-surface border-b border-line">
                 <div className="max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between h-14">
                     <Link
                         to="/admin-settings/static-pages"
-                        className="flex min-h-11 items-center gap-2 text-sm text-content-secondary transition-colors hover:text-content [@media(pointer:fine)]:min-h-9">
+                        className="flex min-h-11 items-center gap-2 text-sm text-content-secondary transition-colors hover:text-content [@media(pointer:fine)]:min-h-9"
+                    >
                         <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-                        <span><Trans id="settings.static_pages.editor.back_to_list">Back to list</Trans></span>
+                        <span>
+                            <Trans id="settings.static_pages.editor.back_to_list">Back to list</Trans>
+                        </span>
                     </Link>
                     {isEditMode && slug ? (
                         <a
                             href={pageUrlPath}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex min-h-11 items-center gap-1.5 text-sm text-content-secondary transition-colors hover:text-content [@media(pointer:fine)]:min-h-9">
+                            className="flex min-h-11 items-center gap-1.5 text-sm text-content-secondary transition-colors hover:text-content [@media(pointer:fine)]:min-h-9"
+                        >
                             <span>{pageUrlPath}</span>
                             <ExternalLink aria-hidden="true" className="h-3.5 w-3.5" />
                         </a>
@@ -393,7 +412,8 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                     activePanel === 'code'
                                         ? 'bg-surface-subtle text-content'
                                         : 'text-content-secondary hover:text-content'
-                                }`}>
+                                }`}
+                            >
                                 HTML
                             </button>
                             <button
@@ -404,7 +424,8 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                     activePanel === 'preview'
                                         ? 'bg-surface-subtle text-content'
                                         : 'text-content-secondary hover:text-content'
-                                }`}>
+                                }`}
+                            >
                                 <Trans id="common.preview">Preview</Trans>
                             </button>
                         </div>
@@ -430,10 +451,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                     </Trans>
                                 </div>
                                 {content.trim() ? (
-                                    <div
-                                        className="break-words"
-                                        dangerouslySetInnerHTML={{ __html: content }}
-                                    />
+                                    <div className="break-words" dangerouslySetInnerHTML={{ __html: content }} />
                                 ) : (
                                     <div className="flex min-h-[360px] items-center justify-center text-sm text-content-hint">
                                         <Trans id="settings.static_pages.editor.preview.empty">
@@ -458,7 +476,8 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                             isLoading={deleteMutation.isPending}
                             disabled={isLoading}
                             onClick={handleDelete}
-                            className="!rounded-full !text-danger hover:!text-danger hover:!bg-danger-surface">
+                            className="!rounded-full !text-danger hover:!text-danger hover:!bg-danger-surface"
+                        >
                             <Trans id="common.delete">Delete</Trans>
                         </Button>
                         <div className="w-px h-8 bg-line/60 mx-1" />
@@ -477,7 +496,8 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                     title={t({
                         id: 'settings.static_pages.editor.settings',
                         message: 'Page settings'
-                    })}>
+                    })}
+                >
                     <SlidersHorizontal className="w-5 h-5" />
                 </IconButton>
 
@@ -490,26 +510,32 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                     variant="primary"
                     className="!rounded-full"
                     leftIcon={!isLoading ? <Send className="w-4 h-4" /> : undefined}
-                    isLoading={isLoading}>
-                    {isLoading
-                        ? <Trans id="common.saving">Saving</Trans>
-                        : isEditMode
-                            ? <Trans id="common.update">Update</Trans>
-                            : <Trans id="common.create">Create</Trans>}
+                    isLoading={isLoading}
+                >
+                    {isLoading ? (
+                        <Trans id="common.saving">Saving</Trans>
+                    ) : isEditMode ? (
+                        <Trans id="common.update">Update</Trans>
+                    ) : (
+                        <Trans id="common.create">Create</Trans>
+                    )}
                 </Button>
             </FloatingBottomBar>
 
             {/* Settings Drawer */}
             <Dialog.Root open={isSettingsOpen} onOpenChange={(open) => !open && setIsSettingsOpen(false)}>
                 <Dialog.Portal>
-                    <Dialog.Overlay className={`fixed inset-0 ${DIM_OVERLAY_DEFAULT} z-40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0`} />
+                    <Dialog.Overlay
+                        className={`fixed inset-0 ${DIM_OVERLAY_DEFAULT} z-40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0`}
+                    />
                     <Dialog.Content
                         className={cx(
                             'fixed inset-y-0 right-0 z-50 w-full sm:w-[480px] bg-surface shadow-2xl flex flex-col focus:outline-none',
                             'data-[state=open]:animate-in data-[state=closed]:animate-out',
                             'data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right',
                             `${ENTRANCE_DURATION} ease-in-out`
-                        )}>
+                        )}
+                    >
                         {/* Header */}
                         <div className="flex items-center justify-between px-6 py-5 border-b border-line">
                             <div className="flex items-center gap-3">
@@ -525,7 +551,8 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                     aria-label={t({
                                         id: 'common.close',
                                         message: 'Close'
-                                    })}>
+                                    })}
+                                >
                                     <X className="w-5 h-5" />
                                 </IconButton>
                             </Dialog.Close>
@@ -538,9 +565,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                 <div>
                                     <h3 className="text-sm font-semibold text-content mb-4 flex items-center gap-2">
                                         <Settings2 className="w-4 h-4" />
-                                        <Trans id="settings.static_pages.editor.publish_settings">
-                                            Publishing
-                                        </Trans>
+                                        <Trans id="settings.static_pages.editor.publish_settings">Publishing</Trans>
                                     </h3>
                                     <div className="space-y-1">
                                         <div className="flex items-center justify-between gap-4 py-3">
@@ -612,7 +637,9 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                                         Shown in search results.
                                                     </Trans>
                                                 </p>
-                                                <p className={`text-xs font-medium ${metaDescription.length > 140 ? 'text-danger' : 'text-content-hint'}`}>
+                                                <p
+                                                    className={`text-xs font-medium ${metaDescription.length > 140 ? 'text-danger' : 'text-content-hint'}`}
+                                                >
                                                     {metaDescription.length}/160
                                                 </p>
                                             </div>
@@ -636,7 +663,9 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                                 <Settings2 className="w-4 h-4 text-content-hint" />
                                                 <div>
                                                     <div className="text-sm font-medium text-content">
-                                                        <Trans id="settings.static_pages.editor.order.label">Order</Trans>
+                                                        <Trans id="settings.static_pages.editor.order.label">
+                                                            Order
+                                                        </Trans>
                                                     </div>
                                                     <div className="text-xs text-content-secondary">
                                                         <Trans id="settings.static_pages.editor.order.help">
@@ -661,7 +690,6 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
 
@@ -673,7 +701,8 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                 onClick={() => setIsSettingsOpen(false)}
                                 variant="primary"
                                 size="md"
-                                fullWidth>
+                                fullWidth
+                            >
                                 <Trans id="common.done">Done</Trans>
                             </Button>
                         </div>

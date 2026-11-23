@@ -17,7 +17,7 @@ export const SettingsLayout = () => {
                 {/* Main Content */}
                 <div className="flex-1 min-w-0 py-6">
                     <Suspense
-                        fallback={(
+                        fallback={
                             <LoadingState
                                 type="form"
                                 ariaLabel={t({
@@ -25,7 +25,8 @@ export const SettingsLayout = () => {
                                     message: 'Loading'
                                 })}
                             />
-                        )}>
+                        }
+                    >
                         <Outlet />
                     </Suspense>
                 </div>

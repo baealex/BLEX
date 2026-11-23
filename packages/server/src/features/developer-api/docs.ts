@@ -24,17 +24,31 @@ SwaggerUIBundle(config);
 `;
 // The validator badge would send the schema address to an outside service.
 const swaggerSettings = { layout: 'BaseLayout', deepLinking: true, url: `${apiRoot}/openapi.json`, validatorUrl: null };
-const swaggerPolicy = "default-src 'none'; img-src 'self' data:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'";
+const swaggerPolicy =
+  "default-src 'none'; img-src 'self' data:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'";
 
 function csrfCookie(request: FastifyRequest): string {
-  const entry = (request.headers.cookie ?? '').split(';').map((part) => part.trim()).find((part) => part.startsWith('csrftoken='));
+  const entry = (request.headers.cookie ?? '')
+    .split(';')
+    .map((part) => part.trim())
+    .find((part) => part.startsWith('csrftoken='));
   return entry?.slice('csrftoken='.length) ?? '';
 }
 
-export async function registerDeveloperDocumentation(app: FastifyInstance, db: PrismaClient, options: DocumentationOptions) {
+export async function registerDeveloperDocumentation(
+  app: FastifyInstance,
+  db: PrismaClient,
+  options: DocumentationOptions,
+) {
   const raw = await readFile(new URL('../../../../data/developer-openapi.json', import.meta.url), 'utf8');
-  const assets = new Map(await Promise.all(Object.keys(swaggerAssets).map(async (name) =>
-    [name, await readFile(new URL(`../../../../data/swagger-ui/${name}`, import.meta.url))] as const)));
+  const assets = new Map(
+    await Promise.all(
+      Object.keys(swaggerAssets).map(
+        async (name) =>
+          [name, await readFile(new URL(`../../../../data/swagger-ui/${name}`, import.meta.url))] as const,
+      ),
+    ),
+  );
 
   const checkEditor = async (request: FastifyRequest, reply: FastifyReply) => {
     const user = await options.currentUser(request);
@@ -42,7 +56,8 @@ export async function registerDeveloperDocumentation(app: FastifyInstance, db: P
     if (!user.hasEditorRole) return reply.redirect('/', 302);
   };
   app.get(`${apiRoot}/openapi.json`, { preHandler: checkEditor }, (_request, reply) =>
-    reply.type('application/json; charset=utf-8').header('Cache-Control', 'private, no-store').send(raw));
+    reply.type('application/json; charset=utf-8').header('Cache-Control', 'private, no-store').send(raw),
+  );
   for (const path of ['/docs/developer-api', '/docs/developer-api/:operationId']) {
     app.get(path, { preHandler: checkEditor }, (_request, reply) => reply.redirect(`${apiRoot}/docs`, 302));
   }
@@ -53,17 +68,23 @@ export async function registerDeveloperDocumentation(app: FastifyInstance, db: P
     return reply.type(swaggerAssets[request.params.file]).header('Cache-Control', 'public, max-age=86400').send(body);
   });
   app.get('/assets/blex/swagger-init.js', (_request, reply) =>
-    reply.type('text/javascript; charset=utf-8').header('Cache-Control', 'public, max-age=86400').send(swaggerInit));
+    reply.type('text/javascript; charset=utf-8').header('Cache-Control', 'public, max-age=86400').send(swaggerInit),
+  );
 
-  app.get(`${apiRoot}/docs`, { preHandler: checkEditor }, (_request, reply) => reply
-    .type('text/html; charset=utf-8')
-    .header('Cache-Control', 'private, no-store')
-    .header('Content-Security-Policy', swaggerPolicy)
-    .send(renderPage('docs/developer-api/reference', { assetRoot, settingsJson: scriptJson(swaggerSettings) })));
+  app.get(`${apiRoot}/docs`, { preHandler: checkEditor }, (_request, reply) =>
+    reply
+      .type('text/html; charset=utf-8')
+      .header('Cache-Control', 'private, no-store')
+      .header('Content-Security-Policy', swaggerPolicy)
+      .send(renderPage('docs/developer-api/reference', { assetRoot, settingsJson: scriptJson(swaggerSettings) })),
+  );
 
   app.get('/docs/developer-api/quickstart', { preHandler: checkEditor }, async (request, reply) => {
     const { brand, viewer } = await readPageChrome(db, await options.currentUser(request), csrfCookie(request));
     const quickstart = quickstartHtml.replaceAll('__SITE_ORIGIN__', options.siteUrl.origin);
-    return reply.type('text/html; charset=utf-8').header('Cache-Control', 'private, no-store').send(renderPage('docs/developer-api/quickstart', { brand, viewer, quickstart }));
+    return reply
+      .type('text/html; charset=utf-8')
+      .header('Cache-Control', 'private, no-store')
+      .send(renderPage('docs/developer-api/quickstart', { brand, viewer, quickstart }));
   });
 }

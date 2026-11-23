@@ -34,10 +34,7 @@ const DEFAULT_PINNABLE_POSTS_PAGINATION: PinnablePostsPaginationData = {
     hasPrevious: false
 };
 
-export const PinnedPostsPanel = ({
-    embedded = false,
-    onPinnedPostsChange
-}: PinnedPostsPanelProps) => {
+export const PinnedPostsPanel = ({ embedded = false, onPinnedPostsChange }: PinnedPostsPanelProps) => {
     const { i18n, t } = useLingui();
     const queryClient = useQueryClient();
     const { data: pinnedPostsData } = useSuspenseQuery({
@@ -47,29 +44,28 @@ export const PinnedPostsPanel = ({
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error(t({
-                id: 'settings.pinned_posts.error.load',
-                message: 'Could not load pinned posts.'
-            }));
+            throw new Error(
+                t({
+                    id: 'settings.pinned_posts.error.load',
+                    message: 'Could not load pinned posts.'
+                })
+            );
         }
     });
 
-    const [pinnedPosts, setPinnedPosts] = useState<PinnedPostData[]>(
-        pinnedPostsData.pinnedPosts
-    );
+    const [pinnedPosts, setPinnedPosts] = useState<PinnedPostData[]>(pinnedPostsData.pinnedPosts);
     const [pinnablePosts, setPinnablePosts] = useState<PinnablePostData[]>([]);
     const [username, setUsername] = useState<string>(pinnedPostsData.username);
     const [maxCount, setMaxCount] = useState<number>(pinnedPostsData.maxCount);
-    const [reservedCount, setReservedCount] = useState<number>(
-        pinnedPostsData.reservedCount ?? 0
-    );
+    const [reservedCount, setReservedCount] = useState<number>(pinnedPostsData.reservedCount ?? 0);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isAddingPost, setIsAddingPost] = useState(false);
     const [addingPostUrl, setAddingPostUrl] = useState<string | null>(null);
     const [pinnableSearchQuery, setPinnableSearchQuery] = useState('');
     const [pinnablePage, setPinnablePage] = useState(1);
-    const [pinnablePagination, setPinnablePagination] =
-        useState<PinnablePostsPaginationData>(DEFAULT_PINNABLE_POSTS_PAGINATION);
+    const [pinnablePagination, setPinnablePagination] = useState<PinnablePostsPaginationData>(
+        DEFAULT_PINNABLE_POSTS_PAGINATION
+    );
     const [isPinnableLoading, setIsPinnableLoading] = useState(embedded);
     const pinnableRequestSeq = useRef(0);
 
@@ -82,46 +78,51 @@ export const PinnedPostsPanel = ({
         }
     }, [pinnedPostsData]);
 
-    const fetchPinnablePosts = useCallback(async (query = '', page = 1) => {
-        const requestSeq = pinnableRequestSeq.current + 1;
-        pinnableRequestSeq.current = requestSeq;
-        setIsPinnableLoading(true);
-        try {
-            const { data } = await getPinnablePosts({
-                query,
-                limit: PINNABLE_POSTS_PAGE_SIZE,
-                page
-            });
-
-            if (requestSeq !== pinnableRequestSeq.current) {
-                return;
-            }
-
-            if (data.status === 'DONE') {
-                setPinnablePosts(data.body.posts);
-                setPinnablePagination({
-                    page: data.body.page,
-                    limit: data.body.limit,
-                    lastPage: data.body.lastPage,
-                    totalCount: data.body.totalCount,
-                    hasNext: data.body.hasNext,
-                    hasPrevious: data.body.hasPrevious
+    const fetchPinnablePosts = useCallback(
+        async (query = '', page = 1) => {
+            const requestSeq = pinnableRequestSeq.current + 1;
+            pinnableRequestSeq.current = requestSeq;
+            setIsPinnableLoading(true);
+            try {
+                const { data } = await getPinnablePosts({
+                    query,
+                    limit: PINNABLE_POSTS_PAGE_SIZE,
+                    page
                 });
-                setPinnablePage(data.body.page);
+
+                if (requestSeq !== pinnableRequestSeq.current) {
+                    return;
+                }
+
+                if (data.status === 'DONE') {
+                    setPinnablePosts(data.body.posts);
+                    setPinnablePagination({
+                        page: data.body.page,
+                        limit: data.body.limit,
+                        lastPage: data.body.lastPage,
+                        totalCount: data.body.totalCount,
+                        hasNext: data.body.hasNext,
+                        hasPrevious: data.body.hasPrevious
+                    });
+                    setPinnablePage(data.body.page);
+                }
+            } catch {
+                if (requestSeq === pinnableRequestSeq.current) {
+                    toast.error(
+                        t({
+                            id: 'settings.pinned_posts.error.load_available',
+                            message: 'Could not load available posts.'
+                        })
+                    );
+                }
+            } finally {
+                if (requestSeq === pinnableRequestSeq.current) {
+                    setIsPinnableLoading(false);
+                }
             }
-        } catch {
-            if (requestSeq === pinnableRequestSeq.current) {
-                toast.error(t({
-                    id: 'settings.pinned_posts.error.load_available',
-                    message: 'Could not load available posts.'
-                }));
-            }
-        } finally {
-            if (requestSeq === pinnableRequestSeq.current) {
-                setIsPinnableLoading(false);
-            }
-        }
-    }, [t]);
+        },
+        [t]
+    );
 
     useEffect(() => {
         if (!embedded && !isModalOpen) return;
@@ -168,18 +169,22 @@ export const PinnedPostsPanel = ({
                 throw new Error('Order update failed');
             }
 
-            toast.success(t({
-                id: 'settings.pinned_posts.success.reordered',
-                message: 'Pinned posts reordered.'
-            }));
+            toast.success(
+                t({
+                    id: 'settings.pinned_posts.success.reordered',
+                    message: 'Pinned posts reordered.'
+                })
+            );
             await queryClient.invalidateQueries({ queryKey: ['pinned-posts-setting'] });
             onPinnedPostsChange?.();
         } catch {
             setPinnedPosts(previousPinnedPosts);
-            toast.error(t({
-                id: 'settings.pinned_posts.error.reorder',
-                message: 'Could not reorder pinned posts.'
-            }));
+            toast.error(
+                t({
+                    id: 'settings.pinned_posts.error.reorder',
+                    message: 'Could not reorder pinned posts.'
+                })
+            );
         }
     };
 
@@ -195,22 +200,31 @@ export const PinnedPostsPanel = ({
                 setIsModalOpen(false);
                 setPinnablePosts((posts) => posts.filter((post) => post.url !== postUrl));
                 fetchPinnablePosts(pinnableSearchQuery, pinnablePage);
-                toast.success(t({
-                    id: 'settings.pinned_posts.success.pinned',
-                    message: 'Post pinned.'
-                }));
+                toast.success(
+                    t({
+                        id: 'settings.pinned_posts.success.pinned',
+                        message: 'Post pinned.'
+                    })
+                );
                 onPinnedPostsChange?.();
             } else {
-                throw new Error(data.errorMessage || t({
-                    id: 'settings.pinned_posts.error.pin',
-                    message: 'Could not pin this post.'
-                }));
+                throw new Error(
+                    data.errorMessage ||
+                        t({
+                            id: 'settings.pinned_posts.error.pin',
+                            message: 'Could not pin this post.'
+                        })
+                );
             }
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : t({
-                id: 'settings.pinned_posts.error.pin',
-                message: 'Could not pin this post.'
-            }));
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : t({
+                          id: 'settings.pinned_posts.error.pin',
+                          message: 'Could not pin this post.'
+                      })
+            );
         } finally {
             setIsAddingPost(false);
             setAddingPostUrl(null);
@@ -222,44 +236,47 @@ export const PinnedPostsPanel = ({
             const { data } = await removePinnedPost(postUrl);
 
             if (data.status === 'DONE') {
-                setPinnedPosts((posts) => posts.filter(p => p.post.url !== postUrl));
+                setPinnedPosts((posts) => posts.filter((p) => p.post.url !== postUrl));
                 await queryClient.invalidateQueries({ queryKey: ['pinned-posts-setting'] });
                 fetchPinnablePosts(pinnableSearchQuery, pinnablePage);
-                toast.success(t({
-                    id: 'settings.pinned_posts.success.unpinned',
-                    message: 'Post unpinned.'
-                }));
+                toast.success(
+                    t({
+                        id: 'settings.pinned_posts.success.unpinned',
+                        message: 'Post unpinned.'
+                    })
+                );
                 onPinnedPostsChange?.();
             } else {
-                throw new Error(t({
-                    id: 'settings.pinned_posts.error.unpin',
-                    message: 'Could not unpin this post.'
-                }));
+                throw new Error(
+                    t({
+                        id: 'settings.pinned_posts.error.unpin',
+                        message: 'Could not unpin this post.'
+                    })
+                );
             }
         } catch {
-            toast.error(t({
-                id: 'settings.pinned_posts.error.unpin',
-                message: 'Could not unpin this post.'
-            }));
+            toast.error(
+                t({
+                    id: 'settings.pinned_posts.error.unpin',
+                    message: 'Could not unpin this post.'
+                })
+            );
         }
     };
 
     const occupiedCount = pinnedPosts.length + reservedCount;
     const canAddMore = occupiedCount < maxCount;
     const action = (
-        <SettingsHeaderAction
-            variant="primary"
-            onClick={handleOpenModal}
-            disabled={!canAddMore}>
+        <SettingsHeaderAction variant="primary" onClick={handleOpenModal} disabled={!canAddMore}>
             {canAddMore
                 ? t({
-                    id: 'settings.pinned_posts.action.pin_post',
-                    message: 'Pin a post'
-                })
+                      id: 'settings.pinned_posts.action.pin_post',
+                      message: 'Pin a post'
+                  })
                 : t({
-                    id: 'settings.pinned_posts.action.limit_reached',
-                    message: 'Pin limit reached'
-                })}
+                      id: 'settings.pinned_posts.action.limit_reached',
+                      message: 'Pin limit reached'
+                  })}
         </SettingsHeaderAction>
     );
     const list = (
@@ -276,7 +293,8 @@ export const PinnedPostsPanel = ({
                         />{' '}
                         <a
                             href="/settings/posts?tab=trash"
-                            className="font-medium text-content underline underline-offset-2">
+                            className="font-medium text-content underline underline-offset-2"
+                        >
                             <Trans id="settings.pinned_posts.view_trash">View trash</Trans>
                         </a>
                     </p>
@@ -343,12 +361,12 @@ export const PinnedPostsPanel = ({
                         </span>
                     </h3>
                     <p className="text-sm leading-relaxed text-content-secondary">
-                        <Trans id="settings.pinned_posts.description">Drag posts to change the order shown on your profile.</Trans>
+                        <Trans id="settings.pinned_posts.description">
+                            Drag posts to change the order shown on your profile.
+                        </Trans>
                     </p>
                 </div>
-                <div className="flex-shrink-0">
-                    {!embedded && action}
-                </div>
+                <div className="flex-shrink-0">{!embedded && action}</div>
             </div>
             {list}
             <div className="border-t border-line pt-4">

@@ -12,13 +12,7 @@ interface PostEditorProps {
     showFirstPublishGuide?: boolean;
 }
 
-const PostEditor = ({
-    mode,
-    username,
-    postUrl,
-    draftUrl,
-    showFirstPublishGuide = false
-}: PostEditorProps) => {
+const PostEditor = ({ mode, username, postUrl, draftUrl, showFirstPublishGuide = false }: PostEditorProps) => {
     if (mode === 'edit' && (!username || !postUrl)) {
         return (
             <div className="bg-surface-subtle py-4 sm:py-8">
@@ -57,9 +51,7 @@ const PostEditor = ({
                 <div className="max-w-7xl w-full mx-auto">
                     <div className="bg-surface rounded-xl shadow-sm border border-line p-6">
                         <div className="text-center text-content-secondary">
-                            <Trans id="editor.error.missing_new_parameters">
-                                New post mode requires a username.
-                            </Trans>
+                            <Trans id="editor.error.missing_new_parameters">New post mode requires a username.</Trans>
                         </div>
                     </div>
                 </div>
@@ -70,7 +62,9 @@ const PostEditor = ({
     switch (mode) {
         case 'new':
         case 'draft':
-            return <NewPostEditor username={username!} draftUrl={draftUrl} showFirstPublishGuide={showFirstPublishGuide} />;
+            return (
+                <NewPostEditor username={username!} draftUrl={draftUrl} showFirstPublishGuide={showFirstPublishGuide} />
+            );
 
         case 'edit':
             return <EditPostEditor username={username!} postUrl={postUrl!} />;
@@ -81,9 +75,7 @@ const PostEditor = ({
                     <div className="max-w-7xl w-full mx-auto">
                         <div className="bg-surface rounded-xl shadow-sm border border-line p-6">
                             <div className="text-center text-content-secondary">
-                                <Trans id="editor.error.unsupported_mode">
-                                    Unsupported editor mode: {mode}
-                                </Trans>
+                                <Trans id="editor.error.unsupported_mode">Unsupported editor mode: {mode}</Trans>
                             </div>
                         </div>
                     </div>

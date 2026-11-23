@@ -36,14 +36,15 @@ function normalizeTableDefinition(sql: string): string {
 }
 
 function schemaObjects(db: DatabaseSync): Map<string, string> {
-  const rows = db.prepare(`
+  const rows = db
+    .prepare(`
     SELECT type, name, sql FROM sqlite_schema
     WHERE sql IS NOT NULL AND name NOT GLOB 'sqlite_*' AND name <> '_prisma_migrations'
-  `).all() as unknown as SchemaObject[];
-  return new Map(rows.map(({ type, name, sql }) => [
-    `${type} ${name}`,
-    type === 'table' ? normalizeTableDefinition(sql) : sql,
-  ]));
+  `)
+    .all() as unknown as SchemaObject[];
+  return new Map(
+    rows.map(({ type, name, sql }) => [`${type} ${name}`, type === 'table' ? normalizeTableDefinition(sql) : sql]),
+  );
 }
 
 export function verifyLegacyDatabase(dbPath: string): number {
@@ -51,8 +52,12 @@ export function verifyLegacyDatabase(dbPath: string): number {
   const baseline = new DatabaseSync(':memory:');
   try {
     const tables = db.prepare(`SELECT 1 FROM sqlite_schema WHERE type = 'table' AND name = 'django_migrations'`).get();
-    const version = tables && db.prepare('SELECT 1 FROM django_migrations WHERE app = ? AND name = ?').get('board', djangoBaseline);
-    if (!version) throw new Error(`Upgrade this BLEX 3.x database to 3.14 first: start the baealex/blex:3.14 image once so it applies ${djangoBaseline}, then start BLEX 4.`);
+    const version =
+      tables && db.prepare('SELECT 1 FROM django_migrations WHERE app = ? AND name = ?').get('board', djangoBaseline);
+    if (!version)
+      throw new Error(
+        `Upgrade this BLEX 3.x database to 3.14 first: start the baealex/blex:3.14 image once so it applies ${djangoBaseline}, then start BLEX 4.`,
+      );
 
     baseline.exec(readFileSync(baselineSql, 'utf8'));
     const expected = schemaObjects(baseline);
@@ -60,7 +65,8 @@ export function verifyLegacyDatabase(dbPath: string): number {
     const differences = [...new Set([...expected.keys(), ...actual.keys()])]
       .filter((key) => expected.get(key) !== actual.get(key))
       .sort();
-    if (differences.length) throw new Error(`SQLite schema differs from the BLEX 3.x baseline: ${differences.join(', ')}`);
+    if (differences.length)
+      throw new Error(`SQLite schema differs from the BLEX 3.x baseline: ${differences.join(', ')}`);
 
     const integrity = db.prepare('PRAGMA integrity_check').all();
     if (integrity.length !== 1 || integrity[0].integrity_check !== 'ok') {
@@ -75,4 +81,3 @@ export function verifyLegacyDatabase(dbPath: string): number {
     baseline.close();
   }
 }
-

@@ -6,8 +6,7 @@ const require = createRequire(import.meta.url);
 const cliRequire = createRequire(require.resolve('@lingui/cli'));
 const braces = createRequire(cliRequire.resolve('micromatch'))('braces');
 
-const nestedPattern = (depth, open = '{', close = '}') =>
-    open.repeat(depth) + 'x' + close.repeat(depth);
+const nestedPattern = (depth, open = '{', close = '}') => open.repeat(depth) + 'x' + close.repeat(depth);
 
 describe('installed braces nesting protection', () => {
     test('preserves ordinary glob compilation and expansion', () => {
@@ -17,7 +16,10 @@ describe('installed braces nesting protection', () => {
 
     test('allows patterns at and below the nesting limit', () => {
         for (const depth of [99, 100]) {
-            for (const [open, close] of [['{', '}'], ['(', ')']]) {
+            for (const [open, close] of [
+                ['{', '}'],
+                ['(', ')']
+            ]) {
                 const pattern = nestedPattern(depth, open, close);
                 assert.equal(braces.compile(pattern), pattern);
                 assert.deepEqual(braces.expand(pattern), [pattern]);
@@ -27,7 +29,10 @@ describe('installed braces nesting protection', () => {
 
     test('rejects excessive nesting before recursive walkers can exhaust the stack', () => {
         for (const depth of [101, 4000]) {
-            for (const [open, close] of [['{', '}'], ['(', ')']]) {
+            for (const [open, close] of [
+                ['{', '}'],
+                ['(', ')']
+            ]) {
                 for (const operation of [braces.parse, braces.compile, braces.expand, braces.stringify]) {
                     assert.throws(() => operation(nestedPattern(depth, open, close)), {
                         name: 'SyntaxError',

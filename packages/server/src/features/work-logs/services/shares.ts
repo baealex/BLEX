@@ -18,7 +18,11 @@ export async function readShare(db: PrismaClient, token: string): Promise<ShareR
   const share = await db.workLogShare.findFirst({
     where: { token, log: { owner: { isActive: true } } },
     select: {
-      id: true, token: true, headline: true, createdAt: true, logId: true,
+      id: true,
+      token: true,
+      headline: true,
+      createdAt: true,
+      logId: true,
       log: { select: { ownerId: true, title: true, createdAt: true, owner: { select: { username: true } } } },
     },
   });
@@ -66,9 +70,17 @@ export function entryCountForShare(db: PrismaClient, shareId: number): Promise<n
   return db.workLogEntry.count({ where: inShare(shareId) });
 }
 
-export async function latestSharedEntry(db: PrismaClient, shareId: number, imagesOnly = false): Promise<EntryRow | null> {
+export async function latestSharedEntry(
+  db: PrismaClient,
+  shareId: number,
+  imagesOnly = false,
+): Promise<EntryRow | null> {
   const entry = await db.workLogEntry.findFirst({
-    where: { ...inShare(shareId), attachment: { not: '' }, ...(imagesOnly ? { mediaType: { startsWith: 'image/' } } : {}) },
+    where: {
+      ...inShare(shareId),
+      attachment: { not: '' },
+      ...(imagesOnly ? { mediaType: { startsWith: 'image/' } } : {}),
+    },
     select: entrySelect,
     orderBy: newestFirst,
   });
@@ -88,7 +100,10 @@ export async function pageEntryForShareMedia(
   return entry ? toEntryRow(entry) : null;
 }
 
-export function selectedEntryIds(fields: Record<string, unknown>, allowEmpty = false): { ids: number[]; error?: string } {
+export function selectedEntryIds(
+  fields: Record<string, unknown>,
+  allowEmpty = false,
+): { ids: number[]; error?: string } {
   const values = [
     ...arrayValue(fields[pageFields.selectedEntries]).flatMap((value) => value.split(',')),
     ...arrayValue(fields.entries),
@@ -129,7 +144,12 @@ export function sharePath(token: string): string {
   return `/work-logs/share/${publicShareToken(token)}/`;
 }
 
-export async function createShare(db: PrismaClient, logId: number, headline: string, entries: EntryRow[]): Promise<string> {
+export async function createShare(
+  db: PrismaClient,
+  logId: number,
+  headline: string,
+  entries: EntryRow[],
+): Promise<string> {
   const token = randomUUID().replaceAll('-', '');
   await db.workLogShare.create({
     data: { token, headline, logId, entries: { connect: entries.map(({ id }) => ({ id })) } },

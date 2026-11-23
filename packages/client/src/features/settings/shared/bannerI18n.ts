@@ -4,12 +4,7 @@ import { msg } from '@lingui/core/macro';
 export type BannerType = 'horizontal' | 'sidebar';
 export type BannerPosition = 'top' | 'bottom' | 'left' | 'right';
 
-export const bannerPositionOptions: BannerPosition[] = [
-    'top',
-    'bottom',
-    'left',
-    'right'
-];
+export const bannerPositionOptions: BannerPosition[] = ['top', 'bottom', 'left', 'right'];
 
 export const bannerTypeMessages: Record<BannerType, MessageDescriptor> = {
     horizontal: msg({

@@ -2,23 +2,10 @@ import { useState } from 'react';
 import { useLingui } from '@lingui/react/macro';
 import { toast } from '~/utils/toast';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
-import {
-    ArrowRight,
-    Clock,
-    Database,
-    Eye,
-    FileImage,
-    Image,
-    RotateCw,
-    ScrollText,
-    Tags,
-    Trash2
-} from '~/ui/icons';
+import { ArrowRight, Clock, Database, Eye, FileImage, Image, RotateCw, ScrollText, Tags, Trash2 } from '~/ui/icons';
 import { useConfirm } from '~/hooks/useConfirm';
 import { SettingsHeader, SettingsHeaderAction } from '../layout';
-import {
-    Alert, Button, Card, Checkbox, Select
-} from '~/components/shared';
+import { Alert, Button, Card, Checkbox, Select } from '~/components/shared';
 import {
     getUtilityStats,
     cleanTags,
@@ -68,7 +55,8 @@ const UtilityActionButtons = ({
             disabled={isPending}
             isLoading={isPreviewLoading}
             leftIcon={<Eye aria-hidden="true" className="h-4 w-4" />}
-            onClick={onPreview}>
+            onClick={onPreview}
+        >
             1. {previewLabel}
         </Button>
         <Button
@@ -79,7 +67,8 @@ const UtilityActionButtons = ({
             disabled={!canExecute || isPending}
             isLoading={isExecuteLoading}
             leftIcon={<Trash2 aria-hidden="true" className="h-4 w-4" />}
-            onClick={onExecute}>
+            onClick={onExecute}
+        >
             2. {executeLabel}
         </Button>
     </div>
@@ -113,27 +102,31 @@ const TagCleanupResult = ({ result }: { result: TagCleanResult }) => {
             <Alert
                 variant={result.dryRun ? 'info' : 'success'}
                 headingLevel={3}
-                title={result.dryRun
-                    ? t({
-                        id: 'settings.utility.result.preview_title',
-                        message: 'Cleanup preview'
-                    })
-                    : t({
-                        id: 'settings.utility.tags.result.success_title',
-                        message: 'Tags deleted'
-                    })}>
+                title={
+                    result.dryRun
+                        ? t({
+                              id: 'settings.utility.result.preview_title',
+                              message: 'Cleanup preview'
+                          })
+                        : t({
+                              id: 'settings.utility.tags.result.success_title',
+                              message: 'Tags deleted'
+                          })
+                }
+            >
                 <p>
                     {result.dryRun
                         ? i18n._({
-                            id: 'settings.utility.tags.result.preview',
-                            message: '{count, plural, one {# unused tag is ready for deletion.} other {# unused tags are ready for deletion.}}',
-                            values: { count: result.unusedTags }
-                        })
+                              id: 'settings.utility.tags.result.preview',
+                              message:
+                                  '{count, plural, one {# unused tag is ready for deletion.} other {# unused tags are ready for deletion.}}',
+                              values: { count: result.unusedTags }
+                          })
                         : i18n._({
-                            id: 'settings.utility.tags.result.success',
-                            message: '{count, plural, one {Deleted # unused tag.} other {Deleted # unused tags.}}',
-                            values: { count: result.cleanedCount }
-                        })}
+                              id: 'settings.utility.tags.result.success',
+                              message: '{count, plural, one {Deleted # unused tag.} other {Deleted # unused tags.}}',
+                              values: { count: result.cleanedCount }
+                          })}
                 </p>
                 <p className="mt-1 text-xs">
                     {i18n._({
@@ -168,19 +161,19 @@ const SessionCleanupResult = ({ result }: { result: SessionCleanResult }) => {
     const { i18n, t } = useLingui();
     const presentation = !result.dryRun
         ? {
-            variant: 'success' as const,
-            title: t({
-                id: 'settings.utility.sessions.result.success_title',
-                message: 'Sessions deleted'
-            }),
-            message: i18n._({
-                id: 'settings.utility.sessions.result.success',
-                message: '{count, plural, one {Deleted # session.} other {Deleted # sessions.}}',
-                values: { count: result.cleanedCount }
-            })
-        }
+              variant: 'success' as const,
+              title: t({
+                  id: 'settings.utility.sessions.result.success_title',
+                  message: 'Sessions deleted'
+              }),
+              message: i18n._({
+                  id: 'settings.utility.sessions.result.success',
+                  message: '{count, plural, one {Deleted # session.} other {Deleted # sessions.}}',
+                  values: { count: result.cleanedCount }
+              })
+          }
         : result.cleanAll
-            ? {
+          ? {
                 variant: 'warning' as const,
                 title: t({
                     id: 'settings.utility.sessions.result.all_preview_title',
@@ -188,11 +181,12 @@ const SessionCleanupResult = ({ result }: { result: SessionCleanResult }) => {
                 }),
                 message: i18n._({
                     id: 'settings.utility.sessions.result.all_preview',
-                    message: '{count, plural, one {# session, including the current administrator session, will be deleted.} other {All # sessions, including the current administrator session, will be deleted.}}',
+                    message:
+                        '{count, plural, one {# session, including the current administrator session, will be deleted.} other {All # sessions, including the current administrator session, will be deleted.}}',
                     values: { count: result.totalSessions }
                 })
             }
-            : {
+          : {
                 variant: 'info' as const,
                 title: t({
                     id: 'settings.utility.sessions.result.expired_preview_title',
@@ -200,7 +194,8 @@ const SessionCleanupResult = ({ result }: { result: SessionCleanResult }) => {
                 }),
                 message: i18n._({
                     id: 'settings.utility.sessions.result.expired_preview',
-                    message: '{count, plural, one {# expired session will be deleted. Active sessions will be kept.} other {# expired sessions will be deleted. Active sessions will be kept.}}',
+                    message:
+                        '{count, plural, one {# expired session will be deleted. Active sessions will be kept.} other {# expired sessions will be deleted. Active sessions will be kept.}}',
                     values: { count: result.expiredSessions }
                 })
             };
@@ -222,15 +217,18 @@ const LogCleanupResult = ({ result }: { result: LogCleanResult }) => {
             <Alert
                 variant={result.dryRun ? 'info' : 'success'}
                 headingLevel={3}
-                title={result.dryRun
-                    ? t({
-                        id: 'settings.utility.result.preview_title',
-                        message: 'Cleanup preview'
-                    })
-                    : t({
-                        id: 'settings.utility.logs.result.success_title',
-                        message: 'Logs deleted'
-                    })}>
+                title={
+                    result.dryRun
+                        ? t({
+                              id: 'settings.utility.result.preview_title',
+                              message: 'Cleanup preview'
+                          })
+                        : t({
+                              id: 'settings.utility.logs.result.success_title',
+                              message: 'Logs deleted'
+                          })
+                }
+            >
                 <p>
                     {i18n._({
                         id: 'settings.utility.logs.result.admin',
@@ -262,21 +260,21 @@ const ImageCleanupResult = ({ result }: { result: ImageCleanResult }) => {
     const { i18n, t } = useLingui();
     const presentation = result.dryRun
         ? {
-            variant: 'info' as const,
-            title: t({
-                id: 'settings.utility.result.preview_title',
-                message: 'Cleanup preview'
-            })
-        }
+              variant: 'info' as const,
+              title: t({
+                  id: 'settings.utility.result.preview_title',
+                  message: 'Cleanup preview'
+              })
+          }
         : result.hasErrors
-            ? {
+          ? {
                 variant: 'error' as const,
                 title: t({
                     id: 'settings.utility.images.result.partial_failure_title',
                     message: 'Some images could not be processed'
                 })
             }
-            : {
+          : {
                 variant: 'success' as const,
                 title: t({
                     id: 'settings.utility.images.result.success_title',
@@ -329,24 +327,27 @@ const ImageCleanupResult = ({ result }: { result: ImageCleanResult }) => {
                             <summary className="flex min-h-11 cursor-pointer list-none items-center text-xs font-medium select-none [&::-webkit-details-marker]:hidden">
                                 {result.totalUnused > result.unusedFiles.length
                                     ? i18n._({
-                                        id: 'settings.utility.images.result.unused_files_partial',
-                                        message: 'Images ready for deletion ({shown} of {total})',
-                                        values: {
-                                            shown: result.unusedFiles.length,
-                                            total: result.totalUnused
-                                        }
-                                    })
+                                          id: 'settings.utility.images.result.unused_files_partial',
+                                          message: 'Images ready for deletion ({shown} of {total})',
+                                          values: {
+                                              shown: result.unusedFiles.length,
+                                              total: result.totalUnused
+                                          }
+                                      })
                                     : i18n._({
-                                        id: 'settings.utility.images.result.unused_files',
-                                        message: 'Images ready for deletion ({count})',
-                                        values: { count: result.unusedFiles.length }
-                                    })}
+                                          id: 'settings.utility.images.result.unused_files',
+                                          message: 'Images ready for deletion ({count})',
+                                          values: { count: result.unusedFiles.length }
+                                      })}
                             </summary>
                             <div className="mt-3 grid max-h-80 grid-cols-3 gap-2 overflow-y-auto sm:grid-cols-4 md:grid-cols-5">
                                 {result.unusedFiles.map((file) => (
                                     <div key={file.path} className="group relative">
                                         <ImageThumbnail src={file.url} alt={file.path} />
-                                        <div className="mt-1 truncate text-[10px] text-content-secondary" title={file.path}>
+                                        <div
+                                            className="mt-1 truncate text-[10px] text-content-secondary"
+                                            title={file.path}
+                                        >
                                             {file.sizeKb} KB
                                         </div>
                                     </div>
@@ -367,7 +368,8 @@ const ImageCleanupResult = ({ result }: { result: ImageCleanResult }) => {
                                 {result.duplicateFiles.map((duplicate) => (
                                     <div
                                         key={`${duplicate.hash}-${duplicate.duplicateUrl}`}
-                                        className="flex items-center gap-3 rounded-lg bg-surface-subtle p-2">
+                                        className="flex items-center gap-3 rounded-lg bg-surface-subtle p-2"
+                                    >
                                         <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg border border-danger-line bg-surface-subtle">
                                             <img
                                                 src={duplicate.duplicateUrl}
@@ -453,10 +455,12 @@ const UtilitySetting = () => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error(t({
-                id: 'settings.utility.stats.load_error',
-                message: 'Failed to load utility statistics.'
-            }));
+            throw new Error(
+                t({
+                    id: 'settings.utility.stats.load_error',
+                    message: 'Failed to load utility statistics.'
+                })
+            );
         }
     });
 
@@ -477,36 +481,39 @@ const UtilitySetting = () => {
 
     // Mutations
     const tagMutation = useMutation({
-        mutationFn: ({
-            dryRun,
-            confirmationToken
-        }: {
-            dryRun: boolean;
-            confirmationToken?: string;
-        }) => cleanTags(dryRun, confirmationToken),
+        mutationFn: ({ dryRun, confirmationToken }: { dryRun: boolean; confirmationToken?: string }) =>
+            cleanTags(dryRun, confirmationToken),
         onSuccess: ({ data }, variables) => {
             if (data.status !== 'DONE') {
                 if (!variables.dryRun) setTagResult(null);
-                toast.error(data.errorMessage || t({
-                    id: 'settings.utility.tags.error',
-                    message: 'Failed to clean up tags.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'settings.utility.tags.error',
+                            message: 'Failed to clean up tags.'
+                        })
+                );
                 return;
             }
             setTagResult(data.body);
             if (!data.body.dryRun) {
-                toast.success(i18n._({
-                    id: 'settings.utility.tags.result.success',
-                    message: '{count, plural, one {Deleted # unused tag.} other {Deleted # unused tags.}}',
-                    values: { count: data.body.cleanedCount }
-                }));
+                toast.success(
+                    i18n._({
+                        id: 'settings.utility.tags.result.success',
+                        message: '{count, plural, one {Deleted # unused tag.} other {Deleted # unused tags.}}',
+                        values: { count: data.body.cleanedCount }
+                    })
+                );
                 queryClient.invalidateQueries({ queryKey: ['utility-stats'] });
             }
         },
-        onError: () => toast.error(t({
-            id: 'settings.utility.tags.error',
-            message: 'Failed to clean up tags.'
-        }))
+        onError: () =>
+            toast.error(
+                t({
+                    id: 'settings.utility.tags.error',
+                    message: 'Failed to clean up tags.'
+                })
+            )
     });
 
     const sessionMutation = useMutation({
@@ -522,62 +529,74 @@ const UtilitySetting = () => {
         onSuccess: ({ data }, variables) => {
             if (data.status !== 'DONE') {
                 if (!variables.dryRun) setSessionResult(null);
-                toast.error(data.errorMessage || t({
-                    id: 'settings.utility.sessions.error',
-                    message: 'Failed to clean up sessions.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'settings.utility.sessions.error',
+                            message: 'Failed to clean up sessions.'
+                        })
+                );
                 return;
             }
             setSessionResult(data.body);
             if (!data.body.dryRun) {
-                toast.success(i18n._({
-                    id: 'settings.utility.sessions.result.success',
-                    message: '{count, plural, one {Deleted # session.} other {Deleted # sessions.}}',
-                    values: { count: data.body.cleanedCount }
-                }));
+                toast.success(
+                    i18n._({
+                        id: 'settings.utility.sessions.result.success',
+                        message: '{count, plural, one {Deleted # session.} other {Deleted # sessions.}}',
+                        values: { count: data.body.cleanedCount }
+                    })
+                );
                 queryClient.invalidateQueries({ queryKey: ['utility-stats'] });
             }
         },
-        onError: () => toast.error(t({
-            id: 'settings.utility.sessions.error',
-            message: 'Failed to clean up sessions.'
-        }))
+        onError: () =>
+            toast.error(
+                t({
+                    id: 'settings.utility.sessions.error',
+                    message: 'Failed to clean up sessions.'
+                })
+            )
     });
 
     const logMutation = useMutation({
-        mutationFn: ({
-            dryRun,
-            confirmationToken
-        }: {
-            dryRun: boolean;
-            confirmationToken?: string;
-        }) => cleanLogs(dryRun, confirmationToken),
+        mutationFn: ({ dryRun, confirmationToken }: { dryRun: boolean; confirmationToken?: string }) =>
+            cleanLogs(dryRun, confirmationToken),
         onSuccess: ({ data }, variables) => {
             if (data.status !== 'DONE') {
                 if (!variables.dryRun) setLogResult(null);
-                toast.error(data.errorMessage || t({
-                    id: 'settings.utility.logs.error',
-                    message: 'Failed to clean up logs.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'settings.utility.logs.error',
+                            message: 'Failed to clean up logs.'
+                        })
+                );
                 return;
             }
             setLogResult(data.body);
             if (!data.body.dryRun) {
-                toast.success(i18n._({
-                    id: 'settings.utility.logs.success',
-                    message: 'Deleted {adminCount} expired admin activity logs and {developerCount} expired developer API request logs.',
-                    values: {
-                        adminCount: data.body.cleanedCount,
-                        developerCount: data.body.cleanedDeveloperRequestLogCount
-                    }
-                }));
+                toast.success(
+                    i18n._({
+                        id: 'settings.utility.logs.success',
+                        message:
+                            'Deleted {adminCount} expired admin activity logs and {developerCount} expired developer API request logs.',
+                        values: {
+                            adminCount: data.body.cleanedCount,
+                            developerCount: data.body.cleanedDeveloperRequestLogCount
+                        }
+                    })
+                );
                 queryClient.invalidateQueries({ queryKey: ['utility-stats'] });
             }
         },
-        onError: () => toast.error(t({
-            id: 'settings.utility.logs.error',
-            message: 'Failed to clean up logs.'
-        }))
+        onError: () =>
+            toast.error(
+                t({
+                    id: 'settings.utility.logs.error',
+                    message: 'Failed to clean up logs.'
+                })
+            )
     });
 
     const imageMutation = useMutation({
@@ -598,10 +617,13 @@ const UtilitySetting = () => {
                     setImageResult(null);
                     setHasPreviewed(false);
                 }
-                toast.error(data.errorMessage || t({
-                    id: 'settings.utility.images.error',
-                    message: 'Failed to clean up images.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'settings.utility.images.error',
+                            message: 'Failed to clean up images.'
+                        })
+                );
                 return;
             }
             setImageResult(data.body);
@@ -609,28 +631,35 @@ const UtilitySetting = () => {
                 setHasPreviewed(true);
             } else {
                 if (data.body.hasErrors) {
-                    toast.error(t({
-                        id: 'settings.utility.images.partial_failure',
-                        message: 'Image deletion finished, but some files could not be processed.'
-                    }));
+                    toast.error(
+                        t({
+                            id: 'settings.utility.images.partial_failure',
+                            message: 'Image deletion finished, but some files could not be processed.'
+                        })
+                    );
                 } else {
-                    toast.success(i18n._({
-                        id: 'settings.utility.images.success',
-                        message: 'Deleted {count} images and reclaimed {size} MB.',
-                        values: {
-                            count: data.body.totalUnused + data.body.totalDuplicates,
-                            size: data.body.totalSavedMb
-                        }
-                    }));
+                    toast.success(
+                        i18n._({
+                            id: 'settings.utility.images.success',
+                            message: 'Deleted {count} images and reclaimed {size} MB.',
+                            values: {
+                                count: data.body.totalUnused + data.body.totalDuplicates,
+                                size: data.body.totalSavedMb
+                            }
+                        })
+                    );
                 }
                 queryClient.invalidateQueries({ queryKey: ['utility-stats'] });
                 setHasPreviewed(false);
             }
         },
-        onError: () => toast.error(t({
-            id: 'settings.utility.images.error',
-            message: 'Failed to clean up images.'
-        }))
+        onError: () =>
+            toast.error(
+                t({
+                    id: 'settings.utility.images.error',
+                    message: 'Failed to clean up images.'
+                })
+            )
     });
 
     const tagPreview = tagResult?.dryRun && tagResult.confirmationToken ? tagResult : null;
@@ -659,7 +688,8 @@ const UtilitySetting = () => {
             }),
             message: i18n._({
                 id: 'settings.utility.tags.confirm.message',
-                message: 'Permanently delete {count, plural, one {# unused tag} other {# unused tags}} confirmed in the preview. The final count may change before execution.',
+                message:
+                    'Permanently delete {count, plural, one {# unused tag} other {# unused tags}} confirmed in the preview. The final count may change before execution.',
                 values: { count: tagPreview.unusedTags }
             }),
             confirmText: i18n._({
@@ -686,7 +716,8 @@ const UtilitySetting = () => {
             }),
             message: i18n._({
                 id: 'settings.utility.sessions.expired.confirm.message',
-                message: 'Delete {count, plural, one {# expired session} other {# expired sessions}} confirmed in the preview. Active user sessions will be kept.',
+                message:
+                    'Delete {count, plural, one {# expired session} other {# expired sessions}} confirmed in the preview. Active user sessions will be kept.',
                 values: { count: sessionPreview.expiredSessions }
             }),
             confirmText: i18n._({
@@ -714,7 +745,8 @@ const UtilitySetting = () => {
             }),
             message: i18n._({
                 id: 'settings.utility.sessions.all.confirm.message',
-                message: 'Delete all {count} sessions, including the current administrator session. Every user will be logged out immediately.',
+                message:
+                    'Delete all {count} sessions, including the current administrator session. Every user will be logged out immediately.',
                 values: { count: sessionPreview.totalSessions }
             }),
             confirmText: i18n._({
@@ -742,7 +774,8 @@ const UtilitySetting = () => {
             }),
             message: i18n._({
                 id: 'settings.utility.logs.confirm.message',
-                message: 'Permanently delete {adminCount} admin activity logs older than {adminDays} days and {developerCount} developer API request logs older than {developerDays} days.',
+                message:
+                    'Permanently delete {adminCount} admin activity logs older than {adminDays} days and {developerCount} developer API request logs older than {developerDays} days.',
                 values: {
                     adminCount: logPreview.expiredLogCount,
                     adminDays: logPreview.adminAuditLogRetentionDays,
@@ -772,24 +805,27 @@ const UtilitySetting = () => {
                 id: 'settings.utility.images.confirm.title',
                 message: 'Delete image files'
             }),
-            message: imagePreview.totalDuplicates > 0
-                ? i18n._({
-                    id: 'settings.utility.images.confirm.message_with_duplicates',
-                    message: 'Permanently delete {unusedCount} unused images, {duplicateCount} duplicate title images, and the related caches confirmed in the preview. Estimated space reclaimed: {size} MB.',
-                    values: {
-                        unusedCount: imagePreview.totalUnused,
-                        duplicateCount: imagePreview.totalDuplicates,
-                        size: imagePreview.totalSavedMb
-                    }
-                })
-                : i18n._({
-                    id: 'settings.utility.images.confirm.message',
-                    message: 'Permanently delete {count} unused images and the related caches confirmed in the preview. Estimated space reclaimed: {size} MB.',
-                    values: {
-                        count: imagePreview.totalUnused,
-                        size: imagePreview.totalSavedMb
-                    }
-                }),
+            message:
+                imagePreview.totalDuplicates > 0
+                    ? i18n._({
+                          id: 'settings.utility.images.confirm.message_with_duplicates',
+                          message:
+                              'Permanently delete {unusedCount} unused images, {duplicateCount} duplicate title images, and the related caches confirmed in the preview. Estimated space reclaimed: {size} MB.',
+                          values: {
+                              unusedCount: imagePreview.totalUnused,
+                              duplicateCount: imagePreview.totalDuplicates,
+                              size: imagePreview.totalSavedMb
+                          }
+                      })
+                    : i18n._({
+                          id: 'settings.utility.images.confirm.message',
+                          message:
+                              'Permanently delete {count} unused images and the related caches confirmed in the preview. Estimated space reclaimed: {size} MB.',
+                          values: {
+                              count: imagePreview.totalUnused,
+                              size: imagePreview.totalSavedMb
+                          }
+                      }),
             confirmText: t({
                 id: 'settings.utility.images.confirm.action',
                 message: 'Delete selected images and caches'
@@ -823,7 +859,8 @@ const UtilitySetting = () => {
                         variant="secondary"
                         isLoading={isStatsFetching}
                         leftIcon={<RotateCw aria-hidden="true" className="h-4 w-4" />}
-                        onClick={handleRefreshStats}>
+                        onClick={handleRefreshStats}
+                    >
                         {t({
                             id: 'settings.utility.stats.refresh',
                             message: 'Refresh statistics'
@@ -838,7 +875,8 @@ const UtilitySetting = () => {
                     id: 'settings.utility.stats.title',
                     message: 'Database statistics'
                 })}
-                icon={<Database aria-hidden="true" className="h-4 w-4" />}>
+                icon={<Database aria-hidden="true" className="h-4 w-4" />}
+            >
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
                     <StatItem
                         label={t({
@@ -897,7 +935,8 @@ const UtilitySetting = () => {
                             id: 'settings.utility.tags.description',
                             message: 'Find and delete tags that are not used by any post.'
                         })}
-                        icon={<Tags aria-hidden="true" className="h-4 w-4" />}>
+                        icon={<Tags aria-hidden="true" className="h-4 w-4" />}
+                    >
                         <div className="space-y-4">
                             {tagResult && <TagCleanupResult result={tagResult} />}
                             <UtilityActionButtons
@@ -911,13 +950,9 @@ const UtilitySetting = () => {
                                 })}
                                 canExecute={Boolean(tagPreview?.unusedTags)}
                                 isPending={tagMutation.isPending}
-                                isPreviewLoading={Boolean(
-                                    tagMutation.isPending
-                                    && tagMutation.variables?.dryRun
-                                )}
+                                isPreviewLoading={Boolean(tagMutation.isPending && tagMutation.variables?.dryRun)}
                                 isExecuteLoading={Boolean(
-                                    tagMutation.isPending
-                                    && tagMutation.variables?.dryRun === false
+                                    tagMutation.isPending && tagMutation.variables?.dryRun === false
                                 )}
                                 onPreview={() => {
                                     setTagResult(null);
@@ -934,7 +969,8 @@ const UtilitySetting = () => {
                             id: 'settings.utility.sessions.title',
                             message: 'Session cleanup'
                         })}
-                        icon={<Clock aria-hidden="true" className="h-4 w-4" />}>
+                        icon={<Clock aria-hidden="true" className="h-4 w-4" />}
+                    >
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-3 text-sm text-content-secondary">
                                 <span className="rounded-lg bg-surface-subtle px-3 py-2">
@@ -965,7 +1001,8 @@ const UtilitySetting = () => {
                                     <p className="mt-1 text-xs text-content-secondary">
                                         {t({
                                             id: 'settings.utility.sessions.expired.description',
-                                            message: 'Delete only expired login sessions and keep active users signed in.'
+                                            message:
+                                                'Delete only expired login sessions and keep active users signed in.'
                                         })}
                                     </p>
                                 </div>
@@ -978,17 +1015,19 @@ const UtilitySetting = () => {
                                         id: 'settings.utility.sessions.expired.action.delete',
                                         message: 'Delete expired sessions'
                                     })}
-                                    canExecute={Boolean(sessionPreview && !sessionPreview.cleanAll && sessionPreview.expiredSessions > 0)}
+                                    canExecute={Boolean(
+                                        sessionPreview && !sessionPreview.cleanAll && sessionPreview.expiredSessions > 0
+                                    )}
                                     isPending={sessionMutation.isPending}
                                     isPreviewLoading={Boolean(
-                                        sessionMutation.isPending
-                                        && sessionMutation.variables?.dryRun
-                                        && !sessionMutation.variables.cleanAll
+                                        sessionMutation.isPending &&
+                                            sessionMutation.variables?.dryRun &&
+                                            !sessionMutation.variables.cleanAll
                                     )}
                                     isExecuteLoading={Boolean(
-                                        sessionMutation.isPending
-                                        && sessionMutation.variables?.dryRun === false
-                                        && !sessionMutation.variables.cleanAll
+                                        sessionMutation.isPending &&
+                                            sessionMutation.variables?.dryRun === false &&
+                                            !sessionMutation.variables.cleanAll
                                     )}
                                     onPreview={() => {
                                         setSessionResult(null);
@@ -1012,7 +1051,8 @@ const UtilitySetting = () => {
                                     <p className="mt-1 text-xs text-content-secondary">
                                         {t({
                                             id: 'settings.utility.sessions.all.description',
-                                            message: 'Immediately log out every user, including the current administrator.'
+                                            message:
+                                                'Immediately log out every user, including the current administrator.'
                                         })}
                                     </p>
                                 </div>
@@ -1029,14 +1069,14 @@ const UtilitySetting = () => {
                                     canExecute={Boolean(sessionPreview?.cleanAll && sessionPreview.totalSessions > 0)}
                                     isPending={sessionMutation.isPending}
                                     isPreviewLoading={Boolean(
-                                        sessionMutation.isPending
-                                        && sessionMutation.variables?.dryRun
-                                        && sessionMutation.variables.cleanAll
+                                        sessionMutation.isPending &&
+                                            sessionMutation.variables?.dryRun &&
+                                            sessionMutation.variables.cleanAll
                                     )}
                                     isExecuteLoading={Boolean(
-                                        sessionMutation.isPending
-                                        && sessionMutation.variables?.dryRun === false
-                                        && sessionMutation.variables.cleanAll
+                                        sessionMutation.isPending &&
+                                            sessionMutation.variables?.dryRun === false &&
+                                            sessionMutation.variables.cleanAll
                                     )}
                                     onPreview={() => {
                                         setSessionResult(null);
@@ -1061,9 +1101,11 @@ const UtilitySetting = () => {
                         })}
                         subtitle={t({
                             id: 'settings.utility.logs.description',
-                            message: 'Delete only admin activity and developer API request logs beyond their retention periods.'
+                            message:
+                                'Delete only admin activity and developer API request logs beyond their retention periods.'
                         })}
-                        icon={<ScrollText aria-hidden="true" className="h-4 w-4" />}>
+                        icon={<ScrollText aria-hidden="true" className="h-4 w-4" />}
+                    >
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-3 text-sm text-content-secondary">
                                 <span className="rounded-lg bg-surface-subtle px-3 py-2">
@@ -1093,13 +1135,9 @@ const UtilitySetting = () => {
                                 })}
                                 canExecute={logPreviewDeleteCount > 0}
                                 isPending={logMutation.isPending}
-                                isPreviewLoading={Boolean(
-                                    logMutation.isPending
-                                    && logMutation.variables?.dryRun
-                                )}
+                                isPreviewLoading={Boolean(logMutation.isPending && logMutation.variables?.dryRun)}
                                 isExecuteLoading={Boolean(
-                                    logMutation.isPending
-                                    && logMutation.variables?.dryRun === false
+                                    logMutation.isPending && logMutation.variables?.dryRun === false
                                 )}
                                 onPreview={() => {
                                     setLogResult(null);
@@ -1120,7 +1158,8 @@ const UtilitySetting = () => {
                             id: 'settings.utility.images.description',
                             message: 'Find and delete unused image files in the selected area.'
                         })}
-                        icon={<Image aria-hidden="true" className="h-4 w-4" />}>
+                        icon={<Image aria-hidden="true" className="h-4 w-4" />}
+                    >
                         <div className="space-y-4">
                             <div className="flex flex-wrap items-start gap-4">
                                 <div className="w-full min-w-[220px] flex-1">
@@ -1160,7 +1199,8 @@ const UtilitySetting = () => {
                                         })}
                                         description={t({
                                             id: 'settings.utility.images.duplicates.description',
-                                            message: 'When cleaning all images or title images, also delete identical files.'
+                                            message:
+                                                'When cleaning all images or title images, also delete identical files.'
                                         })}
                                     />
                                 </div>
@@ -1198,16 +1238,12 @@ const UtilitySetting = () => {
     );
 };
 
-const StatItem = ({
-    label,
-    value
-}: {
-    label: string;
-    value: string | number;
-}) => (
+const StatItem = ({ label, value }: { label: string; value: string | number }) => (
     <div className="bg-surface-subtle rounded-xl p-4">
         <div className="text-xs text-content-secondary mb-1">{label}</div>
-        <div className="text-lg font-semibold text-content">{typeof value === 'number' ? value.toLocaleString() : value}</div>
+        <div className="text-lg font-semibold text-content">
+            {typeof value === 'number' ? value.toLocaleString() : value}
+        </div>
     </div>
 );
 

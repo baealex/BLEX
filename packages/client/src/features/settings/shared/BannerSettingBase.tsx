@@ -4,11 +4,7 @@ import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-q
 import { useNavigate } from '@tanstack/react-router';
 import { Ad, Layers3 } from '~/ui/icons';
 import { useConfirm } from '~/hooks/useConfirm';
-import {
-    SettingsEmptyState,
-    SettingsHeader,
-    SettingsHeaderAction
-} from '../layout';
+import { SettingsEmptyState, SettingsHeader, SettingsHeaderAction } from '../layout';
 import {
     getBanners,
     updateBanner,
@@ -50,68 +46,81 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
             if (data.status === 'DONE') {
                 return data.body.banners as BannerItem[];
             }
-            throw new Error(t({
-                id: 'settings.banners.load_failed',
-                message: 'Could not load banners.'
-            }));
+            throw new Error(
+                t({
+                    id: 'settings.banners.load_failed',
+                    message: 'Could not load banners.'
+                })
+            );
         }
     });
 
     const updateMutation = useMutation({
-        mutationFn: ({ id, data }: { id: number; data: BannerUpdatePayload }) => (
+        mutationFn: ({ id, data }: { id: number; data: BannerUpdatePayload }) =>
             isGlobal
                 ? updateGlobalBanner(id, data as GlobalBannerUpdateData)
-                : updateBanner(id, data as BannerUpdateData)
-        ),
+                : updateBanner(id, data as BannerUpdateData),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey });
         },
         onError: () => {
-            toast.error(i18n._({
-                id: 'settings.banners.update.failed',
-                message: '{scope, select, global {Could not update the global banner.} other {Could not update the banner.}}',
-                values: { scope }
-            }));
+            toast.error(
+                i18n._({
+                    id: 'settings.banners.update.failed',
+                    message:
+                        '{scope, select, global {Could not update the global banner.} other {Could not update the banner.}}',
+                    values: { scope }
+                })
+            );
         }
     });
 
     const deleteMutation = useMutation({
         mutationFn: (id: number) => (isGlobal ? deleteGlobalBanner(id) : deleteBanner(id)),
         onSuccess: () => {
-            toast.success(i18n._({
-                id: 'settings.banners.delete.success',
-                message: '{scope, select, global {Global banner deleted.} other {Banner deleted.}}',
-                values: { scope }
-            }));
+            toast.success(
+                i18n._({
+                    id: 'settings.banners.delete.success',
+                    message: '{scope, select, global {Global banner deleted.} other {Banner deleted.}}',
+                    values: { scope }
+                })
+            );
             queryClient.invalidateQueries({ queryKey });
         },
         onError: () => {
-            toast.error(i18n._({
-                id: 'settings.banners.delete.failed',
-                message: '{scope, select, global {Could not delete the global banner.} other {Could not delete the banner.}}',
-                values: { scope }
-            }));
+            toast.error(
+                i18n._({
+                    id: 'settings.banners.delete.failed',
+                    message:
+                        '{scope, select, global {Could not delete the global banner.} other {Could not delete the banner.}}',
+                    values: { scope }
+                })
+            );
         }
     });
 
     const orderMutation = useMutation({
-        mutationFn: (order: [number, number][]) => (
-            isGlobal ? updateGlobalBannerOrder(order) : updateBannerOrder(order)
-        ),
+        mutationFn: (order: [number, number][]) =>
+            isGlobal ? updateGlobalBannerOrder(order) : updateBannerOrder(order),
         onSuccess: () => {
-            toast.success(i18n._({
-                id: 'settings.banners.order.success',
-                message: '{scope, select, global {Global banner order updated.} other {Banner order updated.}}',
-                values: { scope }
-            }));
+            toast.success(
+                i18n._({
+                    id: 'settings.banners.order.success',
+                    message: '{scope, select, global {Global banner order updated.} other {Banner order updated.}}',
+                    values: { scope }
+                })
+            );
             queryClient.invalidateQueries({ queryKey });
         },
         onError: () => {
-            toast.error(i18n._({
-                id: 'settings.banners.order.failed',
-                message: '{scope, select, global {Could not update global banner order.} other {Could not update banner order.}}',
-                values: { scope }
-            }));
+            toast.error(
+                i18n._({
+                    id: 'settings.banners.order.failed',
+                    message:
+                        '{scope, select, global {Could not update global banner order.} other {Could not update banner order.}}',
+                    values: { scope }
+                })
+            );
         }
     });
 
@@ -175,9 +184,7 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
     };
 
     const createAction = (
-        <SettingsHeaderAction
-            onClick={handleCreateBanner}
-            variant="primary">
+        <SettingsHeaderAction onClick={handleCreateBanner} variant="primary">
             <Trans id="settings.banners.create_action">Add banner</Trans>
         </SettingsHeaderAction>
     );
@@ -196,13 +203,15 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
                 description={
                     isGlobal
                         ? t({
-                            id: 'settings.banners.description.global',
-                            message: 'Active banners are shown across the entire site. Drag the list to change their display order.'
-                        })
+                              id: 'settings.banners.description.global',
+                              message:
+                                  'Active banners are shown across the entire site. Drag the list to change their display order.'
+                          })
                         : t({
-                            id: 'settings.banners.description.user',
-                            message: 'Banners appear at the top, bottom, or in a sidebar. Drag the list to change their order.'
-                        })
+                              id: 'settings.banners.description.user',
+                              message:
+                                  'Banners appear at the top, bottom, or in a sidebar. Drag the list to change their order.'
+                          })
                 }
                 actionPosition="right"
                 action={bannersData && bannersData.length > 0 ? createAction : undefined}
@@ -230,18 +239,24 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
                 </div>
             ) : (
                 <SettingsEmptyState
-                    icon={isGlobal
-                        ? <Ad aria-hidden="true" className="h-4 w-4" />
-                        : <Layers3 aria-hidden="true" className="h-4 w-4" />}
-                    title={isGlobal
-                        ? t({
-                            id: 'settings.banners.empty.global',
-                            message: 'No global banners yet'
-                        })
-                        : t({
-                            id: 'settings.banners.empty.user',
-                            message: 'No banners yet'
-                        })}
+                    icon={
+                        isGlobal ? (
+                            <Ad aria-hidden="true" className="h-4 w-4" />
+                        ) : (
+                            <Layers3 aria-hidden="true" className="h-4 w-4" />
+                        )
+                    }
+                    title={
+                        isGlobal
+                            ? t({
+                                  id: 'settings.banners.empty.global',
+                                  message: 'No global banners yet'
+                              })
+                            : t({
+                                  id: 'settings.banners.empty.user',
+                                  message: 'No banners yet'
+                              })
+                    }
                     action={createAction}
                 />
             )}

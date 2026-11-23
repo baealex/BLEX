@@ -25,11 +25,7 @@ const getVisiblePages = (currentPage: number, lastPage: number) => {
     return [currentPage - 2, currentPage - 1, currentPage, currentPage + 1, currentPage + 2];
 };
 
-export const PinnablePostsPager = ({
-    pagination,
-    onPageChange,
-    isLoading = false
-}: PinnablePostsPagerProps) => {
+export const PinnablePostsPager = ({ pagination, onPageChange, isLoading = false }: PinnablePostsPagerProps) => {
     const { t } = useLingui();
     if (pagination.totalCount === 0) {
         return null;
@@ -51,7 +47,8 @@ export const PinnablePostsPager = ({
             aria-label={t({
                 id: 'settings.pinned_posts.pagination.label',
                 message: 'Available posts pages'
-            })}>
+            })}
+        >
             <p className="text-xs text-content-secondary">
                 <Trans id="settings.pinned_posts.pagination.summary">
                     Showing {start}–{end} of {pagination.totalCount}
@@ -69,7 +66,8 @@ export const PinnablePostsPager = ({
                         aria-label={t({
                             id: 'pagination.first',
                             message: 'First page'
-                        })}>
+                        })}
+                    >
                         <ChevronsLeft aria-hidden className="h-4 w-4" />
                     </Button>
                     <Button
@@ -82,10 +80,11 @@ export const PinnablePostsPager = ({
                         aria-label={t({
                             id: 'pagination.previous',
                             message: 'Previous page'
-                        })}>
+                        })}
+                    >
                         <ChevronLeft aria-hidden className="h-4 w-4" />
                     </Button>
-                    {visiblePages.map(page => (
+                    {visiblePages.map((page) => (
                         <Button
                             density="compact"
                             key={page}
@@ -94,7 +93,8 @@ export const PinnablePostsPager = ({
                             className="min-h-11! min-w-11 [@media(pointer:fine)]:min-h-9! [@media(pointer:fine)]:min-w-9"
                             disabled={isLoading}
                             onClick={() => handlePageMove(page)}
-                            aria-current={page === currentPage ? 'page' : undefined}>
+                            aria-current={page === currentPage ? 'page' : undefined}
+                        >
                             {page}
                         </Button>
                     ))}
@@ -108,7 +108,8 @@ export const PinnablePostsPager = ({
                         aria-label={t({
                             id: 'pagination.next',
                             message: 'Next page'
-                        })}>
+                        })}
+                    >
                         <ChevronRight aria-hidden className="h-4 w-4" />
                     </Button>
                     <Button
@@ -121,7 +122,8 @@ export const PinnablePostsPager = ({
                         aria-label={t({
                             id: 'pagination.last',
                             message: 'Last page'
-                        })}>
+                        })}
+                    >
                         <ChevronsRight aria-hidden className="h-4 w-4" />
                     </Button>
                 </div>

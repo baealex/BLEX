@@ -27,11 +27,7 @@ export interface TiptapEditorProps {
 
 interface HandlersRef {
     handleImagePaste: (event: ClipboardEvent) => void;
-    handleMediaDrop: (
-        event: DragEvent,
-        position?: number,
-        options?: { invalidPositionMessage?: string }
-    ) => boolean;
+    handleMediaDrop: (event: DragEvent, position?: number, options?: { invalidPositionMessage?: string }) => boolean;
 }
 
 const removeUploadPlaceholders = (html: string) => {
@@ -70,9 +66,8 @@ const TiptapEditorContent = ({
     const [postLinkSearch] = useState(() => {
         if (!onSearchPostLinks) return undefined;
 
-        const search: PostLinkSearch = (query, options) => (
-            postLinkSearchRef.current?.(query, options) ?? Promise.resolve([])
-        );
+        const search: PostLinkSearch = (query, options) =>
+            postLinkSearchRef.current?.(query, options) ?? Promise.resolve([]);
         return search;
     });
 
@@ -81,11 +76,15 @@ const TiptapEditorContent = ({
     }, [onSearchPostLinks]);
 
     const editor = useEditor({
-        extensions: getEditorExtensions(placeholder, {
-            imageLabel: t('upload.placeholder.image'),
-            videoLabel: t('upload.placeholder.video'),
-            progressTemplate: t('upload.placeholder.progress')
-        }, postLinkSearch),
+        extensions: getEditorExtensions(
+            placeholder,
+            {
+                imageLabel: t('upload.placeholder.image'),
+                videoLabel: t('upload.placeholder.video'),
+                progressTemplate: t('upload.placeholder.progress')
+            },
+            postLinkSearch
+        ),
         content,
         editable,
         editorProps: {
@@ -99,10 +98,10 @@ const TiptapEditorContent = ({
                 drop: (view, event) => {
                     const dataTransfer = event.dataTransfer;
                     if (
-                        !dataTransfer
-                        || dataTransfer.files.length > 0
-                        || view.dragging
-                        || classifyTextMediaDrop(dataTransfer) !== 'external-media'
+                        !dataTransfer ||
+                        dataTransfer.files.length > 0 ||
+                        view.dragging ||
+                        classifyTextMediaDrop(dataTransfer) !== 'external-media'
                     ) {
                         return false;
                     }
@@ -148,11 +147,9 @@ const TiptapEditorContent = ({
 
                 if (isColumnsContainerDrop) {
                     if (isInternalDrag || moved) return true;
-                    return handlersRef.current.handleMediaDrop(
-                        event,
-                        posInfo?.pos,
-                        { invalidPositionMessage: t('drop.columns') }
-                    );
+                    return handlersRef.current.handleMediaDrop(event, posInfo?.pos, {
+                        invalidPositionMessage: t('drop.columns')
+                    });
                 }
 
                 if (isInternalDrag || moved) return false;
@@ -214,10 +211,10 @@ const TiptapEditorContent = ({
         const handleExternalMediaDrop = (event: DragEvent) => {
             const dataTransfer = event.dataTransfer;
             if (
-                !dataTransfer
-                || dataTransfer.files.length > 0
-                || editor.view.dragging
-                || classifyTextMediaDrop(dataTransfer) !== 'external-media'
+                !dataTransfer ||
+                dataTransfer.files.length > 0 ||
+                editor.view.dragging ||
+                classifyTextMediaDrop(dataTransfer) !== 'external-media'
             ) {
                 return;
             }

@@ -73,7 +73,11 @@ const TitleInputs = ({
                 <p
                     id="title-character-count"
                     aria-live="polite"
-                    className={cx('mt-1 text-xs', title.length >= 65 ? 'text-danger' : inverted ? 'text-white/70' : 'text-content-hint')}>
+                    className={cx(
+                        'mt-1 text-xs',
+                        title.length >= 65 ? 'text-danger' : inverted ? 'text-white/70' : 'text-content-hint'
+                    )}
+                >
                     {title.length}/65
                 </p>
             )}
@@ -103,10 +107,9 @@ const TitleInputs = ({
                     aria-live="polite"
                     className={cx(
                         'mt-1 text-xs',
-                        subtitle.length >= 120
-                            ? 'text-danger'
-                            : inverted ? 'text-white/70' : 'text-content-hint'
-                    )}>
+                        subtitle.length >= 120 ? 'text-danger' : inverted ? 'text-white/70' : 'text-content-hint'
+                    )}
+                >
                     {subtitle.length}/120
                 </p>
             )}
@@ -126,10 +129,7 @@ const CoverImageSlot = ({
     if (compact) {
         return (
             <div className="mt-6 flex items-center justify-between gap-4 rounded-lg border border-dashed border-line bg-surface-subtle p-3">
-                <button
-                    type="button"
-                    onClick={onOpenFilePicker}
-                    className="flex min-w-0 items-center gap-3 text-left">
+                <button type="button" onClick={onOpenFilePicker} className="flex min-w-0 items-center gap-3 text-left">
                     <span className="flex h-12 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md bg-surface-elevated text-content-hint ring-1 ring-line-light">
                         {imagePreview ? (
                             <img src={imagePreview} alt="" className="h-full w-full object-cover" />
@@ -147,20 +147,14 @@ const CoverImageSlot = ({
                                     Used in shares and listings without appearing at the top of the post
                                 </Trans>
                             ) : (
-                                <Trans id="editor.cover.hidden_image_empty">
-                                    Add an image for shares and listings
-                                </Trans>
+                                <Trans id="editor.cover.hidden_image_empty">Add an image for shares and listings</Trans>
                             )}
                         </span>
                     </span>
                 </button>
                 <div className="flex shrink-0 items-center gap-1">
                     <Button type="button" variant="ghost" size="sm" onClick={onOpenFilePicker}>
-                        {imagePreview ? (
-                            <Trans id="common.replace">Replace</Trans>
-                        ) : (
-                            <Trans id="common.add">Add</Trans>
-                        )}
+                        {imagePreview ? <Trans id="common.replace">Replace</Trans> : <Trans id="common.add">Add</Trans>}
                     </Button>
                     {imagePreview && (
                         <IconButton
@@ -171,7 +165,8 @@ const CoverImageSlot = ({
                             aria-label={t({
                                 id: 'editor.cover.remove_share_image',
                                 message: 'Remove sharing image'
-                            })}>
+                            })}
+                        >
                             <X className="h-4 w-4" />
                         </IconButton>
                     )}
@@ -188,7 +183,8 @@ const CoverImageSlot = ({
                 className={cx(
                     'flex w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-line bg-surface-subtle px-4 py-12 text-center transition-colors duration-150 hover:border-line-strong hover:bg-surface-elevated',
                     getCoverRatioClass(imageRatio)
-                )}>
+                )}
+            >
                 <Image className="mb-3 h-10 w-10 text-content-hint" />
                 <span className="text-sm text-content-secondary">
                     <Trans id="editor.cover.add_image">Add cover image</Trans>
@@ -210,7 +206,12 @@ const CoverImageSlot = ({
     }
 
     return (
-        <div className={cx('group relative overflow-hidden rounded-2xl ring-1 ring-line/60', getCoverRatioClass(imageRatio))}>
+        <div
+            className={cx(
+                'group relative overflow-hidden rounded-2xl ring-1 ring-line/60',
+                getCoverRatioClass(imageRatio)
+            )}
+        >
             <img src={imagePreview} alt="" className="h-full w-full object-cover" />
             <ImageActions onOpenFilePicker={onOpenFilePicker} onRemoveImage={onRemoveImage} />
         </div>
@@ -239,7 +240,8 @@ const ImageActions = ({
                 aria-label={t({
                     id: 'editor.cover.remove_image',
                     message: 'Remove cover image'
-                })}>
+                })}
+            >
                 <X className="h-4 w-4" />
             </IconButton>
         </div>

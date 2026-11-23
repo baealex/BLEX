@@ -19,9 +19,7 @@ const ScheduleStatusNotice = ({ value }: ScheduleStatusNoticeProps) => {
                 <span className="font-medium text-content">
                     <Trans id="editor.schedule.scheduled_publish">Scheduled publish</Trans>
                 </span>
-                <span className="min-w-0 truncate">
-                    {formatScheduleDateTime(value, normalizeLocale(i18n.locale))}
-                </span>
+                <span className="min-w-0 truncate">{formatScheduleDateTime(value, normalizeLocale(i18n.locale))}</span>
             </div>
         </div>
     );

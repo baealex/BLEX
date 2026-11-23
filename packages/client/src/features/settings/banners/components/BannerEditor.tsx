@@ -5,12 +5,7 @@ interface BannerEditorProps {
 }
 
 const BannerEditor = ({ bannerId }: BannerEditorProps) => {
-    return (
-        <BannerEditorBase
-            scope="user"
-            bannerId={bannerId}
-        />
-    );
+    return <BannerEditorBase scope="user" bannerId={bannerId} />;
 };
 
 export default BannerEditor;

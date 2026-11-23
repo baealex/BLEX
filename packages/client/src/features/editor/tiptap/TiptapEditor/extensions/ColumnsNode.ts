@@ -36,9 +36,7 @@ export const ColumnNode = Node.create({
     isolating: true,
 
     parseHTML() {
-        return [
-            { tag: 'div[data-type="column"]' }
-        ];
+        return [{ tag: 'div[data-type="column"]' }];
     },
 
     renderHTML({ HTMLAttributes }) {
@@ -64,7 +62,7 @@ export const ColumnsNode = Node.create({
 
     addKeyboardShortcuts() {
         return {
-            'Backspace': ({ editor }) => {
+            Backspace: ({ editor }) => {
                 const { selection, doc } = editor.state;
                 const { $from, empty: isCollapsed } = selection;
 
@@ -107,21 +105,16 @@ export const ColumnsNode = Node.create({
     },
 
     parseHTML() {
-        return [
-            { tag: 'div[data-type="columns"]' }
-        ];
+        return [{ tag: 'div[data-type="columns"]' }];
     },
 
     renderHTML({ HTMLAttributes }) {
         const layout = (HTMLAttributes.layout || '1:1') as ColumnLayout;
         const gridTemplate = layoutToGridTemplate[layout] || '1fr 1fr';
 
-        const style = [
-            'display: grid',
-            `grid-template-columns: ${gridTemplate}`,
-            'gap: 16px',
-            'margin: 16px 0'
-        ].join('; ');
+        const style = ['display: grid', `grid-template-columns: ${gridTemplate}`, 'gap: 16px', 'margin: 16px 0'].join(
+            '; '
+        );
 
         return [
             'div',
@@ -138,19 +131,19 @@ export const ColumnsNode = Node.create({
         return {
             setColumns:
                 (layout: ColumnLayout = '1:1') =>
-                    ({ commands }) => {
-                        const columnCount = layoutToColumnCount[layout];
-                        const columns = Array.from({ length: columnCount }, () => ({
-                            type: 'column',
-                            content: [{ type: 'paragraph' }]
-                        }));
+                ({ commands }) => {
+                    const columnCount = layoutToColumnCount[layout];
+                    const columns = Array.from({ length: columnCount }, () => ({
+                        type: 'column',
+                        content: [{ type: 'paragraph' }]
+                    }));
 
-                        return commands.insertContent({
-                            type: this.name,
-                            attrs: { layout },
-                            content: columns
-                        });
-                    }
+                    return commands.insertContent({
+                        type: this.name,
+                        attrs: { layout },
+                        content: columns
+                    });
+                }
         };
     }
 });

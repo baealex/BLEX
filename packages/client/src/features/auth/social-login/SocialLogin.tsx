@@ -1,10 +1,7 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import { getBrowserTimeZone } from '~/i18n/locale';
 import { useSocialProviders } from './hooks/useSocialProviders';
-import {
-    BrandGithub,
-    UserRound
-} from '~/ui/icons';
+import { BrandGithub, UserRound } from '~/ui/icons';
 
 interface SocialLoginProps {
     nextUrl?: string;
@@ -32,13 +29,9 @@ const GoogleIcon = () => (
     </svg>
 );
 
-const GitHubIcon = () => (
-    <BrandGithub aria-hidden="true" className="w-5 h-5" />
-);
+const GitHubIcon = () => <BrandGithub aria-hidden="true" className="w-5 h-5" />;
 
-const DefaultIcon = () => (
-    <UserRound aria-hidden="true" className="w-5 h-5" />
-);
+const DefaultIcon = () => <UserRound aria-hidden="true" className="w-5 h-5" />;
 
 const SocialLogin = ({ nextUrl, showPasswordDivider = false }: SocialLoginProps) => {
     const { i18n } = useLingui();
@@ -60,7 +53,8 @@ const SocialLogin = ({ nextUrl, showPasswordDivider = false }: SocialLoginProps)
                     <a
                         key={provider.key}
                         href={`/login/start/${encodeURIComponent(provider.key)}?${params}`}
-                        className="flex min-h-11 w-full items-center justify-center gap-3 rounded-lg border border-line bg-surface px-4 py-3 text-sm font-semibold text-content transition-colors duration-150 hover:bg-surface-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-1 active:scale-[0.98]">
+                        className="flex min-h-11 w-full items-center justify-center gap-3 rounded-lg border border-line bg-surface px-4 py-3 text-sm font-semibold text-content transition-colors duration-150 hover:bg-surface-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-1 active:scale-[0.98]"
+                    >
                         <span className="shrink-0">
                             {provider.key === 'google' && <GoogleIcon />}
                             {provider.key === 'github' && <GitHubIcon />}

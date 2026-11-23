@@ -14,9 +14,7 @@ const DraftsSetting = () => {
                 })}
                 actionPosition="right"
                 action={
-                    <SettingsHeaderAction
-                        variant="primary"
-                        onClick={() => window.location.assign('/write')}>
+                    <SettingsHeaderAction variant="primary" onClick={() => window.location.assign('/write')}>
                         <Trans id="settings.posts.create">Write a new post</Trans>
                     </SettingsHeaderAction>
                 }

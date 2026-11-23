@@ -20,37 +20,59 @@ interface PasswordSectionProps {
 
 const PasswordSection = ({ isLoading, onSubmit }: PasswordSectionProps) => {
     const { t } = useLingui();
-    const passwordSchema = useMemo(() => z.object({
-        newPassword: z.string()
-            .min(8, t({
-                id: 'settings.account.password.validation.min_length',
-                message: 'Password must be at least 8 characters.'
-            }))
-            .regex(/[a-z]/, t({
-                id: 'settings.account.password.validation.lowercase',
-                message: 'Password must include a lowercase letter.'
-            }))
-            .regex(/[A-Z]/, t({
-                id: 'settings.account.password.validation.uppercase',
-                message: 'Password must include an uppercase letter.'
-            }))
-            .regex(/[0-9]/, t({
-                id: 'settings.account.password.validation.number',
-                message: 'Password must include a number.'
-            }))
-            .regex(/[^a-zA-Z0-9]/, t({
-                id: 'settings.account.password.validation.special',
-                message: 'Password must include a special character.'
-            })),
-        confirmPassword: z.string(),
-        revokeTokens: z.boolean()
-    }).refine((data) => data.newPassword === data.confirmPassword, {
-        message: t({
-            id: 'settings.account.password.validation.mismatch',
-            message: 'Passwords do not match.'
-        }),
-        path: ['confirmPassword']
-    }), [t]);
+    const passwordSchema = useMemo(
+        () =>
+            z
+                .object({
+                    newPassword: z
+                        .string()
+                        .min(
+                            8,
+                            t({
+                                id: 'settings.account.password.validation.min_length',
+                                message: 'Password must be at least 8 characters.'
+                            })
+                        )
+                        .regex(
+                            /[a-z]/,
+                            t({
+                                id: 'settings.account.password.validation.lowercase',
+                                message: 'Password must include a lowercase letter.'
+                            })
+                        )
+                        .regex(
+                            /[A-Z]/,
+                            t({
+                                id: 'settings.account.password.validation.uppercase',
+                                message: 'Password must include an uppercase letter.'
+                            })
+                        )
+                        .regex(
+                            /[0-9]/,
+                            t({
+                                id: 'settings.account.password.validation.number',
+                                message: 'Password must include a number.'
+                            })
+                        )
+                        .regex(
+                            /[^a-zA-Z0-9]/,
+                            t({
+                                id: 'settings.account.password.validation.special',
+                                message: 'Password must include a special character.'
+                            })
+                        ),
+                    confirmPassword: z.string(),
+                    revokeTokens: z.boolean()
+                })
+                .refine((data) => data.newPassword === data.confirmPassword, {
+                    message: t({
+                        id: 'settings.account.password.validation.mismatch',
+                        message: 'Passwords do not match.'
+                    }),
+                    path: ['confirmPassword']
+                }),
+        [t]
+    );
     const {
         register,
         handleSubmit,
@@ -86,14 +108,16 @@ const PasswordSection = ({ isLoading, onSubmit }: PasswordSectionProps) => {
                 id: 'settings.account.password.change',
                 message: 'Change password'
             })}
-            onSubmit={handleSubmit(handleFormSubmit)}>
+            onSubmit={handleSubmit(handleFormSubmit)}
+        >
             <Card
                 title={t({
                     id: 'settings.account.password.change',
                     message: 'Change password'
                 })}
                 icon={<KeyRound className="h-5 w-5" />}
-                className="mb-6">
+                className="mb-6"
+            >
                 <div className="mb-4">
                     <Input
                         density="compact"
@@ -110,7 +134,8 @@ const PasswordSection = ({ isLoading, onSubmit }: PasswordSectionProps) => {
                         maxLength={200}
                         helperText={t({
                             id: 'settings.account.password.helper',
-                            message: 'Use at least 8 characters, including lowercase and uppercase letters, a number, and a special character.'
+                            message:
+                                'Use at least 8 characters, including lowercase and uppercase letters, a number, and a special character.'
                         })}
                         error={errors.newPassword?.message}
                         {...register('newPassword')}
@@ -150,16 +175,17 @@ const PasswordSection = ({ isLoading, onSubmit }: PasswordSectionProps) => {
                         className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                         disabled={!isDirty || !isValid}
                         isLoading={isLoading}
-                        leftIcon={!isLoading ? <Save className="h-4 w-4" /> : undefined}>
+                        leftIcon={!isLoading ? <Save className="h-4 w-4" /> : undefined}
+                    >
                         {isLoading
                             ? t({
-                                id: 'settings.account.password.changing',
-                                message: 'Changing...'
-                            })
+                                  id: 'settings.account.password.changing',
+                                  message: 'Changing...'
+                              })
                             : t({
-                                id: 'settings.account.password.change',
-                                message: 'Change password'
-                            })}
+                                  id: 'settings.account.password.change',
+                                  message: 'Change password'
+                              })}
                     </Button>
                 </div>
             </Card>

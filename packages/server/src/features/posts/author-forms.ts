@@ -27,7 +27,9 @@ const bodyLimit = 1024 * 1024;
 export function registerAuthorForms(app: FastifyInstance, db: PrismaClient, options: FormOptions) {
   app.register(async (routes) => {
     await routes.register(formBody);
-    routes.addHook('onRequest', async (_request, reply) => { reply.header('Cache-Control', 'private, no-store'); });
+    routes.addHook('onRequest', async (_request, reply) => {
+      reply.header('Cache-Control', 'private, no-store');
+    });
     const handle = async (request: FastifyRequest<{ Params: { id?: string } }>, reply: FastifyReply) => {
       const editor = await options.currentUser(request);
       if (!editor) return failure('NL');
@@ -37,17 +39,27 @@ export function registerAuthorForms(app: FastifyInstance, db: PrismaClient, opti
       const id = typeof rawId === 'string' && /^\d+$/.test(rawId) ? Number(rawId) : undefined;
       if (rawId !== undefined && (!id || !Number.isSafeInteger(id))) return reply.code(404).send('Not found');
       const selected = id
-        ? await db.formTemplate.findFirst({ where: { id, userId: editor.id }, select: { id: true, title: true, content: true } })
+        ? await db.formTemplate.findFirst({
+            where: { id, userId: editor.id },
+            select: { id: true, title: true, content: true },
+          })
         : null;
       if (id && !selected) return reply.code(404).send('Not found');
-      const forms = () => db.formTemplate.findMany({
-        where: { userId: editor.id },
-        orderBy: { id: 'asc' },
-        select: { id: true, title: true, createdAt: true },
-      });
+      const forms = () =>
+        db.formTemplate.findMany({
+          where: { userId: editor.id },
+          orderBy: { id: 'asc' },
+          select: { id: true, title: true, createdAt: true },
+        });
       if (request.method === 'GET') {
         if (selected) return done(selected);
-        return done({ forms: (await forms()).map(({ id, title, createdAt }) => ({ id, title, createdDate: isoLocalMillis(createdAt) })) });
+        return done({
+          forms: (await forms()).map(({ id, title, createdAt }) => ({
+            id,
+            title,
+            createdDate: isoLocalMillis(createdAt),
+          })),
+        });
       }
       if (!options.validateCsrf(request)) return reply.code(403).send(failure('RJ'));
       if (request.method === 'DELETE' || input.action === 'delete') {
@@ -60,7 +72,10 @@ export function registerAuthorForms(app: FastifyInstance, db: PrismaClient, opti
           return failure('IP', '글 양식을 확인해 주세요.');
         }
         if (id) await db.formTemplate.updateMany({ where: { id, userId: editor.id }, data: { title, content } });
-        else return done(await db.formTemplate.create({ data: { title, content, userId: editor.id }, select: { id: true } }));
+        else
+          return done(
+            await db.formTemplate.create({ data: { title, content, userId: editor.id }, select: { id: true } }),
+          );
       }
       return done();
     };
@@ -70,8 +85,9 @@ export function registerAuthorForms(app: FastifyInstance, db: PrismaClient, opti
     routes.post('/v1/markdown', { bodyLimit }, async (request, reply) => {
       if (!options.validateCsrf(request)) return reply.code(403).send(failure('RJ'));
       const { text, sourceType } = formInput(request);
-      return typeof text === 'string' && text ? done({ html: sourceType === 'html' ? sanitizePostHtml(text) : markdownToHtml(text) }) :
-        failure('IP', '텍스트가 비어 있습니다.');
+      return typeof text === 'string' && text
+        ? done({ html: sourceType === 'html' ? sanitizePostHtml(text) : markdownToHtml(text) })
+        : failure('IP', '텍스트가 비어 있습니다.');
     });
   });
 }

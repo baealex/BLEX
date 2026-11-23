@@ -4,9 +4,37 @@ import { type PrismaClient } from '@prisma/client';
 import { isoUtcMillis } from '../../../platform/date-format.js';
 import { sanitizePostHtml } from '../../posts/post-html.js';
 import { readCardLikes, readLikedPosts, readPublicPostCount, readPublicPosts } from '../services/public-posts.js';
-import { PAGE_SIZE, PageMeta, PublicPageOptions, canonicalPageUrl, description, hasUnexpected, makeAbsolute, makePaginationMeta, pageFrom, safeStructuredPageData, sendNotFound, staticPageStyles, totalPages, validPublicPage } from '../shared.js';
-import { advertiseMarkdown, csrfCookie, getLayoutContext, readNotices, readPublicSiteBrand, readViewer, renderHtml } from '../page-context.js';
-export function registerHomeRoutes(app: FastifyInstance, db: PrismaClient, siteUrl: URL, options: PublicPageOptions = {}) {
+import {
+  PAGE_SIZE,
+  PageMeta,
+  PublicPageOptions,
+  canonicalPageUrl,
+  description,
+  hasUnexpected,
+  makeAbsolute,
+  makePaginationMeta,
+  pageFrom,
+  safeStructuredPageData,
+  sendNotFound,
+  staticPageStyles,
+  totalPages,
+  validPublicPage,
+} from '../shared.js';
+import {
+  advertiseMarkdown,
+  csrfCookie,
+  getLayoutContext,
+  readNotices,
+  readPublicSiteBrand,
+  readViewer,
+  renderHtml,
+} from '../page-context.js';
+export function registerHomeRoutes(
+  app: FastifyInstance,
+  db: PrismaClient,
+  siteUrl: URL,
+  options: PublicPageOptions = {},
+) {
   app.get('/', async (request, reply) => {
     if (await options.requiresSetup?.()) return reply.redirect('/setup', 302);
     const url = new URL(request.url, siteUrl);
@@ -26,7 +54,10 @@ export function registerHomeRoutes(app: FastifyInstance, db: PrismaClient, siteU
     const canonical = noindex ? makeAbsolute(siteUrl, path) : canonicalPageUrl(siteUrl, path, checkedPage);
     const viewer = await readViewer(request, reply, options);
     reply.header('Vary', 'Cookie');
-    const [globalNotices, likes] = await Promise.all([readNotices(db, 'global'), readCardLikes(db, request, viewer, posts)]);
+    const [globalNotices, likes] = await Promise.all([
+      readNotices(db, 'global'),
+      readCardLikes(db, request, viewer, posts),
+    ]);
     const meta: PageMeta = {
       title: `${siteName} - 최신 포스트`,
       description: `${siteName}에 공개된 최신 글을 둘러보세요.`,
@@ -37,7 +68,10 @@ export function registerHomeRoutes(app: FastifyInstance, db: PrismaClient, siteU
       robots: noindex ? 'noindex,follow' : undefined,
       ...makePaginationMeta(siteUrl, path, query, [], checkedPage, pages),
     };
-    return renderHtml(reply, renderPage('index', { meta: meta, viewer, globalNotices, posts, likes, path, query, checkedPage, pages }));
+    return renderHtml(
+      reply,
+      renderPage('index', { meta: meta, viewer, globalNotices, posts, likes, path, query, checkedPage, pages }),
+    );
   });
 
   app.get('/interests', async (request, reply) => {
@@ -56,7 +90,26 @@ export function registerHomeRoutes(app: FastifyInstance, db: PrismaClient, siteU
     const pages = totalPages(count, PAGE_SIZE);
     reply.header('Cache-Control', 'private, no-store');
     const csrfToken = csrfCookie(request);
-    return renderHtml(reply, renderPage('interests', { meta: { title: `${siteName} - 관심 포스트`, description: '', canonical: makeAbsolute(siteUrl, path), siteName, brand, robots: 'noindex,nofollow', viewer }, posts, csrfToken, path, query, checkedPage, pages }));
+    return renderHtml(
+      reply,
+      renderPage('interests', {
+        meta: {
+          title: `${siteName} - 관심 포스트`,
+          description: '',
+          canonical: makeAbsolute(siteUrl, path),
+          siteName,
+          brand,
+          robots: 'noindex,nofollow',
+          viewer,
+        },
+        posts,
+        csrfToken,
+        path,
+        query,
+        checkedPage,
+        pages,
+      }),
+    );
   });
 
   app.get<{ Params: { slug: string } }>('/static/:slug', async (request, reply) => {
@@ -65,7 +118,11 @@ export function registerHomeRoutes(app: FastifyInstance, db: PrismaClient, siteU
     const page = await db.staticPage.findFirst({
       where: { slug, isPublished: true },
       select: {
-        title: true, content: true, description: true, createdAt: true, updatedAt: true,
+        title: true,
+        content: true,
+        description: true,
+        createdAt: true,
+        updatedAt: true,
         author: { select: { username: true } },
       },
     });
@@ -86,15 +143,21 @@ export function registerHomeRoutes(app: FastifyInstance, db: PrismaClient, siteU
     );
     const pageMarkdown = await advertiseMarkdown(reply, db, siteUrl, path);
     const pageHtml = `${staticPageStyles(page.content)}${sanitizePostHtml(page.content)}`;
-    return renderHtml(reply, renderPage('static/$slug', { meta: {
-        markdownUrl: pageMarkdown,
-        title: `${page.title} - ${siteName}`,
-        description: metaDescription,
-        canonical,
-        siteName,
-        brand,
-        viewer,
-        structuredData,
-      }, pageHtml }));
+    return renderHtml(
+      reply,
+      renderPage('static/$slug', {
+        meta: {
+          markdownUrl: pageMarkdown,
+          title: `${page.title} - ${siteName}`,
+          description: metaDescription,
+          canonical,
+          siteName,
+          brand,
+          viewer,
+          structuredData,
+        },
+        pageHtml,
+      }),
+    );
   });
 }

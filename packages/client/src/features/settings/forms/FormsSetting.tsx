@@ -6,25 +6,11 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FileText, Pencil, Trash2 } from '~/ui/icons';
-import {
-    SettingsEmptyState,
-    SettingsHeader,
-    SettingsHeaderAction,
-    SettingsListItem
-} from '../layout';
+import { SettingsEmptyState, SettingsHeader, SettingsHeaderAction, SettingsListItem } from '../layout';
 import { Button, Input, Dropdown } from '~/components/shared';
-import {
-    getSettingsIconClass,
-    SETTINGS_LIST_TITLE
-} from '~/styles/settingsStyles';
+import { getSettingsIconClass, SETTINGS_LIST_TITLE } from '~/styles/settingsStyles';
 import { useConfirm } from '~/hooks/useConfirm';
-import {
-    getForms,
-    getForm,
-    createForm,
-    updateForm,
-    deleteForm
-} from '~/lib/api/forms';
+import { getForms, getForm, createForm, updateForm, deleteForm } from '~/lib/api/forms';
 
 interface FormItem {
     id: number;
@@ -39,27 +25,46 @@ interface FormInputs {
 
 const FormsManagement = () => {
     const { i18n, t } = useLingui();
-    const formSchema = useMemo(() => z.object({
-        title: z.string()
-            .min(1, t({
-                id: 'settings.forms.validation.title_required',
-                message: 'Enter a title.'
-            }))
-            .max(100, t({
-                id: 'settings.forms.validation.title_max_length',
-                message: 'Title must be 100 characters or fewer.'
-            })),
-        content: z.string().min(1, t({
-            id: 'settings.forms.validation.content_required',
-            message: 'Enter template content.'
-        }))
-    }), [t]);
+    const formSchema = useMemo(
+        () =>
+            z.object({
+                title: z
+                    .string()
+                    .min(
+                        1,
+                        t({
+                            id: 'settings.forms.validation.title_required',
+                            message: 'Enter a title.'
+                        })
+                    )
+                    .max(
+                        100,
+                        t({
+                            id: 'settings.forms.validation.title_max_length',
+                            message: 'Title must be 100 characters or fewer.'
+                        })
+                    ),
+                content: z.string().min(
+                    1,
+                    t({
+                        id: 'settings.forms.validation.content_required',
+                        message: 'Enter template content.'
+                    })
+                )
+            }),
+        [t]
+    );
     const { confirm } = useConfirm();
     const [showForm, setShowForm] = useState(false);
     const [editingForm, setEditingForm] = useState<FormItem | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const { register, handleSubmit, reset, formState: { errors } } = useForm<FormInputs>({ resolver: zodResolver(formSchema) });
+    const {
+        register,
+        handleSubmit,
+        reset,
+        formState: { errors }
+    } = useForm<FormInputs>({ resolver: zodResolver(formSchema) });
 
     const { data: formsData, refetch } = useSuspenseQuery({
         queryKey: ['forms'],
@@ -96,22 +101,29 @@ const FormsManagement = () => {
             const { data } = await deleteForm(form.id);
 
             if (data.status === 'DONE') {
-                toast.success(t({
-                    id: 'settings.forms.delete.success',
-                    message: 'Template deleted.'
-                }));
+                toast.success(
+                    t({
+                        id: 'settings.forms.delete.success',
+                        message: 'Template deleted.'
+                    })
+                );
                 refetch();
             } else {
-                toast.error(data.errorMessage || t({
-                    id: 'settings.forms.delete.failed',
-                    message: 'Could not delete the template.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'settings.forms.delete.failed',
+                            message: 'Could not delete the template.'
+                        })
+                );
             }
         } catch {
-            toast.error(t({
-                id: 'common.network_error',
-                message: 'A network error occurred.'
-            }));
+            toast.error(
+                t({
+                    id: 'common.network_error',
+                    message: 'A network error occurred.'
+                })
+            );
         }
     };
 
@@ -135,16 +147,21 @@ const FormsManagement = () => {
                 });
                 setShowForm(true);
             } else {
-                toast.error(data.errorMessage || t({
-                    id: 'settings.forms.load_detail_failed',
-                    message: 'Could not load the template.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'settings.forms.load_detail_failed',
+                            message: 'Could not load the template.'
+                        })
+                );
             }
         } catch {
-            toast.error(t({
-                id: 'common.network_error',
-                message: 'A network error occurred.'
-            }));
+            toast.error(
+                t({
+                    id: 'common.network_error',
+                    message: 'A network error occurred.'
+                })
+            );
         }
     };
 
@@ -157,17 +174,22 @@ const FormsManagement = () => {
                     content: formData.content
                 });
                 if (data.status === 'DONE') {
-                    toast.success(t({
-                        id: 'settings.forms.update.success',
-                        message: 'Template updated.'
-                    }));
+                    toast.success(
+                        t({
+                            id: 'settings.forms.update.success',
+                            message: 'Template updated.'
+                        })
+                    );
                     closeForm();
                     refetch();
                 } else {
-                    toast.error(data.errorMessage || t({
-                        id: 'settings.forms.update.failed',
-                        message: 'Could not update the template.'
-                    }));
+                    toast.error(
+                        data.errorMessage ||
+                            t({
+                                id: 'settings.forms.update.failed',
+                                message: 'Could not update the template.'
+                            })
+                    );
                 }
             } else {
                 const { data } = await createForm({
@@ -175,24 +197,31 @@ const FormsManagement = () => {
                     content: formData.content
                 });
                 if (data.status === 'DONE') {
-                    toast.success(t({
-                        id: 'settings.forms.create.success',
-                        message: 'Template created.'
-                    }));
+                    toast.success(
+                        t({
+                            id: 'settings.forms.create.success',
+                            message: 'Template created.'
+                        })
+                    );
                     closeForm();
                     refetch();
                 } else {
-                    toast.error(data.errorMessage || t({
-                        id: 'settings.forms.create.failed',
-                        message: 'Could not create the template.'
-                    }));
+                    toast.error(
+                        data.errorMessage ||
+                            t({
+                                id: 'settings.forms.create.failed',
+                                message: 'Could not create the template.'
+                            })
+                    );
                 }
             }
         } catch {
-            toast.error(t({
-                id: 'common.network_error',
-                message: 'A network error occurred.'
-            }));
+            toast.error(
+                t({
+                    id: 'common.network_error',
+                    message: 'A network error occurred.'
+                })
+            );
         } finally {
             setIsSubmitting(false);
         }
@@ -209,9 +238,7 @@ const FormsManagement = () => {
 
     const forms = formsData?.forms || [];
     const createAction = (
-        <SettingsHeaderAction
-            variant="primary"
-            onClick={handleCreateForm}>
+        <SettingsHeaderAction variant="primary" onClick={handleCreateForm}>
             <Trans id="settings.forms.add">Add template</Trans>
         </SettingsHeaderAction>
     );
@@ -235,17 +262,18 @@ const FormsManagement = () => {
             {showForm && (
                 <form
                     className="mb-6 bg-surface-subtle border border-line rounded-2xl p-6 animate-in fade-in-0 slide-in-from-top-2 motion-interaction"
-                    onSubmit={handleSubmit(onSubmit)}>
+                    onSubmit={handleSubmit(onSubmit)}
+                >
                     <h3 className="text-base font-semibold text-content mb-4">
                         {editingForm
                             ? t({
-                                id: 'settings.forms.editor.edit_title',
-                                message: 'Edit template'
-                            })
+                                  id: 'settings.forms.editor.edit_title',
+                                  message: 'Edit template'
+                              })
                             : t({
-                                id: 'settings.forms.editor.add_title',
-                                message: 'Add template'
-                            })}
+                                  id: 'settings.forms.editor.add_title',
+                                  message: 'Add template'
+                              })}
                     </h3>
                     <div className="space-y-4">
                         <Input
@@ -287,7 +315,8 @@ const FormsManagement = () => {
                                 size="md"
                                 className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                                 onClick={closeForm}
-                                disabled={isSubmitting}>
+                                disabled={isSubmitting}
+                            >
                                 <Trans id="common.cancel">Cancel</Trans>
                             </Button>
                             <div className="flex items-center gap-3">
@@ -297,23 +326,24 @@ const FormsManagement = () => {
                                     variant="primary"
                                     size="md"
                                     className="min-h-11! [@media(pointer:fine)]:min-h-10!"
-                                    isLoading={isSubmitting}>
+                                    isLoading={isSubmitting}
+                                >
                                     {isSubmitting
                                         ? editingForm
                                             ? t({
-                                                id: 'settings.forms.update.updating',
-                                                message: 'Updating...'
-                                            })
+                                                  id: 'settings.forms.update.updating',
+                                                  message: 'Updating...'
+                                              })
                                             : t({
-                                                id: 'settings.forms.create.creating',
-                                                message: 'Creating...'
-                                            })
+                                                  id: 'settings.forms.create.creating',
+                                                  message: 'Creating...'
+                                              })
                                         : editingForm
-                                            ? t({
+                                          ? t({
                                                 id: 'settings.forms.update.action',
                                                 message: 'Update template'
                                             })
-                                            : t({
+                                          : t({
                                                 id: 'settings.forms.create.action',
                                                 message: 'Create template'
                                             })}
@@ -363,7 +393,8 @@ const FormsManagement = () => {
                                         }
                                     ]}
                                 />
-                            }>
+                            }
+                        >
                             <h3 className={SETTINGS_LIST_TITLE}>{form.title}</h3>
                         </SettingsListItem>
                     ))}

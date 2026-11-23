@@ -8,7 +8,12 @@ export async function reserveLoginAttempt(db: PrismaClient, secretKey: string, i
   const key = createHash('sha256').update('blex.login-attempt').update(secretKey).digest();
   const limits = [
     { hash: createHmac('sha256', key).update(`${window}:ip:${ip}`).digest('hex'), limit: 5 },
-    { hash: createHmac('sha256', key).update(`${window}:account:${username.normalize('NFKC').toLowerCase()}`).digest('hex'), limit: 10 },
+    {
+      hash: createHmac('sha256', key)
+        .update(`${window}:account:${username.normalize('NFKC').toLowerCase()}`)
+        .digest('hex'),
+      limit: 10,
+    },
   ];
   try {
     // The opening delete takes SQLite's write lock, so each count check and increment below is atomic.
@@ -20,8 +25,12 @@ export async function reserveLoginAttempt(db: PrismaClient, secretKey: string, i
           data: { count: { increment: 1 } },
         });
         if (count) continue;
-        if (await transaction.loginAttempt.findUnique({ where: { key: hash }, select: { key: true } })) throw new LoginLimitReached();
-        await transaction.loginAttempt.create({ data: { key: hash, window: BigInt(window), count: 1 }, select: { key: true } });
+        if (await transaction.loginAttempt.findUnique({ where: { key: hash }, select: { key: true } }))
+          throw new LoginLimitReached();
+        await transaction.loginAttempt.create({
+          data: { key: hash, window: BigInt(window), count: 1 },
+          select: { key: true },
+        });
       }
     });
   } catch (error) {

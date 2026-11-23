@@ -22,11 +22,7 @@ const normalizeUrlForSubmit = (value: string) => {
         .substring(0, 50);
 };
 
-export const useFormSubmit = ({
-    settleDraft,
-    onPublished,
-    onRejected
-}: UseFormSubmitOptions) => {
+export const useFormSubmit = ({ settleDraft, onPublished, onRejected }: UseFormSubmitOptions) => {
     const { t } = useLingui();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
@@ -34,43 +30,53 @@ export const useFormSubmit = ({
 
     const validateForm = (data: PublishFields) => {
         if (!data.title.trim()) {
-            toast.error(t({
-                id: 'editor.validation.title_required',
-                message: 'Enter a title.'
-            }));
+            toast.error(
+                t({
+                    id: 'editor.validation.title_required',
+                    message: 'Enter a title.'
+                })
+            );
             return false;
         }
 
         if (!hasPublishableContent(data.content)) {
-            toast.error(t({
-                id: 'editor.validation.content_required',
-                message: 'Add some content.'
-            }));
+            toast.error(
+                t({
+                    id: 'editor.validation.content_required',
+                    message: 'Add some content.'
+                })
+            );
             return false;
         }
 
         if (!normalizeUrlForSubmit(data.url)) {
-            toast.error(t({
-                id: 'editor.validation.url_required',
-                message: 'Enter a post URL.'
-            }));
+            toast.error(
+                t({
+                    id: 'editor.validation.url_required',
+                    message: 'Enter a post URL.'
+                })
+            );
             return false;
         }
 
         if (data.reservedDate) {
             if (!parseScheduleDate(data.reservedDate)) {
-                toast.error(t({
-                    id: 'editor.validation.schedule_invalid',
-                    message: 'Check the scheduled time.'
-                }));
+                toast.error(
+                    t({
+                        id: 'editor.validation.schedule_invalid',
+                        message: 'Check the scheduled time.'
+                    })
+                );
                 return false;
             }
 
             if (!isFutureScheduleDate(data.reservedDate)) {
-                toast.error(t({
-                    id: 'editor.validation.schedule_future',
-                    message: 'Choose a scheduled time in the future.'
-                }));
+                toast.error(
+                    t({
+                        id: 'editor.validation.schedule_future',
+                        message: 'Choose a scheduled time in the future.'
+                    })
+                );
                 return false;
             }
         }

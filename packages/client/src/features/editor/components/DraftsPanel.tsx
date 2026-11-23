@@ -16,12 +16,7 @@ interface DraftsPanelProps {
     currentDraftUrl?: string;
 }
 
-const DraftsPanel = ({
-    isOpen,
-    onClose,
-    onSelectPost,
-    currentDraftUrl
-}: DraftsPanelProps) => {
+const DraftsPanel = ({ isOpen, onClose, onSelectPost, currentDraftUrl }: DraftsPanelProps) => {
     const { i18n, t } = useLingui();
     const [drafts, setDrafts] = useState<DraftSummary[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -101,7 +96,9 @@ const DraftsPanel = ({
         <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <Dialog.Portal>
                 {/* Backdrop */}
-                <Dialog.Overlay className={`fixed inset-0 ${DIM_OVERLAY_DEFAULT} z-40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0`} />
+                <Dialog.Overlay
+                    className={`fixed inset-0 ${DIM_OVERLAY_DEFAULT} z-40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0`}
+                />
 
                 {/* Slide-over panel */}
                 <Dialog.Content
@@ -110,8 +107,8 @@ const DraftsPanel = ({
                         'data-[state=open]:animate-in data-[state=closed]:animate-out',
                         'data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left',
                         `${ENTRANCE_DURATION} ease-in-out`
-                    )}>
-
+                    )}
+                >
                     {/* Header */}
                     <div className="flex items-center justify-between p-5 border-b border-line">
                         <Dialog.Title className="text-lg font-semibold text-content">
@@ -122,7 +119,8 @@ const DraftsPanel = ({
                                 aria-label={t({
                                     id: 'common.close',
                                     message: 'Close'
-                                })}>
+                                })}
+                            >
                                 <X className="w-5 h-5" />
                             </IconButton>
                         </Dialog.Close>
@@ -143,7 +141,8 @@ const DraftsPanel = ({
                                 <button
                                     type="button"
                                     onClick={fetchDrafts}
-                                    className="text-sm text-content hover:text-content font-medium">
+                                    className="text-sm text-content hover:text-content font-medium"
+                                >
                                     <Trans id="common.retry">Try again</Trans>
                                 </button>
                             </div>
@@ -162,19 +161,24 @@ const DraftsPanel = ({
                                         onClick={() => onSelectPost(draft.url)}
                                         className={cx(
                                             'w-full text-left p-4 hover:bg-surface-subtle transition-colors',
-                                            draft.url === currentDraftUrl && 'bg-surface-subtle border-l-4 border-line-strong'
-                                        )}>
+                                            draft.url === currentDraftUrl &&
+                                                'bg-surface-subtle border-l-4 border-line-strong'
+                                        )}
+                                    >
                                         <div className="flex items-start justify-between gap-3">
                                             <div className="flex-1 min-w-0">
                                                 <h3 className="text-sm font-medium text-content truncate mb-1">
-                                                    {draft.title || t({
-                                                        id: 'editor.common.untitled',
-                                                        message: 'Untitled'
-                                                    })}
+                                                    {draft.title ||
+                                                        t({
+                                                            id: 'editor.common.untitled',
+                                                            message: 'Untitled'
+                                                        })}
                                                 </h3>
                                                 <p className="text-xs text-content-hint flex items-center gap-1">
                                                     <Clock className="w-3 h-3" />
-                                                    <span title={draft.createdDate}>{formatRelativeTime(draft.createdDate)}</span>
+                                                    <span title={draft.createdDate}>
+                                                        {formatRelativeTime(draft.createdDate)}
+                                                    </span>
                                                 </p>
                                             </div>
                                             {draft.url === currentDraftUrl && (
@@ -192,12 +196,7 @@ const DraftsPanel = ({
                     {/* Footer */}
                     <div className="p-4 border-t border-line bg-surface-subtle">
                         <p className="text-xs text-content-secondary text-center">
-                            <Plural
-                                id="editor.drafts.total"
-                                value={drafts.length}
-                                one="# draft"
-                                other="# drafts"
-                            />
+                            <Plural id="editor.drafts.total" value={drafts.length} one="# draft" other="# drafts" />
                         </p>
                     </div>
                 </Dialog.Content>

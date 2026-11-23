@@ -7,18 +7,8 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useConfirm } from '~/hooks/useConfirm';
-import {
-    SettingsEmptyState,
-    SettingsHeader,
-    SettingsHeaderAction,
-    SettingsListItem
-} from '../layout';
-import {
-    Button,
-    Checkbox,
-    Dropdown,
-    Input
-} from '~/components/shared';
+import { SettingsEmptyState, SettingsHeader, SettingsHeaderAction, SettingsListItem } from '../layout';
+import { Button, Checkbox, Dropdown, Input } from '~/components/shared';
 import { SETTINGS_LIST_TITLE } from '~/styles/settingsStyles';
 import {
     getNotices,
@@ -77,30 +67,47 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
     const [editingNotice, setEditingNotice] = useState<NoticeItem | null>(null);
     const { confirm } = useConfirm();
     const queryClient = useQueryClient();
-    const noticeSchema = useMemo(() => z.object({
-        title: z.string().trim()
-            .min(1, t({
-                id: 'settings.notices.validation.title_required',
-                message: 'Enter a notice title.'
-            }))
-            .max(200, t({
-                id: 'settings.notices.validation.title_max_length',
-                message: 'Notice titles must be 200 characters or fewer.'
-            })),
-        url: z.string().trim()
-            .min(1, t({
-                id: 'settings.notices.validation.url_required',
-                message: 'Enter a URL.'
-            }))
-            .refine(
-                isValidNoticeUrl,
-                t({
-                    id: 'settings.notices.validation.url_invalid',
-                    message: 'Enter an absolute HTTP(S) URL or an internal path beginning with /.'
-                })
-            ),
-        isActive: z.boolean()
-    }), [t]);
+    const noticeSchema = useMemo(
+        () =>
+            z.object({
+                title: z
+                    .string()
+                    .trim()
+                    .min(
+                        1,
+                        t({
+                            id: 'settings.notices.validation.title_required',
+                            message: 'Enter a notice title.'
+                        })
+                    )
+                    .max(
+                        200,
+                        t({
+                            id: 'settings.notices.validation.title_max_length',
+                            message: 'Notice titles must be 200 characters or fewer.'
+                        })
+                    ),
+                url: z
+                    .string()
+                    .trim()
+                    .min(
+                        1,
+                        t({
+                            id: 'settings.notices.validation.url_required',
+                            message: 'Enter a URL.'
+                        })
+                    )
+                    .refine(
+                        isValidNoticeUrl,
+                        t({
+                            id: 'settings.notices.validation.url_invalid',
+                            message: 'Enter an absolute HTTP(S) URL or an internal path beginning with /.'
+                        })
+                    ),
+                isActive: z.boolean()
+            }),
+        [t]
+    );
     const {
         register,
         handleSubmit,
@@ -123,77 +130,90 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
             if (data.status === 'DONE') {
                 return data.body.notices as NoticeItem[];
             }
-            throw new Error(t({
-                id: 'settings.notices.load_failed',
-                message: 'Could not load notices.'
-            }));
+            throw new Error(
+                t({
+                    id: 'settings.notices.load_failed',
+                    message: 'Could not load notices.'
+                })
+            );
         }
     });
 
     const createMutation = useMutation({
-        mutationFn: (data: NoticeCreatePayload) => (
-            isGlobal
-                ? createGlobalNotice(data as GlobalNoticeCreateData)
-                : createNotice(data as NoticeCreateData)
-        ),
+        mutationFn: (data: NoticeCreatePayload) =>
+            isGlobal ? createGlobalNotice(data as GlobalNoticeCreateData) : createNotice(data as NoticeCreateData),
         onSuccess: () => {
-            toast.success(i18n._({
-                id: 'settings.notices.create.success',
-                message: '{scope, select, global {Global notice created.} other {Notice created.}}',
-                values: { scope }
-            }));
+            toast.success(
+                i18n._({
+                    id: 'settings.notices.create.success',
+                    message: '{scope, select, global {Global notice created.} other {Notice created.}}',
+                    values: { scope }
+                })
+            );
             queryClient.invalidateQueries({ queryKey });
             closeForm();
         },
         onError: () => {
-            toast.error(i18n._({
-                id: 'settings.notices.create.failed',
-                message: '{scope, select, global {Could not create the global notice.} other {Could not create the notice.}}',
-                values: { scope }
-            }));
+            toast.error(
+                i18n._({
+                    id: 'settings.notices.create.failed',
+                    message:
+                        '{scope, select, global {Could not create the global notice.} other {Could not create the notice.}}',
+                    values: { scope }
+                })
+            );
         }
     });
 
     const updateMutation = useMutation({
-        mutationFn: ({ id, data }: { id: number; data: NoticeUpdatePayload }) => (
+        mutationFn: ({ id, data }: { id: number; data: NoticeUpdatePayload }) =>
             isGlobal
                 ? updateGlobalNotice(id, data as GlobalNoticeUpdateData)
-                : updateNotice(id, data as NoticeUpdateData)
-        ),
+                : updateNotice(id, data as NoticeUpdateData),
         onSuccess: () => {
-            toast.success(i18n._({
-                id: 'settings.notices.update.success',
-                message: '{scope, select, global {Global notice updated.} other {Notice updated.}}',
-                values: { scope }
-            }));
+            toast.success(
+                i18n._({
+                    id: 'settings.notices.update.success',
+                    message: '{scope, select, global {Global notice updated.} other {Notice updated.}}',
+                    values: { scope }
+                })
+            );
             queryClient.invalidateQueries({ queryKey });
             closeForm();
         },
         onError: () => {
-            toast.error(i18n._({
-                id: 'settings.notices.update.failed',
-                message: '{scope, select, global {Could not update the global notice.} other {Could not update the notice.}}',
-                values: { scope }
-            }));
+            toast.error(
+                i18n._({
+                    id: 'settings.notices.update.failed',
+                    message:
+                        '{scope, select, global {Could not update the global notice.} other {Could not update the notice.}}',
+                    values: { scope }
+                })
+            );
         }
     });
 
     const deleteMutation = useMutation({
         mutationFn: (id: number) => (isGlobal ? deleteGlobalNotice(id) : deleteNotice(id)),
         onSuccess: () => {
-            toast.success(i18n._({
-                id: 'settings.notices.delete.success',
-                message: '{scope, select, global {Global notice deleted.} other {Notice deleted.}}',
-                values: { scope }
-            }));
+            toast.success(
+                i18n._({
+                    id: 'settings.notices.delete.success',
+                    message: '{scope, select, global {Global notice deleted.} other {Notice deleted.}}',
+                    values: { scope }
+                })
+            );
             queryClient.invalidateQueries({ queryKey });
         },
         onError: () => {
-            toast.error(i18n._({
-                id: 'settings.notices.delete.failed',
-                message: '{scope, select, global {Could not delete the global notice.} other {Could not delete the notice.}}',
-                values: { scope }
-            }));
+            toast.error(
+                i18n._({
+                    id: 'settings.notices.delete.failed',
+                    message:
+                        '{scope, select, global {Could not delete the global notice.} other {Could not delete the notice.}}',
+                    values: { scope }
+                })
+            );
         }
     });
 
@@ -268,9 +288,7 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
 
     const isSubmitting = createMutation.isPending || updateMutation.isPending;
     const createAction = (
-        <SettingsHeaderAction
-            onClick={handleCreate}
-            variant="primary">
+        <SettingsHeaderAction onClick={handleCreate} variant="primary">
             <Trans id="settings.notices.create_action">Add notice</Trans>
         </SettingsHeaderAction>
     );
@@ -289,9 +307,9 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                 description={
                     isGlobal
                         ? t({
-                            id: 'settings.notices.global.description',
-                            message: 'Active notices are shown across the entire site.'
-                        })
+                              id: 'settings.notices.global.description',
+                              message: 'Active notices are shown across the entire site.'
+                          })
                         : undefined
                 }
                 actionPosition="right"
@@ -301,25 +319,27 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
             {showForm && (
                 <form
                     className="bg-surface-subtle border border-line rounded-2xl p-6 animate-in fade-in-0 slide-in-from-top-2 motion-interaction"
-                    onSubmit={handleSubmit(onSubmit)}>
+                    onSubmit={handleSubmit(onSubmit)}
+                >
                     <h3 className="text-base font-semibold text-content mb-4">
                         {editingNotice
                             ? i18n._({
-                                id: 'settings.notices.form.edit_title',
-                                message: '{scope, select, global {Edit global notice} other {Edit notice}}',
-                                values: { scope }
-                            })
+                                  id: 'settings.notices.form.edit_title',
+                                  message: '{scope, select, global {Edit global notice} other {Edit notice}}',
+                                  values: { scope }
+                              })
                             : i18n._({
-                                id: 'settings.notices.form.create_title',
-                                message: '{scope, select, global {Create global notice} other {Create notice}}',
-                                values: { scope }
-                            })}
+                                  id: 'settings.notices.form.create_title',
+                                  message: '{scope, select, global {Create global notice} other {Create notice}}',
+                                  values: { scope }
+                              })}
                     </h3>
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <label
                                 htmlFor={isGlobal ? 'global-notice-title' : 'notice-title'}
-                                className="block text-sm font-medium text-content">
+                                className="block text-sm font-medium text-content"
+                            >
                                 <Trans id="settings.notices.form.title.label">Notice title</Trans>
                             </label>
                             <Input
@@ -337,7 +357,8 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                         <div className="space-y-2">
                             <label
                                 htmlFor={isGlobal ? 'global-notice-url' : 'notice-url'}
-                                className="block text-sm font-medium text-content">
+                                className="block text-sm font-medium text-content"
+                            >
                                 URL
                             </label>
                             <Input
@@ -368,9 +389,9 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                                     isGlobal
                                         ? undefined
                                         : t({
-                                            id: 'settings.notices.form.active.help',
-                                            message: 'Only active notices are shown on your blog.'
-                                        })
+                                              id: 'settings.notices.form.active.help',
+                                              message: 'Only active notices are shown on your blog.'
+                                          })
                                 }
                             />
                         </div>
@@ -383,7 +404,8 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                                 size="md"
                                 className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                                 onClick={closeForm}
-                                disabled={isSubmitting}>
+                                disabled={isSubmitting}
+                            >
                                 <Trans id="common.cancel">Cancel</Trans>
                             </Button>
                             <div className="flex items-center gap-3">
@@ -393,12 +415,15 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                                     variant="primary"
                                     size="md"
                                     className="min-h-11! [@media(pointer:fine)]:min-h-10!"
-                                    isLoading={isSubmitting}>
-                                    {isSubmitting
-                                        ? <Trans id="common.saving">Saving</Trans>
-                                        : editingNotice
-                                            ? <Trans id="common.update">Update</Trans>
-                                            : <Trans id="common.create">Create</Trans>}
+                                    isLoading={isSubmitting}
+                                >
+                                    {isSubmitting ? (
+                                        <Trans id="common.saving">Saving</Trans>
+                                    ) : editingNotice ? (
+                                        <Trans id="common.update">Update</Trans>
+                                    ) : (
+                                        <Trans id="common.create">Create</Trans>
+                                    )}
                                 </Button>
                             </div>
                         </div>
@@ -414,29 +439,31 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                             actions={
                                 <Dropdown
                                     density="compact"
-                                    triggerAriaLabel={isGlobal
-                                        ? i18n._({
-                                            id: 'settings.notices.list.global_menu_label',
-                                            message: 'Open menu for global notice “{title}”',
-                                            values: { title: notice.title }
-                                        })
-                                        : i18n._({
-                                            id: 'settings.notices.list.user_menu_label',
-                                            message: 'Open menu for notice “{title}”',
-                                            values: { title: notice.title }
-                                        })}
+                                    triggerAriaLabel={
+                                        isGlobal
+                                            ? i18n._({
+                                                  id: 'settings.notices.list.global_menu_label',
+                                                  message: 'Open menu for global notice “{title}”',
+                                                  values: { title: notice.title }
+                                              })
+                                            : i18n._({
+                                                  id: 'settings.notices.list.user_menu_label',
+                                                  message: 'Open menu for notice “{title}”',
+                                                  values: { title: notice.title }
+                                              })
+                                    }
                                     triggerClassName="min-h-11 min-w-11 [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9"
                                     items={[
                                         {
                                             label: notice.isActive
                                                 ? t({
-                                                    id: 'settings.notices.action.deactivate',
-                                                    message: 'Deactivate'
-                                                })
+                                                      id: 'settings.notices.action.deactivate',
+                                                      message: 'Deactivate'
+                                                  })
                                                 : t({
-                                                    id: 'settings.notices.action.activate',
-                                                    message: 'Activate'
-                                                }),
+                                                      id: 'settings.notices.action.activate',
+                                                      message: 'Activate'
+                                                  }),
                                             icon: <Power aria-hidden="true" className="h-4 w-4" />,
                                             onClick: () => handleToggleActive(notice)
                                         },
@@ -459,14 +486,19 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                                         }
                                     ]}
                                 />
-                            }>
+                            }
+                        >
                             <div className="space-y-1">
                                 <div className="flex items-center gap-2 flex-wrap">
                                     <h3 className={`${SETTINGS_LIST_TITLE} mb-0`}>{notice.title}</h3>
-                                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${notice.isActive ? 'bg-action text-content-inverted border-line-strong' : 'bg-surface-subtle text-content-secondary border-line-light'}`}>
-                                        {notice.isActive
-                                            ? <Trans id="settings.notices.status.active">Active</Trans>
-                                            : <Trans id="settings.notices.status.inactive">Inactive</Trans>}
+                                    <span
+                                        className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${notice.isActive ? 'bg-action text-content-inverted border-line-strong' : 'bg-surface-subtle text-content-secondary border-line-light'}`}
+                                    >
+                                        {notice.isActive ? (
+                                            <Trans id="settings.notices.status.active">Active</Trans>
+                                        ) : (
+                                            <Trans id="settings.notices.status.inactive">Inactive</Trans>
+                                        )}
                                     </span>
                                 </div>
                                 <p className="text-sm text-content-secondary truncate max-w-md">{notice.url}</p>
@@ -477,15 +509,17 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
             ) : !showForm ? (
                 <SettingsEmptyState
                     icon={<Megaphone aria-hidden="true" className="h-4 w-4" />}
-                    title={isGlobal
-                        ? t({
-                            id: 'settings.notices.empty.global',
-                            message: 'No global notices yet'
-                        })
-                        : t({
-                            id: 'settings.notices.empty.user',
-                            message: 'No notices yet'
-                        })}
+                    title={
+                        isGlobal
+                            ? t({
+                                  id: 'settings.notices.empty.global',
+                                  message: 'No global notices yet'
+                              })
+                            : t({
+                                  id: 'settings.notices.empty.user',
+                                  message: 'No notices yet'
+                              })
+                    }
                     action={createAction}
                 />
             ) : null}

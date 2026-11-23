@@ -8,16 +8,8 @@ import { toast } from '~/utils/toast';
 import { SETTINGS_LIST_META, SETTINGS_LIST_TITLE } from '~/styles/settingsStyles';
 import { formatDateOnly } from '~/i18n/formatters';
 import { normalizeLocale } from '~/i18n/locale';
-import {
-    SettingsEmptyState,
-    SettingsHeader,
-    SettingsListItem
-} from '../layout';
-import {
-    getAuthorSubscriptions,
-    unsubscribeAuthor,
-    type AuthorSubscription
-} from '~/lib/api/settings';
+import { SettingsEmptyState, SettingsHeader, SettingsListItem } from '../layout';
+import { getAuthorSubscriptions, unsubscribeAuthor, type AuthorSubscription } from '~/lib/api/settings';
 
 interface SettingsRouterContext {
     canUseTelegramIntegration: boolean;
@@ -36,10 +28,13 @@ const SubscriptionsSetting = () => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error(data.errorMessage || t({
-                id: 'settings.subscriptions.load_failed',
-                message: 'Could not load your subscriptions.'
-            }));
+            throw new Error(
+                data.errorMessage ||
+                    t({
+                        id: 'settings.subscriptions.load_failed',
+                        message: 'Could not load your subscriptions.'
+                    })
+            );
         }
     });
 
@@ -56,11 +51,13 @@ const SubscriptionsSetting = () => {
         try {
             const { data } = await unsubscribeAuthor(subscription.username);
             if (data.status === 'DONE') {
-                toast.success(i18n._({
-                    id: 'settings.subscriptions.unsubscribed',
-                    message: 'Unsubscribed from {username}.',
-                    values: { username: subscription.username }
-                }));
+                toast.success(
+                    i18n._({
+                        id: 'settings.subscriptions.unsubscribed',
+                        message: 'Unsubscribed from {username}.',
+                        values: { username: subscription.username }
+                    })
+                );
                 await refetch();
             } else {
                 toast.error(data.errorMessage || failedMessage);
@@ -88,13 +85,12 @@ const SubscriptionsSetting = () => {
             {showTelegramPrompt && (
                 <a
                     href="/settings/integration"
-                    className="group relative block overflow-hidden rounded-2xl bg-surface ring-1 ring-line/60 transition-all duration-200 hover:ring-line">
+                    className="group relative block overflow-hidden rounded-2xl bg-surface ring-1 ring-line/60 transition-all duration-200 hover:ring-line"
+                >
                     <div className="relative flex items-center justify-between p-5 sm:p-6">
                         <div>
                             <h3 className="mb-1.5 text-base font-semibold text-content">
-                                <Trans id="settings.subscriptions.telegram.title">
-                                    Get new posts on Telegram
-                                </Trans>
+                                <Trans id="settings.subscriptions.telegram.title">Get new posts on Telegram</Trans>
                             </h3>
                             <p className="max-w-xl text-sm leading-relaxed text-content-secondary">
                                 <Trans id="settings.subscriptions.telegram.description">
@@ -139,13 +135,16 @@ const SubscriptionsSetting = () => {
                                         className="min-h-11! [@media(pointer:fine)]:min-h-9!"
                                         isLoading={pendingUsername === subscription.username}
                                         disabled={pendingUsername !== null}
-                                        onClick={() => handleUnsubscribe(subscription)}>
+                                        onClick={() => handleUnsubscribe(subscription)}
+                                    >
                                         <Trans id="settings.subscriptions.unsubscribe">Unsubscribe</Trans>
                                     </Button>
-                                }>
+                                }
+                            >
                                 <a
                                     href={`/@${encodeURIComponent(subscription.username)}`}
-                                    className={`${SETTINGS_LIST_TITLE} mb-0.5 block truncate hover:text-content-secondary transition-colors`}>
+                                    className={`${SETTINGS_LIST_TITLE} mb-0.5 block truncate hover:text-content-secondary transition-colors`}
+                                >
                                     {subscription.name || subscription.username}
                                 </a>
                                 <div className={`${SETTINGS_LIST_META} flex flex-wrap items-center gap-x-3 gap-y-1`}>

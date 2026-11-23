@@ -1,13 +1,4 @@
-import {
-    BookOpen,
-    ChevronDown,
-    Eye,
-    EyeOff,
-    Search,
-    SlidersHorizontal,
-    Tag as TagIcon,
-    X
-} from '~/ui/icons';
+import { BookOpen, ChevronDown, Eye, EyeOff, Search, SlidersHorizontal, Tag as TagIcon, X } from '~/ui/icons';
 import { useLingui } from '@lingui/react/macro';
 import { Button, Input, Dropdown } from '~/components/shared';
 import { settingsCompactSelectTriggerStyles } from '~/styles/settingsStyles';
@@ -49,14 +40,8 @@ const PostsFilter = ({
     const { i18n, t } = useLingui();
     const isScheduled = source === 'scheduled';
     const VisibilityIcon = filters.visibility === 'public' ? Eye : EyeOff;
-    const activeDetailFilterCount = [
-        filters.tag,
-        filters.series,
-        filters.visibility
-    ].filter(Boolean).length;
-    const validTags = tags?.filter(
-        tag => typeof tag.name === 'string' && tag.name.trim().length > 0
-    );
+    const activeDetailFilterCount = [filters.tag, filters.series, filters.visibility].filter(Boolean).length;
+    const validTags = tags?.filter((tag) => typeof tag.name === 'string' && tag.name.trim().length > 0);
     const getOrderLabel = (order: string) => {
         if (isScheduled && order === '-publishedDate') {
             return t({
@@ -70,32 +55,32 @@ const PostsFilter = ({
                 message: 'Soonest scheduled time'
             });
         }
-        const option = POSTS_ORDER.find(item => item.order === order);
+        const option = POSTS_ORDER.find((item) => item.order === order);
         return option
             ? i18n._(option.label)
             : t({
-                id: 'settings.posts.order.label',
-                message: 'Sort order'
-            });
+                  id: 'settings.posts.order.label',
+                  message: 'Sort order'
+              });
     };
     const publicLabel = isScheduled
         ? t({
-            id: 'settings.posts.visibility.public_after_publish',
-            message: 'Public after publishing'
-        })
+              id: 'settings.posts.visibility.public_after_publish',
+              message: 'Public after publishing'
+          })
         : t({
-            id: 'settings.posts.visibility.public',
-            message: 'Public'
-        });
+              id: 'settings.posts.visibility.public',
+              message: 'Public'
+          });
     const hiddenLabel = isScheduled
         ? t({
-            id: 'settings.posts.visibility.private_after_publish',
-            message: 'Private after publishing'
-        })
+              id: 'settings.posts.visibility.private_after_publish',
+              message: 'Private after publishing'
+          })
         : t({
-            id: 'settings.posts.visibility.private',
-            message: 'Private'
-        });
+              id: 'settings.posts.visibility.private',
+              message: 'Private'
+          });
     const orderLabel = getOrderLabel(filters.order);
     const allLabel = t({
         id: 'common.all',
@@ -105,9 +90,8 @@ const PostsFilter = ({
     const selectedSeriesLabel = filters.series
         ? series?.find((item) => item.url === filters.series)?.title || filters.series
         : allLabel;
-    const selectedVisibilityLabel = filters.visibility === 'public'
-        ? publicLabel
-        : filters.visibility === 'hidden' ? hiddenLabel : allLabel;
+    const selectedVisibilityLabel =
+        filters.visibility === 'public' ? publicLabel : filters.visibility === 'hidden' ? hiddenLabel : allLabel;
 
     return (
         <div className="mb-6 space-y-3">
@@ -120,15 +104,17 @@ const PostsFilter = ({
                             id: 'settings.posts.filters.search_aria',
                             message: 'Search post titles'
                         })}
-                        placeholder={isScheduled
-                            ? t({
-                                id: 'settings.posts.filters.search_scheduled_placeholder',
-                                message: 'Search scheduled post titles...'
-                            })
-                            : t({
-                                id: 'settings.posts.filters.search_placeholder',
-                                message: 'Search post titles...'
-                            })}
+                        placeholder={
+                            isScheduled
+                                ? t({
+                                      id: 'settings.posts.filters.search_scheduled_placeholder',
+                                      message: 'Search scheduled post titles...'
+                                  })
+                                : t({
+                                      id: 'settings.posts.filters.search_placeholder',
+                                      message: 'Search post titles...'
+                                  })
+                        }
                         value={searchValue}
                         onChange={onSearchChange}
                         leftIcon={<Search aria-hidden className="h-4 w-4" />}
@@ -142,7 +128,8 @@ const PostsFilter = ({
                                 message: 'Clear search'
                             })}
                             onClick={() => onFilterChange('search', '')}
-                            className="absolute inset-y-0 right-0 inline-flex min-w-11 items-center justify-center rounded-lg text-content-secondary transition-colors hover:bg-surface-subtle hover:text-content [@media(pointer:fine)]:min-w-9">
+                            className="absolute inset-y-0 right-0 inline-flex min-w-11 items-center justify-center rounded-lg text-content-secondary transition-colors hover:bg-surface-subtle hover:text-content [@media(pointer:fine)]:min-w-9"
+                        >
                             <X aria-hidden className="h-3.5 w-3.5" />
                         </button>
                     )}
@@ -159,10 +146,9 @@ const PostsFilter = ({
                                 message: 'Select post sort order. Current: {order}',
                                 values: { order: orderLabel }
                             })}
-                            className={`${settingsCompactSelectTriggerStyles} flex items-center justify-between text-left`}>
-                            <span className="text-content font-medium">
-                                {orderLabel}
-                            </span>
+                            className={`${settingsCompactSelectTriggerStyles} flex items-center justify-between text-left`}
+                        >
+                            <span className="text-content font-medium">{orderLabel}</span>
                             <ChevronDown aria-hidden className="h-4 w-4 text-content-hint" />
                         </button>
                     }
@@ -188,17 +174,18 @@ const PostsFilter = ({
                             className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
                         />
                     }
-                    onClick={onExpandToggle}>
+                    onClick={onExpandToggle}
+                >
                     <span>
                         {isExpanded
                             ? t({
-                                id: 'settings.posts.filters.collapse',
-                                message: 'Fewer filters'
-                            })
+                                  id: 'settings.posts.filters.collapse',
+                                  message: 'Fewer filters'
+                              })
                             : t({
-                                id: 'settings.posts.filters.expand',
-                                message: 'More filters'
-                            })}
+                                  id: 'settings.posts.filters.expand',
+                                  message: 'More filters'
+                              })}
                     </span>
                     {activeDetailFilterCount > 0 && (
                         <span className="rounded-full bg-surface-subtle px-2 py-0.5 text-xs text-content-secondary">
@@ -227,7 +214,8 @@ const PostsFilter = ({
                                     values: { tag: filters.tag }
                                 })}
                                 onClick={() => onFilterChange('tag', '')}
-                                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-content-secondary hover:bg-surface hover:text-content [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9">
+                                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-content-secondary hover:bg-surface hover:text-content [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9"
+                            >
                                 <X aria-hidden className="h-3.5 w-3.5" />
                             </button>
                         </div>
@@ -243,7 +231,8 @@ const PostsFilter = ({
                                     message: 'Remove series filter'
                                 })}
                                 onClick={() => onFilterChange('series', '')}
-                                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-content-secondary hover:bg-surface hover:text-content [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9">
+                                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-content-secondary hover:bg-surface hover:text-content [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9"
+                            >
                                 <X aria-hidden className="h-3.5 w-3.5" />
                             </button>
                         </div>
@@ -259,7 +248,8 @@ const PostsFilter = ({
                                     message: 'Remove visibility filter'
                                 })}
                                 onClick={() => onFilterChange('visibility', '')}
-                                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-content-secondary hover:bg-surface hover:text-content [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9">
+                                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-content-secondary hover:bg-surface hover:text-content [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9"
+                            >
                                 <X aria-hidden className="h-3.5 w-3.5" />
                             </button>
                         </div>
@@ -270,7 +260,8 @@ const PostsFilter = ({
                         size="sm"
                         className="min-h-11! [@media(pointer:fine)]:min-h-9!"
                         leftIcon={<X aria-hidden className="h-4 w-4" />}
-                        onClick={onClearFilters}>
+                        onClick={onClearFilters}
+                    >
                         {t({
                             id: 'settings.posts.filters.clear',
                             message: 'Clear filters'
@@ -283,7 +274,8 @@ const PostsFilter = ({
             <div
                 id="posts-filter-controls"
                 hidden={!isExpanded}
-                className="rounded-2xl border border-line bg-surface-subtle p-6">
+                className="rounded-2xl border border-line bg-surface-subtle p-6"
+            >
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     {/* Tag filter */}
                     <Dropdown
@@ -297,30 +289,32 @@ const PostsFilter = ({
                                     message: 'Select tag filter. Current: {tag}',
                                     values: { tag: selectedTagLabel }
                                 })}
-                                className={`${settingsCompactSelectTriggerStyles} flex items-center justify-between text-left`}>
+                                className={`${settingsCompactSelectTriggerStyles} flex items-center justify-between text-left`}
+                            >
                                 <span className={filters.tag ? 'text-content font-medium' : 'text-content-hint'}>
-                                    {filters.tag || t({
-                                        id: 'settings.posts.filters.tag',
-                                        message: 'Tag'
-                                    })}
+                                    {filters.tag ||
+                                        t({
+                                            id: 'settings.posts.filters.tag',
+                                            message: 'Tag'
+                                        })}
                                 </span>
                                 <ChevronDown aria-hidden className="h-4 w-4 text-content-hint" />
                             </button>
-                            }
+                        }
                         items={[
-                                {
-                                    label: allLabel,
-                                    onClick: () => onFilterChange('tag', ''),
-                                    checked: filters.tag === '',
-                                    className: COMPACT_DROPDOWN_ITEM_CLASS
-                                },
-                                ...(validTags?.map((tag) => ({
-                                    label: tag.name,
-                                    onClick: () => onFilterChange('tag', tag.name),
-                                    checked: filters.tag === tag.name,
-                                    className: COMPACT_DROPDOWN_ITEM_CLASS
-                                })) || [])
-                            ]}
+                            {
+                                label: allLabel,
+                                onClick: () => onFilterChange('tag', ''),
+                                checked: filters.tag === '',
+                                className: COMPACT_DROPDOWN_ITEM_CLASS
+                            },
+                            ...(validTags?.map((tag) => ({
+                                label: tag.name,
+                                onClick: () => onFilterChange('tag', tag.name),
+                                checked: filters.tag === tag.name,
+                                className: COMPACT_DROPDOWN_ITEM_CLASS
+                            })) || [])
+                        ]}
                     />
 
                     {/* Series filter */}
@@ -335,32 +329,33 @@ const PostsFilter = ({
                                     message: 'Select series filter. Current: {series}',
                                     values: { series: selectedSeriesLabel }
                                 })}
-                                className={`${settingsCompactSelectTriggerStyles} flex items-center justify-between text-left`}>
+                                className={`${settingsCompactSelectTriggerStyles} flex items-center justify-between text-left`}
+                            >
                                 <span className={filters.series ? 'text-content font-medium' : 'text-content-hint'}>
                                     {filters.series
                                         ? selectedSeriesLabel
                                         : t({
-                                            id: 'settings.posts.filters.series',
-                                            message: 'Series'
-                                        })}
+                                              id: 'settings.posts.filters.series',
+                                              message: 'Series'
+                                          })}
                                 </span>
                                 <ChevronDown aria-hidden className="h-4 w-4 text-content-hint" />
                             </button>
-                            }
+                        }
                         items={[
-                                {
-                                    label: allLabel,
-                                    onClick: () => onFilterChange('series', ''),
-                                    checked: filters.series === '',
-                                    className: COMPACT_DROPDOWN_ITEM_CLASS
-                                },
-                                ...(series?.map((item) => ({
-                                    label: item.title,
-                                    onClick: () => onFilterChange('series', item.url),
-                                    checked: filters.series === item.url,
-                                    className: COMPACT_DROPDOWN_ITEM_CLASS
-                                })) || [])
-                            ]}
+                            {
+                                label: allLabel,
+                                onClick: () => onFilterChange('series', ''),
+                                checked: filters.series === '',
+                                className: COMPACT_DROPDOWN_ITEM_CLASS
+                            },
+                            ...(series?.map((item) => ({
+                                label: item.title,
+                                onClick: () => onFilterChange('series', item.url),
+                                checked: filters.series === item.url,
+                                className: COMPACT_DROPDOWN_ITEM_CLASS
+                            })) || [])
+                        ]}
                     />
 
                     {/* Visibility filter */}
@@ -375,45 +370,46 @@ const PostsFilter = ({
                                     message: 'Select visibility filter. Current: {visibility}',
                                     values: { visibility: selectedVisibilityLabel }
                                 })}
-                                className={`${settingsCompactSelectTriggerStyles} flex items-center justify-between text-left`}>
+                                className={`${settingsCompactSelectTriggerStyles} flex items-center justify-between text-left`}
+                            >
                                 <span className={filters.visibility ? 'text-content font-medium' : 'text-content-hint'}>
                                     {filters.visibility === 'public'
-                                            ? publicLabel
-                                            : filters.visibility === 'hidden'
-                                                ? hiddenLabel
-                                                : isScheduled
-                                                    ? t({
-                                                        id: 'settings.posts.filters.visibility_after_publish',
-                                                        message: 'Visibility after publishing'
-                                                    })
-                                                    : t({
-                                                        id: 'settings.posts.filters.visibility',
-                                                        message: 'Visibility'
-                                                    })}
+                                        ? publicLabel
+                                        : filters.visibility === 'hidden'
+                                          ? hiddenLabel
+                                          : isScheduled
+                                            ? t({
+                                                  id: 'settings.posts.filters.visibility_after_publish',
+                                                  message: 'Visibility after publishing'
+                                              })
+                                            : t({
+                                                  id: 'settings.posts.filters.visibility',
+                                                  message: 'Visibility'
+                                              })}
                                 </span>
                                 <ChevronDown aria-hidden className="h-4 w-4 text-content-hint" />
                             </button>
-                            }
+                        }
                         items={[
-                                {
-                                    label: allLabel,
-                                    onClick: () => onFilterChange('visibility', ''),
-                                    checked: filters.visibility === '',
-                                    className: COMPACT_DROPDOWN_ITEM_CLASS
-                                },
-                                {
-                                    label: publicLabel,
-                                    onClick: () => onFilterChange('visibility', 'public'),
-                                    checked: filters.visibility === 'public',
-                                    className: COMPACT_DROPDOWN_ITEM_CLASS
-                                },
-                                {
-                                    label: hiddenLabel,
-                                    onClick: () => onFilterChange('visibility', 'hidden'),
-                                    checked: filters.visibility === 'hidden',
-                                    className: COMPACT_DROPDOWN_ITEM_CLASS
-                                }
-                            ]}
+                            {
+                                label: allLabel,
+                                onClick: () => onFilterChange('visibility', ''),
+                                checked: filters.visibility === '',
+                                className: COMPACT_DROPDOWN_ITEM_CLASS
+                            },
+                            {
+                                label: publicLabel,
+                                onClick: () => onFilterChange('visibility', 'public'),
+                                checked: filters.visibility === 'public',
+                                className: COMPACT_DROPDOWN_ITEM_CLASS
+                            },
+                            {
+                                label: hiddenLabel,
+                                onClick: () => onFilterChange('visibility', 'hidden'),
+                                checked: filters.visibility === 'hidden',
+                                className: COMPACT_DROPDOWN_ITEM_CLASS
+                            }
+                        ]}
                     />
                 </div>
             </div>

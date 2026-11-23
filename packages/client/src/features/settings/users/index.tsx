@@ -3,11 +3,7 @@ import type { MessageDescriptor } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
-import {
-    ChevronDown,
-    Ticket,
-    Users
-} from '~/ui/icons';
+import { ChevronDown, Ticket, Users } from '~/ui/icons';
 import { toast } from '~/utils/toast';
 import { useConfirm } from '~/hooks/useConfirm';
 import { SettingsHeader, SettingsPagination } from '../layout';
@@ -184,9 +180,8 @@ const getUserStatusMessage = (user: ManagedUser): MessageDescriptor => {
     });
 };
 
-const hasMemberActions = (user: ManagedUser) => (
-    user.canChangeStatus || user.canDelete || user.canResetPassword || user.canResetTwoFactor
-);
+const hasMemberActions = (user: ManagedUser) =>
+    user.canChangeStatus || user.canDelete || user.canResetPassword || user.canResetTwoFactor;
 
 const UserStatusBadge = ({ user }: { user: ManagedUser }) => {
     const { i18n } = useLingui();
@@ -194,10 +189,10 @@ const UserStatusBadge = ({ user }: { user: ManagedUser }) => {
     const classes = !user.isActive
         ? 'bg-danger-surface text-danger'
         : user.isSuperuser
-            ? 'bg-warning-surface text-warning'
-            : user.isStaff
-                ? 'bg-surface-subtle text-content-secondary'
-                : 'bg-success-surface text-success';
+          ? 'bg-warning-surface text-warning'
+          : user.isStaff
+            ? 'bg-surface-subtle text-content-secondary'
+            : 'bg-success-surface text-success';
 
     return <span className={`shrink-0 rounded-full px-2 py-1 text-xs font-semibold ${classes}`}>{label}</span>;
 };
@@ -210,33 +205,26 @@ interface MobileUserRowProps {
     onRoleChange: (role: ManagedUserRole) => void;
 }
 
-const MobileUserRow = ({
-    user,
-    isExpanded,
-    isRoleUpdating,
-    onToggle,
-    onRoleChange
-}: MobileUserRowProps) => {
+const MobileUserRow = ({ user, isExpanded, isRoleUpdating, onToggle, onRoleChange }: MobileUserRowProps) => {
     const { i18n, t } = useLingui();
-    const localizedRoleItems = roleItems.map(item => ({
+    const localizedRoleItems = roleItems.map((item) => ({
         value: item.value,
         label: i18n._(item.label)
     }));
-    const getRoleLabel = (role: ManagedUserRole) => (
-        localizedRoleItems.find(item => item.value === role)?.label ?? role
-    );
+    const getRoleLabel = (role: ManagedUserRole) =>
+        localizedRoleItems.find((item) => item.value === role)?.label ?? role;
     const detailsId = `managed-user-details-${user.id}`;
     const toggleId = `managed-user-toggle-${user.id}`;
     const userStatusLabel = i18n._(getUserStatusMessage(user));
     const detailsAction = isExpanded
         ? t({
-            id: 'settings.users.details.collapse',
-            message: 'collapse'
-        })
+              id: 'settings.users.details.collapse',
+              message: 'collapse'
+          })
         : t({
-            id: 'settings.users.details.expand',
-            message: 'expand'
-        });
+              id: 'settings.users.details.expand',
+              message: 'expand'
+          });
 
     return (
         <div className="md:hidden">
@@ -256,7 +244,8 @@ const MobileUserRow = ({
                     }
                 })}
                 onClick={onToggle}
-                className="flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-subtle active:bg-surface-subtle motion-reduce:transition-none">
+                className="flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-subtle active:bg-surface-subtle motion-reduce:transition-none"
+            >
                 <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-semibold text-content">{user.username}</span>
                     <span className="mt-1 flex min-w-0 items-center gap-2">
@@ -282,17 +271,19 @@ const MobileUserRow = ({
                     id={detailsId}
                     role="region"
                     aria-labelledby={toggleId}
-                    className="border-t border-line bg-surface-subtle/40 px-4 py-4">
+                    className="border-t border-line bg-surface-subtle/40 px-4 py-4"
+                >
                     <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
                         <div className="col-span-2 min-w-0">
                             <dt className="text-xs font-medium text-content-hint">
                                 <Trans id="settings.users.field.email">Email</Trans>
                             </dt>
                             <dd className="mt-1 truncate text-sm text-content-secondary">
-                                {user.email || t({
-                                    id: 'settings.users.field.no_email',
-                                    message: 'No email address'
-                                })}
+                                {user.email ||
+                                    t({
+                                        id: 'settings.users.field.no_email',
+                                        message: 'No email address'
+                                    })}
                             </dd>
                         </div>
                         <div>
@@ -353,21 +344,20 @@ const UserManagementSetting = () => {
     const [ordering, setOrdering] = useState<ManagedUserOrdering>('username');
     const [page, setPage] = useState(1);
     const [expandedUserId, setExpandedUserId] = useState<number | null>(null);
-    const localizedRoleItems = roleItems.map(item => ({
+    const localizedRoleItems = roleItems.map((item) => ({
         value: item.value,
         label: i18n._(item.label)
     }));
-    const localizedRoleFilterItems = roleFilterItems.map(item => ({
+    const localizedRoleFilterItems = roleFilterItems.map((item) => ({
         value: item.value,
         label: i18n._(item.label)
     }));
-    const localizedOrderingItems = orderingItems.map(item => ({
+    const localizedOrderingItems = orderingItems.map((item) => ({
         value: item.value,
         label: i18n._(item.label)
     }));
-    const getRoleLabel = (role: ManagedUserRole) => (
-        localizedRoleItems.find(item => item.value === role)?.label ?? role
-    );
+    const getRoleLabel = (role: ManagedUserRole) =>
+        localizedRoleItems.find((item) => item.value === role)?.label ?? role;
     const locale = normalizeLocale(i18n.locale);
 
     const {
@@ -381,12 +371,15 @@ const UserManagementSetting = () => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error(data.errorMessage || t({
-                id: 'settings.users.load_failed',
-                message: 'Could not load the user list.'
-            }));
+            throw new Error(
+                data.errorMessage ||
+                    t({
+                        id: 'settings.users.load_failed',
+                        message: 'Could not load the user list.'
+                    })
+            );
         },
-        placeholderData: previousData => previousData
+        placeholderData: (previousData) => previousData
     });
 
     const { data: invites } = useSuspenseQuery({
@@ -396,10 +389,13 @@ const UserManagementSetting = () => {
             if (data.status === 'DONE') {
                 return data.body.invites;
             }
-            throw new Error(data.errorMessage || t({
-                id: 'settings.users.invites.load_failed',
-                message: 'Could not load invitation links.'
-            }));
+            throw new Error(
+                data.errorMessage ||
+                    t({
+                        id: 'settings.users.invites.load_failed',
+                        message: 'Could not load invitation links.'
+                    })
+            );
         }
     });
 
@@ -409,29 +405,38 @@ const UserManagementSetting = () => {
     const pagination = usersData.pagination;
     const currentPage = pagination.page;
     const roleMutation = useMutation({
-        mutationFn: ({ user, role }: { user: ManagedUser; role: ManagedUserRole }) => updateManagedUserRole(user.id, role),
+        mutationFn: ({ user, role }: { user: ManagedUser; role: ManagedUserRole }) =>
+            updateManagedUserRole(user.id, role),
         onSuccess: ({ data }) => {
             if (data.status === 'DONE') {
-                toast.success(i18n._({
-                    id: 'settings.users.role_change.success',
-                    message: 'Changed {username}\'s role to {role}.',
-                    values: {
-                        username: data.body.user.username,
-                        role: getRoleLabel(data.body.user.role)
-                    }
-                }));
+                toast.success(
+                    i18n._({
+                        id: 'settings.users.role_change.success',
+                        message: "Changed {username}'s role to {role}.",
+                        values: {
+                            username: data.body.user.username,
+                            role: getRoleLabel(data.body.user.role)
+                        }
+                    })
+                );
                 void queryClient.invalidateQueries({ queryKey: ['admin-users'] });
                 return;
             }
-            toast.error(data.errorMessage || t({
-                id: 'settings.users.role_change.failed',
-                message: 'Could not change the role.'
-            }));
+            toast.error(
+                data.errorMessage ||
+                    t({
+                        id: 'settings.users.role_change.failed',
+                        message: 'Could not change the role.'
+                    })
+            );
         },
-        onError: () => toast.error(t({
-            id: 'settings.users.role_change.failed',
-            message: 'Could not change the role.'
-        }))
+        onError: () =>
+            toast.error(
+                t({
+                    id: 'settings.users.role_change.failed',
+                    message: 'Could not change the role.'
+                })
+            )
     });
 
     const inviteMutation = useMutation({
@@ -441,50 +446,68 @@ const UserManagementSetting = () => {
                 const inviteUrl = buildInviteUrl(data.body.invite);
                 try {
                     await navigator.clipboard.writeText(inviteUrl);
-                    toast.success(t({
-                        id: 'settings.users.invites.create_and_copy_success',
-                        message: 'Author invitation link created and copied to the clipboard.'
-                    }));
+                    toast.success(
+                        t({
+                            id: 'settings.users.invites.create_and_copy_success',
+                            message: 'Author invitation link created and copied to the clipboard.'
+                        })
+                    );
                 } catch {
-                    toast.success(t({
-                        id: 'settings.users.invites.create_success',
-                        message: 'Author invitation link created.'
-                    }));
+                    toast.success(
+                        t({
+                            id: 'settings.users.invites.create_success',
+                            message: 'Author invitation link created.'
+                        })
+                    );
                 }
                 void queryClient.invalidateQueries({ queryKey: ['author-invites'] });
                 return;
             }
-            toast.error(data.errorMessage || t({
-                id: 'settings.users.invites.create_failed',
-                message: 'Could not create the invitation link.'
-            }));
+            toast.error(
+                data.errorMessage ||
+                    t({
+                        id: 'settings.users.invites.create_failed',
+                        message: 'Could not create the invitation link.'
+                    })
+            );
         },
-        onError: () => toast.error(t({
-            id: 'settings.users.invites.create_failed',
-            message: 'Could not create the invitation link.'
-        }))
+        onError: () =>
+            toast.error(
+                t({
+                    id: 'settings.users.invites.create_failed',
+                    message: 'Could not create the invitation link.'
+                })
+            )
     });
 
     const deleteInviteMutation = useMutation({
         mutationFn: (invite: AuthorInvite) => deleteAuthorInvite(invite.id),
         onSuccess: ({ data }) => {
             if (data.status === 'DONE') {
-                toast.success(t({
-                    id: 'settings.users.invites.delete_success',
-                    message: 'Invitation link deleted.'
-                }));
+                toast.success(
+                    t({
+                        id: 'settings.users.invites.delete_success',
+                        message: 'Invitation link deleted.'
+                    })
+                );
                 void queryClient.invalidateQueries({ queryKey: ['author-invites'] });
                 return;
             }
-            toast.error(data.errorMessage || t({
-                id: 'settings.users.invites.delete_failed',
-                message: 'Could not delete the invitation link.'
-            }));
+            toast.error(
+                data.errorMessage ||
+                    t({
+                        id: 'settings.users.invites.delete_failed',
+                        message: 'Could not delete the invitation link.'
+                    })
+            );
         },
-        onError: () => toast.error(t({
-            id: 'settings.users.invites.delete_failed',
-            message: 'Could not delete the invitation link.'
-        }))
+        onError: () =>
+            toast.error(
+                t({
+                    id: 'settings.users.invites.delete_failed',
+                    message: 'Could not delete the invitation link.'
+                })
+            )
     });
 
     const handleRoleChange = async (user: ManagedUser, nextRole: ManagedUserRole) => {
@@ -497,7 +520,7 @@ const UserManagementSetting = () => {
             }),
             message: i18n._({
                 id: 'settings.users.role_change.message',
-                message: 'Change {username}\'s role from {currentRole} to {nextRole}?',
+                message: "Change {username}'s role from {currentRole} to {nextRole}?",
                 values: {
                     username: user.username,
                     currentRole: getRoleLabel(user.role),
@@ -552,21 +575,25 @@ const UserManagementSetting = () => {
     };
 
     const handleUserToggle = (userId: number) => {
-        setExpandedUserId(currentId => currentId === userId ? null : userId);
+        setExpandedUserId((currentId) => (currentId === userId ? null : userId));
     };
 
     const handleCopyInvite = async (invite: AuthorInvite) => {
         try {
             await navigator.clipboard.writeText(buildInviteUrl(invite));
-            toast.success(t({
-                id: 'settings.users.invites.copy_success',
-                message: 'Invitation link copied.'
-            }));
+            toast.success(
+                t({
+                    id: 'settings.users.invites.copy_success',
+                    message: 'Invitation link copied.'
+                })
+            );
         } catch {
-            toast.error(t({
-                id: 'settings.users.invites.copy_failed',
-                message: 'Could not copy the invitation link.'
-            }));
+            toast.error(
+                t({
+                    id: 'settings.users.invites.copy_failed',
+                    message: 'Could not copy the invitation link.'
+                })
+            );
         }
     };
 
@@ -601,7 +628,8 @@ const UserManagementSetting = () => {
                 })}
                 description={t({
                     id: 'settings.users.description',
-                    message: 'Change roles, suspend or delete members, and help them recover their accounts. Administrator access cannot be changed here.'
+                    message:
+                        'Change roles, suspend or delete members, and help them recover their accounts. Administrator access cannot be changed here.'
                 })}
             />
 
@@ -610,7 +638,8 @@ const UserManagementSetting = () => {
                     id: 'settings.users.stats.label',
                     message: 'User statistics'
                 })}
-                className="grid grid-cols-4 divide-x divide-line overflow-hidden rounded-xl border border-line bg-surface">
+                className="grid grid-cols-4 divide-x divide-line overflow-hidden rounded-xl border border-line bg-surface"
+            >
                 <div className="min-w-0 px-2 py-3 text-center sm:px-4">
                     <dt className="text-xs text-content-secondary">
                         <Trans id="settings.users.stats.total">Total</Trans>
@@ -646,7 +675,8 @@ const UserManagementSetting = () => {
                     id: 'settings.users.invites.description',
                     message: 'Anyone who signs up through an invitation link receives author access immediately.'
                 })}
-                icon={<Ticket aria-hidden="true" className="h-4 w-4" />}>
+                icon={<Ticket aria-hidden="true" className="h-4 w-4" />}
+            >
                 <div className="space-y-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <p className="text-sm text-content-secondary">
@@ -658,17 +688,23 @@ const UserManagementSetting = () => {
                             density="compact"
                             variant="primary"
                             isLoading={inviteMutation.isPending}
-                            onClick={() => inviteMutation.mutate()}>
+                            onClick={() => inviteMutation.mutate()}
+                        >
                             <Trans id="settings.users.invites.create_action">Create invitation link</Trans>
                         </Button>
                     </div>
 
                     <div className="divide-y divide-line rounded-xl border border-line">
-                        {invites.map(invite => (
-                            <div key={invite.id} className="flex flex-col gap-3 px-4 py-4 lg:flex-row lg:items-center lg:justify-between">
+                        {invites.map((invite) => (
+                            <div
+                                key={invite.id}
+                                className="flex flex-col gap-3 px-4 py-4 lg:flex-row lg:items-center lg:justify-between"
+                            >
                                 <div className="min-w-0">
                                     <div className="flex flex-wrap items-center gap-2">
-                                        <code className="rounded-lg bg-surface-subtle px-2 py-1 text-xs text-content">{invite.code}</code>
+                                        <code className="rounded-lg bg-surface-subtle px-2 py-1 text-xs text-content">
+                                            {invite.code}
+                                        </code>
                                         {invite.isClaimed ? (
                                             <span className="rounded-full bg-success-surface px-2 py-1 text-xs font-semibold text-success">
                                                 <Trans id="settings.users.invites.status.claimed">Claimed</Trans>
@@ -682,10 +718,10 @@ const UserManagementSetting = () => {
                                     <p className="mt-2 truncate text-xs text-content-secondary">
                                         {invite.isClaimed
                                             ? i18n._({
-                                                id: 'settings.users.invites.claimed_by',
-                                                message: 'Claimed by {username}',
-                                                values: { username: invite.claimedBy }
-                                            })
+                                                  id: 'settings.users.invites.claimed_by',
+                                                  message: 'Claimed by {username}',
+                                                  values: { username: invite.claimedBy }
+                                              })
                                             : buildInviteUrl(invite)}
                                     </p>
                                 </div>
@@ -695,16 +731,21 @@ const UserManagementSetting = () => {
                                         variant="secondary"
                                         size="sm"
                                         disabled={invite.isClaimed || !invite.isActive}
-                                        onClick={() => void handleCopyInvite(invite)}>
+                                        onClick={() => void handleCopyInvite(invite)}
+                                    >
                                         <Trans id="settings.users.invites.copy_action">Copy link</Trans>
                                     </Button>
                                     <Button
                                         density="compact"
                                         variant="danger"
                                         size="sm"
-                                        isLoading={deleteInviteMutation.isPending && deleteInviteMutation.variables?.id === invite.id}
+                                        isLoading={
+                                            deleteInviteMutation.isPending &&
+                                            deleteInviteMutation.variables?.id === invite.id
+                                        }
                                         disabled={invite.isClaimed}
-                                        onClick={() => void handleDeleteInvite(invite)}>
+                                        onClick={() => void handleDeleteInvite(invite)}
+                                    >
                                         <Trans id="common.delete">Delete</Trans>
                                     </Button>
                                 </div>
@@ -725,7 +766,8 @@ const UserManagementSetting = () => {
                     id: 'settings.users.list.title',
                     message: 'Users'
                 })}
-                icon={<Users aria-hidden="true" className="h-4 w-4" />}>
+                icon={<Users aria-hidden="true" className="h-4 w-4" />}
+            >
                 <div className="mb-6 grid gap-3 lg:grid-cols-[minmax(0,1fr)_180px_180px_auto]">
                     <Input
                         density="compact"
@@ -783,36 +825,55 @@ const UserManagementSetting = () => {
 
                 <div className="overflow-hidden rounded-xl border border-line">
                     <div className="hidden grid-cols-[minmax(0,1.5fr)_110px_70px_100px_120px_44px] gap-4 bg-surface-subtle px-4 py-3 text-xs font-semibold text-content-secondary md:grid">
-                        <span><Trans id="settings.users.field.user">User</Trans></span>
-                        <span><Trans id="settings.users.field.role">Role</Trans></span>
-                        <span><Trans id="settings.users.field.posts">Posts</Trans></span>
-                        <span><Trans id="settings.users.field.status">Status</Trans></span>
-                        <span><Trans id="settings.users.field.joined">Joined</Trans></span>
-                        <span className="sr-only"><Trans id="settings.users.field.actions">Actions</Trans></span>
+                        <span>
+                            <Trans id="settings.users.field.user">User</Trans>
+                        </span>
+                        <span>
+                            <Trans id="settings.users.field.role">Role</Trans>
+                        </span>
+                        <span>
+                            <Trans id="settings.users.field.posts">Posts</Trans>
+                        </span>
+                        <span>
+                            <Trans id="settings.users.field.status">Status</Trans>
+                        </span>
+                        <span>
+                            <Trans id="settings.users.field.joined">Joined</Trans>
+                        </span>
+                        <span className="sr-only">
+                            <Trans id="settings.users.field.actions">Actions</Trans>
+                        </span>
                     </div>
 
                     <div className="divide-y divide-line">
-                        {users.map(user => (
+                        {users.map((user) => (
                             <div key={user.id}>
                                 <MobileUserRow
                                     user={user}
                                     isExpanded={expandedUserId === user.id}
-                                    isRoleUpdating={roleMutation.isPending && roleMutation.variables?.user.id === user.id}
+                                    isRoleUpdating={
+                                        roleMutation.isPending && roleMutation.variables?.user.id === user.id
+                                    }
                                     onToggle={() => handleUserToggle(user.id)}
-                                    onRoleChange={role => void handleRoleChange(user, role)}
+                                    onRoleChange={(role) => void handleRoleChange(user, role)}
                                 />
 
                                 <div className="hidden gap-4 px-4 py-4 md:grid md:grid-cols-[minmax(0,1.5fr)_110px_70px_100px_120px_44px] md:items-center">
                                     <div className="min-w-0">
                                         <div className="flex items-center gap-2">
-                                            <p className="truncate text-sm font-semibold text-content">{user.username}</p>
-                                            {user.name && <span className="text-xs text-content-secondary">{user.name}</span>}
+                                            <p className="truncate text-sm font-semibold text-content">
+                                                {user.username}
+                                            </p>
+                                            {user.name && (
+                                                <span className="text-xs text-content-secondary">{user.name}</span>
+                                            )}
                                         </div>
                                         <p className="truncate text-xs text-content-secondary">
-                                            {user.email || t({
-                                                id: 'settings.users.field.no_email',
-                                                message: 'No email address'
-                                            })}
+                                            {user.email ||
+                                                t({
+                                                    id: 'settings.users.field.no_email',
+                                                    message: 'No email address'
+                                                })}
                                         </p>
                                     </div>
 
@@ -826,12 +887,19 @@ const UserManagementSetting = () => {
                                                     message: 'Change role for {username}',
                                                     values: { username: user.username }
                                                 })}
-                                                onValueChange={(value) => void handleRoleChange(user, value as ManagedUserRole)}
+                                                onValueChange={(value) =>
+                                                    void handleRoleChange(user, value as ManagedUserRole)
+                                                }
                                                 items={localizedRoleItems}
-                                                disabled={roleMutation.isPending && roleMutation.variables?.user.id === user.id}
+                                                disabled={
+                                                    roleMutation.isPending &&
+                                                    roleMutation.variables?.user.id === user.id
+                                                }
                                             />
                                         ) : (
-                                            <span className="text-sm font-medium text-content">{getRoleLabel(user.role)}</span>
+                                            <span className="text-sm font-medium text-content">
+                                                {getRoleLabel(user.role)}
+                                            </span>
                                         )}
                                     </div>
 
@@ -856,7 +924,8 @@ const UserManagementSetting = () => {
                                                     values: { username: user.username }
                                                 })}
                                                 onClick={() => handleUserToggle(user.id)}
-                                                className="flex h-9 w-9 items-center justify-center rounded-lg text-content-hint transition-colors hover:bg-surface-subtle hover:text-content active:scale-95 motion-reduce:transform-none motion-reduce:transition-none">
+                                                className="flex h-9 w-9 items-center justify-center rounded-lg text-content-hint transition-colors hover:bg-surface-subtle hover:text-content active:scale-95 motion-reduce:transform-none motion-reduce:transition-none"
+                                            >
                                                 <ChevronDown
                                                     aria-hidden="true"
                                                     className={`h-4 w-4 transition-transform motion-reduce:transition-none ${expandedUserId === user.id ? 'rotate-180' : ''}`}
@@ -868,7 +937,8 @@ const UserManagementSetting = () => {
                                 {expandedUserId === user.id && hasMemberActions(user) && (
                                     <div
                                         id={`managed-user-actions-${user.id}`}
-                                        className="hidden border-t border-line bg-surface-subtle/40 px-4 pb-4 md:block">
+                                        className="hidden border-t border-line bg-surface-subtle/40 px-4 pb-4 md:block"
+                                    >
                                         <MemberActions user={user} />
                                     </div>
                                 )}
@@ -881,10 +951,12 @@ const UserManagementSetting = () => {
                                     Could not load the user list. Try again shortly.
                                 </Trans>
                             </div>
-                        ) : users.length === 0 && (
-                            <div className="px-4 py-8 text-center text-sm text-content-secondary">
-                                <Trans id="settings.users.list.empty">No users match your search.</Trans>
-                            </div>
+                        ) : (
+                            users.length === 0 && (
+                                <div className="px-4 py-8 text-center text-sm text-content-secondary">
+                                    <Trans id="settings.users.list.empty">No users match your search.</Trans>
+                                </div>
+                            )
                         )}
                     </div>
                 </div>
@@ -896,7 +968,7 @@ const UserManagementSetting = () => {
                         id: 'settings.users.pagination.aria',
                         message: 'User pages'
                     })}
-                    onPageChange={value => handlePageMove(Number(value))}
+                    onPageChange={(value) => handlePageMove(Number(value))}
                 />
                 {pagination.totalPages > 1 && (
                     <p className="mt-4 text-center text-sm text-content-secondary">
@@ -905,10 +977,7 @@ const UserManagementSetting = () => {
                             message: 'Showing {start}–{end} of {total} users',
                             values: {
                                 start: (pagination.page - 1) * pagination.pageSize + 1,
-                                end: Math.min(
-                                    pagination.page * pagination.pageSize,
-                                    pagination.total
-                                ),
+                                end: Math.min(pagination.page * pagination.pageSize, pagination.total),
                                 total: pagination.total
                             }
                         })}

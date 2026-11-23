@@ -1,11 +1,7 @@
 import { Button, LoadingState } from '~/components/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Calendar, FileText, Search } from '~/ui/icons';
-import {
-    getSettingsIconClass,
-    SETTINGS_LIST_META,
-    SETTINGS_LIST_TITLE
-} from '~/styles/settingsStyles';
+import { getSettingsIconClass, SETTINGS_LIST_META, SETTINGS_LIST_TITLE } from '~/styles/settingsStyles';
 import SettingsListItem from '../../layout/SettingsListItem';
 import { getMediaPath } from '~/modules/static.module';
 import type { PinnablePostData, PinnablePostsPaginationData } from '~/lib/api/settings';
@@ -50,11 +46,16 @@ export const PinnablePostInlineList = ({
                         <Trans id="settings.pinned_posts.available.title">Available posts</Trans>
                     </h4>
                     <p className="text-xs text-content-secondary">
-                        <Trans id="settings.pinned_posts.available.description">Select Pin to add a post to your profile.</Trans>
+                        <Trans id="settings.pinned_posts.available.description">
+                            Select Pin to add a post to your profile.
+                        </Trans>
                     </p>
                 </div>
                 <div className="relative w-full sm:w-72">
-                    <Search aria-hidden className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-content-hint" />
+                    <Search
+                        aria-hidden
+                        className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-content-hint"
+                    />
                     <input
                         type="text"
                         aria-label={t({
@@ -74,7 +75,9 @@ export const PinnablePostInlineList = ({
 
             {!canAddMore && (
                 <div className="rounded-xl border border-line bg-surface-subtle px-4 py-3 text-sm text-content-secondary">
-                    <Trans id="settings.pinned_posts.available.limit_reached">You've reached the pin limit. Unpin a post before adding another.</Trans>
+                    <Trans id="settings.pinned_posts.available.limit_reached">
+                        You've reached the pin limit. Unpin a post before adding another.
+                    </Trans>
                 </div>
             )}
 
@@ -90,13 +93,13 @@ export const PinnablePostInlineList = ({
                 <div className="rounded-xl border border-dashed border-line bg-surface-subtle px-4 py-8 text-center text-sm text-content-secondary">
                     {searchQuery.trim()
                         ? t({
-                            id: 'settings.pinned_posts.available.no_results',
-                            message: 'No search results.'
-                        })
+                              id: 'settings.pinned_posts.available.no_results',
+                              message: 'No search results.'
+                          })
                         : t({
-                            id: 'settings.pinned_posts.available.none_left',
-                            message: 'There are no more posts available to pin.'
-                        })}
+                              id: 'settings.pinned_posts.available.none_left',
+                              message: 'There are no more posts available to pin.'
+                          })}
                 </div>
             ) : (
                 <div className="space-y-3" aria-busy={isLoading}>
@@ -129,10 +132,12 @@ export const PinnablePostInlineList = ({
                                         className="min-h-11! [@media(pointer:fine)]:min-h-9!"
                                         onClick={() => onAdd(post.url)}
                                         disabled={isActionDisabled || isLoading}
-                                        isLoading={isLoading}>
+                                        isLoading={isLoading}
+                                    >
                                         <Trans id="settings.pinned_posts.pin">Pin</Trans>
                                     </Button>
-                                }>
+                                }
+                            >
                                 <h3 className={`${SETTINGS_LIST_TITLE} mb-1 truncate text-content`}>{post.title}</h3>
                                 <div className={`${SETTINGS_LIST_META} flex items-center gap-2 text-xs`}>
                                     <span className="flex items-center gap-1">
@@ -143,11 +148,7 @@ export const PinnablePostInlineList = ({
                             </SettingsListItem>
                         );
                     })}
-                    <PinnablePostsPager
-                        pagination={pagination}
-                        onPageChange={onPageChange}
-                        isLoading={isLoading}
-                    />
+                    <PinnablePostsPager pagination={pagination} onPageChange={onPageChange} isLoading={isLoading} />
                 </div>
             )}
         </div>

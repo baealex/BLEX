@@ -19,17 +19,28 @@ interface UsernameSectionProps {
 
 const UsernameSection = ({ initialUsername, isLoading, onSubmit }: UsernameSectionProps) => {
     const { t } = useLingui();
-    const usernameSchema = useMemo(() => z.object({
-        username: z.string()
-            .min(3, t({
-                id: 'settings.account.username.validation.min_length',
-                message: 'Username must be at least 3 characters.'
-            }))
-            .max(30, t({
-                id: 'settings.account.username.validation.max_length',
-                message: 'Username must be 30 characters or fewer.'
-            }))
-    }), [t]);
+    const usernameSchema = useMemo(
+        () =>
+            z.object({
+                username: z
+                    .string()
+                    .min(
+                        3,
+                        t({
+                            id: 'settings.account.username.validation.min_length',
+                            message: 'Username must be at least 3 characters.'
+                        })
+                    )
+                    .max(
+                        30,
+                        t({
+                            id: 'settings.account.username.validation.max_length',
+                            message: 'Username must be 30 characters or fewer.'
+                        })
+                    )
+            }),
+        [t]
+    );
     const {
         register,
         handleSubmit,
@@ -62,7 +73,8 @@ const UsernameSection = ({ initialUsername, isLoading, onSubmit }: UsernameSecti
                 message: 'Change username'
             })}
             className="pb-6"
-            onSubmit={handleSubmit(handleFormSubmit)}>
+            onSubmit={handleSubmit(handleFormSubmit)}
+        >
             <Input
                 density="compact"
                 type="text"
@@ -77,7 +89,8 @@ const UsernameSection = ({ initialUsername, isLoading, onSubmit }: UsernameSecti
                 maxLength={30}
                 helperText={t({
                     id: 'settings.account.username.helper',
-                    message: 'Used for sign-in and your URL. If you have published posts, you can change it only once every six months.'
+                    message:
+                        'Used for sign-in and your URL. If you have published posts, you can change it only once every six months.'
                 })}
                 error={errors.username?.message}
                 {...register('username')}
@@ -91,16 +104,17 @@ const UsernameSection = ({ initialUsername, isLoading, onSubmit }: UsernameSecti
                     className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                     disabled={!isDirty || !isValid}
                     isLoading={isLoading}
-                    leftIcon={!isLoading ? <Save className="h-4 w-4" /> : undefined}>
+                    leftIcon={!isLoading ? <Save className="h-4 w-4" /> : undefined}
+                >
                     {isLoading
                         ? t({
-                            id: 'settings.account.username.updating',
-                            message: 'Updating...'
-                        })
+                              id: 'settings.account.username.updating',
+                              message: 'Updating...'
+                          })
                         : t({
-                            id: 'settings.account.username.update',
-                            message: 'Update username'
-                        })}
+                              id: 'settings.account.username.update',
+                              message: 'Update username'
+                          })}
                 </Button>
             </div>
         </form>

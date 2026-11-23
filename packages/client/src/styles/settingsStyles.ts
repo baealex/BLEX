@@ -10,12 +10,12 @@ const SETTINGS_ICON_VARIANTS = {
 export const SETTINGS_LIST_TITLE = 'text-base font-semibold text-content';
 export const SETTINGS_LIST_META = 'text-xs text-content-secondary';
 
-export const getSettingsIconClass = (
-    variant: keyof typeof SETTINGS_ICON_VARIANTS = 'default'
-) => `${SETTINGS_ICON_BASE} ${SETTINGS_ICON_VARIANTS[variant]}`;
+export const getSettingsIconClass = (variant: keyof typeof SETTINGS_ICON_VARIANTS = 'default') =>
+    `${SETTINGS_ICON_BASE} ${SETTINGS_ICON_VARIANTS[variant]}`;
 
 // These are button-based select triggers, not text inputs.
-const SETTINGS_SELECT_TRIGGER_BASE = 'block w-full rounded-lg border border-line focus:border-line-strong/30 focus:ring-2 focus:ring-line/5 text-sm px-3 transition-all motion-interaction bg-surface placeholder-content-hint text-content';
+const SETTINGS_SELECT_TRIGGER_BASE =
+    'block w-full rounded-lg border border-line focus:border-line-strong/30 focus:ring-2 focus:ring-line/5 text-sm px-3 transition-all motion-interaction bg-surface placeholder-content-hint text-content';
 
 export const settingsSelectTriggerStyles = `${SETTINGS_SELECT_TRIGGER_BASE} min-h-11 py-2.5`;
 export const settingsCompactSelectTriggerStyles = `${SETTINGS_SELECT_TRIGGER_BASE} min-h-11 py-2 [@media(pointer:fine)]:min-h-10`;

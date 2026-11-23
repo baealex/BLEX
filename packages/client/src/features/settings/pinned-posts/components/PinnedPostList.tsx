@@ -31,13 +31,7 @@ interface PinnedPostListProps {
     emptyAction?: ReactNode;
 }
 
-export const PinnedPostList = ({
-    pinnedPosts,
-    username,
-    onReorder,
-    onRemove,
-    emptyAction
-}: PinnedPostListProps) => {
+export const PinnedPostList = ({ pinnedPosts, username, onReorder, onRemove, emptyAction }: PinnedPostListProps) => {
     const { t } = useLingui();
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -80,18 +74,12 @@ export const PinnedPostList = ({
             sensors={sensors}
             modifiers={[restrictToVerticalAxis, restrictToFirstScrollableAncestor]}
             collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}>
-            <SortableContext
-                items={pinnedPosts.map((item) => item.post.url)}
-                strategy={verticalListSortingStrategy}>
+            onDragEnd={handleDragEnd}
+        >
+            <SortableContext items={pinnedPosts.map((item) => item.post.url)} strategy={verticalListSortingStrategy}>
                 <div>
                     {pinnedPosts.map((item) => (
-                        <PinnedPostItem
-                            key={item.post.url}
-                            pinnedPost={item}
-                            username={username}
-                            onRemove={onRemove}
-                        />
+                        <PinnedPostItem key={item.post.url} pinnedPost={item} username={username} onRemove={onRemove} />
                     ))}
                 </div>
             </SortableContext>

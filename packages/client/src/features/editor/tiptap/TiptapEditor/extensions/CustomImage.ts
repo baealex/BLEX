@@ -108,8 +108,19 @@ export const CustomImage = Node.create({
 
     renderHTML({ HTMLAttributes }) {
         const {
-            src, alt, title, width, height, objectFit, caption, aspectRatio,
-            align, border, shadow, borderRadius, sizePreset
+            src,
+            alt,
+            title,
+            width,
+            height,
+            objectFit,
+            caption,
+            aspectRatio,
+            align,
+            border,
+            shadow,
+            borderRadius,
+            sizePreset
         } = HTMLAttributes;
 
         const imgAttrs: Record<string, string> = {
@@ -150,17 +161,11 @@ export const CustomImage = Node.create({
             sizePreset
         });
 
-        const content = [
-            ['img', imgAttrs]
-        ];
+        const content = [['img', imgAttrs]];
         if (caption) {
             content.push(['figcaption', {}, caption]);
         }
 
-        return [
-            'figure',
-            figureAttrs,
-            ...content
-        ];
+        return ['figure', figureAttrs, ...content];
     }
 });

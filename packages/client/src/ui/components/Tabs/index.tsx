@@ -23,12 +23,7 @@ interface TabsListProps {
 }
 
 const List = ({ children, className, ariaLabel }: TabsListProps) => (
-    <RadixTabs.List
-        aria-label={ariaLabel}
-        className={cx(
-            'flex border-b border-line',
-            className
-        )}>
+    <RadixTabs.List aria-label={ariaLabel} className={cx('flex border-b border-line', className)}>
         {children}
     </RadixTabs.List>
 );
@@ -48,7 +43,8 @@ const Trigger = ({ value, children, className }: TabsTriggerProps) => (
             'data-[state=active]:text-content data-[state=active]:border-b-2 data-[state=active]:border-action data-[state=active]:-mb-px',
             'focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-line-strong',
             className
-        )}>
+        )}
+    >
         {children}
     </RadixTabs.Trigger>
 );
@@ -62,11 +58,8 @@ interface TabsContentProps {
 const Content = ({ value, children, className }: TabsContentProps) => (
     <RadixTabs.Content
         value={value}
-        className={cx(
-            'focus:outline-none',
-            'data-[state=active]:animate-in data-[state=active]:fade-in-0',
-            className
-        )}>
+        className={cx('focus:outline-none', 'data-[state=active]:animate-in data-[state=active]:fade-in-0', className)}
+    >
         {children}
     </RadixTabs.Content>
 );

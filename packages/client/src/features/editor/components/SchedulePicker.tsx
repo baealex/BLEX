@@ -29,15 +29,18 @@ const dayPickerClassNames = {
     month_caption: 'relative flex h-11 items-center justify-center',
     caption_label: 'text-sm font-semibold text-content',
     nav: 'absolute right-0 top-0 flex items-center gap-1',
-    button_previous: 'inline-flex h-11 w-11 items-center justify-center rounded-lg text-content-secondary hover:bg-surface-subtle hover:text-content active:scale-95',
-    button_next: 'inline-flex h-11 w-11 items-center justify-center rounded-lg text-content-secondary hover:bg-surface-subtle hover:text-content active:scale-95',
+    button_previous:
+        'inline-flex h-11 w-11 items-center justify-center rounded-lg text-content-secondary hover:bg-surface-subtle hover:text-content active:scale-95',
+    button_next:
+        'inline-flex h-11 w-11 items-center justify-center rounded-lg text-content-secondary hover:bg-surface-subtle hover:text-content active:scale-95',
     chevron: 'h-4 w-4',
     month_grid: 'mt-3 w-full border-collapse',
     weekdays: 'border-b border-line-light',
     weekday: 'h-8 text-center text-[11px] font-semibold text-content-hint',
     week: '',
     day: 'p-0 text-center align-middle',
-    day_button: 'mx-auto my-0.5 flex h-11 w-11 items-center justify-center rounded-lg text-sm font-medium text-content-secondary transition-all hover:bg-surface-subtle hover:text-content active:scale-95 focus:outline-none focus:ring-2 focus:ring-line-strong/50',
+    day_button:
+        'mx-auto my-0.5 flex h-11 w-11 items-center justify-center rounded-lg text-sm font-medium text-content-secondary transition-all hover:bg-surface-subtle hover:text-content active:scale-95 focus:outline-none focus:ring-2 focus:ring-line-strong/50',
     outside: '[&>button]:text-content-hint/40',
     today: '[&>button]:ring-1 [&>button]:ring-line-strong',
     selected: '[&>button]:bg-content [&>button]:text-surface [&>button]:hover:bg-content',
@@ -116,16 +119,17 @@ const SchedulePicker = ({ value, onChange, allowClear = true }: SchedulePickerPr
                             className={cx(
                                 'flex min-h-12 w-full items-center justify-between rounded-lg border border-line bg-surface-elevated px-3 py-2 pr-12 text-left text-sm transition-colors',
                                 'hover:border-line-strong hover:bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-line/70'
-                            )}>
+                            )}
+                        >
                             <span className="flex min-w-0 items-center gap-2">
                                 <Calendar className="h-4 w-4 shrink-0 text-content-hint" />
                                 <span className={value ? 'text-content' : 'text-content-hint'}>
                                     {value
                                         ? formatScheduleDateTime(value, locale)
                                         : t({
-                                            id: 'editor.schedule.select_time',
-                                            message: 'Select a publish time'
-                                        })}
+                                              id: 'editor.schedule.select_time',
+                                              message: 'Select a publish time'
+                                          })}
                                 </span>
                             </span>
                         </button>
@@ -141,7 +145,8 @@ const SchedulePicker = ({ value, onChange, allowClear = true }: SchedulePickerPr
                             aria-label={t({
                                 id: 'editor.schedule.clear',
                                 message: 'Clear schedule'
-                            })}>
+                            })}
+                        >
                             <X className="h-4 w-4" />
                         </button>
                     )}
@@ -151,7 +156,8 @@ const SchedulePicker = ({ value, onChange, allowClear = true }: SchedulePickerPr
                         side="bottom"
                         align="start"
                         sideOffset={8}
-                        className="z-[70] w-[min(22rem,calc(100vw-2rem))] rounded-2xl border border-line bg-surface-elevated p-4 shadow-2xl outline-none">
+                        className="z-[70] w-[min(22rem,calc(100vw-2rem))] rounded-2xl border border-line bg-surface-elevated p-4 shadow-2xl outline-none"
+                    >
                         <DayPicker
                             mode="single"
                             locale={locale === 'ko' ? ko : enUS}
@@ -213,7 +219,8 @@ const SchedulePicker = ({ value, onChange, allowClear = true }: SchedulePickerPr
                                         key={option.label}
                                         type="button"
                                         onClick={() => selectDate(option.getDate())}
-                                        className="min-h-11 rounded-lg border border-line bg-surface px-3 py-2 text-xs font-medium text-content-secondary hover:border-line-strong hover:bg-surface-subtle hover:text-content active:scale-95">
+                                        className="min-h-11 rounded-lg border border-line bg-surface px-3 py-2 text-xs font-medium text-content-secondary hover:border-line-strong hover:bg-surface-subtle hover:text-content active:scale-95"
+                                    >
                                         {option.label}
                                     </button>
                                 ))}

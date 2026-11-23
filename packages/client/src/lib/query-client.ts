@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 import { defaultShouldDehydrateQuery, QueryClient, type Query } from '@tanstack/react-query';
 import type { PersistedClient, Persister } from '@tanstack/react-query-persist-client';
 import { getDocumentLocale, getDocumentTimeZone } from '../i18n/locale';
@@ -14,9 +12,7 @@ const getCurrentCacheKey = () => {
 };
 
 /** Queries can opt out with `meta: { persist: false }` when their payload is too large for sessionStorage. */
-export const shouldPersistQuery = (query: Query) => (
-    defaultShouldDehydrateQuery(query) && query.meta?.persist !== false
-);
+export const shouldPersistQuery = (query: Query) => defaultShouldDehydrateQuery(query) && query.meta?.persist !== false;
 
 export const sessionStoragePersister: Persister = {
     persistClient: async (client: PersistedClient) => {

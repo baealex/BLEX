@@ -42,7 +42,12 @@ async function claimDelivery(db: PrismaClient) {
   }
 }
 
-export async function deliverPostWebhook(db: PrismaClient, siteUrl: URL, signal: AbortSignal, send: SendWebhook = sendWebhook) {
+export async function deliverPostWebhook(
+  db: PrismaClient,
+  siteUrl: URL,
+  signal: AbortSignal,
+  send: SendWebhook = sendWebhook,
+) {
   const job = await claimDelivery(db);
   if (!job) return false;
   const sentAt = new Date();
@@ -50,34 +55,57 @@ export async function deliverPostWebhook(db: PrismaClient, siteUrl: URL, signal:
     where: { id: job.channelId, isActive: true },
     select: { url: true, scope: true, ownerId: true },
   });
-  const stored = channel ? await db.post.findFirst({
-    where: { id: job.postId, ...publicPostWhere(sentAt) },
-    select: { authorId: true, title: true, slug: true, author: { select: { username: true, name: true, profile: { select: { role: true } } } } },
-  }) : null;
-  const post = stored && {
-    authorId: stored.authorId, title: stored.title, slug: stored.slug, username: stored.author.username,
-    name: stored.author.name, role: stored.author.profile?.role ?? null,
-  };
-  const row = channel && post && (channel.scope === 'global' || (channel.ownerId === post.authorId && post.role === 'EDITOR'))
-    ? { ...post, channelUrl: channel.url }
+  const stored = channel
+    ? await db.post.findFirst({
+        where: { id: job.postId, ...publicPostWhere(sentAt) },
+        select: {
+          authorId: true,
+          title: true,
+          slug: true,
+          author: { select: { username: true, name: true, profile: { select: { role: true } } } },
+        },
+      })
     : null;
+  const post = stored && {
+    authorId: stored.authorId,
+    title: stored.title,
+    slug: stored.slug,
+    username: stored.author.username,
+    name: stored.author.name,
+    role: stored.author.profile?.role ?? null,
+  };
+  const row =
+    channel && post && (channel.scope === 'global' || (channel.ownerId === post.authorId && post.role === 'EDITOR'))
+      ? { ...post, channelUrl: channel.url }
+      : null;
   if (signal.aborted) return true;
   const target = row ? parseWebhookUrl(row.channelUrl) : null;
   let sent = false;
   if (row && target) {
     const postUrl = new URL(publicPostPath(row.username, row.slug), siteUrl).href;
     const escape = (value: string) => value.replace(/[\[\]<>\\]/g, '\\$&');
-    sent = await send(target, `[${escape(row.name || row.username)}] 새 글을 발행했습니다. [${escape(row.title)}](${postUrl})`, postUrl, signal);
+    sent = await send(
+      target,
+      `[${escape(row.name || row.username)}] 새 글을 발행했습니다. [${escape(row.title)}](${postUrl})`,
+      postUrl,
+      signal,
+    );
   }
   if (signal.aborted) return true;
   await db.$transaction(async (tx) => {
     await tx.webhookDelivery.updateMany({ where: job, data: { isDone: true } });
     // updateMany tolerates a channel that was removed while the request was in flight.
     if (row && sent) {
-      await tx.webhookChannel.updateMany({ where: { id: job.channelId }, data: { failureCount: 0, lastSuccessAt: sentAt } });
+      await tx.webhookChannel.updateMany({
+        where: { id: job.channelId },
+        data: { failureCount: 0, lastSuccessAt: sentAt },
+      });
     } else if (row) {
       await tx.webhookChannel.updateMany({ where: { id: job.channelId }, data: { failureCount: { increment: 1 } } });
-      await tx.webhookChannel.updateMany({ where: { id: job.channelId, failureCount: { gte: maxFailures } }, data: { isActive: false } });
+      await tx.webhookChannel.updateMany({
+        where: { id: job.channelId, failureCount: { gte: maxFailures } },
+        data: { isActive: false },
+      });
     }
   });
   return true;

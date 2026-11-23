@@ -51,9 +51,7 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
         <section className="space-y-4">
             <div className="flex items-end justify-between gap-4">
                 <h2 className="text-base font-semibold text-content">
-                    <Trans id="settings.series.posts.title">
-                        Select posts to include
-                    </Trans>
+                    <Trans id="settings.series.posts.title">Select posts to include</Trans>
                 </h2>
                 <div className="rounded-full bg-surface-subtle px-3 py-1 text-xs font-medium text-content-secondary">
                     {i18n._({
@@ -89,25 +87,25 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
                                 type="button"
                                 onClick={handleToggleAll}
                                 disabled={safePosts.length === 0}
-                                className="inline-flex min-h-11 items-center rounded-md px-2 text-sm font-medium text-content-secondary transition-colors duration-150 hover:text-content active:text-content disabled:cursor-not-allowed disabled:opacity-40 [@media(pointer:fine)]:min-h-9">
+                                className="inline-flex min-h-11 items-center rounded-md px-2 text-sm font-medium text-content-secondary transition-colors duration-150 hover:text-content active:text-content disabled:cursor-not-allowed disabled:opacity-40 [@media(pointer:fine)]:min-h-9"
+                            >
                                 {isAllSelected
                                     ? t({
-                                        id: 'settings.series.posts.deselect_all',
-                                        message: 'Deselect all'
-                                    })
+                                          id: 'settings.series.posts.deselect_all',
+                                          message: 'Deselect all'
+                                      })
                                     : t({
-                                        id: 'settings.series.posts.select_all',
-                                        message: 'Select all'
-                                    })}
+                                          id: 'settings.series.posts.select_all',
+                                          message: 'Select all'
+                                      })}
                             </button>
                             {isSearchActive && (
                                 <button
                                     type="button"
                                     onClick={() => setQuery('')}
-                                    className="inline-flex min-h-11 items-center rounded-md px-2 text-sm font-medium text-content-secondary transition-colors duration-150 hover:text-content active:text-content [@media(pointer:fine)]:min-h-9">
-                                    <Trans id="settings.series.posts.clear_search">
-                                        Clear search
-                                    </Trans>
+                                    className="inline-flex min-h-11 items-center rounded-md px-2 text-sm font-medium text-content-secondary transition-colors duration-150 hover:text-content active:text-content [@media(pointer:fine)]:min-h-9"
+                                >
+                                    <Trans id="settings.series.posts.clear_search">Clear search</Trans>
                                 </button>
                             )}
                         </div>
@@ -159,18 +157,18 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
                                     key={post.id}
                                     checked={isSelected}
                                     label={post.title}
-                                    description={post.publishedDate
-                                        ? formatDateOnly(
-                                            post.publishedDate,
-                                            normalizeLocale(i18n.locale),
-                                            post.publishedDate
-                                        )
-                                        : undefined}
+                                    description={
+                                        post.publishedDate
+                                            ? formatDateOnly(
+                                                  post.publishedDate,
+                                                  normalizeLocale(i18n.locale),
+                                                  post.publishedDate
+                                              )
+                                            : undefined
+                                    }
                                     onCheckedChange={() => togglePost(post.id)}
                                     className={`w-full cursor-pointer px-4 py-3.5 transition-colors duration-150 ${
-                                        isSelected
-                                            ? 'bg-surface-subtle'
-                                            : 'bg-surface hover:bg-surface-subtle/60'
+                                        isSelected ? 'bg-surface-subtle' : 'bg-surface hover:bg-surface-subtle/60'
                                     }`}
                                 />
                             );

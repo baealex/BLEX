@@ -14,9 +14,7 @@ interface StartFirstPublishTourOptions {
 }
 
 const getOverlayColor = () => {
-    const color = getComputedStyle(document.documentElement)
-        .getPropertyValue('--color-content')
-        .trim();
+    const color = getComputedStyle(document.documentElement).getPropertyValue('--color-content').trim();
 
     return color || '#020617';
 };
@@ -32,7 +30,8 @@ const getSteps = (): DriveStep[] => {
                 }),
                 description: i18n._({
                     id: 'editor.guide.autosave_description',
-                    message: 'Your work remains as a draft even if you pause. Use Save draft only when you want to save immediately.'
+                    message:
+                        'Your work remains as a draft even if you pause. Use Save draft only when you want to save immediately.'
                 }),
                 side: 'top',
                 align: 'center'
@@ -47,7 +46,8 @@ const getSteps = (): DriveStep[] => {
                 }),
                 description: i18n._({
                     id: 'editor.guide.settings_description',
-                    message: 'Change the URL, description, series, and visibility here. You can publish without a description, tags, or cover image.'
+                    message:
+                        'Change the URL, description, series, and visibility here. You can publish without a description, tags, or cover image.'
                 }),
                 side: 'top',
                 align: 'center'
@@ -62,7 +62,8 @@ const getSteps = (): DriveStep[] => {
                 }),
                 description: i18n._({
                     id: 'editor.guide.publish_description',
-                    message: 'Only required fields such as the title and content block publishing. Recommended fields can be added later.'
+                    message:
+                        'Only required fields such as the title and content block publishing. Recommended fields can be added later.'
                 }),
                 side: 'top',
                 align: 'end'
@@ -70,7 +71,7 @@ const getSteps = (): DriveStep[] => {
         }
     ];
 
-    return steps.filter(step => typeof step.element !== 'string' || hasTarget(step.element));
+    return steps.filter((step) => typeof step.element !== 'string' || hasTarget(step.element));
 };
 
 export const startFirstPublishTour = async (options: StartFirstPublishTourOptions = {}) => {
@@ -116,10 +117,13 @@ export const startFirstPublishTour = async (options: StartFirstPublishTourOption
             message: 'Done'
         }),
         onPopoverRender: (popover) => {
-            popover.closeButton.setAttribute('aria-label', i18n._({
-                id: 'editor.guide.close',
-                message: 'Close guide'
-            }));
+            popover.closeButton.setAttribute(
+                'aria-label',
+                i18n._({
+                    id: 'editor.guide.close',
+                    message: 'Close guide'
+                })
+            );
         },
         onNextClick: (_, __, { driver: activeDriver }) => {
             activeDriver.moveNext();

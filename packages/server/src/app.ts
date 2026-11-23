@@ -31,20 +31,35 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
     // Publishing writes one notification per subscriber inside its transaction.
     transactionOptions: { maxWait: 15_000, timeout: 30_000 },
   });
-  const app = Fastify({ bodyLimit: 8 * 1024, requestTimeout: 300_000, routerOptions: { ignoreDuplicateSlashes: true, maxParamLength: 150 }, trustProxy: auth?.trustedProxies ?? false });
+  const app = Fastify({
+    bodyLimit: 8 * 1024,
+    requestTimeout: 300_000,
+    routerOptions: { ignoreDuplicateSlashes: true, maxParamLength: 150 },
+    trustProxy: auth?.trustedProxies ?? false,
+  });
   const httpsSite = siteUrl.protocol === 'https:';
   app.addHook('onRequest', async (request, reply) => {
-    const forwarded = String(request.headers['x-forwarded-proto'] ?? '').split(',')[0]?.trim().toLowerCase();
+    const forwarded = String(request.headers['x-forwarded-proto'] ?? '')
+      .split(',')[0]
+      ?.trim()
+      .toLowerCase();
     if (httpsSite && forwarded === 'http') return reply.redirect(`${siteUrl.origin}${request.url}`, 301);
   });
   app.addHook('onSend', async (request, reply, payload) => {
     applySecurityHeaders(reply, httpsSite);
     const contentType = String(reply.getHeader('Content-Type') ?? '');
-    if ((reply.statusCode === 404 || reply.statusCode === 403) && !contentType.startsWith('text/html') && wantsNotFoundPage(request)) {
+    if (
+      (reply.statusCode === 404 || reply.statusCode === 403) &&
+      !contentType.startsWith('text/html') &&
+      wantsNotFoundPage(request)
+    ) {
       try {
         const render = reply.statusCode === 403 ? renderForbiddenPage : renderNotFoundPage;
         const page = await render(db, await currentUser(request), requestCookies(request)[csrfCookie] ?? '');
-        reply.type('text/html; charset=utf-8').header('Content-Security-Policy', applicationContentSecurityPolicy).removeHeader('Content-Length');
+        reply
+          .type('text/html; charset=utf-8')
+          .header('Content-Security-Policy', applicationContentSecurityPolicy)
+          .removeHeader('Content-Length');
         return page;
       } catch (error) {
         request.log.warn(error);
@@ -53,8 +68,12 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
     if (contentType.startsWith('text/html') && isApplicationDocument(payload)) {
       reply.header('Content-Security-Policy', applicationContentSecurityPolicy);
     }
-    if (reply.statusCode === 200 && !reply.hasHeader('X-Robots-Tag') && indexableContentType.test(contentType)
-      && !await searchIndexingEnabled(db)) {
+    if (
+      reply.statusCode === 200 &&
+      !reply.hasHeader('X-Robots-Tag') &&
+      indexableContentType.test(contentType) &&
+      !(await searchIndexingEnabled(db))
+    ) {
       reply.header('X-Robots-Tag', 'noindex, nofollow');
     }
     return payload;
@@ -81,16 +100,19 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
         await db.scheduledPublication.findFirst({ select: { postId: true } });
         await db.webhookDelivery.findFirst({ select: { postId: true } });
       } catch (error) {
-        throw new Error('Could not open the BLEX 4 schema. Apply the Prisma migrations and follow the BLEX 3.x upgrade guide for an existing database.', { cause: error });
+        throw new Error(
+          'Could not open the BLEX 4 schema. Apply the Prisma migrations and follow the BLEX 3.x upgrade guide for an existing database.',
+          { cause: error },
+        );
       }
     } else await makeConnectionReadOnly(db);
     await readPublicPost(db, '__schema_check__', '__schema_check__');
-    if (auth?.deliverNotifications) stopDelivery = startNotificationWorker(db, siteUrl, auth.cipherKey, auth.fetchProvider);
+    if (auth?.deliverNotifications)
+      stopDelivery = startNotificationWorker(db, siteUrl, auth.cipherKey, auth.fetchProvider);
   });
 
-  const currentUser = (request: FastifyRequest) => auth
-    ? readSession(db, requestCookies(request)[sessionCookie], auth.secretKey)
-    : Promise.resolve(null);
+  const currentUser = (request: FastifyRequest) =>
+    auth ? readSession(db, requestCookies(request)[sessionCookie], auth.secretKey) : Promise.resolve(null);
   await registerRoutes(app, { db, siteUrl, auth, mediaRoot, currentUser });
 
   return app;

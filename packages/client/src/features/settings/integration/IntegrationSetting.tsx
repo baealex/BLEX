@@ -3,12 +3,7 @@ import { useLingui } from '@lingui/react/macro';
 import { toast } from '~/utils/toast';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { Navigate } from '@tanstack/react-router';
-import {
-    Check,
-    CirclePause,
-    Plug,
-    Unlink
-} from '~/ui/icons';
+import { Check, CirclePause, Plug, Unlink } from '~/ui/icons';
 import { SettingsHeader } from '../layout';
 import { Button, Card } from '~/components/shared';
 import { useConfirm } from '~/hooks/useConfirm';
@@ -32,10 +27,13 @@ const IntegrationSettings = () => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error(data.errorMessage || t({
-                id: 'settings.telegram.load_failed',
-                message: 'Could not load Telegram integration details.'
-            }));
+            throw new Error(
+                data.errorMessage ||
+                    t({
+                        id: 'settings.telegram.load_failed',
+                        message: 'Could not load Telegram integration details.'
+                    })
+            );
         }
     });
 
@@ -66,30 +64,39 @@ const IntegrationSettings = () => {
         try {
             const { data } = await disconnectTelegramAPI();
             if (data.status === 'DONE') {
-                toast.success(t({
-                    id: 'settings.telegram.disconnect.success',
-                    message: 'Telegram disconnected.'
-                }));
+                toast.success(
+                    t({
+                        id: 'settings.telegram.disconnect.success',
+                        message: 'Telegram disconnected.'
+                    })
+                );
                 // The cached link carried the code that was just used, so issue a new one.
                 queryClient.removeQueries({ queryKey: TELEGRAM_CONNECT_LINK_QUERY_KEY });
                 refetch();
             } else if (data.errorCode === 'ALREADY_DISCONNECTED') {
-                toast.info(t({
-                    id: 'settings.telegram.disconnect.already',
-                    message: 'Telegram is already disconnected.'
-                }));
+                toast.info(
+                    t({
+                        id: 'settings.telegram.disconnect.already',
+                        message: 'Telegram is already disconnected.'
+                    })
+                );
                 refetch();
             } else {
-                toast.error(data.errorMessage || t({
-                    id: 'settings.telegram.disconnect.failed',
-                    message: 'Could not disconnect Telegram.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'settings.telegram.disconnect.failed',
+                            message: 'Could not disconnect Telegram.'
+                        })
+                );
             }
         } catch {
-            toast.error(t({
-                id: 'common.network_error',
-                message: 'A network error occurred.'
-            }));
+            toast.error(
+                t({
+                    id: 'common.network_error',
+                    message: 'A network error occurred.'
+                })
+            );
         } finally {
             setIsDisconnecting(false);
         }
@@ -124,36 +131,41 @@ const IntegrationSettings = () => {
                         id: 'settings.telegram.status.title',
                         message: 'Connection status'
                     })}
-                    icon={<Plug aria-hidden className="h-4 w-4" />}>
+                    icon={<Plug aria-hidden className="h-4 w-4" />}
+                >
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                         <div className="flex items-center gap-4 flex-1">
-                            <div className={`flex items-center justify-center w-12 h-12 rounded-xl flex-shrink-0 ${isConfigured ? 'bg-action' : 'bg-warning-surface'}`}>
-                                {isConfigured
-                                    ? <Check aria-hidden className="h-4 w-4 text-content-inverted" />
-                                    : <CirclePause aria-hidden className="h-4 w-4 text-warning" />}
+                            <div
+                                className={`flex items-center justify-center w-12 h-12 rounded-xl flex-shrink-0 ${isConfigured ? 'bg-action' : 'bg-warning-surface'}`}
+                            >
+                                {isConfigured ? (
+                                    <Check aria-hidden className="h-4 w-4 text-content-inverted" />
+                                ) : (
+                                    <CirclePause aria-hidden className="h-4 w-4 text-warning" />
+                                )}
                             </div>
                             <div>
                                 <h4 className="text-base font-semibold text-content">
                                     {isConfigured
                                         ? t({
-                                            id: 'settings.telegram.status.connected',
-                                            message: 'Connected'
-                                        })
+                                              id: 'settings.telegram.status.connected',
+                                              message: 'Connected'
+                                          })
                                         : t({
-                                            id: 'settings.telegram.status.paused',
-                                            message: 'Notifications paused'
-                                        })}
+                                              id: 'settings.telegram.status.paused',
+                                              message: 'Notifications paused'
+                                          })}
                                 </h4>
                                 <p className="text-sm text-content-secondary mt-1">
                                     {isConfigured
                                         ? t({
-                                            id: 'settings.telegram.status.connected_description',
-                                            message: 'You can receive real-time notifications in Telegram.'
-                                        })
+                                              id: 'settings.telegram.status.connected_description',
+                                              message: 'You can receive real-time notifications in Telegram.'
+                                          })
                                         : t({
-                                            id: 'settings.telegram.status.paused_description',
-                                            message: 'Telegram notification delivery is currently paused.'
-                                        })}
+                                              id: 'settings.telegram.status.paused_description',
+                                              message: 'Telegram notification delivery is currently paused.'
+                                          })}
                                 </p>
                             </div>
                         </div>
@@ -164,16 +176,17 @@ const IntegrationSettings = () => {
                             isLoading={isDisconnecting}
                             leftIcon={!isDisconnecting ? <Unlink aria-hidden className="h-4 w-4" /> : undefined}
                             onClick={disconnectTelegram}
-                            className="flex-shrink-0">
+                            className="flex-shrink-0"
+                        >
                             {isDisconnecting
                                 ? t({
-                                    id: 'settings.telegram.disconnect.disconnecting',
-                                    message: 'Disconnecting...'
-                                })
+                                      id: 'settings.telegram.disconnect.disconnecting',
+                                      message: 'Disconnecting...'
+                                  })
                                 : t({
-                                    id: 'settings.telegram.disconnect.action',
-                                    message: 'Disconnect'
-                                })}
+                                      id: 'settings.telegram.disconnect.action',
+                                      message: 'Disconnect'
+                                  })}
                         </Button>
                     </div>
                 </Card>

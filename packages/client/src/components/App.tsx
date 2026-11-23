@@ -3,7 +3,6 @@ import { lazy, Suspense, useEffect } from 'react';
 interface AppProps {
     __name: keyof typeof LazyComponents;
     __onMounted?: () => void;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
 }
 

@@ -30,13 +30,11 @@ function isWithinDirectory(parent: string, child: string): boolean {
   return pathFromParent !== '' && pathFromParent !== '..' && !pathFromParent.startsWith(`..${sep}`);
 }
 
-function safeLegacyProfileImagePath(
-  value: string | null,
-  username: string,
-  kind?: ProfileImageKind,
-): string | null {
+function safeLegacyProfileImagePath(value: string | null, username: string, kind?: ProfileImageKind): string | null {
   if (!value || !safeUsernamePathPart(username) || value.includes('\\') || value.startsWith('/')) return null;
-  const match = value.match(/^images\/avatar\/([a-f0-9]{2})\/([a-z0-9]{4,15})\/([ac][A-Za-z0-9]{4,32}\.(?:jpg|png|webp|gif))$/i);
+  const match = value.match(
+    /^images\/avatar\/([a-f0-9]{2})\/([a-z0-9]{4,15})\/([ac][A-Za-z0-9]{4,32}\.(?:jpg|png|webp|gif))$/i,
+  );
   if (!match || match[1].toLowerCase() !== profileMediaPrefix(username) || match[2] !== username) return null;
   if (kind === 'avatar' && !/^a/i.test(match[3])) return null;
   if (kind === 'cover' && !/^c/i.test(match[3])) return null;
@@ -54,7 +52,10 @@ async function encodeProfileImage(input: Buffer, kind: ProfileImageKind): Promis
       pages: animated ? -1 : 1,
     }).metadata();
     const extensions: Record<string, EncodedProfileImage['extension']> = {
-      jpeg: 'jpg', png: 'png', webp: 'webp', gif: 'gif',
+      jpeg: 'jpg',
+      png: 'png',
+      webp: 'webp',
+      gif: 'gif',
     };
     const extension = extensions[metadata.format];
     const frameHeight = metadata.pageHeight ?? metadata.height ?? 0;
@@ -73,12 +74,18 @@ async function encodeProfileImage(input: Buffer, kind: ProfileImageKind): Promis
     let encoded: Buffer;
     if (metadata.format === 'jpeg') encoded = await pipeline.jpeg({ quality: 90 }).toBuffer();
     else if (metadata.format === 'png') encoded = await pipeline.png().toBuffer();
-    else if (metadata.format === 'webp') encoded = await pipeline.webp({
-      ...(animated && pages > 1 ? { loop: metadata.loop ?? 0, delay: metadata.delay } : {}),
-    }).toBuffer();
-    else encoded = await pipeline.gif({
-      ...(animated && pages > 1 ? { loop: metadata.loop ?? 0, delay: metadata.delay } : {}),
-    }).toBuffer();
+    else if (metadata.format === 'webp')
+      encoded = await pipeline
+        .webp({
+          ...(animated && pages > 1 ? { loop: metadata.loop ?? 0, delay: metadata.delay } : {}),
+        })
+        .toBuffer();
+    else
+      encoded = await pipeline
+        .gif({
+          ...(animated && pages > 1 ? { loop: metadata.loop ?? 0, delay: metadata.delay } : {}),
+        })
+        .toBuffer();
     if (!encoded.length || encoded.length > MAX_PROFILE_IMAGE_BYTES * 2) return null;
     return { buffer: encoded, extension };
   } catch {
@@ -86,7 +93,10 @@ async function encodeProfileImage(input: Buffer, kind: ProfileImageKind): Promis
   }
 }
 
-async function prepareMediaDirectory(mediaRoot: string, relativeDirectory: string): Promise<{ root: string; directory: string }> {
+async function prepareMediaDirectory(
+  mediaRoot: string,
+  relativeDirectory: string,
+): Promise<{ root: string; directory: string }> {
   const requestedRoot = resolve(mediaRoot);
   await mkdir(requestedRoot, { recursive: true, mode: 0o755 });
   const root = await realpath(requestedRoot);
@@ -161,7 +171,11 @@ async function removeScopedProfileImage(mediaRoot: string, path: string | null, 
   }
 }
 
-export async function deleteProfileCover(db: PrismaClient, user: PersonalSettingsUser, mediaRoot: string): Promise<void> {
+export async function deleteProfileCover(
+  db: PrismaClient,
+  user: PersonalSettingsUser,
+  mediaRoot: string,
+): Promise<void> {
   const profile = await db.profile.findUnique({ where: { userId: user.id }, select: { cover: true } });
   if (!profile) throw new Error('profile-row-not-found');
   await removeScopedProfileImage(mediaRoot, profile.cover, user.username);

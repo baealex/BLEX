@@ -8,9 +8,11 @@ const getCurrentOrigin = () => {
 const getMediaPathPrefixes = () => {
     if (typeof window === 'undefined') return MEDIA_PATH_PREFIXES;
 
-    const configuration = (window as Window & {
-        configuration?: { media?: string };
-    }).configuration;
+    const configuration = (
+        window as Window & {
+            configuration?: { media?: string };
+        }
+    ).configuration;
     const configuredMedia = configuration?.media;
 
     if (!configuredMedia) return MEDIA_PATH_PREFIXES;
@@ -24,7 +26,7 @@ const getMediaPathPrefixes = () => {
 };
 
 const hasMediaPath = (pathname: string) => {
-    return getMediaPathPrefixes().some(prefix => pathname.startsWith(prefix));
+    return getMediaPathPrefixes().some((prefix) => pathname.startsWith(prefix));
 };
 
 export const normalizeMediaUrlForStorage = (url: string | null | undefined) => {
@@ -50,7 +52,7 @@ const normalizeMediaSrcsetForStorage = (srcset: string | null | undefined) => {
     if (!srcset) return srcset || '';
 
     let changed = false;
-    const candidates = splitSrcsetCandidates(srcset).map(candidate => {
+    const candidates = splitSrcsetCandidates(srcset).map((candidate) => {
         const trimmedCandidate = candidate.trim();
         if (!trimmedCandidate || trimmedCandidate.startsWith('data:')) return candidate;
 
@@ -111,12 +113,11 @@ export const normalizeMediaUrlsInHtml = (html: string) => {
 
     let changed = false;
 
-    template.content.querySelectorAll('img, video, source').forEach(element => {
-        ['src', 'poster', 'data-src', 'srcset'].forEach(attribute => {
+    template.content.querySelectorAll('img, video, source').forEach((element) => {
+        ['src', 'poster', 'data-src', 'srcset'].forEach((attribute) => {
             const value = element.getAttribute(attribute);
-            const normalized = attribute === 'srcset'
-                ? normalizeMediaSrcsetForStorage(value)
-                : normalizeMediaUrlForStorage(value);
+            const normalized =
+                attribute === 'srcset' ? normalizeMediaSrcsetForStorage(value) : normalizeMediaUrlForStorage(value);
 
             if (value && normalized !== value) {
                 element.setAttribute(attribute, normalized);

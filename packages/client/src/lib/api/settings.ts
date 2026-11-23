@@ -19,12 +19,11 @@ export interface RegionalPreferences {
     timeZones: string[];
 }
 
-export const updateRegionalPreferences = (language: string | null, timeZone: string) => (
+export const updateRegionalPreferences = (language: string | null, timeZone: string) =>
     http.put<Response<Record<string, never>>>('v1/setting/regional-preferences', {
         language,
         timeZone
-    })
-);
+    });
 
 export interface AccountUpdateData {
     username?: string;
@@ -78,7 +77,9 @@ export const updateAccountSettings = async (data: AccountUpdateData) => {
         }
     });
 
-    return http.put<Response<{ success: boolean }>>('v1/setting/account', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+    return http.put<Response<{ success: boolean }>>('v1/setting/account', formData, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
 };
 
 export const getProfileSettings = async () => {
@@ -90,21 +91,27 @@ export const updateProfileSettings = async (data: ProfileUpdateData) => {
     if (data.bio !== undefined) formData.append('bio', data.bio);
     if (data.homepage !== undefined) formData.append('homepage', data.homepage);
 
-    return http.put<Response<{ success: boolean }>>('v1/setting/profile', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+    return http.put<Response<{ success: boolean }>>('v1/setting/profile', formData, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
 };
 
 export const uploadAvatar = async (file: File) => {
     const formData = new FormData();
     formData.append('avatar', file);
 
-    return http.post<Response<{ url: string }>>('v1/setting/avatar', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+    return http.post<Response<{ url: string }>>('v1/setting/avatar', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    });
 };
 
 export const uploadCover = async (file: File) => {
     const formData = new FormData();
     formData.append('cover', file);
 
-    return http.post<Response<{ url: string | null }>>('v1/setting/cover', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+    return http.post<Response<{ url: string | null }>>('v1/setting/cover', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    });
 };
 
 export const deleteCover = async () => {
@@ -112,7 +119,9 @@ export const deleteCover = async () => {
 };
 
 export const updateNotifyConfig = async (config: Record<string, boolean>) => {
-    return http.put<Response<{ success: boolean }>>('v1/setting/notify-config', config, { headers: { 'Content-Type': 'application/json' } });
+    return http.put<Response<{ success: boolean }>>('v1/setting/notify-config', config, {
+        headers: { 'Content-Type': 'application/json' }
+    });
 };
 
 export const getTags = async () => {
@@ -151,7 +160,9 @@ export const markNotificationAsRead = async (notifyId: number) => {
     const formData = new URLSearchParams();
     formData.append('id', notifyId.toString());
 
-    return http.put<Response<{ success: boolean }>>('v1/setting/notify', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+    return http.put<Response<{ success: boolean }>>('v1/setting/notify', formData, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
 };
 
 export const getNotifyConfig = async () => {
@@ -205,7 +216,11 @@ export const getSeriesWithUsername = async () => {
 };
 
 export const updateSeriesOrder = async (order: [number, number][]) => {
-    return http.put<Response<{ success: boolean }>>('v1/series/order', { order }, { headers: { 'Content-Type': 'application/json' } });
+    return http.put<Response<{ success: boolean }>>(
+        'v1/series/order',
+        { order },
+        { headers: { 'Content-Type': 'application/json' } }
+    );
 };
 
 export const getSeriesDetail = async (seriesId: number) => {
@@ -213,11 +228,15 @@ export const getSeriesDetail = async (seriesId: number) => {
 };
 
 export const createSeries = async (data: SeriesMutationData) => {
-    return http.post<Response<SeriesMutationResult>>('v1/series', data, { headers: { 'Content-Type': 'application/json' } });
+    return http.post<Response<SeriesMutationResult>>('v1/series', data, {
+        headers: { 'Content-Type': 'application/json' }
+    });
 };
 
 export const updateSeries = async (seriesId: number, data: SeriesMutationData) => {
-    return http.put<Response<SeriesMutationResult>>(`v1/series/${seriesId}`, data, { headers: { 'Content-Type': 'application/json' } });
+    return http.put<Response<SeriesMutationResult>>(`v1/series/${seriesId}`, data, {
+        headers: { 'Content-Type': 'application/json' }
+    });
 };
 
 export const deleteSeriesById = async (seriesId: number) => {
@@ -251,7 +270,9 @@ export const updateSocialLinks = async (data: { update: string; create: string; 
     formData.append('create', data.create);
     formData.append('delete', data.delete);
 
-    return http.put<Response<SocialLink[]>>('v1/setting/social', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+    return http.put<Response<SocialLink[]>>('v1/setting/social', formData, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
 };
 
 export const deleteAccount = async () => {
@@ -302,7 +323,9 @@ export const createBanner = async (data: BannerCreateData) => {
 };
 
 export const updateBanner = async (id: number, data: BannerUpdateData) => {
-    return http.put<Response<BannerData>>(`v1/banners/${id}`, data, { headers: { 'Content-Type': 'application/json' } });
+    return http.put<Response<BannerData>>(`v1/banners/${id}`, data, {
+        headers: { 'Content-Type': 'application/json' }
+    });
 };
 
 export const deleteBanner = async (id: number) => {
@@ -310,7 +333,11 @@ export const deleteBanner = async (id: number) => {
 };
 
 export const updateBannerOrder = async (order: [number, number][]) => {
-    return http.put<Response<{ message: string }>>('v1/banners/order', { order }, { headers: { 'Content-Type': 'application/json' } });
+    return http.put<Response<{ message: string }>>(
+        'v1/banners/order',
+        { order },
+        { headers: { 'Content-Type': 'application/json' } }
+    );
 };
 
 // Pinned Posts API
@@ -342,31 +369,36 @@ export interface PinnablePostsPaginationData {
 }
 
 export const getPinnedPosts = async () => {
-    return http.get<Response<{
-        pinnedPosts: PinnedPostData[];
-        username: string;
-        maxCount: number;
-        reservedCount?: number;
-    }>>('v1/setting/pinned-posts');
+    return http.get<
+        Response<{
+            pinnedPosts: PinnedPostData[];
+            username: string;
+            maxCount: number;
+            reservedCount?: number;
+        }>
+    >('v1/setting/pinned-posts');
 };
 
-export const getPinnablePosts = async (
-    options: { query?: string; limit?: number; page?: number } = {}
-) => {
-    return http.get<Response<{ posts: PinnablePostData[] } & PinnablePostsPaginationData>>('v1/setting/pinnable-posts', {
-        params: {
-            q: options.query || undefined,
-            limit: options.limit,
-            page: options.page
+export const getPinnablePosts = async (options: { query?: string; limit?: number; page?: number } = {}) => {
+    return http.get<Response<{ posts: PinnablePostData[] } & PinnablePostsPaginationData>>(
+        'v1/setting/pinnable-posts',
+        {
+            params: {
+                q: options.query || undefined,
+                limit: options.limit,
+                page: options.page
+            }
         }
-    });
+    );
 };
 
 export const addPinnedPost = async (postUrl: string) => {
     const formData = new URLSearchParams();
     formData.append('postUrl', postUrl);
 
-    return http.post<Response<{ success: boolean }>>('v1/setting/pinned-posts', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+    return http.post<Response<{ success: boolean }>>('v1/setting/pinned-posts', formData, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
 };
 
 export const removePinnedPost = async (postUrl: string) => {
@@ -383,7 +415,9 @@ export const updatePinnedPostsOrder = async (postUrls: string[]) => {
     const formData = new URLSearchParams();
     formData.append('postUrls', JSON.stringify(postUrls));
 
-    return http.put<Response<{ success: boolean }>>('v1/setting/pinned-posts/order', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+    return http.put<Response<{ success: boolean }>>('v1/setting/pinned-posts/order', formData, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
 };
 
 // Webhook Channel API
@@ -401,7 +435,9 @@ export const getWebhookChannels = async () => {
 };
 
 export const addWebhookChannel = async (data: { webhookUrl: string; name?: string }) => {
-    return http.post<Response<{ success: boolean; channelId: number }>>('v1/webhook/channels', data, { headers: { 'Content-Type': 'application/json' } });
+    return http.post<Response<{ success: boolean; channelId: number }>>('v1/webhook/channels', data, {
+        headers: { 'Content-Type': 'application/json' }
+    });
 };
 
 export const deleteWebhookChannel = async (channelId: number) => {
@@ -413,7 +449,9 @@ export const getGlobalWebhookChannels = async () => {
 };
 
 export const addGlobalWebhookChannel = async (data: { webhookUrl: string; name?: string }) => {
-    return http.post<Response<{ success: boolean; channelId: number }>>('v1/webhook/global-channels', data, { headers: { 'Content-Type': 'application/json' } });
+    return http.post<Response<{ success: boolean; channelId: number }>>('v1/webhook/global-channels', data, {
+        headers: { 'Content-Type': 'application/json' }
+    });
 };
 
 export const deleteGlobalWebhookChannel = async (channelId: number) => {
@@ -421,7 +459,11 @@ export const deleteGlobalWebhookChannel = async (channelId: number) => {
 };
 
 export const testWebhook = async (webhookUrl: string) => {
-    return http.post<Response<{ success: boolean }>>('v1/webhook/test', { webhookUrl }, { headers: { 'Content-Type': 'application/json' } });
+    return http.post<Response<{ success: boolean }>>(
+        'v1/webhook/test',
+        { webhookUrl },
+        { headers: { 'Content-Type': 'application/json' } }
+    );
 };
 
 // Developer API Token API
@@ -453,7 +495,9 @@ export const getDeveloperTokens = async () => {
 };
 
 export const createDeveloperToken = async (data: DeveloperTokenCreateData) => {
-    return http.post<Response<CreatedDeveloperTokenData>>('v1/developer-tokens', data, { headers: { 'Content-Type': 'application/json' } });
+    return http.post<Response<CreatedDeveloperTokenData>>('v1/developer-tokens', data, {
+        headers: { 'Content-Type': 'application/json' }
+    });
 };
 
 export const revokeDeveloperToken = async (tokenId: number) => {
@@ -503,11 +547,15 @@ export const getStaticPage = async (id: number) => {
 };
 
 export const createStaticPage = async (data: StaticPageCreateData) => {
-    return http.post<Response<StaticPageData>>('v1/static-pages', data, { headers: { 'Content-Type': 'application/json' } });
+    return http.post<Response<StaticPageData>>('v1/static-pages', data, {
+        headers: { 'Content-Type': 'application/json' }
+    });
 };
 
 export const updateStaticPage = async (id: number, data: StaticPageUpdateData) => {
-    return http.put<Response<StaticPageData>>(`v1/static-pages/${id}`, data, { headers: { 'Content-Type': 'application/json' } });
+    return http.put<Response<StaticPageData>>(`v1/static-pages/${id}`, data, {
+        headers: { 'Content-Type': 'application/json' }
+    });
 };
 
 export const deleteStaticPage = async (id: number) => {
@@ -545,7 +593,9 @@ export const createNotice = async (data: NoticeCreateData) => {
 };
 
 export const updateNotice = async (id: number, data: NoticeUpdateData) => {
-    return http.put<Response<NoticeData>>(`v1/notices/${id}`, data, { headers: { 'Content-Type': 'application/json' } });
+    return http.put<Response<NoticeData>>(`v1/notices/${id}`, data, {
+        headers: { 'Content-Type': 'application/json' }
+    });
 };
 
 export const deleteNotice = async (id: number) => {
@@ -579,11 +629,15 @@ export const getGlobalNotices = async () => {
 };
 
 export const createGlobalNotice = async (data: GlobalNoticeCreateData) => {
-    return http.post<Response<GlobalNoticeData>>('v1/global-notices', data, { headers: { 'Content-Type': 'application/json' } });
+    return http.post<Response<GlobalNoticeData>>('v1/global-notices', data, {
+        headers: { 'Content-Type': 'application/json' }
+    });
 };
 
 export const updateGlobalNotice = async (id: number, data: GlobalNoticeUpdateData) => {
-    return http.put<Response<GlobalNoticeData>>(`v1/global-notices/${id}`, data, { headers: { 'Content-Type': 'application/json' } });
+    return http.put<Response<GlobalNoticeData>>(`v1/global-notices/${id}`, data, {
+        headers: { 'Content-Type': 'application/json' }
+    });
 };
 
 export const deleteGlobalNotice = async (id: number) => {
@@ -631,11 +685,15 @@ export const getGlobalBanner = async (id: number) => {
 };
 
 export const createGlobalBanner = async (data: GlobalBannerCreateData) => {
-    return http.post<Response<GlobalBannerData>>('v1/global-banners', data, { headers: { 'Content-Type': 'application/json' } });
+    return http.post<Response<GlobalBannerData>>('v1/global-banners', data, {
+        headers: { 'Content-Type': 'application/json' }
+    });
 };
 
 export const updateGlobalBanner = async (id: number, data: GlobalBannerUpdateData) => {
-    return http.put<Response<GlobalBannerData>>(`v1/global-banners/${id}`, data, { headers: { 'Content-Type': 'application/json' } });
+    return http.put<Response<GlobalBannerData>>(`v1/global-banners/${id}`, data, {
+        headers: { 'Content-Type': 'application/json' }
+    });
 };
 
 export const deleteGlobalBanner = async (id: number) => {
@@ -643,7 +701,11 @@ export const deleteGlobalBanner = async (id: number) => {
 };
 
 export const updateGlobalBannerOrder = async (order: [number, number][]) => {
-    return http.put<Response<{ message: string }>>('v1/global-banners/order', { order }, { headers: { 'Content-Type': 'application/json' } });
+    return http.put<Response<{ message: string }>>(
+        'v1/global-banners/order',
+        { order },
+        { headers: { 'Content-Type': 'application/json' } }
+    );
 };
 
 // Site Setting API
@@ -749,7 +811,9 @@ export const getSiteSettings = async () => {
 };
 
 export const updateSiteSettings = async (data: SiteSettingUpdateData) => {
-    return http.put<Response<SiteSettingData>>('v1/site-settings', data, { headers: { 'Content-Type': 'application/json' } });
+    return http.put<Response<SiteSettingData>>('v1/site-settings', data, {
+        headers: { 'Content-Type': 'application/json' }
+    });
 };
 
 export const getLoginSettings = async () => {
@@ -757,7 +821,9 @@ export const getLoginSettings = async () => {
 };
 
 export const updateLoginSettings = async (data: LoginSettingUpdateData) => {
-    return http.put<Response<LoginSettingData>>('v1/login-settings', data, { headers: { 'Content-Type': 'application/json' } });
+    return http.put<Response<LoginSettingData>>('v1/login-settings', data, {
+        headers: { 'Content-Type': 'application/json' }
+    });
 };
 
 export const getIntegrationSettings = async () => {
@@ -765,14 +831,18 @@ export const getIntegrationSettings = async () => {
 };
 
 export const updateIntegrationSettings = async (data: IntegrationSettingUpdateData) => {
-    return http.put<Response<IntegrationSettingData>>('v1/integration-settings', data, { headers: { 'Content-Type': 'application/json' } });
+    return http.put<Response<IntegrationSettingData>>('v1/integration-settings', data, {
+        headers: { 'Content-Type': 'application/json' }
+    });
 };
 
 export type BrandAssetType = 'logo' | 'icon';
 export type BrandAssetTheme = 'default' | 'dark';
 
 export const uploadBrandAsset = async (data: FormData) => {
-    return http.post<Response<SiteSettingData>>('v1/site-settings/brand-assets', data, { headers: { 'Content-Type': 'multipart/form-data' } });
+    return http.post<Response<SiteSettingData>>('v1/site-settings/brand-assets', data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    });
 };
 
 export const deleteBrandAsset = async (assetType: BrandAssetType, theme: BrandAssetTheme) => {
@@ -881,15 +951,15 @@ export const cleanTags = async (dryRun: boolean, confirmationToken?: string) => 
     );
 };
 
-export const cleanSessions = async (
-    dryRun: boolean,
-    cleanAll: boolean,
-    confirmationToken?: string
-) => {
-    return http.post<Response<SessionCleanResult>>('v1/utilities/clean-sessions', {
-        ...cleanupConfirmationBody(dryRun, confirmationToken),
-        cleanAll
-    }, { headers: { 'Content-Type': 'application/json' } });
+export const cleanSessions = async (dryRun: boolean, cleanAll: boolean, confirmationToken?: string) => {
+    return http.post<Response<SessionCleanResult>>(
+        'v1/utilities/clean-sessions',
+        {
+            ...cleanupConfirmationBody(dryRun, confirmationToken),
+            cleanAll
+        },
+        { headers: { 'Content-Type': 'application/json' } }
+    );
 };
 
 export const cleanLogs = async (dryRun: boolean, confirmationToken?: string) => {
@@ -906,11 +976,15 @@ export const cleanImages = async (
     removeDuplicates: boolean,
     confirmationToken?: string
 ) => {
-    return http.post<Response<ImageCleanResult>>('v1/utilities/clean-images', {
-        ...cleanupConfirmationBody(dryRun, confirmationToken),
-        target,
-        removeDuplicates
-    }, { headers: { 'Content-Type': 'application/json' } });
+    return http.post<Response<ImageCleanResult>>(
+        'v1/utilities/clean-images',
+        {
+            ...cleanupConfirmationBody(dryRun, confirmationToken),
+            target,
+            removeDuplicates
+        },
+        { headers: { 'Content-Type': 'application/json' } }
+    );
 };
 
 // Admin User Management API
@@ -1040,7 +1114,9 @@ export const getModeratedPosts = async (query: string, status: ModeratedPostFilt
     const params = new URLSearchParams({ page: String(page) });
     if (query.trim()) params.set('q', query.trim());
     if (status !== 'all') params.set('status', status);
-    return http.get<Response<{ posts: ModeratedPost[]; pagination: ManagedUsersPagination }>>(`v1/admin/posts?${params.toString()}`);
+    return http.get<Response<{ posts: ModeratedPost[]; pagination: ManagedUsersPagination }>>(
+        `v1/admin/posts?${params.toString()}`
+    );
 };
 
 export const setModeratedPostHidden = async (postId: number, isHidden: boolean) => {
@@ -1062,7 +1138,9 @@ export const restoreModeratedPost = async (postId: number) => {
 export const getModeratedComments = async (query: string, page: number) => {
     const params = new URLSearchParams({ page: String(page) });
     if (query.trim()) params.set('q', query.trim());
-    return http.get<Response<{ comments: ModeratedComment[]; pagination: ManagedUsersPagination }>>(`v1/admin/comments?${params.toString()}`);
+    return http.get<Response<{ comments: ModeratedComment[]; pagination: ManagedUsersPagination }>>(
+        `v1/admin/comments?${params.toString()}`
+    );
 };
 
 export const deleteModeratedComment = async (commentId: number) => {
@@ -1114,14 +1192,14 @@ export interface AuthorSubscriptionState {
 }
 
 export const getAuthorSubscriptions = async () => {
-    return http.get<Response<{
-        subscriptions: AuthorSubscription[];
-        isTelegramConnected: boolean;
-    }>>('v1/subscriptions');
+    return http.get<
+        Response<{
+            subscriptions: AuthorSubscription[];
+            isTelegramConnected: boolean;
+        }>
+    >('v1/subscriptions');
 };
 
 export const unsubscribeAuthor = async (username: string) => {
-    return http.delete<Response<AuthorSubscriptionState>>(
-        `v1/users/@${encodeURIComponent(username)}/subscription`
-    );
+    return http.delete<Response<AuthorSubscriptionState>>(`v1/users/@${encodeURIComponent(username)}/subscription`);
 };

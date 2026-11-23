@@ -3,17 +3,39 @@ import type { FastifyReply } from 'fastify';
 import { AuthenticatedToken } from './token-auth.js';
 import { postIdsMatching, type PostTextField } from '../../posts/data/text-match.js';
 import { publicPostWhere } from '../../posts/data/visibility.js';
-import { DeveloperApiError, QueryValue, errorReply, formatError, parseIntegerQuery, readScalar, toIsoDateTime } from '../shared.js';
+import {
+  DeveloperApiError,
+  QueryValue,
+  errorReply,
+  formatError,
+  parseIntegerQuery,
+  readScalar,
+  toIsoDateTime,
+} from '../shared.js';
 
 const postSelect = {
-  id: true, title: true, subtitle: true, slug: true, seriesId: true, isHidden: true, isAdvertised: true,
-  coverLayout: true, coverImagePosition: true, coverImageRatio: true, createdAt: true, updatedAt: true, publishedAt: true,
+  id: true,
+  title: true,
+  subtitle: true,
+  slug: true,
+  seriesId: true,
+  isHidden: true,
+  isAdvertised: true,
+  coverLayout: true,
+  coverImagePosition: true,
+  coverImageRatio: true,
+  createdAt: true,
+  updatedAt: true,
+  publishedAt: true,
   author: { select: { username: true } },
   series: { select: { name: true, slug: true } },
 } satisfies Prisma.PostSelect;
 
 const postDetailSelect = {
-  ...postSelect, description: true, readTime: true, content: { select: { html: true } },
+  ...postSelect,
+  description: true,
+  readTime: true,
+  content: { select: { html: true } },
 } satisfies Prisma.PostSelect;
 
 type PostRow = Prisma.PostGetPayload<{ select: typeof postSelect }>;
@@ -33,12 +55,18 @@ export interface SearchQuery extends PaginationQuery {
 
 function statusFilter(status: string, now: Date): Prisma.PostWhereInput | DeveloperApiError {
   switch (status) {
-    case '': return {};
-    case 'draft': return { publishedAt: null };
-    case 'published': return publicPostWhere(now);
-    case 'scheduled': return { publishedAt: { gt: now } };
-    case 'hidden': return { publishedAt: { lte: now }, isHidden: true };
-    default: return formatError('post.invalid_status', 'Unsupported status.', 400);
+    case '':
+      return {};
+    case 'draft':
+      return { publishedAt: null };
+    case 'published':
+      return publicPostWhere(now);
+    case 'scheduled':
+      return { publishedAt: { gt: now } };
+    case 'hidden':
+      return { publishedAt: { lte: now }, isHidden: true };
+    default:
+      return formatError('post.invalid_status', 'Unsupported status.', 400);
   }
 }
 
@@ -46,7 +74,10 @@ const searchedFields: PostTextField[] = ['title', 'subtitle', 'slug', 'descripti
 
 function parseTags(value: string | string[] | undefined): string[] {
   const values = Array.isArray(value) ? value : value === undefined ? [] : [value];
-  return values.flatMap((item) => item.split(',')).map((tag) => tag.trim()).filter(Boolean);
+  return values
+    .flatMap((item) => item.split(','))
+    .map((tag) => tag.trim())
+    .filter(Boolean);
 }
 
 function postSummary(row: PostRow, tags: string[], now: number) {
@@ -65,11 +96,14 @@ function postSummary(row: PostRow, tags: string[], now: number) {
     publicUrl: `/@${row.author.username}/${row.slug}`,
     status,
     tags,
-    series: row.seriesId === null ? null : {
-      id: row.seriesId,
-      name: row.series?.name ?? '',
-      url: row.series?.slug ?? '',
-    },
+    series:
+      row.seriesId === null
+        ? null
+        : {
+            id: row.seriesId,
+            name: row.series?.name ?? '',
+            url: row.series?.slug ?? '',
+          },
     isHidden: row.isHidden,
     isAdvertise: row.isAdvertised,
     coverLayout: row.coverLayout,
@@ -88,7 +122,11 @@ async function tagsByPost(db: PrismaClient, postIds: number[]): Promise<Map<numb
     where: { id: { in: postIds } },
     select: { id: true, tags: { orderBy: { name: 'asc' }, select: { name: true } } },
   });
-  for (const row of rows) tags.set(row.id, row.tags.map(({ name }) => name));
+  for (const row of rows)
+    tags.set(
+      row.id,
+      row.tags.map(({ name }) => name),
+    );
   return tags;
 }
 
@@ -149,10 +187,19 @@ export async function listPosts(
     rows = pageIds.map((id) => byId.get(id)!);
   } else {
     total = await db.post.count({ where });
-    rows = await db.post.findMany({ where, orderBy: { updatedAt: 'desc' }, skip: offset, take: limit, select: postSelect });
+    rows = await db.post.findMany({
+      where,
+      orderBy: { updatedAt: 'desc' },
+      skip: offset,
+      take: limit,
+      select: postSelect,
+    });
   }
 
-  const tags = await tagsByPost(db, rows.map((row) => row.id));
+  const tags = await tagsByPost(
+    db,
+    rows.map((row) => row.id),
+  );
   const nowMs = Date.now();
   return {
     data: {
@@ -187,7 +234,8 @@ export async function postDetail(db: PrismaClient, post: PostDetailRow) {
 export function postNotFound(reply: FastifyReply) {
   const headers = reply.request.headers;
   const language = headers['accept-language']?.split(',')[0]?.trim().split(/[;-]/)[0];
-  const message = process.env.ENABLE_ENGLISH_UI === 'TRUE' && language === 'en' ? 'Post not found.' : '포스트를 찾을 수 없습니다.';
+  const message =
+    process.env.ENABLE_ENGLISH_UI === 'TRUE' && language === 'en' ? 'Post not found.' : '포스트를 찾을 수 없습니다.';
   return errorReply(reply, formatError('post.not_found', message, 404));
 }
 

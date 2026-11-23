@@ -129,9 +129,7 @@ export function bodyObject(body: unknown): Record<string, unknown> {
 }
 
 export function queryObject(request: FastifyRequest): Record<string, unknown> {
-  return request.query && typeof request.query === 'object'
-    ? request.query as Record<string, unknown>
-    : {};
+  return request.query && typeof request.query === 'object' ? (request.query as Record<string, unknown>) : {};
 }
 
 export function dateAsIso(value: DbDate): string | null {
@@ -144,9 +142,15 @@ export function localDateTime(value: DbDate): string {
   const date = new Date(iso);
   return new Intl.DateTimeFormat('sv-SE', {
     timeZone: 'Asia/Seoul',
-    year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
-  }).format(date).replace(' ', 'T');
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  })
+    .format(date)
+    .replace(' ', 'T');
 }
 
 export function cookieValue(request: FastifyRequest, name: string): string {
@@ -193,9 +197,14 @@ export async function currentAccount(
   });
   return account?.isActive
     ? {
-      id: account.id, username: account.username, isActive: true, role: account.profile?.role ?? null,
-      isStaff: user.isStaff, notifyCount: user.notifyCount, hasConnectedTelegram: user.hasConnectedTelegram,
-    }
+        id: account.id,
+        username: account.username,
+        isActive: true,
+        role: account.profile?.role ?? null,
+        isStaff: user.isStaff,
+        notifyCount: user.notifyCount,
+        hasConnectedTelegram: user.hasConnectedTelegram,
+      }
     : null;
 }
 

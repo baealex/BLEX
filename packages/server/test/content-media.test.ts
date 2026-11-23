@@ -21,16 +21,29 @@ test('validates photo uploads, creates a preview, and deduplicates the same byte
   const db = new PrismaClient({ datasourceUrl: `file:${dbPath}` });
   const app = Fastify();
   registerContentMedia(app, db, {
-    mediaRoot: directory, currentUser: async () => ({ id: 7, hasEditorRole: true }),
+    mediaRoot: directory,
+    currentUser: async () => ({ id: 7, hasEditorRole: true }),
     validateCsrf: (request) => request.headers['x-test-origin'] === 'valid',
   });
-  const png = await sharp({ create: { width: 16, height: 16, channels: 3, background: '#0077ff' } }).png().toBuffer();
+  const png = await sharp({ create: { width: 16, height: 16, channels: 3, background: '#0077ff' } })
+    .png()
+    .toBuffer();
   const upload = (buffer: Buffer, filename: string, validated = true) => {
     const boundary = 'blex-test-media-boundary';
-    return app.inject({ method: 'POST', url: '/v1/image',
-      headers: { 'content-type': `multipart/form-data; boundary=${boundary}`, 'x-test-origin': validated ? 'valid' : 'invalid' },
-      payload: Buffer.concat([Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="image"; filename="${filename}"\r\nContent-Type: image/png\r\n\r\n`),
-        buffer, Buffer.from(`\r\n--${boundary}--\r\n`)]),
+    return app.inject({
+      method: 'POST',
+      url: '/v1/image',
+      headers: {
+        'content-type': `multipart/form-data; boundary=${boundary}`,
+        'x-test-origin': validated ? 'valid' : 'invalid',
+      },
+      payload: Buffer.concat([
+        Buffer.from(
+          `--${boundary}\r\nContent-Disposition: form-data; name="image"; filename="${filename}"\r\nContent-Type: image/png\r\n\r\n`,
+        ),
+        buffer,
+        Buffer.from(`\r\n--${boundary}--\r\n`),
+      ]),
     });
   };
   try {

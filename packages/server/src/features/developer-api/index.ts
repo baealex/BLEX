@@ -1,12 +1,38 @@
 import { type PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { isIP } from 'node:net';
-import { ContentUploadError, contentUploadLimit, registerContentMultipart, saveContentUpload } from '../media/content-media.js';
+import {
+  ContentUploadError,
+  contentUploadLimit,
+  registerContentMultipart,
+  saveContentUpload,
+} from '../media/content-media.js';
 import { DeveloperMutationInputError, developerPostInput } from './mutation-input.js';
-import { PaginationQuery, SearchQuery, listPosts, postDetail, postNotFound, postVersionIssue, readOwnedPost, summarizePost } from './services/posts.js';
+import {
+  PaginationQuery,
+  SearchQuery,
+  listPosts,
+  postDetail,
+  postNotFound,
+  postVersionIssue,
+  readOwnedPost,
+  summarizePost,
+} from './services/posts.js';
 import { createDeveloperRateLimiter, developerRequestKind } from './services/rate-limit.js';
 import { AuthenticatedToken, authenticate, requireScope } from './services/token-auth.js';
-import { API_PREFIX, DeveloperApiOptions, Editor, QueryValue, errorReply, formatError, parseDryRun, parsePostId, parseValidationError, sameVersion, toIsoDateTime } from './shared.js';
+import {
+  API_PREFIX,
+  DeveloperApiOptions,
+  Editor,
+  QueryValue,
+  errorReply,
+  formatError,
+  parseDryRun,
+  parsePostId,
+  parseValidationError,
+  sameVersion,
+  toIsoDateTime,
+} from './shared.js';
 import { registerWireFormat } from './wire-format.js';
 
 export { toIsoDateTime } from './shared.js';
@@ -21,37 +47,38 @@ export function registerDeveloperApi(app: FastifyInstance, db: PrismaClient, opt
 
 function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options: DeveloperApiOptions): void {
   const audited = new WeakMap<FastifyRequest, AuthenticatedToken>();
-  if (options.writable) app.addHook('onSend', async (request, reply, payload) => {
-    const token = audited.get(request);
-    if (!token) return payload;
-    try {
-      const when = new Date();
-      const ip = isIP(request.ip) ? request.ip : null;
-      await db.$transaction(async (tx) => {
-        // A token removed while this request ran leaves nothing to record.
-        const { count } = await tx.developerToken.updateMany({
-          where: { id: token.id },
-          data: { lastUsedAt: when, lastUsedIp: ip, updatedAt: when },
+  if (options.writable)
+    app.addHook('onSend', async (request, reply, payload) => {
+      const token = audited.get(request);
+      if (!token) return payload;
+      try {
+        const when = new Date();
+        const ip = isIP(request.ip) ? request.ip : null;
+        await db.$transaction(async (tx) => {
+          // A token removed while this request ran leaves nothing to record.
+          const { count } = await tx.developerToken.updateMany({
+            where: { id: token.id },
+            data: { lastUsedAt: when, lastUsedIp: ip, updatedAt: when },
+          });
+          if (!count) return;
+          await tx.developerRequestLog.create({
+            data: {
+              method: request.method.slice(0, 10),
+              path: request.url.split('?')[0].slice(0, 255),
+              statusCode: reply.statusCode,
+              ipAddress: ip,
+              userAgent: (request.headers['user-agent'] ?? '').slice(0, 255),
+              createdAt: when,
+              tokenId: token.id,
+              userId: token.user.id,
+            },
+          });
         });
-        if (!count) return;
-        await tx.developerRequestLog.create({
-          data: {
-            method: request.method.slice(0, 10),
-            path: request.url.split('?')[0].slice(0, 255),
-            statusCode: reply.statusCode,
-            ipAddress: ip,
-            userAgent: (request.headers['user-agent'] ?? '').slice(0, 255),
-            createdAt: when,
-            tokenId: token.id,
-            userId: token.user.id,
-          },
-        });
-      });
-    } catch (error) {
-      request.log.error({ error }, 'Could not record Developer API request');
-    }
-    return payload;
-  });
+      } catch (error) {
+        request.log.error({ error }, 'Could not record Developer API request');
+      }
+      return payload;
+    });
 
   const takeRequest = createDeveloperRateLimiter(options.rateLimit);
   const authenticateRequest = async (request: FastifyRequest, reply: FastifyReply) => {
@@ -61,7 +88,12 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
     if (retryAfter !== null) {
       // Refused before auditing, so a client over its limit cannot keep writing to the database.
       reply.header('Retry-After', String(retryAfter));
-      return { error: { ...formatError('request.rate_limited', 'Too many requests. Try again later.', 429), fields: { retry_after: retryAfter } } };
+      return {
+        error: {
+          ...formatError('request.rate_limited', 'Too many requests. Try again later.', 429),
+          fields: { retry_after: retryAfter },
+        },
+      };
     }
     if (options.writable) audited.set(request, result.token);
     return result;
@@ -98,9 +130,18 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
 
   const mutations = options.mutations;
   if (options.writable && mutations) {
-    const mutationError = async (failure: unknown, editor: Editor, reply: FastifyReply, postId?: number, expected?: string) => {
+    const mutationError = async (
+      failure: unknown,
+      editor: Editor,
+      reply: FastifyReply,
+      postId?: number,
+      expected?: string,
+    ) => {
       if (failure instanceof DeveloperMutationInputError) {
-        return errorReply(reply, { ...formatError(failure.code, failure.message, failure.status), fields: failure.fields });
+        return errorReply(reply, {
+          ...formatError(failure.code, failure.message, failure.status),
+          fields: failure.fields,
+        });
       }
       const error = mutations.error(failure);
       if (!error) throw failure;
@@ -126,11 +167,14 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
 
     for (const operation of ['update', 'publish'] as const) {
       const route = `${API_PREFIX}/posts/:postId${operation === 'publish' ? '/publish' : ''}`;
-      app.route<{ Params: { postId: string } }>({ method: operation === 'publish' ? 'POST' : 'PATCH', url: route,
+      app.route<{ Params: { postId: string } }>({
+        method: operation === 'publish' ? 'POST' : 'PATCH',
+        url: route,
         bodyLimit: 1024 * 1024,
         // The publish body is optional, so an empty JSON request must still reach the handler.
         onRequest: async (request) => {
-          if (operation === 'publish' && request.headers['content-length'] === '0') delete request.headers['content-type'];
+          if (operation === 'publish' && request.headers['content-length'] === '0')
+            delete request.headers['content-type'];
         },
         async handler(request, reply) {
           const token = await writeToken(request, reply);
@@ -140,7 +184,10 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
           const original = await readOwnedPost(db, token.user.id, id);
           if (!original) return postNotFound(reply);
           if (operation === 'publish' && original.publishedAt !== null) {
-            return errorReply(reply, formatError('post.not_draft', 'This post has already been published or scheduled.', 409));
+            return errorReply(
+              reply,
+              formatError('post.not_draft', 'This post has already been published or scheduled.', 409),
+            );
           }
           let expected: string | undefined;
           try {
@@ -149,35 +196,48 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
             if (operation === 'update' && expected && !sameVersion(expected, original.updatedAt)) {
               return errorReply(reply, postVersionIssue(expected, original));
             }
-            const result = operation === 'publish' ? await mutations.publish(token.user, id, parsed.body, original.updatedAt.toISOString()) :
-              await mutations.update(token.user, id, parsed.body, expected ? original.updatedAt.toISOString() : undefined);
-            const post = result && await readOwnedPost(db, token.user.id, result.id);
+            const result =
+              operation === 'publish'
+                ? await mutations.publish(token.user, id, parsed.body, original.updatedAt.toISOString())
+                : await mutations.update(
+                    token.user,
+                    id,
+                    parsed.body,
+                    expected ? original.updatedAt.toISOString() : undefined,
+                  );
+            const post = result && (await readOwnedPost(db, token.user.id, result.id));
             return post ? reply.send({ data: await postDetail(db, post) }) : postNotFound(reply);
           } catch (failure) {
             return mutationError(failure, token.user, reply, id, expected);
           }
-        } });
+        },
+      });
     }
 
-    app.delete<{ Params: { postId: string }; Querystring: QueryValue }>(`${API_PREFIX}/posts/:postId`, async (request, reply) => {
-      const token = await writeToken(request, reply);
-      if (!token) return reply;
-      const id = parsePostId(request.params.postId);
-      if (id === null) return parseValidationError(reply, 'post_id', request.params.postId);
-      const { dryRun, invalid } = parseDryRun(request.query);
-      if (invalid) return parseValidationError(reply, invalid.field, invalid.value);
-      const original = await readOwnedPost(db, token.user.id, id);
-      if (!original) return postNotFound(reply);
-      if (dryRun) {
-        return reply.send({ data: { canDelete: true, post: await summarizePost(db, original) } });
-      }
-      try {
-        const deleted = await mutations.trash(token.user, id);
-        return deleted ? reply.send({ data: { deleted: true, trashed: true, id, deletedAt: toIsoDateTime(deleted) } }) : postNotFound(reply);
-      } catch (failure) {
-        return mutationError(failure, token.user, reply);
-      }
-    });
+    app.delete<{ Params: { postId: string }; Querystring: QueryValue }>(
+      `${API_PREFIX}/posts/:postId`,
+      async (request, reply) => {
+        const token = await writeToken(request, reply);
+        if (!token) return reply;
+        const id = parsePostId(request.params.postId);
+        if (id === null) return parseValidationError(reply, 'post_id', request.params.postId);
+        const { dryRun, invalid } = parseDryRun(request.query);
+        if (invalid) return parseValidationError(reply, invalid.field, invalid.value);
+        const original = await readOwnedPost(db, token.user.id, id);
+        if (!original) return postNotFound(reply);
+        if (dryRun) {
+          return reply.send({ data: { canDelete: true, post: await summarizePost(db, original) } });
+        }
+        try {
+          const deleted = await mutations.trash(token.user, id);
+          return deleted
+            ? reply.send({ data: { deleted: true, trashed: true, id, deletedAt: toIsoDateTime(deleted) } })
+            : postNotFound(reply);
+        } catch (failure) {
+          return mutationError(failure, token.user, reply);
+        }
+      },
+    );
   }
   app.get(`${API_PREFIX}/me`, async (request, reply) => {
     const auth = await authenticateRequest(request, reply);
@@ -262,10 +322,14 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
       orderBy: { name: 'asc' },
       select: { name: true, _count: { select: { posts: { where: active } } } },
     });
-    return reply.send({ data: { tags: tags.map((tag) => ({
-      name: tag.name,
-      postCount: tag._count.posts,
-    })) } });
+    return reply.send({
+      data: {
+        tags: tags.map((tag) => ({
+          name: tag.name,
+          postCount: tag._count.posts,
+        })),
+      },
+    });
   });
 
   app.get(`${API_PREFIX}/series`, async (request, reply) => {
@@ -280,20 +344,29 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
       where: { ownerId: token.user.id },
       orderBy: [{ order: 'asc' }, { name: 'asc' }, { id: 'asc' }],
       select: {
-        id: true, name: true, slug: true, descriptionMarkdown: true, isHidden: true,
-        createdAt: true, updatedAt: true,
+        id: true,
+        name: true,
+        slug: true,
+        descriptionMarkdown: true,
+        isHidden: true,
+        createdAt: true,
+        updatedAt: true,
         _count: { select: { posts: { where: { deletedAt: null } } } },
       },
     });
-    return reply.send({ data: { series: series.map((item) => ({
-      id: item.id,
-      name: item.name,
-      url: item.slug,
-      description: item.descriptionMarkdown,
-      isHidden: item.isHidden,
-      postCount: item._count.posts,
-      createdAt: toIsoDateTime(item.createdAt),
-      updatedAt: toIsoDateTime(item.updatedAt),
-    })) } });
+    return reply.send({
+      data: {
+        series: series.map((item) => ({
+          id: item.id,
+          name: item.name,
+          url: item.slug,
+          description: item.descriptionMarkdown,
+          isHidden: item.isHidden,
+          postCount: item._count.posts,
+          createdAt: toIsoDateTime(item.createdAt),
+          updatedAt: toIsoDateTime(item.updatedAt),
+        })),
+      },
+    });
   });
 }

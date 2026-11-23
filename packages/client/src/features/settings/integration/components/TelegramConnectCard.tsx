@@ -27,10 +27,13 @@ const TelegramConnectCard = ({ botUsername }: TelegramConnectCardProps) => {
                 throw new Error(generateErrorMessage);
             });
             if (response.data.status !== 'DONE') {
-                throw new Error(response.data.errorMessage || t({
-                    id: 'settings.telegram.token.generate_failed',
-                    message: 'Could not generate a verification code.'
-                }));
+                throw new Error(
+                    response.data.errorMessage ||
+                        t({
+                            id: 'settings.telegram.token.generate_failed',
+                            message: 'Could not generate a verification code.'
+                        })
+                );
             }
             return response.data.body;
         },
@@ -49,11 +52,13 @@ const TelegramConnectCard = ({ botUsername }: TelegramConnectCardProps) => {
                 id: 'settings.telegram.instructions.title',
                 message: 'How to connect'
             })}
-            icon={<Link aria-hidden className="h-4 w-4" />}>
+            icon={<Link aria-hidden className="h-4 w-4" />}
+        >
             <div className="space-y-5">
                 <p className="text-sm leading-relaxed text-content">
                     <Trans id="settings.telegram.connect.description">
-                        Open Telegram and tap Start in the chat with the bot. This page updates on its own once you are connected.
+                        Open Telegram and tap Start in the chat with the bot. This page updates on its own once you are
+                        connected.
                     </Trans>
                 </p>
 
@@ -73,7 +78,8 @@ const TelegramConnectCard = ({ botUsername }: TelegramConnectCardProps) => {
                                     href={connectLink.link}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-transparent bg-action px-4.5 py-2 text-sm font-semibold text-content-inverted transition-all ${INTERACTION_DURATION} hover:bg-action-hover focus:outline-none focus:ring-4 focus:ring-action/20 focus:ring-offset-1 active:scale-95 sm:w-auto [@media(pointer:fine)]:min-h-[40px]`}>
+                                    className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-transparent bg-action px-4.5 py-2 text-sm font-semibold text-content-inverted transition-all ${INTERACTION_DURATION} hover:bg-action-hover focus:outline-none focus:ring-4 focus:ring-action/20 focus:ring-offset-1 active:scale-95 sm:w-auto [@media(pointer:fine)]:min-h-[40px]`}
+                                >
                                     <Send aria-hidden className="h-4 w-4" />
                                     <Trans id="settings.telegram.connect.open">Connect in Telegram</Trans>
                                 </a>
@@ -93,7 +99,8 @@ const TelegramConnectCard = ({ botUsername }: TelegramConnectCardProps) => {
                                         href={`https://t.me/${botUsername}`}
                                         className="font-medium text-content underline decoration-1 underline-offset-2"
                                         target="_blank"
-                                        rel="noopener noreferrer">
+                                        rel="noopener noreferrer"
+                                    >
                                         @{botUsername}
                                     </a>
                                     . The code can be used for 24 hours.
@@ -108,7 +115,8 @@ const TelegramConnectCard = ({ botUsername }: TelegramConnectCardProps) => {
                                     type="button"
                                     variant="secondary"
                                     size="sm"
-                                    onClick={() => navigator.clipboard?.writeText(connectLink.token)}>
+                                    onClick={() => navigator.clipboard?.writeText(connectLink.token)}
+                                >
                                     <Trans id="common.copy">Copy</Trans>
                                 </Button>
                             </div>
@@ -124,7 +132,8 @@ const TelegramConnectCard = ({ botUsername }: TelegramConnectCardProps) => {
                             size="sm"
                             className="mt-3"
                             isLoading={connectLinkQuery.isFetching}
-                            onClick={() => void connectLinkQuery.refetch()}>
+                            onClick={() => void connectLinkQuery.refetch()}
+                        >
                             <Trans id="settings.telegram.connect.retry">Try again</Trans>
                         </Button>
                     </Alert>

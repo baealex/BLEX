@@ -28,9 +28,8 @@ export const settingsRouterContext = ({
     adminCapabilities
 }: SettingsAppProps): SettingsRouterContext => {
     const legacyStaffCapabilities = adminCapabilities === undefined && isStaff;
-    const can = (capability: keyof AdminCapabilities) => (
-        isSuperuser || adminCapabilities?.[capability] === true || legacyStaffCapabilities
-    );
+    const can = (capability: keyof AdminCapabilities) =>
+        isSuperuser || adminCapabilities?.[capability] === true || legacyStaffCapabilities;
 
     return {
         isEditor,

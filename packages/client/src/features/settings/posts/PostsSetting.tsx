@@ -1,29 +1,15 @@
 import { Suspense, useState } from 'react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import {
-    CalendarDays,
-    FileText,
-    Save,
-    Trash2,
-    type IconComponent
-} from '~/ui/icons';
+import { CalendarDays, FileText, Save, Trash2, type IconComponent } from '~/ui/icons';
 import { Button, LoadingState, Tabs } from '~/components/shared';
 import { SettingsHeader } from '../layout';
 import { usePostsFilterState } from './hooks/usePostsData';
-import {
-    DraftPostListContent,
-    PostsFilter,
-    PostListContent,
-    TrashPostListContent
-} from './components';
+import { DraftPostListContent, PostsFilter, PostListContent, TrashPostListContent } from './components';
 
 type PostStatusTab = 'published' | 'scheduled' | 'drafts' | 'trash';
 
 const isPostStatusTab = (value: string | null): value is PostStatusTab => {
-    return value === 'published'
-        || value === 'scheduled'
-        || value === 'drafts'
-        || value === 'trash';
+    return value === 'published' || value === 'scheduled' || value === 'drafts' || value === 'trash';
 };
 
 const getInitialTab = (): PostStatusTab => {
@@ -72,7 +58,7 @@ const PostsSetting = () => {
     };
 
     const handleCountChange = (tab: PostStatusTab, count: number) => {
-        setPostCounts(prev => {
+        setPostCounts((prev) => {
             if (prev[tab] === count) return prev;
             return {
                 ...prev,
@@ -120,26 +106,26 @@ const PostsSetting = () => {
         }
     ];
     const activeCount = postCounts[activeTab];
-    const title = activeCount === undefined
-        ? t({
-            id: 'settings.posts.title',
-            message: 'Posts'
-        })
-        : i18n._({
-            id: 'settings.posts.title_count',
-            message: 'Posts ({count})',
-            values: { count: activeCount }
-        });
-    const hasContentFilters = Boolean(
-        filters.tag || filters.series || filters.visibility || filters.search
-    );
+    const title =
+        activeCount === undefined
+            ? t({
+                  id: 'settings.posts.title',
+                  message: 'Posts'
+              })
+            : i18n._({
+                  id: 'settings.posts.title_count',
+                  message: 'Posts ({count})',
+                  values: { count: activeCount }
+              });
+    const hasContentFilters = Boolean(filters.tag || filters.series || filters.visibility || filters.search);
     const createPostAction = (
         <Button
             density="compact"
             variant="primary"
             size="md"
             className="min-h-11! w-full [@media(pointer:fine)]:min-h-10! sm:w-auto"
-            onClick={() => window.location.assign('/write')}>
+            onClick={() => window.location.assign('/write')}
+        >
             <Trans id="settings.posts.create">Write a new post</Trans>
         </Button>
     );
@@ -149,35 +135,39 @@ const PostsSetting = () => {
             variant="secondary"
             size="md"
             className="min-h-11! [@media(pointer:fine)]:min-h-10!"
-            onClick={clearFilters}>
+            onClick={clearFilters}
+        >
             <Trans id="settings.posts.filters.clear">Clear filters</Trans>
         </Button>
-    ) : createPostAction;
+    ) : (
+        createPostAction
+    );
 
     return (
         <div>
-            <SettingsHeader
-                title={title}
-            />
+            <SettingsHeader title={title} />
 
             <Tabs.Root
                 value={activeTab}
                 onValueChange={(value) => {
                     if (isPostStatusTab(value)) handleTabChange(value);
-                }}>
+                }}
+            >
                 <Tabs.List
                     ariaLabel={t({
                         id: 'settings.posts.tabs.aria',
                         message: 'Post status'
                     })}
-                    className="mb-6 grid grid-cols-4 gap-0 border-line-light sm:flex sm:gap-1">
+                    className="mb-6 grid grid-cols-4 gap-0 border-line-light sm:flex sm:gap-1"
+                >
                     {postStatusTabs.map((tab) => {
                         const TabIcon = tab.icon;
                         return (
                             <Tabs.Trigger
                                 key={tab.value}
                                 value={tab.value}
-                                className="inline-flex min-h-11 min-w-0 items-center justify-center gap-1 px-1 py-2.5 text-xs [@media(pointer:fine)]:min-h-10 sm:flex-shrink-0 sm:gap-2 sm:px-3 sm:text-sm">
+                                className="inline-flex min-h-11 min-w-0 items-center justify-center gap-1 px-1 py-2.5 text-xs [@media(pointer:fine)]:min-h-10 sm:flex-shrink-0 sm:gap-2 sm:px-3 sm:text-sm"
+                            >
                                 <TabIcon aria-hidden className="hidden h-3.5 w-3.5 sm:block" />
                                 <span className="truncate">{tab.label}</span>
                             </Tabs.Trigger>
@@ -188,7 +178,7 @@ const PostsSetting = () => {
                 <Tabs.Content value={activeTab}>
                     {(activeTab === 'published' || activeTab === 'scheduled') && (
                         <Suspense
-                            fallback={(
+                            fallback={
                                 <div className="mb-6">
                                     <LoadingState
                                         type="spinner"
@@ -198,7 +188,8 @@ const PostsSetting = () => {
                                         })}
                                     />
                                 </div>
-                            )}>
+                            }
+                        >
                             <PostsFilter
                                 filters={filters}
                                 searchValue={searchValue}
@@ -225,7 +216,8 @@ const PostsSetting = () => {
                                     })}
                                 />
                             </div>
-                        }>
+                        }
+                    >
                         <div className="mt-6">
                             {activeTab === 'published' && (
                                 <PostListContent

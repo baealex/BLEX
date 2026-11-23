@@ -24,7 +24,7 @@ const parseCookies = (): Record<string, string> => {
 
     return document.cookie
         .split(';')
-        .map(cookie => cookie.trim())
+        .map((cookie) => cookie.trim())
         .filter(Boolean)
         .reduce<Record<string, string>>((accumulator, cookiePair) => {
             const separatorIndex = cookiePair.indexOf('=');

@@ -71,13 +71,7 @@ const getPlatformIcon = (name: string) => PLATFORM_ICONS[name] ?? LinkIcon;
 
 const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemProps) => {
     const { i18n, t } = useLingui();
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition
-    } = useSortable({ id: social.id });
+    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: social.id });
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -157,7 +151,7 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
         }
     ];
 
-    const currentPlatform = platformOptions.find(opt => opt.value === social.name);
+    const currentPlatform = platformOptions.find((opt) => opt.value === social.name);
     const socialLinkLabel = t({
         id: 'settings.social_links.item.label',
         message: 'Social link'
@@ -188,7 +182,8 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                             style={{ touchAction: 'none' }}
                             {...attributes}
                             {...listeners}
-                            aria-label={reorderLabel}>
+                            aria-label={reorderLabel}
+                        >
                             <GripVertical aria-hidden="true" className="h-4 w-4" />
                         </div>
                         <div className="w-8 h-8 flex items-center justify-center bg-surface rounded-lg shadow-sm">
@@ -202,7 +197,8 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                         type="button"
                         aria-label={removeLabel}
                         className="flex min-h-11 min-w-11 items-center justify-center rounded-lg text-content-hint transition-all duration-200 hover:bg-surface-subtle hover:text-content-secondary"
-                        onClick={() => onRemove(social.id)}>
+                        onClick={() => onRemove(social.id)}
+                    >
                         <X aria-hidden="true" className="h-4 w-4" />
                     </button>
                 </div>
@@ -215,31 +211,42 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                         style={{ touchAction: 'none' }}
                         {...attributes}
                         {...listeners}
-                        aria-label={reorderLabel}>
+                        aria-label={reorderLabel}
+                    >
                         <GripVertical aria-hidden="true" className="h-4 w-4" />
                     </div>
 
                     {/* Desktop platform icon */}
                     <div className="hidden sm:flex w-10 h-10 items-center justify-center bg-gradient-to-br from-surface-subtle to-surface-subtle rounded-lg shadow-sm group-hover:from-surface-subtle group-hover:to-surface-subtle transition-all duration-200 flex-shrink-0">
-                        <InlineIcon icon={platformIcon} className="text-lg text-content-secondary transition-colors group-hover:text-content-secondary" />
+                        <InlineIcon
+                            icon={platformIcon}
+                            className="text-lg text-content-secondary transition-colors group-hover:text-content-secondary"
+                        />
                     </div>
 
                     {/* Platform selector */}
                     <div className="w-full sm:w-44 flex-shrink-0">
-                        <label htmlFor={platformInputId} className="block text-xs font-medium text-content-secondary mb-2 sm:hidden">
+                        <label
+                            htmlFor={platformInputId}
+                            className="block text-xs font-medium text-content-secondary mb-2 sm:hidden"
+                        >
                             <Trans id="settings.social_links.platform.label">Platform</Trans>
                         </label>
                         <Dropdown
                             density="compact"
                             trigger={
-                                <button id={platformInputId} type="button" className={`${settingsCompactSelectTriggerStyles} flex items-center justify-between`}>
+                                <button
+                                    id={platformInputId}
+                                    type="button"
+                                    className={`${settingsCompactSelectTriggerStyles} flex items-center justify-between`}
+                                >
                                     <span className={!social.name ? 'text-content-hint' : 'text-content'}>
                                         {currentPlatform?.label || platformOptions[0].label}
                                     </span>
                                     <ChevronDown aria-hidden="true" className="h-4 w-4 text-content-hint" />
                                 </button>
                             }
-                            items={platformOptions.map(opt => ({
+                            items={platformOptions.map((opt) => ({
                                 label: opt.label,
                                 onClick: () => onChange(index, 'name', opt.value),
                                 checked: social.name === opt.value
@@ -250,7 +257,10 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
 
                     {/* Link URL */}
                     <div className="flex-1">
-                        <label htmlFor={linkInputId} className="block text-xs font-medium text-content-secondary mb-2 sm:hidden">
+                        <label
+                            htmlFor={linkInputId}
+                            className="block text-xs font-medium text-content-secondary mb-2 sm:hidden"
+                        >
                             <Trans id="settings.social_links.url.label">Link URL</Trans>
                         </label>
                         <Input
@@ -268,11 +278,9 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                         type="button"
                         aria-label={removeLabel}
                         className="hidden min-h-11 min-w-11 flex-shrink-0 items-center justify-center rounded-lg text-content-hint transition-all duration-200 hover:bg-surface-subtle hover:text-content-secondary group/btn sm:flex [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9"
-                        onClick={() => onRemove(social.id)}>
-                        <X
-                            aria-hidden="true"
-                            className="h-4 w-4 transition-transform group-hover/btn:scale-110"
-                        />
+                        onClick={() => onRemove(social.id)}
+                    >
+                        <X aria-hidden="true" className="h-4 w-4 transition-transform group-hover/btn:scale-110" />
                     </button>
                 </div>
             </div>
@@ -297,10 +305,12 @@ const SocialLinks = () => {
             if (data.status === 'DONE') {
                 return data.body.social || [];
             }
-            throw new Error(t({
-                id: 'settings.social_links.load_failed',
-                message: 'Could not load social links.'
-            }));
+            throw new Error(
+                t({
+                    id: 'settings.social_links.load_failed',
+                    message: 'Could not load social links.'
+                })
+            );
         }
     });
 
@@ -331,8 +341,8 @@ const SocialLinks = () => {
 
         if (active.id !== over?.id) {
             setSocials((items) => {
-                const oldIndex = items.findIndex(item => item.id === active.id);
-                const newIndex = items.findIndex(item => item.id === over?.id);
+                const oldIndex = items.findIndex((item) => item.id === active.id);
+                const newIndex = items.findIndex((item) => item.id === over?.id);
 
                 const newItems = arrayMove(items, oldIndex, newIndex);
                 return newItems.map((item, index) => ({
@@ -344,7 +354,7 @@ const SocialLinks = () => {
     };
 
     const handleSocialChange = (index: number, field: 'name' | 'value', value: string) => {
-        setSocials(prev => {
+        setSocials((prev) => {
             const newSocials = [...prev];
             newSocials[index][field] = value;
             return newSocials;
@@ -352,17 +362,20 @@ const SocialLinks = () => {
     };
 
     const handleSocialAdd = () => {
-        setSocials([...socials, {
-            id: Math.random(),
-            name: '',
-            value: '',
-            order: socials.length + 1,
-            prepare: true
-        }]);
+        setSocials([
+            ...socials,
+            {
+                id: Math.random(),
+                name: '',
+                value: '',
+                order: socials.length + 1,
+                prepare: true
+            }
+        ]);
     };
 
     const handleSocialRemove = (id: number) => {
-        setSocials(socials.filter(social => social.id !== id));
+        setSocials(socials.filter((social) => social.id !== id));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -371,37 +384,45 @@ const SocialLinks = () => {
 
         try {
             if (socials.some((social) => !social.name)) {
-                toast.error(t({
-                    id: 'settings.social_links.validation.platform_required',
-                    message: 'Select a platform for every social link.'
-                }));
+                toast.error(
+                    t({
+                        id: 'settings.social_links.validation.platform_required',
+                        message: 'Select a platform for every social link.'
+                    })
+                );
                 setIsLoading(false);
                 return;
             }
 
             if (socials.some((social) => !social.value)) {
-                toast.error(t({
-                    id: 'settings.social_links.validation.url_required',
-                    message: 'Enter a URL for every social link.'
-                }));
+                toast.error(
+                    t({
+                        id: 'settings.social_links.validation.url_required',
+                        message: 'Enter a URL for every social link.'
+                    })
+                );
                 setIsLoading(false);
                 return;
             }
 
             if (socials.some((social) => !social.value.startsWith('https://'))) {
-                toast.error(t({
-                    id: 'settings.social_links.validation.https_required',
-                    message: 'Social link URLs must start with https://.'
-                }));
+                toast.error(
+                    t({
+                        id: 'settings.social_links.validation.https_required',
+                        message: 'Social link URLs must start with https://.'
+                    })
+                );
                 setIsLoading(false);
                 return;
             }
 
             if (socials.some((social) => social.value.includes(',') || social.value.includes('&'))) {
-                toast.error(t({
-                    id: 'settings.social_links.validation.forbidden_separators',
-                    message: 'Social link URLs cannot contain commas or ampersands.'
-                }));
+                toast.error(
+                    t({
+                        id: 'settings.social_links.validation.forbidden_separators',
+                        message: 'Social link URLs cannot contain commas or ampersands.'
+                    })
+                );
                 setIsLoading(false);
                 return;
             }
@@ -421,10 +442,12 @@ const SocialLinks = () => {
             });
 
             if (data.status === 'DONE') {
-                toast.success(t({
-                    id: 'settings.social_links.update_success',
-                    message: 'Social links updated.'
-                }));
+                toast.success(
+                    t({
+                        id: 'settings.social_links.update_success',
+                        message: 'Social links updated.'
+                    })
+                );
                 const updatedSocials = (data.body as SocialLink[]).map((social) => ({
                     ...social,
                     prepare: false
@@ -432,16 +455,21 @@ const SocialLinks = () => {
                 setSocials(updatedSocials);
                 setOriginalSocials(updatedSocials);
             } else {
-                toast.error(data.errorMessage || t({
-                    id: 'settings.social_links.update_failed',
-                    message: 'Could not update social links.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'settings.social_links.update_failed',
+                            message: 'Could not update social links.'
+                        })
+                );
             }
         } catch {
-            toast.error(t({
-                id: 'settings.social_links.update_failed',
-                message: 'Could not update social links.'
-            }));
+            toast.error(
+                t({
+                    id: 'settings.social_links.update_failed',
+                    message: 'Could not update social links.'
+                })
+            );
         } finally {
             setIsLoading(false);
         }
@@ -469,29 +497,30 @@ const SocialLinks = () => {
                                 id: 'settings.social_links.empty',
                                 message: 'No social links yet'
                             })}
-                            action={(
+                            action={
                                 <Button
                                     density="compact"
                                     type="button"
                                     variant="secondary"
                                     size="md"
                                     className="min-h-11! [@media(pointer:fine)]:min-h-10!"
-                                    onClick={handleSocialAdd}>
-                                    <Trans id="settings.social_links.add_first">
-                                        Add a social link
-                                    </Trans>
+                                    onClick={handleSocialAdd}
+                                >
+                                    <Trans id="settings.social_links.add_first">Add a social link</Trans>
                                 </Button>
-                            )}
+                            }
                         />
                     ) : (
                         <DndContext
                             sensors={sensors}
                             modifiers={[restrictToVerticalAxis, restrictToFirstScrollableAncestor]}
                             collisionDetection={closestCenter}
-                            onDragEnd={handleDragEnd}>
+                            onDragEnd={handleDragEnd}
+                        >
                             <SortableContext
-                                items={socials.map(social => social.id)}
-                                strategy={verticalListSortingStrategy}>
+                                items={socials.map((social) => social.id)}
+                                strategy={verticalListSortingStrategy}
+                            >
                                 {socials.map((social, index) => (
                                     <SocialLinkItem
                                         key={social.id}
@@ -515,7 +544,8 @@ const SocialLinks = () => {
                             size="md"
                             leftIcon={<Plus aria-hidden="true" className="h-4 w-4" />}
                             onClick={handleSocialAdd}
-                            className="min-h-11! [@media(pointer:fine)]:min-h-10! sm:w-auto">
+                            className="min-h-11! [@media(pointer:fine)]:min-h-10! sm:w-auto"
+                        >
                             <Trans id="settings.social_links.add">Add link</Trans>
                         </Button>
                         <Button
@@ -525,16 +555,17 @@ const SocialLinks = () => {
                             size="md"
                             isLoading={isLoading}
                             leftIcon={!isLoading ? <Save aria-hidden="true" className="h-4 w-4" /> : undefined}
-                            className="min-h-11! [@media(pointer:fine)]:min-h-10! sm:w-auto">
+                            className="min-h-11! [@media(pointer:fine)]:min-h-10! sm:w-auto"
+                        >
                             {isLoading
                                 ? t({
-                                    id: 'settings.social_links.saving',
-                                    message: 'Saving...'
-                                })
+                                      id: 'settings.social_links.saving',
+                                      message: 'Saving...'
+                                  })
                                 : t({
-                                    id: 'settings.social_links.save',
-                                    message: 'Save changes'
-                                })}
+                                      id: 'settings.social_links.save',
+                                      message: 'Save changes'
+                                  })}
                         </Button>
                     </div>
                 )}

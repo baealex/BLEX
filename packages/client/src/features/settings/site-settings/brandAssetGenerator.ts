@@ -8,30 +8,82 @@ const SVG_MAX_NODES = 300;
 const PROCESSING_INSTRUCTION_PATTERN = /<\?(?!xml\s)[\s\S]*?\?>/i;
 const DOCTYPE_PATTERN = /<!DOCTYPE/i;
 const SVG_ALLOWED_TAGS = new Set([
-    'svg', 'g', 'defs', 'title', 'desc',
+    'svg',
+    'g',
+    'defs',
+    'title',
+    'desc',
     'style',
-    'path', 'rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon',
-    'linearGradient', 'radialGradient', 'stop',
-    'text', 'tspan'
+    'path',
+    'rect',
+    'circle',
+    'ellipse',
+    'line',
+    'polyline',
+    'polygon',
+    'linearGradient',
+    'radialGradient',
+    'stop',
+    'text',
+    'tspan'
 ]);
 const SVG_ALLOWED_ATTRIBUTES = new Set([
-    'xmlns', 'viewBox', 'width', 'height', 'class', 'style', 'type', 'fill', 'stroke', 'stroke-width',
-    'stroke-linecap', 'stroke-linejoin', 'stroke-miterlimit',
-    'stroke-dasharray', 'stroke-dashoffset', 'opacity', 'fill-opacity',
-    'stroke-opacity', 'd', 'points', 'x', 'y', 'x1', 'x2', 'y1', 'y2',
-    'cx', 'cy', 'r', 'rx', 'ry', 'transform', 'gradientUnits',
-    'gradientTransform', 'offset', 'stop-color', 'stop-opacity', 'id',
-    'role', 'aria-hidden', 'focusable', 'xml:space', 'font-family',
-    'font-size', 'font-weight', 'text-anchor', 'dominant-baseline',
-    'letter-spacing', 'fill-rule', 'clip-rule', 'version',
+    'xmlns',
+    'viewBox',
+    'width',
+    'height',
+    'class',
+    'style',
+    'type',
+    'fill',
+    'stroke',
+    'stroke-width',
+    'stroke-linecap',
+    'stroke-linejoin',
+    'stroke-miterlimit',
+    'stroke-dasharray',
+    'stroke-dashoffset',
+    'opacity',
+    'fill-opacity',
+    'stroke-opacity',
+    'd',
+    'points',
+    'x',
+    'y',
+    'x1',
+    'x2',
+    'y1',
+    'y2',
+    'cx',
+    'cy',
+    'r',
+    'rx',
+    'ry',
+    'transform',
+    'gradientUnits',
+    'gradientTransform',
+    'offset',
+    'stop-color',
+    'stop-opacity',
+    'id',
+    'role',
+    'aria-hidden',
+    'focusable',
+    'xml:space',
+    'font-family',
+    'font-size',
+    'font-weight',
+    'text-anchor',
+    'dominant-baseline',
+    'letter-spacing',
+    'fill-rule',
+    'clip-rule',
+    'version',
     'preserveAspectRatio'
 ]);
 const DANGEROUS_VALUE_PATTERN = /(javascript:|https?:|\/\/|data:|@import)/i;
 const EXTERNAL_URL_PATTERN = /url\(\s*(?!#|'#|"#)/i;
-const ALLOWED_NAMESPACE_VALUES = new Set([
-    'http://www.w3.org/2000/svg',
-    'http://www.w3.org/1999/xlink'
-]);
+const ALLOWED_NAMESPACE_VALUES = new Set(['http://www.w3.org/2000/svg', 'http://www.w3.org/1999/xlink']);
 
 interface SvgViewBox {
     minX: number;
@@ -76,11 +128,7 @@ export class BrandAssetGenerationError extends Error {
     }
 }
 
-export const createSvgBrandAssetFormData = (
-    assetType: BrandAssetType,
-    theme: BrandAssetTheme,
-    svgFile: File
-) => {
+export const createSvgBrandAssetFormData = (assetType: BrandAssetType, theme: BrandAssetTheme, svgFile: File) => {
     const formData = new FormData();
     formData.append('assetType', assetType);
     formData.append('theme', theme);
@@ -95,12 +143,15 @@ export const createIconBrandAssetFormData = async (svgFile: File) => {
     const faviconIco = await createIcoBlob(pngFiles.filter((item) => item.size === 16 || item.size === 32));
 
     const formData = createSvgBrandAssetFormData('icon', 'default', svgFile);
-    formData.append('manifest', JSON.stringify({
-        version: 1,
-        pngSizes: [...ICON_PNG_SIZES],
-        ico: true,
-        generatedBy: 'browser'
-    }));
+    formData.append(
+        'manifest',
+        JSON.stringify({
+            version: 1,
+            pngSizes: [...ICON_PNG_SIZES],
+            ico: true,
+            generatedBy: 'browser'
+        })
+    );
 
     pngFiles.forEach(({ size, blob }) => {
         formData.append(`png${size}`, new File([blob], `logo${size}.png`, { type: 'image/png' }));
@@ -140,10 +191,7 @@ const normalizeSvgForRendering = (svgText: string) => {
 };
 
 const validateSvgForRendering = (root: Element) => {
-    const elements = [
-        root,
-        ...Array.from(root.querySelectorAll('*'))
-    ];
+    const elements = [root, ...Array.from(root.querySelectorAll('*'))];
 
     if (elements.length > SVG_MAX_NODES) {
         throw new BrandAssetGenerationError('svgTooComplex');
@@ -174,10 +222,9 @@ const validateSvgForRendering = (root: Element) => {
             }
         });
 
-        const hasDangerousText = Array.from(element.childNodes).some((node) => (
-            node.nodeType === Node.TEXT_NODE
-            && hasDangerousValue(node.textContent || '')
-        ));
+        const hasDangerousText = Array.from(element.childNodes).some(
+            (node) => node.nodeType === Node.TEXT_NODE && hasDangerousValue(node.textContent || '')
+        );
         if (hasDangerousText) {
             throw new BrandAssetGenerationError('svgUnsafeText');
         }
@@ -193,7 +240,10 @@ const isSafeMetadataAttribute = (attributeName: string) => {
 };
 
 const parseViewBox = (rawValue: string): SvgViewBox => {
-    const values = rawValue.trim().split(/[\s,]+/).map(Number);
+    const values = rawValue
+        .trim()
+        .split(/[\s,]+/)
+        .map(Number);
     if (values.length !== 4 || values.some((value) => !Number.isFinite(value))) {
         throw new BrandAssetGenerationError('svgInvalidViewbox');
     }
@@ -227,42 +277,44 @@ const generatePngFiles = async (normalizedSvgText: string): Promise<GeneratedPng
     }
 };
 
-const loadImage = (url: string) => new Promise<HTMLImageElement>((resolve, reject) => {
-    const image = new Image();
-    image.onload = () => resolve(image);
-    image.onerror = () => reject(new BrandAssetGenerationError('svgPreviewFailed'));
-    image.src = url;
-});
+const loadImage = (url: string) =>
+    new Promise<HTMLImageElement>((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = () => reject(new BrandAssetGenerationError('svgPreviewFailed'));
+        image.src = url;
+    });
 
-const drawImageToPng = (image: HTMLImageElement, size: number) => new Promise<Blob>((resolve, reject) => {
-    const canvas = document.createElement('canvas');
-    canvas.width = size;
-    canvas.height = size;
+const drawImageToPng = (image: HTMLImageElement, size: number) =>
+    new Promise<Blob>((resolve, reject) => {
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
 
-    const context = canvas.getContext('2d');
-    if (!context) {
-        reject(new BrandAssetGenerationError('iconGenerationFailed'));
-        return;
-    }
-
-    context.clearRect(0, 0, size, size);
-    const sourceWidth = image.naturalWidth || size;
-    const sourceHeight = image.naturalHeight || size;
-    const scale = Math.min(size / sourceWidth, size / sourceHeight);
-    const drawWidth = sourceWidth * scale;
-    const drawHeight = sourceHeight * scale;
-    const drawX = (size - drawWidth) / 2;
-    const drawY = (size - drawHeight) / 2;
-
-    context.drawImage(image, drawX, drawY, drawWidth, drawHeight);
-    canvas.toBlob((blob) => {
-        if (!blob) {
-            reject(new BrandAssetGenerationError('pngGenerationFailed'));
+        const context = canvas.getContext('2d');
+        if (!context) {
+            reject(new BrandAssetGenerationError('iconGenerationFailed'));
             return;
         }
-        resolve(blob);
-    }, 'image/png');
-});
+
+        context.clearRect(0, 0, size, size);
+        const sourceWidth = image.naturalWidth || size;
+        const sourceHeight = image.naturalHeight || size;
+        const scale = Math.min(size / sourceWidth, size / sourceHeight);
+        const drawWidth = sourceWidth * scale;
+        const drawHeight = sourceHeight * scale;
+        const drawX = (size - drawWidth) / 2;
+        const drawY = (size - drawHeight) / 2;
+
+        context.drawImage(image, drawX, drawY, drawWidth, drawHeight);
+        canvas.toBlob((blob) => {
+            if (!blob) {
+                reject(new BrandAssetGenerationError('pngGenerationFailed'));
+                return;
+            }
+            resolve(blob);
+        }, 'image/png');
+    });
 
 const createIcoBlob = async (entries: GeneratedPng[]) => {
     if (entries.length === 0) {

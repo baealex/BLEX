@@ -29,13 +29,7 @@ interface IconProps {
 const Icon = ({ icon: Glyph, size = 'md', className }: IconProps) => {
     const px = sizeMap[size];
 
-    return (
-        <Glyph
-            className={cx(sizeClassMap[size], 'shrink-0', className)}
-            width={px}
-            height={px}
-        />
-    );
+    return <Glyph className={cx(sizeClassMap[size], 'shrink-0', className)} width={px} height={px} />;
 };
 
 type InlineIconProps = Omit<ComponentProps<TablerIcon>, 'size'> & { icon: TablerIcon };

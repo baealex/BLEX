@@ -23,18 +23,9 @@ import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { BookOpen, FileText, Pencil, Trash2 } from '~/ui/icons';
-import {
-    SettingsEmptyState,
-    SettingsHeader,
-    SettingsHeaderAction,
-    SettingsListItem
-} from '../layout';
+import { SettingsEmptyState, SettingsHeader, SettingsHeaderAction, SettingsListItem } from '../layout';
 import { Dropdown } from '~/components/shared';
-import {
-    getSettingsIconClass,
-    SETTINGS_LIST_META,
-    SETTINGS_LIST_TITLE
-} from '~/styles/settingsStyles';
+import { getSettingsIconClass, SETTINGS_LIST_META, SETTINGS_LIST_TITLE } from '~/styles/settingsStyles';
 import { useConfirm } from '~/hooks/useConfirm';
 import {
     getSeriesWithUsername,
@@ -53,14 +44,7 @@ interface SortableSeriesItemProps {
 const SortableSeriesItem = ({ series, username, onEdit, onDelete }: SortableSeriesItemProps) => {
     const { i18n, t } = useLingui();
     const { confirm } = useConfirm();
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging
-    } = useSortable({ id: series.id });
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: series.id });
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -142,7 +126,8 @@ const SortableSeriesItem = ({ series, username, onEdit, onDelete }: SortableSeri
                             }
                         ]}
                     />
-                }>
+                }
+            >
                 <h3 className={`${SETTINGS_LIST_TITLE} mb-0.5`}>{series.title}</h3>
                 <div className={SETTINGS_LIST_META}>
                     <FileText aria-hidden className="mr-1.5 inline h-3.5 w-3.5" />
@@ -170,10 +155,12 @@ const SeriesSetting = () => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error(t({
-                id: 'settings.series.load_failed',
-                message: 'Could not load series.'
-            }));
+            throw new Error(
+                t({
+                    id: 'settings.series.load_failed',
+                    message: 'Could not load series.'
+                })
+            );
         }
     });
 
@@ -211,24 +198,31 @@ const SeriesSetting = () => {
                 const { data } = await updateSeriesOrder(orderData);
 
                 if (data.status !== 'DONE') {
-                    toast.error(data.errorMessage || t({
-                        id: 'settings.series.order.update_failed',
-                        message: 'Could not update the series order.'
-                    }));
+                    toast.error(
+                        data.errorMessage ||
+                            t({
+                                id: 'settings.series.order.update_failed',
+                                message: 'Could not update the series order.'
+                            })
+                    );
                     setSeries(series);
                     return;
                 }
 
-                toast.success(t({
-                    id: 'settings.series.order.update_success',
-                    message: 'Series order updated.'
-                }));
+                toast.success(
+                    t({
+                        id: 'settings.series.order.update_success',
+                        message: 'Series order updated.'
+                    })
+                );
             } catch {
                 setSeries(series);
-                toast.error(t({
-                    id: 'settings.series.order.update_failed',
-                    message: 'Could not update the series order.'
-                }));
+                toast.error(
+                    t({
+                        id: 'settings.series.order.update_failed',
+                        message: 'Could not update the series order.'
+                    })
+                );
             }
         }
     };
@@ -245,36 +239,41 @@ const SeriesSetting = () => {
     };
 
     const handleDeleteSeries = async (seriesId: number) => {
-        const seriesItem = series.find(s => s.id === seriesId);
+        const seriesItem = series.find((s) => s.id === seriesId);
         if (!seriesItem) return;
 
         try {
             const { data } = await deleteSeries(username, seriesItem.url);
 
             if (data.status === 'DONE') {
-                setSeries(series.filter(s => s.id !== seriesId));
-                toast.success(t({
-                    id: 'settings.series.delete.success',
-                    message: 'Series deleted.'
-                }));
+                setSeries(series.filter((s) => s.id !== seriesId));
+                toast.success(
+                    t({
+                        id: 'settings.series.delete.success',
+                        message: 'Series deleted.'
+                    })
+                );
             } else {
-                toast.error(data.errorMessage || t({
-                    id: 'settings.series.delete.failed',
-                    message: 'Could not delete the series.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'settings.series.delete.failed',
+                            message: 'Could not delete the series.'
+                        })
+                );
             }
         } catch {
-            toast.error(t({
-                id: 'settings.series.delete.failed',
-                message: 'Could not delete the series.'
-            }));
+            toast.error(
+                t({
+                    id: 'settings.series.delete.failed',
+                    message: 'Could not delete the series.'
+                })
+            );
         }
     };
 
     const createAction = (
-        <SettingsHeaderAction
-            variant="primary"
-            onClick={handleCreateSeries}>
+        <SettingsHeaderAction variant="primary" onClick={handleCreateSeries}>
             <Trans id="settings.series.create_new">Create series</Trans>
         </SettingsHeaderAction>
     );
@@ -301,10 +300,9 @@ const SeriesSetting = () => {
                     sensors={sensors}
                     modifiers={[restrictToVerticalAxis, restrictToFirstScrollableAncestor]}
                     collisionDetection={closestCenter}
-                    onDragEnd={handleDragEnd}>
-                    <SortableContext
-                        items={series.map(item => item.id)}
-                        strategy={verticalListSortingStrategy}>
+                    onDragEnd={handleDragEnd}
+                >
+                    <SortableContext items={series.map((item) => item.id)} strategy={verticalListSortingStrategy}>
                         <div>
                             {series.map((item) => (
                                 <SortableSeriesItem

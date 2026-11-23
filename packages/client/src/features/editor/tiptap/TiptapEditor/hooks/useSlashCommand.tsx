@@ -13,7 +13,7 @@ export const useSlashCommand = (editor: Editor | null) => {
     });
 
     const hideMenu = () => {
-        setState(prev => ({
+        setState((prev) => ({
             ...prev,
             isVisible: false,
             slashPos: null

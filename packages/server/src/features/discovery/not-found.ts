@@ -11,13 +11,19 @@ export function wantsNotFoundPage(request: FastifyRequest): boolean {
 }
 
 export async function renderNotFoundPage(
-  db: PrismaClient, user: { id: number; username: string } | null, csrfToken: string,
+  db: PrismaClient,
+  user: { id: number; username: string } | null,
+  csrfToken: string,
 ): Promise<string> {
   const { brand, viewer } = await readPageChrome(db, user, csrfToken);
   return renderPage('errors/not-found', { brand, viewer });
 }
 
-export async function renderForbiddenPage(db: PrismaClient, user: { id: number; username: string } | null, csrfToken: string): Promise<string> {
+export async function renderForbiddenPage(
+  db: PrismaClient,
+  user: { id: number; username: string } | null,
+  csrfToken: string,
+): Promise<string> {
   const { brand, viewer } = await readPageChrome(db, user, csrfToken);
   return renderPage('errors/forbidden', { brand, viewer });
 }

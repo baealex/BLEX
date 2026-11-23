@@ -1,9 +1,6 @@
 import type { MessageDescriptor } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
-import type {
-    BrandAssetGenerationError,
-    BrandAssetGenerationErrorCode
-} from './brandAssetGenerator';
+import type { BrandAssetGenerationError, BrandAssetGenerationErrorCode } from './brandAssetGenerator';
 
 const brandAssetGenerationErrorMessages: Record<BrandAssetGenerationErrorCode, MessageDescriptor> = {
     svgProcessingInstruction: msg({
@@ -76,9 +73,7 @@ const brandAssetGenerationErrorMessages: Record<BrandAssetGenerationErrorCode, M
     })
 };
 
-export const getBrandAssetGenerationErrorMessage = (
-    error: BrandAssetGenerationError
-): MessageDescriptor => ({
+export const getBrandAssetGenerationErrorMessage = (error: BrandAssetGenerationError): MessageDescriptor => ({
     ...brandAssetGenerationErrorMessages[error.code],
     ...(error.detail ? { values: { detail: error.detail } } : {})
 });

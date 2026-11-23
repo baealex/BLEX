@@ -42,12 +42,14 @@ export const ImageNodeView = ({ node, selected, editor, getPos }: NodeViewProps)
                 data-border={border ? 'true' : undefined}
                 data-shadow={shadow ? 'true' : undefined}
                 data-border-radius={borderRadius || undefined}
-                data-size={sizePreset || undefined}>
+                data-size={sizePreset || undefined}
+            >
                 <div
                     style={{
                         position: 'relative',
                         width: sizePreset === 'full' ? '100%' : undefined
-                    }}>
+                    }}
+                >
                     <img
                         src={src}
                         alt={alt || ''}
@@ -95,7 +97,8 @@ export const ImageNodeView = ({ node, selected, editor, getPos }: NodeViewProps)
                             fontSize: 14,
                             color: '#666',
                             textAlign: 'center'
-                        }}>
+                        }}
+                    >
                         {caption}
                     </figcaption>
                 )}

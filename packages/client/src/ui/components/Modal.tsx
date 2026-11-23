@@ -1,9 +1,4 @@
-import type {
-    ButtonHTMLAttributes,
-    ComponentProps,
-    HTMLAttributes,
-    ReactNode
-} from 'react';
+import type { ButtonHTMLAttributes, ComponentProps, HTMLAttributes, ReactNode } from 'react';
 import { X } from './icons';
 import { Dialog } from './Dialog';
 import { Button } from './Button';
@@ -41,7 +36,8 @@ const ModalHeader = ({ children, className = '', ...props }: ModalSectionProps) 
             'flex items-center justify-between gap-3 px-6 py-5 border-b border-line sticky top-0 bg-surface-elevated z-10',
             className
         )}
-        {...props}>
+        {...props}
+    >
         {children}
     </div>
 );
@@ -62,7 +58,8 @@ const ModalFooter = ({ children, className = '', ...props }: ModalSectionProps) 
             'flex items-center justify-end gap-3 px-6 py-4 border-t border-line bg-surface-subtle',
             className
         )}
-        {...props}>
+        {...props}
+    >
         {children}
     </div>
 );
@@ -80,22 +77,15 @@ const ModalCloseButton = ({
                 className
             )}
             aria-label={ariaLabel}
-            {...props}>
+            {...props}
+        >
             <X className={cx('w-6 h-6', iconClassName)} />
         </button>
     </Dialog.Close>
 );
 
-const ModalFooterAction = ({
-    size = 'md',
-    className = '',
-    ...props
-}: ModalFooterActionProps) => (
-    <Button
-        size={size}
-        className={cx('min-w-[88px]', className)}
-        {...props}
-    />
+const ModalFooterAction = ({ size = 'md', className = '', ...props }: ModalFooterActionProps) => (
+    <Button size={size} className={cx('min-w-[88px]', className)} {...props} />
 );
 
 const ModalRoot = ({
@@ -116,14 +106,22 @@ const ModalRoot = ({
     // Use explicit class names for Tailwind to detect at build time
     const getMaxWidthClass = () => {
         switch (maxWidth) {
-            case 'sm': return 'sm:max-w-sm';
-            case 'md': return 'sm:max-w-md';
-            case 'lg': return 'sm:max-w-lg';
-            case 'xl': return 'sm:max-w-xl';
-            case '2xl': return 'sm:max-w-2xl';
-            case '3xl': return 'sm:max-w-3xl';
-            case '4xl': return 'sm:max-w-4xl';
-            default: return 'sm:max-w-2xl';
+            case 'sm':
+                return 'sm:max-w-sm';
+            case 'md':
+                return 'sm:max-w-md';
+            case 'lg':
+                return 'sm:max-w-lg';
+            case 'xl':
+                return 'sm:max-w-xl';
+            case '2xl':
+                return 'sm:max-w-2xl';
+            case '3xl':
+                return 'sm:max-w-3xl';
+            case '4xl':
+                return 'sm:max-w-4xl';
+            default:
+                return 'sm:max-w-2xl';
         }
     };
 
@@ -156,30 +154,20 @@ const ModalRoot = ({
                         'motion-safe:sm:data-[state=open]:zoom-in-95',
                         'motion-reduce:data-[state=open]:animate-none motion-reduce:transition-none',
                         'duration-150 motion-reduce:duration-0'
-                    )}>
-
-                    {!title && (
-                        <Dialog.Title className="sr-only">
-                            {accessibleTitle}
-                        </Dialog.Title>
                     )}
+                >
+                    {!title && <Dialog.Title className="sr-only">{accessibleTitle}</Dialog.Title>}
 
                     {/* 헤더 */}
                     {(title || showCloseButton) && (
                         <ModalHeader>
-                            {title && (
-                                <ModalTitle>{title}</ModalTitle>
-                            )}
-                            {showCloseButton && (
-                                <ModalCloseButton className={!title ? 'ml-auto' : ''} />
-                            )}
+                            {title && <ModalTitle>{title}</ModalTitle>}
+                            {showCloseButton && <ModalCloseButton className={!title ? 'ml-auto' : ''} />}
                         </ModalHeader>
                     )}
 
                     {/* 컨텐츠 */}
-                    <div className="p-0">
-                        {children}
-                    </div>
+                    <div className="p-0">{children}</div>
                 </Dialog.Content>
             </Dialog.Portal>
         </Dialog.Root>

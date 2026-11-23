@@ -20,7 +20,7 @@ export const SettingsRoot = () => {
 
     return (
         <Suspense
-            fallback={(
+            fallback={
                 <LoadingState
                     type="form"
                     ariaLabel={t({
@@ -28,7 +28,8 @@ export const SettingsRoot = () => {
                         message: 'Loading'
                     })}
                 />
-            )}>
+            }
+        >
             <SettingsDocumentTitle />
             <Outlet />
         </Suspense>

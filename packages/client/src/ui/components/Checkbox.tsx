@@ -11,16 +11,15 @@ interface CheckboxProps {
     className?: string;
 }
 
-const Checkbox = ({
-    checked,
-    onCheckedChange,
-    label,
-    description,
-    disabled = false,
-    className
-}: CheckboxProps) => {
+const Checkbox = ({ checked, onCheckedChange, label, description, disabled = false, className }: CheckboxProps) => {
     return (
-        <label className={cx('flex items-start gap-3 cursor-pointer group', disabled && 'opacity-50 cursor-not-allowed', className)}>
+        <label
+            className={cx(
+                'flex items-start gap-3 cursor-pointer group',
+                disabled && 'opacity-50 cursor-not-allowed',
+                className
+            )}
+        >
             <RadixCheckbox.Root
                 checked={checked}
                 onCheckedChange={(value) => onCheckedChange(value === true)}
@@ -32,7 +31,8 @@ const Checkbox = ({
                     checked
                         ? 'bg-action border-action'
                         : 'border-line-strong bg-surface-elevated group-hover:border-line'
-                )}>
+                )}
+            >
                 <RadixCheckbox.Indicator>
                     <Check className="w-3.5 h-3.5 text-content-inverted" strokeWidth={3} />
                 </RadixCheckbox.Indicator>

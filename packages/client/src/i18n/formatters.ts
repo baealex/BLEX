@@ -3,11 +3,7 @@ import { getDocumentTimeZone, type AppLocale } from './locale.ts';
 const DATE_ONLY_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 const LOCAL_DATE_TIME_PATTERN = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})$/;
 
-export const formatDateOnly = (
-    value: string | undefined,
-    locale: AppLocale,
-    fallback = ''
-): string => {
+export const formatDateOnly = (value: string | undefined, locale: AppLocale, fallback = ''): string => {
     const match = value?.match(DATE_ONLY_PATTERN);
     if (!match) {
         return fallback;
@@ -17,9 +13,9 @@ export const formatDateOnly = (
     const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
 
     if (
-        date.getUTCFullYear() !== Number(year)
-        || date.getUTCMonth() !== Number(month) - 1
-        || date.getUTCDate() !== Number(day)
+        date.getUTCFullYear() !== Number(year) ||
+        date.getUTCMonth() !== Number(month) - 1 ||
+        date.getUTCDate() !== Number(day)
     ) {
         return fallback;
     }
@@ -32,37 +28,24 @@ export const formatDateOnly = (
     }).format(date);
 };
 
-export const formatPublishedDate = (
-    publishedDate: string | undefined,
-    legacyDate: string,
-    locale: AppLocale
-): string => formatDateOnly(publishedDate, locale, legacyDate);
+export const formatPublishedDate = (publishedDate: string | undefined, legacyDate: string, locale: AppLocale): string =>
+    formatDateOnly(publishedDate, locale, legacyDate);
 
-export const formatLocalDateTime = (
-    value: string | undefined,
-    locale: AppLocale,
-    fallback = ''
-): string => {
+export const formatLocalDateTime = (value: string | undefined, locale: AppLocale, fallback = ''): string => {
     const match = value?.match(LOCAL_DATE_TIME_PATTERN);
     if (!match) {
         return fallback;
     }
 
     const [, year, month, day, hour, minute] = match;
-    const date = new Date(Date.UTC(
-        Number(year),
-        Number(month) - 1,
-        Number(day),
-        Number(hour),
-        Number(minute)
-    ));
+    const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute)));
 
     if (
-        date.getUTCFullYear() !== Number(year)
-        || date.getUTCMonth() !== Number(month) - 1
-        || date.getUTCDate() !== Number(day)
-        || date.getUTCHours() !== Number(hour)
-        || date.getUTCMinutes() !== Number(minute)
+        date.getUTCFullYear() !== Number(year) ||
+        date.getUTCMonth() !== Number(month) - 1 ||
+        date.getUTCDate() !== Number(day) ||
+        date.getUTCHours() !== Number(hour) ||
+        date.getUTCMinutes() !== Number(minute)
     ) {
         return fallback;
     }

@@ -3,11 +3,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { CSS } from '@dnd-kit/utilities';
 import { Calendar, Pin } from '~/ui/icons';
 import { Button } from '~/components/shared';
-import {
-    getSettingsIconClass,
-    SETTINGS_LIST_META,
-    SETTINGS_LIST_TITLE
-} from '~/styles/settingsStyles';
+import { getSettingsIconClass, SETTINGS_LIST_META, SETTINGS_LIST_TITLE } from '~/styles/settingsStyles';
 import { SettingsListItem } from '../../layout';
 import { getMediaPath } from '~/modules/static.module';
 import type { PinnedPostData } from '~/lib/api/settings';
@@ -20,21 +16,12 @@ interface PinnedPostItemProps {
     onRemove: (postUrl: string) => void;
 }
 
-export const PinnedPostItem = ({
-    pinnedPost,
-    username,
-    onRemove
-}: PinnedPostItemProps) => {
+export const PinnedPostItem = ({ pinnedPost, username, onRemove }: PinnedPostItemProps) => {
     const { i18n } = useLingui();
     const locale = normalizeLocale(i18n.locale);
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging
-    } = useSortable({ id: pinnedPost.post.url });
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+        id: pinnedPost.post.url
+    });
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -86,19 +73,17 @@ export const PinnedPostItem = ({
                         variant="secondary"
                         size="sm"
                         className="min-h-11! [@media(pointer:fine)]:min-h-9!"
-                        onClick={handleRemove}>
+                        onClick={handleRemove}
+                    >
                         <Trans id="settings.pinned_posts.unpin">Unpin</Trans>
                     </Button>
-                }>
+                }
+            >
                 <h3 className={`${SETTINGS_LIST_TITLE} mb-1 truncate text-content`}>{pinnedPost.post.title}</h3>
                 <div className={`${SETTINGS_LIST_META} text-xs flex items-center gap-2`}>
                     <span className="flex items-center gap-1">
                         <Calendar aria-hidden className="h-3.5 w-3.5 text-content-hint" />
-                        {formatPublishedDate(
-                            pinnedPost.post.createdDate,
-                            pinnedPost.post.createdDate,
-                            locale
-                        )}
+                        {formatPublishedDate(pinnedPost.post.createdDate, pinnedPost.post.createdDate, locale)}
                     </span>
                 </div>
             </SettingsListItem>

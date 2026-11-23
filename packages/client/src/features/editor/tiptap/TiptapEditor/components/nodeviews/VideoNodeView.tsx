@@ -81,12 +81,14 @@ export const VideoNodeView = ({ node, selected, editor, getPos }: NodeViewProps)
                 data-border={border ? 'true' : undefined}
                 data-shadow={shadow ? 'true' : undefined}
                 data-border-radius={borderRadius || undefined}
-                data-size={sizePreset || undefined}>
+                data-size={sizePreset || undefined}
+            >
                 <div
                     style={{
                         position: 'relative',
                         width: sizePreset === 'full' ? '100%' : undefined
-                    }}>
+                    }}
+                >
                     <video
                         ref={videoRef}
                         draggable={false}
@@ -100,7 +102,8 @@ export const VideoNodeView = ({ node, selected, editor, getPos }: NodeViewProps)
                         poster={poster || undefined}
                         width={width || undefined}
                         height={height || undefined}
-                        playsInline>
+                        playsInline
+                    >
                         <source src={src} type="video/mp4" />
                     </video>
                     {/* 투명 오버레이: 클릭 시 노드 선택 (네이티브 재생 차단) */}
@@ -139,13 +142,13 @@ export const VideoNodeView = ({ node, selected, editor, getPos }: NodeViewProps)
                                 borderRadius: 4,
                                 fontSize: 11,
                                 fontWeight: 600,
-                                background: playMode === 'gif' ? 'rgba(139, 92, 246, 0.85)' : 'rgba(59, 130, 246, 0.85)',
+                                background:
+                                    playMode === 'gif' ? 'rgba(139, 92, 246, 0.85)' : 'rgba(59, 130, 246, 0.85)',
                                 color: '#fff',
                                 pointerEvents: 'none'
-                            }}>
-                            {playMode === 'gif'
-                                ? t('media.video.badge.gif')
-                                : t('media.video.badge.video')}
+                            }}
+                        >
+                            {playMode === 'gif' ? t('media.video.badge.gif') : t('media.video.badge.video')}
                         </div>
                     )}
                 </div>
@@ -156,7 +159,8 @@ export const VideoNodeView = ({ node, selected, editor, getPos }: NodeViewProps)
                             fontSize: 14,
                             color: '#666',
                             textAlign: 'center'
-                        }}>
+                        }}
+                    >
                         {caption}
                     </figcaption>
                 )}

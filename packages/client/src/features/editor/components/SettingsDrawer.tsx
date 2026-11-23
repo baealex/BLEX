@@ -81,7 +81,13 @@ const CoverImagePreview = ({
     imageRatio: string;
     className?: string;
 }) => (
-    <div className={cx('overflow-hidden rounded-lg border border-line bg-surface-subtle', getCoverRatioClass(imageRatio), className)}>
+    <div
+        className={cx(
+            'overflow-hidden rounded-lg border border-line bg-surface-subtle',
+            getCoverRatioClass(imageRatio),
+            className
+        )}
+    >
         {imagePreview ? (
             <img src={imagePreview} alt="" className="h-full w-full object-cover" />
         ) : (
@@ -101,12 +107,7 @@ const CoverTextPreview = ({ inverted = false }: { inverted?: boolean }) => (
     </div>
 );
 
-const CoverStylePreview = ({
-    imagePreview,
-    layout,
-    imagePosition,
-    imageRatio
-}: CoverPreviewProps) => {
+const CoverStylePreview = ({ imagePreview, layout, imagePosition, imageRatio }: CoverPreviewProps) => {
     if (layout === 'overlay') {
         return (
             <div className="relative min-h-36 overflow-hidden rounded-lg border border-line bg-surface-subtle">
@@ -127,11 +128,7 @@ const CoverStylePreview = ({
 
     if (layout === 'split') {
         const image = (
-            <CoverImagePreview
-                imagePreview={imagePreview}
-                imageRatio={imageRatio}
-                className="h-full min-h-28"
-            />
+            <CoverImagePreview imagePreview={imagePreview} imageRatio={imageRatio} className="h-full min-h-28" />
         );
         const text = (
             <div className="flex min-h-28 items-center rounded-lg border border-line bg-surface-subtle p-4">
@@ -210,7 +207,9 @@ const SettingsDrawer = ({
         <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <Dialog.Portal>
                 {/* Backdrop */}
-                <Dialog.Overlay className={`fixed inset-0 ${DIM_OVERLAY_DEFAULT} z-40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0`} />
+                <Dialog.Overlay
+                    className={`fixed inset-0 ${DIM_OVERLAY_DEFAULT} z-40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0`}
+                />
 
                 {/* Drawer Content */}
                 <Dialog.Content
@@ -219,8 +218,8 @@ const SettingsDrawer = ({
                         'data-[state=open]:animate-in data-[state=closed]:animate-out',
                         'data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right',
                         `${ENTRANCE_DURATION} ease-in-out`
-                    )}>
-
+                    )}
+                >
                     {/* Header */}
                     <div className="flex items-center justify-between px-6 py-5 border-b border-line">
                         <div className="flex items-center gap-3">
@@ -234,7 +233,8 @@ const SettingsDrawer = ({
                                 aria-label={t({
                                     id: 'common.close',
                                     message: 'Close'
-                                })}>
+                                })}
+                            >
                                 <X className="w-5 h-5" />
                             </IconButton>
                         </Dialog.Close>
@@ -258,24 +258,25 @@ const SettingsDrawer = ({
                                                     <div className="text-sm font-medium text-content">
                                                         {isScheduled
                                                             ? t({
-                                                                id: 'editor.schedule.scheduled_time',
-                                                                message: 'Scheduled time'
-                                                            })
+                                                                  id: 'editor.schedule.scheduled_time',
+                                                                  message: 'Scheduled time'
+                                                              })
                                                             : t({
-                                                                id: 'editor.schedule.publish',
-                                                                message: 'Schedule publish'
-                                                            })}
+                                                                  id: 'editor.schedule.publish',
+                                                                  message: 'Schedule publish'
+                                                              })}
                                                     </div>
                                                     <div className="text-xs text-content-secondary">
                                                         {isScheduled
                                                             ? t({
-                                                                id: 'editor.schedule.edit_description',
-                                                                message: 'Change when this scheduled post will be published'
-                                                            })
+                                                                  id: 'editor.schedule.edit_description',
+                                                                  message:
+                                                                      'Change when this scheduled post will be published'
+                                                              })
                                                             : t({
-                                                                id: 'editor.schedule.empty_description',
-                                                                message: 'Leave this empty to publish immediately'
-                                                            })}
+                                                                  id: 'editor.schedule.empty_description',
+                                                                  message: 'Leave this empty to publish immediately'
+                                                              })}
                                                     </div>
                                                 </div>
                                             </div>
@@ -293,7 +294,8 @@ const SettingsDrawer = ({
                                                         onClick={onCancelSchedule}
                                                         disabled={pendingScheduleAction !== null}
                                                         isLoading={pendingScheduleAction === 'cancel'}
-                                                        leftIcon={<CirclePause className="h-4 w-4" />}>
+                                                        leftIcon={<CirclePause className="h-4 w-4" />}
+                                                    >
                                                         <Trans id="editor.schedule.cancel">Cancel schedule</Trans>
                                                     </Button>
                                                     <Button
@@ -303,7 +305,8 @@ const SettingsDrawer = ({
                                                         onClick={onPublishNow}
                                                         disabled={pendingScheduleAction !== null}
                                                         isLoading={pendingScheduleAction === 'publish-now'}
-                                                        leftIcon={<Send className="h-4 w-4" />}>
+                                                        leftIcon={<Send className="h-4 w-4" />}
+                                                    >
                                                         <Trans id="editor.schedule.publish_now">Publish now</Trans>
                                                     </Button>
                                                 </div>
@@ -322,13 +325,13 @@ const SettingsDrawer = ({
                                                     <div className="text-xs text-content-secondary">
                                                         {formData.hide
                                                             ? t({
-                                                                id: 'editor.settings.private_description',
-                                                                message: 'Only you can view this post'
-                                                            })
+                                                                  id: 'editor.settings.private_description',
+                                                                  message: 'Only you can view this post'
+                                                              })
                                                             : t({
-                                                                id: 'editor.settings.public_description',
-                                                                message: 'Anyone can view this post'
-                                                            })}
+                                                                  id: 'editor.settings.public_description',
+                                                                  message: 'Anyone can view this post'
+                                                              })}
                                                     </div>
                                                 </div>
                                             </div>
@@ -347,24 +350,29 @@ const SettingsDrawer = ({
                                                 <MessageCircle className="w-4 h-4 text-content-hint" />
                                                 <div className="min-w-0">
                                                     <div className="text-sm font-medium text-content">
-                                                        <Trans id="editor.settings.allow_comments">Allow comments</Trans>
+                                                        <Trans id="editor.settings.allow_comments">
+                                                            Allow comments
+                                                        </Trans>
                                                     </div>
                                                     <div className="text-xs text-content-secondary">
                                                         {formData.allowComments
                                                             ? t({
-                                                                id: 'editor.settings.comments_enabled_description',
-                                                                message: 'Readers can add new comments and replies'
-                                                            })
+                                                                  id: 'editor.settings.comments_enabled_description',
+                                                                  message: 'Readers can add new comments and replies'
+                                                              })
                                                             : t({
-                                                                id: 'editor.settings.comments_disabled_description',
-                                                                message: 'Keep existing comments but prevent new comments and replies'
-                                                            })}
+                                                                  id: 'editor.settings.comments_disabled_description',
+                                                                  message:
+                                                                      'Keep existing comments but prevent new comments and replies'
+                                                              })}
                                                     </div>
                                                 </div>
                                             </div>
                                             <Toggle
                                                 checked={formData.allowComments}
-                                                onCheckedChange={(checked) => onFormDataChange('allowComments', checked)}
+                                                onCheckedChange={(checked) =>
+                                                    onFormDataChange('allowComments', checked)
+                                                }
                                                 aria-label={t({
                                                     id: 'editor.settings.allow_comments',
                                                     message: 'Allow comments'
@@ -377,7 +385,9 @@ const SettingsDrawer = ({
                                                 <Megaphone className="w-4 h-4 text-content-hint" />
                                                 <div className="min-w-0">
                                                     <div className="text-sm font-medium text-content">
-                                                        <Trans id="editor.settings.promotional">Promotional content</Trans>
+                                                        <Trans id="editor.settings.promotional">
+                                                            Promotional content
+                                                        </Trans>
                                                     </div>
                                                     <div className="text-xs text-content-secondary">
                                                         <Trans id="editor.settings.promotional_description">
@@ -425,7 +435,7 @@ const SettingsDrawer = ({
                                                     url: ''
                                                 });
                                             } else {
-                                                const series = seriesList.find(s => s.id === value);
+                                                const series = seriesList.find((s) => s.id === value);
                                                 if (series) onSeriesChange(series);
                                             }
                                         }}
@@ -473,9 +483,14 @@ const SettingsDrawer = ({
                                                         isActive
                                                             ? 'border-action bg-action/10 text-content'
                                                             : 'border-line bg-surface-elevated text-content-secondary hover:border-line-strong hover:bg-surface-subtle'
-                                                    )}>
-                                                    <span className="block text-sm font-semibold text-content">{option.label}</span>
-                                                    <span className="mt-1 block text-xs leading-relaxed text-content-secondary">{option.description}</span>
+                                                    )}
+                                                >
+                                                    <span className="block text-sm font-semibold text-content">
+                                                        {option.label}
+                                                    </span>
+                                                    <span className="mt-1 block text-xs leading-relaxed text-content-secondary">
+                                                        {option.description}
+                                                    </span>
                                                 </button>
                                             );
                                         })}
@@ -552,7 +567,8 @@ const SettingsDrawer = ({
                                             />
                                             <p className="text-xs text-content-hint mt-2">
                                                 <Trans id="editor.fields.url_collision_hint">
-                                                    Addresses already in use are adjusted automatically to avoid conflicts
+                                                    Addresses already in use are adjusted automatically to avoid
+                                                    conflicts
                                                 </Trans>
                                             </p>
                                         </div>
@@ -581,7 +597,9 @@ const SettingsDrawer = ({
                                                     Used in search results and shared previews
                                                 </Trans>
                                             </p>
-                                            <p className={`text-xs font-medium ${metaDescription.length > 140 ? 'text-danger' : 'text-content-hint'}`}>
+                                            <p
+                                                className={`text-xs font-medium ${metaDescription.length > 140 ? 'text-danger' : 'text-content-hint'}`}
+                                            >
                                                 {metaDescription.length}/150
                                             </p>
                                         </div>
@@ -600,7 +618,8 @@ const SettingsDrawer = ({
                                             size="sm"
                                             onClick={onDelete}
                                             className="!text-danger hover:!text-danger hover:!bg-danger-surface !px-0"
-                                            leftIcon={<Trash2 className="w-4 h-4" />}>
+                                            leftIcon={<Trash2 className="w-4 h-4" />}
+                                        >
                                             <Trans id="editor.actions.delete_post">Delete post</Trans>
                                         </Button>
                                     </div>
@@ -611,12 +630,7 @@ const SettingsDrawer = ({
 
                     {/* Footer */}
                     <div className="px-6 py-4 border-t border-line bg-surface-subtle">
-                        <Button
-                            type="button"
-                            onClick={onClose}
-                            variant="primary"
-                            size="md"
-                            fullWidth>
+                        <Button type="button" onClick={onClose} variant="primary" size="md" fullWidth>
                             <Trans id="common.done">Done</Trans>
                         </Button>
                     </div>

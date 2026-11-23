@@ -36,16 +36,19 @@ const BannerPreviewFrame = ({
                     className="min-h-11"
                     aria-label={i18n._({
                         id: 'settings.banners.preview.position_selected',
-                        message: '{position, select, top {Top position selected} bottom {Bottom position selected} left {Left position selected} other {Right position selected}}',
+                        message:
+                            '{position, select, top {Top position selected} bottom {Bottom position selected} left {Left position selected} other {Right position selected}}',
                         values: { position: slot }
-                    })}>
+                    })}
+                >
                     {hasHtml ? (
                         <div dangerouslySetInnerHTML={{ __html: contentHtml }} />
                     ) : (
                         <div className="py-2 text-xs text-content-hint">
                             {i18n._({
                                 id: 'settings.banners.preview.empty_slot',
-                                message: '{position, select, top {Enter HTML to display the banner at the top.} bottom {Enter HTML to display the banner at the bottom.} left {Enter HTML to display the banner in the left sidebar.} other {Enter HTML to display the banner in the right sidebar.}}',
+                                message:
+                                    '{position, select, top {Enter HTML to display the banner at the top.} bottom {Enter HTML to display the banner at the bottom.} left {Enter HTML to display the banner in the left sidebar.} other {Enter HTML to display the banner in the right sidebar.}}',
                                 values: { position: slot }
                             })}
                         </div>
@@ -59,17 +62,20 @@ const BannerPreviewFrame = ({
                 type="button"
                 aria-pressed="false"
                 onClick={() => onPositionChange(slot)}
-                className="block min-h-11 w-full text-left">
+                className="block min-h-11 w-full text-left"
+            >
                 <div
                     className={cx(
                         'rounded-xl border border-dashed px-3 py-4 text-center text-xs font-semibold transition-colors',
                         hasSelectedPosition
                             ? 'border-line text-content-hint hover:border-line hover:text-content-hint'
                             : 'border-warning-line bg-warning-surface text-warning hover:bg-warning-surface'
-                    )}>
+                    )}
+                >
                     {i18n._({
                         id: 'settings.banners.preview.select_position',
-                        message: '{position, select, top {Select top position} bottom {Select bottom position} left {Select left position} other {Select right position}}',
+                        message:
+                            '{position, select, top {Select top position} bottom {Select bottom position} left {Select left position} other {Select right position}}',
                         values: { position: slot }
                     })}
                 </div>
@@ -87,16 +93,19 @@ const BannerPreviewFrame = ({
                     className="min-h-11"
                     aria-label={i18n._({
                         id: 'settings.banners.preview.position_selected',
-                        message: '{position, select, top {Top position selected} bottom {Bottom position selected} left {Left position selected} other {Right position selected}}',
+                        message:
+                            '{position, select, top {Top position selected} bottom {Bottom position selected} left {Left position selected} other {Right position selected}}',
                         values: { position: slot }
-                    })}>
+                    })}
+                >
                     {hasHtml ? (
                         <div dangerouslySetInnerHTML={{ __html: contentHtml }} />
                     ) : (
                         <div className="py-2 text-xs text-content-hint">
                             {i18n._({
                                 id: 'settings.banners.preview.empty_slot',
-                                message: '{position, select, top {Enter HTML to display the banner at the top.} bottom {Enter HTML to display the banner at the bottom.} left {Enter HTML to display the banner in the left sidebar.} other {Enter HTML to display the banner in the right sidebar.}}',
+                                message:
+                                    '{position, select, top {Enter HTML to display the banner at the top.} bottom {Enter HTML to display the banner at the bottom.} left {Enter HTML to display the banner in the left sidebar.} other {Enter HTML to display the banner in the right sidebar.}}',
                                 values: { position: slot }
                             })}
                         </div>
@@ -110,17 +119,20 @@ const BannerPreviewFrame = ({
                 type="button"
                 aria-pressed="false"
                 onClick={() => onPositionChange(slot)}
-                className="block min-h-11 w-full text-left hover:opacity-80">
+                className="block min-h-11 w-full text-left hover:opacity-80"
+            >
                 <div
                     className={cx(
                         'rounded-xl border border-dashed px-3 py-4 text-center text-xs font-semibold',
                         hasSelectedPosition
                             ? 'border-line text-content-hint'
                             : 'border-warning-line bg-warning-surface text-warning'
-                    )}>
+                    )}
+                >
                     {i18n._({
                         id: 'settings.banners.preview.select_position',
-                        message: '{position, select, top {Select top position} bottom {Select bottom position} left {Select left position} other {Select right position}}',
+                        message:
+                            '{position, select, top {Select top position} bottom {Select bottom position} left {Select left position} other {Select right position}}',
                         values: { position: slot }
                     })}
                 </div>
@@ -132,9 +144,7 @@ const BannerPreviewFrame = ({
         <div className="relative w-full px-4 md:px-6">
             <div className="post-detail-layout">
                 <aside className="post-detail-sidebar">
-                    <div className="sticky top-28 space-y-4">
-                        {renderSidebarSlot('left')}
-                    </div>
+                    <div className="sticky top-28 space-y-4">{renderSidebarSlot('left')}</div>
                 </aside>
 
                 <div className="post-detail-main">
@@ -143,13 +153,15 @@ const BannerPreviewFrame = ({
                         aria-label={i18n._({
                             id: 'settings.banners.preview.layout_aria',
                             message: 'Banner placement preview'
-                        })}>
+                        })}
+                    >
                         <article
                             lang={locale}
                             aria-label={i18n._({
                                 id: 'settings.banners.preview.example_post_aria',
                                 message: 'Example post'
-                            })}>
+                            })}
+                        >
                             <div className={cx('mb-12 transition-opacity sm:mb-16', mutedPostClass)}>
                                 <div className="mb-6 flex items-center gap-2">
                                     <span className="inline-flex items-center gap-1.5 rounded-full bg-action px-3 py-1 text-xs font-semibold text-content-inverted">
@@ -160,9 +172,7 @@ const BannerPreviewFrame = ({
                                 </div>
 
                                 <h2 className="mb-3 break-words text-2xl font-bold leading-tight tracking-tight text-content sm:text-3xl lg:text-4xl">
-                                    <Trans id="settings.banners.preview.post_title">
-                                        Your post title appears here
-                                    </Trans>
+                                    <Trans id="settings.banners.preview.post_title">Your post title appears here</Trans>
                                 </h2>
                                 <p className="mb-8 text-lg font-medium leading-relaxed text-content-secondary sm:text-xl">
                                     <Trans id="settings.banners.preview.post_subtitle">
@@ -190,13 +200,9 @@ const BannerPreviewFrame = ({
                                 <div className="h-56 w-full rounded-2xl bg-gradient-to-br from-line to-line-strong ring-1 ring-line/5 sm:h-64" />
                             </div>
 
-                            <div className="mb-16">
-                                {renderInlineSlot('top')}
-                            </div>
+                            <div className="mb-16">{renderInlineSlot('top')}</div>
 
-                            <div className="mb-16 break-words">
-                                {editorPanel}
-                            </div>
+                            <div className="mb-16 break-words">{editorPanel}</div>
 
                             <div className={cx('mb-16 transition-opacity', mutedPostClass)}>
                                 <div className="flex flex-wrap gap-2">
@@ -212,9 +218,7 @@ const BannerPreviewFrame = ({
                                 </div>
                             </div>
 
-                            <div className="mb-16">
-                                {renderInlineSlot('bottom')}
-                            </div>
+                            <div className="mb-16">{renderInlineSlot('bottom')}</div>
                         </article>
                     </section>
                 </div>
@@ -222,9 +226,7 @@ const BannerPreviewFrame = ({
                 <aside className="post-detail-sidebar">
                     <div className="sticky top-28 space-y-4">
                         <div className="text-xs text-content-hint">
-                            <Trans id="settings.banners.preview.right_sidebar">
-                                TOC / Right sidebar
-                            </Trans>
+                            <Trans id="settings.banners.preview.right_sidebar">TOC / Right sidebar</Trans>
                         </div>
                         {renderSidebarSlot('right')}
                     </div>

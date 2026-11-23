@@ -20,13 +20,12 @@ const SecuritySection = ({ has2fa, recoveryKeyUsed, onToggle2FA, onDeleteAccount
                     message: 'Security'
                 })}
                 icon={<ShieldCheck className="h-5 w-5" />}
-                className="mb-6">
+                className="mb-6"
+            >
                 <div className="flex flex-col gap-4 rounded-lg border border-line bg-surface p-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <p className="font-medium text-content">
-                            <Trans id="settings.account.two_factor.title">
-                                Two-factor authentication
-                            </Trans>
+                            <Trans id="settings.account.two_factor.title">Two-factor authentication</Trans>
                         </p>
                     </div>
                     <Button
@@ -34,22 +33,24 @@ const SecuritySection = ({ has2fa, recoveryKeyUsed, onToggle2FA, onDeleteAccount
                         variant="primary"
                         size="sm"
                         className="min-h-11! self-end [@media(pointer:fine)]:min-h-9! sm:self-auto"
-                        onClick={() => onToggle2FA(!has2fa)}>
+                        onClick={() => onToggle2FA(!has2fa)}
+                    >
                         {has2fa
                             ? t({
-                                id: 'common.disable',
-                                message: 'Disable'
-                            })
+                                  id: 'common.disable',
+                                  message: 'Disable'
+                              })
                             : t({
-                                id: 'common.enable',
-                                message: 'Enable'
-                            })}
+                                  id: 'common.enable',
+                                  message: 'Enable'
+                              })}
                     </Button>
                 </div>
                 {!has2fa && recoveryKeyUsed && (
                     <Alert variant="warning" className="mt-4">
                         <Trans id="settings.account.two_factor.recovery_key_used">
-                            You used your recovery key, so it no longer works and two-factor authentication is now off. Enable it again to protect your account and get a new recovery key.
+                            You used your recovery key, so it no longer works and two-factor authentication is now off.
+                            Enable it again to protect your account and get a new recovery key.
                         </Trans>
                     </Alert>
                 )}
@@ -57,7 +58,8 @@ const SecuritySection = ({ has2fa, recoveryKeyUsed, onToggle2FA, onDeleteAccount
 
             <section
                 aria-labelledby="danger-zone-title"
-                className="rounded-2xl border border-danger-line bg-danger-surface/40 p-6 md:p-8">
+                className="rounded-2xl border border-danger-line bg-danger-surface/40 p-6 md:p-8"
+            >
                 <div className="flex items-center gap-3 text-danger">
                     <AlertTriangle className="h-5 w-5" />
                     <h3 id="danger-zone-title" className="text-base font-semibold">
@@ -81,7 +83,8 @@ const SecuritySection = ({ has2fa, recoveryKeyUsed, onToggle2FA, onDeleteAccount
                         size="sm"
                         className="min-h-11! shrink-0 self-end [@media(pointer:fine)]:min-h-9! sm:self-auto"
                         leftIcon={<Trash2 className="h-4 w-4" />}
-                        onClick={onDeleteAccount}>
+                        onClick={onDeleteAccount}
+                    >
                         <Trans id="common.delete">Delete</Trans>
                     </Button>
                 </div>

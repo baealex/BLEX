@@ -62,8 +62,15 @@ type SitemapUrl = { location: string; lastmod?: DbDate; changefreq: string; prio
 async function rssOrigin(db: PrismaClient, siteUrl: URL): Promise<URL> {
   const site = await db.siteSetting.findUnique({ where: { id: 1 }, select: { domain: true } });
   const origin = site?.domain ? URL.parse(`${siteUrl.protocol}//${site.domain}`) : null;
-  return origin && origin.host && origin.pathname === '/' && !origin.username && !origin.password &&
-    !origin.search && !origin.hash ? origin : siteUrl;
+  return origin &&
+    origin.host &&
+    origin.pathname === '/' &&
+    !origin.username &&
+    !origin.password &&
+    !origin.search &&
+    !origin.hash
+    ? origin
+    : siteUrl;
 }
 
 export async function searchIndexingEnabled(db: PrismaClient): Promise<boolean> {
@@ -76,7 +83,8 @@ export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, 
     const setting = await readSiteSetting(db);
     if (!setting.aeoEnabled) return notFound(reply);
     const content = buildLlmsTxt(siteUrl, setting);
-    return reply.type('text/plain; charset=utf-8')
+    return reply
+      .type('text/plain; charset=utf-8')
       .header('X-Estimated-Tokens', String(estimateTokens(content)))
       .send(content);
   });
@@ -92,9 +100,16 @@ export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, 
     if (setting.seoEnabled) {
       lines.push(`Sitemap: ${absoluteUrl(siteUrl, '/sitemap.xml')}`);
     } else {
-      lines.push('', '# Search indexing is disabled at runtime.', '# Page responses include X-Robots-Tag and HTML robots meta noindex signals.');
+      lines.push(
+        '',
+        '# Search indexing is disabled at runtime.',
+        '# Page responses include X-Robots-Tag and HTML robots meta noindex signals.',
+      );
     }
-    const extraRules = (setting.robotsTxtExtraRules ?? '').split(/\r?\n/).filter((line) => line.trim()).map((line) => line.replace(/\s+$/g, ''));
+    const extraRules = (setting.robotsTxtExtraRules ?? '')
+      .split(/\r?\n/)
+      .filter((line) => line.trim())
+      .map((line) => line.replace(/\s+$/g, ''));
     if (extraRules.length) lines.push('', '# Custom rules', ...extraRules);
     return reply.type('text/plain; charset=utf-8').send(`${lines.join('\n').trim()}\n`);
   });
@@ -112,42 +127,56 @@ export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, 
       const sectionPath = `/${section}/sitemap.xml`;
       entries.push({ location: absoluteUrl(siteUrl, sectionPath), lastmod: sectionMetadata.latestLastmod });
       for (let page = 2; page <= pageCount; page += 1) {
-        entries.push({ location: absoluteUrl(siteUrl, `${sectionPath}?p=${page}`), lastmod: sectionMetadata.latestLastmod });
+        entries.push({
+          location: absoluteUrl(siteUrl, `${sectionPath}?p=${page}`),
+          lastmod: sectionMetadata.latestLastmod,
+        });
       }
     }
-    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="${sitemapNamespace}">${entries.map((entry) =>
-      `<sitemap><loc>${xmlEscape(entry.location)}</loc>${entry.lastmod ? `<lastmod>${xmlEscape(formatIsoDate(entry.lastmod))}</lastmod>` : ''}</sitemap>`,
-    ).join('')}</sitemapindex>`;
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="${sitemapNamespace}">${entries
+      .map(
+        (entry) =>
+          `<sitemap><loc>${xmlEscape(entry.location)}</loc>${entry.lastmod ? `<lastmod>${xmlEscape(formatIsoDate(entry.lastmod))}</lastmod>` : ''}</sitemap>`,
+      )
+      .join('')}</sitemapindex>`;
     const response = reply.type('application/xml; charset=utf-8').header('X-Robots-Tag', 'noindex, nofollow');
     if (allIndexesHaveLastmod && latestLastmod) response.header('Last-Modified', latestLastmod.toUTCString());
     return response.send(xml);
   });
 
-  app.get<{ Params: { section: string }; Querystring: { p?: string } }>('/:section/sitemap.xml', async (request, reply) => {
-    const section = request.params.section;
-    if (!sitemapSections.includes(section as (typeof sitemapSections)[number])) return notFound(reply);
-    const metadata = await readSitemapMetadata(db, section as (typeof sitemapSections)[number]);
-    const page = parsePage(request.query.p);
-    const pageCount = Math.max(1, Math.ceil(metadata.itemCount / sitemapLimit));
-    if (!page || page > pageCount) return notFound(reply);
-    const urls = await readSitemapPage(db, siteUrl, section as (typeof sitemapSections)[number], page);
-    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="${sitemapNamespace}">${urls.map((item) =>
-      `<url><loc>${xmlEscape(item.location)}</loc>${item.lastmod ? `<lastmod>${xmlEscape(formatIsoDate(item.lastmod))}</lastmod>` : ''}<changefreq>${item.changefreq}</changefreq><priority>${item.priority}</priority></url>`,
-    ).join('')}</urlset>`;
-    const response = reply.type('application/xml; charset=utf-8').header('X-Robots-Tag', 'noindex, nofollow');
-    if (metadata.latestLastmod) response.header('Last-Modified', metadata.latestLastmod.toUTCString());
-    return response.send(xml);
-  });
+  app.get<{ Params: { section: string }; Querystring: { p?: string } }>(
+    '/:section/sitemap.xml',
+    async (request, reply) => {
+      const section = request.params.section;
+      if (!sitemapSections.includes(section as (typeof sitemapSections)[number])) return notFound(reply);
+      const metadata = await readSitemapMetadata(db, section as (typeof sitemapSections)[number]);
+      const page = parsePage(request.query.p);
+      const pageCount = Math.max(1, Math.ceil(metadata.itemCount / sitemapLimit));
+      if (!page || page > pageCount) return notFound(reply);
+      const urls = await readSitemapPage(db, siteUrl, section as (typeof sitemapSections)[number], page);
+      const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="${sitemapNamespace}">${urls
+        .map(
+          (item) =>
+            `<url><loc>${xmlEscape(item.location)}</loc>${item.lastmod ? `<lastmod>${xmlEscape(formatIsoDate(item.lastmod))}</lastmod>` : ''}<changefreq>${item.changefreq}</changefreq><priority>${item.priority}</priority></url>`,
+        )
+        .join('')}</urlset>`;
+      const response = reply.type('application/xml; charset=utf-8').header('X-Robots-Tag', 'noindex, nofollow');
+      if (metadata.latestLastmod) response.header('Last-Modified', metadata.latestLastmod.toUTCString());
+      return response.send(xml);
+    },
+  );
 
   app.get('/rss', async (_request, reply) => {
     const setting = await readSiteSetting(db);
     const posts = await readFeedPosts(db, null);
     const origin = await rssOrigin(db, siteUrl);
-    return reply.type('application/xml; charset=utf-8').send(buildRss(origin, posts, {
-      title: siteName(setting),
-      link: absoluteUrl(origin, '/'),
-      description: siteDescription(setting),
-    }));
+    return reply.type('application/xml; charset=utf-8').send(
+      buildRss(origin, posts, {
+        title: siteName(setting),
+        link: absoluteUrl(origin, '/'),
+        description: siteDescription(setting),
+      }),
+    );
   });
 
   app.get<{ Params: { username: string } }>('/rss/@:username', async (request, reply) => {
@@ -164,12 +193,18 @@ export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, 
     const imagePath = profile?.avatar
       ? `/resources/media/${profile.avatar.replace(/^\/+/, '')}`
       : '/resources/assets/images/default-avatar.jpg';
-    return reply.type('application/xml; charset=utf-8').send(buildRss(origin, posts, {
-      title: `${user.username} (${user.firstName})`,
-      link: absoluteUrl(origin, `/@${encodeURIComponent(user.username)}`),
-      description: profile?.bio || `${user.username}'s rss`,
-      image: { url: absoluteUrl(origin, imagePath), title: `${user.username} (${user.firstName})`, link: absoluteUrl(origin, `/@${encodeURIComponent(user.username)}`) },
-    }));
+    return reply.type('application/xml; charset=utf-8').send(
+      buildRss(origin, posts, {
+        title: `${user.username} (${user.firstName})`,
+        link: absoluteUrl(origin, `/@${encodeURIComponent(user.username)}`),
+        description: profile?.bio || `${user.username}'s rss`,
+        image: {
+          url: absoluteUrl(origin, imagePath),
+          title: `${user.username} (${user.firstName})`,
+          link: absoluteUrl(origin, `/@${encodeURIComponent(user.username)}`),
+        },
+      }),
+    );
   });
 
   app.get<{ Params: { username: string; postUrl: string } }>('/@:username/:postUrl.md', async (request, reply) => {
@@ -199,37 +234,53 @@ export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, 
     return sendMarkdown(reply, lines.join('\n'));
   });
 
-  app.get<{ Params: { username: string; seriesUrl: string } }>('/@:username/series/:seriesUrl.md', async (request, reply) => {
-    const setting = await readSiteSetting(db);
-    if (!setting.aeoEnabled) return notFound(reply);
-    const series = await readPublicSeries(db, request.params.username, request.params.seriesUrl);
-    if (!series) return notFound(reply);
-    if (series.username !== request.params.username) {
-      return redirect(reply, request, `/@${encodeURIComponent(series.username)}/series/${encodeURIComponent(series.slug)}.md`);
-    }
-    const posts = await readPublicSeriesPosts(db, series.id);
-    const sourceUrl = absoluteUrl(siteUrl, `/@${encodeURIComponent(series.username)}/series/${encodeURIComponent(series.slug)}`);
-    const content = series.textMd.trim() && !looksLikeHtml(series.textMd)
-      ? series.textMd.trim()
-      : htmlToMarkdown(series.textHtml || series.textMd);
-    const lines = [
-      `# ${series.name}`,
-      '',
-      `- Author: @${series.username}`,
-      `- Updated: ${formatDateOnly(series.updatedDate)}`,
-      `- Source: ${sourceUrl}`,
-      '',
-      '---',
-      '',
-      ...(content ? [content, ''] : []),
-      ...(posts.length ? [
-        '## Posts',
+  app.get<{ Params: { username: string; seriesUrl: string } }>(
+    '/@:username/series/:seriesUrl.md',
+    async (request, reply) => {
+      const setting = await readSiteSetting(db);
+      if (!setting.aeoEnabled) return notFound(reply);
+      const series = await readPublicSeries(db, request.params.username, request.params.seriesUrl);
+      if (!series) return notFound(reply);
+      if (series.username !== request.params.username) {
+        return redirect(
+          reply,
+          request,
+          `/@${encodeURIComponent(series.username)}/series/${encodeURIComponent(series.slug)}.md`,
+        );
+      }
+      const posts = await readPublicSeriesPosts(db, series.id);
+      const sourceUrl = absoluteUrl(
+        siteUrl,
+        `/@${encodeURIComponent(series.username)}/series/${encodeURIComponent(series.slug)}`,
+      );
+      const content =
+        series.textMd.trim() && !looksLikeHtml(series.textMd)
+          ? series.textMd.trim()
+          : htmlToMarkdown(series.textHtml || series.textMd);
+      const lines = [
+        `# ${series.name}`,
         '',
-        ...posts.map((post) => `- [${escapeMarkdownLinkText(post.title)}](${absoluteUrl(siteUrl, `/@${encodeURIComponent(post.username)}/${encodeURIComponent(post.slug)}.md`)}): Published ${formatDateOnly(post.publishedDate)}.`),
-      ] : ['No public posts are available in this series.']),
-    ];
-    return sendMarkdown(reply, lines.join('\n'));
-  });
+        `- Author: @${series.username}`,
+        `- Updated: ${formatDateOnly(series.updatedDate)}`,
+        `- Source: ${sourceUrl}`,
+        '',
+        '---',
+        '',
+        ...(content ? [content, ''] : []),
+        ...(posts.length
+          ? [
+              '## Posts',
+              '',
+              ...posts.map(
+                (post) =>
+                  `- [${escapeMarkdownLinkText(post.title)}](${absoluteUrl(siteUrl, `/@${encodeURIComponent(post.username)}/${encodeURIComponent(post.slug)}.md`)}): Published ${formatDateOnly(post.publishedDate)}.`,
+              ),
+            ]
+          : ['No public posts are available in this series.']),
+      ];
+      return sendMarkdown(reply, lines.join('\n'));
+    },
+  );
 
   app.get<{ Params: { slug: string } }>('/static/:slug.md', async (request, reply) => {
     const setting = await readSiteSetting(db);
@@ -264,24 +315,28 @@ async function readSiteSetting(db: PrismaClient): Promise<SiteSetting> {
 
 function buildLlmsTxt(siteUrl: URL, setting: SiteSetting): string {
   const publicOrigin = siteUrl.origin;
-  return [
-    `# ${siteName(setting)}`,
-    '',
-    `> ${siteDescription(setting)}.`,
-    '',
-    '## Discovery',
-    '',
-    `- [Sitemap index](${absoluteUrl(siteUrl, '/sitemap.xml')}): Find public sitemap sections.`,
-    `- [Posts sitemap](${absoluteUrl(siteUrl, '/posts/sitemap.xml')}): Find public posts without listing them here.`,
-    `- [RSS feed](${absoluteUrl(siteUrl, '/rss')}): Read recent public posts.`,
-    `- [Developer API OpenAPI schema](${absoluteUrl(siteUrl, '/api/developer/v1/openapi.json')}): Inspect the token-based authoring API contract.`,
-    '',
-    '## Markdown',
-    '',
-    `- Public post Markdown: \`${publicOrigin}/@{username}/{post_url}.md\``,
-    `- Public series Markdown: \`${publicOrigin}/@{username}/series/{series_url}.md\``,
-    `- Static page Markdown: \`${publicOrigin}/static/{slug}.md\``,
-  ].join('\n').trim() + '\n';
+  return (
+    [
+      `# ${siteName(setting)}`,
+      '',
+      `> ${siteDescription(setting)}.`,
+      '',
+      '## Discovery',
+      '',
+      `- [Sitemap index](${absoluteUrl(siteUrl, '/sitemap.xml')}): Find public sitemap sections.`,
+      `- [Posts sitemap](${absoluteUrl(siteUrl, '/posts/sitemap.xml')}): Find public posts without listing them here.`,
+      `- [RSS feed](${absoluteUrl(siteUrl, '/rss')}): Read recent public posts.`,
+      `- [Developer API OpenAPI schema](${absoluteUrl(siteUrl, '/api/developer/v1/openapi.json')}): Inspect the token-based authoring API contract.`,
+      '',
+      '## Markdown',
+      '',
+      `- Public post Markdown: \`${publicOrigin}/@{username}/{post_url}.md\``,
+      `- Public series Markdown: \`${publicOrigin}/@{username}/series/{series_url}.md\``,
+      `- Static page Markdown: \`${publicOrigin}/static/{slug}.md\``,
+    ]
+      .join('\n')
+      .trim() + '\n'
+  );
 }
 
 async function readPublicPost(db: PrismaClient, username: string, slug: string): Promise<PublicPostRow | null> {
@@ -291,20 +346,35 @@ async function readPublicPost(db: PrismaClient, username: string, slug: string):
       AND: [publicPostWhere(), { author: { OR: [{ username }, { usernameChanges: { some: { username } } }] } }],
     },
     select: {
-      id: true, title: true, subtitle: true, slug: true, publishedAt: true, updatedAt: true,
+      id: true,
+      title: true,
+      subtitle: true,
+      slug: true,
+      publishedAt: true,
+      updatedAt: true,
       author: { select: { username: true } },
       content: { select: { html: true } },
     },
   });
   if (!post) return null;
   return {
-    id: post.id, username: post.author.username, title: post.title, subtitle: post.subtitle, slug: post.slug,
-    publishedDate: post.publishedAt, updatedDate: post.updatedAt, contentHtml: post.content?.html ?? '',
+    id: post.id,
+    username: post.author.username,
+    title: post.title,
+    subtitle: post.subtitle,
+    slug: post.slug,
+    publishedDate: post.publishedAt,
+    updatedDate: post.updatedAt,
+    contentHtml: post.content?.html ?? '',
   };
 }
 
 async function readPostTags(db: PrismaClient, postId: number): Promise<string[]> {
-  const tags = await db.tag.findMany({ where: { posts: { some: { id: postId } } }, orderBy: { id: 'asc' }, select: { name: true } });
+  const tags = await db.tag.findMany({
+    where: { posts: { some: { id: postId } } },
+    orderBy: { id: 'asc' },
+    select: { name: true },
+  });
   return tags.map(({ name }) => name);
 }
 
@@ -316,22 +386,43 @@ async function readPublicSeries(db: PrismaClient, username: string, slug: string
       owner: { OR: [{ username }, { usernameChanges: { some: { username } } }] },
       posts: { some: publicPostWhere() },
     },
-    select: { id: true, name: true, slug: true, descriptionMarkdown: true, descriptionHtml: true, updatedAt: true, owner: { select: { username: true } } },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      descriptionMarkdown: true,
+      descriptionHtml: true,
+      updatedAt: true,
+      owner: { select: { username: true } },
+    },
   });
   if (!series) return null;
   return {
-    id: series.id, username: series.owner.username, name: series.name, slug: series.slug,
-    textMd: series.descriptionMarkdown, textHtml: series.descriptionHtml, updatedDate: series.updatedAt,
+    id: series.id,
+    username: series.owner.username,
+    name: series.name,
+    slug: series.slug,
+    textMd: series.descriptionMarkdown,
+    textHtml: series.descriptionHtml,
+    updatedDate: series.updatedAt,
   };
 }
 
-async function readPublicSeriesPosts(db: PrismaClient, seriesId: number): Promise<Array<Pick<PublicPostRow, 'username' | 'title' | 'slug' | 'publishedDate'>>> {
+async function readPublicSeriesPosts(
+  db: PrismaClient,
+  seriesId: number,
+): Promise<Array<Pick<PublicPostRow, 'username' | 'title' | 'slug' | 'publishedDate'>>> {
   const posts = await db.post.findMany({
     where: { seriesId, ...publicPostWhere() },
     orderBy: { publishedAt: 'desc' },
     select: { title: true, slug: true, publishedAt: true, author: { select: { username: true } } },
   });
-  return posts.map((post) => ({ username: post.author.username, title: post.title, slug: post.slug, publishedDate: post.publishedAt }));
+  return posts.map((post) => ({
+    username: post.author.username,
+    title: post.title,
+    slug: post.slug,
+    publishedDate: post.publishedAt,
+  }));
 }
 
 async function findUser(db: PrismaClient, username: string): Promise<UserRow | null> {
@@ -353,20 +444,35 @@ async function readFeedPosts(db: PrismaClient, authorId: number | null): Promise
     where: { ...publicPostWhere(), ...(authorId === null ? {} : { authorId }) },
     orderBy: { publishedAt: 'desc' },
     take: 20,
-    select: { title: true, slug: true, publishedAt: true, author: { select: { username: true } }, content: { select: { html: true } } },
+    select: {
+      title: true,
+      slug: true,
+      publishedAt: true,
+      author: { select: { username: true } },
+      content: { select: { html: true } },
+    },
   });
   return posts.map((post) => ({
-    username: post.author.username, title: post.title, slug: post.slug, publishedDate: post.publishedAt, contentHtml: post.content?.html ?? '',
+    username: post.author.username,
+    title: post.title,
+    slug: post.slug,
+    publishedDate: post.publishedAt,
+    contentHtml: post.content?.html ?? '',
   }));
 }
 
-async function readAllSitemapMetadata(db: PrismaClient): Promise<Record<(typeof sitemapSections)[number], SitemapMetadata>> {
+async function readAllSitemapMetadata(
+  db: PrismaClient,
+): Promise<Record<(typeof sitemapSections)[number], SitemapMetadata>> {
   const result = {} as Record<(typeof sitemapSections)[number], SitemapMetadata>;
   for (const section of sitemapSections) result[section] = await readSitemapMetadata(db, section);
   return result;
 }
 
-async function readSitemapMetadata(db: PrismaClient, section: (typeof sitemapSections)[number]): Promise<SitemapMetadata> {
+async function readSitemapMetadata(
+  db: PrismaClient,
+  section: (typeof sitemapSections)[number],
+): Promise<SitemapMetadata> {
   if (section === 'site') return { itemCount: 2, latestLastmod: null };
   const publicPost = publicPostWhere();
   if (section === 'user') {
@@ -374,7 +480,11 @@ async function readSitemapMetadata(db: PrismaClient, section: (typeof sitemapSec
     return { itemCount, latestLastmod: null };
   }
   if (section === 'posts') {
-    const { _count, _max } = await db.post.aggregate({ where: publicPost, _count: { id: true }, _max: { updatedAt: true } });
+    const { _count, _max } = await db.post.aggregate({
+      where: publicPost,
+      _count: { id: true },
+      _max: { updatedAt: true },
+    });
     return { itemCount: _count.id, latestLastmod: _max.updatedAt };
   }
   if (section === 'series') {
@@ -416,7 +526,9 @@ async function readSitemapPage(
       select: { username: true },
     });
     return users.map(({ username }) => ({
-      location: absoluteUrl(siteUrl, `/@${encodeURIComponent(username)}`), changefreq: 'monthly', priority: '0.6',
+      location: absoluteUrl(siteUrl, `/@${encodeURIComponent(username)}`),
+      changefreq: 'monthly',
+      priority: '0.6',
     }));
   }
   if (section === 'posts') {
@@ -429,7 +541,9 @@ async function readSitemapPage(
     });
     return posts.map((post) => ({
       location: absoluteUrl(siteUrl, `/@${encodeURIComponent(post.author.username)}/${encodeURIComponent(post.slug)}`),
-      lastmod: post.updatedAt, changefreq: 'weekly', priority: '0.9',
+      lastmod: post.updatedAt,
+      changefreq: 'weekly',
+      priority: '0.9',
     }));
   }
   if (section === 'series') {
@@ -441,8 +555,13 @@ async function readSitemapPage(
       select: { slug: true, updatedAt: true, owner: { select: { username: true } } },
     });
     return series.map((item) => ({
-      location: absoluteUrl(siteUrl, `/@${encodeURIComponent(item.owner.username)}/series/${encodeURIComponent(item.slug)}`),
-      lastmod: item.updatedAt, changefreq: 'weekly', priority: '0.7',
+      location: absoluteUrl(
+        siteUrl,
+        `/@${encodeURIComponent(item.owner.username)}/series/${encodeURIComponent(item.slug)}`,
+      ),
+      lastmod: item.updatedAt,
+      changefreq: 'weekly',
+      priority: '0.7',
     }));
   }
   const pages = await db.staticPage.findMany({
@@ -454,22 +573,32 @@ async function readSitemapPage(
   });
   return pages.map((item) => ({
     location: absoluteUrl(siteUrl, `/static/${encodeURIComponent(item.slug)}`),
-    lastmod: item.updatedAt, changefreq: 'monthly', priority: '0.8',
+    lastmod: item.updatedAt,
+    changefreq: 'monthly',
+    priority: '0.8',
   }));
 }
 
-function buildRss(siteUrl: URL, posts: FeedPostRow[], channel: {
-  title: string; link: string; description: string;
-  image?: { url: string; title: string; link: string };
-}): string {
+function buildRss(
+  siteUrl: URL,
+  posts: FeedPostRow[],
+  channel: {
+    title: string;
+    link: string;
+    description: string;
+    image?: { url: string; title: string; link: string };
+  },
+): string {
   const image = channel.image
     ? `<image><url>${xmlEscape(channel.image.url)}</url><title>${xmlEscape(channel.image.title)}</title><link>${xmlEscape(channel.image.link)}</link></image>`
     : '';
-  const items = posts.map((post) => {
-    const description = stripControlCharacters(sanitizePostHtml(post.contentHtml));
-    const link = absoluteUrl(siteUrl, `/@${encodeURIComponent(post.username)}/${encodeURIComponent(post.slug)}`);
-    return `<item><title>${xmlEscape(post.title)}</title><link>${xmlEscape(link)}</link><description>${xmlEscape(description)}</description><guid isPermaLink="true">${xmlEscape(link)}</guid><pubDate>${xmlEscape((post.publishedDate ?? new Date(0)).toUTCString())}</pubDate></item>`;
-  }).join('');
+  const items = posts
+    .map((post) => {
+      const description = stripControlCharacters(sanitizePostHtml(post.contentHtml));
+      const link = absoluteUrl(siteUrl, `/@${encodeURIComponent(post.username)}/${encodeURIComponent(post.slug)}`);
+      return `<item><title>${xmlEscape(post.title)}</title><link>${xmlEscape(link)}</link><description>${xmlEscape(description)}</description><guid isPermaLink="true">${xmlEscape(link)}</guid><pubDate>${xmlEscape((post.publishedDate ?? new Date(0)).toUTCString())}</pubDate></item>`;
+    })
+    .join('');
   return `<?xml version="1.0" encoding="utf-8"?>\n<rss version="2.0"><channel><title>${xmlEscape(channel.title)}</title><link>${xmlEscape(channel.link)}</link><description>${xmlEscape(channel.description)}</description><language>ko</language>${image}${items}</channel></rss>`;
 }
 
@@ -488,7 +617,8 @@ function absoluteUrl(siteUrl: URL, path: string): string {
 
 function sendMarkdown(reply: FastifyReply, content: string): FastifyReply {
   const body = `${content.replace(/\n{3,}/g, '\n\n').trim()}\n`;
-  return reply.type('text/markdown; charset=utf-8')
+  return reply
+    .type('text/markdown; charset=utf-8')
     .header('X-Estimated-Tokens', String(estimateTokens(body)))
     .send(body);
 }
@@ -527,7 +657,12 @@ function latestDate(current: DbDate, candidate: DbDate): DbDate {
 }
 
 function xmlEscape(value: string): string {
-  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
 }
 
 function escapeMarkdownLinkText(value: string): string {

@@ -35,15 +35,11 @@ export const UploadPlaceholderNode = Node.create<UploadPlaceholderMessages>({
     },
 
     parseHTML() {
-        return [
-            { tag: 'div[data-upload-placeholder]' }
-        ];
+        return [{ tag: 'div[data-upload-placeholder]' }];
     },
 
     renderHTML({ HTMLAttributes }) {
-        const mediaType = HTMLAttributes.mediaType === 'video'
-            ? this.options.videoLabel
-            : this.options.imageLabel;
+        const mediaType = HTMLAttributes.mediaType === 'video' ? this.options.videoLabel : this.options.imageLabel;
         const fileName = HTMLAttributes.fileName ? ` · ${HTMLAttributes.fileName}` : '';
         const progressLabel = formatEditorMessage(this.options.progressTemplate, {
             mediaType,

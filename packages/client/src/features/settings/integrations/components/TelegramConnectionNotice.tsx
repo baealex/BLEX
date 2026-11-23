@@ -31,7 +31,8 @@ const TelegramConnectionNotice = ({
                     id: 'settings.admin.telegram.connection.connected.title',
                     message: 'Connected to @{botUsername}',
                     values: { botUsername }
-                })}>
+                })}
+            >
                 {t({
                     id: 'settings.admin.telegram.connection.connected.description',
                     message: 'Users can connect Telegram from their notification settings with a single tap.'
@@ -47,7 +48,8 @@ const TelegramConnectionNotice = ({
                 title={t({
                     id: 'settings.admin.telegram.connection.invalid_token.title',
                     message: 'The bot token is no longer valid'
-                })}>
+                })}
+            >
                 {t({
                     id: 'settings.admin.telegram.connection.invalid_token.description',
                     message: 'Get the bot token from BotFather again and save it here.'
@@ -76,7 +78,8 @@ const TelegramConnectionNotice = ({
             }),
             description: t({
                 id: 'settings.admin.telegram.connection.rejected.description',
-                message: 'Telegram only delivers messages to a public HTTPS address. Check that SITE_URL is the public HTTPS address of this site, then reconnect.'
+                message:
+                    'Telegram only delivers messages to a public HTTPS address. Check that SITE_URL is the public HTTPS address of this site, then reconnect.'
             })
         },
         delivery_failed: {
@@ -87,7 +90,8 @@ const TelegramConnectionNotice = ({
             }),
             description: t({
                 id: 'settings.admin.telegram.connection.delivery_failed.description',
-                message: 'Reconnect to register this site with Telegram again. This is needed after SECRET_KEY changes or when the bot was connected outside BLEX.'
+                message:
+                    'Reconnect to register this site with Telegram again. This is needed after SECRET_KEY changes or when the bot was connected outside BLEX.'
             })
         },
         unreachable: {
@@ -107,9 +111,7 @@ const TelegramConnectionNotice = ({
         <Alert variant={notice.variant} title={notice.title}>
             <p>{notice.description}</p>
             {connection.detail && (
-                <p className="mt-2 break-words font-mono text-xs text-content-secondary">
-                    {connection.detail}
-                </p>
+                <p className="mt-2 break-words font-mono text-xs text-content-secondary">{connection.detail}</p>
             )}
             <Button
                 density="compact"
@@ -119,7 +121,8 @@ const TelegramConnectionNotice = ({
                 className="mt-3"
                 isLoading={isReconnecting}
                 disabled={!canReconnect}
-                onClick={onReconnect}>
+                onClick={onReconnect}
+            >
                 {t({
                     id: 'settings.admin.telegram.connection.reconnect',
                     message: 'Reconnect'

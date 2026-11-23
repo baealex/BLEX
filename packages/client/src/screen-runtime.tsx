@@ -15,13 +15,7 @@ const markScreenFailed = (element: HTMLElement, reason: string) => {
     element.dataset.screenError = reason;
 };
 
-const ScreenErrorFallback = ({
-    element,
-    name
-}: {
-    element: HTMLElement;
-    name: string;
-}) => {
+const ScreenErrorFallback = ({ element, name }: { element: HTMLElement; name: string }) => {
     useEffect(() => {
         markScreenFailed(element, 'render_error');
     }, [element]);
@@ -55,7 +49,8 @@ const mountScreen = async (element: HTMLElement, name: string): Promise<void> =>
                                 persister: sessionStoragePersister,
                                 maxAge: 1000 * 60 * 60 * 24,
                                 dehydrateOptions: { shouldDehydrateQuery: shouldPersistQuery }
-                            }}>
+                            }}
+                        >
                             <App __name={name} __onMounted={handleMounted} {...props} />
                         </PersistQueryClientProvider>
                     </I18nProvider>

@@ -44,7 +44,8 @@ export const IframeNodeView = ({ node }: NodeViewProps) => {
                     style={{
                         position: 'relative',
                         width: '100%'
-                    }}>
+                    }}
+                >
                     <iframe
                         src={src}
                         style={{
@@ -77,7 +78,8 @@ export const IframeNodeView = ({ node }: NodeViewProps) => {
                             marginTop: '8px',
                             fontSize: '14px',
                             color: '#666'
-                        }}>
+                        }}
+                    >
                         {caption}
                     </figcaption>
                 )}

@@ -33,11 +33,7 @@ import {
     Zap,
     type IconComponent
 } from '~/ui/icons';
-import {
-    DIM_OVERLAY_SOFT,
-    ENTRANCE_DURATION,
-    INTERACTION_DURATION
-} from '~/ui/design-tokens';
+import { DIM_OVERLAY_SOFT, ENTRANCE_DURATION, INTERACTION_DURATION } from '~/ui/design-tokens';
 import type { FileRouteTypes } from '~/routeTree.gen';
 import type { AdminCapabilities, SettingsRouterContext } from '../access';
 import { useSettingsMode, type SettingsMode } from '../settings-mode';
@@ -355,9 +351,8 @@ const adminNavigationSections: NavigationSection[] = [
     }
 ];
 
-const getNavigationSections = (settingsMode: SettingsMode) => (
-    settingsMode === 'admin' ? adminNavigationSections : userNavigationSections
-);
+const getNavigationSections = (settingsMode: SettingsMode) =>
+    settingsMode === 'admin' ? adminNavigationSections : userNavigationSections;
 
 const canShowItem = (
     item: NavigationItem,
@@ -365,16 +360,14 @@ const canShowItem = (
     isStaff: boolean,
     canUseTelegramIntegration: boolean,
     adminCapabilities: AdminCapabilities
-) => (
-    (!item.requiresEditor || isEditor)
-    && (!item.requiresStaff || isStaff)
-    && (!item.requiresTelegramIntegration || canUseTelegramIntegration)
-    && (!item.requiresAdminCapability || adminCapabilities[item.requiresAdminCapability])
-);
+) =>
+    (!item.requiresEditor || isEditor) &&
+    (!item.requiresStaff || isStaff) &&
+    (!item.requiresTelegramIntegration || canUseTelegramIntegration) &&
+    (!item.requiresAdminCapability || adminCapabilities[item.requiresAdminCapability]);
 
-const canShowSection = (section: NavigationSection, isEditor: boolean, isStaff: boolean) => (
-    (!section.requiresEditor || isEditor) && (!section.requiresStaff || isStaff)
-);
+const canShowSection = (section: NavigationSection, isEditor: boolean, isStaff: boolean) =>
+    (!section.requiresEditor || isEditor) && (!section.requiresStaff || isStaff);
 
 const normalizePath = (path: string) => path.replace(/\/+$/, '') || '/';
 
@@ -400,20 +393,20 @@ const SettingsModeLink = ({
     const adminSettingsPath = adminCapabilities.canManageSiteSettings
         ? '/admin-settings/site-settings'
         : adminCapabilities.canManageLoginSettings
-            ? '/admin-settings/login'
-            : adminCapabilities.canManageIntegrationSettings
-                ? '/admin-settings/integrations'
-                : '/admin-settings/global-notices';
+          ? '/admin-settings/login'
+          : adminCapabilities.canManageIntegrationSettings
+            ? '/admin-settings/integrations'
+            : '/admin-settings/global-notices';
     const href = isAdminMode ? '/settings/notify' : adminSettingsPath;
     const label = isAdminMode
         ? t({
-            id: 'settings.navigation.back_to_personal',
-            message: 'Back to my settings'
-        })
+              id: 'settings.navigation.back_to_personal',
+              message: 'Back to my settings'
+          })
         : t({
-            id: 'settings.navigation.admin_settings',
-            message: 'Admin settings'
-        });
+              id: 'settings.navigation.admin_settings',
+              message: 'Admin settings'
+          });
     const ModeIcon = isAdminMode ? ArrowLeft : Shield;
 
     return (
@@ -425,12 +418,11 @@ const SettingsModeLink = ({
                 onNavigate?.();
                 router.history.push(href);
             }}
-            className={`inline-flex min-h-11 items-center gap-1.5 font-medium text-content-hint transition-colors ${INTERACTION_DURATION} hover:text-content-secondary ${mobile ? 'rounded-xl px-3 text-sm hover:bg-surface-subtle' : 'w-fit rounded-lg text-xs [@media(pointer:fine)]:min-h-9'}`}>
+            className={`inline-flex min-h-11 items-center gap-1.5 font-medium text-content-hint transition-colors ${INTERACTION_DURATION} hover:text-content-secondary ${mobile ? 'rounded-xl px-3 text-sm hover:bg-surface-subtle' : 'w-fit rounded-lg text-xs [@media(pointer:fine)]:min-h-9'}`}
+        >
             <ModeIcon aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-content-hint" />
             <span>{label}</span>
-            {!isAdminMode && (
-                <ChevronRight aria-hidden="true" className="h-3 w-3 shrink-0 text-content-hint" />
-            )}
+            {!isAdminMode && <ChevronRight aria-hidden="true" className="h-3 w-3 shrink-0 text-content-hint" />}
         </a>
     );
 };
@@ -441,26 +433,23 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
     const mobileMenuTriggerRef = useRef<HTMLButtonElement>(null);
     const router = useRouter();
     const settingsMode = useSettingsMode();
-    const {
-        isEditor,
-        isStaff,
-        canUseTelegramIntegration,
-        adminCapabilities
-    } = router.options.context as SettingsRouterContext;
-    const settingsLabel = settingsMode === 'admin'
-        ? t({
-            id: 'settings.navigation.admin_settings',
-            message: 'Admin settings'
-        })
-        : t({
-            id: 'settings.navigation.settings',
-            message: 'Settings'
-        });
+    const { isEditor, isStaff, canUseTelegramIntegration, adminCapabilities } = router.options
+        .context as SettingsRouterContext;
+    const settingsLabel =
+        settingsMode === 'admin'
+            ? t({
+                  id: 'settings.navigation.admin_settings',
+                  message: 'Admin settings'
+              })
+            : t({
+                  id: 'settings.navigation.settings',
+                  message: 'Settings'
+              });
     const navigationSections = getNavigationSections(settingsMode);
     const activeItem = navigationSections
-        .flatMap(section => section.items)
-        .filter(item => canShowItem(item, isEditor, isStaff, canUseTelegramIntegration, adminCapabilities))
-        .find(item => normalizePath(currentPath) === normalizePath(item.path));
+        .flatMap((section) => section.items)
+        .filter((item) => canShowItem(item, isEditor, isStaff, canUseTelegramIntegration, adminCapabilities))
+        .find((item) => normalizePath(currentPath) === normalizePath(item.path));
     const activeItemName = activeItem ? i18n._(activeItem.name) : settingsLabel;
     const handleMobileMenuOpenChange = (open: boolean) => {
         setMobileMenuOpen(open);
@@ -486,10 +475,12 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                     to={item.path}
                     aria-current={isActive ? 'page' : undefined}
                     className={`${baseClasses} ${activeClasses}`}
-                    onClick={() => handleMobileMenuOpenChange(false)}>
+                    onClick={() => handleMobileMenuOpenChange(false)}
+                >
                     <span
                         aria-hidden="true"
-                        className={`mr-3 inline-flex w-6 shrink-0 justify-center transition-colors ${iconClasses} group-hover:text-content-secondary`}>
+                        className={`mr-3 inline-flex w-6 shrink-0 justify-center transition-colors ${iconClasses} group-hover:text-content-secondary`}
+                    >
                         <ItemIcon className="h-4 w-4" />
                     </span>
                     <span className="min-w-0 flex-1">{i18n._(item.name)}</span>
@@ -501,9 +492,9 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
     const renderSection = (section: NavigationSection) => {
         if (!canShowSection(section, isEditor, isStaff)) return null;
 
-        const visibleItems = section.items.filter(item => (
+        const visibleItems = section.items.filter((item) =>
             canShowItem(item, isEditor, isStaff, canUseTelegramIntegration, adminCapabilities)
-        ));
+        );
         if (visibleItems.length === 0) return null;
 
         return (
@@ -511,9 +502,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                 <p className="px-4 mb-1 text-xs font-bold text-content-hint uppercase tracking-wider">
                     {i18n._(section.title)}
                 </p>
-                <ul className="space-y-1">
-                    {visibleItems.map(renderNavItem)}
-                </ul>
+                <ul className="space-y-1">{visibleItems.map(renderNavItem)}</ul>
             </div>
         );
     };
@@ -525,7 +514,8 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                 message: '{settings} navigation',
                 values: { settings: settingsLabel }
             })}
-            className="xl:hidden pt-4">
+            className="xl:hidden pt-4"
+        >
             <Dialog.Root open={mobileMenuOpen} onOpenChange={handleMobileMenuOpenChange}>
                 <Dialog.Trigger asChild>
                     <button
@@ -539,7 +529,8 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                                 current: activeItemName
                             }
                         })}
-                        className={`flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border border-line bg-surface px-3 text-left shadow-subtle transition-all ${INTERACTION_DURATION} hover:bg-surface-subtle active:scale-[0.99] motion-reduce:transform-none motion-reduce:transition-none`}>
+                        className={`flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border border-line bg-surface px-3 text-left shadow-subtle transition-all ${INTERACTION_DURATION} hover:bg-surface-subtle active:scale-[0.99] motion-reduce:transform-none motion-reduce:transition-none`}
+                    >
                         <span className="flex min-w-0 items-center gap-2 text-sm font-semibold text-content">
                             <Settings2 aria-hidden="true" className="h-4 w-4 shrink-0" />
                             <span>{settingsLabel}</span>
@@ -554,8 +545,12 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                     </button>
                 </Dialog.Trigger>
                 <Dialog.Portal>
-                    <Dialog.Overlay className={`fixed inset-0 ${DIM_OVERLAY_SOFT} z-40 data-[state=open]:animate-in data-[state=open]:fade-in-0 motion-reduce:animate-none`} />
-                    <Dialog.Content className={`fixed z-50 bg-surface shadow-2xl transition ease-in-out data-[state=open]:animate-in data-[state=open]:slide-in-from-left ${ENTRANCE_DURATION} motion-reduce:animate-none motion-reduce:transition-none inset-y-0 left-0 h-full w-[280px] overflow-y-auto outline-none`}>
+                    <Dialog.Overlay
+                        className={`fixed inset-0 ${DIM_OVERLAY_SOFT} z-40 data-[state=open]:animate-in data-[state=open]:fade-in-0 motion-reduce:animate-none`}
+                    />
+                    <Dialog.Content
+                        className={`fixed z-50 bg-surface shadow-2xl transition ease-in-out data-[state=open]:animate-in data-[state=open]:slide-in-from-left ${ENTRANCE_DURATION} motion-reduce:animate-none motion-reduce:transition-none inset-y-0 left-0 h-full w-[280px] overflow-y-auto outline-none`}
+                    >
                         <div className="p-6">
                             <Dialog.Title className="sr-only">
                                 {i18n._({
@@ -565,9 +560,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                                 })}
                             </Dialog.Title>
                             <div className="mb-6 flex items-center justify-between">
-                                <p className="text-xl font-semibold tracking-tight text-content">
-                                    {settingsLabel}
-                                </p>
+                                <p className="text-xl font-semibold tracking-tight text-content">{settingsLabel}</p>
                                 <Dialog.Close asChild>
                                     <button
                                         type="button"
@@ -576,7 +569,8 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                                             message: 'Close {settings} menu',
                                             values: { settings: settingsLabel }
                                         })}
-                                        className={`w-11 h-11 flex items-center justify-center rounded-full hover:bg-surface-subtle active:bg-line active:scale-95 transition-all ${INTERACTION_DURATION} motion-reduce:transform-none motion-reduce:transition-none`}>
+                                        className={`w-11 h-11 flex items-center justify-center rounded-full hover:bg-surface-subtle active:bg-line active:scale-95 transition-all ${INTERACTION_DURATION} motion-reduce:transform-none motion-reduce:transition-none`}
+                                    >
                                         <X aria-hidden="true" className="h-5 w-5 text-content-secondary" />
                                     </button>
                                 </Dialog.Close>
@@ -594,9 +588,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                                 </div>
                             )}
 
-                            <div className="space-y-6">
-                                {navigationSections.map(renderSection)}
-                            </div>
+                            <div className="space-y-6">{navigationSections.map(renderSection)}</div>
                         </div>
                     </Dialog.Content>
                 </Dialog.Portal>
@@ -609,21 +601,18 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
     const { i18n, t } = useLingui();
     const router = useRouter();
     const settingsMode = useSettingsMode();
-    const {
-        isEditor,
-        isStaff,
-        canUseTelegramIntegration,
-        adminCapabilities
-    } = router.options.context as SettingsRouterContext;
-    const settingsLabel = settingsMode === 'admin'
-        ? t({
-            id: 'settings.navigation.admin_settings',
-            message: 'Admin settings'
-        })
-        : t({
-            id: 'settings.navigation.settings',
-            message: 'Settings'
-        });
+    const { isEditor, isStaff, canUseTelegramIntegration, adminCapabilities } = router.options
+        .context as SettingsRouterContext;
+    const settingsLabel =
+        settingsMode === 'admin'
+            ? t({
+                  id: 'settings.navigation.admin_settings',
+                  message: 'Admin settings'
+              })
+            : t({
+                  id: 'settings.navigation.settings',
+                  message: 'Settings'
+              });
     const navigationSections = getNavigationSections(settingsMode);
 
     const renderNavItem = (item: NavigationItem) => {
@@ -643,10 +632,12 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
                 <Link
                     to={item.path}
                     aria-current={isActive ? 'page' : undefined}
-                    className={`${baseClasses} ${activeClasses} ${desktopClasses}`}>
+                    className={`${baseClasses} ${activeClasses} ${desktopClasses}`}
+                >
                     <span
                         aria-hidden="true"
-                        className={`mr-3 inline-flex w-5 shrink-0 justify-center transition-colors ${iconClasses} group-hover:text-content-secondary`}>
+                        className={`mr-3 inline-flex w-5 shrink-0 justify-center transition-colors ${iconClasses} group-hover:text-content-secondary`}
+                    >
                         <ItemIcon className="h-4 w-4" />
                     </span>
                     <span className="min-w-0 flex-1">{i18n._(item.name)}</span>
@@ -658,9 +649,9 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
     const renderSection = (section: NavigationSection) => {
         if (!canShowSection(section, isEditor, isStaff)) return null;
 
-        const visibleItems = section.items.filter(item => (
+        const visibleItems = section.items.filter((item) =>
             canShowItem(item, isEditor, isStaff, canUseTelegramIntegration, adminCapabilities)
-        ));
+        );
         if (visibleItems.length === 0) return null;
 
         return (
@@ -668,9 +659,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
                 <p className="mb-1 px-3 text-xs font-semibold uppercase tracking-wider text-content-hint">
                     {i18n._(section.title)}
                 </p>
-                <ul className="space-y-1">
-                    {visibleItems.map(renderNavItem)}
-                </ul>
+                <ul className="space-y-1">{visibleItems.map(renderNavItem)}</ul>
             </div>
         );
     };
@@ -678,9 +667,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
     return (
         <aside className="sticky top-24 mt-8 hidden w-64 flex-shrink-0 self-start xl:block">
             <div className="mb-5 px-3">
-                <p className="text-lg font-semibold tracking-tight text-content">
-                    {settingsLabel}
-                </p>
+                <p className="text-lg font-semibold tracking-tight text-content">{settingsLabel}</p>
                 {isStaff && (
                     <div className="mt-3">
                         <SettingsModeLink
@@ -692,9 +679,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
                 )}
             </div>
             <div className="max-h-[calc(100vh-224px)] overflow-y-auto overscroll-contain pr-2">
-                <nav className="space-y-6 pb-4">
-                    {navigationSections.map(renderSection)}
-                </nav>
+                <nav className="space-y-6 pb-4">{navigationSections.map(renderSection)}</nav>
             </div>
         </aside>
     );

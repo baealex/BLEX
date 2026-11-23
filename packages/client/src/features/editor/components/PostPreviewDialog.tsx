@@ -15,12 +15,7 @@ interface PostPreviewDialogProps {
     onClose: () => void;
 }
 
-const PostPreviewDialog = ({
-    isOpen,
-    previewUrl,
-    returnFocusTo,
-    onClose
-}: PostPreviewDialogProps) => {
+const PostPreviewDialog = ({ isOpen, previewUrl, returnFocusTo, onClose }: PostPreviewDialogProps) => {
     const { t } = useLingui();
     const [viewport, setViewport] = useState<PreviewViewport>('desktop');
     const [refreshKey, setRefreshKey] = useState(0);
@@ -49,7 +44,7 @@ const PostPreviewDialog = ({
 
     const handleRefresh = () => {
         setIsLoading(true);
-        setRefreshKey(current => current + 1);
+        setRefreshKey((current) => current + 1);
     };
 
     return (
@@ -69,7 +64,8 @@ const PostPreviewDialog = ({
                         'sm:inset-4 sm:rounded-2xl sm:border sm:border-line',
                         'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0',
                         `${ENTRANCE_DURATION} ease-in-out motion-reduce:animate-none motion-reduce:transition-none`
-                    )}>
+                    )}
+                >
                     <div className="flex flex-col gap-3 border-b border-line bg-surface-elevated px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
                         <div className="min-w-0">
                             <div className="flex items-center gap-2">
@@ -92,7 +88,8 @@ const PostPreviewDialog = ({
                                 aria-label={t({
                                     id: 'editor.preview.viewport',
                                     message: 'Preview viewport'
-                                })}>
+                                })}
+                            >
                                 {viewportOptions.map((option) => {
                                     const isActive = viewport === option.value;
                                     return (
@@ -106,7 +103,8 @@ const PostPreviewDialog = ({
                                                 isActive
                                                     ? 'bg-surface-elevated text-content shadow-sm'
                                                     : 'text-content-secondary hover:text-content'
-                                            )}>
+                                            )}
+                                        >
                                             {option.label}
                                         </button>
                                     );
@@ -123,7 +121,8 @@ const PostPreviewDialog = ({
                                     message: 'Refresh preview'
                                 })}
                                 onClick={handleRefresh}
-                                disabled={!previewUrl || isLoading}>
+                                disabled={!previewUrl || isLoading}
+                            >
                                 <RotateCw className="h-4 w-4" />
                             </IconButton>
                             <Dialog.Close asChild>
@@ -136,7 +135,8 @@ const PostPreviewDialog = ({
                                     title={t({
                                         id: 'editor.preview.close',
                                         message: 'Close preview'
-                                    })}>
+                                    })}
+                                >
                                     <X className="h-5 w-5" />
                                 </IconButton>
                             </Dialog.Close>
@@ -149,10 +149,9 @@ const PostPreviewDialog = ({
                                 style={viewport === 'mobile' ? { width: 390 } : undefined}
                                 className={cx(
                                     'relative h-full min-h-[36rem] overflow-hidden border border-line bg-surface shadow-xl transition-[width,border-radius] duration-200 motion-reduce:transition-none',
-                                    viewport === 'mobile'
-                                        ? 'max-w-full rounded-2xl'
-                                        : 'w-full rounded-xl'
-                                )}>
+                                    viewport === 'mobile' ? 'max-w-full rounded-2xl' : 'w-full rounded-xl'
+                                )}
+                            >
                                 {isLoading && (
                                     <div
                                         className="absolute inset-0 z-10 flex items-center justify-center bg-surface"
@@ -160,7 +159,8 @@ const PostPreviewDialog = ({
                                         aria-label={t({
                                             id: 'editor.preview.loading',
                                             message: 'Loading preview'
-                                        })}>
+                                        })}
+                                    >
                                         <Loader2 className="h-6 w-6 animate-spin text-content-hint" />
                                     </div>
                                 )}

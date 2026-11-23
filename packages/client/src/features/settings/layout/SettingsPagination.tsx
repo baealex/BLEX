@@ -8,12 +8,7 @@ interface SettingsPaginationProps {
     onPageChange: (page: string) => void;
 }
 
-const SettingsPagination = ({
-    page,
-    lastPage,
-    ariaLabel,
-    onPageChange
-}: SettingsPaginationProps) => {
+const SettingsPagination = ({ page, lastPage, ariaLabel, onPageChange }: SettingsPaginationProps) => {
     const { t } = useLingui();
     const currentPage = Number.parseInt(page, 10) || 1;
 
@@ -45,7 +40,8 @@ const SettingsPagination = ({
     return (
         <nav
             className="pagination-nav [&_.pagination-link]:min-h-11 [&_.pagination-link]:min-w-11 [@media(pointer:fine)]:[&_.pagination-link]:min-h-9 [@media(pointer:fine)]:[&_.pagination-link]:min-w-9"
-            aria-label={ariaLabel}>
+            aria-label={ariaLabel}
+        >
             <div className="pagination-action prev">
                 {currentPage > 1 ? (
                     <>
@@ -57,7 +53,8 @@ const SettingsPagination = ({
                                 aria-label={t({
                                     id: 'common.pagination.first',
                                     message: 'First page'
-                                })}>
+                                })}
+                            >
                                 <ChevronsLeft aria-hidden className="h-4 w-4" />
                             </button>
                         </div>
@@ -69,7 +66,8 @@ const SettingsPagination = ({
                                 aria-label={t({
                                     id: 'common.pagination.previous',
                                     message: 'Previous page'
-                                })}>
+                                })}
+                            >
                                 <ChevronLeft aria-hidden className="h-4 w-4" />
                             </button>
                         </div>
@@ -91,22 +89,25 @@ const SettingsPagination = ({
             </div>
 
             <div className="pagination-pages">
-                {visiblePages.map((pageNumber) => (
+                {visiblePages.map((pageNumber) =>
                     pageNumber === currentPage ? (
                         <div key={pageNumber} className="pagination-item pagination-active">
-                            <span className="pagination-link" aria-current="page">{pageNumber}</span>
+                            <span className="pagination-link" aria-current="page">
+                                {pageNumber}
+                            </span>
                         </div>
                     ) : (
                         <div key={pageNumber} className="pagination-item">
                             <button
                                 type="button"
                                 className="pagination-link"
-                                onClick={() => handlePageMove(pageNumber)}>
+                                onClick={() => handlePageMove(pageNumber)}
+                            >
                                 {pageNumber}
                             </button>
                         </div>
                     )
-                ))}
+                )}
             </div>
 
             <div className="pagination-action next">
@@ -120,7 +121,8 @@ const SettingsPagination = ({
                                 aria-label={t({
                                     id: 'common.pagination.next',
                                     message: 'Next page'
-                                })}>
+                                })}
+                            >
                                 <ChevronRight aria-hidden className="h-4 w-4" />
                             </button>
                         </div>
@@ -132,7 +134,8 @@ const SettingsPagination = ({
                                 aria-label={t({
                                     id: 'common.pagination.last',
                                     message: 'Last page'
-                                })}>
+                                })}
+                            >
                                 <ChevronsRight aria-hidden className="h-4 w-4" />
                             </button>
                         </div>

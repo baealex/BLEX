@@ -1,5 +1,11 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
-import { AuthorRow, AuthorSocialLink, PublicPageViewer, SubscriptionState, safeExternalUrl } from '../../discovery/shared.js';
+import {
+  AuthorRow,
+  AuthorSocialLink,
+  PublicPageViewer,
+  SubscriptionState,
+  safeExternalUrl,
+} from '../../discovery/shared.js';
 import { publicPostWhere } from '../../posts/data/visibility.js';
 
 export async function subscriptionState(
@@ -19,22 +25,46 @@ export async function subscriptionState(
 function authorSelect() {
   const publicPost = publicPostWhere();
   return {
-    id: true, username: true, name: true, isActive: true,
-    profile: { select: { bio: true, avatar: true, cover: true, homepage: true, aboutHtml: true, aboutMarkdown: true, role: true } },
-    _count: { select: {
-      posts: { where: publicPost },
-      series: { where: { isHidden: false, posts: { some: publicPost } } },
-    } },
+    id: true,
+    username: true,
+    name: true,
+    isActive: true,
+    profile: {
+      select: {
+        bio: true,
+        avatar: true,
+        cover: true,
+        homepage: true,
+        aboutHtml: true,
+        aboutMarkdown: true,
+        role: true,
+      },
+    },
+    _count: {
+      select: {
+        posts: { where: publicPost },
+        series: { where: { isHidden: false, posts: { some: publicPost } } },
+      },
+    },
   } satisfies Prisma.UserSelect;
 }
 
 function authorRow(user: Prisma.UserGetPayload<{ select: ReturnType<typeof authorSelect> }>): AuthorRow {
   const { profile } = user;
   return {
-    id: user.id, username: user.username, firstName: user.name, isActive: user.isActive,
-    bio: profile?.bio ?? '', avatar: profile?.avatar ?? '', cover: profile?.cover ?? '', homepage: profile?.homepage ?? '',
-    aboutHtml: profile?.aboutHtml ?? '', aboutMarkdown: profile?.aboutMarkdown ?? '', role: profile?.role ?? '',
-    publicPostCount: user._count.posts, publicSeriesCount: user._count.series,
+    id: user.id,
+    username: user.username,
+    firstName: user.name,
+    isActive: user.isActive,
+    bio: profile?.bio ?? '',
+    avatar: profile?.avatar ?? '',
+    cover: profile?.cover ?? '',
+    homepage: profile?.homepage ?? '',
+    aboutHtml: profile?.aboutHtml ?? '',
+    aboutMarkdown: profile?.aboutMarkdown ?? '',
+    role: profile?.role ?? '',
+    publicPostCount: user._count.posts,
+    publicSeriesCount: user._count.series,
   };
 }
 

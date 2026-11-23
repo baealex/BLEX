@@ -1,13 +1,6 @@
 import { useId, useState } from 'react';
 import { useEditorI18n } from '../../i18n';
-import {
-    InlineIcon,
-    Wand,
-    MousePointer,
-    Upload,
-    ChevronUp,
-    ChevronDown
-} from '~/ui/icons';
+import { InlineIcon, Wand, MousePointer, Upload, ChevronUp, ChevronDown } from '~/ui/icons';
 
 interface EditorHelpTextProps {
     showPostLinkHelp?: boolean;
@@ -27,7 +20,8 @@ const EditorHelpText = ({ showPostLinkHelp = false }: EditorHelpTextProps) => {
                 aria-controls={panelId}
                 aria-expanded={isExpanded}
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="w-full px-6 py-4 flex items-center justify-between hover:bg-line-light transition-colors">
+                className="w-full px-6 py-4 flex items-center justify-between hover:bg-line-light transition-colors"
+            >
                 <div className="flex items-center gap-3">
                     <div className="flex-shrink-0 w-8 h-8 bg-surface rounded-full flex items-center justify-center border border-line-light">
                         <InlineIcon icon={Wand} className="text-content-secondary text-sm" />
@@ -36,7 +30,10 @@ const EditorHelpText = ({ showPostLinkHelp = false }: EditorHelpTextProps) => {
                         {t('help.title')}
                     </span>
                 </div>
-                <InlineIcon icon={isExpanded ? ChevronUp : ChevronDown} className="text-content-hint text-sm transition-transform" />
+                <InlineIcon
+                    icon={isExpanded ? ChevronUp : ChevronDown}
+                    className="text-content-hint text-sm transition-transform"
+                />
             </button>
 
             {isExpanded && (
@@ -44,48 +41,53 @@ const EditorHelpText = ({ showPostLinkHelp = false }: EditorHelpTextProps) => {
                     id={panelId}
                     role="region"
                     aria-labelledby={triggerId}
-                    className="px-6 pb-4 pt-2 border-t border-line">
+                    className="px-6 pb-4 pt-2 border-t border-line"
+                >
                     <div className="space-y-2">
                         <div className="flex items-center gap-3 text-sm text-content-secondary">
                             <div className="flex items-center gap-2">
-                                <kbd className="px-2 py-1 text-xs font-medium bg-action text-content-inverted rounded shadow-sm">/</kbd>
-                                <span className="font-medium text-content">
-                                    {t('help.slash.title')}
-                                </span>
+                                <kbd className="px-2 py-1 text-xs font-medium bg-action text-content-inverted rounded shadow-sm">
+                                    /
+                                </kbd>
+                                <span className="font-medium text-content">{t('help.slash.title')}</span>
                             </div>
-                            <span aria-hidden="true" className="text-content-hint">→</span>
+                            <span aria-hidden="true" className="text-content-hint">
+                                →
+                            </span>
                             <span>{t('help.slash.description')}</span>
                         </div>
                         {showPostLinkHelp && (
                             <div className="flex items-center gap-3 text-sm text-content-secondary">
                                 <div className="flex items-center gap-2">
-                                    <kbd className="px-2 py-1 text-xs font-medium bg-action text-content-inverted rounded shadow-sm">[</kbd>
-                                    <span className="font-medium text-content">
-                                        {t('help.post_link.title')}
-                                    </span>
+                                    <kbd className="px-2 py-1 text-xs font-medium bg-action text-content-inverted rounded shadow-sm">
+                                        [
+                                    </kbd>
+                                    <span className="font-medium text-content">{t('help.post_link.title')}</span>
                                 </div>
-                                <span aria-hidden="true" className="text-content-hint">→</span>
+                                <span aria-hidden="true" className="text-content-hint">
+                                    →
+                                </span>
                                 <span>{t('help.post_link.description')}</span>
                             </div>
                         )}
                         <div className="flex items-center gap-3 text-sm text-content-secondary">
                             <div className="flex items-center gap-2">
                                 <InlineIcon icon={MousePointer} className="text-content-hint w-4" />
-                                <span className="font-medium text-content">
-                                    {t('help.selection.title')}
-                                </span>
+                                <span className="font-medium text-content">{t('help.selection.title')}</span>
                             </div>
-                            <span aria-hidden="true" className="text-content-hint">→</span>
+                            <span aria-hidden="true" className="text-content-hint">
+                                →
+                            </span>
                             <span>{t('help.selection.description')}</span>
                         </div>
                         <div className="flex items-center gap-3 text-sm text-content-secondary">
                             <div className="flex items-center gap-2">
                                 <InlineIcon icon={Upload} className="text-content-hint w-4" />
-                                <span className="font-medium text-content">
-                                    {t('help.drop.title')}
-                                </span>
+                                <span className="font-medium text-content">{t('help.drop.title')}</span>
                             </div>
-                            <span aria-hidden="true" className="text-content-hint">→</span>
+                            <span aria-hidden="true" className="text-content-hint">
+                                →
+                            </span>
                             <span>{t('help.drop.description')}</span>
                         </div>
                     </div>

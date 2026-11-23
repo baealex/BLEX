@@ -5,5 +5,10 @@ import type { Prisma } from '@prisma/client';
  * Combine it with another `author` filter through `AND`, because spreading that key would replace this one.
  */
 export function publicPostWhere(now: Date = new Date()) {
-  return { deletedAt: null, publishedAt: { lte: now }, isHidden: false, author: { isActive: true } } satisfies Prisma.PostWhereInput;
+  return {
+    deletedAt: null,
+    publishedAt: { lte: now },
+    isHidden: false,
+    author: { isActive: true },
+  } satisfies Prisma.PostWhereInput;
 }

@@ -50,16 +50,19 @@ export const StaticPageList = ({ pages, onView, onEdit, onDelete }: StaticPageLi
                                 }
                             ]}
                         />
-                    }>
+                    }
+                >
                     <div className="space-y-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className={`${SETTINGS_LIST_TITLE} mb-0`}>
-                                {page.title}
-                            </h3>
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${page.isPublished ? 'bg-action text-content-inverted border-line-strong' : 'bg-surface-subtle text-content-secondary border-line-light'}`}>
-                                {page.isPublished
-                                    ? <Trans id="settings.static_pages.status.public">Public</Trans>
-                                    : <Trans id="settings.static_pages.status.private">Private</Trans>}
+                            <h3 className={`${SETTINGS_LIST_TITLE} mb-0`}>{page.title}</h3>
+                            <span
+                                className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${page.isPublished ? 'bg-action text-content-inverted border-line-strong' : 'bg-surface-subtle text-content-secondary border-line-light'}`}
+                            >
+                                {page.isPublished ? (
+                                    <Trans id="settings.static_pages.status.public">Public</Trans>
+                                ) : (
+                                    <Trans id="settings.static_pages.status.private">Private</Trans>
+                                )}
                             </span>
                             {page.showInFooter && (
                                 <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border bg-surface-subtle text-content border-line">

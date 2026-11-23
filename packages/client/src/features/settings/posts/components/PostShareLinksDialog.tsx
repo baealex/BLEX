@@ -48,19 +48,26 @@ export const PostShareLinksDialog = ({ username, postUrl, postTitle, onClose }: 
 
     const linkMutation = useMutation({
         mutationFn: async (change: LinkChange) => {
-            const { data } = change.type === 'create'
-                ? await createPostShareLink(username, postUrl, change.label)
-                : await updatePostShareLink(username, postUrl, change.linkId, change.type === 'rename'
-                    ? { label: change.label }
-                    : { isPaused: change.isPaused });
+            const { data } =
+                change.type === 'create'
+                    ? await createPostShareLink(username, postUrl, change.label)
+                    : await updatePostShareLink(
+                          username,
+                          postUrl,
+                          change.linkId,
+                          change.type === 'rename' ? { label: change.label } : { isPaused: change.isPaused }
+                      );
             return data;
         },
         onSuccess: async (data, change) => {
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || t({
-                    id: 'settings.posts.share_links.save_failed',
-                    message: 'Could not save the share link.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'settings.posts.share_links.save_failed',
+                            message: 'Could not save the share link.'
+                        })
+                );
                 return;
             }
             if (change.type !== 'pause') {
@@ -69,10 +76,13 @@ export const PostShareLinksDialog = ({ username, postUrl, postTitle, onClose }: 
             }
             await queryClient.invalidateQueries({ queryKey });
         },
-        onError: () => toast.error(t({
-            id: 'settings.posts.share_links.save_failed',
-            message: 'Could not save the share link.'
-        }))
+        onError: () =>
+            toast.error(
+                t({
+                    id: 'settings.posts.share_links.save_failed',
+                    message: 'Could not save the share link.'
+                })
+            )
     });
 
     useEffect(() => {
@@ -90,15 +100,19 @@ export const PostShareLinksDialog = ({ username, postUrl, postTitle, onClose }: 
     const handleCopy = async (url: string) => {
         try {
             await navigator.clipboard.writeText(url);
-            toast.success(t({
-                id: 'settings.posts.share_links.copied',
-                message: 'Share link copied.'
-            }));
+            toast.success(
+                t({
+                    id: 'settings.posts.share_links.copied',
+                    message: 'Share link copied.'
+                })
+            );
         } catch {
-            toast.error(t({
-                id: 'settings.posts.share_links.copy_failed',
-                message: 'Could not copy the link. Select the address to copy it.'
-            }));
+            toast.error(
+                t({
+                    id: 'settings.posts.share_links.copy_failed',
+                    message: 'Could not copy the link. Select the address to copy it.'
+                })
+            );
         }
     };
 
@@ -125,7 +139,8 @@ export const PostShareLinksDialog = ({ username, postUrl, postTitle, onClose }: 
                 id: 'settings.posts.share_links.title',
                 message: 'Share links'
             })}
-            maxWidth="lg">
+            maxWidth="lg"
+        >
             <Modal.Body className="space-y-5">
                 <div>
                     <p className="break-words font-medium text-content">{postTitle}</p>
@@ -146,7 +161,12 @@ export const PostShareLinksDialog = ({ username, postUrl, postTitle, onClose }: 
                         <p role="alert" className="text-sm text-danger">
                             <Trans id="settings.posts.share_links.load_failed">Could not load share links.</Trans>
                         </p>
-                        <Button density="compact" size="sm" variant="secondary" onClick={() => void shareLinks.refetch()}>
+                        <Button
+                            density="compact"
+                            size="sm"
+                            variant="secondary"
+                            onClick={() => void shareLinks.refetch()}
+                        >
                             <Trans id="common.retry">Try again</Trans>
                         </Button>
                     </div>
@@ -176,10 +196,12 @@ export const PostShareLinksDialog = ({ username, postUrl, postTitle, onClose }: 
                                     error={errors.label?.message}
                                     disabled={linkMutation.isPending}
                                     {...register('label', {
-                                        validate: (label) => Boolean(label.trim()) || t({
-                                            id: 'settings.posts.share_links.name_required',
-                                            message: 'Enter a link name.'
-                                        })
+                                        validate: (label) =>
+                                            Boolean(label.trim()) ||
+                                            t({
+                                                id: 'settings.posts.share_links.name_required',
+                                                message: 'Enter a link name.'
+                                            })
                                     })}
                                 />
                                 <Button
@@ -187,10 +209,13 @@ export const PostShareLinksDialog = ({ username, postUrl, postTitle, onClose }: 
                                     density="compact"
                                     size="lg"
                                     disabled={linkMutation.isPending}
-                                    isLoading={linkMutation.isPending && linkMutation.variables?.type !== 'pause'}>
-                                    {editingLinkId === null
-                                        ? <Trans id="settings.posts.share_links.create">Create link</Trans>
-                                        : <Trans id="common.save">Save</Trans>}
+                                    isLoading={linkMutation.isPending && linkMutation.variables?.type !== 'pause'}
+                                >
+                                    {editingLinkId === null ? (
+                                        <Trans id="settings.posts.share_links.create">Create link</Trans>
+                                    ) : (
+                                        <Trans id="common.save">Save</Trans>
+                                    )}
                                 </Button>
                                 {editingLinkId !== null && (
                                     <Button
@@ -200,7 +225,8 @@ export const PostShareLinksDialog = ({ username, postUrl, postTitle, onClose }: 
                                         onClick={() => {
                                             setEditingLinkId(null);
                                             reset({ label: '' });
-                                        }}>
+                                        }}
+                                    >
                                         <Trans id="common.cancel">Cancel</Trans>
                                     </Button>
                                 )}
@@ -213,7 +239,10 @@ export const PostShareLinksDialog = ({ username, postUrl, postTitle, onClose }: 
                         ) : (
                             <ul className="space-y-3">
                                 {shareLinks.data.links.map((link) => (
-                                    <li key={link.id} className="space-y-2 rounded-xl border border-line bg-surface px-4 py-3">
+                                    <li
+                                        key={link.id}
+                                        className="space-y-2 rounded-xl border border-line bg-surface px-4 py-3"
+                                    >
                                         <div className="flex items-baseline justify-between gap-3">
                                             <p className="min-w-0 break-words font-medium text-content">{link.label}</p>
                                             {link.isPaused && (
@@ -222,17 +251,27 @@ export const PostShareLinksDialog = ({ username, postUrl, postTitle, onClose }: 
                                                 </span>
                                             )}
                                         </div>
-                                        <p dir="ltr" className="select-all break-all text-xs text-content-secondary">{link.url}</p>
+                                        <p dir="ltr" className="select-all break-all text-xs text-content-secondary">
+                                            {link.url}
+                                        </p>
                                         <dl className="flex flex-wrap gap-x-6 gap-y-1 text-sm tabular-nums">
                                             <div className="flex gap-2">
-                                                <dt className="text-content-secondary"><Trans id="settings.posts.share_links.recent">Last 7 days</Trans></dt>
-                                                <dd className="font-medium text-content">{i18n.number(link.recentClicks)}</dd>
+                                                <dt className="text-content-secondary">
+                                                    <Trans id="settings.posts.share_links.recent">Last 7 days</Trans>
+                                                </dt>
+                                                <dd className="font-medium text-content">
+                                                    {i18n.number(link.recentClicks)}
+                                                </dd>
                                             </div>
                                             <div className="flex gap-2">
                                                 <dt className="text-content-secondary">
-                                                    <Trans id="settings.posts.share_links.total">Total estimated clicks</Trans>
+                                                    <Trans id="settings.posts.share_links.total">
+                                                        Total estimated clicks
+                                                    </Trans>
                                                 </dt>
-                                                <dd className="font-medium text-content">{i18n.number(link.totalClicks)}</dd>
+                                                <dd className="font-medium text-content">
+                                                    {i18n.number(link.totalClicks)}
+                                                </dd>
                                             </div>
                                         </dl>
                                         <div className="flex flex-wrap gap-1">
@@ -242,7 +281,8 @@ export const PostShareLinksDialog = ({ username, postUrl, postTitle, onClose }: 
                                                 variant="secondary"
                                                 leftIcon={<Copy aria-hidden className="h-4 w-4" />}
                                                 disabled={link.isPaused || !shareLinks.data.canCreate}
-                                                onClick={() => void handleCopy(link.url)}>
+                                                onClick={() => void handleCopy(link.url)}
+                                            >
                                                 <Trans id="settings.posts.share_links.copy">Copy link</Trans>
                                             </Button>
                                             <Button
@@ -250,7 +290,8 @@ export const PostShareLinksDialog = ({ username, postUrl, postTitle, onClose }: 
                                                 density="compact"
                                                 variant="ghost"
                                                 disabled={linkMutation.isPending}
-                                                onClick={() => handleRename(link)}>
+                                                onClick={() => handleRename(link)}
+                                            >
                                                 <Trans id="settings.posts.share_links.rename">Rename</Trans>
                                             </Button>
                                             <Button
@@ -258,14 +299,19 @@ export const PostShareLinksDialog = ({ username, postUrl, postTitle, onClose }: 
                                                 density="compact"
                                                 variant="ghost"
                                                 disabled={linkMutation.isPending}
-                                                onClick={() => linkMutation.mutate({
-                                                    type: 'pause',
-                                                    linkId: link.id,
-                                                    isPaused: !link.isPaused
-                                                })}>
-                                                {link.isPaused
-                                                    ? <Trans id="settings.posts.share_links.resume">Resume</Trans>
-                                                    : <Trans id="settings.posts.share_links.pause">Pause</Trans>}
+                                                onClick={() =>
+                                                    linkMutation.mutate({
+                                                        type: 'pause',
+                                                        linkId: link.id,
+                                                        isPaused: !link.isPaused
+                                                    })
+                                                }
+                                            >
+                                                {link.isPaused ? (
+                                                    <Trans id="settings.posts.share_links.resume">Resume</Trans>
+                                                ) : (
+                                                    <Trans id="settings.posts.share_links.pause">Pause</Trans>
+                                                )}
                                             </Button>
                                         </div>
                                     </li>

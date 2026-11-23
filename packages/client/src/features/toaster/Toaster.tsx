@@ -26,14 +26,7 @@ const Toaster = () => {
     const theme = useResolvedTheme();
 
     return (
-        <SonnerToaster
-            theme={theme}
-            position="top-center"
-            expand={false}
-            richColors
-            closeButton
-            style={toasterStyle}
-        />
+        <SonnerToaster theme={theme} position="top-center" expand={false} richColors closeButton style={toasterStyle} />
     );
 };
 

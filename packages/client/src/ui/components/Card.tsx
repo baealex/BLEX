@@ -10,15 +10,7 @@ interface CardProps {
     headingLevel?: 2 | 3 | 4;
 }
 
-const Card = ({
- title,
- subtitle,
- icon,
- children,
- className = '',
- noPadding = false,
- headingLevel = 2
-}: CardProps) => {
+const Card = ({ title, subtitle, icon, children, className = '', noPadding = false, headingLevel = 2 }: CardProps) => {
     const Heading = `h${headingLevel}` as const;
 
     return (
@@ -27,13 +19,13 @@ const Card = ({
                 <div className={`${noPadding ? 'p-6 md:p-8 pb-4' : 'mb-6'}`}>
                     <div className="flex items-start gap-4">
                         {icon && (
-                            <div className="p-2.5 bg-surface-subtle rounded-xl text-content-secondary">
-                                {icon}
-                            </div>
+                            <div className="p-2.5 bg-surface-subtle rounded-xl text-content-secondary">{icon}</div>
                         )}
                         <div className="flex-1 min-w-0 pt-1">
                             {title && <Heading className="text-base font-semibold text-content">{title}</Heading>}
-                            {subtitle && <p className="text-sm text-content-secondary mt-1 leading-relaxed">{subtitle}</p>}
+                            {subtitle && (
+                                <p className="text-sm text-content-secondary mt-1 leading-relaxed">{subtitle}</p>
+                            )}
                         </div>
                     </div>
                 </div>

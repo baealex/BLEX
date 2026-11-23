@@ -5,11 +5,22 @@ import { createHash, randomBytes } from 'node:crypto';
 import { formInput } from '../../platform/csrf.js';
 import { securityError, verificationRequired } from '../auth/security.js';
 import { createToken } from '../auth/session.js';
-import { acquireVerification, hasVerification, readVerificationAccount, type VerificationAccount } from '../auth/verification.js';
+import {
+  acquireVerification,
+  hasVerification,
+  readVerificationAccount,
+  type VerificationAccount,
+} from '../auth/verification.js';
 import { parseScopes, toIsoDateTime } from './index.js';
 import { done } from '../../platform/response.js';
 
-interface TokenUser { id: number; username: string; hasEditorRole: boolean; isStaff?: boolean; notifyCount?: number }
+interface TokenUser {
+  id: number;
+  username: string;
+  hasEditorRole: boolean;
+  isStaff?: boolean;
+  notifyCount?: number;
+}
 interface TokenOptions {
   currentUser: (request: FastifyRequest) => Promise<TokenUser | null>;
   validateCsrf: (request: FastifyRequest) => boolean;
@@ -19,15 +30,29 @@ interface TokenOptions {
 
 /** Lists what a response may show. The hash is deliberately absent, and the secret is only returned once at creation. */
 const tokenFields = {
-  id: true, name: true, tokenPrefix: true, scopes: true, expiresAt: true, revokedAt: true, lastUsedAt: true, createdAt: true,
+  id: true,
+  name: true,
+  tokenPrefix: true,
+  scopes: true,
+  expiresAt: true,
+  revokedAt: true,
+  lastUsedAt: true,
+  createdAt: true,
 } satisfies Prisma.DeveloperTokenSelect;
 
 type TokenRow = Prisma.DeveloperTokenGetPayload<{ select: typeof tokenFields }>;
 
 function serialize(token: TokenRow) {
-  return { id: token.id, name: token.name, tokenPrefix: token.tokenPrefix, scopes: parseScopes(token.scopes),
-    expiresAt: toIsoDateTime(token.expiresAt), revokedAt: toIsoDateTime(token.revokedAt),
-    lastUsedAt: toIsoDateTime(token.lastUsedAt), createdAt: toIsoDateTime(token.createdAt) };
+  return {
+    id: token.id,
+    name: token.name,
+    tokenPrefix: token.tokenPrefix,
+    scopes: parseScopes(token.scopes),
+    expiresAt: toIsoDateTime(token.expiresAt),
+    revokedAt: toIsoDateTime(token.revokedAt),
+    lastUsedAt: toIsoDateTime(token.lastUsedAt),
+    createdAt: toIsoDateTime(token.createdAt),
+  };
 }
 
 function listTokens(db: PrismaClient, userId: number) {
@@ -37,15 +62,28 @@ function listTokens(db: PrismaClient, userId: number) {
 async function issueToken(db: PrismaClient, account: VerificationAccount | null, input: Record<string, unknown>) {
   if (!account || !hasVerification(account)) return verificationRequired;
   const rawScopes = input.scopes ?? ['posts:read'];
-  const provided = typeof rawScopes === 'string' ? rawScopes.split(',').map((scope) => scope.trim()).filter(Boolean) : rawScopes;
-  if (!Array.isArray(provided) || !provided.length || provided.some((scope) => !['posts:write', 'posts:read'].includes(scope))) {
+  const provided =
+    typeof rawScopes === 'string'
+      ? rawScopes
+          .split(',')
+          .map((scope) => scope.trim())
+          .filter(Boolean)
+      : rawScopes;
+  if (
+    !Array.isArray(provided) ||
+    !provided.length ||
+    provided.some((scope) => !['posts:write', 'posts:read'].includes(scope))
+  ) {
     return securityError('VA', '지원되는 권한을 선택해 주세요.');
   }
   const scopes = [...new Set(provided)].sort();
   const rawDays = input.expiresInDays ?? 90;
-  const days = rawDays === '' ? 90 : typeof rawDays === 'number' || /^\d+$/.test(String(rawDays)) ? Number(rawDays) : NaN;
-  if (!Number.isInteger(days) || days < 1 || days > 365) return securityError('VA', '유효 기간은 1일부터 365일까지 입력해 주세요.');
-  if (input.name !== undefined && typeof input.name !== 'string') return securityError('VA', '토큰 이름을 확인해 주세요.');
+  const days =
+    rawDays === '' ? 90 : typeof rawDays === 'number' || /^\d+$/.test(String(rawDays)) ? Number(rawDays) : NaN;
+  if (!Number.isInteger(days) || days < 1 || days > 365)
+    return securityError('VA', '유효 기간은 1일부터 365일까지 입력해 주세요.');
+  if (input.name !== undefined && typeof input.name !== 'string')
+    return securityError('VA', '토큰 이름을 확인해 주세요.');
   const name = typeof input.name === 'string' && input.name.trim() ? input.name.slice(0, 100) : 'Developer token';
   const prefix = randomBytes(6).toString('hex');
   const token = `blex_pat_${prefix}_${createToken()}`;
@@ -53,14 +91,23 @@ async function issueToken(db: PrismaClient, account: VerificationAccount | null,
   const created = new Date();
   const expiry = new Date(created.getTime() + days * 86_400_000);
   return db.$transaction(async (tx) => {
-    if (!await acquireVerification(tx, account)) return verificationRequired;
+    if (!(await acquireVerification(tx, account))) return verificationRequired;
     const eligible = await tx.user.findFirst({
       where: { id: account.id, isActive: true, profile: { role: 'EDITOR' } },
       select: { id: true },
     });
     if (!eligible) return securityError('AT');
     const row = await tx.developerToken.create({
-      data: { userId: account.id, name, tokenPrefix: prefix, tokenHash: hash, scopes, expiresAt: expiry, createdAt: created, updatedAt: created },
+      data: {
+        userId: account.id,
+        name,
+        tokenPrefix: prefix,
+        tokenHash: hash,
+        scopes,
+        expiresAt: expiry,
+        createdAt: created,
+        updatedAt: created,
+      },
       select: tokenFields,
     });
     return done({ ...serialize(row), token });
@@ -73,7 +120,10 @@ async function revokeToken(db: PrismaClient, account: TokenUser, tokenId: unknow
   const now = new Date();
   const owned = { id, userId: account.id };
   // Only the first revocation matches, so every later or concurrent one reads back its timestamp.
-  await db.developerToken.updateMany({ where: { ...owned, revokedAt: null }, data: { revokedAt: now, updatedAt: now } });
+  await db.developerToken.updateMany({
+    where: { ...owned, revokedAt: null },
+    data: { revokedAt: now, updatedAt: now },
+  });
   const token = await db.developerToken.findFirst({ where: owned, select: tokenFields });
   return token ? serialize(token) : null;
 }
@@ -81,11 +131,14 @@ async function revokeToken(db: PrismaClient, account: TokenUser, tokenId: unknow
 export function registerDeveloperTokens(app: FastifyInstance, db: PrismaClient, options: TokenOptions) {
   app.register(async (routes) => {
     await routes.register(formBody);
-    routes.addHook('onRequest', async (_request, reply) => { reply.header('Cache-Control', 'private, no-store'); });
+    routes.addHook('onRequest', async (_request, reply) => {
+      reply.header('Cache-Control', 'private, no-store');
+    });
     routes.get('/v1/developer-tokens', async (request) => {
       const user = await options.currentUser(request);
       if (!user) return securityError('NL');
-      if (!user.hasEditorRole) return { status: 'ERROR', errorCode: 'error:RJ', errorMessage: 'Author access is required.' };
+      if (!user.hasEditorRole)
+        return { status: 'ERROR', errorCode: 'error:RJ', errorMessage: 'Author access is required.' };
       return done({ tokens: (await listTokens(db, user.id)).map(serialize) });
     });
     routes.post('/v1/developer-tokens', async (request, reply) => {

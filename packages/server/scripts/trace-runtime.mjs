@@ -11,7 +11,10 @@ if (!target || entries.length === 0) {
 const base = resolve(import.meta.dirname, '../../..');
 // Prisma only loads TypeScript for a TypeScript config file, which BLEX does not have.
 const ignore = (path) => path.includes('/typescript@');
-const { fileList, warnings } = await nodeFileTrace(entries.map((entry) => resolve(entry)), { base, ignore });
+const { fileList, warnings } = await nodeFileTrace(
+  entries.map((entry) => resolve(entry)),
+  { base, ignore },
+);
 const unresolved = [...warnings].filter((warning) => warning.code === 'MODULE_NOT_FOUND');
 for (const warning of unresolved) console.warn(warning.message);
 

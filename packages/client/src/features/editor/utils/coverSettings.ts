@@ -122,6 +122,4 @@ export const getCoverRatioClass = (ratio: CoverImageRatio | string) => {
 
 export const supportsCoverImagePosition = (layout: CoverLayout | string) => layout === 'split';
 
-export const supportsCoverImageRatio = (layout: CoverLayout | string) => (
-    layout === 'default' || layout === 'split'
-);
+export const supportsCoverImageRatio = (layout: CoverLayout | string) => layout === 'default' || layout === 'split';

@@ -13,8 +13,7 @@ test('no stylesheet opts in to cross-document view transitions', () => {
     const sheets = readdirSync(stylesRoot, {
         recursive: true,
         encoding: 'utf8'
-    })
-        .filter((name) => /\.s?css$/.test(name));
+    }).filter((name) => /\.s?css$/.test(name));
     assert.ok(sheets.includes('main.scss'));
     for (const name of sheets) {
         assert.doesNotMatch(readFileSync(join(stylesRoot, name), 'utf8'), /@view-transition/, name);

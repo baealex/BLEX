@@ -51,7 +51,9 @@ export function renderTimelapsePage(username: string, post: StoredPost, timelaps
 }
 
 export function sendPrivateHistoryPage(reply: FastifyReply, html: string, statusCode = 200): FastifyReply {
-  return reply.code(statusCode).type('text/html; charset=utf-8')
+  return reply
+    .code(statusCode)
+    .type('text/html; charset=utf-8')
     .header('Cache-Control', 'private, no-store')
     .header('X-Robots-Tag', 'noindex, nofollow')
     .header('X-Frame-Options', 'DENY')

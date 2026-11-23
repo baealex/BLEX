@@ -1,10 +1,7 @@
 /* global FormData, Blob, File */
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
-import {
-    buildPublishPayload,
-    submitPublish
-} from '../src/features/editor/utils/publishSubmission.ts';
+import { buildPublishPayload, submitPublish } from '../src/features/editor/utils/publishSubmission.ts';
 import { resolveRecoveredSeries } from '../src/features/editor/utils/postEditRecovery.ts';
 
 const fields = {
@@ -67,10 +64,13 @@ describe('publish submission', () => {
     test('leaves out an untouched series and sends an empty one to clear it', () => {
         const stale = new FormData();
         stale.set('series', '9');
-        assert.equal(buildPublishPayload(stale, {
-            ...fields,
-            seriesId: undefined
-        }).has('series'), false);
+        assert.equal(
+            buildPublishPayload(stale, {
+                ...fields,
+                seriesId: undefined
+            }).has('series'),
+            false
+        );
         const cleared = buildPublishPayload(new FormData(), {
             ...fields,
             seriesId: '',
@@ -84,26 +84,23 @@ describe('publish submission', () => {
         const source = new FormData();
         source.set('image', new Blob(['cover']), 'cover.png');
         const payload = buildPublishPayload(source, fields, 'saved-draft');
-        assert.deepEqual(
-            Object.fromEntries([...payload.entries()].filter(([name]) => name !== 'image')),
-            {
-                title: 'Title',
-                subtitle: 'Subtitle',
-                url: 'title',
-                contentHtml: '<p>Body the author wrote</p>',
-                metaDescription: 'Description',
-                hide: 'true',
-                advertise: 'true',
-                blockComment: 'true',
-                tag: 'one,two',
-                series: '7',
-                coverLayout: 'split',
-                coverImagePosition: 'left',
-                coverImageRatio: '4:3',
-                reservedDate: '2099-01-02T03:04:05.000Z',
-                draftUrl: 'saved-draft'
-            }
-        );
+        assert.deepEqual(Object.fromEntries([...payload.entries()].filter(([name]) => name !== 'image')), {
+            title: 'Title',
+            subtitle: 'Subtitle',
+            url: 'title',
+            contentHtml: '<p>Body the author wrote</p>',
+            metaDescription: 'Description',
+            hide: 'true',
+            advertise: 'true',
+            blockComment: 'true',
+            tag: 'one,two',
+            series: '7',
+            coverLayout: 'split',
+            coverImagePosition: 'left',
+            coverImageRatio: '4:3',
+            reservedDate: '2099-01-02T03:04:05.000Z',
+            draftUrl: 'saved-draft'
+        });
         assert.ok(payload.get('image') instanceof File);
     });
 
@@ -158,15 +155,18 @@ describe('publish submission', () => {
 
     test('publishes the draft an in-flight autosave just created', async () => {
         let sent;
-        const events = await run(async (payload) => {
-            sent = payload.get('draftUrl');
-            return {
-                data: {
-                    status: 'DONE',
-                    body: { url: 'published-post' }
-                }
-            };
-        }, { settleDraft: async () => 'autosaved-draft' });
+        const events = await run(
+            async (payload) => {
+                sent = payload.get('draftUrl');
+                return {
+                    data: {
+                        status: 'DONE',
+                        body: { url: 'published-post' }
+                    }
+                };
+            },
+            { settleDraft: async () => 'autosaved-draft' }
+        );
         assert.equal(sent, 'autosaved-draft');
         assert.deepEqual(events, {
             published: ['published-post'],

@@ -2,7 +2,13 @@ import formBody from '@fastify/formbody';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import type { DeveloperRateLimit } from '../developer-api/services/rate-limit.js';
-import { authCookieOptions, csrfCookie, refreshCsrf, sessionCookie, setSessionCookies } from '../../platform/cookies.js';
+import {
+  authCookieOptions,
+  csrfCookie,
+  refreshCsrf,
+  sessionCookie,
+  setSessionCookies,
+} from '../../platform/cookies.js';
 import { csrfPattern, formInput, validCsrf } from '../../platform/csrf.js';
 import { registerLoginPage } from './login-page.js';
 import { registerPasswordReset } from './password-reset.js';
@@ -78,36 +84,54 @@ export function registerAuthentication(app: FastifyInstance, db: PrismaClient, s
         if (pending.totpSecret === null || pending.recoveryKey === null) return failure('RJ');
         const release = await reserveLoginAttempt(db, config.secretKey, request.ip, pending.username);
         if (!release) return failure('RJ', 'Too many failed attempts. Please try again later.');
-        const valid = verifySecondFactor({ totpSecret: pending.totpSecret, recoveryKey: pending.recoveryKey }, code, config.cipherKey);
+        const valid = verifySecondFactor(
+          { totpSecret: pending.totpSecret, recoveryKey: pending.recoveryKey },
+          code,
+          config.cipherKey,
+        );
         if (!valid) return failure('RJ', 'The two-factor authentication code is incorrect.');
-        if (!await consumePendingOAuth(db, challengeToken)) return failure('RJ', 'The authentication token has expired. Please log in again.');
+        if (!(await consumePendingOAuth(db, challengeToken)))
+          return failure('RJ', 'The authentication token has expired. Please log in again.');
 
         await release();
         const spentRecoveryKey = isRecoveryCode(code) ? pending.recoveryKey : undefined;
-        const token = await createSession(db, { ...pending, spentRecoveryKey }, config.secretKey, request.cookies[sessionCookie]);
-        if (!token && spentRecoveryKey !== undefined) return failure('RJ', 'The two-factor authentication code is incorrect.');
+        const token = await createSession(
+          db,
+          { ...pending, spentRecoveryKey },
+          config.secretKey,
+          request.cookies[sessionCookie],
+        );
+        if (!token && spentRecoveryKey !== undefined)
+          return failure('RJ', 'The two-factor authentication code is incorrect.');
         const user = await readSession(db, token ?? undefined, config.secretKey);
         if (!token || !user) return failure('AT');
         reply.clearCookie(oauthChallengeCookie, cookieOptions);
         setSessionCookies(reply, siteUrl, token);
         return success(signedInBody(user, spentRecoveryKey));
       }
-      if (typeof username !== 'string' || typeof password !== 'string' || typeof code !== 'string') return failure('AT');
+      if (typeof username !== 'string' || typeof password !== 'string' || typeof code !== 'string')
+        return failure('AT');
 
       const release = await reserveLoginAttempt(db, config.secretKey, request.ip, username);
       if (!release) return failure('RJ', 'Too many failed attempts. Please try again later.');
       const result = await authenticatePassword(db, username, password, code, config.cipherKey);
       if (result.status === 'invalid-credentials') return failure('AT');
-      if (result.status === 'invalid-second-factor') return failure('RJ', 'The two-factor authentication code is incorrect.');
+      if (result.status === 'invalid-second-factor')
+        return failure('RJ', 'The two-factor authentication code is incorrect.');
       if (result.status === 'recovery-key-spent') {
-        return failure('RJ', 'This recovery key has already been used. Two-factor authentication is now off, so sign in with your password only.');
+        return failure(
+          'RJ',
+          'This recovery key has already been used. Two-factor authentication is now off, so sign in with your password only.',
+        );
       }
 
       await release();
-      if (result.status === 'second-factor-required') return success({ username: result.username, security: true, isOauth: false });
+      if (result.status === 'second-factor-required')
+        return success({ username: result.username, security: true, isOauth: false });
 
       const token = await createSession(db, result, config.secretKey, request.cookies[sessionCookie]);
-      if (!token && result.spentRecoveryKey !== undefined) return failure('RJ', 'The two-factor authentication code is incorrect.');
+      if (!token && result.spentRecoveryKey !== undefined)
+        return failure('RJ', 'The two-factor authentication code is incorrect.');
       const user = await readSession(db, token ?? undefined, config.secretKey);
       if (!token || !user) return failure('AT');
 

@@ -71,28 +71,52 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
     const { confirm } = useConfirm();
     const allowNavigationRef = useRef(false);
     const [hasSelectedPosition, setHasSelectedPosition] = useState(isEditMode);
-    const bannerSchema = useMemo(() => z.object({
-        title: z.string().trim()
-            .min(1, t({
-                id: 'settings.banners.validation.title_required',
-                message: 'Enter a banner name.'
-            }))
-            .max(100, t({
-                id: 'settings.banners.validation.title_max_length',
-                message: 'Banner names must be 100 characters or fewer.'
-            })),
-        contentHtml: z.string().trim().min(1, t({
-            id: 'settings.banners.validation.html_required',
-            message: 'Enter banner HTML.'
-        })),
-        bannerType: z.enum(['horizontal', 'sidebar']),
-        position: z.enum(['top', 'bottom', 'left', 'right']),
-        isActive: z.boolean(),
-        order: z.number().int().min(0, t({
-            id: 'settings.banners.validation.order_min',
-            message: 'Display order must be 0 or greater.'
-        }))
-    }), [t]);
+    const bannerSchema = useMemo(
+        () =>
+            z.object({
+                title: z
+                    .string()
+                    .trim()
+                    .min(
+                        1,
+                        t({
+                            id: 'settings.banners.validation.title_required',
+                            message: 'Enter a banner name.'
+                        })
+                    )
+                    .max(
+                        100,
+                        t({
+                            id: 'settings.banners.validation.title_max_length',
+                            message: 'Banner names must be 100 characters or fewer.'
+                        })
+                    ),
+                contentHtml: z
+                    .string()
+                    .trim()
+                    .min(
+                        1,
+                        t({
+                            id: 'settings.banners.validation.html_required',
+                            message: 'Enter banner HTML.'
+                        })
+                    ),
+                bannerType: z.enum(['horizontal', 'sidebar']),
+                position: z.enum(['top', 'bottom', 'left', 'right']),
+                isActive: z.boolean(),
+                order: z
+                    .number()
+                    .int()
+                    .min(
+                        0,
+                        t({
+                            id: 'settings.banners.validation.order_min',
+                            message: 'Display order must be 0 or greater.'
+                        })
+                    )
+            }),
+        [t]
+    );
 
     const { data: bannerDetail } = useSuspenseQuery({
         queryKey: [isGlobal ? 'global-banner-detail' : 'banner-detail', bannerId],
@@ -106,11 +130,15 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                 return data.body;
             }
 
-            throw new Error(data.errorMessage || i18n._({
-                id: 'settings.banners.editor.load_failed',
-                message: '{scope, select, global {Could not load the global banner.} other {Could not load the banner.}}',
-                values: { scope }
-            }));
+            throw new Error(
+                data.errorMessage ||
+                    i18n._({
+                        id: 'settings.banners.editor.load_failed',
+                        message:
+                            '{scope, select, global {Could not load the global banner.} other {Could not load the banner.}}',
+                        values: { scope }
+                    })
+            );
         }
     });
 
@@ -192,36 +220,44 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
     };
 
     const createMutation = useMutation({
-        mutationFn: (payload: BannerCreatePayload) => (
+        mutationFn: (payload: BannerCreatePayload) =>
             isGlobal
                 ? createGlobalBanner(payload as GlobalBannerCreateData)
-                : createBanner(payload as BannerCreateData)
-        ),
+                : createBanner(payload as BannerCreateData),
         onSuccess: ({ data }) => {
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || i18n._({
-                    id: 'settings.banners.create.failed',
-                    message: '{scope, select, global {Could not create the global banner.} other {Could not create the banner.}}',
-                    values: { scope }
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        i18n._({
+                            id: 'settings.banners.create.failed',
+                            message:
+                                '{scope, select, global {Could not create the global banner.} other {Could not create the banner.}}',
+                            values: { scope }
+                        })
+                );
                 return;
             }
 
-            toast.success(i18n._({
-                id: 'settings.banners.create.success',
-                message: '{scope, select, global {Global banner created.} other {Banner created.}}',
-                values: { scope }
-            }));
+            toast.success(
+                i18n._({
+                    id: 'settings.banners.create.success',
+                    message: '{scope, select, global {Global banner created.} other {Banner created.}}',
+                    values: { scope }
+                })
+            );
             invalidateQueries();
             allowNavigationRef.current = true;
             navigateToList(true);
         },
         onError: () => {
-            toast.error(i18n._({
-                id: 'settings.banners.create.failed',
-                message: '{scope, select, global {Could not create the global banner.} other {Could not create the banner.}}',
-                values: { scope }
-            }));
+            toast.error(
+                i18n._({
+                    id: 'settings.banners.create.failed',
+                    message:
+                        '{scope, select, global {Could not create the global banner.} other {Could not create the banner.}}',
+                    values: { scope }
+                })
+            );
         }
     });
 
@@ -237,29 +273,38 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
         },
         onSuccess: ({ data }) => {
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || i18n._({
-                    id: 'settings.banners.update.failed',
-                    message: '{scope, select, global {Could not update the global banner.} other {Could not update the banner.}}',
-                    values: { scope }
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        i18n._({
+                            id: 'settings.banners.update.failed',
+                            message:
+                                '{scope, select, global {Could not update the global banner.} other {Could not update the banner.}}',
+                            values: { scope }
+                        })
+                );
                 return;
             }
 
-            toast.success(i18n._({
-                id: 'settings.banners.update.success',
-                message: '{scope, select, global {Global banner updated.} other {Banner updated.}}',
-                values: { scope }
-            }));
+            toast.success(
+                i18n._({
+                    id: 'settings.banners.update.success',
+                    message: '{scope, select, global {Global banner updated.} other {Banner updated.}}',
+                    values: { scope }
+                })
+            );
             invalidateQueries();
             allowNavigationRef.current = true;
             navigateToList(true);
         },
         onError: () => {
-            toast.error(i18n._({
-                id: 'settings.banners.update.failed',
-                message: '{scope, select, global {Could not update the global banner.} other {Could not update the banner.}}',
-                values: { scope }
-            }));
+            toast.error(
+                i18n._({
+                    id: 'settings.banners.update.failed',
+                    message:
+                        '{scope, select, global {Could not update the global banner.} other {Could not update the banner.}}',
+                    values: { scope }
+                })
+            );
         }
     });
 
@@ -273,29 +318,38 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
         },
         onSuccess: ({ data }) => {
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || i18n._({
-                    id: 'settings.banners.delete.failed',
-                    message: '{scope, select, global {Could not delete the global banner.} other {Could not delete the banner.}}',
-                    values: { scope }
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        i18n._({
+                            id: 'settings.banners.delete.failed',
+                            message:
+                                '{scope, select, global {Could not delete the global banner.} other {Could not delete the banner.}}',
+                            values: { scope }
+                        })
+                );
                 return;
             }
 
-            toast.success(i18n._({
-                id: 'settings.banners.delete.success',
-                message: '{scope, select, global {Global banner deleted.} other {Banner deleted.}}',
-                values: { scope }
-            }));
+            toast.success(
+                i18n._({
+                    id: 'settings.banners.delete.success',
+                    message: '{scope, select, global {Global banner deleted.} other {Banner deleted.}}',
+                    values: { scope }
+                })
+            );
             invalidateQueries();
             allowNavigationRef.current = true;
             navigateToList(true);
         },
         onError: () => {
-            toast.error(i18n._({
-                id: 'settings.banners.delete.failed',
-                message: '{scope, select, global {Could not delete the global banner.} other {Could not delete the banner.}}',
-                values: { scope }
-            }));
+            toast.error(
+                i18n._({
+                    id: 'settings.banners.delete.failed',
+                    message:
+                        '{scope, select, global {Could not delete the global banner.} other {Could not delete the banner.}}',
+                    values: { scope }
+                })
+            );
         }
     });
 
@@ -308,14 +362,14 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
     const handleDelete = async () => {
         const confirmMessage = title
             ? i18n._({
-                id: 'settings.banners.editor.delete.confirm_named',
-                message: 'Delete banner “{title}”?\n\nThis action cannot be undone.',
-                values: { title }
-            })
+                  id: 'settings.banners.editor.delete.confirm_named',
+                  message: 'Delete banner “{title}”?\n\nThis action cannot be undone.',
+                  values: { title }
+              })
             : t({
-                id: 'settings.banners.editor.delete.confirm',
-                message: 'Delete this banner?\n\nThis action cannot be undone.'
-            });
+                  id: 'settings.banners.editor.delete.confirm',
+                  message: 'Delete this banner?\n\nThis action cannot be undone.'
+              });
 
         const confirmed = await confirm({
             title: i18n._({
@@ -340,10 +394,12 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
 
     const onSubmit = (formData: BannerFormInputs) => {
         if (!isEditMode && !hasSelectedPosition) {
-            toast.error(t({
-                id: 'settings.banners.editor.position_required',
-                message: 'Select a banner position first.'
-            }));
+            toast.error(
+                t({
+                    id: 'settings.banners.editor.position_required',
+                    message: 'Select a banner position first.'
+                })
+            );
             return;
         }
 
@@ -400,18 +456,19 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                             onClick={() => handlePositionChange(slot)}
                             className={cx(
                                 'min-h-11 rounded-full border px-3 py-1 text-xs font-semibold transition-colors [@media(pointer:fine)]:min-h-9',
-                                active ? 'border-line-strong bg-action text-content-inverted' : 'border-line bg-surface text-content hover:border-line-strong',
+                                active
+                                    ? 'border-line-strong bg-action text-content-inverted'
+                                    : 'border-line bg-surface text-content hover:border-line-strong',
                                 !hasSelectedPosition ? 'ring-2 ring-warning-line' : ''
-                            )}>
+                            )}
+                        >
                             {i18n._(bannerPositionMessages[slot])}
                         </button>
                     );
                 })}
                 <span
-                    className={cx(
-                        'text-xs',
-                        hasSelectedPosition ? 'text-content-hint' : 'font-semibold text-warning'
-                    )}>
+                    className={cx('text-xs', hasSelectedPosition ? 'text-content-hint' : 'font-semibold text-warning')}
+                >
                     <Trans id="settings.banners.editor.position_help">
                         The banner type is set automatically when you choose a position.
                     </Trans>
@@ -488,13 +545,16 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                     )}
                 />
                 <p className="text-xs text-content-secondary">
-                    {isGlobal
-                        ? <Trans id="settings.banners.editor.html.global_help">
-                            Scripts are removed when this banner appears on public pages. To add scripts, use Global code in site settings.
+                    {isGlobal ? (
+                        <Trans id="settings.banners.editor.html.global_help">
+                            Scripts are removed when this banner appears on public pages. To add scripts, use Global
+                            code in site settings.
                         </Trans>
-                        : <Trans id="settings.banners.editor.html.user_help">
+                    ) : (
+                        <Trans id="settings.banners.editor.html.user_help">
                             Scripts are restricted in user banners.
-                        </Trans>}
+                        </Trans>
+                    )}
                 </p>
             </div>
         </div>
@@ -508,21 +568,24 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                         <button
                             type="button"
                             className="flex min-h-11 items-center gap-2 py-2 text-sm text-content-secondary transition-colors hover:text-content active:text-content-secondary [@media(pointer:fine)]:min-h-9"
-                            onClick={() => navigateToList()}>
+                            onClick={() => navigateToList()}
+                        >
                             <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-                            <span><Trans id="settings.banners.editor.back_to_list">Back to list</Trans></span>
+                            <span>
+                                <Trans id="settings.banners.editor.back_to_list">Back to list</Trans>
+                            </span>
                         </button>
 
                         <h1 className="text-sm font-medium text-content-secondary">
                             {isEditMode && title
                                 ? title
                                 : isEditMode
-                                    ? i18n._({
+                                  ? i18n._({
                                         id: 'settings.banners.editor.edit_title',
                                         message: '{scope, select, global {Edit global banner} other {Edit banner}}',
                                         values: { scope }
                                     })
-                                    : i18n._({
+                                  : i18n._({
                                         id: 'settings.banners.editor.create_title',
                                         message: '{scope, select, global {Create global banner} other {Create banner}}',
                                         values: { scope }
@@ -552,7 +615,8 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                                 isLoading={deleteMutation.isPending}
                                 disabled={isSaving}
                                 onClick={handleDelete}
-                                className="!rounded-full !text-danger hover:!bg-danger-surface hover:!text-danger">
+                                className="!rounded-full !text-danger hover:!bg-danger-surface hover:!text-danger"
+                            >
                                 <Trans id="common.delete">Delete</Trans>
                             </Button>
                             <div className="mx-1 h-8 w-px bg-line/60" />
@@ -572,12 +636,15 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                         className="!rounded-full"
                         leftIcon={!isSaving ? <Send className="h-4 w-4" /> : undefined}
                         isLoading={isSaving}
-                        disabled={deleteMutation.isPending}>
-                        {isSaving
-                            ? <Trans id="common.saving">Saving</Trans>
-                            : isEditMode
-                                ? <Trans id="common.update">Update</Trans>
-                                : <Trans id="common.create">Create</Trans>}
+                        disabled={deleteMutation.isPending}
+                    >
+                        {isSaving ? (
+                            <Trans id="common.saving">Saving</Trans>
+                        ) : isEditMode ? (
+                            <Trans id="common.update">Update</Trans>
+                        ) : (
+                            <Trans id="common.create">Create</Trans>
+                        )}
                     </Button>
                 </FloatingBottomBar>
             </form>

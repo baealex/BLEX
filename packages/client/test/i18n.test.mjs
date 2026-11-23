@@ -3,12 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { describe, test } from 'node:test';
 
-import {
-    formatDateOnly,
-    formatDateTime,
-    formatLocalDateTime,
-    formatPublishedDate
-} from '../src/i18n/formatters.ts';
+import { formatDateOnly, formatDateTime, formatLocalDateTime, formatPublishedDate } from '../src/i18n/formatters.ts';
 import { normalizeLocale } from '../src/i18n/locale.ts';
 import { formatScheduleDateTime, toReservedDateValue } from '../src/features/editor/utils/scheduleDate.ts';
 import { buildQueryCacheKey } from '../src/lib/query-cache-key.ts';
@@ -126,5 +121,4 @@ describe('localized publication dates', () => {
     });
 });
 
-describe('localized login prompt actions', () => {
-});
+describe('localized login prompt actions', () => {});

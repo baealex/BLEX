@@ -7,21 +7,12 @@ const BASE_URL = 'https://blex.example/settings/notify';
 
 describe('getSafeNotificationNavigationUrl', () => {
     test('keeps relative and HTTPS notification destinations', () => {
+        assert.equal(getSafeNotificationNavigationUrl('/@author/post', BASE_URL), '/@author/post');
         assert.equal(
-            getSafeNotificationNavigationUrl('/@author/post', BASE_URL),
-            '/@author/post'
-        );
-        assert.equal(
-            getSafeNotificationNavigationUrl(
-                'https://blex.example/notice',
-                BASE_URL
-            ),
+            getSafeNotificationNavigationUrl('https://blex.example/notice', BASE_URL),
             'https://blex.example/notice'
         );
-        assert.equal(
-            getSafeNotificationNavigationUrl('http://blex/welcome', BASE_URL),
-            'http://blex/welcome'
-        );
+        assert.equal(getSafeNotificationNavigationUrl('http://blex/welcome', BASE_URL), 'http://blex/welcome');
     });
 
     test('refuses executable or malformed legacy destinations', () => {
@@ -36,10 +27,7 @@ describe('getSafeNotificationNavigationUrl', () => {
             String.raw`\\javascript:alert(1)`,
             String.raw`\\[invalid`
         ]) {
-            assert.equal(
-                getSafeNotificationNavigationUrl(url, BASE_URL),
-                null
-            );
+            assert.equal(getSafeNotificationNavigationUrl(url, BASE_URL), null);
         }
     });
 });

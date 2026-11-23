@@ -1,11 +1,6 @@
 import { useLingui } from '@lingui/react/macro';
 import { WebhookChannelManager } from '../layout';
-import {
-    getWebhookChannels,
-    addWebhookChannel,
-    deleteWebhookChannel,
-    testWebhook
-} from '~/lib/api/settings';
+import { getWebhookChannels, addWebhookChannel, deleteWebhookChannel, testWebhook } from '~/lib/api/settings';
 
 const WebhookSetting = () => {
     const { t } = useLingui();

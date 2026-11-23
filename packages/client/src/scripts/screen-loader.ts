@@ -12,7 +12,6 @@ const loadScreenRuntime = () => {
     mutationObserver = null;
 
     runtimePromise = import('../screen-runtime').catch((error: unknown) => {
-        // eslint-disable-next-line no-console
         console.error('[BLEX] Failed to load the screen runtime', error);
         throw error;
     });
@@ -20,8 +19,8 @@ const loadScreenRuntime = () => {
     return runtimePromise;
 };
 
-const containsScreen = (node: Node) => node instanceof Element
-    && (node.matches(SCREEN_SELECTOR) || node.querySelector(SCREEN_SELECTOR) !== null);
+const containsScreen = (node: Node) =>
+    node instanceof Element && (node.matches(SCREEN_SELECTOR) || node.querySelector(SCREEN_SELECTOR) !== null);
 
 const initializeScreenLoader = () => {
     if (document.querySelector(SCREEN_SELECTOR)) {
@@ -44,26 +43,20 @@ const initializeScreenLoader = () => {
     });
 };
 
-type ToastMethod =
-    | 'success'
-    | 'error'
-    | 'info'
-    | 'warning'
-    | 'loading'
-    | 'promise'
-    | 'dismiss'
-    | 'message';
+type ToastMethod = 'success' | 'error' | 'info' | 'warning' | 'loading' | 'promise' | 'dismiss' | 'message';
 
 const loadToast = () => import('../utils/toast').then((module) => module.toast);
 
-const createLazyToastCall = (method?: ToastMethod) =>
-    (...args: unknown[]) => loadToast().then((toast) => {
-        if (method) {
-            return (toast[method] as (...toastArgs: unknown[]) => unknown)(...args);
-        }
+const createLazyToastCall =
+    (method?: ToastMethod) =>
+    (...args: unknown[]) =>
+        loadToast().then((toast) => {
+            if (method) {
+                return (toast[method] as (...toastArgs: unknown[]) => unknown)(...args);
+            }
 
-        return (toast as (...toastArgs: unknown[]) => unknown)(...args);
-    });
+            return (toast as (...toastArgs: unknown[]) => unknown)(...args);
+        });
 
 window.toast = Object.assign(createLazyToastCall(), {
     success: createLazyToastCall('success'),

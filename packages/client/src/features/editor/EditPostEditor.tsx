@@ -20,11 +20,7 @@ import {
 import { api } from '~/components/shared';
 import { logger } from '~/utils/logger';
 import type { Series } from './types';
-import {
-    isFutureScheduleDate,
-    parseScheduleDate,
-    toReservedDateValue
-} from './utils/scheduleDate';
+import { isFutureScheduleDate, parseScheduleDate, toReservedDateValue } from './utils/scheduleDate';
 import {
     clearPostEditRecovery,
     postEditRecoverySnapshotsMatch,
@@ -111,41 +107,47 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
     const isSubmitLockedRef = useRef(false);
     const revisionTriggerRef = useRef<HTMLButtonElement | null>(null);
 
-    const createDirtySnapshot = useCallback((): DirtySnapshot => ({
-        title: formData.title,
-        subtitle: formData.subtitle,
-        url: formData.url,
-        content: formData.content,
-        metaDescription: formData.metaDescription,
-        hide: formData.hide,
-        advertise: formData.advertise,
-        allowComments: formData.allowComments,
-        coverLayout: formData.coverLayout,
-        coverImagePosition: formData.coverImagePosition,
-        coverImageRatio: formData.coverImageRatio,
-        reservedDate: formData.reservedDate,
-        tags,
-        seriesUrl: selectedSeries.url,
-        imagePreview,
-        imageDeleted
-    }), [formData, tags, selectedSeries.url, imagePreview, imageDeleted]);
+    const createDirtySnapshot = useCallback(
+        (): DirtySnapshot => ({
+            title: formData.title,
+            subtitle: formData.subtitle,
+            url: formData.url,
+            content: formData.content,
+            metaDescription: formData.metaDescription,
+            hide: formData.hide,
+            advertise: formData.advertise,
+            allowComments: formData.allowComments,
+            coverLayout: formData.coverLayout,
+            coverImagePosition: formData.coverImagePosition,
+            coverImageRatio: formData.coverImageRatio,
+            reservedDate: formData.reservedDate,
+            tags,
+            seriesUrl: selectedSeries.url,
+            imagePreview,
+            imageDeleted
+        }),
+        [formData, tags, selectedSeries.url, imagePreview, imageDeleted]
+    );
 
-    const createRecoverySnapshot = useCallback((): PostEditRecoverySnapshot => ({
-        title: formData.title,
-        subtitle: formData.subtitle,
-        content: formData.content,
-        metaDescription: formData.metaDescription,
-        hide: formData.hide,
-        advertise: formData.advertise,
-        allowComments: formData.allowComments,
-        coverLayout: formData.coverLayout,
-        coverImagePosition: formData.coverImagePosition,
-        coverImageRatio: formData.coverImageRatio,
-        reservedDate: formData.reservedDate,
-        tags,
-        seriesUrl: selectedSeries.url,
-        imageDeleted
-    }), [formData, tags, selectedSeries.url, imageDeleted]);
+    const createRecoverySnapshot = useCallback(
+        (): PostEditRecoverySnapshot => ({
+            title: formData.title,
+            subtitle: formData.subtitle,
+            content: formData.content,
+            metaDescription: formData.metaDescription,
+            hide: formData.hide,
+            advertise: formData.advertise,
+            allowComments: formData.allowComments,
+            coverLayout: formData.coverLayout,
+            coverImagePosition: formData.coverImagePosition,
+            coverImageRatio: formData.coverImageRatio,
+            reservedDate: formData.reservedDate,
+            tags,
+            seriesUrl: selectedSeries.url,
+            imageDeleted
+        }),
+        [formData, tags, selectedSeries.url, imageDeleted]
+    );
 
     // Fetch data
     useEffect(() => {
@@ -155,7 +157,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 // Fetch series list
                 const { data: seriesResponse } = await getSeries();
                 if (seriesResponse.status === 'DONE') {
-                    const mappedSeries = (seriesResponse.body.series || []).map(s => ({
+                    const mappedSeries = (seriesResponse.body.series || []).map((s) => ({
                         id: String(s.id),
                         name: s.title,
                         url: s.url
@@ -205,8 +207,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                         seriesUrl: initialSeries.url,
                         imageDeleted: false
                     };
-                    const baseRevision = postData.updatedDate
-                        || JSON.stringify(initialRecoverySnapshot);
+                    const baseRevision = postData.updatedDate || JSON.stringify(initialRecoverySnapshot);
 
                     setFormData(initialFormData);
                     setIsScheduledPost(Boolean(postData.isScheduled));
@@ -224,19 +225,23 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                     initialSeriesRef.current = initialSeries;
                     setImagePreview(initialImagePreview);
                     setSelectedSeries(initialSeries);
-                    setAvailableRecovery(readPostEditRecovery({
-                        username,
-                        postUrl,
-                        baseRevision,
-                        baseline: initialRecoverySnapshot
-                    }));
+                    setAvailableRecovery(
+                        readPostEditRecovery({
+                            username,
+                            postUrl,
+                            baseRevision,
+                            baseline: initialRecoverySnapshot
+                        })
+                    );
                     setImageDeleted(false);
                 }
             } catch {
-                toast.error(t({
-                    id: 'editor.error.load_post',
-                    message: 'Could not load the post.'
-                }));
+                toast.error(
+                    t({
+                        id: 'editor.error.load_post',
+                        message: 'Could not load the post.'
+                    })
+                );
             } finally {
                 setIsLoading(false);
             }
@@ -291,14 +296,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
 
         const timeoutId = window.setTimeout(persistRecovery, 1000);
         return () => window.clearTimeout(timeoutId);
-    }, [
-        isLoading,
-        availableRecovery,
-        createRecoverySnapshot,
-        persistRecovery,
-        username,
-        postUrl
-    ]);
+    }, [isLoading, availableRecovery, createRecoverySnapshot, persistRecovery, username, postUrl]);
 
     // Warn on page unload if there are unsaved changes
     useEffect(() => {
@@ -329,7 +327,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         if (!availableRecovery) return;
 
         const recovery = availableRecovery.snapshot;
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
             title: recovery.title,
             subtitle: recovery.subtitle,
@@ -345,22 +343,26 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         }));
         setTags([...recovery.tags]);
 
-        setSelectedSeries(resolveRecoveredSeries(recovery.seriesUrl, seriesList, initialSeriesRef.current, {
-            id: '',
-            name: '',
-            url: ''
-        }));
+        setSelectedSeries(
+            resolveRecoveredSeries(recovery.seriesUrl, seriesList, initialSeriesRef.current, {
+                id: '',
+                name: '',
+                url: ''
+            })
+        );
 
         const imageInput = formRef.current?.querySelector<HTMLInputElement>('input[name="image"]');
         if (imageInput) imageInput.value = '';
         setImagePreview(recovery.imageDeleted ? null : initialImagePreviewRef.current);
         setImageDeleted(recovery.imageDeleted);
         setAvailableRecovery(null);
-        setRecoveryEditorRevision(revision => revision + 1);
-        toast.success(t({
-            id: 'editor.recovery.success',
-            message: 'Backup recovered. Select Update to save these changes.'
-        }));
+        setRecoveryEditorRevision((revision) => revision + 1);
+        toast.success(
+            t({
+                id: 'editor.recovery.success',
+                message: 'Backup recovered. Select Update to save these changes.'
+            })
+        );
     };
 
     const handleDiscardRecovery = async () => {
@@ -392,21 +394,23 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             postUrl
         });
         setAvailableRecovery(null);
-        toast.info(t({
-            id: 'editor.recovery.deleted',
-            message: 'Edit backup deleted.'
-        }));
+        toast.info(
+            t({
+                id: 'editor.recovery.deleted',
+                message: 'Edit backup deleted.'
+            })
+        );
     };
 
     const handleTitleChange = (title: string) => {
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
             title
         }));
     };
 
     const handleSubtitleChange = (subtitle: string) => {
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
             subtitle
         }));
@@ -432,45 +436,56 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
     const handleEditorImageUpload = async (file: File) => {
         const { data } = await api.uploadImage(file).catch((error) => {
             logger.error('Image upload failed', error);
-            throw new Error(t({
-                id: 'editor.media.error.upload',
-                message: 'File upload failed.'
-            }));
+            throw new Error(
+                t({
+                    id: 'editor.media.error.upload',
+                    message: 'File upload failed.'
+                })
+            );
         });
 
         if (data.status === 'DONE') {
             return data.body.url;
         }
 
-        throw new Error(data.errorMessage || t({
-            id: 'editor.media.error.upload',
-            message: 'File upload failed.'
-        }));
+        throw new Error(
+            data.errorMessage ||
+                t({
+                    id: 'editor.media.error.upload',
+                    message: 'File upload failed.'
+                })
+        );
     };
 
     const validateForm = () => {
         if (!formData.title.trim()) {
-            toast.error(t({
-                id: 'editor.validation.title_required',
-                message: 'Enter a title.'
-            }));
+            toast.error(
+                t({
+                    id: 'editor.validation.title_required',
+                    message: 'Enter a title.'
+                })
+            );
             return false;
         }
 
         if (isScheduledPost && hasReservedDateChanged()) {
             if (!parseScheduleDate(formData.reservedDate)) {
-                toast.error(t({
-                    id: 'editor.validation.schedule_invalid',
-                    message: 'Check the scheduled time.'
-                }));
+                toast.error(
+                    t({
+                        id: 'editor.validation.schedule_invalid',
+                        message: 'Check the scheduled time.'
+                    })
+                );
                 return false;
             }
 
             if (!isFutureScheduleDate(formData.reservedDate)) {
-                toast.error(t({
-                    id: 'editor.validation.schedule_future',
-                    message: 'Choose a scheduled time in the future.'
-                }));
+                toast.error(
+                    t({
+                        id: 'editor.validation.schedule_future',
+                        message: 'Choose a scheduled time in the future.'
+                    })
+                );
                 return false;
             }
         }
@@ -480,20 +495,24 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
 
     const submitCurrentPost = async () => {
         if (availableRecovery) {
-            toast.warning(t({
-                id: 'editor.recovery.resolve_first',
-                message: 'Recover or delete the edit backup first.'
-            }));
+            toast.warning(
+                t({
+                    id: 'editor.recovery.resolve_first',
+                    message: 'Recover or delete the edit backup first.'
+                })
+            );
             return;
         }
         if (!hasUnsavedChanges() || isSubmitLockedRef.current) return;
         if (!validateForm()) return;
 
         if (isEditorMediaUploading) {
-            toast.warning(t({
-                id: 'editor.media.wait_before_update',
-                message: 'Wait for the upload to finish before updating.'
-            }));
+            toast.warning(
+                t({
+                    id: 'editor.media.wait_before_update',
+                    message: 'Wait for the upload to finish before updating.'
+                })
+            );
             return;
         }
 
@@ -535,10 +554,13 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             if (data.status === 'ERROR') {
                 isSubmitLockedRef.current = false;
                 setIsSubmitting(false);
-                toast.error(data.errorMessage || t({
-                    id: 'editor.error.update',
-                    message: 'Could not update the post.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'editor.error.update',
+                            message: 'Could not update the post.'
+                        })
+                );
                 return;
             }
 
@@ -551,10 +573,12 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         } catch {
             isSubmitLockedRef.current = false;
             isIntentionalSubmitRef.current = false;
-            toast.error(t({
-                id: 'editor.error.update',
-                message: 'Could not update the post.'
-            }));
+            toast.error(
+                t({
+                    id: 'editor.error.update',
+                    message: 'Could not update the post.'
+                })
+            );
             setIsSubmitting(false);
         }
     };
@@ -586,10 +610,13 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         try {
             const { data } = await deletePost(username, postUrl);
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || t({
-                    id: 'editor.error.move_to_trash',
-                    message: 'Could not move the post to the trash.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'editor.error.move_to_trash',
+                            message: 'Could not move the post to the trash.'
+                        })
+                );
                 setIsSubmitting(false);
                 return;
             }
@@ -601,34 +628,42 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             isIntentionalSubmitRef.current = true;
             window.location.assign(`/@${encodeURIComponent(username)}`);
         } catch {
-            toast.error(t({
-                id: 'editor.error.move_to_trash',
-                message: 'Could not move the post to the trash.'
-            }));
+            toast.error(
+                t({
+                    id: 'editor.error.move_to_trash',
+                    message: 'Could not move the post to the trash.'
+                })
+            );
             setIsSubmitting(false);
         }
     };
 
     const handleOpenRevisionHistory = (event: React.MouseEvent<HTMLButtonElement>) => {
         if (availableRecovery) {
-            toast.warning(t({
-                id: 'editor.recovery.resolve_first',
-                message: 'Recover or delete the edit backup first.'
-            }));
+            toast.warning(
+                t({
+                    id: 'editor.recovery.resolve_first',
+                    message: 'Recover or delete the edit backup first.'
+                })
+            );
             return;
         }
         if (hasUnsavedChanges()) {
-            toast.warning(t({
-                id: 'editor.revisions.save_changes_first',
-                message: 'Update your changes before opening revision history.'
-            }));
+            toast.warning(
+                t({
+                    id: 'editor.revisions.save_changes_first',
+                    message: 'Update your changes before opening revision history.'
+                })
+            );
             return;
         }
         if (isEditorMediaUploading) {
-            toast.warning(t({
-                id: 'editor.media.wait_before_revisions',
-                message: 'Wait for the upload to finish before opening revision history.'
-            }));
+            toast.warning(
+                t({
+                    id: 'editor.media.wait_before_revisions',
+                    message: 'Wait for the upload to finish before opening revision history.'
+                })
+            );
             return;
         }
 
@@ -648,26 +683,32 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
 
     const canRunScheduleAction = () => {
         if (availableRecovery) {
-            toast.warning(t({
-                id: 'editor.recovery.resolve_first',
-                message: 'Recover or delete the edit backup first.'
-            }));
+            toast.warning(
+                t({
+                    id: 'editor.recovery.resolve_first',
+                    message: 'Recover or delete the edit backup first.'
+                })
+            );
             return false;
         }
 
         if (hasUnsavedChanges()) {
-            toast.warning(t({
-                id: 'editor.schedule.save_changes_first',
-                message: 'Update your changes before changing the schedule.'
-            }));
+            toast.warning(
+                t({
+                    id: 'editor.schedule.save_changes_first',
+                    message: 'Update your changes before changing the schedule.'
+                })
+            );
             return false;
         }
 
         if (isEditorMediaUploading) {
-            toast.warning(t({
-                id: 'editor.media.wait_before_schedule_change',
-                message: 'Wait for the upload to finish before changing the schedule.'
-            }));
+            toast.warning(
+                t({
+                    id: 'editor.media.wait_before_schedule_change',
+                    message: 'Wait for the upload to finish before changing the schedule.'
+                })
+            );
             return false;
         }
 
@@ -684,7 +725,8 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             }),
             message: t({
                 id: 'editor.schedule.cancel_description',
-                message: 'Cancel the schedule and return this post to drafts. Its content and settings will be preserved, and it will no longer appear publicly.'
+                message:
+                    'Cancel the schedule and return this post to drafts. Its content and settings will be preserved, and it will no longer appear publicly.'
             }),
             confirmText: t({
                 id: 'editor.schedule.cancel',
@@ -698,10 +740,13 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         try {
             const { data } = await cancelPostSchedule(username, postUrl);
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || t({
-                    id: 'editor.schedule.error.cancel',
-                    message: 'Could not cancel the schedule.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'editor.schedule.error.cancel',
+                            message: 'Could not cancel the schedule.'
+                        })
+                );
                 return;
             }
 
@@ -712,10 +757,12 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             isIntentionalSubmitRef.current = true;
             window.location.assign(`/write?draft=${encodeURIComponent(data.body.url)}`);
         } catch {
-            toast.error(t({
-                id: 'editor.schedule.error.cancel',
-                message: 'Could not cancel the schedule.'
-            }));
+            toast.error(
+                t({
+                    id: 'editor.schedule.error.cancel',
+                    message: 'Could not cancel the schedule.'
+                })
+            );
         } finally {
             setPendingScheduleAction(null);
             setIsSubmitting(false);
@@ -732,13 +779,15 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             }),
             message: formData.hide
                 ? t({
-                    id: 'editor.schedule.publish_now_private_description',
-                    message: 'Publish now as a private post without waiting for the scheduled time. Only the author will be able to view it.'
-                })
+                      id: 'editor.schedule.publish_now_private_description',
+                      message:
+                          'Publish now as a private post without waiting for the scheduled time. Only the author will be able to view it.'
+                  })
                 : t({
-                    id: 'editor.schedule.publish_now_public_description',
-                    message: 'Publish publicly now without waiting for the scheduled time. Connected notification channels will also receive the publication update.'
-                }),
+                      id: 'editor.schedule.publish_now_public_description',
+                      message:
+                          'Publish publicly now without waiting for the scheduled time. Connected notification channels will also receive the publication update.'
+                  }),
             confirmText: t({
                 id: 'editor.schedule.publish_now',
                 message: 'Publish now'
@@ -751,10 +800,13 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         try {
             const { data } = await publishScheduledPostNow(username, postUrl);
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || t({
-                    id: 'editor.schedule.error.publish_now',
-                    message: 'Could not publish the post now.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'editor.schedule.error.publish_now',
+                            message: 'Could not publish the post now.'
+                        })
+                );
                 return;
             }
 
@@ -765,10 +817,12 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             isIntentionalSubmitRef.current = true;
             window.location.assign(`/@${encodeURIComponent(username)}/${encodeURIComponent(data.body.url)}`);
         } catch {
-            toast.error(t({
-                id: 'editor.schedule.error.publish_now',
-                message: 'Could not publish the post now.'
-            }));
+            toast.error(
+                t({
+                    id: 'editor.schedule.error.publish_now',
+                    message: 'Could not publish the post now.'
+                })
+            );
         } finally {
             setPendingScheduleAction(null);
             setIsSubmitting(false);
@@ -811,10 +865,12 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 selectedSeries={selectedSeries}
                 onTitleChange={handleTitleChange}
                 onSubtitleChange={handleSubtitleChange}
-                onContentChange={(content) => setFormData(prev => ({
-                    ...prev,
-                    content
-                }))}
+                onContentChange={(content) =>
+                    setFormData((prev) => ({
+                        ...prev,
+                        content
+                    }))
+                }
                 onTagsChange={setTags}
                 onImageUpload={handleImageUpload}
                 onEditorImageUpload={handleEditorImageUpload}
@@ -831,7 +887,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 isMediaUploading={isEditorMediaUploading}
                 isSubmitDisabled={Boolean(availableRecovery) || !hasUnsavedChanges()}
                 lastSaved={null}
-                onManualSave={() => { }}
+                onManualSave={() => {}}
                 onSubmit={() => handleSubmit()}
                 onOpenHistory={handleOpenRevisionHistory}
                 onOpenSettings={() => setIsSettingsDrawerOpen(true)}
@@ -849,16 +905,20 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 seriesList={seriesList}
                 formData={formData}
                 imagePreview={imagePreview}
-                onUrlChange={() => { }} // URL is not editable in edit mode
-                onMetaDescriptionChange={(metaDescription) => setFormData(prev => ({
-                    ...prev,
-                    metaDescription
-                }))}
+                onUrlChange={() => {}} // URL is not editable in edit mode
+                onMetaDescriptionChange={(metaDescription) =>
+                    setFormData((prev) => ({
+                        ...prev,
+                        metaDescription
+                    }))
+                }
                 onSeriesChange={setSelectedSeries}
-                onFormDataChange={(field, value) => setFormData(prev => ({
-                    ...prev,
-                    [field]: value
-                }))}
+                onFormDataChange={(field, value) =>
+                    setFormData((prev) => ({
+                        ...prev,
+                        [field]: value
+                    }))
+                }
                 onDelete={handleDelete}
                 onCancelSchedule={handleCancelSchedule}
                 onPublishNow={handlePublishNow}

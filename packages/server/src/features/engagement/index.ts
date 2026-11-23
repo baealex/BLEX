@@ -6,10 +6,31 @@ import { decryptSecret } from '../auth/encrypted-secret.js';
 import { timeSince } from '../../platform/date-format.js';
 import { publicPostPath } from '../posts/public-post.js';
 import { done, failure as error } from '../../platform/response.js';
-import { CommentRow, commentBodyLimit, commentForViewer, commentHtml, publicComments, serializeComment } from './services/comments.js';
+import {
+  CommentRow,
+  commentBodyLimit,
+  commentForViewer,
+  commentHtml,
+  publicComments,
+  serializeComment,
+} from './services/comments.js';
 import { anonymizeComments } from './services/deletions.js';
 import { canSubscribe, mySubscriptions, subscriptionState } from './services/subscriptions.js';
-import { ReaderActionsOptions, activeEditor, activeUser, asBodyObject, bodyField, commentReturnTo, forbidden, localReturnTo, missing, publicPost, requestCsrfAccepted, textValue, truthyBodyField } from './shared.js';
+import {
+  ReaderActionsOptions,
+  activeEditor,
+  activeUser,
+  asBodyObject,
+  bodyField,
+  commentReturnTo,
+  forbidden,
+  localReturnTo,
+  missing,
+  publicPost,
+  requestCsrfAccepted,
+  textValue,
+  truthyBodyField,
+} from './shared.js';
 
 export { ReaderActionUser, ReaderActionsOptions } from './shared.js';
 export { CommentPayload } from './services/comments.js';
@@ -29,11 +50,7 @@ async function createUnlessPresent(create: () => Promise<unknown>): Promise<bool
   }
 }
 
-export function registerReaderActions(
-  app: FastifyInstance,
-  db: PrismaClient,
-  options: ReaderActionsOptions,
-): void {
+export function registerReaderActions(app: FastifyInstance, db: PrismaClient, options: ReaderActionsOptions): void {
   app.register(async (routes) => {
     await routes.register(formBody);
     routes.removeContentTypeParser('application/json');
@@ -62,11 +79,18 @@ export function registerReaderActions(
         if (removed.count > 0) {
           hasLiked = false;
         } else {
-          const added = await createUnlessPresent(() => tx.postLike.create({ data: { ...like, createdAt: new Date() } }));
-          if (added) await createNotification(tx, {
-            recipientId: post.authorId, actor: user.username, url: publicPostPath(post.authorUsername, post.slug), title: post.title,
-            key: 'post.liked', preference: 'NOTIFY_POSTS_LIKE',
-          });
+          const added = await createUnlessPresent(() =>
+            tx.postLike.create({ data: { ...like, createdAt: new Date() } }),
+          );
+          if (added)
+            await createNotification(tx, {
+              recipientId: post.authorId,
+              actor: user.username,
+              url: publicPostPath(post.authorUsername, post.slug),
+              title: post.title,
+              key: 'post.liked',
+              preference: 'NOTIFY_POSTS_LIKE',
+            });
           hasLiked = true;
         }
         return { hasLiked, countLikes: await tx.postLike.count({ where: { postId: post.id } }) };
@@ -89,9 +113,10 @@ export function registerReaderActions(
     routes.post('/v1/comments', { bodyLimit: commentBodyLimit }, async (request, reply) => {
       if (!requestCsrfAccepted(request, options)) return forbidden(reply);
       const body = asBodyObject(request.body);
-      const slug = typeof request.query === 'object' && request.query !== null
-        ? textValue((request.query as Record<string, unknown>).url)
-        : '';
+      const slug =
+        typeof request.query === 'object' && request.query !== null
+          ? textValue((request.query as Record<string, unknown>).url)
+          : '';
       const post = await publicPost(db, slug);
       if (!post) return missing(reply);
 
@@ -118,17 +143,39 @@ export function registerReaderActions(
           select: { id: true },
         });
         const recipientId = parent?.authorId ?? post.authorId;
-        const data = { actor: user.username, url: publicPostPath(post.authorUsername, post.slug), title: post.title, commentId: inserted.id };
-        await createNotification(tx, { ...data, recipientId, key: parent ? 'comment.replied' : 'post.commented', preference: 'NOTIFY_POSTS_COMMENT' });
-        const mentions = [...new Set([...markdown.matchAll(/(?<![\p{L}\p{N}_@.+\-`*~])@([a-z0-9]{4,15})(?![\p{L}\p{N}_+\-`*~]|\.[a-zA-Z0-9])/gu)].map((match) => match[1]))];
+        const data = {
+          actor: user.username,
+          url: publicPostPath(post.authorUsername, post.slug),
+          title: post.title,
+          commentId: inserted.id,
+        };
+        await createNotification(tx, {
+          ...data,
+          recipientId,
+          key: parent ? 'comment.replied' : 'post.commented',
+          preference: 'NOTIFY_POSTS_COMMENT',
+        });
+        const mentions = [
+          ...new Set(
+            [
+              ...markdown.matchAll(
+                /(?<![\p{L}\p{N}_@.+\-`*~])@([a-z0-9]{4,15})(?![\p{L}\p{N}_+\-`*~]|\.[a-zA-Z0-9])/gu,
+              ),
+            ].map((match) => match[1]),
+          ),
+        ];
         if (mentions.length) {
           const targets = await tx.user.findMany({
             where: { username: { in: mentions }, comments: { some: { postId: post.id } } },
             select: { id: true },
           });
-          for (const target of targets) await createNotification(tx, {
-            ...data, recipientId: target.id, key: 'comment.mentioned', preference: 'NOTIFY_MENTION',
-          });
+          for (const target of targets)
+            await createNotification(tx, {
+              ...data,
+              recipientId: target.id,
+              key: 'comment.mentioned',
+              preference: 'NOTIFY_MENTION',
+            });
         }
         return inserted.id;
       });
@@ -176,10 +223,16 @@ export function registerReaderActions(
               const isLiked = removed.count === 0;
               if (isLiked) {
                 const added = await createUnlessPresent(() => tx.commentLike.create({ data: like }));
-                if (added) await createNotification(tx, {
-                  recipientId, actor: viewer.username, url: publicPostPath(comment.postUsername, comment.postSlug), title: comment.postTitle,
-                  commentId: comment.id, key: 'comment.liked', preference: 'NOTIFY_COMMENT_LIKE',
-                });
+                if (added)
+                  await createNotification(tx, {
+                    recipientId,
+                    actor: viewer.username,
+                    url: publicPostPath(comment.postUsername, comment.postSlug),
+                    title: comment.postTitle,
+                    commentId: comment.id,
+                    key: 'comment.liked',
+                    preference: 'NOTIFY_COMMENT_LIKE',
+                  });
               }
               return { isLiked, countLikes: await tx.commentLike.count({ where: { commentId: comment.id } }) };
             });
@@ -239,9 +292,8 @@ export function registerReaderActions(
         if (!author) return missing(reply);
         const viewer = await activeUser(request, db, options);
         const body = asBodyObject(request.body);
-        const wantsUnsubscribe = request.method === 'DELETE' || (
-          request.method === 'POST' && bodyField(body, 'action') === 'unsubscribe'
-        );
+        const wantsUnsubscribe =
+          request.method === 'DELETE' || (request.method === 'POST' && bodyField(body, 'action') === 'unsubscribe');
         const returnTo = localReturnTo(body?.returnTo);
 
         if (request.method === 'GET') {
@@ -262,11 +314,16 @@ export function registerReaderActions(
             where: { id: 1 },
             select: { telegramEnabled: true, telegramBotUsername: true, telegramBotToken: true },
           });
-          const telegram = await db.telegramConnection.findUnique({ where: { userId: viewer.id }, select: { telegramId: true } });
-          const suggestTelegramConnection = Boolean(setting?.telegramEnabled &&
-            setting.telegramBotUsername.trim() !== '' &&
-            Boolean(options.cipherKey && decryptSecret(setting.telegramBotToken, options.cipherKey)) &&
-            !telegram?.telegramId.trim());
+          const telegram = await db.telegramConnection.findUnique({
+            where: { userId: viewer.id },
+            select: { telegramId: true },
+          });
+          const suggestTelegramConnection = Boolean(
+            setting?.telegramEnabled &&
+              setting.telegramBotUsername.trim() !== '' &&
+              Boolean(options.cipherKey && decryptSecret(setting.telegramBotToken, options.cipherKey)) &&
+              !telegram?.telegramId.trim(),
+          );
           const result = {
             canSubscribe: true,
             isSubscribed: true,
@@ -280,7 +337,8 @@ export function registerReaderActions(
         await db.$transaction(async (tx) => {
           const relation = { authorId: author.id, subscriberId: viewer.id };
           const deleted = await tx.authorSubscription.deleteMany({ where: relation });
-          if (deleted.count > 0) await tx.authorSubscriptionLog.create({ data: { ...relation, action: 'unsubscribe' } });
+          if (deleted.count > 0)
+            await tx.authorSubscriptionLog.create({ data: { ...relation, action: 'unsubscribe' } });
         });
         if (returnTo) return reply.redirect(returnTo, 303);
         return done({ canSubscribe: canSubscribeAfterDelete, isSubscribed: false });

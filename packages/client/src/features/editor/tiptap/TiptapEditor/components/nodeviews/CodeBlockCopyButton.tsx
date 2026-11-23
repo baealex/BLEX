@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import { useEditorI18n } from '../../i18n';
-import {
-    Check,
-    Copy
-} from '~/ui/icons';
+import { Check, Copy } from '~/ui/icons';
 
 interface CodeBlockCopyButtonProps {
     code: string;
@@ -28,12 +25,9 @@ const CodeBlockCopyButton = ({ code }: CodeBlockCopyButtonProps) => {
             type="button"
             onClick={handleCopy}
             className="code-copy-button"
-            title={copied ? t('code.copied') : t('code.copy')}>
-            {copied ? (
-                <Check className="w-4 h-4" />
-            ) : (
-                <Copy className="w-4 h-4" />
-            )}
+            title={copied ? t('code.copied') : t('code.copy')}
+        >
+            {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
         </button>
     );
 };

@@ -78,28 +78,36 @@ export const toast = Object.assign(
     },
     {
         success: (message: ToastMessage, options?: ToastOptions) => {
-            return runWhenToasterReady(() => sonnerToast.success(message, {
-                duration: DURATION.success,
-                ...options
-            }));
+            return runWhenToasterReady(() =>
+                sonnerToast.success(message, {
+                    duration: DURATION.success,
+                    ...options
+                })
+            );
         },
         error: (message: ToastMessage, options?: ToastOptions) => {
-            return runWhenToasterReady(() => sonnerToast.error(message, {
-                duration: DURATION.error,
-                ...options
-            }));
+            return runWhenToasterReady(() =>
+                sonnerToast.error(message, {
+                    duration: DURATION.error,
+                    ...options
+                })
+            );
         },
         info: (message: ToastMessage, options?: ToastOptions) => {
-            return runWhenToasterReady(() => sonnerToast.info(message, {
-                duration: DURATION.info,
-                ...options
-            }));
+            return runWhenToasterReady(() =>
+                sonnerToast.info(message, {
+                    duration: DURATION.info,
+                    ...options
+                })
+            );
         },
         warning: (message: ToastMessage, options?: ToastOptions) => {
-            return runWhenToasterReady(() => sonnerToast.warning(message, {
-                duration: DURATION.warning,
-                ...options
-            }));
+            return runWhenToasterReady(() =>
+                sonnerToast.warning(message, {
+                    duration: DURATION.warning,
+                    ...options
+                })
+            );
         },
         loading: (...args: Parameters<typeof sonnerToast.loading>) => {
             return runWhenToasterReady(() => sonnerToast.loading(...args));

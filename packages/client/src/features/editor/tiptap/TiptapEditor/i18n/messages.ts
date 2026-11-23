@@ -5,21 +5,15 @@ export type EditorMessages = Record<EditorMessageKey, string>;
 export type EditorMessageOverrides = Partial<EditorMessages>;
 export type EditorMessageValues = Record<string, string | number>;
 
-const loadKoreanMessages = () => import('./locales/ko.ts')
-    .then(({ koEditorMessages }) => koEditorMessages);
+const loadKoreanMessages = () => import('./locales/ko.ts').then(({ koEditorMessages }) => koEditorMessages);
 const builtinMessageLoaders: Record<string, () => Promise<EditorMessages>> = { ko: loadKoreanMessages };
-const loadedBuiltinMessages = new Map<string, EditorMessages>([
-    ['en', enEditorMessages]
-]);
+const loadedBuiltinMessages = new Map<string, EditorMessages>([['en', enEditorMessages]]);
 const pendingBuiltinMessages = new Map<string, Promise<EditorMessages>>();
 
-export const normalizeEditorLocale = (locale: string | null | undefined) => (
-    locale?.trim().toLowerCase().split(/[-_]/)[0] || 'en'
-);
+export const normalizeEditorLocale = (locale: string | null | undefined) =>
+    locale?.trim().toLowerCase().split(/[-_]/)[0] || 'en';
 
-export const getLoadedEditorMessages = (
-    locale: string | null | undefined
-): EditorMessages | undefined => {
+export const getLoadedEditorMessages = (locale: string | null | undefined): EditorMessages | undefined => {
     const normalizedLocale = normalizeEditorLocale(locale);
 
     if (!builtinMessageLoaders[normalizedLocale]) {
@@ -29,9 +23,7 @@ export const getLoadedEditorMessages = (
     return loadedBuiltinMessages.get(normalizedLocale);
 };
 
-export const loadEditorMessages = (
-    locale: string | null | undefined
-): Promise<EditorMessages> => {
+export const loadEditorMessages = (locale: string | null | undefined): Promise<EditorMessages> => {
     const normalizedLocale = normalizeEditorLocale(locale);
     const loadedMessages = getLoadedEditorMessages(normalizedLocale);
 
@@ -68,13 +60,9 @@ export const resolveEditorMessages = (
     ...overrides
 });
 
-export const formatEditorMessage = (
-    message: string,
-    values: EditorMessageValues = {}
-) => message.replace(/\{(\w+)\}/g, (placeholder, key: string) => (
-    Object.prototype.hasOwnProperty.call(values, key)
-        ? String(values[key])
-        : placeholder
-));
+export const formatEditorMessage = (message: string, values: EditorMessageValues = {}) =>
+    message.replace(/\{(\w+)\}/g, (placeholder, key: string) =>
+        Object.prototype.hasOwnProperty.call(values, key) ? String(values[key]) : placeholder
+    );
 
 export { enEditorMessages };

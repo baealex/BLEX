@@ -18,12 +18,7 @@ import {
     Tag,
     Trash2
 } from '~/ui/icons';
-import {
-    Button,
-    Input,
-    Dropdown,
-    Select
-} from '~/components/shared';
+import { Button, Input, Dropdown, Select } from '~/components/shared';
 import { getSettingsIconClass } from '~/styles/settingsStyles';
 import { getMediaPath } from '~/modules/static.module';
 import type { Post } from '../hooks';
@@ -74,58 +69,63 @@ const PostCard = ({
     const [shareLinksOpen, setShareLinksOpen] = useState(false);
     const actionsRef = useRef<HTMLDivElement>(null);
     const hasPendingChanges = !!post.hasTagChanged || !!post.hasSeriesChanged;
-    const pendingChangeLabel = post.hasTagChanged && post.hasSeriesChanged
-        ? t({
-            id: 'settings.posts.classification.tags_and_series',
-            message: 'Tags and series'
-        })
-        : post.hasTagChanged
+    const pendingChangeLabel =
+        post.hasTagChanged && post.hasSeriesChanged
             ? t({
-                id: 'settings.posts.classification.tags',
-                message: 'Tags'
-            })
-            : t({
-                id: 'settings.posts.classification.series',
-                message: 'Series'
-            });
+                  id: 'settings.posts.classification.tags_and_series',
+                  message: 'Tags and series'
+              })
+            : post.hasTagChanged
+              ? t({
+                    id: 'settings.posts.classification.tags',
+                    message: 'Tags'
+                })
+              : t({
+                    id: 'settings.posts.classification.series',
+                    message: 'Series'
+                });
     const tagCount = post.tag
         .split(',')
-        .map(tag => tag.trim())
+        .map((tag) => tag.trim())
         .filter(Boolean).length;
-    const seriesTitle = series?.find(item => item.url === post.series)?.title;
+    const seriesTitle = series?.find((item) => item.url === post.series)?.title;
     const classificationSummary = [
         tagCount > 0
             ? i18n._({
-                id: 'settings.posts.classification.tag_count',
-                message: '{count, plural, one {# tag} other {# tags}}',
-                values: { count: tagCount }
-            })
+                  id: 'settings.posts.classification.tag_count',
+                  message: '{count, plural, one {# tag} other {# tags}}',
+                  values: { count: tagCount }
+              })
             : '',
         seriesTitle || ''
-    ].filter(Boolean).join(' · ');
+    ]
+        .filter(Boolean)
+        .join(' · ');
     const visibilityActionLabel = post.isHide
         ? isScheduled
             ? t({
-                id: 'settings.posts.visibility.make_public_after_publish',
-                message: 'Make public after publishing'
-            })
+                  id: 'settings.posts.visibility.make_public_after_publish',
+                  message: 'Make public after publishing'
+              })
             : t({
-                id: 'settings.posts.visibility.make_public',
-                message: 'Make public'
-            })
+                  id: 'settings.posts.visibility.make_public',
+                  message: 'Make public'
+              })
         : isScheduled
-            ? t({
+          ? t({
                 id: 'settings.posts.visibility.make_private_after_publish',
                 message: 'Make private after publishing'
             })
-            : t({
+          : t({
                 id: 'settings.posts.visibility.make_private',
                 message: 'Make private'
             });
-    const displayTitle = post.title || t({
-        id: 'common.untitled',
-        message: 'Untitled'
-    });
+    const displayTitle =
+        post.title ||
+        t({
+            id: 'common.untitled',
+            message: 'Untitled'
+        });
 
     const handleEditPost = () => {
         window.location.assign(`/@${username}/${post.url}/edit`);
@@ -155,7 +155,8 @@ const PostCard = ({
                         message: 'View post: {title}',
                         values: { title: displayTitle }
                     })}
-                    className="flex min-w-0 flex-1 items-center gap-3 p-4 transition-colors hover:bg-surface-subtle/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-action">
+                    className="flex min-w-0 flex-1 items-center gap-3 p-4 transition-colors hover:bg-surface-subtle/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-action"
+                >
                     <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg border border-line-light bg-surface-subtle">
                         {post.image ? (
                             <img
@@ -179,11 +180,8 @@ const PostCard = ({
                         <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-content-secondary">
                             <span className="inline-flex items-center gap-1.5">
                                 {dateIcon ?? <Calendar aria-hidden className="h-3.5 w-3.5 text-content-hint" />}
-                                {dateDisplay || formatDateOnly(
-                                    post.createdDate,
-                                    normalizeLocale(i18n.locale),
-                                    post.createdDate
-                                )}
+                                {dateDisplay ||
+                                    formatDateOnly(post.createdDate, normalizeLocale(i18n.locale), post.createdDate)}
                             </span>
                             <span className="inline-flex items-center gap-1.5">
                                 <Clock aria-hidden className="h-3.5 w-3.5 text-content-hint" />
@@ -218,13 +216,13 @@ const PostCard = ({
                                 <span className="inline-flex items-center px-2 py-0.5 bg-surface-subtle text-content rounded-md font-medium">
                                     {isScheduled
                                         ? t({
-                                            id: 'settings.posts.visibility.private_after_publish',
-                                            message: 'Private after publishing'
-                                        })
+                                              id: 'settings.posts.visibility.private_after_publish',
+                                              message: 'Private after publishing'
+                                          })
                                         : t({
-                                            id: 'settings.posts.visibility.private',
-                                            message: 'Private'
-                                        })}
+                                              id: 'settings.posts.visibility.private',
+                                              message: 'Private'
+                                          })}
                                 </span>
                             )}
                         </div>
@@ -260,9 +258,11 @@ const PostCard = ({
                             },
                             {
                                 label: visibilityActionLabel,
-                                icon: post.isHide
-                                    ? <Eye aria-hidden className="h-4 w-4" />
-                                    : <EyeOff aria-hidden className="h-4 w-4" />,
+                                icon: post.isHide ? (
+                                    <Eye aria-hidden className="h-4 w-4" />
+                                ) : (
+                                    <EyeOff aria-hidden className="h-4 w-4" />
+                                ),
                                 onClick: () => onVisibilityToggle(post.url)
                             },
                             {
@@ -290,23 +290,24 @@ const PostCard = ({
 
             <div className="flex items-center gap-3 bg-surface-subtle/40 px-4 py-2.5">
                 {!isMetaEditorOpen && classificationSummary && (
-                    <span className="min-w-0 truncate text-xs text-content-hint">
-                        {classificationSummary}
-                    </span>
+                    <span className="min-w-0 truncate text-xs text-content-hint">{classificationSummary}</span>
                 )}
                 <button
                     type="button"
-                    aria-label={isMetaEditorOpen
-                        ? t({
-                            id: 'settings.posts.classification.close',
-                            message: 'Close tag and series editor'
-                        })
-                        : t({
-                            id: 'settings.posts.classification.open',
-                            message: 'Open tag and series editor'
-                        })}
-                    onClick={() => setIsMetaEditorOpen(prev => !prev)}
-                    className="ml-auto inline-flex min-h-11 flex-shrink-0 items-center gap-2 rounded-lg px-2.5 py-1.5 text-content-secondary transition-colors hover:bg-surface-subtle hover:text-content [@media(pointer:fine)]:min-h-9">
+                    aria-label={
+                        isMetaEditorOpen
+                            ? t({
+                                  id: 'settings.posts.classification.close',
+                                  message: 'Close tag and series editor'
+                              })
+                            : t({
+                                  id: 'settings.posts.classification.open',
+                                  message: 'Open tag and series editor'
+                              })
+                    }
+                    onClick={() => setIsMetaEditorOpen((prev) => !prev)}
+                    className="ml-auto inline-flex min-h-11 flex-shrink-0 items-center gap-2 rounded-lg px-2.5 py-1.5 text-content-secondary transition-colors hover:bg-surface-subtle hover:text-content [@media(pointer:fine)]:min-h-9"
+                >
                     <SlidersHorizontal aria-hidden className="h-3.5 w-3.5" />
                     <span className="text-xs font-medium">
                         {t({
@@ -318,7 +319,8 @@ const PostCard = ({
                         {hasPendingChanges && (
                             <span
                                 role="status"
-                                className="rounded bg-action px-2 py-0.5 text-[11px] text-content-inverted">
+                                className="rounded bg-action px-2 py-0.5 text-[11px] text-content-inverted"
+                            >
                                 {i18n._({
                                     id: 'settings.posts.classification.save_required',
                                     message: '{fields}: save required',
@@ -326,9 +328,11 @@ const PostCard = ({
                                 })}
                             </span>
                         )}
-                        {isMetaEditorOpen
-                            ? <ChevronUp aria-hidden className="h-3.5 w-3.5" />
-                            : <ChevronDown aria-hidden className="h-3.5 w-3.5" />}
+                        {isMetaEditorOpen ? (
+                            <ChevronUp aria-hidden className="h-3.5 w-3.5" />
+                        ) : (
+                            <ChevronDown aria-hidden className="h-3.5 w-3.5" />
+                        )}
                     </span>
                 </button>
             </div>
@@ -364,7 +368,8 @@ const PostCard = ({
                                 isLoading={isTagSaving}
                                 className="col-start-2 min-h-11! w-full sm:col-start-auto [@media(pointer:fine)]:min-h-10! sm:w-auto"
                                 leftIcon={<Save aria-hidden className="h-4 w-4" />}
-                                onClick={() => onTagSubmit(post.url)}>
+                                onClick={() => onTagSubmit(post.url)}
+                            >
                                 {t({
                                     id: 'settings.posts.tags.save',
                                     message: 'Save tags'
@@ -415,7 +420,8 @@ const PostCard = ({
                                 isLoading={isSeriesSaving}
                                 className="col-start-2 min-h-11! w-full sm:col-start-auto [@media(pointer:fine)]:min-h-10! sm:w-auto"
                                 leftIcon={<Save aria-hidden className="h-4 w-4" />}
-                                onClick={() => onSeriesSubmit(post.url)}>
+                                onClick={() => onSeriesSubmit(post.url)}
+                            >
                                 {t({
                                     id: 'settings.posts.series.save',
                                     message: 'Save series'
@@ -423,7 +429,6 @@ const PostCard = ({
                             </Button>
                         )}
                     </div>
-
                 </div>
             )}
         </div>

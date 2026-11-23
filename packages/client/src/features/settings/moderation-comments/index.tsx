@@ -6,11 +6,7 @@ import { toast } from '~/utils/toast';
 import { useConfirm } from '~/hooks/useConfirm';
 import { Button, Card, Input } from '~/components/shared';
 import { getDocumentTimeZone, normalizeLocale } from '~/i18n/locale';
-import {
-    deleteModeratedComment,
-    getModeratedComments,
-    type ModeratedComment
-} from '~/lib/api/settings';
+import { deleteModeratedComment, getModeratedComments, type ModeratedComment } from '~/lib/api/settings';
 import { SettingsHeader, SettingsPagination } from '../layout';
 import { useModerationPaging, useModerationSearch } from '../shared/useModerationList';
 
@@ -34,7 +30,7 @@ const ModerationCommentsSetting = () => {
             if (response.status === 'DONE') return response.body;
             throw new Error(response.errorMessage || failed);
         },
-        placeholderData: previous => previous
+        placeholderData: (previous) => previous
     });
     const { listRef, goToPage } = useModerationPaging(page, updateSearch, data?.pagination, !isPlaceholderData);
 
@@ -45,10 +41,12 @@ const ModerationCommentsSetting = () => {
                 toast.error(response.errorMessage || failed);
                 return;
             }
-            toast.success(t({
-                id: 'settings.moderation.comments.deleted',
-                message: 'Comment deleted.'
-            }));
+            toast.success(
+                t({
+                    id: 'settings.moderation.comments.deleted',
+                    message: 'Comment deleted.'
+                })
+            );
             void queryClient.invalidateQueries({ queryKey: ['admin-moderated-comments'] });
         },
         onError: () => toast.error(failed)
@@ -62,7 +60,8 @@ const ModerationCommentsSetting = () => {
             }),
             message: i18n._({
                 id: 'settings.moderation.comments.delete_message',
-                message: 'Delete this comment by {author}? Visitors will see it as a deleted comment, and this cannot be undone here.',
+                message:
+                    'Delete this comment by {author}? Visitors will see it as a deleted comment, and this cannot be undone here.',
                 values: { author: comment.author }
             }),
             confirmText: t({
@@ -82,13 +81,14 @@ const ModerationCommentsSetting = () => {
         });
     };
 
-    const formatDate = (value: string | null) => (value
-        ? new Intl.DateTimeFormat(locale, {
-            dateStyle: 'medium',
-            timeStyle: 'short',
-            timeZone: getDocumentTimeZone()
-        }).format(new Date(value))
-        : '-');
+    const formatDate = (value: string | null) =>
+        value
+            ? new Intl.DateTimeFormat(locale, {
+                  dateStyle: 'medium',
+                  timeStyle: 'short',
+                  timeZone: getDocumentTimeZone()
+              }).format(new Date(value))
+            : '-';
     const comments = data?.comments ?? [];
 
     return (
@@ -109,12 +109,17 @@ const ModerationCommentsSetting = () => {
                     id: 'settings.moderation.comments.list_title',
                     message: 'Recent comments'
                 })}
-                subtitle={data ? i18n._({
-                    id: 'settings.moderation.total',
-                    message: '{total} total',
-                    values: { total: data.pagination.total }
-                }) : undefined}
-                icon={<MessageCircle aria-hidden="true" className="h-4 w-4" />}>
+                subtitle={
+                    data
+                        ? i18n._({
+                              id: 'settings.moderation.total',
+                              message: '{total} total',
+                              values: { total: data.pagination.total }
+                          })
+                        : undefined
+                }
+                icon={<MessageCircle aria-hidden="true" className="h-4 w-4" />}
+            >
                 <div className="mb-6 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
                     <Input
                         density="compact"
@@ -143,26 +148,42 @@ const ModerationCommentsSetting = () => {
                     </p>
                 )}
 
-                <div ref={listRef} className="scroll-mt-24 divide-y divide-line overflow-hidden rounded-xl border border-line">
-                    {comments.map(comment => (
-                        <div key={comment.id} className="flex flex-col gap-3 px-4 py-4 lg:flex-row lg:items-start lg:justify-between">
+                <div
+                    ref={listRef}
+                    className="scroll-mt-24 divide-y divide-line overflow-hidden rounded-xl border border-line"
+                >
+                    {comments.map((comment) => (
+                        <div
+                            key={comment.id}
+                            className="flex flex-col gap-3 px-4 py-4 lg:flex-row lg:items-start lg:justify-between"
+                        >
                             <div className="min-w-0 flex-1">
                                 <p className="text-xs text-content-secondary">
                                     <span className="font-semibold text-content">{comment.author}</span>
-                                    {' · '}{formatDate(comment.createdDate)}
+                                    {' · '}
+                                    {formatDate(comment.createdDate)}
                                     {comment.isReply && (
-                                        <>{' · '}<Trans id="settings.moderation.comments.reply">Reply</Trans></>
+                                        <>
+                                            {' · '}
+                                            <Trans id="settings.moderation.comments.reply">Reply</Trans>
+                                        </>
                                     )}
                                     {comment.isEdited && (
-                                        <>{' · '}<Trans id="settings.moderation.comments.edited">Edited</Trans></>
+                                        <>
+                                            {' · '}
+                                            <Trans id="settings.moderation.comments.edited">Edited</Trans>
+                                        </>
                                     )}
                                 </p>
-                                <p className="mt-2 whitespace-pre-wrap break-words text-sm text-content">{comment.excerpt}</p>
+                                <p className="mt-2 whitespace-pre-wrap break-words text-sm text-content">
+                                    {comment.excerpt}
+                                </p>
                                 <a
                                     href={comment.postPath}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="mt-2 inline-flex max-w-full items-center gap-1 text-xs text-content-secondary hover:underline">
+                                    className="mt-2 inline-flex max-w-full items-center gap-1 text-xs text-content-secondary hover:underline"
+                                >
                                     <span className="truncate">{comment.postTitle}</span>
                                     <ExternalLink aria-hidden="true" className="h-3 w-3 shrink-0 text-content-hint" />
                                 </a>
@@ -172,7 +193,8 @@ const ModerationCommentsSetting = () => {
                                 size="sm"
                                 variant="danger"
                                 isLoading={deleteMutation.isPending && deleteMutation.variables?.id === comment.id}
-                                onClick={() => void handleDelete(comment)}>
+                                onClick={() => void handleDelete(comment)}
+                            >
                                 <Trash2 aria-hidden="true" className="h-4 w-4" />
                                 <Trans id="common.delete">Delete</Trans>
                             </Button>
@@ -181,12 +203,17 @@ const ModerationCommentsSetting = () => {
 
                     {isError ? (
                         <div className="px-4 py-8 text-center text-sm text-danger">
-                            <Trans id="settings.moderation.load_failed">Could not load the list. Try again shortly.</Trans>
+                            <Trans id="settings.moderation.load_failed">
+                                Could not load the list. Try again shortly.
+                            </Trans>
                         </div>
-                    ) : data && comments.length === 0 && (
-                        <div className="px-4 py-8 text-center text-sm text-content-secondary">
-                            <Trans id="settings.moderation.comments.empty">No comments match your search.</Trans>
-                        </div>
+                    ) : (
+                        data &&
+                        comments.length === 0 && (
+                            <div className="px-4 py-8 text-center text-sm text-content-secondary">
+                                <Trans id="settings.moderation.comments.empty">No comments match your search.</Trans>
+                            </div>
+                        )
                     )}
                 </div>
 
@@ -198,7 +225,7 @@ const ModerationCommentsSetting = () => {
                             id: 'settings.moderation.comments.pagination_aria',
                             message: 'Comment pages'
                         })}
-                        onPageChange={value => goToPage(Number(value))}
+                        onPageChange={(value) => goToPage(Number(value))}
                     />
                 )}
             </Card>

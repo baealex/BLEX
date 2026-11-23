@@ -54,8 +54,8 @@ const getCsrfToken = () => {
 
     const tokenCookie = document.cookie
         .split(';')
-        .map(cookie => cookie.trim())
-        .find(cookie => cookie.startsWith('csrftoken='));
+        .map((cookie) => cookie.trim())
+        .find((cookie) => cookie.startsWith('csrftoken='));
 
     return tokenCookie ? decodeURIComponent(tokenCookie.split('=')[1]) : '';
 };
@@ -76,10 +76,11 @@ const SlashCommandMenu = ({
     const selectedItemRef = useRef<HTMLDivElement>(null);
     const [virtualAnchor, setVirtualAnchor] = useState<HTMLElement | null>(null);
     const [forms, setForms] = useState<Form[]>([]);
-    const getKeywords = (key: EditorMessageKey) => t(key)
-        .split(',')
-        .map(keyword => keyword.trim())
-        .filter(Boolean);
+    const getKeywords = (key: EditorMessageKey) =>
+        t(key)
+            .split(',')
+            .map((keyword) => keyword.trim())
+            .filter(Boolean);
 
     // 서식 목록 불러오기
     useEffect(() => {
@@ -213,11 +214,16 @@ const SlashCommandMenu = ({
             icon: Table,
             keywords: getKeywords('slash.table.keywords'),
             category: t('slash.category.block'),
-            action: (editor) => editor.chain().focus().insertTable({
-                rows: 3,
-                cols: 3,
-                withHeaderRow: true
-            }).run()
+            action: (editor) =>
+                editor
+                    .chain()
+                    .focus()
+                    .insertTable({
+                        rows: 3,
+                        cols: 3,
+                        withHeaderRow: true
+                    })
+                    .run()
         },
         {
             id: 'divider',
@@ -276,15 +282,12 @@ const SlashCommandMenu = ({
     ];
 
     // 서식 항목 동적 생성
-    const formItems: CommandItem[] = forms.map(form => ({
+    const formItems: CommandItem[] = forms.map((form) => ({
         id: `form-${form.id}`,
         title: form.title,
         description: t('slash.template.description'),
         icon: FileText,
-        keywords: [
-            ...getKeywords('slash.template.keywords'),
-            form.title.toLowerCase()
-        ],
+        keywords: [...getKeywords('slash.template.keywords'), form.title.toLowerCase()],
         category: t('slash.category.template'),
         action: (editor) => {
             void editor;
@@ -294,19 +297,21 @@ const SlashCommandMenu = ({
 
     const allCommandItems = [...commandItems, ...formItems];
 
-    const filteredCommands = allCommandItems.filter(item => {
+    const filteredCommands = allCommandItems.filter((item) => {
         if (!searchTerm) return true;
         const term = searchTerm.toLowerCase();
-        return item.title.toLowerCase().includes(term) ||
+        return (
+            item.title.toLowerCase().includes(term) ||
             item.description.toLowerCase().includes(term) ||
-            item.keywords.some(keyword => keyword.toLowerCase().includes(term));
+            item.keywords.some((keyword) => keyword.toLowerCase().includes(term))
+        );
     });
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         switch (e.key) {
             case 'ArrowDown':
                 e.preventDefault();
-                setSelectedIndex(prev => {
+                setSelectedIndex((prev) => {
                     const newIndex = Math.min(prev + 1, filteredCommands.length - 1);
                     setTimeout(() => {
                         selectedItemRef.current?.scrollIntoView({
@@ -319,7 +324,7 @@ const SlashCommandMenu = ({
                 break;
             case 'ArrowUp':
                 e.preventDefault();
-                setSelectedIndex(prev => {
+                setSelectedIndex((prev) => {
                     const newIndex = Math.max(prev - 1, 0);
                     setTimeout(() => {
                         selectedItemRef.current?.scrollIntoView({
@@ -414,7 +419,8 @@ const SlashCommandMenu = ({
                     onCloseAutoFocus={(e) => e.preventDefault()}
                     align="start"
                     side="bottom"
-                    sideOffset={5}>
+                    sideOffset={5}
+                >
                     <div className="p-2 border-b border-gray-100">
                         <input
                             ref={inputRef}
@@ -442,19 +448,17 @@ const SlashCommandMenu = ({
                                         )}
                                         <div
                                             ref={index === selectedIndex ? selectedItemRef : null}
-                                            className={`w-full px-3 py-2 text-left hover:bg-gray-50 flex items-center gap-3 cursor-pointer ${index === selectedIndex ? 'bg-gray-50' : ''
-                                                }`}
-                                            onClick={() => handleCommandClick(item)}>
+                                            className={`w-full px-3 py-2 text-left hover:bg-gray-50 flex items-center gap-3 cursor-pointer ${
+                                                index === selectedIndex ? 'bg-gray-50' : ''
+                                            }`}
+                                            onClick={() => handleCommandClick(item)}
+                                        >
                                             <div className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded">
                                                 <InlineIcon icon={item.icon} className="text-sm text-gray-600" />
                                             </div>
                                             <div>
-                                                <div className="text-sm font-medium text-gray-900">
-                                                    {item.title}
-                                                </div>
-                                                <div className="text-xs text-gray-500">
-                                                    {item.description}
-                                                </div>
+                                                <div className="text-sm font-medium text-gray-900">{item.title}</div>
+                                                <div className="text-xs text-gray-500">{item.description}</div>
                                             </div>
                                         </div>
                                     </React.Fragment>

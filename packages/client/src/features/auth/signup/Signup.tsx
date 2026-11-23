@@ -3,13 +3,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import SocialLogin from '~/features/auth/social-login';
 import { useResolvedTheme } from '~/hooks/useResolvedTheme';
 import { getBrowserTimeZone } from '~/i18n/locale';
-import {
-    InlineIcon,
-    AlertCircle,
-    AlertTriangle,
-    UserPlus,
-    Loader2
-} from '~/ui/icons';
+import { InlineIcon, AlertCircle, AlertTriangle, UserPlus, Loader2 } from '~/ui/icons';
 
 declare global {
     interface Window {
@@ -86,23 +80,23 @@ const Signup = () => {
     const passwordStrength = getPasswordStrength(password);
     const passwordStrengthLabel = passwordStrength
         ? {
-            tooShort: t({
-                id: 'auth.signup.password_strength.too_short',
-                message: 'Too short'
-            }),
-            weak: t({
-                id: 'auth.signup.password_strength.weak',
-                message: 'Weak'
-            }),
-            fair: t({
-                id: 'auth.signup.password_strength.fair',
-                message: 'Fair'
-            }),
-            strong: t({
-                id: 'auth.signup.password_strength.strong',
-                message: 'Strong'
-            })
-        }[passwordStrength.level]
+              tooShort: t({
+                  id: 'auth.signup.password_strength.too_short',
+                  message: 'Too short'
+              }),
+              weak: t({
+                  id: 'auth.signup.password_strength.weak',
+                  message: 'Weak'
+              }),
+              fair: t({
+                  id: 'auth.signup.password_strength.fair',
+                  message: 'Fair'
+              }),
+              strong: t({
+                  id: 'auth.signup.password_strength.strong',
+                  message: 'Strong'
+              })
+          }[passwordStrength.level]
         : '';
 
     const captchaRef = useRef<HTMLDivElement>(null);
@@ -176,68 +170,88 @@ const Signup = () => {
 
         let hasError = false;
         if (!username.trim()) {
-            setUsernameError(t({
-                id: 'auth.validation.username_required',
-                message: 'Username is required.'
-            }));
+            setUsernameError(
+                t({
+                    id: 'auth.validation.username_required',
+                    message: 'Username is required.'
+                })
+            );
             hasError = true;
         } else if (!/^[a-z0-9]+$/.test(username)) {
-            setUsernameError(t({
-                id: 'auth.validation.username_characters',
-                message: 'Use only lowercase letters and numbers.'
-            }));
+            setUsernameError(
+                t({
+                    id: 'auth.validation.username_characters',
+                    message: 'Use only lowercase letters and numbers.'
+                })
+            );
             hasError = true;
         } else if (username.length < 4 || username.length > 15) {
-            setUsernameError(t({
-                id: 'auth.validation.username_length',
-                message: 'Username must be 4–15 lowercase letters or numbers.'
-            }));
+            setUsernameError(
+                t({
+                    id: 'auth.validation.username_length',
+                    message: 'Username must be 4–15 lowercase letters or numbers.'
+                })
+            );
             hasError = true;
         }
         if (!name.trim()) {
-            setNameError(t({
-                id: 'auth.validation.display_name_required',
-                message: 'Display name is required.'
-            }));
+            setNameError(
+                t({
+                    id: 'auth.validation.display_name_required',
+                    message: 'Display name is required.'
+                })
+            );
             hasError = true;
         }
         if (!email.trim()) {
-            setEmailError(t({
-                id: 'auth.validation.email_required',
-                message: 'Email is required.'
-            }));
+            setEmailError(
+                t({
+                    id: 'auth.validation.email_required',
+                    message: 'Email is required.'
+                })
+            );
             hasError = true;
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            setEmailError(t({
-                id: 'auth.validation.email_invalid',
-                message: 'Enter a valid email address.'
-            }));
+            setEmailError(
+                t({
+                    id: 'auth.validation.email_invalid',
+                    message: 'Enter a valid email address.'
+                })
+            );
             hasError = true;
         }
         if (!password) {
-            setPasswordError(t({
-                id: 'auth.validation.password_required',
-                message: 'Password is required.'
-            }));
+            setPasswordError(
+                t({
+                    id: 'auth.validation.password_required',
+                    message: 'Password is required.'
+                })
+            );
             hasError = true;
         } else if (password.length < 8) {
-            setPasswordError(t({
-                id: 'auth.validation.password_too_short',
-                message: 'Password must be at least 8 characters.'
-            }));
+            setPasswordError(
+                t({
+                    id: 'auth.validation.password_too_short',
+                    message: 'Password must be at least 8 characters.'
+                })
+            );
             hasError = true;
         }
         if (!confirmPassword) {
-            setConfirmPasswordError(t({
-                id: 'auth.validation.confirm_password_required',
-                message: 'Confirm your password.'
-            }));
+            setConfirmPasswordError(
+                t({
+                    id: 'auth.validation.confirm_password_required',
+                    message: 'Confirm your password.'
+                })
+            );
             hasError = true;
         } else if (password !== confirmPassword) {
-            setConfirmPasswordError(t({
-                id: 'auth.validation.password_mismatch',
-                message: 'Passwords do not match.'
-            }));
+            setConfirmPasswordError(
+                t({
+                    id: 'auth.validation.password_mismatch',
+                    message: 'Passwords do not match.'
+                })
+            );
             hasError = true;
         }
 
@@ -246,10 +260,12 @@ const Signup = () => {
         }
 
         if (window.HCAPTCHA_SITE_KEY && !captchaToken) {
-            setSignupError(t({
-                id: 'auth.signup.complete_security_check',
-                message: 'Complete the security check.'
-            }));
+            setSignupError(
+                t({
+                    id: 'auth.signup.complete_security_check',
+                    message: 'Complete the security check.'
+                })
+            );
             return;
         }
 
@@ -257,11 +273,11 @@ const Signup = () => {
 
         try {
             const formData = new URLSearchParams({
-                'username': username,
-                'name': name,
-                'email': email,
-                'password': password,
-                'timeZone': getBrowserTimeZone() || ''
+                username: username,
+                name: name,
+                email: email,
+                password: password,
+                timeZone: getBrowserTimeZone() || ''
             });
 
             if (window.INVITE_CODE) {
@@ -285,16 +301,21 @@ const Signup = () => {
             if (data.status === 'DONE') {
                 window.location.assign(window.NEXT_URL || '/');
             } else {
-                setSignupError(data.errorMessage || t({
-                    id: 'auth.signup.failed',
-                    message: 'Could not create your account.'
-                }));
+                setSignupError(
+                    data.errorMessage ||
+                        t({
+                            id: 'auth.signup.failed',
+                            message: 'Could not create your account.'
+                        })
+                );
             }
         } catch {
-            setSignupError(t({
-                id: 'common.error.try_again',
-                message: 'Something went wrong. Please try again.'
-            }));
+            setSignupError(
+                t({
+                    id: 'common.error.try_again',
+                    message: 'Something went wrong. Please try again.'
+                })
+            );
         } finally {
             setIsLoading(false);
         }
@@ -304,7 +325,9 @@ const Signup = () => {
     const isInviteSignup = Boolean(window.INVITE_CODE);
 
     return (
-        <div className={`w-[420px] max-w-[90vw] transition-all duration-700 ease-out transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+        <div
+            className={`w-[420px] max-w-[90vw] transition-all duration-700 ease-out transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+        >
             {/* Logo & Title */}
             <div className="text-center mb-8">
                 <div className="mx-auto h-16 w-16 bg-action rounded-2xl flex items-center justify-center mb-6 shadow-floating ring-1 ring-line/20">
@@ -338,7 +361,10 @@ const Signup = () => {
 
                         <div className="space-y-4">
                             <div>
-                                <label htmlFor="username" className="block text-xs font-semibold text-content-secondary mb-1.5 uppercase tracking-wide">
+                                <label
+                                    htmlFor="username"
+                                    className="block text-xs font-semibold text-content-secondary mb-1.5 uppercase tracking-wide"
+                                >
                                     <Trans id="auth.fields.username">Username</Trans>
                                 </label>
                                 <input
@@ -354,15 +380,19 @@ const Signup = () => {
                                         const val = e.target.value;
                                         setUsername(val);
                                         if (val && !/^[a-z0-9]*$/.test(val)) {
-                                            setUsernameError(t({
-                                                id: 'auth.validation.username_characters',
-                                                message: 'Use only lowercase letters and numbers.'
-                                            }));
+                                            setUsernameError(
+                                                t({
+                                                    id: 'auth.validation.username_characters',
+                                                    message: 'Use only lowercase letters and numbers.'
+                                                })
+                                            );
                                         } else if (val.length > 15) {
-                                            setUsernameError(t({
-                                                id: 'auth.validation.username_too_long',
-                                                message: 'Username cannot exceed 15 characters.'
-                                            }));
+                                            setUsernameError(
+                                                t({
+                                                    id: 'auth.validation.username_too_long',
+                                                    message: 'Username cannot exceed 15 characters.'
+                                                })
+                                            );
                                         } else {
                                             setUsernameError('');
                                         }
@@ -373,16 +403,30 @@ const Signup = () => {
                                         message: '4–15 lowercase letters or numbers'
                                     })}
                                 />
-                                {usernameError && <p id="signup-username-help" role="alert" className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><InlineIcon icon={AlertCircle} /> {usernameError}</p>}
+                                {usernameError && (
+                                    <p
+                                        id="signup-username-help"
+                                        role="alert"
+                                        className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"
+                                    >
+                                        <InlineIcon icon={AlertCircle} /> {usernameError}
+                                    </p>
+                                )}
                                 {!usernameError && (
-                                    <p id="signup-username-help" className="text-content-hint text-xs mt-1.5 font-medium">
+                                    <p
+                                        id="signup-username-help"
+                                        className="text-content-hint text-xs mt-1.5 font-medium"
+                                    >
                                         <Trans id="auth.fields.username_hint">4–15 lowercase letters or numbers</Trans>
                                     </p>
                                 )}
                             </div>
 
                             <div>
-                                <label htmlFor="name" className="block text-xs font-semibold text-content-secondary mb-1.5 uppercase tracking-wide">
+                                <label
+                                    htmlFor="name"
+                                    className="block text-xs font-semibold text-content-secondary mb-1.5 uppercase tracking-wide"
+                                >
                                     <Trans id="auth.fields.display_name">Display name</Trans>
                                 </label>
                                 <input
@@ -401,11 +445,22 @@ const Signup = () => {
                                         message: 'Enter your display name'
                                     })}
                                 />
-                                {nameError && <p id="signup-name-error" role="alert" className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><InlineIcon icon={AlertCircle} /> {nameError}</p>}
+                                {nameError && (
+                                    <p
+                                        id="signup-name-error"
+                                        role="alert"
+                                        className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"
+                                    >
+                                        <InlineIcon icon={AlertCircle} /> {nameError}
+                                    </p>
+                                )}
                             </div>
 
                             <div>
-                                <label htmlFor="email" className="block text-xs font-semibold text-content-secondary mb-1.5 uppercase tracking-wide">
+                                <label
+                                    htmlFor="email"
+                                    className="block text-xs font-semibold text-content-secondary mb-1.5 uppercase tracking-wide"
+                                >
                                     <Trans id="auth.fields.email">Email</Trans>
                                 </label>
                                 <input
@@ -424,11 +479,22 @@ const Signup = () => {
                                         message: 'Enter your email address'
                                     })}
                                 />
-                                {emailError && <p id="signup-email-error" role="alert" className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><InlineIcon icon={AlertCircle} /> {emailError}</p>}
+                                {emailError && (
+                                    <p
+                                        id="signup-email-error"
+                                        role="alert"
+                                        className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"
+                                    >
+                                        <InlineIcon icon={AlertCircle} /> {emailError}
+                                    </p>
+                                )}
                             </div>
 
                             <div>
-                                <label htmlFor="password" className="block text-xs font-semibold text-content-secondary mb-1.5 uppercase tracking-wide">
+                                <label
+                                    htmlFor="password"
+                                    className="block text-xs font-semibold text-content-secondary mb-1.5 uppercase tracking-wide"
+                                >
                                     <Trans id="auth.fields.password">Password</Trans>
                                 </label>
                                 <input
@@ -439,16 +505,20 @@ const Signup = () => {
                                     required
                                     minLength={8}
                                     aria-invalid={Boolean(passwordError)}
-                                    aria-describedby={passwordError || passwordStrength ? 'signup-password-help' : undefined}
+                                    aria-describedby={
+                                        passwordError || passwordStrength ? 'signup-password-help' : undefined
+                                    }
                                     value={password}
                                     onChange={(e) => {
                                         const val = e.target.value;
                                         setPassword(val);
                                         if (confirmPassword && val !== confirmPassword) {
-                                            setConfirmPasswordError(t({
-                                                id: 'auth.validation.password_mismatch',
-                                                message: 'Passwords do not match.'
-                                            }));
+                                            setConfirmPasswordError(
+                                                t({
+                                                    id: 'auth.validation.password_mismatch',
+                                                    message: 'Passwords do not match.'
+                                                })
+                                            );
                                         } else if (confirmPassword) {
                                             setConfirmPasswordError('');
                                         }
@@ -459,9 +529,21 @@ const Signup = () => {
                                         message: 'Enter a secure password'
                                     })}
                                 />
-                                {passwordError && <p id="signup-password-help" role="alert" className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><InlineIcon icon={AlertCircle} /> {passwordError}</p>}
+                                {passwordError && (
+                                    <p
+                                        id="signup-password-help"
+                                        role="alert"
+                                        className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"
+                                    >
+                                        <InlineIcon icon={AlertCircle} /> {passwordError}
+                                    </p>
+                                )}
                                 {!passwordError && passwordStrength && (
-                                    <p id="signup-password-help" aria-live="polite" className={`text-xs mt-1.5 font-medium ${passwordStrength.color}`}>
+                                    <p
+                                        id="signup-password-help"
+                                        aria-live="polite"
+                                        className={`text-xs mt-1.5 font-medium ${passwordStrength.color}`}
+                                    >
                                         <Trans id="auth.signup.password_strength">
                                             Password strength: {passwordStrengthLabel}
                                         </Trans>
@@ -470,7 +552,10 @@ const Signup = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="confirm-password" className="block text-xs font-semibold text-content-secondary mb-1.5 uppercase tracking-wide">
+                                <label
+                                    htmlFor="confirm-password"
+                                    className="block text-xs font-semibold text-content-secondary mb-1.5 uppercase tracking-wide"
+                                >
                                     <Trans id="auth.fields.confirm_password">Confirm password</Trans>
                                 </label>
                                 <input
@@ -480,16 +565,20 @@ const Signup = () => {
                                     autoComplete="new-password"
                                     required
                                     aria-invalid={Boolean(confirmPasswordError)}
-                                    aria-describedby={confirmPasswordError ? 'signup-confirm-password-error' : undefined}
+                                    aria-describedby={
+                                        confirmPasswordError ? 'signup-confirm-password-error' : undefined
+                                    }
                                     value={confirmPassword}
                                     onChange={(e) => {
                                         const val = e.target.value;
                                         setConfirmPassword(val);
                                         if (val && password && val !== password) {
-                                            setConfirmPasswordError(t({
-                                                id: 'auth.validation.password_mismatch',
-                                                message: 'Passwords do not match.'
-                                            }));
+                                            setConfirmPasswordError(
+                                                t({
+                                                    id: 'auth.validation.password_mismatch',
+                                                    message: 'Passwords do not match.'
+                                                })
+                                            );
                                         } else {
                                             setConfirmPasswordError('');
                                         }
@@ -500,7 +589,15 @@ const Signup = () => {
                                         message: 'Enter your password again'
                                     })}
                                 />
-                                {confirmPasswordError && <p id="signup-confirm-password-error" role="alert" className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><InlineIcon icon={AlertCircle} /> {confirmPasswordError}</p>}
+                                {confirmPasswordError && (
+                                    <p
+                                        id="signup-confirm-password-error"
+                                        role="alert"
+                                        className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"
+                                    >
+                                        <InlineIcon icon={AlertCircle} /> {confirmPasswordError}
+                                    </p>
+                                )}
                             </div>
                         </div>
 
@@ -512,7 +609,10 @@ const Signup = () => {
                         )}
 
                         {signupError && (
-                            <div role="alert" className="bg-danger-surface border border-danger-line rounded-xl p-4 flex items-center gap-3">
+                            <div
+                                role="alert"
+                                className="bg-danger-surface border border-danger-line rounded-xl p-4 flex items-center gap-3"
+                            >
                                 <InlineIcon icon={AlertTriangle} className="text-danger" />
                                 <p className="text-danger text-sm font-medium">{signupError}</p>
                             </div>
@@ -521,18 +621,22 @@ const Signup = () => {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full flex items-center justify-center py-3.5 px-6 bg-action hover:bg-action-hover text-content-inverted font-semibold rounded-lg shadow-floating hover:shadow-floating hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm">
+                            className="w-full flex items-center justify-center py-3.5 px-6 bg-action hover:bg-action-hover text-content-inverted font-semibold rounded-lg shadow-floating hover:shadow-floating hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm"
+                        >
                             {isLoading ? (
                                 <>
-                                    <Loader2 aria-hidden="true" className="animate-spin -ml-1 mr-2 h-4 w-4 text-content-inverted" />
-                                    <span><Trans id="common.processing">Processing...</Trans></span>
+                                    <Loader2
+                                        aria-hidden="true"
+                                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-content-inverted"
+                                    />
+                                    <span>
+                                        <Trans id="common.processing">Processing...</Trans>
+                                    </span>
                                 </>
+                            ) : isInviteSignup ? (
+                                <Trans id="auth.signup.as_author">Sign up as an author</Trans>
                             ) : (
-                                isInviteSignup ? (
-                                    <Trans id="auth.signup.as_author">Sign up as an author</Trans>
-                                ) : (
-                                    <Trans id="auth.signup.as_reader">Sign up as a reader</Trans>
-                                )
+                                <Trans id="auth.signup.as_reader">Sign up as a reader</Trans>
                             )}
                         </button>
                     </form>
@@ -541,7 +645,10 @@ const Signup = () => {
                     <div className="text-center pt-6 border-t border-line-light/50">
                         <p className="text-sm text-content-secondary font-medium">
                             <Trans id="auth.signup.already_have_account">Already have an account?</Trans>
-                            <a href={`/login${nextUrl ? '?next=' + encodeURIComponent(nextUrl) : ''}`} className="font-bold text-content hover:text-content transition-colors duration-200 ml-1 underline decoration-2 underline-offset-2">
+                            <a
+                                href={`/login${nextUrl ? '?next=' + encodeURIComponent(nextUrl) : ''}`}
+                                className="font-bold text-content hover:text-content transition-colors duration-200 ml-1 underline decoration-2 underline-offset-2"
+                            >
                                 <Trans id="auth.login.title">Log in</Trans>
                             </a>
                         </p>

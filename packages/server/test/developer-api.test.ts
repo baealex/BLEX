@@ -35,15 +35,27 @@ ${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', '
 `);
 createMigratedTables(database, 'DeveloperToken');
 
-function insertToken(id: number, prefix: string, userId: number, scopes: string[], options: {
-  revokedAt?: number;
-  expiresAt?: number;
-} = {}) {
+function insertToken(
+  id: number,
+  prefix: string,
+  userId: number,
+  scopes: string[],
+  options: {
+    revokedAt?: number;
+    expiresAt?: number;
+  } = {},
+) {
   const rawToken = `blex_pat_${prefix}_test-secret`;
   const tokenHash = createHash('sha256').update(rawToken, 'utf8').digest('hex');
   insertRow(database, 'DeveloperToken', {
-    id, name: `Token ${id}`, tokenPrefix: prefix, tokenHash, scopes: JSON.stringify(scopes),
-    expiresAt: options.expiresAt ?? null, revokedAt: options.revokedAt ?? null, userId,
+    id,
+    name: `Token ${id}`,
+    tokenPrefix: prefix,
+    tokenHash,
+    scopes: JSON.stringify(scopes),
+    expiresAt: options.expiresAt ?? null,
+    revokedAt: options.revokedAt ?? null,
+    userId,
   });
   return rawToken;
 }
@@ -127,10 +139,17 @@ test('returns the legacy account and token schema without requiring a read scope
   assert.deepEqual(response.json(), {
     data: {
       user: {
-        id: 1, username: 'writer', name: 'Writer', email: 'writer@example.test', is_editor: true,
+        id: 1,
+        username: 'writer',
+        name: 'Writer',
+        email: 'writer@example.test',
+        is_editor: true,
       },
       token: {
-        id: 2, name: 'Token 2', token_prefix: 'scope00000001', scopes: [],
+        id: 2,
+        name: 'Token 2',
+        token_prefix: 'scope00000001',
+        scopes: [],
       },
     },
   });
@@ -156,7 +175,9 @@ test('rejects missing, malformed, unknown, revoked, expired, inactive, and non-e
   }
 
   const wrongScheme = await app.inject({
-    method: 'GET', url: '/api/developer/v1/me', headers: { authorization: `Basic ${readToken}` },
+    method: 'GET',
+    url: '/api/developer/v1/me',
+    headers: { authorization: `Basic ${readToken}` },
   });
   assert.equal(wrongScheme.statusCode, 401);
   assert.equal(wrongScheme.json().error.code, 'auth.missing_token');
@@ -166,14 +187,19 @@ test('lists only the token owner’s posts with legacy fields, ordering, paginat
   const response = await get('/api/developer/v1/posts?status=published', readToken);
   assert.equal(response.statusCode, 200, response.body);
   assert.deepEqual(response.json().data.pagination, { page: 1, limit: 20, total: 2 });
-  assert.deepEqual(response.json().data.posts.map((item: { id: number }) => item.id), [3, 8]);
+  assert.deepEqual(
+    response.json().data.posts.map((item: { id: number }) => item.id),
+    [3, 8],
+  );
   const [post] = response.json().data.posts;
   assert.equal(post.id, 3);
   assert.equal(post.status, 'published');
   assert.equal(post.public_url, '/@writer/public');
   assert.deepEqual(post.tags, ['api', 'shared']);
   assert.deepEqual(post.series, {
-    id: 10, name: 'Writer Series', url: 'writer-series',
+    id: 10,
+    name: 'Writer Series',
+    url: 'writer-series',
   });
   assert.equal(post.is_hidden, false);
   assert.equal(post.cover_layout, 'default');
@@ -186,7 +212,10 @@ test('lists only the token owner’s posts with legacy fields, ordering, paginat
   assert.equal(drafts.json().data.posts[0].status, 'draft');
 
   const hidden = await get('/api/developer/v1/posts?status=hidden', readToken);
-  assert.deepEqual(hidden.json().data.posts.map((item: { id: number }) => item.id), [4]);
+  assert.deepEqual(
+    hidden.json().data.posts.map((item: { id: number }) => item.id),
+    [4],
+  );
 
   const clamped = await get('/api/developer/v1/posts?page=0&limit=500', readToken);
   assert.equal(clamped.statusCode, 200, clamped.body);
@@ -195,7 +224,10 @@ test('lists only the token owner’s posts with legacy fields, ordering, paginat
 });
 
 test('search filters by case-insensitive content, tags, status, and series with OR tag matching', async () => {
-  const found = await get('/api/developer/v1/posts/search?q=NEEDLE&tag=missing,shared&status=draft&series_id=10', readToken);
+  const found = await get(
+    '/api/developer/v1/posts/search?q=NEEDLE&tag=missing,shared&status=draft&series_id=10',
+    readToken,
+  );
   assert.equal(found.statusCode, 200, found.body);
   assert.deepEqual(found.json().data.pagination, { page: 1, limit: 20, total: 1 });
   assert.equal(found.json().data.posts[0].id, 1);
@@ -242,7 +274,11 @@ test('returns post details to the owner, including draft content, and hides cros
 
   const otherOwner = await get('/api/developer/v1/posts/2', readToken);
   assert.equal(otherOwner.statusCode, 404);
-  assert.deepEqual(otherOwner.json().error, { code: 'post.not_found', message: '포스트를 찾을 수 없습니다.', fields: null });
+  assert.deepEqual(otherOwner.json().error, {
+    code: 'post.not_found',
+    message: '포스트를 찾을 수 없습니다.',
+    fields: null,
+  });
 
   const missing = await get('/api/developer/v1/posts/999', readToken);
   assert.equal(missing.statusCode, 404);
@@ -263,16 +299,18 @@ test('lists only owned non-trashed tags and series with matching post counts', a
 
   const series = await get('/api/developer/v1/series', readToken);
   assert.equal(series.statusCode, 200, series.body);
-  assert.deepEqual(series.json().data.series, [{
-    id: 10,
-    name: 'Writer Series',
-    url: 'writer-series',
-    description: 'A series description',
-    is_hidden: true,
-    post_count: 2,
-    created_at: '2020-01-02T03:04:05+00:00',
-    updated_at: '2020-02-03T04:05:06+00:00',
-  }]);
+  assert.deepEqual(series.json().data.series, [
+    {
+      id: 10,
+      name: 'Writer Series',
+      url: 'writer-series',
+      description: 'A series description',
+      is_hidden: true,
+      post_count: 2,
+      created_at: '2020-01-02T03:04:05+00:00',
+      updated_at: '2020-02-03T04:05:06+00:00',
+    },
+  ]);
 });
 
 test('requires posts:read on every read route except /me', async () => {

@@ -15,7 +15,9 @@ export interface EditorForm {
 }
 
 export function isMultipartRequest(request: FastifyRequest): boolean {
-  return String(request.headers['content-type'] ?? '').toLowerCase().startsWith('multipart/form-data');
+  return String(request.headers['content-type'] ?? '')
+    .toLowerCase()
+    .startsWith('multipart/form-data');
 }
 
 export async function readEditorForm(request: FastifyRequest): Promise<EditorForm> {
@@ -39,7 +41,12 @@ export async function readEditorForm(request: FastifyRequest): Promise<EditorFor
 }
 
 /** Maps the editor's series id and cover file onto the fields the save path understands. */
-export async function prepareEditorFields(db: PrismaClient, options: AuthoringOptions, account: UserRow, form: EditorForm): Promise<string | null> {
+export async function prepareEditorFields(
+  db: PrismaClient,
+  options: AuthoringOptions,
+  account: UserRow,
+  form: EditorForm,
+): Promise<string | null> {
   if (form.uploadError) return form.uploadError;
   const { body, image } = form;
   if (Object.hasOwn(body, 'series') && Object.hasOwn(body, 'contentHtml') && !Object.hasOwn(body, 'textMd')) {
@@ -64,6 +71,10 @@ export async function prepareEditorFields(db: PrismaClient, options: AuthoringOp
   return null;
 }
 
-export async function editorKeepsOriginalTags(db: PrismaClient, post: StoredPost, body: Record<string, unknown>): Promise<boolean> {
+export async function editorKeepsOriginalTags(
+  db: PrismaClient,
+  post: StoredPost,
+  body: Record<string, unknown>,
+): Promise<boolean> {
   return Object.hasOwn(body, 'tag') && field(body.tag) === (await postTags(db, post.id)).join(', ');
 }

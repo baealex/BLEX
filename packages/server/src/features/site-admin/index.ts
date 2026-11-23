@@ -21,7 +21,8 @@ export function registerAdminSettings(app: FastifyInstance, db: PrismaClient, op
       limits: { files: 16, fields: 4, parts: 20, fileSize: BRAND_ICO_MAX_BYTES, fieldSize: 16 * 1024 },
     });
     routes.addHook('onRequest', async (_request, reply) => {
-      reply.header('Cache-Control', 'private, no-store')
+      reply
+        .header('Cache-Control', 'private, no-store')
         .header('X-Robots-Tag', 'noindex, nofollow, noarchive')
         .header('Referrer-Policy', 'same-origin');
     });

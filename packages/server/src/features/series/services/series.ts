@@ -21,9 +21,12 @@ function currentSecond(): Date {
 }
 
 function normalizeSlug(value: string): string {
-  return value.normalize('NFKC').toLowerCase()
+  return value
+    .normalize('NFKC')
+    .toLowerCase()
     .replace(/[^\p{L}\p{N}_\s-]/gu, '')
-    .trim().replace(/[\s-]+/g, '-')
+    .trim()
+    .replace(/[\s-]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 50);
 }
@@ -64,15 +67,30 @@ export async function readSeriesRows(db: PrismaClient, ownerId: number, countKin
     where: { ownerId },
     orderBy: [{ order: 'asc' }, { id: 'desc' }],
     select: {
-      id: true, slug: true, name: true, order: true, descriptionMarkdown: true, createdAt: true,
+      id: true,
+      slug: true,
+      name: true,
+      order: true,
+      descriptionMarkdown: true,
+      createdAt: true,
       _count: { select: activePosts },
     },
   });
-  const publicCounts = countKind === 'public' ? await countPublicPosts(db, rows.map(({ id }) => id)) : null;
+  const publicCounts =
+    countKind === 'public'
+      ? await countPublicPosts(
+          db,
+          rows.map(({ id }) => id),
+        )
+      : null;
   return rows.map((row) => ({
-    id: row.id, url: row.slug, name: row.name, order: row.order, description: row.descriptionMarkdown,
+    id: row.id,
+    url: row.slug,
+    name: row.name,
+    order: row.order,
+    description: row.descriptionMarkdown,
     createdDate: storedDateText(row.createdAt),
-    totalPosts: publicCounts ? publicCounts.get(row.id) ?? 0 : row._count.posts,
+    totalPosts: publicCounts ? (publicCounts.get(row.id) ?? 0) : row._count.posts,
   }));
 }
 
@@ -80,23 +98,41 @@ export async function readSeriesById(db: PrismaClient, ownerId: number, id: numb
   const row = await db.series.findFirst({
     where: { id, ownerId },
     select: {
-      id: true, slug: true, name: true, order: true, descriptionMarkdown: true, createdAt: true,
+      id: true,
+      slug: true,
+      name: true,
+      order: true,
+      descriptionMarkdown: true,
+      createdAt: true,
       _count: { select: activePosts },
     },
   });
   if (!row) return null;
   return {
-    id: row.id, url: row.slug, name: row.name, order: row.order, totalPosts: row._count.posts,
-    description: row.descriptionMarkdown, createdDate: storedDateText(row.createdAt),
+    id: row.id,
+    url: row.slug,
+    name: row.name,
+    order: row.order,
+    totalPosts: row._count.posts,
+    description: row.descriptionMarkdown,
+    createdDate: storedDateText(row.createdAt),
   };
 }
 
 export async function readSeriesPostIds(db: PrismaClient, ownerId: number, seriesId: number): Promise<number[]> {
-  const rows = await db.post.findMany({ where: { authorId: ownerId, seriesId }, orderBy: { id: 'asc' }, select: { id: true } });
+  const rows = await db.post.findMany({
+    where: { authorId: ownerId, seriesId },
+    orderBy: { id: 'asc' },
+    select: { id: true },
+  });
   return rows.map(({ id }) => id);
 }
 
-export async function readAvailableSeriesPosts(db: PrismaClient, ownerId: number, seriesId?: number): Promise<SeriesPostOption[]> {
+export async function readAvailableSeriesPosts(
+  db: PrismaClient,
+  ownerId: number,
+  seriesId?: number,
+): Promise<SeriesPostOption[]> {
   const unassigned = { seriesId: null, ...publicPostWhere() };
   const rows = await db.post.findMany({
     where: { authorId: ownerId, ...(seriesId === undefined ? unassigned : { OR: [{ seriesId }, unassigned] }) },
@@ -126,7 +162,8 @@ export async function saveSeries(
   const name = input.name?.trim() ?? '';
   const description = input.description?.trim();
   if (input.name !== undefined && (!name || name.length > 50)) throw { code: 'RE', message: 'Enter a series name.' };
-  if (description !== undefined && description.length > MAX_SERIES_DESCRIPTION) throw { code: 'VA', message: 'Series description must be 500 characters or fewer.' };
+  if (description !== undefined && description.length > MAX_SERIES_DESCRIPTION)
+    throw { code: 'VA', message: 'Series description must be 500 characters or fewer.' };
   let requestedUrl = input.url;
   const customUrl = requestedUrl !== undefined && Boolean(requestedUrl.trim());
   if (seriesId === undefined) {
@@ -149,8 +186,14 @@ export async function saveSeries(
         const now = currentSecond();
         const created = await tx.series.create({
           data: {
-            ownerId, slug: url, name: finalName, descriptionMarkdown: finalDescription,
-            descriptionHtml: sanitizePostHtml(finalDescription), layout: 'list', createdAt: now, updatedAt: now,
+            ownerId,
+            slug: url,
+            name: finalName,
+            descriptionMarkdown: finalDescription,
+            descriptionHtml: sanitizePostHtml(finalDescription),
+            layout: 'list',
+            createdAt: now,
+            updatedAt: now,
           },
           select: { id: true },
         });
@@ -171,7 +214,10 @@ export async function saveSeries(
         await tx.series.updateMany({
           where: { id, ownerId },
           data: {
-            name: finalName, slug: url, descriptionMarkdown: finalDescription, descriptionHtml: sanitizePostHtml(finalDescription),
+            name: finalName,
+            slug: url,
+            descriptionMarkdown: finalDescription,
+            descriptionHtml: sanitizePostHtml(finalDescription),
             updatedAt: currentSecond(),
           },
         });
@@ -191,7 +237,13 @@ export async function saveSeries(
         where: { id, ownerId },
         select: { id: true, slug: true, name: true, descriptionMarkdown: true, _count: { select: activePosts } },
       });
-      return { id: saved.id, url: saved.slug, name: saved.name, description: saved.descriptionMarkdown, postCount: saved._count.posts };
+      return {
+        id: saved.id,
+        url: saved.slug,
+        name: saved.name,
+        description: saved.descriptionMarkdown,
+        postCount: saved._count.posts,
+      };
     });
   } catch (failure) {
     if (failure instanceof Prisma.PrismaClientKnownRequestError && failure.code === 'P2002') {
@@ -207,7 +259,11 @@ export async function deleteSeries(db: PrismaClient, ownerId: number, seriesId: 
   return count === 1;
 }
 
-export async function updateSeriesOrder(db: PrismaClient, ownerId: number, entries: Array<[number, number]>): Promise<void> {
+export async function updateSeriesOrder(
+  db: PrismaClient,
+  ownerId: number,
+  entries: Array<[number, number]>,
+): Promise<void> {
   if (!entries.length) throw { code: 'IP', message: 'Order information is required.' };
   await db.$transaction(async (tx: Prisma.TransactionClient) => {
     for (const [id, order] of entries) {

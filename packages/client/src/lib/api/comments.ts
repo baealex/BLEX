@@ -62,7 +62,9 @@ export const createComment = async (postUrl: string, commentText: string, parent
         formData.append('parentId', parentId.toString());
     }
 
-    return http.post<CreateCommentResponse>(`v1/comments?url=${postUrl}`, formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+    return http.post<CreateCommentResponse>(`v1/comments?url=${postUrl}`, formData, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
 };
 
 export const getComment = async (commentId: number) => {
@@ -74,7 +76,9 @@ export const updateComment = async (commentId: number, commentText: string) => {
     formData.append('comment', 'true');
     formData.append('commentMd', commentText);
 
-    return http.put<UpdateCommentResponse>(`v1/comments/${commentId}`, formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+    return http.put<UpdateCommentResponse>(`v1/comments/${commentId}`, formData, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
 };
 
 export const deleteComment = async (commentId: number) => {
@@ -85,14 +89,16 @@ export const toggleCommentLike = async (commentId: number) => {
     const formData = new URLSearchParams();
     formData.append('like', 'like');
 
-    return http.put<ToggleCommentLikeResponse>(`v1/comments/${commentId}`, formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+    return http.put<ToggleCommentLikeResponse>(`v1/comments/${commentId}`, formData, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
 };
 
 export const getCommentAuthors = (comments: Comment[]): string[] => {
     const authors = new Set<string>();
 
     const collectAuthors = (commentList: Comment[]) => {
-        commentList.forEach(comment => {
+        commentList.forEach((comment) => {
             if (comment.author && !isCommentDeleted(comment)) {
                 authors.add(comment.author);
             }

@@ -6,24 +6,12 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import {
-    ImagePlus,
-    Link,
-    Save,
-    Trash2,
-    UserRound
-} from '~/ui/icons';
+import { ImagePlus, Link, Save, Trash2, UserRound } from '~/ui/icons';
 import { useConfirm } from '~/hooks/useConfirm';
 import { getStaticPath } from '~/modules/static.module';
 import { SettingsHeader } from '../layout';
 import { Button, Input, Card, ImageCropDialog } from '~/components/shared';
-import {
-    deleteCover,
-    getProfileSettings,
-    updateProfileSettings,
-    uploadAvatar,
-    uploadCover
-} from '~/lib/api/settings';
+import { deleteCover, getProfileSettings, updateProfileSettings, uploadAvatar, uploadCover } from '~/lib/api/settings';
 
 interface ProfileFormInputs {
     bio?: string;
@@ -54,16 +42,32 @@ const getDefaultAvatarPath = () => getStaticPath('assets/images/default-avatar.j
 
 const ProfileSetting = () => {
     const { t } = useLingui();
-    const profileSchema = useMemo(() => z.object({
-        bio: z.string().max(500, t({
-            id: 'settings.profile.bio.validation.max_length',
-            message: 'Bio must be 500 characters or fewer.'
-        })).optional(),
-        homepage: z.string().url(t({
-            id: 'settings.profile.homepage.validation.url',
-            message: 'Enter a valid URL.'
-        })).optional().or(z.literal(''))
-    }), [t]);
+    const profileSchema = useMemo(
+        () =>
+            z.object({
+                bio: z
+                    .string()
+                    .max(
+                        500,
+                        t({
+                            id: 'settings.profile.bio.validation.max_length',
+                            message: 'Bio must be 500 characters or fewer.'
+                        })
+                    )
+                    .optional(),
+                homepage: z
+                    .string()
+                    .url(
+                        t({
+                            id: 'settings.profile.homepage.validation.url',
+                            message: 'Enter a valid URL.'
+                        })
+                    )
+                    .optional()
+                    .or(z.literal(''))
+            }),
+        [t]
+    );
     const [avatar, setAvatar] = useState(getDefaultAvatarPath);
     const [cover, setCover] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -87,10 +91,12 @@ const ProfileSetting = () => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error(t({
-                id: 'settings.profile.load_failed',
-                message: 'Could not load profile information.'
-            }));
+            throw new Error(
+                t({
+                    id: 'settings.profile.load_failed',
+                    message: 'Could not load profile information.'
+                })
+            );
         }
     });
 
@@ -120,22 +126,29 @@ const ProfileSetting = () => {
 
             if (data.status === 'DONE') {
                 reset(savedProfile);
-                toast.success(t({
-                    id: 'settings.profile.update_success',
-                    message: 'Profile updated.'
-                }));
+                toast.success(
+                    t({
+                        id: 'settings.profile.update_success',
+                        message: 'Profile updated.'
+                    })
+                );
                 void refetch();
             } else {
-                toast.error(data.errorMessage || t({
-                    id: 'settings.profile.update_failed',
-                    message: 'Could not update the profile.'
-                }));
+                toast.error(
+                    data.errorMessage ||
+                        t({
+                            id: 'settings.profile.update_failed',
+                            message: 'Could not update the profile.'
+                        })
+                );
             }
         } catch {
-            toast.error(t({
-                id: 'settings.profile.update_failed',
-                message: 'Could not update the profile.'
-            }));
+            toast.error(
+                t({
+                    id: 'settings.profile.update_failed',
+                    message: 'Could not update the profile.'
+                })
+            );
         } finally {
             setIsLoading(false);
         }
@@ -172,22 +185,22 @@ const ProfileSetting = () => {
         const isAvatarTarget = target === 'avatar';
         const successMessage = isAvatarTarget
             ? t({
-                id: 'settings.profile.avatar.save_success',
-                message: 'Profile picture saved.'
-            })
+                  id: 'settings.profile.avatar.save_success',
+                  message: 'Profile picture saved.'
+              })
             : t({
-                id: 'settings.profile.cover.save_success',
-                message: 'Cover image saved.'
-            });
+                  id: 'settings.profile.cover.save_success',
+                  message: 'Cover image saved.'
+              });
         const errorMessage = isAvatarTarget
             ? t({
-                id: 'settings.profile.avatar.update_failed',
-                message: 'Could not update the profile picture.'
-            })
+                  id: 'settings.profile.avatar.update_failed',
+                  message: 'Could not update the profile picture.'
+              })
             : t({
-                id: 'settings.profile.cover.update_failed',
-                message: 'Could not update the cover image.'
-            });
+                  id: 'settings.profile.cover.update_failed',
+                  message: 'Could not update the cover image.'
+              });
 
         try {
             if (isAvatarTarget) {
@@ -244,38 +257,42 @@ const ProfileSetting = () => {
 
             if (data.status === 'DONE') {
                 setCover(null);
-                toast.success(t({
-                    id: 'settings.profile.cover.delete_success',
-                    message: 'Cover image deleted.'
-                }));
+                toast.success(
+                    t({
+                        id: 'settings.profile.cover.delete_success',
+                        message: 'Cover image deleted.'
+                    })
+                );
                 refetch();
             } else {
-                toast.error(t({
-                    id: 'settings.profile.cover.delete_failed',
-                    message: 'Could not delete the cover image.'
-                }));
+                toast.error(
+                    t({
+                        id: 'settings.profile.cover.delete_failed',
+                        message: 'Could not delete the cover image.'
+                    })
+                );
             }
         } catch {
-            toast.error(t({
-                id: 'settings.profile.cover.delete_failed',
-                message: 'Could not delete the cover image.'
-            }));
+            toast.error(
+                t({
+                    id: 'settings.profile.cover.delete_failed',
+                    message: 'Could not delete the cover image.'
+                })
+            );
         }
     };
 
-    const imageCropConfig = imageCropState
-        ? IMAGE_CROP_CONFIG[imageCropState.target]
-        : null;
+    const imageCropConfig = imageCropState ? IMAGE_CROP_CONFIG[imageCropState.target] : null;
     const imageCropTitle = imageCropState
         ? imageCropState.target === 'avatar'
             ? t({
-                id: 'settings.profile.avatar.crop_title',
-                message: 'Crop profile picture'
-            })
+                  id: 'settings.profile.avatar.crop_title',
+                  message: 'Crop profile picture'
+              })
             : t({
-                id: 'settings.profile.cover.crop_title',
-                message: 'Crop cover image'
-            })
+                  id: 'settings.profile.cover.crop_title',
+                  message: 'Crop cover image'
+              })
         : '';
 
     return (
@@ -298,7 +315,8 @@ const ProfileSetting = () => {
                         id: 'settings.profile.avatar.subtitle',
                         message: 'Saved as soon as you finish cropping.'
                     })}
-                    className="mb-6">
+                    className="mb-6"
+                >
                     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
                         <div className="relative w-24 h-24 sm:w-28 sm:h-28">
                             <img
@@ -312,11 +330,10 @@ const ProfileSetting = () => {
                             <div className="absolute -bottom-1 -right-1">
                                 <label
                                     htmlFor="avatar-input"
-                                    className="group flex h-11 w-11 cursor-pointer items-center justify-center rounded-full">
+                                    className="group flex h-11 w-11 cursor-pointer items-center justify-center rounded-full"
+                                >
                                     <span className="sr-only">
-                                        <Trans id="settings.profile.avatar.change">
-                                            Change profile picture
-                                        </Trans>
+                                        <Trans id="settings.profile.avatar.change">Change profile picture</Trans>
                                     </span>
                                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-action text-content-inverted shadow-md transition-colors group-hover:bg-action-hover group-focus-within:ring-2 group-focus-within:ring-line-strong group-focus-within:ring-offset-2 group-focus-within:ring-offset-surface sm:h-10 sm:w-10">
                                         <ImagePlus aria-hidden="true" className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -356,7 +373,8 @@ const ProfileSetting = () => {
                         id: 'settings.profile.cover.subtitle',
                         message: 'Shown at the top of your profile and saved as soon as you finish cropping.'
                     })}
-                    className="mb-6">
+                    className="mb-6"
+                >
                     <div className="space-y-4">
                         {cover ? (
                             <div className="relative group">
@@ -373,10 +391,9 @@ const ProfileSetting = () => {
                                 <div className="absolute inset-0 bg-action bg-opacity-0 group-hover:bg-opacity-40 group-focus-within:bg-opacity-40 transition-all duration-200 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 group-focus-within:opacity-100">
                                     <label
                                         htmlFor="cover-input"
-                                        className="px-6 py-3 bg-surface hover:bg-surface-subtle rounded-xl text-sm font-semibold text-content cursor-pointer transition-colors shadow-lg focus-within:ring-2 focus-within:ring-line-strong">
-                                        <Trans id="settings.profile.cover.change">
-                                            Change image
-                                        </Trans>
+                                        className="px-6 py-3 bg-surface hover:bg-surface-subtle rounded-xl text-sm font-semibold text-content cursor-pointer transition-colors shadow-lg focus-within:ring-2 focus-within:ring-line-strong"
+                                    >
+                                        <Trans id="settings.profile.cover.change">Change image</Trans>
                                         <input
                                             id="cover-input"
                                             type="file"
@@ -388,7 +405,10 @@ const ProfileSetting = () => {
                                 </div>
                             </div>
                         ) : (
-                            <label htmlFor="cover-input-empty" className="block rounded-2xl focus-within:ring-2 focus-within:ring-line-strong">
+                            <label
+                                htmlFor="cover-input-empty"
+                                className="block rounded-2xl focus-within:ring-2 focus-within:ring-line-strong"
+                            >
                                 <div className="aspect-[3/1] w-full rounded-2xl border-2 border-dashed border-line hover:border-line hover:bg-surface-subtle transition-all duration-200 cursor-pointer flex flex-col items-center justify-center gap-3 group">
                                     <ImagePlus
                                         aria-hidden="true"
@@ -396,9 +416,7 @@ const ProfileSetting = () => {
                                     />
                                     <div className="text-center">
                                         <p className="text-sm font-semibold text-content-secondary mb-1">
-                                            <Trans id="settings.profile.cover.add">
-                                                Add cover image
-                                            </Trans>
+                                            <Trans id="settings.profile.cover.add">Add cover image</Trans>
                                         </p>
                                         <p className="text-xs text-content-hint">
                                             <Trans id="settings.profile.cover.upload_hint">
@@ -421,11 +439,10 @@ const ProfileSetting = () => {
                                 <button
                                     type="button"
                                     onClick={handleCoverDelete}
-                                    className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-danger-line px-4 py-2 text-sm font-semibold text-danger transition-colors hover:bg-danger-surface [@media(pointer:fine)]:min-h-9">
+                                    className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-danger-line px-4 py-2 text-sm font-semibold text-danger transition-colors hover:bg-danger-surface [@media(pointer:fine)]:min-h-9"
+                                >
                                     <Trash2 aria-hidden="true" className="h-4 w-4" />
-                                    <Trans id="settings.profile.cover.delete_title">
-                                        Delete cover image
-                                    </Trans>
+                                    <Trans id="settings.profile.cover.delete_title">Delete cover image</Trans>
                                 </button>
                             </div>
                         )}
@@ -451,7 +468,8 @@ const ProfileSetting = () => {
                         id: 'settings.profile.basic_info.subtitle',
                         message: 'Use the save button to apply changes to your bio and homepage.'
                     })}
-                    className="mb-6">
+                    className="mb-6"
+                >
                     <div className="mb-6">
                         <Input
                             density="compact"
@@ -494,18 +512,17 @@ const ProfileSetting = () => {
                         className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                         disabled={!isDirty || !isValid || isLoading}
                         isLoading={isLoading}
-                        leftIcon={
-                            !isLoading ? <Save aria-hidden="true" className="h-4 w-4" /> : undefined
-                        }>
+                        leftIcon={!isLoading ? <Save aria-hidden="true" className="h-4 w-4" /> : undefined}
+                    >
                         {isLoading
                             ? t({
-                                id: 'settings.profile.saving',
-                                message: 'Saving...'
-                            })
+                                  id: 'settings.profile.saving',
+                                  message: 'Saving...'
+                              })
                             : t({
-                                id: 'settings.profile.save',
-                                message: 'Save basic information'
-                            })}
+                                  id: 'settings.profile.save',
+                                  message: 'Save basic information'
+                              })}
                     </Button>
                 </div>
             </form>

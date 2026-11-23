@@ -4,15 +4,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { Button } from '~/ui/button';
 import { FloatingBottomBar } from '~/ui/floating-bottom-bar';
 import { IconButton } from '~/ui/icon-button';
-import {
-    Eye,
-    FileText,
-    History,
-    Loader2,
-    Save,
-    Send,
-    SlidersHorizontal
-} from '~/ui/icons';
+import { Eye, FileText, History, Loader2, Save, Send, SlidersHorizontal } from '~/ui/icons';
 
 interface PostActionsProps {
     mode: 'new' | 'edit' | 'draft';
@@ -55,15 +47,17 @@ const PostActions = ({
 }: PostActionsProps) => {
     const { i18n, t } = useLingui();
     const isEdit = mode === 'edit';
-    const actionLabel = submitLabel || (isEdit
-        ? t({
-            id: 'editor.actions.update',
-            message: 'Update'
-        })
-        : t({
-            id: 'editor.actions.publish',
-            message: 'Publish'
-        }));
+    const actionLabel =
+        submitLabel ||
+        (isEdit
+            ? t({
+                  id: 'editor.actions.update',
+                  message: 'Update'
+              })
+            : t({
+                  id: 'editor.actions.publish',
+                  message: 'Publish'
+              }));
     const isBusy = isSubmitting || isSaving || isMediaUploading;
     const [, setTick] = useState(0);
     const formatTimeSince = (date: Date): string => {
@@ -95,7 +89,7 @@ const PostActions = ({
     // Update time display every 30 seconds
     useEffect(() => {
         if (!lastSaved) return;
-        const timer = setInterval(() => setTick(t => t + 1), 30000);
+        const timer = setInterval(() => setTick((t) => t + 1), 30000);
         return () => clearInterval(timer);
     }, [lastSaved]);
 
@@ -115,7 +109,8 @@ const PostActions = ({
                     title={t({
                         id: 'editor.drafts.title',
                         message: 'Drafts'
-                    })}>
+                    })}
+                >
                     <FileText className="w-5 h-5" />
                 </IconButton>
             )}
@@ -136,12 +131,9 @@ const PostActions = ({
                     title={t({
                         id: 'editor.preview.open',
                         message: 'Preview post'
-                    })}>
-                    {isPreviewing ? (
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                    ) : (
-                        <Eye className="h-5 w-5" />
-                    )}
+                    })}
+                >
+                    {isPreviewing ? <Loader2 className="h-5 w-5 animate-spin" /> : <Eye className="h-5 w-5" />}
                 </IconButton>
             )}
 
@@ -160,7 +152,8 @@ const PostActions = ({
                     title={t({
                         id: 'editor.revisions.title',
                         message: 'Revision history'
-                    })}>
+                    })}
+                >
                     <History className="h-5 w-5" />
                 </IconButton>
             )}
@@ -180,7 +173,8 @@ const PostActions = ({
                         id: 'editor.settings.title',
                         message: 'Post settings'
                     })}
-                    data-tour="post-settings">
+                    data-tour="post-settings"
+                >
                     <SlidersHorizontal className="w-5 h-5" />
                 </IconButton>
             )}
@@ -194,7 +188,8 @@ const PostActions = ({
                     <div
                         className="hidden shrink-0 items-center gap-1.5 px-1 text-xs text-content-hint sm:flex"
                         aria-live="polite"
-                        data-tour="post-autosave">
+                        data-tour="post-autosave"
+                    >
                         {isSaving ? (
                             <>
                                 <div className="w-1.5 h-1.5 rounded-full bg-line-strong animate-pulse" />
@@ -235,7 +230,9 @@ const PostActions = ({
                         ) : (
                             <>
                                 <div className="w-1.5 h-1.5 rounded-full bg-line-strong" />
-                                <span><Trans id="editor.autosave.enabled">Autosave on</Trans></span>
+                                <span>
+                                    <Trans id="editor.autosave.enabled">Autosave on</Trans>
+                                </span>
                             </>
                         )}
                     </div>
@@ -254,7 +251,8 @@ const PostActions = ({
                         title={t({
                             id: 'editor.actions.save_draft',
                             message: 'Save draft'
-                        })}>
+                        })}
+                    >
                         <Save className="h-4 w-4" />
                     </IconButton>
                     <button
@@ -265,8 +263,11 @@ const PostActions = ({
                         title={t({
                             id: 'editor.actions.save_draft',
                             message: 'Save draft'
-                        })}>
-                        <span><Trans id="editor.actions.save_draft">Save draft</Trans></span>
+                        })}
+                    >
+                        <span>
+                            <Trans id="editor.actions.save_draft">Save draft</Trans>
+                        </span>
                     </button>
                 </>
             )}
@@ -278,7 +279,8 @@ const PostActions = ({
                 variant="primary"
                 className="min-h-11! shrink-0 !rounded-full max-[359px]:gap-1 max-[359px]:px-3 max-[359px]:text-xs"
                 leftIcon={<Send className="w-4 h-4" />}
-                data-tour="post-publish">
+                data-tour="post-publish"
+            >
                 {actionLabel}
             </Button>
         </FloatingBottomBar>

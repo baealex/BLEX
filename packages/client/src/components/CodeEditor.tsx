@@ -48,10 +48,7 @@ export const CodeEditor = ({
                 }}
             />
             {error && (
-                <div
-                    id={errorId}
-                    role="alert"
-                    className="mt-1.5 flex items-center gap-1.5 text-sm text-danger">
+                <div id={errorId} role="alert" className="mt-1.5 flex items-center gap-1.5 text-sm text-danger">
                     <AlertCircle aria-hidden="true" className="h-4 w-4 shrink-0" />
                     {error}
                 </div>

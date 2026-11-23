@@ -2,7 +2,14 @@ import formBody from '@fastify/formbody';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { formInput } from '../../platform/csrf.js';
-import { type NotificationPreference, notificationParams, notificationPreferenceColumns, notificationPreferenceSelect, notificationPreferences, notificationText } from './model.js';
+import {
+  type NotificationPreference,
+  notificationParams,
+  notificationPreferenceColumns,
+  notificationPreferenceSelect,
+  notificationPreferences,
+  notificationText,
+} from './model.js';
 import { done, failure } from '../../platform/response.js';
 
 interface NotificationUser {
@@ -21,9 +28,11 @@ interface NotificationOptions {
 
 function relativeTime(date: Date, language: string) {
   const seconds = Math.max(0, (Date.now() - date.getTime()) / 1_000);
-  if (seconds >= 31_536_000) return new Intl.DateTimeFormat(language, {
-    dateStyle: 'long', timeZone: process.env.TZ || 'Asia/Seoul',
-  }).format(date);
+  if (seconds >= 31_536_000)
+    return new Intl.DateTimeFormat(language, {
+      dateStyle: 'long',
+      timeZone: process.env.TZ || 'Asia/Seoul',
+    }).format(date);
   const format = new Intl.RelativeTimeFormat(language, { numeric: 'always' });
   if (seconds >= 2_592_000) return format.format(-Math.floor(seconds / 2_592_000), 'month');
   if (seconds >= 604_800) return format.format(-Math.floor(seconds / 604_800), 'week');
@@ -39,10 +48,20 @@ async function notificationList(db: PrismaClient, userId: number) {
   const rows = await db.notification.findMany({
     where: { userId, OR: [{ createdAt: { gt: since } }, { isRead: false }] },
     orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-    select: { id: true, url: true, content: true, messageKey: true, messageParams: true, isRead: true, createdAt: true },
+    select: {
+      id: true,
+      url: true,
+      content: true,
+      messageKey: true,
+      messageParams: true,
+      isRead: true,
+      createdAt: true,
+    },
   });
   return rows.map((row) => ({
-    id: row.id, url: row.url, isRead: row.isRead,
+    id: row.id,
+    url: row.url,
+    isRead: row.isRead,
     content: notificationText(row.messageKey, notificationParams(row.messageParams), row.content, language),
     createdDate: relativeTime(row.createdAt, language),
   }));
@@ -53,12 +72,18 @@ function visiblePreferences(user: NotificationUser) {
 }
 
 async function readPreferences(db: PrismaClient, user: NotificationUser) {
-  const stored = await db.userPreference.findUnique({ where: { userId: user.id }, select: notificationPreferenceSelect });
-  return visiblePreferences(user).map((name) => ({ name, value: stored?.[notificationPreferenceColumns[name]] ?? null }));
+  const stored = await db.userPreference.findUnique({
+    where: { userId: user.id },
+    select: notificationPreferenceSelect,
+  });
+  return visiblePreferences(user).map((name) => ({
+    name,
+    value: stored?.[notificationPreferenceColumns[name]] ?? null,
+  }));
 }
 
 async function savePreferences(db: PrismaClient, user: NotificationUser, input: Record<string, unknown>) {
-  const changes: Partial<Record<typeof notificationPreferenceColumns[NotificationPreference], boolean>> = {};
+  const changes: Partial<Record<(typeof notificationPreferenceColumns)[NotificationPreference], boolean>> = {};
   for (const name of visiblePreferences(user)) {
     const value = input[name];
     if (value === null || value === undefined || value === '') continue;
@@ -83,10 +108,14 @@ async function markRead(db: PrismaClient, userId: number, input: unknown) {
 export function registerNotifications(app: FastifyInstance, db: PrismaClient, options: NotificationOptions) {
   app.register(async (routes) => {
     await routes.register(formBody);
-    routes.addHook('onRequest', async (_request, reply) => { reply.header('Cache-Control', 'private, no-store'); });
+    routes.addHook('onRequest', async (_request, reply) => {
+      reply.header('Cache-Control', 'private, no-store');
+    });
     routes.get('/v1/setting/notify', async (request) => {
       const user = await options.currentUser(request);
-      return user ? done({ notify: await notificationList(db, user.id), isTelegramSync: user.hasConnectedTelegram }) : failure('NL');
+      return user
+        ? done({ notify: await notificationList(db, user.id), isTelegramSync: user.hasConnectedTelegram })
+        : failure('NL');
     });
     routes.get('/v1/setting/unread-notify', async (request) => {
       const user = await options.currentUser(request);

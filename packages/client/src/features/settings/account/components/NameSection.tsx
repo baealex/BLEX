@@ -19,12 +19,22 @@ interface NameSectionProps {
 
 const NameSection = ({ initialName, isLoading, onSubmit }: NameSectionProps) => {
     const { t } = useLingui();
-    const nameSchema = useMemo(() => z.object({
-        name: z.string().max(30, t({
-            id: 'settings.account.name.validation.max_length',
-            message: 'Name must be 30 characters or fewer.'
-        })).optional()
-    }), [t]);
+    const nameSchema = useMemo(
+        () =>
+            z.object({
+                name: z
+                    .string()
+                    .max(
+                        30,
+                        t({
+                            id: 'settings.account.name.validation.max_length',
+                            message: 'Name must be 30 characters or fewer.'
+                        })
+                    )
+                    .optional()
+            }),
+        [t]
+    );
     const {
         register,
         handleSubmit,
@@ -57,7 +67,8 @@ const NameSection = ({ initialName, isLoading, onSubmit }: NameSectionProps) => 
                 message: 'Change name'
             })}
             className="pt-6"
-            onSubmit={handleSubmit(handleFormSubmit)}>
+            onSubmit={handleSubmit(handleFormSubmit)}
+        >
             <Input
                 density="compact"
                 type="text"
@@ -82,16 +93,17 @@ const NameSection = ({ initialName, isLoading, onSubmit }: NameSectionProps) => 
                     className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                     disabled={!isDirty || !isValid}
                     isLoading={isLoading}
-                    leftIcon={!isLoading ? <Save className="h-4 w-4" /> : undefined}>
+                    leftIcon={!isLoading ? <Save className="h-4 w-4" /> : undefined}
+                >
                     {isLoading
                         ? t({
-                            id: 'settings.account.name.updating',
-                            message: 'Updating...'
-                        })
+                              id: 'settings.account.name.updating',
+                              message: 'Updating...'
+                          })
                         : t({
-                            id: 'settings.account.name.update',
-                            message: 'Update name'
-                        })}
+                              id: 'settings.account.name.update',
+                              message: 'Update name'
+                          })}
                 </Button>
             </div>
         </form>

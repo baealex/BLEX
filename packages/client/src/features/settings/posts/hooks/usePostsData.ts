@@ -35,19 +35,18 @@ interface PostClassificationDraft {
 
 const POST_CLASSIFICATION_DRAFTS_KEY = 'blex:settings-post-classification-drafts';
 
-const getPostClassificationDraftKey = (
-    username: string,
-    postUrl: string
-) => `${username}:${postUrl}`;
+const getPostClassificationDraftKey = (username: string, postUrl: string) => `${username}:${postUrl}`;
 
 const isPostClassificationDraft = (value: unknown): value is PostClassificationDraft => {
     if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
 
     const draft = value as Record<string, unknown>;
-    return typeof draft.tag === 'string'
-        && typeof draft.series === 'string'
-        && typeof draft.hasTagChanged === 'boolean'
-        && typeof draft.hasSeriesChanged === 'boolean';
+    return (
+        typeof draft.tag === 'string' &&
+        typeof draft.series === 'string' &&
+        typeof draft.hasTagChanged === 'boolean' &&
+        typeof draft.hasSeriesChanged === 'boolean'
+    );
 };
 
 const readPostClassificationDrafts = (): Record<string, PostClassificationDraft> => {
@@ -62,13 +61,10 @@ const readPostClassificationDrafts = (): Record<string, PostClassificationDraft>
             return {};
         }
 
-        return Object.entries(parsedDrafts).reduce<Record<string, PostClassificationDraft>>(
-            (drafts, [key, draft]) => {
-                if (isPostClassificationDraft(draft)) drafts[key] = draft;
-                return drafts;
-            },
-            {}
-        );
+        return Object.entries(parsedDrafts).reduce<Record<string, PostClassificationDraft>>((drafts, [key, draft]) => {
+            if (isPostClassificationDraft(draft)) drafts[key] = draft;
+            return drafts;
+        }, {});
     } catch {
         return {};
     }
@@ -88,15 +84,10 @@ const writePostClassificationDrafts = (drafts: Record<string, PostClassification
     }
 };
 
-export const getPostClassificationDraft = (
-    username: string,
-    postUrl: string
-) => readPostClassificationDrafts()[getPostClassificationDraftKey(username, postUrl)];
+export const getPostClassificationDraft = (username: string, postUrl: string) =>
+    readPostClassificationDrafts()[getPostClassificationDraftKey(username, postUrl)];
 
-export const syncPostClassificationDraft = (
-    username: string,
-    post: Post
-) => {
+export const syncPostClassificationDraft = (username: string, post: Post) => {
     const drafts = readPostClassificationDrafts();
     const draftKey = getPostClassificationDraftKey(username, post.url);
 
@@ -115,10 +106,7 @@ export const syncPostClassificationDraft = (
     writePostClassificationDrafts(drafts);
 };
 
-export const clearPostClassificationDraft = (
-    username: string,
-    postUrl: string
-) => {
+export const clearPostClassificationDraft = (username: string, postUrl: string) => {
     const drafts = readPostClassificationDrafts();
     delete drafts[getPostClassificationDraftKey(username, postUrl)];
     writePostClassificationDrafts(drafts);
@@ -260,9 +248,7 @@ const syncFiltersToURL = (filters: FilterOptions) => {
         }
     });
 
-    const newURL = params.toString()
-        ? `${window.location.pathname}?${params.toString()}`
-        : window.location.pathname;
+    const newURL = params.toString() ? `${window.location.pathname}?${params.toString()}` : window.location.pathname;
 
     window.history.replaceState({}, '', newURL);
 };
@@ -271,8 +257,8 @@ export const usePostsFilterState = () => {
     const { t } = useLingui();
     const [filters, setFilters] = useState<FilterOptions>(getFiltersFromURL());
     const [searchValue, setSearchValue] = useState(filters.search);
-    const [isFilterExpanded, setIsFilterExpanded] = useState(
-        () => Boolean(filters.tag || filters.series || filters.visibility)
+    const [isFilterExpanded, setIsFilterExpanded] = useState(() =>
+        Boolean(filters.tag || filters.series || filters.visibility)
     );
     const searchDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -283,10 +269,12 @@ export const usePostsFilterState = () => {
             if (data.status === 'DONE') {
                 return data.body.tags;
             }
-            throw new Error(t({
-                id: 'settings.posts.load_tags_failed',
-                message: 'Could not load tags.'
-            }));
+            throw new Error(
+                t({
+                    id: 'settings.posts.load_tags_failed',
+                    message: 'Could not load tags.'
+                })
+            );
         }
     });
 
@@ -297,10 +285,12 @@ export const usePostsFilterState = () => {
             if (data.status === 'DONE') {
                 return data.body.series;
             }
-            throw new Error(t({
-                id: 'settings.posts.load_series_failed',
-                message: 'Could not load series.'
-            }));
+            throw new Error(
+                t({
+                    id: 'settings.posts.load_series_failed',
+                    message: 'Could not load series.'
+                })
+            );
         }
     });
 
@@ -326,7 +316,7 @@ export const usePostsFilterState = () => {
             setSearchValue(value);
         }
 
-        setFilters(prev => ({
+        setFilters((prev) => ({
             ...prev,
             [key]: value,
             page: key !== 'page' ? '1' : value
@@ -342,7 +332,7 @@ export const usePostsFilterState = () => {
         }
 
         searchDebounce.current = setTimeout(() => {
-            setFilters(prev => ({
+            setFilters((prev) => ({
                 ...prev,
                 search: value,
                 page: '1'
@@ -394,46 +384,48 @@ export const usePostsQuery = (filters: FilterOptions, source: PostsSource = 'pub
                 }
             });
 
-            const { data } = source === 'scheduled'
-                ? await getReservedPosts(apiFilters)
-                : await getPosts(apiFilters);
+            const { data } = source === 'scheduled' ? await getReservedPosts(apiFilters) : await getPosts(apiFilters);
 
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error(t({
-                id: 'settings.posts.load_failed',
-                message: 'Could not load posts.'
-            }));
+            throw new Error(
+                t({
+                    id: 'settings.posts.load_failed',
+                    message: 'Could not load posts.'
+                })
+            );
         }
     });
 
     useEffect(() => {
         if (postsData?.posts) {
-            setPosts(postsData.posts.map(post => {
-                const persistedTag = post.tag;
-                const persistedSeries = post.series || '';
-                const draft = getPostClassificationDraft(postsData.username, post.url);
-                const tag = draft?.hasTagChanged ? draft.tag : persistedTag;
-                const series = draft?.hasSeriesChanged ? draft.series : persistedSeries;
-                const nextPost: Post = {
-                    ...post,
-                    tag,
-                    series,
-                    persistedTag,
-                    persistedSeries,
-                    hasTagChanged: tag !== persistedTag,
-                    hasSeriesChanged: series !== persistedSeries
-                };
+            setPosts(
+                postsData.posts.map((post) => {
+                    const persistedTag = post.tag;
+                    const persistedSeries = post.series || '';
+                    const draft = getPostClassificationDraft(postsData.username, post.url);
+                    const tag = draft?.hasTagChanged ? draft.tag : persistedTag;
+                    const series = draft?.hasSeriesChanged ? draft.series : persistedSeries;
+                    const nextPost: Post = {
+                        ...post,
+                        tag,
+                        series,
+                        persistedTag,
+                        persistedSeries,
+                        hasTagChanged: tag !== persistedTag,
+                        hasSeriesChanged: series !== persistedSeries
+                    };
 
-                return nextPost;
-            }));
+                    return nextPost;
+                })
+            );
         }
     }, [postsData, source]);
 
     useEffect(() => {
         if (!postsData?.username) return;
-        posts.forEach(post => syncPostClassificationDraft(postsData.username, post));
+        posts.forEach((post) => syncPostClassificationDraft(postsData.username, post));
     }, [posts, postsData?.username]);
 
     return {
