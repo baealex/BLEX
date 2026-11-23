@@ -60,6 +60,7 @@ function LoginPromptDialog({
     }, []);
 
     return (
+        // biome-ignore lint/a11y/useKeyWithClickEvents: this click is only the backdrop; the native dialog closes on Esc.
         <dialog
             ref={dialog}
             id="blex-login-prompt"

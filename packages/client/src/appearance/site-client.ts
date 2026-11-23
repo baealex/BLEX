@@ -39,12 +39,6 @@ function setTheme(preference = readCookie('blex_theme'), updateControls = hydrat
     if (changed) window.dispatchEvent(new CustomEvent('blex:theme-change', { detail: { theme } }));
 }
 
-function clearRouteTimeout(id: number | undefined) {
-    if (id === undefined) return;
-    window.clearTimeout(id);
-    routeTimeouts.delete(id);
-}
-
 function scheduleRouteTimeout(callback: () => void, delay: number): number | undefined {
     const owner = routeController;
     if (!owner) return undefined;
@@ -87,7 +81,6 @@ function disposeRouteBindings() {
 }
 
 function closeTransientUi() {
-    for (const panel of document.querySelectorAll<HTMLElement>('[data-site-search-panel]')) panel.hidden = true;
     for (const menu of document.querySelectorAll<HTMLDialogElement>('#blex-mobile-menu')) {
         if (menu.open) menu.close();
     }
@@ -117,195 +110,6 @@ function updateHeader() {
     if (!header) return;
     header.classList.toggle('border-line-light', scrollY > 0);
     header.classList.toggle('border-transparent', scrollY === 0);
-}
-
-function rememberSearch(query: string) {
-    if (!query) return;
-    try {
-        const value: unknown = JSON.parse(localStorage.getItem('blex-recent-searches') ?? '[]');
-        const previous = Array.isArray(value)
-            ? value.filter((entry): entry is string => typeof entry === 'string')
-            : [];
-        localStorage.setItem(
-            'blex-recent-searches',
-            JSON.stringify([query, ...previous.filter((entry) => entry !== query)].slice(0, 6))
-        );
-    } catch {
-        /* Search works without browser storage. */
-    }
-}
-
-function recentSearches(): string[] {
-    try {
-        const value: unknown = JSON.parse(localStorage.getItem('blex-recent-searches') ?? '[]');
-        return Array.isArray(value)
-            ? value.filter((entry): entry is string => typeof entry === 'string').slice(0, 6)
-            : [];
-    } catch {
-        return [];
-    }
-}
-
-function bindQuickSearch(search: HTMLElement, signal: AbortSignal) {
-    const form = search.querySelector<HTMLFormElement>('form');
-    const input = search.querySelector<HTMLInputElement>('input');
-    const panel = search.querySelector<HTMLElement>('[data-site-search-panel]');
-    const heading = search.querySelector<HTMLElement>('[data-site-search-heading]');
-    const list = search.querySelector<HTMLElement>('[data-site-search-results]');
-    if (!form || !input || !panel || !heading || !list) return;
-    let pending: AbortController | undefined;
-    let delay: number | undefined;
-    let selected = -1;
-
-    const cancel = () => {
-        clearRouteTimeout(delay);
-        delay = undefined;
-        pending?.abort();
-        pending = undefined;
-        panel.hidden = true;
-    };
-    signal.addEventListener('abort', cancel, { once: true });
-
-    function setRows(rows: Array<{ href: string; title: string; description?: string }>, emptyMessage: string) {
-        selected = -1;
-        const elements = rows.map(({ href, title, description }) => {
-            const item = document.createElement('li');
-            const link = document.createElement('a');
-            link.href = href;
-            link.className =
-                'blex-quick-search-result block rounded-xl px-3 py-3 text-sm font-semibold text-content hover:bg-surface-subtle';
-            link.textContent = title;
-            if (description) {
-                const line = document.createElement('span');
-                line.className = 'mt-0.5 block truncate text-xs font-normal text-content-secondary';
-                line.textContent = description;
-                link.append(line);
-            }
-            item.append(link);
-            return item;
-        });
-        if (elements.length === 0) {
-            const notice = document.createElement('li');
-            notice.className = 'px-3 py-6 text-center text-sm text-content-secondary';
-            notice.textContent = emptyMessage;
-            elements.push(notice);
-        }
-        list!.replaceChildren(...elements);
-    }
-
-    function suggest() {
-        if (signal.aborted) return;
-        clearRouteTimeout(delay);
-        delay = undefined;
-        pending?.abort();
-        pending = undefined;
-        panel!.hidden = false;
-        const query = input!.value.trim();
-        heading!.textContent = query ? '빠른 검색 결과' : '최근 검색';
-        if (!query) {
-            setRows(
-                recentSearches().map((entry) => ({
-                    href: `/search?${new URLSearchParams({ q: entry })}`,
-                    title: entry
-                })),
-                '최근 검색어가 없습니다.'
-            );
-            return;
-        }
-        setRows([], '검색 중…');
-        delay = scheduleRouteTimeout(async () => {
-            delay = undefined;
-            if (signal.aborted) return;
-            const controller = new AbortController();
-            pending = controller;
-            const abortRequest = () => controller.abort();
-            signal.addEventListener('abort', abortRequest, { once: true });
-            try {
-                const response = await fetch(`/v1/search?${new URLSearchParams({ q: query })}`, {
-                    signal: controller.signal
-                });
-                const result = await response.json();
-                const matches: unknown = result.body?.results;
-                const rows = Array.isArray(matches)
-                    ? matches.slice(0, 5).flatMap((post) => {
-                          if (
-                              typeof post?.author !== 'string' ||
-                              typeof post?.url !== 'string' ||
-                              typeof post?.title !== 'string'
-                          )
-                              return [];
-                          return [
-                              {
-                                  href: `/@${encodeURIComponent(post.author)}/${encodeURIComponent(post.url)}`,
-                                  title: post.title,
-                                  description: `@${post.author}${typeof post.description === 'string' && post.description ? ` · ${post.description}` : ''}`
-                              }
-                          ];
-                      })
-                    : [];
-                if (!signal.aborted && !controller.signal.aborted) setRows(rows, '빠른 검색 결과가 없습니다.');
-            } catch {
-                if (!signal.aborted && !controller.signal.aborted) setRows([], '검색 화면에서 다시 시도해 주세요.');
-            } finally {
-                signal.removeEventListener('abort', abortRequest);
-                if (pending === controller) pending = undefined;
-            }
-        }, 200);
-    }
-
-    input.addEventListener('focus', suggest, { signal });
-    input.addEventListener('input', suggest, { signal });
-    form.addEventListener('submit', () => rememberSearch(input!.value.trim()), { signal });
-    list.addEventListener(
-        'click',
-        (event) => {
-            if (event.target instanceof Element && event.target.closest('a')) rememberSearch(input!.value.trim());
-        },
-        { signal }
-    );
-    document.addEventListener(
-        'click',
-        (event) => {
-            if (event.target instanceof Node && !search.contains(event.target)) panel!.hidden = true;
-        },
-        { signal }
-    );
-    document.addEventListener(
-        'keydown',
-        (event) => {
-            if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k' && search.getClientRects().length) {
-                event.preventDefault();
-                input!.focus();
-            }
-        },
-        { signal }
-    );
-    input.addEventListener(
-        'keydown',
-        (event) => {
-            if (event.key === 'Escape') {
-                panel!.hidden = true;
-                return;
-            }
-            if (panel!.hidden) return;
-            const links = [...list!.querySelectorAll<HTMLAnchorElement>('a')];
-            if (event.key === 'Enter' && selected >= 0 && links[selected]) {
-                event.preventDefault();
-                links[selected].click();
-            }
-            if (!links.length || (event.key !== 'ArrowDown' && event.key !== 'ArrowUp')) return;
-            event.preventDefault();
-            selected =
-                event.key === 'ArrowDown'
-                    ? (selected + 1) % links.length
-                    : selected <= 0
-                      ? links.length - 1
-                      : selected - 1;
-            links.forEach((link, index) => (link.dataset.selected = index === selected ? 'true' : 'false'));
-            links[selected].scrollIntoView({ block: 'nearest' });
-        },
-        { signal }
-    );
 }
 
 function bindNoticeCarousels(signal: AbortSignal) {
@@ -489,6 +293,32 @@ function bindAboutEditors(signal: AbortSignal) {
     }
 }
 
+/** Outside the application frame, React for the search box loads only once the reader reaches for it. */
+function bindStandaloneSearch(signal: AbortSignal) {
+    const search = document.querySelector<HTMLElement>('[data-site-search]');
+    const input = search?.querySelector('input');
+    if (!search || !input) return;
+    let requested = false;
+    const load = () => {
+        if (requested) return;
+        requested = true;
+        void import('./quick-search-client').then(({ mountQuickSearch }) => {
+            if (!signal.aborted) mountQuickSearch(search, signal);
+        });
+    };
+    input.addEventListener('focus', load, { signal });
+    document.addEventListener(
+        'keydown',
+        (event) => {
+            if (requested || !(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'k') return;
+            if (!search.getClientRects().length) return;
+            event.preventDefault();
+            input.focus();
+        },
+        { signal }
+    );
+}
+
 function bindRouteElements() {
     disposeRouteBindings();
     const controller = new AbortController();
@@ -632,8 +462,7 @@ function bindRouteElements() {
         );
     }
 
-    const siteSearch = document.querySelector<HTMLElement>('[data-site-search]');
-    if (siteSearch) bindQuickSearch(siteSearch, signal);
+    if (!document.getElementById('blex-application')) bindStandaloneSearch(signal);
     if (document.querySelector('[data-heatmap-days]')) {
         void import('./author-heatmap.js').then(({ mountAuthorHeatmaps }) => {
             if (!signal.aborted) mountAuthorHeatmaps(signal);

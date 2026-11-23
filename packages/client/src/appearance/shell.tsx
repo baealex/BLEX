@@ -1,4 +1,5 @@
 import { SiteIcon, type SiteIconName } from './icons.js';
+import { QuickSearch } from './quick-search.js';
 
 export { SiteIcon };
 
@@ -67,43 +68,6 @@ function ThemeButton({ bordered }: { bordered?: boolean }) {
             <SiteIcon name="sun" className="blex-theme-sun size-4" />
             <SiteIcon name="moon" className="blex-theme-moon size-4" />
         </button>
-    );
-}
-
-function QuickSearch() {
-    return (
-        <div className="relative w-full max-w-xs" data-site-search>
-            <form
-                action="/search"
-                className="flex h-11 items-center gap-2 rounded-full border border-line bg-surface-elevated px-3 transition-all focus-within:ring-2 focus-within:ring-line-strong"
-            >
-                <SiteIcon name="search" className="size-4 shrink-0 text-content-hint" />
-                <input
-                    name="q"
-                    type="search"
-                    placeholder="검색"
-                    aria-label="검색"
-                    autoComplete="off"
-                    className="min-w-0 flex-1 bg-transparent text-sm text-content placeholder:text-content-hint focus:outline-none"
-                />
-                <kbd className="hidden h-6 items-center gap-1 rounded-md border border-line bg-surface-subtle px-2 font-mono text-[10px] text-content-secondary lg:inline-flex">
-                    <span className="text-[8px]">⌘</span>K
-                </kbd>
-            </form>
-            <div
-                hidden
-                className="absolute inset-x-0 z-50 mt-2 overflow-hidden rounded-2xl bg-surface-elevated shadow-xl ring-1 ring-line-strong/60"
-                data-site-search-panel
-            >
-                <p
-                    className="border-b border-line-light px-3 py-2 text-[11px] font-semibold tracking-wider text-content-secondary"
-                    data-site-search-heading
-                >
-                    최근 검색
-                </p>
-                <ul className="max-h-80 overflow-y-auto p-2" data-site-search-results />
-            </div>
-        </div>
     );
 }
 
