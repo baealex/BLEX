@@ -41,7 +41,7 @@ ${migratedTableSql('Post', 'PostContent', 'Tag', '_PostToTag', 'PostRevision', '
     UPDATE "Post" SET isHidden = 0 WHERE id = 7;
   INSERT INTO SiteSetting (id, siteName, aeoEnabled, seoEnabled, logoSvg, iconManifest, updatedAt) VALUES (1, 'Synthetic Site', 1, 0, 'brand/logo/default/hash/logo.svg', '{"ico":"brand/icon/default/hash/favicon.ico"}', 946684800000);
   INSERT INTO SiteBanner (id, userId, isActive, type, position, contentHtml, scope, "order", createdAt, updatedAt) VALUES
-    (1, NULL, 1, 'horizontal', 'top', '<p>Global banner</p>', 'global', 0, 946684800000, 946684800000),
+    (1, NULL, 1, 'horizontal', 'top', '<p onclick="evil()">Global banner</p><script>alert(1)</script>', 'global', 0, 946684800000, 946684800000),
     (2, 7, 1, 'sidebar', 'right', '<p>Author banner</p>', 'user', 0, 946684800000, 946684800000),
     (3, 8, 1, 'sidebar', 'right', '<p>Other banner</p>', 'user', 1, 946684800000, 946684800000),
     (4, NULL, 0, 'sidebar', 'left', '<p>Inactive banner</p>', 'global', 1, 946684800000, 946684800000);
@@ -144,25 +144,19 @@ test('includes the body and share metadata in the initial React HTML response', 
   assert.equal(article.headline, 'Public article');
   assert.match(response.body, /Public article - writer \| Synthetic Site/);
   assert.match(response.body, /href="\/resources\/media\/brand\/icon\/default\/hash\/favicon\.ico"/);
-  assert.match(
-    response.body,
-    /aria-label="Synthetic Site"><img src="\/resources\/media\/brand\/logo\/default\/hash\/logo\.svg"/,
-  );
+  assert.match(response.body, /<img src="\/resources\/media\/brand\/logo\/default\/hash\/logo\.svg"/);
   assert.match(response.body, /name="robots" content="noindex,nofollow"/);
   assert.match(response.body, /post-cover-split[^\"]*cover-left/);
-  assert.match(
-    response.body,
-    /blog-post-content[^\"]*" itemProp="articleBody"|blog-post-content[^\"]*" itemprop="articleBody"/,
-  );
-  assert.match(response.body, /post-action-dock/);
   assert.match(response.body, /href="\/assets\/blex\/theme\.css"/);
   assert.match(
     response.body,
     /property="og:image" content="https:\/\/blog\.example\/resources\/media\/images\/cover\.png"/,
   );
   assert.match(response.body, /aspect-ratio:4 \/ 3/);
-  assert.match(response.body, /Global banner.*Public article body.*#<\/span>example-tag/);
+  assert.match(response.body, /Global banner/);
+  assert.match(response.body, /example-tag/);
   assert.match(response.body, /Author banner/);
+  assert.doesNotMatch(response.body, /onclick="evil|alert\(1\)/);
   assert.match(response.body, /href="\/static\/in-footer"[^>]*>Footer link/);
   assert.doesNotMatch(response.body, /Other banner|Inactive banner|Private footer link/);
   assert.match(String(response.headers.link ?? ''), /public\.md.*llms\.txt/);

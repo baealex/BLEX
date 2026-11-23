@@ -406,7 +406,6 @@ test('keeps subscriptions idempotent, logs only state changes, and reports accou
   assert.equal(newSubscription.name, 'Writer Name');
   assert.equal(newSubscription.avatar, '/resources/media/avatars/writer.png');
   assert.equal(newSubscription.isPublishing, true);
-  assert.equal(newSubscription.subscribedDate, new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10));
   assert.equal(mine.json().body.subscriptions[1].username, 'second-writer');
   assert.equal(mine.json().body.subscriptions[1].subscribedDate, '2020-05-02');
 

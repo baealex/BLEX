@@ -13,7 +13,7 @@
     "type-check": "tsc -p tsconfig.json --noEmit",
     "db:migrate": "prisma migrate deploy",
     "start": "node dist/src/main.js",
-    "test": "pnpm run build && node --test dist/test/*.test.js"
+    "test": "pnpm run build && TZ=Asia/Seoul node --test dist/test/*.test.js"
   },
   "dependencies": {
     "@fastify/cookie": "^11.1.5",
