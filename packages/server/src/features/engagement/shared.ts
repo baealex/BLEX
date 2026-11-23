@@ -8,6 +8,7 @@ export interface ReaderActionUser {
 }
 
 export interface ReaderActionsOptions {
+  siteUrl?: URL;
   currentUser: (req: FastifyRequest) => Promise<ReaderActionUser | null>;
   validateCsrf: (req: FastifyRequest) => boolean;
   cipherKey?: string;

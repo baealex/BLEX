@@ -368,6 +368,22 @@ test('keeps subscriptions idempotent, logs only state changes, and reports accou
     headers: { 'x-user-id': '5', 'x-test-csrf': 'valid' },
   });
   assert.equal(unconnected.json().body.suggestTelegramConnection, true);
+  const subscribeFromPage = (userId: string) =>
+    app.inject({
+      method: 'POST',
+      url: '/v1/users/@writer/subscription',
+      headers: { 'x-user-id': userId, 'x-test-csrf': 'valid', 'content-type': 'application/json' },
+      payload: JSON.stringify({ returnTo: '/@writer' }),
+    });
+  const unconnectedPage = await subscribeFromPage('5');
+  assert.equal(unconnectedPage.statusCode, 303);
+  assert.match(
+    String(unconnectedPage.headers['set-cookie']),
+    /^blex_telegram_hint=[^;]+; Path=\/; Max-Age=60; SameSite=Lax/,
+  );
+  const connectedPage = await subscribeFromPage('2');
+  assert.equal(connectedPage.statusCode, 303);
+  assert.equal(connectedPage.headers['set-cookie'], undefined);
   const state = await app.inject({ url: '/v1/users/@writer/subscription', headers: { 'x-user-id': '2' } });
   assert.deepEqual(state.json().body, { canSubscribe: true, isSubscribed: true });
 
