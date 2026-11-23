@@ -16,7 +16,7 @@ import {
   serializeComment,
 } from './services/comments.js';
 import { createCommentRateLimiter } from './services/comment-rate-limit.js';
-import { anonymizeComments } from './services/deletions.js';
+import { softDeleteComment } from './services/deletions.js';
 import { canSubscribe, mySubscriptions, subscriptionState } from './services/subscriptions.js';
 import {
   ReaderActionsOptions,
@@ -194,7 +194,7 @@ export function registerReaderActions(app: FastifyInstance, db: PrismaClient, op
         ];
         if (mentions.length) {
           const targets = await tx.user.findMany({
-            where: { username: { in: mentions }, comments: { some: { postId: post.id } } },
+            where: { username: { in: mentions }, comments: { some: { postId: post.id, deletedAt: null } } },
             select: { id: true },
           });
           for (const target of targets)
@@ -289,7 +289,7 @@ export function registerReaderActions(app: FastifyInstance, db: PrismaClient, op
             if (!viewer || comment.authorId !== viewer.id) {
               return error('AT', 'You do not have permission to delete this comment.');
             }
-            await anonymizeComments(db, viewer.id, comment.id);
+            await softDeleteComment(db, comment.id);
             const returnTo = localReturnTo(body?.returnTo);
             if (returnTo) return reply.redirect(returnTo, 303);
             const deleted = await commentForViewer(db, comment.id, viewer.id);
@@ -303,7 +303,7 @@ export function registerReaderActions(app: FastifyInstance, db: PrismaClient, op
           if (!viewer || comment.authorId !== viewer.id) {
             return error('AT', 'You do not have permission to delete this comment.');
           }
-          await anonymizeComments(db, viewer.id, comment.id);
+          await softDeleteComment(db, comment.id);
           const deleted = await commentForViewer(db, comment.id, viewer.id);
           return done(deleted ? serializeComment(deleted, viewer.id, !deleted.postBlockComment) : {});
         }

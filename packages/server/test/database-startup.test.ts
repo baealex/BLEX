@@ -74,7 +74,7 @@ test('creates a new database and leaves it in place on the next start', async ()
     await prepareDatabase(space.options);
     const second = new DatabaseSync(space.databasePath, { readOnly: true });
     assert.equal(count(second, 'User'), 1);
-    assert.equal(count(second, '_prisma_migrations'), 1);
+    assert.equal(count(second, '_prisma_migrations'), 2);
     second.close();
   } finally {
     await space.cleanup();
@@ -280,7 +280,7 @@ test('imports a 3.14 installation once and leaves the original unchanged', async
       Number((imported.prepare(`SELECT seq FROM sqlite_sequence WHERE name = 'Post'`).get() as { seq: number }).seq),
       40,
     );
-    assert.equal(count(imported, '_prisma_migrations'), 1);
+    assert.equal(count(imported, '_prisma_migrations'), 2);
     assert.equal(
       Number((imported.prepare('SELECT createdAt FROM WorkLog WHERE id = 3').get() as { createdAt: number }).createdAt),
       Date.UTC(2024, 1, 3, 4, 5, 6, 789),
@@ -788,7 +788,7 @@ test('imports 3.14 comments, series, and subscriptions with their counters and r
     assert.deepEqual(
       imported
         .prepare(
-          'SELECT id, postId, authorId, parentId, markdown, html, isEdited, isHearted, createdAt FROM Comment ORDER BY id',
+          'SELECT id, postId, authorId, parentId, markdown, html, isEdited, isHearted, createdAt, deletedAt FROM Comment ORDER BY id',
         )
         .all()
         .map((row) => ({ ...row })),
@@ -803,6 +803,7 @@ test('imports 3.14 comments, series, and subscriptions with their counters and r
           isEdited: 1,
           isHearted: 1,
           createdAt: Date.UTC(2024, 1, 1, 1, 2, 3, 456),
+          deletedAt: null,
         },
         {
           id: 11,
@@ -814,6 +815,7 @@ test('imports 3.14 comments, series, and subscriptions with their counters and r
           isEdited: 0,
           isHearted: 0,
           createdAt: Date.UTC(2024, 1, 2),
+          deletedAt: null,
         },
         {
           id: 12,
@@ -825,6 +827,7 @@ test('imports 3.14 comments, series, and subscriptions with their counters and r
           isEdited: 0,
           isHearted: 0,
           createdAt: Date.UTC(2024, 1, 3),
+          deletedAt: null,
         },
       ],
     );

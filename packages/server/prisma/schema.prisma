@@ -476,6 +476,7 @@ model Comment {
   isEdited  Boolean  @default(false)
   isHearted Boolean  @default(false)
   createdAt DateTime @default(now())
+  deletedAt DateTime?
 
   post    Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
   author  User?         @relation(fields: [authorId], references: [id], onDelete: SetNull)

@@ -71,6 +71,7 @@ function commentSelect(viewerId: number | null) {
     html: true,
     isEdited: true,
     createdAt: true,
+    deletedAt: true,
     authorId: true,
     parentId: true,
     postId: true,
@@ -83,15 +84,17 @@ function commentSelect(viewerId: number | null) {
 type SelectedComment = Prisma.CommentGetPayload<{ select: ReturnType<typeof commentSelect> }>;
 
 function commentRow(comment: SelectedComment, postPublic: boolean, postBlockComment: boolean): CommentRow {
+  // Storage keeps a deleted comment's author, but nothing past this point may act on that identity.
+  const author = comment.deletedAt ? null : comment.author;
   return {
     id: comment.id,
     markdown: comment.markdown,
     html: comment.html,
     isEdited: comment.isEdited,
     createdAt: comment.createdAt,
-    authorId: comment.authorId,
-    username: comment.author?.username ?? null,
-    avatar: comment.author?.profile?.avatar ?? null,
+    authorId: comment.deletedAt ? null : comment.authorId,
+    username: author?.username ?? null,
+    avatar: author?.profile?.avatar ?? null,
     parentId: comment.parentId,
     likeCount: comment._count.likes,
     isLiked: comment.likes.length > 0,
