@@ -17,11 +17,12 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 const isOptionalString = (value: unknown): value is string | undefined =>
     value === undefined || typeof value === 'string';
 
-const isOptionalBoolean = (value: unknown): value is boolean | undefined =>
-    value === undefined || typeof value === 'boolean';
+const isBoolean = (value: unknown): value is boolean => typeof value === 'boolean';
+
+const isOptionalBoolean = (value: unknown): value is boolean | undefined => value === undefined || isBoolean(value);
 
 const isAdminCapabilities = (value: unknown): value is Partial<AdminCapabilities> =>
-    isRecord(value) && Object.values(value).every((capability) => typeof capability === 'boolean');
+    isRecord(value) && Object.values(value).every(isBoolean);
 
 /** Validate the JSON boundary before passing props to a lazy-loaded screen. */
 export function parseScreen(name: string, props: unknown): Screen | null {
@@ -51,8 +52,8 @@ export function parseScreen(name: string, props: unknown): Screen | null {
         case 'SettingsApp': {
             const { isEditor, isStaff, isSuperuser, canUseTelegramIntegration, adminCapabilities } = props;
             if (
-                typeof isEditor !== 'boolean' ||
-                typeof isStaff !== 'boolean' ||
+                !isBoolean(isEditor) ||
+                !isBoolean(isStaff) ||
                 !isOptionalBoolean(isSuperuser) ||
                 !isOptionalBoolean(canUseTelegramIntegration) ||
                 (adminCapabilities !== undefined && !isAdminCapabilities(adminCapabilities))
