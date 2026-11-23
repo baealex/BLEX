@@ -6,7 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["packages/**/*.{ts,tsx,js,mjs}", "!**/routeTree.gen.ts"]
+    "includes": ["packages/**/*.{ts,tsx,js,mjs}", ".github/scripts/*.mjs", "!**/routeTree.gen.ts"]
   },
   "formatter": {
     "enabled": true,

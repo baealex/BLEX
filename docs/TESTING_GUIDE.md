@@ -62,4 +62,4 @@ The test creates the first administrator account, then checks signing out, signi
 
 Verify schema changes on an empty SQLite database and a copy prepared with the [upgrade guide](UPGRADE_FROM_3.md). Cover constraint changes with representative data, including invalid duplicates where relevant. Until 4.0 ships, `0001_init` must match the output of the regeneration command in the [Backend Guide](BACKEND_GUIDE.md#database-changes).
 
-[CI](../.github/workflows/CI.yml) runs the server build and tests, Prisma validation, and web checks on PRs and main pushes. [Release and manual builds](../.github/workflows/BUILD.yml) verify the candidate container image with a 512 MiB memory limit and run the browser smoke test before publishing release tags.
+[CI](../.github/workflows/CI.yml) runs the server build and tests, Prisma validation, web checks, and fast release orchestration tests on PRs and main pushes. The manual [Release workflow](../.github/workflows/BUILD.yml) reuses these checks, then tests the same candidate image with 512 MiB and a browser on native AMD64 and ARM64 before publishing. See [Releasing BLEX](RELEASING.md) for the agent procedure and retry behavior.
