@@ -7,6 +7,7 @@ import { passwordUpdater } from '../features/auth/security.js';
 import type { readSession } from '../features/auth/session.js';
 import { hasAdministrator } from '../features/auth/setup.js';
 import { registerPublicActivity } from '../features/authors/public-activity.js';
+import { registerDeveloperOpenApi } from '../features/developer-api/openapi.js';
 import { registerDeveloperDocumentation } from '../features/developer-api/docs.js';
 import { registerDeveloperApi } from '../features/developer-api/index.js';
 import { authenticate, requireScope } from '../features/developer-api/services/token-auth.js';
@@ -53,6 +54,7 @@ export async function registerRoutes(
   app: FastifyInstance,
   { db, siteUrl, auth, mediaRoot, currentUser }: RouteContext,
 ) {
+  await registerDeveloperOpenApi(app);
   registerApiMessages(app, db, { currentUser });
   const routeOptions = {
     currentUser,

@@ -52,7 +52,14 @@ export function renderApplicationDocument(page: ReactElement, hydrateContent = f
     return '<!doctype html>' + renderToString(cloneElement(page, {}, nextHead, nextBody));
 }
 
-function clientHeader({ brand, viewer, searchPage, editorPage, hideAuthLinks }: SiteHeaderProps): SiteHeaderProps {
+function clientHeader({
+    brand,
+    viewer,
+    searchPage,
+    editorPage,
+    hideAuthLinks,
+    locale
+}: SiteHeaderProps): SiteHeaderProps {
     return {
         brand: brand && {
             siteName: brand.siteName,
@@ -68,6 +75,7 @@ function clientHeader({ brand, viewer, searchPage, editorPage, hideAuthLinks }: 
         },
         searchPage,
         editorPage,
-        hideAuthLinks
+        hideAuthLinks,
+        locale
     };
 }

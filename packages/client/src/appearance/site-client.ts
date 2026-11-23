@@ -1,3 +1,4 @@
+import { siteText } from './messages.js';
 import './tailwind.css';
 import './site.scss';
 import { loadAboutEditors } from '../features/authors/about-editor-loader';
@@ -32,7 +33,10 @@ function setTheme(preference = readCookie('blex_theme'), updateControls = hydrat
     root.style.colorScheme = theme;
     if (updateControls) {
         for (const button of document.querySelectorAll<HTMLButtonElement>('[data-site-theme-toggle]')) {
-            const label = dark ? '라이트 모드로 전환' : '다크 모드로 전환';
+            const label = siteText(
+                root.lang === 'en' ? 'en' : 'ko',
+                dark ? 'Switch to light mode' : 'Switch to dark mode'
+            );
             button.setAttribute('aria-label', label);
             button.title = label;
         }
@@ -347,7 +351,7 @@ function handleGlobalClick(event: MouseEvent) {
                     status.textContent = copiedButton.dataset.copyMessage ?? '링크가 복사되었습니다.';
             } catch {
                 if (generation === routeGeneration && copiedButton.isConnected && status?.isConnected)
-                    status.textContent = '복사에 실패했습니다.';
+                    status.textContent = copiedButton.dataset.copyErrorMessage ?? '복사에 실패했습니다.';
             }
         })();
     }

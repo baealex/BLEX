@@ -11,6 +11,7 @@ The client-rendered React screens use Lingui, and the reusable editor has a type
 | Web screens | `packages/client/src/locales/{locale}/messages.po`; host locale supplied by `packages/server/src/application/screen-host/index.ts` |
 | Reusable editor | `packages/client/src/features/editor/tiptap/TiptapEditor/i18n/locales/{locale}.ts` |
 | System notifications | Message keys, parameters, and text templates in `packages/server/src/features/notifications/model.ts` |
+| Developer API documentation | Typed English source messages and Korean translations under `features/developer-api/locales/ko.ts` in the client and server; schema metadata is translated on a copy, preserving API names, enums, defaults, and examples |
 | Main app pages | `packages/client/src/routes/` and `packages/client/src/features/`; API fallback text stays in `packages/server/src/`; check their existing language handling before editing |
 
 English is the source language for catalogs. Korean and English catalogs are included. The web runtime reads `window.configuration.locale`, falling back to the document language; it does not choose a separate locale from `navigator.language`.
@@ -24,7 +25,7 @@ The server selects the UI language through `packages/server/src/platform/locale.
 
 Both `null` and an empty saved language inherit the site default. The language selector exposes this as **Site default**; existing `null` preferences continue to work. Browser language headers do not override these choices. New accounts inherit the site default unless an explicit language cookie supplies a supported choice.
 
-Web screen configuration, document language, API status messages, notifications, and localized Developer API post-not-found messages use the same selection rules. Telegram delivery resolves the recipient's preference at delivery time. Pages that still contain Korean text directly remain outside complete translation coverage.
+Web screen configuration, document language, API status messages, notifications, and Developer API documentation and error messages use the same selection rules. Telegram delivery resolves the recipient's preference at delivery time. Pages that still contain Korean text directly remain outside complete translation coverage.
 
 `ENABLE_ENGLISH_UI=TRUE` or `DEBUG=TRUE` enables English choices and resolution in the server features that support it. Set `BLEX_DEFAULT_LANGUAGE=en` with either flag to make English the site default. These flags do not provide full UI translation coverage.
 

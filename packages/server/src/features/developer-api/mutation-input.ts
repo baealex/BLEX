@@ -1,3 +1,4 @@
+import type { PostMutationInput } from './schemas.js';
 import type { PrismaClient } from '@prisma/client';
 import { camelToSnake } from './wire-format.js';
 
@@ -13,25 +14,6 @@ export class DeveloperMutationInputError extends Error {
 }
 
 const bodyFields = ['markdown', 'contentHtml', 'content', 'textHtml', 'textMd'] as const;
-const stringFields = [
-  ...bodyFields,
-  'title',
-  'subtitle',
-  'description',
-  'slug',
-  'url',
-  'seriesUrl',
-  'publishedAt',
-  'expectedUpdatedAt',
-] as const;
-const enums: Record<string, readonly string[]> = {
-  contentType: ['markdown', 'html'],
-  coverLayout: ['default', 'split', 'overlay', 'none'],
-  coverImagePosition: ['left', 'right'],
-  coverImageRatio: ['auto', '16:9', '4:3', '1:1', '3:4'],
-  status: ['draft', 'published', 'scheduled'],
-};
-
 const authoringFields = [
   'title',
   'subtitle',
@@ -58,20 +40,9 @@ function boolean(value: unknown, key: string) {
 export async function developerPostInput(
   db: PrismaClient,
   authorId: number,
-  input: unknown,
+  values: PostMutationInput,
   operation: 'create' | 'update' | 'publish',
 ) {
-  if (input === undefined && operation === 'publish') input = {};
-  if (!input || typeof input !== 'object' || Array.isArray(input)) invalid('payload', 'Input should be a valid object');
-  const values = input as Record<string, unknown>;
-  for (const key of stringFields) {
-    if (values[key] != null && typeof values[key] !== 'string') invalid(key, 'Input should be a valid string');
-  }
-  for (const [key, allowed] of Object.entries(enums)) {
-    const value = values[key];
-    if (value != null && (typeof value !== 'string' || !allowed.includes(value)))
-      invalid(key, `Input should be one of ${allowed.join(', ')}`);
-  }
   const status = values.status === undefined ? 'draft' : values.status;
   if (operation === 'create' && values.status === null)
     throw new DeveloperMutationInputError(
@@ -111,13 +82,6 @@ export async function developerPostInput(
   }
 
   const tags = Object.hasOwn(values, 'tags') ? values.tags : values.tag;
-  if (
-    tags != null &&
-    typeof tags !== 'string' &&
-    (!Array.isArray(tags) || tags.some((tag) => typeof tag !== 'string'))
-  ) {
-    invalid('tags', 'Input should be a string or list of strings');
-  }
   if (tags !== undefined)
     body.tag = Array.isArray(tags)
       ? tags

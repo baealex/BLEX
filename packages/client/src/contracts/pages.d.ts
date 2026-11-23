@@ -1,3 +1,4 @@
+import type { DeveloperCommands } from './developer-api.js';
 import type { CommentPayload, ReaderAuthorHeader, ReaderPostLikeState, ReaderPostView } from './engagement.js';
 import type { HeaderViewer, LoginModel } from './views.js';
 import type { WorkLogDeleteProps, WorkLogDetailProps, WorkLogIndexProps, WorkLogSharedProps } from './work-logs.js';
@@ -111,7 +112,7 @@ export interface PageProps {
         footer: boolean;
         loaderHref: string;
     };
-    'docs/developer-api/reference': { assetRoot: string; settingsJson: string };
+    'docs/developer-api/reference': { assetRoot: string; settingsJson: string; locale: 'ko' | 'en' };
     'work-logs/index': WorkLogIndexProps;
     'work-logs/$id/index': WorkLogDetailProps;
     'work-logs/$id/delete': WorkLogDeleteProps;
@@ -307,7 +308,9 @@ export interface PageProps {
         viewer:
             | undefined
             | { username: string; hasEditorRole: boolean; isStaff: boolean; unreadCount: number; csrfToken: string };
-        quickstart: string;
+        locale: 'ko' | 'en';
+        siteOrigin: string;
+        commands: DeveloperCommands;
     };
     'errors/not-found': {
         brand: SiteBrand;
