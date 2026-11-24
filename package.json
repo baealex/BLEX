@@ -7,12 +7,12 @@
         "node": "^24.22.1 || >=26.12.1"
     },
     "scripts": {
-        "dev": "pnpm --filter @blex/client run build:public && pnpm --filter @blex/server run dev",
+        "dev": "pnpm --filter @blex/client run build && pnpm --filter @blex/server run dev",
         "dev:client": "pnpm --filter @blex/client run dev",
-        "build": "pnpm --filter @blex/client run build:public && pnpm --filter @blex/server run build",
+        "build": "pnpm --filter @blex/client run build && pnpm --filter @blex/server run build",
         "build:client": "turbo run build --filter=@blex/client",
         "start": "pnpm --filter @blex/server start",
-        "test": "pnpm --filter @blex/client run build:public && pnpm --filter @blex/server test",
+        "test": "pnpm --filter @blex/client run build && pnpm --filter @blex/server test",
         "test:client": "pnpm --filter @blex/client run test",
         "test:smoke": "pnpm --filter @blex/client run test:smoke",
         "test:browser": "pnpm --filter @blex/client run test:browser",

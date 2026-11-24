@@ -5,3 +5,9 @@ declare module '*.po' {
 
     export const messages: Messages;
 }
+
+declare module '*.po?lingui' {
+    import type { Messages } from '@lingui/core';
+
+    export const messages: Messages;
+}

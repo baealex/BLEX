@@ -16,7 +16,7 @@ BLEX renders pages with React on the server and uses a shared TanStack Router ap
 | Shared UI primitives | `packages/client/src/ui/` |
 | Tiptap editor | `packages/client/src/features/editor/tiptap/` |
 
-The client package produces three builds under `packages/server/dist/`: `web` for React screens, `client` for the public browser entry points, and `ssr` for the views the server renders.
+The client package produces two builds under `packages/server/dist/`: `client` for the browser, served at `/assets/ui/`, and `ssr` for the views the server renders. The browser build holds the public entry points and the React screens, so screens share one React, Lingui, and TanStack instance with the application. Every module that public pages load keeps the chunk it would have without screens: the build bundles the public entries once on their own and groups modules the same way, and a module that screens share with a page entry or lazy module moves to a shared chunk beside it.
 
 Public pages and React screens share the theme, prose, and syntax styles in `packages/client/src/appearance/`. `packages/client/styles/main.scss` adds screen-document scrolling, media transitions, and print rules.
 
@@ -46,16 +46,16 @@ The login prompt and the one-time Telegram notice render in the application tree
 - Put shareable filters and pagination in the URL; keep transient form and interaction state local.
 - Follow the request pattern used by the code you are changing. The main app uses browser `fetch` and forms; web screens use their existing Axios client, React Query, and form libraries.
 - Preserve the runtime's CSRF handling and check API error responses before consuming their bodies.
-- React Compiler is configured for the web package build. Do not assume it is enabled for the main Vite app, or add memoization without a measured need.
+- React Compiler runs on screen code only. Public page modules stay outside it, and the build fails if public pages load compiled code. Do not assume it is enabled for public pages, or add memoization without a measured need.
 
 ## Styling and translation
 
 Use semantic Tailwind tokens and follow the [Design Guide](DESIGN_GUIDE.md) and [UI Change Style Guide](UI_CHANGE_STYLE_GUIDE.md). Keep screen-specific CSS close to the feature.
 
-The server sets the document language from the user preference or site default. Public SSR and browser components use `ui()` with literal English product copy; React screens use the existing Lingui macros. Both use the same PO catalogs, but the public page build keeps only the `ui()` messages and fails if public code uses a screen message. Activate the document catalog before hydration and the destination catalog before internal navigation. Resolve translated labels during rendering, never at module initialization. Do not pass authored content through translation helpers or create a separate runtime per feature. See [Translation Guide](TRANSLATION_GUIDE.md) for current coverage and checks.
+The server sets the document language from the user preference or site default. Public SSR and browser components use `ui()` with literal English product copy; React screens use the existing Lingui macros. Both use the same PO catalogs. Public pages load only the `ui()` messages, and screens add the rest before they render; the build fails if code that public pages load uses a screen message. Activate the document catalog before hydration and the destination catalog before internal navigation. Resolve translated labels during rendering, never at module initialization. Do not pass authored content through translation helpers or create a separate runtime per feature. See [Translation Guide](TRANSLATION_GUIDE.md) for current coverage and checks.
 
 ## Development and checks
 
-Follow the [local development setup](DEV_CONVENTION.md#local-development). Build additional screens with `pnpm build:client` and restart the app after the first build so it discovers the assets. `pnpm dev:client` runs Vite directly on port 8100 with its built-in file watcher.
+Follow the [local development setup](DEV_CONVENTION.md#local-development). `pnpm dev` and `pnpm build` build the public pages and the screens together. `pnpm dev:client` runs Vite directly on port 8100 with its built-in file watcher.
 
 Run `pnpm test` and `pnpm type-check` for changes to the main application. The client type check covers browser code and all Vite/Lingui configuration files. For web changes, use the workspace commands in the [Testing Guide](TESTING_GUIDE.md).

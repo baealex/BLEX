@@ -22,7 +22,7 @@ pnpm install
 pnpm dev
 ```
 
-The development command builds the app and starts the server at `http://localhost:8040`. It also initializes a local SQLite database and generates secrets under `packages/server/.local/`. It does not watch source files; restart it after changes. Settings and editor pages are React screens, so run `pnpm build:client` first; without those assets they answer 503. FFmpeg is needed for local GIF conversion and video previews.
+The development command builds the app and starts the server at `http://localhost:8040`. It also initializes a local SQLite database and generates secrets under `packages/server/.local/`. It does not watch source files; restart it after changes. FFmpeg is needed for local GIF conversion and video previews.
 
 ## Backend
 

@@ -5,7 +5,8 @@ import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client
 import { MountNotifier, renderScreen } from './components/screen-content';
 import ErrorBoundary from './components/ErrorBoundary';
 import { parseScreen } from './components/screen-props';
-import { activateDocumentLocale, i18n } from './i18n';
+import { i18n } from './i18n';
+import { activateScreenLocale } from './i18n/screen-catalog';
 import { createQueryClient, sessionStoragePersister, shouldPersistQuery } from './lib/query-client';
 
 const SCREEN_SELECTOR = '[data-screen]';
@@ -24,7 +25,7 @@ const mountScreen = async (element: HTMLElement, name: string): Promise<void> =>
         const screen = parseScreen(name, props);
         if (!screen) throw new Error();
 
-        await activateDocumentLocale();
+        await activateScreenLocale();
         if (!element.isConnected) {
             element.dataset.screenStatus = 'pending';
             return;

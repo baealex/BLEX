@@ -5,7 +5,7 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "vite build && pnpm run build:public",
+        "build": "vite build && vite build -c vite.ssr.config.ts",
         "check:entry-budgets": "node scripts/check-entry-budgets.mjs",
         "i18n:extract": "lingui extract --clean",
         "i18n:compile": "lingui compile --strict",
@@ -13,8 +13,7 @@
         "test": "node --test test/*.test.mjs",
         "test:smoke": "node scripts/browser-smoke.mjs",
         "test:browser": "node scripts/run-browser-smoke.mjs",
-        "type-check": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json",
-        "build:public": "vite build -c vite.public.config.ts && vite build -c vite.ssr.config.ts"
+        "type-check": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json"
     },
     "dependencies": {
         "@baejino/handy": "^0.2.3",

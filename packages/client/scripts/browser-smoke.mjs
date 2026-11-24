@@ -246,7 +246,7 @@ const isolateScreenRenderError = async () => {
     await open('/settings/profile');
     const settings = page.locator('[data-screen="SettingsApp"]');
     await expect(settings).toHaveAttribute('data-screen-status', 'mounted');
-    const toasterChunk = '**/assets/web/chunks/toaster.*.js';
+    const toasterChunk = '**/assets/ui/assets/toaster-*.js';
     await page.route(toasterChunk, (route) =>
         route.fulfill({
             contentType: 'text/javascript',
