@@ -3,6 +3,7 @@ import type { DeveloperCommands } from '@blex/contracts/developer-api';
 import { SiteFooter } from '../../appearance/shell.js';
 import { i18n, type MessageDescriptor } from '@lingui/core';
 import { msg, t } from '@lingui/core/macro';
+import { normalizeLocale } from '../../i18n/locale.js';
 import { loadDeveloperMessages } from './developer-catalog.js';
 import type { DeveloperQuickstartData } from './quickstart-data';
 
@@ -495,6 +496,6 @@ export function DeveloperQuickstartPage({ data }: { data: DeveloperQuickstartDat
 }
 
 export async function mountPage(data: DeveloperQuickstartData) {
-    await loadDeveloperMessages();
+    await loadDeveloperMessages(normalizeLocale(data.locale));
     return <DeveloperQuickstartPage data={data} />;
 }
