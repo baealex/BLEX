@@ -46,7 +46,7 @@ The Developer API reference is served at `/api/developer/v1/docs`.
 
 Developer API request validation, inferred input types, and response serialization use the TypeBox definitions in `packages/server/src/features/developer-api/schemas.ts`. Connect routes with `developerRouteOptions`; `@fastify/swagger` generates `/api/developer/v1/openapi.json` from the registered routes. Do not maintain a separate OpenAPI JSON snapshot. The wire-format adapter preserves public snake_case fields while services use camelCase. Token scopes, ownership, rate limits, and write-only receipts remain enforced by the existing services.
 
-The quickstart is a React SSR view in `packages/client/src/features/developer-api/quickstart.tsx`. Its commands come from the server's `examples.ts` and are executed against a temporary server in both languages by the documentation tests. Those tests require `curl` on PATH. Keep English source messages and Korean translations in the feature's `locales/ko.ts` in each runtime. Documentation and API errors use `platform/locale.ts`; see the [Translation Guide](TRANSLATION_GUIDE.md).
+The quickstart is a React SSR view in `packages/client/src/features/developer-api/quickstart.tsx`. Its commands come from the server's `examples.ts` and are executed against a temporary server in both languages by the documentation tests. Those tests require `curl` on PATH. The quickstart's text lives in the client's PO catalogs under `developer.` IDs; the reference and API errors keep their English sources and Korean translations in the server's `features/developer-api/locales/ko.ts`. Documentation and API errors use `platform/locale.ts`; see the [Translation Guide](TRANSLATION_GUIDE.md).
 
 ## Refactoring and testing
 
