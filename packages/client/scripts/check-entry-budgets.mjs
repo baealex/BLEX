@@ -138,12 +138,16 @@ const budgets = [
         maxInitialBytes: 460 * 1024,
         maxInitialGzipBytes: 150 * 1024
     })),
-    // Static, error, and developer guide pages also load only their own module.
+    // Search, static, error, developer guide, and post management pages also load only their own module.
     ...[
+        ['search', 'discovery/search-page'],
         ['static', 'discovery/static-page'],
         ['not found', 'discovery/not-found-page'],
         ['forbidden', 'discovery/forbidden-page'],
-        ['developer quickstart', 'developer-api/quickstart']
+        ['developer quickstart', 'developer-api/quickstart'],
+        ['revision history', 'posts/revisions-page'],
+        ['writing timeline', 'posts/timelapse-page'],
+        ['share links', 'posts/share-links-page']
     ].map(([route, module]) => ({
         build: 'client',
         entries: [...publicPageEntries, `src/features/${module}.tsx`],

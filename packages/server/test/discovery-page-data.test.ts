@@ -94,6 +94,48 @@ test('discovery pages hydrate from a public view without a signed-out CSRF value
   }
 });
 
+test('liked posts and the server search page hydrate from public views', async () => {
+  const { app, fixture, close } = await discoveryApp();
+  try {
+    const liker = signIn(fixture.db, 2);
+    const token = /csrftoken=([^;]+)/.exec(liker.cookie)?.[1];
+    const interests = await app.inject({ url: '/interests', headers: liker });
+    assert.equal(interests.statusCode, 200);
+    const liked = pageData(interests.body) as DiscoveryData & { likes: { csrfToken: string; returnTo: string } };
+    assert.equal(liked.page, 'interests');
+    assert.deepEqual(liked.likes, { csrfToken: token, returnTo: '/interests' });
+    assert.deepEqual(
+      liked.posts?.map(({ title, liked: isLiked }) => [title, isLiked]),
+      [['Tagged post', true]],
+    );
+    assert.doesNotMatch(JSON.stringify(liked), /writer-private|unique_body_marker|authorId|"id":/);
+
+    // Without the search screen, the server's own page answers and carries no viewer data.
+    for (const headers of [{ cookie: `csrftoken=${'v'.repeat(43)}` }, liker]) {
+      const search = await app.inject({ url: '/search?q=Tagged', headers });
+      assert.equal(search.statusCode, 200);
+      const data = pageData(search.body) as DiscoveryData & { results: Array<Record<string, unknown>> };
+      assert.equal(data.page, 'search');
+      assert.deepEqual(Object.keys(data.results[0]), [
+        'href',
+        'title',
+        'image',
+        'author',
+        'date',
+        'readTime',
+        'description',
+        'matched',
+      ]);
+      assert.deepEqual(data.results[0].matched, ['title']);
+      const serialized = JSON.stringify(data);
+      assert.doesNotMatch(serialized, /writer-private|unique_body_marker|authorId|csrf|"id":/i);
+      assert.ok(!serialized.includes('v'.repeat(43)) && !(token && serialized.includes(token)));
+    }
+  } finally {
+    await close();
+  }
+});
+
 test('authored content cannot forge discovery page data', async () => {
   const { app, fixture, close } = await discoveryApp();
   const forged = '</script><script type="application/json" id="blex-discovery-page-data">{"page":"tag"}</script>';
