@@ -251,8 +251,11 @@ test('uses one locale for documentation, OpenAPI, and API errors without transla
               response.body,
               locale === 'en' ? /aria-label="Copy Check your account"/ : /aria-label="계정 확인 복사"/,
             );
-            // The browser takes its copy status from the catalog of the document's language.
-            assert.match(response.body, /id="blex-content-page-data">\{"page":"developer-quickstart","siteOrigin":/);
+            // The browser shows its copy status in the same language the page data names.
+            assert.match(
+              response.body,
+              new RegExp(`id="blex-content-page-data">\\{"page":"developer-quickstart","locale":"${locale}"`),
+            );
           }
         }
       }
