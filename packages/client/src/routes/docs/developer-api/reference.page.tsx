@@ -1,4 +1,4 @@
-import { developerText } from '~/features/developer-api/messages';
+import { t } from '@lingui/core/macro';
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { PageProps } from '@blex/contracts/pages';
 
@@ -13,7 +13,7 @@ export default function renderPage({
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <meta name="robots" content="noindex" />
-                <title>{developerText(locale, 'BLEX Developer API')}</title>
+                <title>{t({ id: 'developer.api_name', message: 'BLEX Developer API' })}</title>
                 <link rel="stylesheet" href={`${assetRoot}/swagger-ui.css`} />
             </head>
             <body>

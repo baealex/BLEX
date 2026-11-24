@@ -2,7 +2,7 @@ import type { PrismaClient } from '@prisma/client';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { readFileSync } from 'node:fs';
 import { resolveUiLocale } from '../../platform/locale.js';
-import { developerText, translateDeveloperText, type DeveloperLocale, type DeveloperMessage } from './messages.js';
+import { developerText, hasDeveloperText, type DeveloperLocale } from './messages.js';
 
 const serverKorean = JSON.parse(
   readFileSync(new URL('../../../../data/api-messages.ko.json', import.meta.url), 'utf8'),
@@ -54,11 +54,11 @@ export function localizeDeveloperOpenApi<T>(document: T, locale: DeveloperLocale
     for (const [key, entry] of Object.entries(value)) {
       if (protectedKeys.has(key)) continue;
       if (['title', 'summary', 'description'].includes(key) && typeof entry === 'string') {
-        value[key] = translateDeveloperText(locale, entry, values);
+        value[key] = developerText(locale, entry, values);
       } else if (key === 'tags' && Array.isArray(entry)) {
         value[key] = entry.map((tag) => {
-          if (typeof tag === 'string') return translateDeveloperText(locale, tag);
-          if (isRecord(tag) && typeof tag.name === 'string') tag.name = translateDeveloperText(locale, tag.name);
+          if (typeof tag === 'string') return developerText(locale, tag);
+          if (isRecord(tag) && typeof tag.name === 'string') tag.name = developerText(locale, tag.name);
           visit(tag);
           return tag;
         });
@@ -78,20 +78,15 @@ function errorText(locale: DeveloperLocale, source: string, code: string): strin
     source,
   );
   if (lengthLimit)
-    return developerText(locale, `${lengthLimit[1]} can be up to {limit} characters.` as DeveloperMessage, {
-      limit: lengthLimit[2],
-    });
+    return developerText(locale, `${lengthLimit[1]} can be up to {limit} characters.`, { limit: lengthLimit[2] });
   if (code === 'post.of') {
     const limit = /\d+/.exec(source)?.[0];
     if (limit) return developerText(locale, 'You can save up to {limit} drafts.', { limit });
   }
   const english = serverEnglish.get(source) ?? source;
-  const translated = translateDeveloperText(locale, english);
-  if (locale === 'ko')
-    return translated === english
-      ? (serverKorean[english] ?? developerText(locale, 'Could not complete the request.'))
-      : translated;
-  return /[가-힣]/.test(translated) ? developerText(locale, 'Could not complete the request.') : translated;
+  if (hasDeveloperText(english)) return developerText(locale, english);
+  if (locale === 'ko') return serverKorean[english] ?? developerText(locale, 'Could not complete the request.');
+  return /[가-힣]/.test(english) ? developerText(locale, 'Could not complete the request.') : english;
 }
 
 export function localizeDeveloperError(payload: unknown, locale: DeveloperLocale): unknown {
@@ -112,13 +107,12 @@ export function localizeDeveloperError(payload: unknown, locale: DeveloperLocale
       errors: error.fields.errors.map((issue: unknown) => {
         if (!isRecord(issue) || typeof issue.msg !== 'string') return issue;
         const source = issue.type === 'int_parsing' ? 'Input should be a valid integer' : issue.msg;
-        const translated = translateDeveloperText(locale, source);
         return {
           ...issue,
           msg:
-            locale === 'ko' && translated === source
-              ? developerText(locale, 'Check this field’s type and value.')
-              : translated,
+            hasDeveloperText(source) || locale !== 'ko'
+              ? developerText(locale, source)
+              : developerText(locale, 'Check this field’s type and value.'),
         };
       }),
     };
