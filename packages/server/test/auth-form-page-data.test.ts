@@ -103,6 +103,8 @@ test('the sign-up form hydrates from its form fields without the captcha secret'
     assert.notEqual(error, '');
     assert.match(failed.body, /data-sitekey="site_key_marker" data-blex-hcaptcha-widget=""><\/div>/);
     assert.doesNotMatch(failed.body, /captcha_secret_marker|client_id_marker|client_secret_marker/);
+    // The browser loads hCaptcha in explicit mode, so neither document loads it to draw widgets on its own.
+    for (const document of [page.body, failed.body]) assert.doesNotMatch(document, /js\.hcaptcha\.com/);
   } finally {
     await close();
   }

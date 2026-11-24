@@ -102,7 +102,6 @@ export interface PageProps {
         documentStyleHref: string;
         /** The viewer's time zone, or the site's. */
         timeZone: string;
-        captcha: boolean;
         csrf: string;
         searchPage?: boolean;
         editorPage: boolean;
