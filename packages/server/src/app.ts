@@ -74,6 +74,9 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
         request.log.warn(error);
       }
     }
+    // The first document's policy stays in force while client routing visits other pages, so every application
+    // document gets this one and a route's own policy is replaced. Routes send their own policy only for other
+    // responses, or with config.framedBySite.
     if (
       contentType.startsWith('text/html') &&
       isApplicationDocument(payload) &&

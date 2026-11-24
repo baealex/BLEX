@@ -5,7 +5,7 @@ import { csrfPattern } from '../../platform/csrf.js';
 import { createToken, type readSession } from '../auth/session.js';
 import { relatedPosts } from '../authors/public-activity.js';
 import { readReaderPostView } from '../engagement/index.js';
-import { postContentSecurityPolicy, renderPublicPostPage } from './public-post-view.js';
+import { renderPublicPostPage } from './public-post-view.js';
 import { publicPostPath, readPostPresentation, readPublicPost } from './public-post.js';
 
 type PublicPostRouteOptions = {
@@ -54,7 +54,6 @@ export function registerPublicPostRoute(
     return reply
       .type('text/html; charset=utf-8')
       .header('Vary', 'Cookie')
-      .header('Content-Security-Policy', postContentSecurityPolicy)
       .send(
         renderPublicPostPage(
           post,
