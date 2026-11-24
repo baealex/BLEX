@@ -266,7 +266,8 @@ export function DeveloperQuickstart({
                     <p className="mt-3 leading-relaxed text-content-secondary">
                         {t('Expand an example when you need it. Keep using the post number you saved above.')}
                     </p>
-                    <details className="mt-4 border-b border-line pb-4">
+                    {/* The browser can open these examples natively before the page's code arrives. */}
+                    <details className="mt-4 border-b border-line pb-4" suppressHydrationWarning>
                         <summary className="min-h-11 cursor-pointer py-3 font-medium">
                             {t('Change a post title')}
                         </summary>
@@ -282,7 +283,7 @@ export function DeveloperQuickstart({
                             )}
                         </p>
                     </details>
-                    <details className="mt-4 border-b border-line pb-4">
+                    <details className="mt-4 border-b border-line pb-4" suppressHydrationWarning>
                         <summary className="min-h-11 cursor-pointer py-3 font-medium">
                             {t('Add an image to the body')}
                         </summary>

@@ -42,7 +42,12 @@ export function NoticeCarousel({ notices }: { notices: NoticeSlide[] }) {
     const rotates = count > 1;
 
     useLayoutEffect(() => {
-        if (rotates) setInteractive(true);
+        if (!rotates) return;
+        // A reader can reach a later notice before this code arrives, and hiding it would drop their focus.
+        const slides = Array.from(carouselRef.current?.querySelectorAll('[data-notice-slide]') ?? []);
+        const focused = slides.findIndex((slide) => slide.contains(document.activeElement));
+        if (focused > 0) setSelected(focused);
+        setInteractive(true);
     }, [rotates]);
 
     useEffect(() => {
