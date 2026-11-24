@@ -675,7 +675,7 @@ function PostBody({ html }: { html: string }) {
     const body = useRef<HTMLDivElement>(null);
     const [blocks, setBlocks] = useState<DecoratedCodeBlock[]>([]);
 
-    // biome-ignore lint/correctness/useExhaustiveDependencies: new HTML replaces the blocks this effect decorated.
+    // New HTML replaces the blocks this effect decorated, so it runs again for each body.
     useEffect(() => {
         const element = body.current;
         if (!element?.querySelector(highlightedBlock)) return;

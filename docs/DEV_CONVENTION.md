@@ -64,9 +64,9 @@ pnpm test
 pnpm type-check
 ```
 
-Biome formats and lints the repository. Run `pnpm format` to apply fixes; `pnpm lint` is the CI check.
+Biome formats and lints the repository from `biome.jsonc`. Run `pnpm format` to apply fixes; `pnpm lint` is the CI check, and it fails on warnings as well as errors. Info diagnostics are suggestions and do not fail it.
 
-Keep lint warnings visible in local and CI output. Fix diagnostics that reveal behavior defects rather than weakening rules or adding suppressions. Report remaining warnings alongside errors; a successful command does not mean the code is warning-free.
+Fix diagnostics rather than weakening rules or adding suppressions. When a rule does not fit the codebase, turn it off in `biome.jsonc` with a one-line reason. Suppress a diagnostic in place only where the code must break the rule, and give the reason in the suppression comment.
 
 `pnpm test` includes the application build. For web, UI, or editor changes, also run the workspace checks as described in the [Testing Guide](TESTING_GUIDE.md).
 
