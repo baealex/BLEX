@@ -168,6 +168,13 @@ const useSiteControlsBeforeHydration = async () => {
     await expect(search).toBeFocused();
     await search.press('Escape');
     await expect(search).toHaveValue('');
+    // After hydration, typing opens the panel, and two quick presses close it and then clear the box.
+    await search.fill('after hydration');
+    await expect(page.locator('[data-site-search-panel]')).toBeVisible();
+    await search.press('Escape');
+    await search.press('Escape');
+    await expect(page.locator('[data-site-search-panel]')).toBeHidden();
+    await expect(search).toHaveValue('');
     await page.context().clearCookies({ name: 'blex_theme' });
     await holding('**/assets/ui/assets/discovery-page-*.js', '/tags', async () => {
         // The site script titles the theme buttons once the header has hydrated.

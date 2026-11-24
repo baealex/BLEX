@@ -13,8 +13,9 @@ let routeController: AbortController | undefined;
 let routeGeneration = 0;
 let hydrated = !document.getElementById('blex-application');
 let clientBindingsInstalled = false;
-// Until the header's search box hydrates, this script answers its keys as the box does after.
-// Focusing the box opens its panel then, so Esc closes it first, and typing or focusing opens it again.
+// This script answers Esc and Cmd/Ctrl+K in the header's search box, before and after the box hydrates.
+// Focusing the box opens its panel once it hydrates, so before that Esc treats the panel as open unless
+// Esc already closed it, and typing or focusing opens it again.
 let searchHydrated = false;
 let searchClosed = false;
 const searchInput = '[data-site-search] input';
@@ -246,15 +247,20 @@ function answerSearchKey(event: KeyboardEvent) {
         event.preventDefault();
         input.focus();
     } else if (event.key === 'Escape' && event.target === input) {
-        const action = escapeAction(event, !searchClosed, input.value !== '');
+        const open = searchHydrated
+            ? !document.querySelector<HTMLElement>('[data-site-search-panel]')?.hidden
+            : !searchClosed;
+        const action = escapeAction(event, open, input.value !== '');
         if (action !== 'none') event.preventDefault();
         if (action === 'close') searchClosed = true;
         if (action === 'clear') input.value = '';
+        // The box stops looking for results and closes its panel.
+        if (action === 'close' || action === 'clear') document.dispatchEvent(new Event('blex:quick-search-close'));
     }
 }
 
 function handleGlobalKeydown(event: KeyboardEvent) {
-    if (!searchHydrated) answerSearchKey(event);
+    answerSearchKey(event);
     if (event.key !== 'Escape') return;
     for (const details of document.querySelectorAll<HTMLDetailsElement>('[data-account-menu]')) details.open = false;
 }

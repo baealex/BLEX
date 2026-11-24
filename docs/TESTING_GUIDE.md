@@ -73,7 +73,7 @@ The writing journey saves a draft with inline and cover images, reloads it, publ
 
 Settings list checks create real series, verify that Space activates a list item on key release, reorder through a separate keyboard drag handle, and open the edit menu at a mobile width. The list title remains available as a heading.
 
-Focus checks cover adding tags, returning to the add button with Escape, leaving an empty tag field, and clearing a search. Entering search and moving backward or forward through search history must not grab input focus. Before the page hydrates, Cmd/Ctrl+K focuses the header search box and Esc closes it as it does afterward. Theme checks preserve the preference between public pages and settings after reload, and follow the system when the cookie is absent. Cookie policy tests cover the one-year lifetime, site-wide path, SameSite setting, HTTPS-only Secure attribute, and deletion for the system preference.
+Focus checks cover adding tags, returning to the add button with Escape, leaving an empty tag field, and clearing a search. Entering search and moving backward or forward through search history must not grab input focus. Before the page hydrates, Cmd/Ctrl+K focuses the header search box and Esc closes it as it does afterward, and afterward two quick presses of Esc close the panel and then clear the box. Theme checks preserve the preference between public pages and settings after reload, and follow the system when the cookie is absent. Cookie policy tests cover the one-year lifetime, site-wide path, SameSite setting, HTTPS-only Secure attribute, and deletion for the system preference.
 
 ## Migrations and CI
 
