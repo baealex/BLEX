@@ -627,7 +627,14 @@ function PostDock({ data }: { data: PostPageData }) {
                                             </button>
                                         </>
                                     )}
-                                    <p className="px-3 text-xs text-content-hint" data-copy-status role="status" />
+                                    {/* The site script writes the result, possibly before this page hydrates. */}
+                                    <p
+                                        className="px-3 text-xs text-content-hint"
+                                        data-copy-status
+                                        role="status"
+                                        suppressHydrationWarning
+                                        dangerouslySetInnerHTML={{ __html: '' }}
+                                    />
                                 </div>
                             </details>
                         </>
@@ -640,8 +647,10 @@ function PostDock({ data }: { data: PostPageData }) {
                 </div>
             </div>
             {headings.length > 0 && (
+                // The site script can open this sheet before the page's code arrives.
                 <dialog
                     id="post-toc"
+                    suppressHydrationWarning
                     className="blex-toc-sheet fixed inset-x-0 top-auto bottom-0 m-0 max-h-[70vh] w-full max-w-none overflow-y-auto rounded-t-3xl bg-surface-elevated p-0 text-content shadow-xl"
                 >
                     <div className="flex items-center justify-between border-b border-line-light px-6 py-3">

@@ -179,7 +179,8 @@ export function SiteHeader({
                                         <SiteIcon name="pencil" className="size-3" /> {siteText(locale, 'New post')}
                                     </a>
                                 )}
-                                <details className="blex-user-menu relative" data-account-menu>
+                                {/* The browser can open this menu natively before the header hydrates. */}
+                                <details className="blex-user-menu relative" data-account-menu suppressHydrationWarning>
                                     <summary
                                         className="relative flex cursor-pointer items-center gap-1.5 rounded-full py-1.5 pr-2 pl-1.5 transition-all duration-150 hover:bg-surface-subtle active:scale-95"
                                         aria-label={siteText(locale, 'User menu')}
@@ -241,6 +242,7 @@ export function SiteHeader({
                             </a>
                         )}
                         <ThemeButton locale={locale} />
+                        {/* The site script can open the menu before the header hydrates. */}
                         <button
                             type="button"
                             className={iconButton}
@@ -248,6 +250,7 @@ export function SiteHeader({
                             aria-label={siteText(locale, 'Menu')}
                             aria-controls="blex-mobile-menu"
                             aria-expanded="false"
+                            suppressHydrationWarning
                         >
                             <SiteIcon name="menu-2" className="size-4" />
                         </button>
@@ -257,6 +260,7 @@ export function SiteHeader({
             <dialog
                 id="blex-mobile-menu"
                 className="blex-menu fixed inset-y-0 right-0 left-auto m-0 w-72 max-w-[90vw] bg-surface-elevated p-0 text-content shadow-xl"
+                suppressHydrationWarning
             >
                 <div className="flex h-full flex-col">
                     <div className="flex h-14 shrink-0 items-center justify-between border-b border-line-light px-4">

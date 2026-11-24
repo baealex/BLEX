@@ -103,6 +103,51 @@ const openMobileMenu = async () => {
     await page.setViewportSize({ width: 1280, height: 900 });
 };
 
+const useSiteControlsBeforeHydration = async () => {
+    const holding = async (pattern, path, check) => {
+        const { promise: released, resolve: release } = Promise.withResolvers();
+        let continued;
+        await page.route(pattern, (route) => {
+            continued = released.then(() => route.continue());
+            return continued;
+        });
+        try {
+            await page.goto(`${origin}${path}`, { waitUntil: 'commit' });
+            await expect(page.locator('html')).toHaveAttribute('data-theme-preference', /.+/);
+            await check();
+        } finally {
+            release();
+            await continued;
+            await page.unroute(pattern);
+        }
+        await page.waitForLoadState('networkidle');
+    };
+    await holding('**/assets/blex/app.js', '/', async () => {
+        const menu = page.locator('[data-site-header] [data-account-menu]');
+        await menu.locator('summary').click();
+        await expect(menu).toHaveJSProperty('open', true);
+        await page.keyboard.press('Escape');
+        await expect(menu).toHaveJSProperty('open', false);
+        const root = page.locator('html');
+        const theme = await root.getAttribute('data-theme');
+        const toggle = page.locator('[data-site-theme-toggle]:visible');
+        await toggle.click();
+        await expect(root).not.toHaveAttribute('data-theme', theme);
+        await toggle.click();
+        await expect(root).toHaveAttribute('data-theme', theme);
+    });
+    await page.context().clearCookies({ name: 'blex_theme' });
+    await holding('**/assets/ui/assets/discovery-page-*.js', '/tags', async () => {
+        // The site script titles the theme buttons once the header has hydrated.
+        await expect(page.locator('[data-site-theme-toggle]').first()).toHaveAttribute('title', /.+/);
+        const sort = page.locator('main [data-account-menu]');
+        await sort.locator('summary').click();
+        await expect(sort).toHaveJSProperty('open', true);
+        await page.keyboard.press('Escape');
+        await expect(sort).toHaveJSProperty('open', false);
+    });
+};
+
 const openEditor = async () => {
     await open('/write');
     await expect(page.getByPlaceholder('제목을 입력하세요')).toBeVisible();
@@ -578,6 +623,7 @@ try {
         ['login', logIn],
         ['a failed translation file recovers with one reload', recoverFromFailedCatalog],
         ['mobile menu', openMobileMenu],
+        ['site menus and the theme answer before the header or the page hydrates', useSiteControlsBeforeHydration],
         [
             'theme preference persists across public and settings pages and follows the system when cleared',
             keepThemePreferenceAcrossPages

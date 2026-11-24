@@ -8,7 +8,6 @@ import { THEME_COOKIE_KEY, writeThemePreferenceCookie } from './theme-cookie';
 
 const root = document.documentElement;
 const systemTheme = matchMedia('(prefers-color-scheme: dark)');
-const themeButtons = new WeakSet<HTMLButtonElement>();
 
 let routeController: AbortController | undefined;
 let routeGeneration = 0;
@@ -60,18 +59,6 @@ function closeTransientUi() {
     for (const details of document.querySelectorAll<HTMLDetailsElement>('[data-account-menu]')) details.open = false;
     for (const dialog of document.querySelectorAll<HTMLDialogElement>('dialog[open]')) {
         if (dialog.open) dialog.close();
-    }
-}
-
-function bindThemeButtons() {
-    for (const button of document.querySelectorAll<HTMLButtonElement>('[data-site-theme-toggle]')) {
-        if (themeButtons.has(button)) continue;
-        themeButtons.add(button);
-        button.addEventListener('click', () => {
-            const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
-            writeThemePreferenceCookie(next);
-            setTheme(next);
-        });
     }
 }
 
@@ -130,15 +117,6 @@ function bindRouteElements() {
             { signal }
         );
     }
-
-    const mobileMenu = document.querySelector<HTMLDialogElement>('#blex-mobile-menu');
-    mobileMenu?.addEventListener(
-        'close',
-        () => {
-            document.querySelector<HTMLButtonElement>('[data-site-menu-open]')?.setAttribute('aria-expanded', 'false');
-        },
-        { signal }
-    );
 
     const siteSettingsForm = document.querySelector<HTMLFormElement>('[data-site-settings-form]');
     const siteSettingsSave = document.querySelector<HTMLButtonElement>('[data-site-settings-save]');
@@ -243,9 +221,35 @@ function offerTelegramHint(signal: AbortSignal) {
     );
 }
 
+async function copyLink(button: HTMLElement, generation: number) {
+    const status = button.parentElement?.querySelector<HTMLElement>('[data-copy-status]');
+    let copied = true;
+    try {
+        await navigator.clipboard.writeText(button.dataset.copyLink ?? '');
+    } catch {
+        copied = false;
+    }
+    try {
+        // The status is translated, and a click before the page hydrates can come before its translations.
+        await activateDocumentLocale();
+    } catch {
+        return;
+    }
+    if (generation !== routeGeneration || !button.isConnected || !status?.isConnected) return;
+    status.textContent = copied
+        ? (button.dataset.copyMessage ?? ui('Link copied.'))
+        : (button.dataset.copyErrorMessage ?? ui('Could not copy.'));
+}
+
 function handleGlobalClick(event: MouseEvent) {
     if (!(event.target instanceof Element)) return;
     const target = event.target;
+
+    if (target.closest('[data-site-theme-toggle]')) {
+        const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+        writeThemePreferenceCookie(next);
+        setTheme(next);
+    }
 
     const menuToggle = target.closest<HTMLButtonElement>('[data-site-menu-open]');
     if (menuToggle) {
@@ -269,20 +273,7 @@ function handleGlobalClick(event: MouseEvent) {
         dialog.close();
 
     const copiedButton = target.closest<HTMLElement>('[data-copy-link]');
-    if (copiedButton) {
-        const generation = routeGeneration;
-        const status = copiedButton.parentElement?.querySelector<HTMLElement>('[data-copy-status]');
-        void (async () => {
-            try {
-                await navigator.clipboard.writeText(copiedButton.dataset.copyLink ?? '');
-                if (generation === routeGeneration && copiedButton.isConnected && status?.isConnected)
-                    status.textContent = copiedButton.dataset.copyMessage ?? ui('Link copied.');
-            } catch {
-                if (generation === routeGeneration && copiedButton.isConnected && status?.isConnected)
-                    status.textContent = copiedButton.dataset.copyErrorMessage ?? ui('Could not copy.');
-            }
-        })();
-    }
+    if (copiedButton) void copyLink(copiedButton, routeGeneration);
 
     for (const details of document.querySelectorAll<HTMLDetailsElement>('[data-account-menu]')) {
         if (!details.contains(target)) details.open = false;
@@ -294,6 +285,11 @@ function handleGlobalKeydown(event: KeyboardEvent) {
     for (const details of document.querySelectorAll<HTMLDetailsElement>('[data-account-menu]')) details.open = false;
 }
 
+function handleDialogClose(event: Event) {
+    if (event.target instanceof HTMLDialogElement && event.target.id === 'blex-mobile-menu')
+        document.querySelector<HTMLButtonElement>('[data-site-menu-open]')?.setAttribute('aria-expanded', 'false');
+}
+
 function handleBeforePageChange() {
     routeGeneration += 1;
     if (!hydrated) return;
@@ -302,11 +298,12 @@ function handleBeforePageChange() {
 }
 
 function handlePageChange() {
-    routeGeneration += 1;
     if (hydrated) {
+        routeGeneration += 1;
         disposeRouteBindings();
         closeTransientUi();
     } else {
+        // Hydration keeps the page, so a menu or a copy status from before it stays.
         hydrated = true;
     }
     activateClientBindings();
@@ -316,15 +313,17 @@ function activateClientBindings() {
     if (!clientBindingsInstalled) {
         clientBindingsInstalled = true;
         window.addEventListener('scroll', updateHeader, { passive: true });
-        document.addEventListener('click', handleGlobalClick);
-        document.addEventListener('keydown', handleGlobalKeydown);
     }
-    bindThemeButtons();
     setTheme();
     updateHeader();
     bindRouteElements();
 }
 
+// These run before the application hydrates, and in the capture phase because React stops
+// events inside a page whose code has not arrived yet. The menu's close event does not bubble.
+document.addEventListener('click', handleGlobalClick, true);
+document.addEventListener('keydown', handleGlobalKeydown, true);
+document.addEventListener('close', handleDialogClose, true);
 systemTheme.addEventListener('change', () => setTheme(undefined, hydrated && localeReady));
 document.addEventListener('blex:before-page-change', handleBeforePageChange);
 document.addEventListener('blex:page-change', handlePageChange);
