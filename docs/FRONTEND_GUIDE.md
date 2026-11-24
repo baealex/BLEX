@@ -30,6 +30,8 @@ Each author route, static page, error page, the quickstart, the sign-in page, an
 
 The login prompt and the one-time Telegram notice render in the application tree from `application/prompts.tsx`, on every application page, even when the page's own module did not load. The login prompt opens from a capture-phase click listener because React holds clicks inside a page whose code has not loaded.
 
+The work log pages render in the main React tree too: `features/work-logs/index-page.tsx`, `detail-page.tsx`, `delete-page.tsx`, and `shared-page.tsx` each load only their own module, from data built in `page-data.ts`. What the writer wrote, such as log titles, entries, and share headlines, stays out of the data because hydration reads it back from the server markup, and ids appear only where the page already shows them in a link, form, or media address. A shared log is public, so its data carries no CSRF token. The forms keep what was typed before their code arrives and still submit if it fails to load. The chosen attachment's name and the new share link's copy button are React handlers.
+
 ## Pages and browser behavior
 
 - Use `renderApplicationDocument` from a `*.page.tsx` file for pages in the main application so direct visits receive server-rendered HTML and internal navigation uses the app router.
