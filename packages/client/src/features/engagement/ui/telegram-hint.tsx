@@ -83,9 +83,7 @@ export function TelegramHint({ raised, onClose }: TelegramHintProps) {
                         <IconBrandTelegram className="h-4 w-4" aria-hidden="true" />
                     </span>
                     <div className="min-w-0">
-                        <p className="text-sm font-semibold text-content">
-                            {ui('Subscribed', {}, 'public.Subscribed.9afbe521')}
-                        </p>
+                        <p className="text-sm font-semibold text-content">{ui('Subscribed')}</p>
                         <p className="mt-0.5 text-sm text-content-secondary">{ui('Get new posts on Telegram')}</p>
                     </div>
                 </div>

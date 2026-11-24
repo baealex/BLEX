@@ -44,12 +44,12 @@ export function SignupPage({ data, footer }: { data: SignupPageData; footer: Rea
                         <form action={query ? `/sign?${query}` : '/sign'} method="post" className="space-y-4">
                             <input type="hidden" name="csrfmiddlewaretoken" value={data.csrfToken} />
                             <label className={authField}>
-                                {ui('Username', {}, 'public.Username.367001d7')}
+                                {ui('Username')}
                                 <input
                                     className={authInput}
                                     name="username"
                                     autoComplete="username"
-                                    placeholder={ui('Enter your username', {}, 'public.Enter your username.259a7b95')}
+                                    placeholder={ui('Enter your username')}
                                     pattern="[a-z0-9]{4,15}"
                                     required
                                 />
@@ -83,7 +83,7 @@ export function SignupPage({ data, footer }: { data: SignupPageData; footer: Rea
                                     className={authInput}
                                     name="password"
                                     type="password"
-                                    placeholder={ui('Enter your password', {}, 'public.Enter your password.047b6c50')}
+                                    placeholder={ui('Enter your password')}
                                     minLength={8}
                                     autoComplete="new-password"
                                     required

@@ -125,6 +125,72 @@ test('Developer API text has Korean translations under developer IDs', async () 
   for (const text of texts) assertTranslated(`developer.${text}`, text, 'OpenAPI document');
 });
 
+function readWebCatalog(locale: string) {
+  const text = readFileSync(new URL(`../../../client/src/locales/${locale}/messages.po`, import.meta.url), 'utf8');
+  const messages = new Map<string, string>();
+  for (const entry of text.split(/\r?\n\r?\n/)) {
+    const fields: Record<string, string> = {};
+    let field = '';
+    for (const line of entry.split(/\r?\n/)) {
+      const start = /^(msgid|msgstr) (".*")$/.exec(line);
+      if (start) {
+        field = start[1];
+        fields[field] = JSON.parse(start[2]);
+      } else if (field && line.startsWith('"')) fields[field] += JSON.parse(line);
+      else field = '';
+    }
+    if (fields.msgid) messages.set(fields.msgid, fields.msgstr ?? '');
+  }
+  return messages;
+}
+
+// Entries whose screen needs other Korean wording for the same English, keyed by catalog ID.
+const intentionalVariants: Record<string, string> = {
+  'public.Name': 'Tag sort option; Korean sort options end in 순 (이름순).',
+  'settings.posts.order.recently_updated': 'Post sort option; Korean sort options end in 순 (최근 수정순).',
+  'settings.users.role.author': 'The account role is 작가; elsewhere Author is the writer of a post (작성자).',
+  'settings.static_pages.editor.published': 'Static page visibility switch (공개); static pages are not posts.',
+  'settings.forms.update.updating': 'Repeats its button, 서식 수정, while account fields say 업데이트.',
+};
+
+test('each English source has one Korean translation across the server, /v1, and web catalogs', () => {
+  const webEnglish = readWebCatalog('en');
+  const entries = [
+    ...Object.entries(catalog).map(([id, korean]) => ({
+      id,
+      english: id.replace(/^(?:server|developer)\./, ''),
+      korean,
+    })),
+    ...Object.entries(apiFallback).map(([english, korean]) => ({ id: `/v1 ${english}`, english, korean })),
+    ...[...readWebCatalog('ko')].map(([id, korean]) => ({ id, english: webEnglish.get(id) || id, korean })),
+  ];
+  const translations = new Map<string, Map<string, string[]>>();
+  for (const { id, english, korean } of entries) {
+    if (Object.hasOwn(intentionalVariants, id)) continue;
+    const byKorean = translations.get(english) ?? new Map<string, string[]>();
+    byKorean.set(korean, [...(byKorean.get(korean) ?? []), id]);
+    translations.set(english, byKorean);
+  }
+  const conflicts = [...translations]
+    .filter(([, byKorean]) => byKorean.size > 1)
+    .map(([english, byKorean]) =>
+      [english, ...[...byKorean].map(([korean, ids]) => `  ${korean} ← ${ids.join(', ')}`)].join('\n'),
+    );
+  assert.deepEqual(
+    conflicts,
+    [],
+    'Use one Korean translation, or list the entry in intentionalVariants with a reason.',
+  );
+
+  for (const [id, reason] of Object.entries(intentionalVariants)) {
+    assert.ok(reason.trim(), `${id}: give a reason`);
+    const entry = entries.find((candidate) => candidate.id === id);
+    assert.ok(entry, `${id}: listed as intentional but not in a catalog`);
+    const others = translations.get(entry.english);
+    assert.ok(others && !others.has(entry.korean), `${id}: no longer differs from the other "${entry.english}"`);
+  }
+});
+
 test('message interpolation keeps authored values in their original language', () => {
   const values = { value0: '작가', value1: '사용자 제목', value2: 'https://site.test/post' };
   assert.equal(
