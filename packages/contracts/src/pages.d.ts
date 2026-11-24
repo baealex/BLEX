@@ -257,7 +257,7 @@ export interface PageProps {
         slug: string;
         items: Array<RelatedPost>;
     };
-    login: { brand: SiteBrand; loginAssets: { script: string; css: Array<string> }; model: LoginModel };
+    login: { brand: SiteBrand; loginAssets: { css: Array<string> }; model: LoginModel };
     'password-reset/$token': {
         brand: SiteBrand;
         view:
