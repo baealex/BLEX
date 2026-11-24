@@ -2195,11 +2195,6 @@ msgid "public.{value0}'s cover"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/index.tsx:108
-msgid "public.{value0}'s cover.d419acb3"
-msgstr ""
-
-#. js-lingui-explicit-id
 #: src/features/engagement/ui/comments.tsx:418
 msgid "public.{value0}'s profile picture"
 msgstr ""
@@ -2876,18 +2871,8 @@ msgid "public.Enter your password again"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/routes/sign.page.tsx:98
-msgid "public.Enter your password.047b6c50"
-msgstr ""
-
-#. js-lingui-explicit-id
 #: src/features/auth/ui/login-form.tsx:263
 msgid "public.Enter your username"
-msgstr ""
-
-#. js-lingui-explicit-id
-#: src/routes/sign.page.tsx:60
-msgid "public.Enter your username.259a7b95"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -3556,11 +3541,6 @@ msgid "public.Related posts · {title}"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/routes/@{$username}/{$slug}/related.page.tsx:27
-msgid "public.Related posts.f333fc06"
-msgstr ""
-
-#. js-lingui-explicit-id
 #: src/features/engagement/ui/comments.tsx:484
 msgid "public.Reply"
 msgstr ""
@@ -3969,11 +3949,6 @@ msgid "public.Subscribed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/telegram-hint.tsx:78
-msgid "public.Subscribed.9afbe521"
-msgstr ""
-
-#. js-lingui-explicit-id
 #: src/appearance/shell.tsx:67
 #: src/appearance/site-client.ts:35
 msgid "public.Switch to dark mode"
@@ -4171,12 +4146,6 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/features/auth/ui/login-form.tsx:255
 msgid "public.Username"
-msgstr ""
-
-#. js-lingui-explicit-id
-#: src/routes/setup.page.tsx:48
-#: src/routes/sign.page.tsx:55
-msgid "public.Username.367001d7"
 msgstr ""
 
 #. js-lingui-explicit-id

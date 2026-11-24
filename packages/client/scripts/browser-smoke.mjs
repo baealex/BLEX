@@ -34,6 +34,18 @@ page.on('response', (response) => {
 
 const open = (path) => page.goto(`${origin}${path}`, { waitUntil: 'networkidle' });
 
+/**
+ * Removing the last route turns request interception off, and a request paused at that moment can stay
+ * unfinished for Playwright, so the page would never reach network idle. The route goes once the page is idle.
+ */
+const unrouteWhenIdle = async (pattern) => {
+    try {
+        await page.waitForLoadState('networkidle');
+    } finally {
+        await page.unroute(pattern);
+    }
+};
+
 const createFirstAdmin = async () => {
     // The form is filled before its code arrives, and hydration has to keep every field.
     const setupModule = '**/assets/ui/assets/setup-page-*.js';
@@ -53,9 +65,8 @@ const createFirstAdmin = async () => {
     } finally {
         release();
         await continued;
-        await page.unroute(setupModule);
     }
-    await page.waitForLoadState('networkidle');
+    await unrouteWhenIdle(setupModule);
     await expect(page.locator('input[name=username]')).toHaveValue(account.username);
     await expect(page.locator('input[name=passwordCheck]')).toHaveValue(account.password);
     await page.getByRole('button', { name: '관리자 만들기' }).click();
@@ -135,9 +146,8 @@ const useSiteControlsBeforeHydration = async () => {
         } finally {
             release();
             await continued;
-            await page.unroute(pattern);
         }
-        await page.waitForLoadState('networkidle');
+        await unrouteWhenIdle(pattern);
     };
     await holding('**/assets/blex/app.js', '/', async () => {
         const menu = page.locator('[data-site-header] [data-account-menu]');
@@ -699,21 +709,20 @@ const removeSessionCachesOnSignOut = async () => {
         });
         const menu = page.locator('[data-site-header] [data-account-menu]');
         await menu.locator('summary').click();
-        await Promise.all([
-            page.waitForEvent('framenavigated'),
-            menu.getByRole('button', { name: '로그아웃' }).click()
-        ]);
+        await menu.getByRole('button', { name: '로그아웃' }).click();
+        release();
+        // The native post loads a new document, which has no marker. The checks need no idle network,
+        // since the next step loads another page.
+        await page.waitForFunction(() => !('__smokeSameDocument' in window));
+        // The home page leaves the form's token to the site script, which takes it from the cookie.
+        await expect(page).toHaveURL(`${origin}/`);
+        await expect(page.locator('[data-site-header] [data-account-menu]')).toHaveCount(0);
+        expect(await viewerCaches()).toEqual([]);
     } finally {
         release();
         await held;
         await page.unroute(app);
     }
-    await page.waitForLoadState('networkidle');
-    // The home page leaves the form's token to the site script, which takes it from the cookie.
-    await expect(page).toHaveURL(`${origin}/`);
-    expect(await page.evaluate(() => window.__smokeSameDocument)).toBeUndefined();
-    await expect(page.locator('[data-site-header] [data-account-menu]')).toHaveCount(0);
-    expect(await viewerCaches()).toEqual([]);
     await logIn();
 };
 
@@ -864,7 +873,7 @@ const useSettingsListWithKeyboard = async () => {
     await expect(page).toHaveURL(`${origin}/settings/series`);
 
     await page.getByRole('button', { name: 'Keyboard series A 시리즈 메뉴 열기', exact: true }).click();
-    await page.getByRole('menuitem', { name: '시리즈 편집', exact: true }).click();
+    await page.getByRole('menuitem', { name: '시리즈 수정', exact: true }).click();
     await expect(page).toHaveURL(`${origin}/settings/series/edit/${created[0].id}`);
     await expect(page.getByRole('textbox').first()).toHaveValue('Keyboard series A');
     await page.setViewportSize({ width: 1280, height: 900 });
