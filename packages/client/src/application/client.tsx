@@ -34,6 +34,7 @@ import {
     storedAboutDraft
 } from '../features/authors/about-draft';
 import type { AuthFormPageData } from '../features/auth/ui/form-page-data';
+import { loadHcaptcha } from '../features/auth/ui/hcaptcha';
 import type { AuthorMountContext, AuthorPageData } from '../features/authors/author-page-data';
 import type { DeveloperQuickstartData } from '../features/developer-api/quickstart-data';
 import type { ErrorPageData, StaticPageData } from '../features/discovery/content-page-data';
@@ -74,7 +75,6 @@ interface ApplicationDocument {
     url: string;
     head: PageHead;
     bodyAttributes: Array<[string, string]>;
-    needsHcaptcha: boolean;
     /** Settings, search, sign-up, or the editor, which own some of their URL changes. */
     screen: boolean;
     treePage: TreePage | null;
@@ -257,19 +257,6 @@ function collectHead(source: Document, pageUrl: URL): PageHead {
         styles,
         scripts
     };
-}
-
-function hasTrustedHcaptchaScript(source: Document, pageUrl: URL): boolean {
-    return Array.from(
-        source.querySelectorAll<HTMLScriptElement>('script[data-blex-trusted-script="hcaptcha"][src]')
-    ).some((script) => {
-        try {
-            const url = new URL(script.getAttribute('src') ?? '', pageUrl);
-            return url.origin === 'https://js.hcaptcha.com' && url.pathname === '/1/api.js' && !url.search && !url.hash;
-        } catch {
-            return false;
-        }
-    });
 }
 
 function bodyAttributes(source: Document): Array<[string, string]> {
@@ -594,7 +581,6 @@ function readApplicationDocument(source: Document, url: string): ApplicationDocu
         url: pageUrl.href,
         head: collectHead(source, pageUrl),
         bodyAttributes: bodyAttributes(source),
-        needsHcaptcha: hasTrustedHcaptchaScript(source, pageUrl),
         screen: screenPage !== null,
         treePage
     };
@@ -1306,85 +1292,19 @@ function disposeActivePage(): void {
     }
 }
 
-interface HcaptchaApi {
-    render(element: HTMLElement, options: { sitekey: string }): string;
-    remove?(widgetId: string): void;
-}
-
-const hcaptchaScriptUrl = 'https://js.hcaptcha.com/1/api.js';
-let hcaptchaApiPromise: Promise<HcaptchaApi> | null = null;
-
-function getHcaptchaApi(): HcaptchaApi | undefined {
-    return (window as Window & { hcaptcha?: HcaptchaApi }).hcaptcha;
-}
-
-function isHcaptchaScript(script: HTMLScriptElement): boolean {
-    try {
-        const url = new URL(script.getAttribute('src') ?? '', window.location.href);
-        return url.href === hcaptchaScriptUrl;
-    } catch {
-        return false;
-    }
-}
-
-function loadHcaptchaApi(): Promise<HcaptchaApi> {
-    const ready = getHcaptchaApi();
-    if (ready?.render) return Promise.resolve(ready);
-    if (hcaptchaApiPromise) return hcaptchaApiPromise;
-
-    hcaptchaApiPromise = new Promise<HcaptchaApi>((resolve, reject) => {
-        let script = Array.from(document.scripts).find(
-            (candidate) => candidate.dataset.blexTrustedScript === 'hcaptcha' && isHcaptchaScript(candidate)
-        );
-        if (!script) {
-            script = document.createElement('script');
-            script.src = hcaptchaScriptUrl;
-            script.async = true;
-            script.defer = true;
-            script.dataset.blexTrustedScript = 'hcaptcha';
-            document.head.append(script);
-        }
-
-        let settled = false;
-        const finish = (api?: HcaptchaApi, error?: Error) => {
-            if (settled) return;
-            settled = true;
-            window.clearInterval(poll);
-            window.clearTimeout(timeout);
-            script?.removeEventListener('error', failed);
-            if (api?.render) resolve(api);
-            else reject(error ?? new Error('hCaptcha did not become available.'));
-        };
-        const failed = () => finish(undefined, new Error('hCaptcha could not be loaded.'));
-        const poll = window.setInterval(() => {
-            const api = getHcaptchaApi();
-            if (api?.render) finish(api);
-        }, 50);
-        const timeout = window.setTimeout(
-            () => finish(undefined, new Error('hCaptcha took too long to load.')),
-            20_000
-        );
-        script?.addEventListener('error', failed, { once: true });
-        const api = getHcaptchaApi();
-        if (api?.render) finish(api);
-    }).catch((error: unknown) => {
-        hcaptchaApiPromise = null;
-        throw error;
-    });
-    return hcaptchaApiPromise;
-}
+const hcaptchaWidgetSelector = '[data-blex-hcaptcha-widget]';
 
 async function mountHcaptcha(
     page: ApplicationDocument,
     content: ParentNode,
     generation: number
 ): Promise<(() => void) | null> {
-    if (!page.needsHcaptcha) return null;
-    const api = await loadHcaptchaApi();
+    if (!content.querySelector(hcaptchaWidgetSelector)) return null;
+    const api = await loadHcaptcha();
     if (generation !== routeFeatureGeneration || currentDocument !== page) return null;
     const mounted: Array<{ element: HTMLElement; widgetId: string }> = [];
-    for (const element of content.querySelectorAll<HTMLElement>('[data-blex-hcaptcha-widget]')) {
-        if (element.dataset.hcaptchaWidgetId || element.querySelector('iframe')) continue;
+    for (const element of content.querySelectorAll<HTMLElement>(hcaptchaWidgetSelector)) {
+        if (element.dataset.hcaptchaWidgetId) continue;
         const sitekey = element.dataset.sitekey?.trim();
         if (!sitekey) continue;
         try {
@@ -1402,7 +1322,7 @@ async function mountHcaptcha(
     return () => {
         for (const { element, widgetId } of mounted.reverse()) {
             try {
-                api.remove?.(widgetId);
+                api.remove(widgetId);
             } catch {
                 /* The widget may already have been removed with its route. */
             }
