@@ -228,8 +228,8 @@ function bindRouteElements() {
             if (!signal.aborted) mountAuthorHeatmaps(signal);
         });
     }
-    // A mounted post page shows this prompt from its own tree, and reports when it could not mount.
-    if (!document.querySelector('[data-blex-post-page]')) offerTelegramHint(signal);
+    // Application pages show this prompt from their React tree.
+    if (!document.getElementById('blex-application')) offerTelegramHint(signal);
 }
 
 function offerTelegramHint(signal: AbortSignal) {
@@ -329,9 +329,6 @@ systemTheme.addEventListener('change', () => setTheme(undefined, hydrated && loc
 document.addEventListener('blex:before-page-change', handleBeforePageChange);
 document.addEventListener('blex:page-change', handlePageChange);
 document.addEventListener('blex:catalog-failed', reloadAfterCatalogFailure);
-document.addEventListener('blex:post-page-unmounted', () => {
-    if (routeController) offerTelegramHint(routeController.signal);
-});
 
 let localeReady = false;
 setTheme(undefined, false);

@@ -242,3 +242,8 @@ export function staticPageStyles(content: string): string {
   }
   return styles.join('');
 }
+
+/** The HTML a published static page shows; the editor preview uses it too so the two cannot drift. */
+export function staticPageHtml(content: string): string {
+  return `${staticPageStyles(content)}${sanitizePostHtml(content)}`;
+}

@@ -3,7 +3,6 @@ import { renderPage } from '../../../platform/views.js';
 import type { FastifyInstance } from 'fastify';
 import type { PrismaClient } from '@prisma/client';
 import { isoUtcMillis } from '../../../platform/date-format.js';
-import { sanitizePostHtml } from '../../posts/post-html.js';
 import { readCardLikes, readLikedPosts, readPublicPostCount, readPublicPosts } from '../services/public-posts.js';
 import {
   PAGE_SIZE,
@@ -17,7 +16,7 @@ import {
   pageFrom,
   safeStructuredPageData,
   sendNotFound,
-  staticPageStyles,
+  staticPageHtml,
   totalPages,
   validPublicPage,
 } from '../shared.js';
@@ -143,7 +142,7 @@ export function registerHomeRoutes(
       siteUrl,
     );
     const pageMarkdown = await advertiseMarkdown(reply, db, siteUrl, path);
-    const pageHtml = `${staticPageStyles(page.content)}${sanitizePostHtml(page.content)}`;
+    const pageHtml = staticPageHtml(page.content);
     return renderHtml(
       reply,
       renderPage('static/$slug', {

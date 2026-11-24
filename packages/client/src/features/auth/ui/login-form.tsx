@@ -1,6 +1,6 @@
 import { getDocumentLocale } from '../../../i18n/locale.js';
 import { ui } from '../../../i18n/public-ui.js';
-import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { navigateTo } from '../../../application/navigation.js';
 import { recoveredAccountPath } from '../recovery-path.js';
 import { AuthPanel } from './panel.js';
@@ -26,6 +26,9 @@ interface LoginError {
 
 export function LoginForm({ model }: LoginFormProps) {
     const requestController = useRef<AbortController | null>(null);
+    const usernameInput = useRef<HTMLInputElement>(null);
+    const passwordInput = useRef<HTMLInputElement>(null);
+    const codeInput = useRef<HTMLInputElement>(null);
     const [username, setUsername] = useState(model.pendingOAuth?.username ?? '');
     const [password, setPassword] = useState('');
     const [code, setCode] = useState('');
@@ -35,6 +38,13 @@ export function LoginForm({ model }: LoginFormProps) {
     const [statusMessage, setStatusMessage] = useState('');
     const isOAuthChallenge = model.pendingOAuth !== null;
     const oauthUsername = model.pendingOAuth?.username ?? '';
+
+    // Hydration keeps what the visitor typed before this code arrived, so state starts from the fields.
+    useLayoutEffect(() => {
+        if (usernameInput.current) setUsername(usernameInput.current.value);
+        if (passwordInput.current) setPassword(passwordInput.current.value);
+        if (codeInput.current) setCode(codeInput.current.value);
+    }, []);
 
     useEffect(
         () => () => {
@@ -196,6 +206,7 @@ export function LoginForm({ model }: LoginFormProps) {
                                 {ui('Authentication code')}
                             </label>
                             <input
+                                ref={codeInput}
                                 id="blex-login-oauth-code"
                                 className="blex-login__input"
                                 name="code"
@@ -223,6 +234,7 @@ export function LoginForm({ model }: LoginFormProps) {
                                 {ui('Authentication code')}
                             </label>
                             <input
+                                ref={codeInput}
                                 id="blex-login-code"
                                 className="blex-login__input"
                                 name="code"
@@ -255,6 +267,7 @@ export function LoginForm({ model }: LoginFormProps) {
                                 {ui('Username')}
                             </label>
                             <input
+                                ref={usernameInput}
                                 id="blex-login-username"
                                 className="blex-login__input"
                                 name="username"
@@ -273,6 +286,7 @@ export function LoginForm({ model }: LoginFormProps) {
                                 {ui('Password')}
                             </label>
                             <input
+                                ref={passwordInput}
                                 id="blex-login-password"
                                 className="blex-login__input"
                                 name="password"

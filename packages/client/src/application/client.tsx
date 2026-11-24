@@ -10,14 +10,15 @@ import {
     type HistoryLocation,
     type RouterHistory
 } from '@tanstack/react-router';
-import { type ReactNode, use, useEffect, useLayoutEffect, useState } from 'react';
+import { type ReactNode, use, useLayoutEffect, useState } from 'react';
 import { ApplicationFrame, type ApplicationView } from './frame.js';
-import { openLoginPromptFrom } from './login-prompt.js';
 import { opensOutsideApplication, type BlexNavigateDetail } from './navigation.js';
+import { ApplicationPrompts, offerTelegramHint, openLoginPromptFrom } from './prompts.js';
 import {
     authorPageDataSelector,
     contentPageDataSelector,
     discoveryPageDataSelector,
+    loginPageDataSelector,
     postBodySelector,
     postPageDataSelector
 } from './route-data.js';
@@ -71,7 +72,7 @@ interface ApplicationDocument {
     url: string;
     head: PageHead;
     bodyAttributes: Array<[string, string]>;
-    pageModules: Array<{ name: 'login' | 'editor' | 'screen'; source: string }>;
+    pageModules: Array<{ name: 'editor' | 'screen'; source: string }>;
     needsHcaptcha: boolean;
     screen: ScreenData | null;
     treePage: TreePage | null;
@@ -91,17 +92,10 @@ interface ContentPageModule {
 interface TreePage {
     key: string;
     load: () => Promise<ReactNode>;
-    /** Post pages hand their browser-only prompts back to the site script when they cannot mount. */
-    announcesUnmounted: boolean;
     /** Leaves the live server markup in place when the first load fails, keeping typed text and drawn charts. */
     keepsServerMarkup: boolean;
     /** Runs when the page's code failed and its server markup stays on screen. */
     onLoadFailed?: () => void;
-    /** True once this document's page has committed in the React tree. */
-    mounted: boolean;
-    /** Resolves when the page has mounted or can no longer mount. */
-    settled: Promise<void>;
-    settle: () => void;
 }
 
 interface PageChangeDetail {
@@ -270,7 +264,7 @@ function pageModuleSources(source: Document): ApplicationDocument['pageModules']
         .map((script): ApplicationDocument['pageModules'][number] | null => {
             const name = script.dataset.blexPageModule;
             const src = script.getAttribute('src');
-            if ((name !== 'login' && name !== 'editor' && name !== 'screen') || !src) return null;
+            if ((name !== 'editor' && name !== 'screen') || !src) return null;
             return {
                 name,
                 source: src
@@ -321,17 +315,9 @@ function applyScreenData(screen: ScreenData | null): void {
 function createTreePage(
     key: string,
     load: TreePage['load'],
-    {
-        announcesUnmounted = false,
-        keepsServerMarkup = false,
-        onLoadFailed
-    }: Partial<Pick<TreePage, 'announcesUnmounted' | 'keepsServerMarkup' | 'onLoadFailed'>> = {}
+    { keepsServerMarkup = false, onLoadFailed }: Partial<Pick<TreePage, 'keepsServerMarkup' | 'onLoadFailed'>> = {}
 ): TreePage {
-    let settle = () => {};
-    const settled = new Promise<void>((resolve) => {
-        settle = resolve;
-    });
-    return { key, load, announcesUnmounted, keepsServerMarkup, onLoadFailed, mounted: false, settled, settle };
+    return { key, load, keepsServerMarkup, onLoadFailed };
 }
 
 function readPostPage(source: Document, content: Element): TreePage | null {
@@ -342,13 +328,10 @@ function readPostPage(source: Document, content: Element): TreePage | null {
     const bodyHtml = body.innerHTML;
     postRevision += 1;
     const revision = postRevision;
-    return createTreePage(
-        `post:${data.postPath}`,
-        () =>
-            import('../features/posts/post-page').then(({ PostPage }) => (
-                <PostPage data={data} bodyHtml={bodyHtml} revision={revision} />
-            )),
-        { announcesUnmounted: true }
+    return createTreePage(`post:${data.postPath}`, () =>
+        import('../features/posts/post-page').then(({ PostPage }) => (
+            <PostPage data={data} bodyHtml={bodyHtml} revision={revision} />
+        ))
     );
 }
 
@@ -418,17 +401,20 @@ function readContentPage(source: Document, content: Element, pageUrl: URL): Tree
     );
 }
 
-function TreeRoute({ page, children }: { page: TreePage; children: ReactNode }) {
-    useEffect(() => {
-        page.mounted = true;
-        page.settle();
-    }, [page]);
-
-    return children;
+/** The sign-in module checks its own data, so a page it rejects keeps the server form. */
+function readLoginPage(source: Document, content: Element, pageUrl: URL): TreePage | null {
+    const value = parseElementJson(source.querySelector(loginPageDataSelector));
+    if (!isRecord(value)) return null;
+    return createTreePage(
+        `login:${pageRequestKey(pageUrl)}`,
+        () => import('../features/auth/ui/login-page').then(({ mountPage }) => mountPage(value, content)),
+        // Without its code, the server form keeps the typed credentials and still submits.
+        { keepsServerMarkup: true }
+    );
 }
 
-function LoadingTreeRoute({ page, loading }: { page: TreePage; loading: Promise<ReactNode> }) {
-    return <TreeRoute page={page}>{use(loading)}</TreeRoute>;
+function LoadingTreeRoute({ loading }: { loading: Promise<ReactNode> }) {
+    return use(loading);
 }
 
 /** The first page hydrates whenever its code arrives, so the router and header never wait for it. */
@@ -440,7 +426,7 @@ function hydrateTreePageWhenLoaded(page: ApplicationDocument): void {
     const loading = request.catch(() => new Promise<ReactNode>(() => {}));
     page.view = {
         ...page.view,
-        content: <LoadingTreeRoute page={treePage} loading={loading} />
+        content: <LoadingTreeRoute loading={loading} />
     };
     request.catch((error: unknown) => {
         console.error('The page could not be loaded.', error);
@@ -455,7 +441,6 @@ function hydrateTreePageWhenLoaded(page: ApplicationDocument): void {
             };
             showApplicationPage?.(page.view);
         }
-        treePage.settle();
     });
 }
 
@@ -478,26 +463,8 @@ async function prepareTreeContent(page: ApplicationDocument): Promise<void> {
     page.view = {
         ...page.view,
         html: '',
-        content: <TreeRoute page={treePage}>{content}</TreeRoute>
+        content
     };
-}
-
-/** Hands browser-only prompts back to the site script when this document's post page did not mount. */
-async function announceUnmountedPost(page: ApplicationDocument): Promise<void> {
-    const { treePage } = page;
-    if (!treePage?.announcesUnmounted) return;
-    if (page.view.content !== undefined) {
-        await Promise.race([
-            treePage.settled,
-            new Promise((resolve) => {
-                window.setTimeout(resolve, treePageWaitMs);
-            })
-        ]);
-    }
-    // A page about to be replaced leaves the one-time prompt for the next document.
-    const replacing = activePostRequests.size > 0 || router?.state.isLoading;
-    if (currentDocument === page && !treePage.mounted && !replacing)
-        document.dispatchEvent(new CustomEvent('blex:post-page-unmounted'));
 }
 
 function readApplicationDocument(source: Document, url: string): ApplicationDocument | null {
@@ -518,7 +485,8 @@ function readApplicationDocument(source: Document, url: string): ApplicationDocu
         readPostPage(source, content) ??
         readDiscoveryPage(source, pageUrl) ??
         readAuthorPage(source, content, pageUrl) ??
-        readContentPage(source, content, pageUrl);
+        readContentPage(source, content, pageUrl) ??
+        readLoginPage(source, content, pageUrl);
     return {
         view: {
             header,
@@ -1452,7 +1420,7 @@ function commitApplicationPage(page: ApplicationDocument, hash: string): void {
                 to: page.url,
                 navigationType: changeType
             });
-            void announceUnmountedPost(page);
+            offerTelegramHint();
         });
     }
     hasCommittedInitialDocument = true;
@@ -1494,7 +1462,13 @@ function ApplicationRoute({ initialPage }: { initialPage: ApplicationDocument })
         if (!hasCommittedInitialDocument) commitApplicationPage(initialPage, window.location.hash);
     }, [initialPage]);
 
-    return <ApplicationFrame view={view} />;
+    // The prompts keep their own state, so opening one never re-renders a page that is still hydrating.
+    return (
+        <>
+            <ApplicationFrame view={view} />
+            <ApplicationPrompts />
+        </>
+    );
 }
 
 declare global {
