@@ -8,7 +8,7 @@ import { SignupPage } from '~/features/auth/ui/signup-page';
 import type { PageProps } from '@blex/contracts/pages';
 
 export default function renderPage(props: PageProps['sign']): string {
-    const { brand, siteKey } = props;
+    const { brand } = props;
     const data = createSignupPageData(props);
     return renderApplicationDocument(
         <html lang={getDocumentLocale()}>
@@ -18,9 +18,6 @@ export default function renderPage(props: PageProps['sign']): string {
                 <meta name="robots" content="noindex" />
                 <title>{ui('Sign up - {value0}', { value0: brand.siteName })}</title>
                 <SiteTheme />
-                {siteKey && (
-                    <script src="https://js.hcaptcha.com/1/api.js" async defer data-blex-trusted-script="hcaptcha" />
-                )}
             </head>
             <body className="bg-surface-page text-content antialiased">
                 <SiteHeader brand={brand} />

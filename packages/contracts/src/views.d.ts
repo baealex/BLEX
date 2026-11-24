@@ -19,7 +19,6 @@ export interface SiteHeaderProps {
     searchPage?: boolean;
     editorPage?: boolean;
     hideAuthLinks?: boolean;
-    locale?: 'ko' | 'en';
 }
 
 export interface LoginModel {

@@ -522,6 +522,327 @@ msgid "common.uploading"
 msgstr "업로드 중..."
 
 #. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:117
+#: src/routes/docs/developer-api/reference.page.tsx:16
+msgid "developer.api_name"
+msgstr "BLEX 개발자 API"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:252
+msgid "developer.quickstart.connect.command"
+msgstr "계정 확인"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:247
+msgid "developer.quickstart.connect.description"
+msgstr "내 계정 정보를 가져와서 토큰이 잘 작동하는지 확인합니다."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:257
+msgid "developer.quickstart.connect.result"
+msgstr "응답의 {username}에 내 아이디가 보이면 연결된 거예요. 오류가 나오면 아래의 {troubleshooting}을 확인하세요."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:68
+#: src/features/developer-api/quickstart.tsx:244
+msgid "developer.quickstart.connect.title"
+msgstr "2. 연결 확인하기"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:14
+msgid "developer.quickstart.copied"
+msgstr "복사했습니다."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:33
+msgid "developer.quickstart.copy"
+msgstr "복사"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:16
+msgid "developer.quickstart.copy_failed"
+msgstr "복사에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:30
+msgid "developer.quickstart.copy_label"
+msgstr "{label} 복사"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:295
+msgid "developer.quickstart.draft.command"
+msgstr "초안 만들기"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:283
+msgid "developer.quickstart.draft.description"
+msgstr "{title}은 제목, {markdown}은 본문입니다. {status}로 보내면 아직 다른 사람에게 공개되지 않습니다."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:300
+msgid "developer.quickstart.draft.post_number"
+msgstr "응답의 {id}가 방금 만든 글의 번호입니다. 예를 들어 번호가 123이면 아래처럼 저장하세요. {replace}."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:332
+msgid "developer.quickstart.draft.posts_link"
+msgstr "글 관리"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:309
+msgid "developer.quickstart.draft.replace_number"
+msgstr "123을 실제 응답의 번호로 바꿔 주세요"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:325
+msgid "developer.quickstart.draft.review"
+msgstr "{posts}에서도 초안을 확인하고 이어서 편집할 수 있습니다. 여기까지만 실행하고 멈춰도 됩니다."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:319
+msgid "developer.quickstart.draft.save_command"
+msgstr "글 번호 저장"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:69
+#: src/features/developer-api/quickstart.tsx:279
+msgid "developer.quickstart.draft.title"
+msgstr "3. 첫 초안 저장하기"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:106
+msgid "developer.quickstart.errors.400_description"
+msgstr "응답의 error.message와 error.fields를 확인하세요. JSON의 따옴표·쉼표나 필드 값이 잘못되었을 수 있습니다."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:105
+msgid "developer.quickstart.errors.400_title"
+msgstr "400 / 422 · 보낸 내용을 확인해 주세요"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:75
+msgid "developer.quickstart.errors.401_description"
+msgstr "토큰 전체를 복사했는지, 만료되거나 폐기되지 않았는지 확인하세요. 새 터미널을 열었다면 1번의 준비 명령부터 다시 실행합니다."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:74
+msgid "developer.quickstart.errors.401_title"
+msgstr "401 · 토큰을 확인해 주세요"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:83
+msgid "developer.quickstart.errors.403_description"
+msgstr "작가 계정인지 확인하고, 포스트 읽기·작성 권한을 모두 선택한 토큰을 사용하세요."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:82
+msgid "developer.quickstart.errors.403_title"
+msgstr "403 · 토큰 권한이 부족해요"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:90
+msgid "developer.quickstart.errors.404_description"
+msgstr "POST_ID에 실제 응답의 data.id를 넣었는지 확인하세요. 내 계정으로 만든 글만 가져오거나 수정할 수 있습니다."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:89
+msgid "developer.quickstart.errors.404_title"
+msgstr "404 · 글 번호를 확인해 주세요"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:98
+msgid "developer.quickstart.errors.409_description"
+msgstr "이미 발행한 초안은 다시 발행할 수 없습니다. 수정 충돌이라면 최신 글을 다시 가져온 뒤 변경 내용을 확인하세요."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:97
+msgid "developer.quickstart.errors.409_title"
+msgstr "409 · 글 상태가 바뀌었어요"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:451
+msgid "developer.quickstart.errors.title"
+msgstr "오류가 나면 여기부터 확인하세요"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:430
+msgid "developer.quickstart.image.command"
+msgstr "이미지 업로드"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:420
+msgid "developer.quickstart.image.description"
+msgstr "{file}을 내 컴퓨터의 이미지 파일 경로로 바꿔서 업로드하세요."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:435
+msgid "developer.quickstart.image.markdown"
+msgstr "응답의 {url}을 {markdown}에 넣어 Markdown 본문에 사용하면 됩니다."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:416
+msgid "developer.quickstart.image.title"
+msgstr "본문에 이미지 넣기"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:123
+msgid "developer.quickstart.intro"
+msgstr "터미널에서 명령어 몇 개로 첫 포스트를 만들어 보세요."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:128
+msgid "developer.quickstart.intro_publish"
+msgstr "초안으로 먼저 저장하고, 준비되면 발행합니다."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:387
+msgid "developer.quickstart.more.description"
+msgstr "필요할 때 하나씩 펼쳐 보세요. 위에서 저장한 글 번호를 그대로 사용합니다."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:384
+msgid "developer.quickstart.more.title"
+msgstr "이어서 해보기"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:363
+msgid "developer.quickstart.publish.command"
+msgstr "초안 발행"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:346
+msgid "developer.quickstart.publish.description"
+msgstr "내용을 확인했다면 아래 명령을 실행하세요. {publish}."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:368
+msgid "developer.quickstart.publish.result"
+msgstr "응답의 {status}가 {published}이면 완료입니다. {url}을 이 사이트 주소 뒤에 붙이면 발행한 글을 열 수 있습니다."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:70
+#: src/features/developer-api/quickstart.tsx:342
+msgid "developer.quickstart.publish.title"
+msgstr "4. 준비되면 발행하기"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:353
+msgid "developer.quickstart.publish.warning"
+msgstr "초안이 즉시 발행되어 다른 사람도 볼 수 있습니다"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:469
+msgid "developer.quickstart.reference.description"
+msgstr "검색, 태그, 시리즈, 예약 발행 등은 API 문서에서 확인하세요. Authorize 버튼에 토큰 전체를 넣으면 브라우저에서도 요청을 보낼 수 있습니다."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:479
+msgid "developer.quickstart.reference.link"
+msgstr "전체 API 문서 열기"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:466
+msgid "developer.quickstart.reference.title"
+msgstr "다른 기능이 필요하다면"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:134
+msgid "developer.quickstart.requirements"
+msgstr "macOS·Linux 터미널 또는 Windows의 WSL·Git Bash에서 따라 할 수 있습니다. curl이 필요합니다."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:140
+msgid "developer.quickstart.steps"
+msgstr "빠른 시작 순서"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:120
+#: src/routes/docs/developer-api/quickstart.page.tsx:18
+msgid "developer.quickstart.title"
+msgstr "개발자 API 빠른 시작"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:213
+msgid "developer.quickstart.token.copy_value"
+msgstr "토큰을 발급하고 전체 값을 복사합니다. 전체 토큰은 발급할 때 한 번만 표시됩니다."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:161
+msgid "developer.quickstart.token.description"
+msgstr "토큰은 외부 도구가 내 계정으로 API를 사용할 수 있게 하는 비밀번호 같은 값입니다."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:234
+msgid "developer.quickstart.token.keep_secret"
+msgstr "토큰을 공개 저장소나 포스트에 올리지 마세요. 유출되면 토큰 관리에서 폐기하고 다시 발급하세요."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:170
+msgid "developer.quickstart.token.open_settings"
+msgstr "작가 계정으로 로그인한 뒤 {tokens}를 엽니다."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:198
+msgid "developer.quickstart.token.read_scope"
+msgstr "포스트 읽기"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:191
+msgid "developer.quickstart.token.select_scopes"
+msgstr "이름을 정하고 {read}와 {write}을 모두 선택합니다."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:180
+msgid "developer.quickstart.token.settings_link"
+msgstr "토큰 관리"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:222
+msgid "developer.quickstart.token.setup"
+msgstr "아래에서 {token}을 방금 복사한 값으로 바꾼 뒤 터미널에 붙여 넣으세요. 이후 명령도 같은 터미널에서 실행합니다."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:231
+msgid "developer.quickstart.token.setup_command"
+msgstr "터미널 준비"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:67
+#: src/features/developer-api/quickstart.tsx:158
+msgid "developer.quickstart.token.title"
+msgstr "1. 토큰 만들기"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:203
+msgid "developer.quickstart.token.write_scope"
+msgstr "포스트 작성"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:266
+msgid "developer.quickstart.troubleshooting_link"
+msgstr "오류 해결"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:403
+msgid "developer.quickstart.update.command"
+msgstr "제목 수정"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:407
+msgid "developer.quickstart.update.conflicts"
+msgstr "여러 도구에서 함께 편집한다면 API 문서의 expected_updated_at으로 수정 충돌을 방지할 수 있습니다."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:398
+msgid "developer.quickstart.update.description"
+msgstr "바꿀 항목만 보내면 됩니다. 생략한 본문과 태그는 유지됩니다."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:395
+msgid "developer.quickstart.update.title"
+msgstr "글 제목 수정하기"
+
+#. js-lingui-explicit-id
 #: src/features/editor/components/SettingsDrawer.tsx:631
 msgid "editor.actions.delete_post"
 msgstr "포스트 삭제"
@@ -1919,6 +2240,11 @@ msgid "public.Account"
 msgstr "로그인 계정"
 
 #. js-lingui-explicit-id
+#: src/appearance/shell.tsx:144
+msgid "public.Account menu"
+msgstr "계정 메뉴"
+
+#. js-lingui-explicit-id
 #: src/appearance/author-heatmap.ts:54
 msgid "public.Activity"
 msgstr "활동"
@@ -2775,6 +3101,11 @@ msgid "public.Log in"
 msgstr "로그인"
 
 #. js-lingui-explicit-id
+#: src/appearance/shell.tsx:113
+msgid "public.Log out"
+msgstr "로그아웃"
+
+#. js-lingui-explicit-id
 #: src/features/authors/profile-ui.tsx:74
 msgid "public.Manage author posts"
 msgstr "작성자 글 관리"
@@ -2794,6 +3125,17 @@ msgstr "글 관리"
 #: src/routes/@{$username}/{$slug}/index.page.tsx:692
 msgid "public.Markdown reference URL"
 msgstr "*.md 참조 주소"
+
+#. js-lingui-explicit-id
+#: src/appearance/shell.tsx:215
+#: src/appearance/shell.tsx:232
+msgid "public.Menu"
+msgstr "메뉴"
+
+#. js-lingui-explicit-id
+#: src/appearance/shell.tsx:198
+msgid "public.Mobile menu"
+msgstr "모바일 메뉴"
 
 #. js-lingui-explicit-id
 #: src/routes/tags.page.tsx:56
@@ -2826,6 +3168,12 @@ msgstr "시리즈 이동"
 #: src/routes/password-reset/$token.page.tsx:62
 msgid "public.New password"
 msgstr "새 비밀번호"
+
+#. js-lingui-explicit-id
+#: src/appearance/shell.tsx:92
+#: src/appearance/shell.tsx:153
+msgid "public.New post"
+msgstr "새 포스트"
 
 #. js-lingui-explicit-id
 #: src/features/authors/activity-ui.tsx:15
@@ -2937,6 +3285,16 @@ msgid "public.No public series yet"
 msgstr "아직 공개된 시리즈가 없습니다"
 
 #. js-lingui-explicit-id
+#: src/appearance/quick-search.tsx:78
+msgid "public.No quick search results."
+msgstr "빠른 검색 결과가 없습니다."
+
+#. js-lingui-explicit-id
+#: src/appearance/quick-search.tsx:96
+msgid "public.No recent searches."
+msgstr "최근 검색어가 없습니다."
+
+#. js-lingui-explicit-id
 #: src/routes/search.page.tsx:48
 msgid "public.No results"
 msgstr "검색 결과가 없습니다"
@@ -2980,6 +3338,11 @@ msgstr "표시할 작성 기록이 없습니다."
 #: src/features/discovery/layout.tsx:179
 msgid "public.Notices"
 msgstr "공지"
+
+#. js-lingui-explicit-id
+#: src/appearance/shell.tsx:205
+msgid "public.Notifications"
+msgstr "알림"
 
 #. js-lingui-explicit-id
 #: src/routes/@{$username}/series/$seriesSlug.page.tsx:85
@@ -3114,6 +3477,11 @@ msgid "public.Previous page"
 msgstr "이전 페이지"
 
 #. js-lingui-explicit-id
+#: src/appearance/shell.tsx:81
+msgid "public.Profile"
+msgstr "프로필"
+
+#. js-lingui-explicit-id
 #: src/routes/@{$username}/series/index.page.tsx:123
 msgid "public.Public series will appear here."
 msgstr "시리즈가 공개되면 이곳에 표시됩니다."
@@ -3135,6 +3503,13 @@ msgid "public.Published posts will appear here."
 msgstr "공개된 포스트가 발행되면 이곳에 표시됩니다."
 
 #. js-lingui-explicit-id
+#: src/appearance/quick-search.tsx:78
+#: src/appearance/quick-search.tsx:80
+#: src/appearance/quick-search.tsx:100
+msgid "public.Quick search results"
+msgstr "빠른 검색 결과"
+
+#. js-lingui-explicit-id
 #: src/routes/@{$username}/{$slug}/index.page.tsx:285
 msgid "public.Reading"
 msgstr "읽는 중"
@@ -3153,6 +3528,12 @@ msgstr "최근 기록"
 #: src/features/authors/profile-ui.tsx:71
 msgid "public.Recent posts"
 msgstr "최근 포스트"
+
+#. js-lingui-explicit-id
+#: src/appearance/quick-search.tsx:50
+#: src/appearance/quick-search.tsx:92
+msgid "public.Recent searches"
+msgstr "최근 검색"
 
 #. js-lingui-explicit-id
 #: src/features/authors/profile-ui.tsx:71
@@ -3301,6 +3682,11 @@ msgstr "시리즈 검색"
 #: src/routes/tags.page.tsx:35
 msgid "public.Search tags"
 msgstr "태그 검색"
+
+#. js-lingui-explicit-id
+#: src/appearance/quick-search.tsx:100
+msgid "public.Searching…"
+msgstr "검색 중…"
 
 #. js-lingui-explicit-id
 #: src/routes/@{$username}/{$slug}/index.page.tsx:150
@@ -3504,6 +3890,21 @@ msgid "public.Sign-in failed. (HTTP {value0})"
 msgstr "로그인에 실패했습니다. (HTTP {value0})"
 
 #. js-lingui-explicit-id
+#: src/appearance/shell.tsx:172
+msgid "public.Signed in as"
+msgstr "로그인한 계정"
+
+#. js-lingui-explicit-id
+#: src/appearance/shell.tsx:285
+msgid "public.Site information"
+msgstr "사이트 정보"
+
+#. js-lingui-explicit-id
+#: src/appearance/shell.tsx:239
+msgid "public.Site menu"
+msgstr "사이트 메뉴"
+
+#. js-lingui-explicit-id
 #: src/features/discovery/layout.tsx:138
 msgid "public.Site notice"
 msgstr "사이트 공지"
@@ -3571,6 +3972,17 @@ msgstr "구독 중"
 #: src/features/engagement/ui/telegram-hint.tsx:78
 msgid "public.Subscribed.9afbe521"
 msgstr "구독했어요"
+
+#. js-lingui-explicit-id
+#: src/appearance/shell.tsx:67
+#: src/appearance/site-client.ts:35
+msgid "public.Switch to dark mode"
+msgstr "다크 모드로 전환"
+
+#. js-lingui-explicit-id
+#: src/appearance/site-client.ts:35
+msgid "public.Switch to light mode"
+msgstr "라이트 모드로 전환"
 
 #. js-lingui-explicit-id
 #: src/routes/@{$username}/{$slug}/index.page.tsx:204
@@ -3696,6 +4108,11 @@ msgid "public.Try again"
 msgstr "다시 시도"
 
 #. js-lingui-explicit-id
+#: src/appearance/quick-search.tsx:80
+msgid "public.Try again on the search page."
+msgstr "검색 화면에서 다시 시도해 주세요."
+
+#. js-lingui-explicit-id
 #: src/features/auth/ui/login-form.tsx:142
 msgid "public.Two-factor authentication"
 msgstr "2단계 인증"
@@ -3740,6 +4157,11 @@ msgstr "{value0} 수정됨"
 #: src/features/auth/ui/login-form.tsx:239
 msgid "public.Use a code from your authenticator app or a recovery code. A recovery code works only once and disables two-factor authentication when used."
 msgstr "인증 앱의 코드 또는 복구 코드를 사용할 수 있습니다. 복구 코드는 한 번만 쓸 수 있고, 사용하면 2단계 인증이 해제됩니다."
+
+#. js-lingui-explicit-id
+#: src/appearance/shell.tsx:160
+msgid "public.User menu"
+msgstr "사용자 메뉴"
 
 #. js-lingui-explicit-id
 #: src/features/engagement/ui/comments.tsx:246

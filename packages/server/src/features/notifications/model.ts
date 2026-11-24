@@ -3,6 +3,7 @@ import { Prisma, type PrismaClient } from '@prisma/client';
 import { publicPostWhere } from '../posts/data/visibility.js';
 import { publicPostPath } from '../posts/public-post.js';
 import { queuePostWebhooks } from '../integrations/webhooks/delivery.js';
+import { systemMessage } from '../../platform/messages.js';
 
 export const notificationPreferences = [
   'NOTIFY_POSTS_LIKE',
@@ -50,31 +51,24 @@ export function notificationText(key: string, data: Record<string, unknown>, fal
     (typeof comment !== 'number' && typeof comment !== 'string')
   )
     return fallback;
-  if (language === 'en')
-    return (
-      (
-        {
-          'post.commented': `@${actor} commented on "${title}". #${comment}`,
-          'comment.mentioned': `@${actor} mentioned you in "${title}". #${comment}`,
-          'comment.liked': `@${actor} liked your comment #${comment} on "${title}".`,
-          'comment.replied': `@${actor} replied to your comment on "${title}". #${comment}`,
-          'post.liked': `@${actor} liked "${title}".`,
-          'post.published': `@${actor} published a new post: "${title}".`,
-        } as Record<string, string>
-      )[key] ?? fallback
-    );
-  return (
-    (
-      {
-        'post.commented': `"${title}" 글에 @${actor}님이 댓글을 남겼습니다. #${comment}`,
-        'comment.mentioned': `"${title}" 글에서 @${actor}님이 회원님을 태그했습니다. #${comment}`,
-        'comment.liked': `"${title}" 글에 작성한 회원님의 #${comment} 댓글을 @${actor}님이 추천했습니다.`,
-        'comment.replied': `"${title}" 글에 작성한 회원님의 댓글에 @${actor}님이 답글을 남겼습니다. #${comment}`,
-        'post.liked': `"${title}" 글을 @${actor}님이 추천했습니다.`,
-        'post.published': `@${actor}님이 새 글을 발행했습니다: "${title}"`,
-      } as Record<string, string>
-    )[key] ?? fallback
-  );
+  const values = { actor, title, comment };
+  const locale = language === 'en' ? 'en' : 'ko';
+  switch (key) {
+    case 'post.commented':
+      return systemMessage('@{actor} commented on "{title}". #{comment}', values, undefined, locale);
+    case 'comment.mentioned':
+      return systemMessage('@{actor} mentioned you in "{title}". #{comment}', values, undefined, locale);
+    case 'comment.liked':
+      return systemMessage('@{actor} liked your comment #{comment} on "{title}".', values, undefined, locale);
+    case 'comment.replied':
+      return systemMessage('@{actor} replied to your comment on "{title}". #{comment}', values, undefined, locale);
+    case 'post.liked':
+      return systemMessage('@{actor} liked "{title}".', values, undefined, locale);
+    case 'post.published':
+      return systemMessage('@{actor} published a new post: "{title}".', values, undefined, locale);
+    default:
+      return fallback;
+  }
 }
 
 export function notificationParams(value: Prisma.JsonValue): Record<string, unknown> {

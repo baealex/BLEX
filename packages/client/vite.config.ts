@@ -67,12 +67,17 @@ const publicSources =
 const uncompiledSources = /\/src\/(?:ui|features\/editor\/tiptap)\//;
 
 const compiledCatalog = /^\/\*eslint-disable\*\/export const messages=JSON\.parse\(("(?:[^"\\]|\\.)*")\);?$/s;
-const publicMessage = (id: string) => id.startsWith('public.');
+type CatalogPart = 'public' | 'developer' | 'screen';
+const catalogPart = (key: string): CatalogPart =>
+    key.startsWith('public.') ? 'public' : key.startsWith('developer.') ? 'developer' : 'screen';
+const catalogModulePart = (id: string): CatalogPart =>
+    id.endsWith('?developer?lingui') ? 'developer' : id.endsWith('?lingui') ? 'screen' : 'public';
 
 /**
  * `messages.po` gives public pages only their `public.` messages, and `messages.po?lingui`, the same
- * catalog under another module id, gives screens the rest. Code that public pages load before the screen
- * runtime must not use a screen message, reach the screen catalogs, or carry React Compiler output.
+ * catalog under another module id, gives screens the rest. `messages.po?developer?lingui` holds the
+ * Developer API guide's `developer.` messages, which only the guide loads. Code that public pages load before
+ * the screen runtime must not use a screen message, reach the screen catalogs, or carry React Compiler output.
  */
 function splitCatalogs(): Plugin {
     const screenMessages = new Set<string>();
@@ -80,16 +85,14 @@ function splitCatalogs(): Plugin {
         name: 'blex-split-catalogs',
         enforce: 'post',
         transform: {
-            filter: { id: /\.po(?:\?lingui)?$/ },
+            filter: { id: /\.po(?:(?:\?developer)?\?lingui)?$/ },
             handler(code, id) {
                 const catalog = compiledCatalog.exec(code)?.[1];
                 if (!catalog) this.error(`Unexpected compiled catalog format in ${id}`);
                 const messages: Record<string, unknown> = JSON.parse(JSON.parse(catalog));
-                const forScreens = id.endsWith('?lingui');
-                for (const key of Object.keys(messages)) if (!publicMessage(key)) screenMessages.add(key);
-                const kept = Object.fromEntries(
-                    Object.entries(messages).filter(([key]) => publicMessage(key) !== forScreens)
-                );
+                const part = catalogModulePart(id);
+                for (const key of Object.keys(messages)) if (catalogPart(key) === 'screen') screenMessages.add(key);
+                const kept = Object.fromEntries(Object.entries(messages).filter(([key]) => catalogPart(key) === part));
                 return {
                     code: `export const messages=JSON.parse(${JSON.stringify(JSON.stringify(kept))});`,
                     map: null,

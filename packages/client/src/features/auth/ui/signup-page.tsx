@@ -4,7 +4,7 @@ import { readSignupPageData, type SignupPageData } from './form-page-data';
 import { AuthPanel, authField, authInput, authSubmit } from './panel.js';
 import { serverFooter } from './server-footer';
 
-// hCaptcha fills its element itself, sometimes before this page hydrates, so React never manages what is inside.
+// The application draws the hCaptcha widget here, sometimes before this page hydrates, so React never manages what is inside.
 const captchaFrame = { __html: '' };
 
 /** The fields stay uncontrolled, so hydration keeps whatever the visitor typed before this code arrived. */
@@ -116,7 +116,6 @@ export function SignupPage({ data, footer }: { data: SignupPageData; footer: Rea
                             </details>
                             {data.captchaSiteKey && (
                                 <div
-                                    className="h-captcha"
                                     data-sitekey={data.captchaSiteKey}
                                     data-blex-hcaptcha-widget=""
                                     dangerouslySetInnerHTML={captchaFrame}

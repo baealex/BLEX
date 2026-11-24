@@ -30,6 +30,11 @@ const screenRuntime = 'src/screen-runtime.tsx';
 // Screens add the rest of the messages before they render, so their totals include the larger screen catalog.
 const publicCatalogs = ['src/locales/en/messages.po', 'src/locales/ko/messages.po'];
 const screenCatalogs = ['src/locales/en/messages.po?lingui', 'src/locales/ko/messages.po?lingui'];
+// The Developer API guide adds its own messages before it renders.
+const developerCatalogs = [
+    'src/locales/en/messages.po?developer?lingui',
+    'src/locales/ko/messages.po?developer?lingui'
+];
 
 // Screen budgets count what a screen adds to the application page it opens in: its runtime,
 // screen code, and screen catalog. React and the other modules the page already loaded are not counted
@@ -157,6 +162,7 @@ const budgets = [
     ].map(([route, module]) => ({
         entries: [...publicPageEntries, `src/features/${module}.tsx`],
         catalogs: publicCatalogs,
+        pageCatalogs: module === 'developer-api/quickstart' ? developerCatalogs : undefined,
         label: `public content page scripts (${route})`,
         maxInitialBytes: 460 * 1024,
         maxInitialGzipBytes: 150 * 1024
@@ -278,6 +284,7 @@ for (const budget of budgets) {
     const graph = collectInitialGraph(build, [...(budget.loadedBefore ?? []), ...budget.entries]);
     const stats = graph.filter((key) => !loadedBefore.has(key)).map((key) => getFileStats(build, key));
     if (budget.catalogs) stats.push(getLargestCatalog(build, budget.catalogs));
+    if (budget.pageCatalogs) stats.push(getLargestCatalog(build, budget.pageCatalogs));
     const { rawBytes: totalRawBytes, gzipBytes: totalGzipBytes } = sumBytes(stats);
     const unexpectedStats = budget.allowedInitialNames
         ? stats.filter((item) => !budget.allowedInitialNames.includes(item.name))

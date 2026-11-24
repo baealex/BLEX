@@ -13,7 +13,8 @@ const catalogLoaders: Record<AppLocale, () => Promise<CatalogModule>> = {
 const catalogPromises = new Map<AppLocale, Promise<CatalogModule>>();
 let activationVersion = 0;
 
-const loadCatalog = (locale: AppLocale): Promise<CatalogModule> => {
+/** A language's public catalog. Activating the language installs this messages object itself. */
+export const loadCatalog = (locale: AppLocale): Promise<CatalogModule> => {
     const existing = catalogPromises.get(locale);
     if (existing) {
         return existing;
