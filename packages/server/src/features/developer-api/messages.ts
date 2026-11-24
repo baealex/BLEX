@@ -1,24 +1,20 @@
-import { developerKorean } from './locales/ko.js';
+import type { UiLocale } from '../../platform/locale.js';
+import { hasTranslation, translateMessage } from '../../platform/messages.js';
 
-export type DeveloperLocale = 'ko' | 'en';
-export type DeveloperMessage = keyof typeof developerKorean;
+export type DeveloperLocale = UiLocale;
 
+/**
+ * Developer API reference and error text, in the token owner's language. Its Korean translations live in the
+ * server catalog under `developer.` IDs, apart from site messages that share an English source.
+ */
 export function developerText(
-  locale: DeveloperLocale,
-  source: DeveloperMessage,
-  values: Record<string, string | number> = {},
-): string {
-  return translateDeveloperText(locale, source, values);
-}
-
-export function translateDeveloperText(
   locale: DeveloperLocale,
   source: string,
   values: Record<string, string | number> = {},
 ): string {
-  const message =
-    locale === 'ko' && Object.hasOwn(developerKorean, source) ? developerKorean[source as DeveloperMessage] : source;
-  return message.replace(/\{(\w+)\}/g, (placeholder, key: string) =>
-    Object.hasOwn(values, key) ? String(values[key]) : placeholder,
-  );
+  return translateMessage(`developer.${source}`, source, values, locale);
+}
+
+export function hasDeveloperText(source: string): boolean {
+  return hasTranslation(`developer.${source}`);
 }

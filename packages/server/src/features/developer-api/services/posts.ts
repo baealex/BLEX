@@ -1,6 +1,5 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyReply } from 'fastify';
-import { resolveUiLocale } from '../../../platform/locale.js';
 import type { AuthenticatedToken } from './token-auth.js';
 import { postIdsMatching, type PostTextField } from '../../posts/data/text-match.js';
 import { publicPostWhere } from '../../posts/data/visibility.js';
@@ -242,11 +241,8 @@ export function postWriteReceipt(post: PostRow) {
   return { id, status, ...(status === 'published' ? { url, publicUrl } : {}), updatedAt, publishedAt };
 }
 
-export async function postNotFound(db: PrismaClient, reply: FastifyReply, userId: number) {
-  const preference = await db.userPreference.findUnique({ where: { userId }, select: { language: true } });
-  const language = resolveUiLocale(preference?.language);
-  const message = language === 'en' ? 'Post not found.' : '포스트를 찾을 수 없습니다.';
-  return errorReply(reply, formatError('post.not_found', message, 404));
+export function postNotFound(reply: FastifyReply) {
+  return errorReply(reply, formatError('post.not_found', 'Post not found.', 404));
 }
 
 export function postVersionIssue(expected: string, post: PostDetailRow) {
