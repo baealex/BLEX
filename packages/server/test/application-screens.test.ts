@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import sharp from 'sharp';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import { buildApp } from '../src/app.js';
-import { isApplicationDocument } from '../src/platform/document.js';
+import { applicationContentSecurityPolicy, isApplicationDocument } from '../src/platform/document.js';
 import { readUiFile } from '../src/platform/ui-assets.js';
 import { normalizedTags } from '../src/features/posts/services/post-content.js';
 import {
@@ -384,6 +385,61 @@ test('lets only the site frame the editor draft preview', async () => {
     }
   } finally {
     await fixture.close();
+  }
+});
+
+test('gives every application document the shared policy, whatever its route sends', async () => {
+  const fixture = await createMigratedDatabase();
+  seedEditor(fixture.db, 1, 'writer');
+  seedPost(fixture.db, 1, 1, 'kept', { publishedAt: recent });
+  const app = await buildApp(
+    fixture.path,
+    testSiteUrl,
+    { secretKey: testSecretKey, cipherKey: testCipherKey, setupToken: 'setup-token' },
+    fixture.mediaRoot,
+  );
+  const ownPolicy = "default-src 'self'";
+  const sendWithOwnPolicy = (html: string) => async (_request: FastifyRequest, reply: FastifyReply) =>
+    reply.type('text/html; charset=utf-8').header('Content-Security-Policy', ownPolicy).send(html);
+  const applicationPage =
+    '<!doctype html><html><head><meta name="blex-application" content="1"/></head><body></body></html>';
+  app.get('/policy-probe/application', sendWithOwnPolicy(applicationPage));
+  app.get('/policy-probe/framed', { config: { framedBySite: true } }, sendWithOwnPolicy(applicationPage));
+  app.get('/policy-probe/standalone', sendWithOwnPolicy('<!doctype html><html><head></head><body></body></html>'));
+  const shared = applicationContentSecurityPolicy(testSiteUrl);
+  const visitor = { accept: 'text/html', cookie: `csrftoken=${'v'.repeat(43)}` };
+  const policyOf = async (url: string, headers: Record<string, string> = visitor) => {
+    const [page, head] = await Promise.all(
+      (['GET', 'HEAD'] as const).map((method) => app.inject({ method, url, headers })),
+    );
+    assert.equal(page.statusCode, 200, url);
+    assert.equal(head.headers['content-security-policy'], page.headers['content-security-policy'], url);
+    return page.headers['content-security-policy'];
+  };
+  try {
+    assert.equal(await policyOf('/setup'), shared);
+    const failedSetup = await app.inject({
+      method: 'POST',
+      url: '/setup',
+      headers: visitor,
+      payload: { csrfmiddlewaretoken: 'v'.repeat(43), setupToken: 'wrong' },
+    });
+    assert.equal(failedSetup.statusCode, 200);
+    assert.equal(failedSetup.headers['content-security-policy'], shared);
+
+    fixture.db.prepare('UPDATE "User" SET isStaff = 1, isSuperuser = 1 WHERE id = 1').run();
+    const writer = signIn(fixture.db, 1);
+    for (const url of ['/login', '/@writer/kept', '/', '/tags', '/@writer', '/@writer/posts']) {
+      assert.equal(await policyOf(url), shared, url);
+    }
+    assert.equal(await policyOf('/@writer/kept', writer), shared);
+    assert.equal(await policyOf('/policy-probe/application'), shared);
+    // Only a framed page or a document outside the application keeps the policy its route sends.
+    assert.equal(await policyOf('/policy-probe/framed'), ownPolicy);
+    assert.equal(await policyOf('/policy-probe/standalone'), ownPolicy);
+  } finally {
+    await app.close();
+    await fixture.cleanup();
   }
 });
 

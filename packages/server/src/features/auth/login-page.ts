@@ -47,12 +47,6 @@ export async function registerLoginPage(app: FastifyInstance, db: PrismaClient, 
 
     // The stylesheet still loads from the head, so the form is styled before its code arrives.
     const html = renderPage('login', { brand, loginAssets: { css }, model });
-    return reply
-      .type('text/html; charset=utf-8')
-      .header(
-        'Content-Security-Policy',
-        "default-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
-      )
-      .send(html);
+    return reply.type('text/html; charset=utf-8').send(html);
   });
 }

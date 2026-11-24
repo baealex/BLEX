@@ -25,13 +25,7 @@ export async function advertiseMarkdown(
 }
 
 export function renderHtml(reply: FastifyReply, html: string): FastifyReply {
-  return reply
-    .type('text/html; charset=utf-8')
-    .header(
-      'Content-Security-Policy',
-      "default-src 'none'; img-src 'self' https:; media-src 'self' https:; frame-src https://youtube.com https://www.youtube.com https://youtube-nocookie.com https://www.youtube-nocookie.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
-    )
-    .send(html);
+  return reply.type('text/html; charset=utf-8').send(html);
 }
 
 export async function getLayoutContext(

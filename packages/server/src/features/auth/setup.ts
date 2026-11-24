@@ -14,9 +14,6 @@ import { formInput, validCsrf } from '../../platform/csrf.js';
 import { hashPassword } from './password-hash.js';
 import { createSession, createToken } from './session.js';
 
-const setupCsp =
-  "default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'";
-
 export async function hasAdministrator(db: PrismaClient | Prisma.TransactionClient): Promise<boolean> {
   const admin = await db.user.findFirst({
     where: { OR: [{ isStaff: true }, { isSuperuser: true }] },
@@ -80,7 +77,6 @@ export function registerSetup(app: FastifyInstance, db: PrismaClient, siteUrl: U
     return reply
       .type('text/html; charset=utf-8')
       .header('Referrer-Policy', 'strict-origin')
-      .header('Content-Security-Policy', setupCsp)
       .send(setupMarkup(csrf, matchesToken(token, provided) ? token : ''));
   });
 
@@ -100,7 +96,6 @@ export function registerSetup(app: FastifyInstance, db: PrismaClient, siteUrl: U
       reply
         .type('text/html; charset=utf-8')
         .header('Referrer-Policy', 'strict-origin')
-        .header('Content-Security-Policy', setupCsp)
         .send(setupMarkup(csrf, validToken ? provided : '', message));
 
     if (!validToken) return fail(systemMessage('Check the setup token.'));
