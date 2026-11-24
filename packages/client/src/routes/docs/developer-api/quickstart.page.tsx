@@ -19,7 +19,7 @@ export default function renderPage(props: PageProps['docs/developer-api/quicksta
                 <SiteTheme />
             </head>
             <body className="bg-surface-page text-content antialiased">
-                <SiteHeader brand={brand} viewer={viewer} locale={locale} />
+                <SiteHeader brand={brand} viewer={viewer} />
                 <DeveloperQuickstartPage data={data} />
                 {pageDataScript(contentPageDataId, data)}
             </body>
