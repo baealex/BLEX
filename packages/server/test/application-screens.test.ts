@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import test from 'node:test';
 import sharp from 'sharp';
 import { buildApp } from '../src/app.js';
+import { isApplicationDocument } from '../src/platform/document.js';
 import { normalizedTags } from '../src/features/posts/services/post-content.js';
 import {
   isoWithOffset,
@@ -290,11 +291,18 @@ test('mounts the 3.x editor for new, draft, and existing posts', async () => {
   const fixture = await screensApp();
   try {
     const headers = signIn(fixture.db, 1);
-    assert.equal(screenProps((await fixture.app.inject({ url: '/write', headers })).body).props.mode, 'new');
+    const write = await fixture.app.inject({ url: '/write', headers });
+    assert.equal(screenProps(write.body).props.mode, 'new');
     const draft = screenProps((await fixture.app.inject({ url: '/write?draft=draft', headers })).body);
     assert.deepEqual([draft.name, draft.props.mode, draft.props.draftUrl], ['PostEditor', 'draft', 'draft']);
-    const edit = screenProps((await fixture.app.inject({ url: '/@writer/kept/edit', headers })).body);
+    const editPage = await fixture.app.inject({ url: '/@writer/kept/edit', headers });
+    const edit = screenProps(editPage.body);
     assert.deepEqual([edit.props.mode, edit.props.postUrl], ['edit', 'kept']);
+    // The application moves to and from the editor, so its header is the application's header.
+    for (const page of [write, editPage]) {
+      assert.ok(isApplicationDocument(page.body));
+      assert.match(page.body, /<script type="module" src="[^"]+" data-blex-page-module="screen">/);
+    }
   } finally {
     await fixture.close();
   }

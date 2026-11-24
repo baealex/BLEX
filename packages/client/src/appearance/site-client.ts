@@ -4,13 +4,10 @@ import { reloadAfterCatalogFailure } from './catalog-recovery';
 import { siteText } from './messages.js';
 import './tailwind.css';
 import './site.scss';
-import { escapeAction } from './quick-search-escape';
-import { rememberSearch } from './recent-searches';
 import { THEME_COOKIE_KEY, writeThemePreferenceCookie } from './theme-cookie';
 
 const root = document.documentElement;
 const systemTheme = matchMedia('(prefers-color-scheme: dark)');
-const themeButtons = new WeakSet<HTMLButtonElement>();
 
 let routeController: AbortController | undefined;
 let routeGeneration = 0;
@@ -65,87 +62,11 @@ function closeTransientUi() {
     }
 }
 
-function bindThemeButtons() {
-    for (const button of document.querySelectorAll<HTMLButtonElement>('[data-site-theme-toggle]')) {
-        if (themeButtons.has(button)) continue;
-        themeButtons.add(button);
-        button.addEventListener('click', () => {
-            const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
-            writeThemePreferenceCookie(next);
-            setTheme(next);
-        });
-    }
-}
-
 function updateHeader() {
     const header = document.querySelector<HTMLElement>('[data-site-header]');
     if (!header) return;
     header.classList.toggle('border-line-light', scrollY > 0);
     header.classList.toggle('border-transparent', scrollY === 0);
-}
-
-/**
- * Outside the application frame, React for the search box loads only once the reader reaches for it.
- * These listeners cover the box until the island takes over, and the plain form keeps working if it never does.
- */
-function bindStandaloneSearch(signal: AbortSignal) {
-    const search = document.querySelector<HTMLElement>('[data-site-search]');
-    const form = search?.querySelector('form');
-    const input = search?.querySelector('input');
-    if (!search || !form || !input) return;
-    const untilMounted = new AbortController();
-    const listening = { signal: untilMounted.signal };
-    signal.addEventListener('abort', () => untilMounted.abort(), { once: true, ...listening });
-    let loading = false;
-    let dismissed = false;
-    const load = () => {
-        if (loading) return;
-        loading = true;
-        void import('./quick-search-client').then(
-            ({ mountQuickSearch }) => {
-                if (!signal.aborted)
-                    mountQuickSearch(
-                        search,
-                        signal,
-                        () => untilMounted.abort(),
-                        () => dismissed
-                    );
-            },
-            () => {
-                loading = false;
-            }
-        );
-    };
-    const engage = () => {
-        dismissed = false;
-        load();
-    };
-    input.addEventListener('focus', engage, listening);
-    input.addEventListener('input', engage, listening);
-    input.addEventListener(
-        'keydown',
-        (event) => {
-            if (event.key !== 'Escape') return;
-            const action = escapeAction(event, false, input.value !== '');
-            if (action !== 'none') event.preventDefault();
-            if (action === 'clear') input.value = '';
-            if (action !== 'hold') dismissed = true;
-        },
-        listening
-    );
-    form.addEventListener('submit', () => rememberSearch(input.value.trim()), listening);
-    document.addEventListener(
-        'keydown',
-        (event) => {
-            if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'k') return;
-            if (!search.getClientRects().length) return;
-            event.preventDefault();
-            input.focus();
-            load();
-        },
-        listening
-    );
-    if (document.activeElement === input) load();
 }
 
 function bindRouteElements() {
@@ -196,15 +117,6 @@ function bindRouteElements() {
             { signal }
         );
     }
-
-    const mobileMenu = document.querySelector<HTMLDialogElement>('#blex-mobile-menu');
-    mobileMenu?.addEventListener(
-        'close',
-        () => {
-            document.querySelector<HTMLButtonElement>('[data-site-menu-open]')?.setAttribute('aria-expanded', 'false');
-        },
-        { signal }
-    );
 
     const siteSettingsForm = document.querySelector<HTMLFormElement>('[data-site-settings-form]');
     const siteSettingsSave = document.querySelector<HTMLButtonElement>('[data-site-settings-save]');
@@ -289,14 +201,13 @@ function bindRouteElements() {
         );
     }
 
-    if (!document.getElementById('blex-application')) bindStandaloneSearch(signal);
     if (document.querySelector('[data-heatmap-days]')) {
         void import('./author-heatmap.js').then(({ mountAuthorHeatmaps }) => {
             if (!signal.aborted) mountAuthorHeatmaps(signal);
         });
     }
-    // A mounted post page shows this prompt from its own tree, and reports when it could not mount.
-    if (!document.querySelector('[data-blex-post-page]')) offerTelegramHint(signal);
+    // Application pages show this prompt from their React tree.
+    if (!document.getElementById('blex-application')) offerTelegramHint(signal);
 }
 
 function offerTelegramHint(signal: AbortSignal) {
@@ -310,9 +221,35 @@ function offerTelegramHint(signal: AbortSignal) {
     );
 }
 
+async function copyLink(button: HTMLElement, generation: number) {
+    const status = button.parentElement?.querySelector<HTMLElement>('[data-copy-status]');
+    let copied = true;
+    try {
+        await navigator.clipboard.writeText(button.dataset.copyLink ?? '');
+    } catch {
+        copied = false;
+    }
+    try {
+        // The status is translated, and a click before the page hydrates can come before its translations.
+        await activateDocumentLocale();
+    } catch {
+        return;
+    }
+    if (generation !== routeGeneration || !button.isConnected || !status?.isConnected) return;
+    status.textContent = copied
+        ? (button.dataset.copyMessage ?? ui('Link copied.'))
+        : (button.dataset.copyErrorMessage ?? ui('Could not copy.'));
+}
+
 function handleGlobalClick(event: MouseEvent) {
     if (!(event.target instanceof Element)) return;
     const target = event.target;
+
+    if (target.closest('[data-site-theme-toggle]')) {
+        const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+        writeThemePreferenceCookie(next);
+        setTheme(next);
+    }
 
     const menuToggle = target.closest<HTMLButtonElement>('[data-site-menu-open]');
     if (menuToggle) {
@@ -330,23 +267,13 @@ function handleGlobalClick(event: MouseEvent) {
     }
 
     const dialog = target instanceof HTMLDialogElement ? target : target.closest('dialog');
-    if (dialog instanceof HTMLDialogElement && (target === dialog || target.closest('a[href^="#"]'))) dialog.close();
+    // A page with unsaved edits asks before a menu link leaves it, and the open menu would block that question.
+    const leavesMenu = dialog?.id === 'blex-mobile-menu' && target.closest('a[href]');
+    if (dialog instanceof HTMLDialogElement && (target === dialog || target.closest('a[href^="#"]') || leavesMenu))
+        dialog.close();
 
     const copiedButton = target.closest<HTMLElement>('[data-copy-link]');
-    if (copiedButton) {
-        const generation = routeGeneration;
-        const status = copiedButton.parentElement?.querySelector<HTMLElement>('[data-copy-status]');
-        void (async () => {
-            try {
-                await navigator.clipboard.writeText(copiedButton.dataset.copyLink ?? '');
-                if (generation === routeGeneration && copiedButton.isConnected && status?.isConnected)
-                    status.textContent = copiedButton.dataset.copyMessage ?? ui('Link copied.');
-            } catch {
-                if (generation === routeGeneration && copiedButton.isConnected && status?.isConnected)
-                    status.textContent = copiedButton.dataset.copyErrorMessage ?? ui('Could not copy.');
-            }
-        })();
-    }
+    if (copiedButton) void copyLink(copiedButton, routeGeneration);
 
     for (const details of document.querySelectorAll<HTMLDetailsElement>('[data-account-menu]')) {
         if (!details.contains(target)) details.open = false;
@@ -358,6 +285,11 @@ function handleGlobalKeydown(event: KeyboardEvent) {
     for (const details of document.querySelectorAll<HTMLDetailsElement>('[data-account-menu]')) details.open = false;
 }
 
+function handleDialogClose(event: Event) {
+    if (event.target instanceof HTMLDialogElement && event.target.id === 'blex-mobile-menu')
+        document.querySelector<HTMLButtonElement>('[data-site-menu-open]')?.setAttribute('aria-expanded', 'false');
+}
+
 function handleBeforePageChange() {
     routeGeneration += 1;
     if (!hydrated) return;
@@ -366,11 +298,12 @@ function handleBeforePageChange() {
 }
 
 function handlePageChange() {
-    routeGeneration += 1;
     if (hydrated) {
+        routeGeneration += 1;
         disposeRouteBindings();
         closeTransientUi();
     } else {
+        // Hydration keeps the page, so a menu or a copy status from before it stays.
         hydrated = true;
     }
     activateClientBindings();
@@ -380,22 +313,21 @@ function activateClientBindings() {
     if (!clientBindingsInstalled) {
         clientBindingsInstalled = true;
         window.addEventListener('scroll', updateHeader, { passive: true });
-        document.addEventListener('click', handleGlobalClick);
-        document.addEventListener('keydown', handleGlobalKeydown);
     }
-    bindThemeButtons();
     setTheme();
     updateHeader();
     bindRouteElements();
 }
 
+// These run before the application hydrates, and in the capture phase because React stops
+// events inside a page whose code has not arrived yet. The menu's close event does not bubble.
+document.addEventListener('click', handleGlobalClick, true);
+document.addEventListener('keydown', handleGlobalKeydown, true);
+document.addEventListener('close', handleDialogClose, true);
 systemTheme.addEventListener('change', () => setTheme(undefined, hydrated && localeReady));
 document.addEventListener('blex:before-page-change', handleBeforePageChange);
 document.addEventListener('blex:page-change', handlePageChange);
 document.addEventListener('blex:catalog-failed', reloadAfterCatalogFailure);
-document.addEventListener('blex:post-page-unmounted', () => {
-    if (routeController) offerTelegramHint(routeController.signal);
-});
 
 let localeReady = false;
 setTheme(undefined, false);

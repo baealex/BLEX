@@ -10,7 +10,6 @@ import { CodeBlockHeader } from './code-block-header';
 import type { DecoratedCodeBlock } from './code-blocks-client';
 import { publicPostPath } from './paths';
 import type { PostPageData, RelatedPostView } from './post-page-data';
-import { usePostPrompts } from './post-prompts';
 
 function PostCover({ data }: { data: PostPageData }) {
     const { cover, image, avatar, authorPath, published, updated, seriesLink, timelapsePath } = data;
@@ -628,7 +627,14 @@ function PostDock({ data }: { data: PostPageData }) {
                                             </button>
                                         </>
                                     )}
-                                    <p className="px-3 text-xs text-content-hint" data-copy-status role="status" />
+                                    {/* The site script writes the result, possibly before this page hydrates. */}
+                                    <p
+                                        className="px-3 text-xs text-content-hint"
+                                        data-copy-status
+                                        role="status"
+                                        suppressHydrationWarning
+                                        dangerouslySetInnerHTML={{ __html: '' }}
+                                    />
                                 </div>
                             </details>
                         </>
@@ -641,8 +647,10 @@ function PostDock({ data }: { data: PostPageData }) {
                 </div>
             </div>
             {headings.length > 0 && (
+                // The site script can open this sheet before the page's code arrives.
                 <dialog
                     id="post-toc"
+                    suppressHydrationWarning
                     className="blex-toc-sheet fixed inset-x-0 top-auto bottom-0 m-0 max-h-[70vh] w-full max-w-none overflow-y-auto rounded-t-3xl bg-surface-elevated p-0 text-content shadow-xl"
                 >
                     <div className="flex items-center justify-between border-b border-line-light px-6 py-3">
@@ -714,7 +722,6 @@ export function PostPage({
     const { visibility, cover, banners: allBanners, headings, canManage } = data;
     const fullCover = cover === 'split' || cover === 'overlay';
     const hasDock = visibility === 'public' || headings.length > 0 || (canManage && visibility !== 'draft');
-    const prompts = usePostPrompts(revision, hasDock);
     const banners = (position: string) =>
         allBanners
             .filter((banner) => banner.position === position)
@@ -730,8 +737,7 @@ export function PostPage({
 
     return (
         <>
-            {/* biome-ignore lint/a11y/useKeyWithClickEvents: this only observes activation of the links inside. */}
-            <main className="min-h-[calc(100vh-10.5rem)]" data-blex-post-page="" onClick={prompts.onClick}>
+            <main className="min-h-[calc(100vh-10.5rem)]" data-blex-post-page="">
                 {fullCover && coverSection}
                 <div className={`post-detail-body px-4 md:px-6${fullCover ? ' post-detail-body--after-cover' : ''}`}>
                     <div className="post-detail-layout">
@@ -807,7 +813,6 @@ export function PostPage({
             <div className="post-detail-footer-action-space">
                 <SiteFooter brand={data.brand} year={data.copyrightYear} />
             </div>
-            {prompts.dialogs}
         </>
     );
 }

@@ -1707,6 +1707,16 @@ msgid "editor.trash.title"
 msgstr "휴지통으로 이동"
 
 #. js-lingui-explicit-id
+#: src/features/editor/hooks/useLeaveWarning.ts:33
+msgid "editor.unsaved.leave"
+msgstr "나가기"
+
+#. js-lingui-explicit-id
+#: src/features/editor/hooks/useLeaveWarning.ts:29
+msgid "editor.unsaved.leave_description"
+msgstr "변경사항이 저장되지 않았습니다. 페이지를 나갈까요?"
+
+#. js-lingui-explicit-id
 #: src/features/editor/NewPostEditor.tsx:398
 msgid "editor.unsaved.switch_draft"
 msgstr "이동"
@@ -1717,6 +1727,7 @@ msgid "editor.unsaved.switch_draft_description"
 msgstr "현재 작성 중인 내용이 저장되지 않았습니다. 다른 임시 포스트로 이동하시겠습니까?"
 
 #. js-lingui-explicit-id
+#: src/features/editor/hooks/useLeaveWarning.ts:25
 #: src/features/editor/NewPostEditor.tsx:390
 msgid "editor.unsaved.title"
 msgstr "저장되지 않은 변경사항"

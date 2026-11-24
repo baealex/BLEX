@@ -7,12 +7,13 @@ import {
     createRootRoute,
     createRoute,
     createRouter,
+    type HistoryLocation,
     type RouterHistory
 } from '@tanstack/react-router';
-import { type ReactNode, use, useEffect, useLayoutEffect, useState } from 'react';
+import { type ReactNode, use, useLayoutEffect, useState } from 'react';
 import { ApplicationFrame, type ApplicationView } from './frame.js';
-import { openLoginPromptFrom } from './login-prompt.js';
 import { opensOutsideApplication, type BlexNavigateDetail } from './navigation.js';
+import { ApplicationPrompts, offerTelegramHint, openLoginPromptFrom } from './prompts.js';
 import {
     authorPageDataSelector,
     contentPageDataSelector,
@@ -91,17 +92,10 @@ interface ContentPageModule {
 interface TreePage {
     key: string;
     load: () => Promise<ReactNode>;
-    /** Post pages hand their browser-only prompts back to the site script when they cannot mount. */
-    announcesUnmounted: boolean;
     /** Leaves the live server markup in place when the first load fails, keeping typed text and drawn charts. */
     keepsServerMarkup: boolean;
     /** Runs when the page's code failed and its server markup stays on screen. */
     onLoadFailed?: () => void;
-    /** True once this document's page has committed in the React tree. */
-    mounted: boolean;
-    /** Resolves when the page has mounted or can no longer mount. */
-    settled: Promise<void>;
-    settle: () => void;
 }
 
 interface PageChangeDetail {
@@ -321,17 +315,9 @@ function applyScreenData(screen: ScreenData | null): void {
 function createTreePage(
     key: string,
     load: TreePage['load'],
-    {
-        announcesUnmounted = false,
-        keepsServerMarkup = false,
-        onLoadFailed
-    }: Partial<Pick<TreePage, 'announcesUnmounted' | 'keepsServerMarkup' | 'onLoadFailed'>> = {}
+    { keepsServerMarkup = false, onLoadFailed }: Partial<Pick<TreePage, 'keepsServerMarkup' | 'onLoadFailed'>> = {}
 ): TreePage {
-    let settle = () => {};
-    const settled = new Promise<void>((resolve) => {
-        settle = resolve;
-    });
-    return { key, load, announcesUnmounted, keepsServerMarkup, onLoadFailed, mounted: false, settled, settle };
+    return { key, load, keepsServerMarkup, onLoadFailed };
 }
 
 function readPostPage(source: Document, content: Element): TreePage | null {
@@ -342,13 +328,10 @@ function readPostPage(source: Document, content: Element): TreePage | null {
     const bodyHtml = body.innerHTML;
     postRevision += 1;
     const revision = postRevision;
-    return createTreePage(
-        `post:${data.postPath}`,
-        () =>
-            import('../features/posts/post-page').then(({ PostPage }) => (
-                <PostPage data={data} bodyHtml={bodyHtml} revision={revision} />
-            )),
-        { announcesUnmounted: true }
+    return createTreePage(`post:${data.postPath}`, () =>
+        import('../features/posts/post-page').then(({ PostPage }) => (
+            <PostPage data={data} bodyHtml={bodyHtml} revision={revision} />
+        ))
     );
 }
 
@@ -430,17 +413,8 @@ function readLoginPage(source: Document, content: Element, pageUrl: URL): TreePa
     );
 }
 
-function TreeRoute({ page, children }: { page: TreePage; children: ReactNode }) {
-    useEffect(() => {
-        page.mounted = true;
-        page.settle();
-    }, [page]);
-
-    return children;
-}
-
-function LoadingTreeRoute({ page, loading }: { page: TreePage; loading: Promise<ReactNode> }) {
-    return <TreeRoute page={page}>{use(loading)}</TreeRoute>;
+function LoadingTreeRoute({ loading }: { loading: Promise<ReactNode> }) {
+    return use(loading);
 }
 
 /** The first page hydrates whenever its code arrives, so the router and header never wait for it. */
@@ -452,7 +426,7 @@ function hydrateTreePageWhenLoaded(page: ApplicationDocument): void {
     const loading = request.catch(() => new Promise<ReactNode>(() => {}));
     page.view = {
         ...page.view,
-        content: <LoadingTreeRoute page={treePage} loading={loading} />
+        content: <LoadingTreeRoute loading={loading} />
     };
     request.catch((error: unknown) => {
         console.error('The page could not be loaded.', error);
@@ -467,7 +441,6 @@ function hydrateTreePageWhenLoaded(page: ApplicationDocument): void {
             };
             showApplicationPage?.(page.view);
         }
-        treePage.settle();
     });
 }
 
@@ -490,26 +463,8 @@ async function prepareTreeContent(page: ApplicationDocument): Promise<void> {
     page.view = {
         ...page.view,
         html: '',
-        content: <TreeRoute page={treePage}>{content}</TreeRoute>
+        content
     };
-}
-
-/** Hands browser-only prompts back to the site script when this document's post page did not mount. */
-async function announceUnmountedPost(page: ApplicationDocument): Promise<void> {
-    const { treePage } = page;
-    if (!treePage?.announcesUnmounted) return;
-    if (page.view.content !== undefined) {
-        await Promise.race([
-            treePage.settled,
-            new Promise((resolve) => {
-                window.setTimeout(resolve, treePageWaitMs);
-            })
-        ]);
-    }
-    // A page about to be replaced leaves the one-time prompt for the next document.
-    const replacing = activePostRequests.size > 0 || router?.state.isLoading;
-    if (currentDocument === page && !treePage.mounted && !replacing)
-        document.dispatchEvent(new CustomEvent('blex:post-page-unmounted'));
 }
 
 function readApplicationDocument(source: Document, url: string): ApplicationDocument | null {
@@ -621,7 +576,8 @@ async function loadApplicationDocument({
         // The address bar already shows the requested URL, so the redirect target takes over its history entry.
         stagedDocuments.set(pageRequestKey(redirected), page);
         abortController.abort();
-        visit(redirected.pathname + redirected.search + redirected.hash, true);
+        // Any leave warning already allowed this move, and asking again would let the aborted load finish first.
+        visit(redirected.pathname + redirected.search + redirected.hash, true, true);
         throw new DOMException('Navigation was redirected.', 'AbortError');
     }
 
@@ -641,11 +597,11 @@ function beginPageChange(to: string): void {
 }
 
 // History paths go in directly because a router destination would read a `$` segment as a route parameter.
-function visit(path: string, replace = false): void {
+function visit(path: string, replace = false, ignoreBlocker = false): void {
     visitingFromApplication = true;
     try {
-        if (replace) router?.history.replace(path);
-        else router?.history.push(path);
+        if (replace) router?.history.replace(path, undefined, { ignoreBlocker });
+        else router?.history.push(path, undefined, { ignoreBlocker });
     } finally {
         visitingFromApplication = false;
     }
@@ -655,14 +611,18 @@ function screenScope(pathname: string): string | null {
     if (/^\/(?:settings|admin-settings)(?:\/|$)/.test(pathname)) return 'settings';
     if (/^\/search\/?$/.test(pathname)) return 'search';
     if (/^\/sign\/?$/.test(pathname)) return 'sign';
+    if (/^\/write\/?$/.test(pathname) || /^\/@[^/]+\/[^/]+\/edit\/?$/.test(pathname)) return 'editor';
     return null;
 }
 
 // Settings owns its own routes. Search and signup only own the URL changes they make themselves.
-function staysInActiveScreen(pathname: string): boolean {
+// The editor owns only its history entry: it records a draft there, and its leave warning can keep back or forward there.
+// Visits wait for that warning, so they are told apart by the new entry each one makes.
+function staysInActiveScreen({ pathname, state }: HistoryLocation): boolean {
     if (!currentDocument?.screen) return false;
     const scope = screenScope(pathname);
     if (!scope || scope !== screenScope(new URL(currentDocument.url).pathname)) return false;
+    if (scope === 'editor') return state.__TSR_key === currentHistoryKey;
     return scope === 'settings' || !visitingFromApplication;
 }
 
@@ -821,8 +781,7 @@ const excludedFileExtension =
 function isInternalApplicationUrl(url: URL): boolean {
     if (url.origin !== window.location.origin || !['http:', 'https:'].includes(url.protocol)) return false;
     if (/^\/(?:assets|resources|images|media|api|docs)(?:\/|$)/i.test(url.pathname)) return false;
-    if (/^\/write\/?$/i.test(url.pathname) || /^\/@[^/]+\/[^/]+\/(?:edit|timelapse)\/?$/i.test(url.pathname))
-        return false;
+    if (/^\/@[^/]+\/[^/]+\/timelapse\/?$/i.test(url.pathname)) return false;
     if (excludedFileExtension.test(url.pathname)) return false;
     if (/^\/login\/(?:start|callback)(?:\/|$)/i.test(url.pathname) || /^\/oauth(?:\/|$)/i.test(url.pathname))
         return false;
@@ -855,7 +814,8 @@ function handleDocumentClick(event: MouseEvent): void {
     const target = event.target;
     if (!(target instanceof Element)) return;
     const anchor = target.closest<HTMLAnchorElement>('a[href]');
-    if (!anchor) return;
+    // A click in editable text places the caret, and browsers do not follow links there.
+    if (!anchor || anchor.isContentEditable) return;
     if (openLoginPromptFrom(anchor)) {
         event.preventDefault();
         return;
@@ -868,15 +828,25 @@ function handleDocumentClick(event: MouseEvent): void {
     } catch {
         return;
     }
-    if (!isInternalApplicationUrl(destination)) return;
     const current = new URL(window.location.href);
-    if (sameRoute(destination, current) && destination.hash !== current.hash) return;
+    if (sameRoute(destination, current) && destination.hash !== current.hash) {
+        // The browser gives a fragment it follows itself no history key, so back and forward could not return
+        // to it. Screens keep native fragments because the browser restores their scroll.
+        if (!currentDocument || currentDocument.screen) return;
+    } else if (!isInternalApplicationUrl(destination)) return;
     if (destination.href === current.href) return;
     if (!router) return;
 
     event.preventDefault();
     saveCurrentPosition();
     visit(`${destination.pathname}${destination.search}${destination.hash}`);
+}
+
+/** True while a screen would ask before the page unloads, such as an editor with unsaved changes. */
+function warnsBeforeLeaving(): boolean {
+    return (router?.history._getBlockers() ?? []).some(({ enableBeforeUnload = true }) =>
+        typeof enableBeforeUnload === 'function' ? enableBeforeUnload() : enableBeforeUnload
+    );
 }
 
 function formHasTarget(form: HTMLFormElement, submitter: HTMLElement | null): boolean {
@@ -910,6 +880,8 @@ function handleDocumentSubmit(event: SubmitEvent): void {
     if (!isInternalApplicationUrl(destination)) return;
 
     if (method === 'post') {
+        // A post takes effect before any page change a screen could block, so the browser's unload warning asks first.
+        if (warnsBeforeLeaving()) return;
         if (enctype !== 'application/x-www-form-urlencoded' && enctype !== 'multipart/form-data') return;
         const data = formPostData(form, submitter);
         if (
@@ -1451,7 +1423,7 @@ function commitApplicationPage(page: ApplicationDocument, hash: string): void {
                 to: page.url,
                 navigationType: changeType
             });
-            void announceUnmountedPost(page);
+            offerTelegramHint();
         });
     }
     hasCommittedInitialDocument = true;
@@ -1493,7 +1465,13 @@ function ApplicationRoute({ initialPage }: { initialPage: ApplicationDocument })
         if (!hasCommittedInitialDocument) commitApplicationPage(initialPage, window.location.hash);
     }, [initialPage]);
 
-    return <ApplicationFrame view={view} />;
+    // The prompts keep their own state, so opening one never re-renders a page that is still hydrating.
+    return (
+        <>
+            <ApplicationFrame view={view} />
+            <ApplicationPrompts />
+        </>
+    );
 }
 
 declare global {
@@ -1545,10 +1523,11 @@ if (appRoot && initialDocument) {
             // Most page bodies are server HTML, so this router owns history and loading while React renders one stable frame.
             appRouter.history.subscribe(({ location, action }) => {
                 navigationType = action.type === 'PUSH' || action.type === 'REPLACE' ? action.type : 'POP';
-                if (!appRouter.state.isLoading && staysInActiveScreen(location.pathname)) {
+                if (!appRouter.state.isLoading && staysInActiveScreen(location)) {
                     saveCurrentPosition();
                     queueMicrotask(() => {
-                        currentHistoryKey = browserHistoryKey();
+                        // A blocked back or forward reports the entry it returns to before the browser gets there.
+                        currentHistoryKey = location.state.__TSR_key ?? browserHistoryKey();
                     });
                     return;
                 }

@@ -70,7 +70,13 @@ const recoverFromFailedCatalog = async () => {
         if (request.isNavigationRequest() && request.frame() === page.mainFrame()) documents += 1;
     };
     page.on('request', countDocument);
-    await page.route(catalog, (route) => (documents === 1 ? route.abort() : route.continue()));
+    await page.route(catalog, async (route) => {
+        if (documents !== 1) return route.continue();
+        const response = await route.fetch();
+        // The header's text module can share the file name, so only a module exporting a catalog fails.
+        if (/\bas messages\}/.test(await response.text())) return route.abort();
+        return route.fulfill({ response });
+    });
     try {
         await page.goto(`${origin}/tags`, { waitUntil: 'commit' });
         await expect.poll(() => documents).toBe(2);
@@ -97,6 +103,51 @@ const openMobileMenu = async () => {
     await page.setViewportSize({ width: 1280, height: 900 });
 };
 
+const useSiteControlsBeforeHydration = async () => {
+    const holding = async (pattern, path, check) => {
+        const { promise: released, resolve: release } = Promise.withResolvers();
+        let continued;
+        await page.route(pattern, (route) => {
+            continued = released.then(() => route.continue());
+            return continued;
+        });
+        try {
+            await page.goto(`${origin}${path}`, { waitUntil: 'commit' });
+            await expect(page.locator('html')).toHaveAttribute('data-theme-preference', /.+/);
+            await check();
+        } finally {
+            release();
+            await continued;
+            await page.unroute(pattern);
+        }
+        await page.waitForLoadState('networkidle');
+    };
+    await holding('**/assets/blex/app.js', '/', async () => {
+        const menu = page.locator('[data-site-header] [data-account-menu]');
+        await menu.locator('summary').click();
+        await expect(menu).toHaveJSProperty('open', true);
+        await page.keyboard.press('Escape');
+        await expect(menu).toHaveJSProperty('open', false);
+        const root = page.locator('html');
+        const theme = await root.getAttribute('data-theme');
+        const toggle = page.locator('[data-site-theme-toggle]:visible');
+        await toggle.click();
+        await expect(root).not.toHaveAttribute('data-theme', theme);
+        await toggle.click();
+        await expect(root).toHaveAttribute('data-theme', theme);
+    });
+    await page.context().clearCookies({ name: 'blex_theme' });
+    await holding('**/assets/ui/assets/discovery-page-*.js', '/tags', async () => {
+        // The site script titles the theme buttons once the header has hydrated.
+        await expect(page.locator('[data-site-theme-toggle]').first()).toHaveAttribute('title', /.+/);
+        const sort = page.locator('main [data-account-menu]');
+        await sort.locator('summary').click();
+        await expect(sort).toHaveJSProperty('open', true);
+        await page.keyboard.press('Escape');
+        await expect(sort).toHaveJSProperty('open', false);
+    });
+};
+
 const openEditor = async () => {
     await open('/write');
     await expect(page.getByPlaceholder('제목을 입력하세요')).toBeVisible();
@@ -109,6 +160,46 @@ const openEditor = async () => {
     await expect(command).toBeFocused();
     await command.press('Enter');
     await expect(search).toHaveCount(0);
+};
+
+const warnBeforeLeavingEditor = async () => {
+    const drafts = '**/v1/drafts';
+    const { promise: released, resolve: release } = Promise.withResolvers();
+    // Holding the autosave keeps the title unsaved while the warning is checked.
+    await page.route(drafts, async (route) => {
+        if (route.request().method() !== 'POST') return route.continue();
+        await released;
+        return route.abort();
+    });
+    try {
+        await open('/');
+        await page.evaluate(() => {
+            window.__smokeSameDocument = true;
+        });
+        await page.locator('[data-site-header] a[href="/write"]').first().click();
+        const title = page.getByPlaceholder('제목을 입력하세요');
+        await expect(title).toBeVisible();
+        await expect(page).toHaveURL(`${origin}/write`);
+        await title.fill('Unsaved title');
+        const warning = page.getByRole('dialog', { name: '저장되지 않은 변경사항' });
+        const home = page.locator('[data-site-header] a[href="/"]').first();
+        await home.click();
+        await expect(warning).toBeVisible();
+        await warning.getByRole('button', { name: '취소', exact: true }).click();
+        await expect(warning).toHaveCount(0);
+        await page.goBack();
+        await expect(warning).toBeVisible();
+        await warning.getByRole('button', { name: '취소', exact: true }).click();
+        await expect(page).toHaveURL(`${origin}/write`);
+        await expect(title).toHaveValue('Unsaved title');
+        await home.click();
+        await warning.getByRole('button', { name: '나가기', exact: true }).click();
+        await expect(page).toHaveURL(`${origin}/`);
+        expect(await page.evaluate(() => window.__smokeSameDocument)).toBe(true);
+    } finally {
+        release();
+        await page.unroute(drafts);
+    }
 };
 
 const rejectInvalidScreenData = async () => {
@@ -380,6 +471,44 @@ const keepSearchFocusWithUserAction = async () => {
     await page.setViewportSize({ width: 1280, height: 900 });
 };
 
+const keepNoticeFocusWhenCarouselStarts = async () => {
+    await open('/');
+    const csrf = (await page.context().cookies()).find((cookie) => cookie.name === 'csrftoken')?.value;
+    expect(csrf).toBeTruthy();
+    const headers = { origin, 'x-csrftoken': csrf };
+    const notices = [];
+    const chunk = '**/assets/ui/assets/discovery-page-*.js';
+    const { promise: released, resolve: release } = Promise.withResolvers();
+    let continued;
+    try {
+        for (const title of ['First smoke notice', 'Second smoke notice']) {
+            const response = await page.request.post(`${origin}/v1/global-notices`, {
+                headers,
+                data: { title, url: '/tags' }
+            });
+            const result = await response.json();
+            expect(result.status).toBe('DONE');
+            notices.push(result.body.id);
+        }
+        await page.route(chunk, (route) => {
+            continued = released.then(() => route.continue());
+            return continued;
+        });
+        await page.goto(`${origin}/`, { waitUntil: 'commit' });
+        const second = page.locator('[data-notice-slide]').nth(1);
+        await second.focus();
+        release();
+        await expect(page.locator('[data-notice-controls]')).toBeVisible();
+        await expect(second).toBeVisible();
+        await expect(second).toBeFocused();
+    } finally {
+        release();
+        await continued;
+        await page.unroute(chunk);
+        for (const id of notices) await page.request.delete(`${origin}/v1/global-notices/${id}`, { headers });
+    }
+};
+
 const keepThemePreferenceAcrossPages = async () => {
     await page.emulateMedia({ colorScheme: 'light' });
     await open('/');
@@ -408,6 +537,30 @@ const keepThemePreferenceAcrossPages = async () => {
     await page.emulateMedia({ colorScheme: 'light' });
     await expect(root).toHaveAttribute('data-theme', 'light');
     await page.emulateMedia({ colorScheme: null });
+};
+
+const returnToFragmentPositions = async () => {
+    await open('/docs/developer-api/quickstart');
+    const top = (id) => page.locator(`#${id}`).evaluate((section) => Math.round(section.getBoundingClientRect().top));
+    const follow = async (id) => {
+        // A scripted click leaves the page where the previous fragment put it.
+        await page
+            .locator(`a[href="#${id}"]`)
+            .first()
+            .evaluate((link) => link.click());
+        await expect(page).toHaveURL(new RegExp(`#${id}$`));
+        await expect.poll(() => top(id)).toBeLessThan(200);
+    };
+    await follow('connect');
+    const connectTop = await top('connect');
+    await follow('draft');
+    await page.goBack();
+    await expect(page).toHaveURL(/#connect$/);
+    await expect.poll(() => top('connect')).toBe(connectTop);
+    await page.goBack();
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+    await page.goForward();
+    await expect.poll(() => top('connect')).toBe(connectTop);
 };
 
 const keepMediaControlFocus = async () => {
@@ -470,12 +623,14 @@ try {
         ['login', logIn],
         ['a failed translation file recovers with one reload', recoverFromFailedCatalog],
         ['mobile menu', openMobileMenu],
+        ['site menus and the theme answer before the header or the page hydrates', useSiteControlsBeforeHydration],
         [
             'theme preference persists across public and settings pages and follows the system when cleared',
             keepThemePreferenceAcrossPages
         ],
         ['invalid screen data fails safely without interpreting names as HTML', rejectInvalidScreenData],
         ['a screen render error leaves other screens mounted', isolateScreenRenderError],
+        ['back and forward return to each fragment the reader followed', returnToFragmentPositions],
         ['pinned post selection supports arrow keys and resets after a search', selectPinnedPostWithKeyboard],
         ['settings list separates native activation, keyboard reordering, and menus', useSettingsListWithKeyboard],
         ['tag input returns focus on Escape without stealing focus after blur', keepTagFocusWithUserAction],
@@ -483,7 +638,9 @@ try {
             'search focuses on explicit clearing and preserves history without grabbing focus',
             keepSearchFocusWithUserAction
         ],
+        ['a notice focused before the home page hydrates stays shown and focused', keepNoticeFocusWhenCarouselStarts],
         ['editor', openEditor],
+        ['the editor opens in the application and warns before unsaved edits leave it', warnBeforeLeavingEditor],
         ['latest draft list survives an older response', keepLatestDraftList],
         ['media keyboard controls keep focus and settings labels activate their controls', keepMediaControlFocus],
         ...editorPublishingChecks({ page, open, username: account.username }),
