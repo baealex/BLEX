@@ -93,7 +93,6 @@ interface ScreenPage {
   robots?: string;
   canonical?: string;
   contentClass?: string;
-  captcha?: boolean;
   searchPage?: boolean;
   footer?: boolean;
 }
@@ -132,7 +131,6 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
       brand,
       documentStyleHref,
       timeZone: viewer?.state.timeZone || process.env.TZ || 'Asia/Seoul',
-      captcha: Boolean(page.captcha),
       csrf,
       searchPage: page.searchPage,
       editorPage: page.component === 'PostEditor',
@@ -197,7 +195,6 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
       robots: 'noindex',
       contentClass: 'flex items-center justify-center my-16 px-4 md:px-6',
       footer: true,
-      captcha: Boolean(siteKey),
     });
   };
 

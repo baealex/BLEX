@@ -19,7 +19,7 @@ function createScreenPageData(props: PageProps['screen-host']): ScreenPageData {
 }
 
 export default function renderPage(props: PageProps['screen-host']): string {
-    const { lang, robots, title, canonical, faviconUrl, rssUrl, brand, documentStyleHref, captcha } = props;
+    const { lang, robots, title, canonical, faviconUrl, rssUrl, brand, documentStyleHref } = props;
     const data = createScreenPageData(props);
     const page = (
         <html lang={lang}>
@@ -36,9 +36,6 @@ export default function renderPage(props: PageProps['screen-host']): string {
                 )}
                 <SiteTheme />
                 <link rel="stylesheet" href={documentStyleHref} />
-                {captcha && (
-                    <script src="https://js.hcaptcha.com/1/api.js" async defer data-blex-trusted-script="hcaptcha" />
-                )}
             </head>
             <body className="antialiased bg-surface-page text-content selection:bg-action selection:text-content-inverted">
                 <SiteHeader

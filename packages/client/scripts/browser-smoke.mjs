@@ -501,6 +501,112 @@ const keepSignupDestination = async () => {
     }
 };
 
+// Stands in for hCaptcha's script: `window.hcaptcha` exists at once and the API finishes loading later.
+// Without `render=explicit`, it then draws into every `.h-captcha` element by itself, as the real script does.
+const fakeHcaptcha = `(() => {
+    const params = new URL(document.currentScript.src).searchParams;
+    const renders = (window.__smokeHcaptchaRenders ??= []);
+    let ready = false;
+    let count = 0;
+    const draw = (container, source) => {
+        renders.push(ready ? source : 'before-ready');
+        const frame = document.createElement('iframe');
+        frame.dataset.hcaptchaWidgetId = String((count += 1));
+        container.append(frame);
+        return frame.dataset.hcaptchaWidgetId;
+    };
+    window.hcaptcha = {
+        render: (container) => draw(container, 'explicit'),
+        remove: (id) => document.querySelector('iframe[data-hcaptcha-widget-id="' + id + '"]')?.remove()
+    };
+    setTimeout(() => {
+        ready = true;
+        if (params.get('render') !== 'explicit')
+            for (const element of document.querySelectorAll('.h-captcha')) draw(element, 'automatic');
+        const onload = params.get('onload');
+        if (onload) window[onload]();
+    }, 300);
+})();`;
+
+const drawHcaptchaOnceReady = async () => {
+    await open('/');
+    const csrf = (await page.context().cookies()).find((cookie) => cookie.name === 'csrftoken')?.value;
+    expect(csrf).toBeTruthy();
+    const updateCaptcha = async (data) => {
+        const response = await page.request.put(`${origin}/v1/login-settings`, {
+            headers: { origin, 'x-csrftoken': csrf },
+            data
+        });
+        expect((await response.json()).status).toBe('DONE');
+    };
+    await updateCaptcha({
+        hcaptchaEnabled: true,
+        hcaptchaSiteKey: '10000000-ffff-ffff-ffff-000000000001',
+        hcaptchaSecretKey: 'smoke-captcha-secret'
+    });
+    const visitor = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+    try {
+        await visitor.route(
+            (url) => url.hostname === 'js.hcaptcha.com',
+            (route) => route.fulfill({ contentType: 'text/javascript', body: fakeHcaptcha })
+        );
+        const renders = () => visitor.evaluate(() => window.__smokeHcaptchaRenders ?? []);
+        const formWidgets = visitor.locator('#blex-route-content [data-blex-hcaptcha-widget] iframe');
+        await visitor.goto(`${origin}/login`, { waitUntil: 'networkidle' });
+        const token = (await visitor.context().cookies()).find((cookie) => cookie.name === 'csrftoken')?.value;
+        expect(token).toBeTruthy();
+        // A sign-up post the application did not send fails, and the server form arrives as a full page load.
+        await visitor.evaluate((token) => {
+            const form = document.createElement('form');
+            form.method = 'post';
+            form.action = '/sign';
+            for (const [name, value] of Object.entries({
+                csrfmiddlewaretoken: token,
+                username: 'captchasmoke',
+                password: 'captcha-smoke-1',
+                passwordCheck: 'captcha-smoke-2'
+            })) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name;
+                input.value = value;
+                form.append(input);
+            }
+            document.body.append(form);
+            // A later task, so this evaluation returns before the page unloads.
+            setTimeout(() => HTMLFormElement.prototype.submit.call(form));
+        }, token);
+        await visitor.waitForURL(`${origin}/sign`);
+        await visitor.waitForLoadState('networkidle');
+        await expect.poll(renders).toEqual(['explicit']);
+        await expect(formWidgets).toHaveCount(1);
+
+        // The next failed post answers inside the application, and its new form gets one widget of its own.
+        await visitor.evaluate(() => {
+            window.__smokeSameDocument = true;
+        });
+        const form = visitor.locator('#blex-route-content form[action^="/sign"]');
+        await form.locator('input[name=username]').fill('captchasmoke');
+        await form.locator('input[name=name]').fill('Captcha Smoke');
+        await form.locator('input[name=email]').fill('captcha-smoke@example.com');
+        await form.locator('input[name=password]').fill('captcha-smoke-1');
+        await form.locator('input[name=passwordCheck]').fill('captcha-smoke-2');
+        await form.locator('button[type=submit]').click();
+        await expect.poll(renders).toEqual(['explicit', 'explicit']);
+        await expect(formWidgets).toHaveCount(1);
+        expect(await visitor.evaluate(() => window.__smokeSameDocument)).toBe(true);
+
+        // The sign-up screen draws its widget through the same loader.
+        await visitor.goto(`${origin}/sign`, { waitUntil: 'networkidle' });
+        await expect(visitor.locator('[data-screen="Signup"]')).toHaveAttribute('data-screen-status', 'mounted');
+        await expect.poll(renders).toEqual(['explicit']);
+        await expect(visitor.locator('[data-screen="Signup"] iframe')).toHaveCount(1);
+    } finally {
+        await visitor.close();
+        await updateCaptcha({ hcaptchaEnabled: false });
+    }
+};
+
 const keepSessionCacheAfterPublicPage = async () => {
     const cachedLists = () =>
         page.evaluate(() =>
@@ -951,6 +1057,7 @@ try {
         ['screens render in the application root and leave nothing behind', renderScreensInApplicationRoot],
         ["a screen opened after a fresh public page keeps its viewer's session cache", keepSessionCacheAfterPublicPage],
         ['the sign-up screen keeps where to go next and its invitation', keepSignupDestination],
+        ['the sign-up form and screen draw one hCaptcha widget once its API has loaded', drawHcaptchaOnceReady],
         ['back and forward return to each fragment the reader followed', returnToFragmentPositions],
         ['the code block copy button speaks the page language once its translations load', translateCodeCopyButton],
         ['pinned post selection supports arrow keys and resets after a search', selectPinnedPostWithKeyboard],
