@@ -11,3 +11,9 @@ declare module '*.po?lingui' {
 
     export const messages: Messages;
 }
+
+declare module '*.po?developer?lingui' {
+    import type { Messages } from '@lingui/core';
+
+    export const messages: Messages;
+}

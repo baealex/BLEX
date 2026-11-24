@@ -87,7 +87,7 @@ interface AuthorPageModule {
 type ContentPageData = StaticPageData | ErrorPageData | DeveloperQuickstartData;
 
 interface ContentPageModule {
-    mountPage(data: never, content: Element): ReactNode;
+    mountPage(data: never, content: Element): ReactNode | Promise<ReactNode>;
 }
 
 interface AuthFormPageModule {
