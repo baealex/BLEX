@@ -148,6 +148,69 @@ const useSiteControlsBeforeHydration = async () => {
     });
 };
 
+const keepPostMarkupWhenItsCodeFails = async () => {
+    await open('/');
+    const csrf = (await page.context().cookies()).find((cookie) => cookie.name === 'csrftoken')?.value;
+    expect(csrf).toBeTruthy();
+    const created = await (
+        await page.request.post(`${origin}/v1/posts`, {
+            headers: { origin, 'x-csrftoken': csrf },
+            data: {
+                title: 'Post page fallback',
+                url: `post-page-fallback-${Date.now()}`,
+                contentHtml: '<p>This post stays usable when its page code fails.</p>'
+            }
+        })
+    ).json();
+    expect(created.status).toBe('DONE');
+    const postPath = `/@${account.username}/${created.body.url}`;
+    const chunk = '**/assets/ui/assets/post-page-*.js';
+    const { promise: released, resolve: release } = Promise.withResolvers();
+    let failed;
+    await page.route(chunk, (route) => {
+        failed = released.then(() => route.abort());
+        return failed;
+    });
+    const visitor = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+    try {
+        const loadFailed = page.waitForEvent('console', (message) =>
+            message.text().includes('The page could not be loaded.')
+        );
+        await page.goto(`${origin}${postPath}`, { waitUntil: 'commit' });
+        // The site script titles the theme buttons once the header has hydrated.
+        await expect(page.locator('[data-site-theme-toggle]').first()).toHaveAttribute('title', /.+/);
+        const comment = page.locator('textarea[name=commentMd]');
+        const text = 'Typed before the page code failed';
+        await comment.fill(text);
+        const share = page.locator('.post-action-dock [data-account-menu]');
+        await share.locator('summary').click();
+        await expect(share).toHaveJSProperty('open', true);
+        release();
+        await loadFailed;
+        await page.evaluate(
+            () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+        );
+        await expect(comment).toHaveValue(text);
+        await expect(share).toHaveJSProperty('open', true);
+        await page.keyboard.press('Escape');
+        await expect(share).toHaveJSProperty('open', false);
+        await page.getByRole('button', { name: '댓글 작성', exact: true }).click();
+        await expect(page.locator('#post-comments')).toContainText(text);
+
+        // A signed-out reader still gets the login prompt without the page code.
+        await visitor.route(chunk, (route) => route.abort());
+        await visitor.goto(`${origin}${postPath}`, { waitUntil: 'networkidle' });
+        await visitor.locator('.post-action-dock [data-blex-login-prompt="like"]').click();
+        await expect(visitor.locator('#blex-login-prompt')).toBeVisible();
+        await expect(visitor).toHaveURL(`${origin}${postPath}`);
+    } finally {
+        release();
+        await failed;
+        await page.unroute(chunk);
+        await visitor.close();
+    }
+};
+
 const openEditor = async () => {
     await open('/write');
     await expect(page.getByPlaceholder('제목을 입력하세요')).toBeVisible();
@@ -624,6 +687,10 @@ try {
         ['a failed translation file recovers with one reload', recoverFromFailedCatalog],
         ['mobile menu', openMobileMenu],
         ['site menus and the theme answer before the header or the page hydrates', useSiteControlsBeforeHydration],
+        [
+            'a post whose code fails to load keeps the typed comment, its open menu, and the login prompt',
+            keepPostMarkupWhenItsCodeFails
+        ],
         [
             'theme preference persists across public and settings pages and follows the system when cleared',
             keepThemePreferenceAcrossPages
