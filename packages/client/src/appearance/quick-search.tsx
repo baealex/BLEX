@@ -1,5 +1,4 @@
-import { siteText, type SiteLocale } from './messages.js';
-import { getDocumentLocale } from '../i18n/locale.js';
+import { ui } from '../i18n/public-ui.js';
 import { useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { SiteIcon } from './icons.js';
 import { escapeAction } from './quick-search-escape.js';
@@ -35,7 +34,7 @@ function resultRows(matches: unknown): SearchRow[] {
     });
 }
 
-export function QuickSearch({ locale = getDocumentLocale() }: { locale?: SiteLocale }) {
+export function QuickSearch() {
     const container = useRef<HTMLDivElement>(null);
     const input = useRef<HTMLInputElement>(null);
     const list = useRef<HTMLUListElement>(null);
@@ -44,7 +43,7 @@ export function QuickSearch({ locale = getDocumentLocale() }: { locale?: SiteLoc
     const [open, setOpen] = useState(false);
     const [selected, setSelected] = useState(-1);
     const [view, setView] = useState<SearchView>({
-        heading: siteText(locale, 'Recent searches'),
+        heading: ui('Recent searches'),
         rows: [],
         emptyMessage: ''
     });
@@ -72,14 +71,9 @@ export function QuickSearch({ locale = getDocumentLocale() }: { locale?: SiteLoc
             });
             const result = await response.json();
             if (!controller.signal.aborted)
-                show(
-                    siteText(locale, 'Quick search results'),
-                    resultRows(result.body?.results),
-                    siteText(locale, 'No quick search results.')
-                );
+                show(ui('Quick search results'), resultRows(result.body?.results), ui('No quick search results.'));
         } catch {
-            if (!controller.signal.aborted)
-                show(siteText(locale, 'Quick search results'), [], siteText(locale, 'Try again on the search page.'));
+            if (!controller.signal.aborted) show(ui('Quick search results'), [], ui('Try again on the search page.'));
         } finally {
             if (request.current === controller) request.current = undefined;
         }
@@ -91,15 +85,15 @@ export function QuickSearch({ locale = getDocumentLocale() }: { locale?: SiteLoc
         const term = query();
         if (!term) {
             show(
-                siteText(locale, 'Recent searches'),
+                ui('Recent searches'),
                 recentSearches()
                     .slice(0, 6)
                     .map((entry) => ({ href: `/search?${new URLSearchParams({ q: entry })}`, title: entry })),
-                siteText(locale, 'No recent searches.')
+                ui('No recent searches.')
             );
             return;
         }
-        show(siteText(locale, 'Quick search results'), [], siteText(locale, 'Searching…'));
+        show(ui('Quick search results'), [], ui('Searching…'));
         delay.current = window.setTimeout(() => {
             delay.current = undefined;
             void fetchResults(term);
@@ -178,8 +172,8 @@ export function QuickSearch({ locale = getDocumentLocale() }: { locale?: SiteLoc
                     ref={input}
                     name="q"
                     type="search"
-                    placeholder={siteText(locale, 'Search')}
-                    aria-label={siteText(locale, 'Search')}
+                    placeholder={ui('Search')}
+                    aria-label={ui('Search')}
                     autoComplete="off"
                     className="min-w-0 flex-1 bg-transparent text-sm text-content placeholder:text-content-hint focus:outline-none"
                     onFocus={suggest}

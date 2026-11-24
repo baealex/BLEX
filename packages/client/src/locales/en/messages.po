@@ -1919,6 +1919,11 @@ msgid "public.Account"
 msgstr "Account"
 
 #. js-lingui-explicit-id
+#: src/appearance/shell.tsx:144
+msgid "public.Account menu"
+msgstr "Account menu"
+
+#. js-lingui-explicit-id
 #: src/appearance/author-heatmap.ts:54
 msgid "public.Activity"
 msgstr "Activity"
@@ -2775,6 +2780,11 @@ msgid "public.Log in"
 msgstr "Log in"
 
 #. js-lingui-explicit-id
+#: src/appearance/shell.tsx:113
+msgid "public.Log out"
+msgstr "Log out"
+
+#. js-lingui-explicit-id
 #: src/features/authors/profile-ui.tsx:74
 msgid "public.Manage author posts"
 msgstr "Manage author posts"
@@ -2794,6 +2804,17 @@ msgstr "Manage posts"
 #: src/routes/@{$username}/{$slug}/index.page.tsx:692
 msgid "public.Markdown reference URL"
 msgstr "Markdown reference URL"
+
+#. js-lingui-explicit-id
+#: src/appearance/shell.tsx:215
+#: src/appearance/shell.tsx:232
+msgid "public.Menu"
+msgstr "Menu"
+
+#. js-lingui-explicit-id
+#: src/appearance/shell.tsx:198
+msgid "public.Mobile menu"
+msgstr "Mobile menu"
 
 #. js-lingui-explicit-id
 #: src/routes/tags.page.tsx:56
@@ -2826,6 +2847,12 @@ msgstr "Navigate series"
 #: src/routes/password-reset/$token.page.tsx:62
 msgid "public.New password"
 msgstr "New password"
+
+#. js-lingui-explicit-id
+#: src/appearance/shell.tsx:92
+#: src/appearance/shell.tsx:153
+msgid "public.New post"
+msgstr "New post"
 
 #. js-lingui-explicit-id
 #: src/features/authors/activity-ui.tsx:15
@@ -2937,6 +2964,16 @@ msgid "public.No public series yet"
 msgstr "No public series yet"
 
 #. js-lingui-explicit-id
+#: src/appearance/quick-search.tsx:78
+msgid "public.No quick search results."
+msgstr "No quick search results."
+
+#. js-lingui-explicit-id
+#: src/appearance/quick-search.tsx:96
+msgid "public.No recent searches."
+msgstr "No recent searches."
+
+#. js-lingui-explicit-id
 #: src/routes/search.page.tsx:48
 msgid "public.No results"
 msgstr "No results"
@@ -2980,6 +3017,11 @@ msgstr "No writing history to display."
 #: src/features/discovery/layout.tsx:179
 msgid "public.Notices"
 msgstr "Notices"
+
+#. js-lingui-explicit-id
+#: src/appearance/shell.tsx:205
+msgid "public.Notifications"
+msgstr "Notifications"
 
 #. js-lingui-explicit-id
 #: src/routes/@{$username}/series/$seriesSlug.page.tsx:85
@@ -3114,6 +3156,11 @@ msgid "public.Previous page"
 msgstr "Previous page"
 
 #. js-lingui-explicit-id
+#: src/appearance/shell.tsx:81
+msgid "public.Profile"
+msgstr "Profile"
+
+#. js-lingui-explicit-id
 #: src/routes/@{$username}/series/index.page.tsx:123
 msgid "public.Public series will appear here."
 msgstr "Public series will appear here."
@@ -3135,6 +3182,13 @@ msgid "public.Published posts will appear here."
 msgstr "Published posts will appear here."
 
 #. js-lingui-explicit-id
+#: src/appearance/quick-search.tsx:78
+#: src/appearance/quick-search.tsx:80
+#: src/appearance/quick-search.tsx:100
+msgid "public.Quick search results"
+msgstr "Quick search results"
+
+#. js-lingui-explicit-id
 #: src/routes/@{$username}/{$slug}/index.page.tsx:285
 msgid "public.Reading"
 msgstr "Reading"
@@ -3153,6 +3207,12 @@ msgstr "Recent entries"
 #: src/features/authors/profile-ui.tsx:71
 msgid "public.Recent posts"
 msgstr "Recent posts"
+
+#. js-lingui-explicit-id
+#: src/appearance/quick-search.tsx:50
+#: src/appearance/quick-search.tsx:92
+msgid "public.Recent searches"
+msgstr "Recent searches"
 
 #. js-lingui-explicit-id
 #: src/features/authors/profile-ui.tsx:71
@@ -3301,6 +3361,11 @@ msgstr "Search series"
 #: src/routes/tags.page.tsx:35
 msgid "public.Search tags"
 msgstr "Search tags"
+
+#. js-lingui-explicit-id
+#: src/appearance/quick-search.tsx:100
+msgid "public.Searching…"
+msgstr "Searching…"
 
 #. js-lingui-explicit-id
 #: src/routes/@{$username}/{$slug}/index.page.tsx:150
@@ -3504,6 +3569,21 @@ msgid "public.Sign-in failed. (HTTP {value0})"
 msgstr "Sign-in failed. (HTTP {value0})"
 
 #. js-lingui-explicit-id
+#: src/appearance/shell.tsx:172
+msgid "public.Signed in as"
+msgstr "Signed in as"
+
+#. js-lingui-explicit-id
+#: src/appearance/shell.tsx:285
+msgid "public.Site information"
+msgstr "Site information"
+
+#. js-lingui-explicit-id
+#: src/appearance/shell.tsx:239
+msgid "public.Site menu"
+msgstr "Site menu"
+
+#. js-lingui-explicit-id
 #: src/features/discovery/layout.tsx:138
 msgid "public.Site notice"
 msgstr "Site notice"
@@ -3571,6 +3651,17 @@ msgstr "Subscribed"
 #: src/features/engagement/ui/telegram-hint.tsx:78
 msgid "public.Subscribed.9afbe521"
 msgstr "Subscribed"
+
+#. js-lingui-explicit-id
+#: src/appearance/shell.tsx:67
+#: src/appearance/site-client.ts:35
+msgid "public.Switch to dark mode"
+msgstr "Switch to dark mode"
+
+#. js-lingui-explicit-id
+#: src/appearance/site-client.ts:35
+msgid "public.Switch to light mode"
+msgstr "Switch to light mode"
 
 #. js-lingui-explicit-id
 #: src/routes/@{$username}/{$slug}/index.page.tsx:204
@@ -3696,6 +3787,11 @@ msgid "public.Try again"
 msgstr "Try again"
 
 #. js-lingui-explicit-id
+#: src/appearance/quick-search.tsx:80
+msgid "public.Try again on the search page."
+msgstr "Try again on the search page."
+
+#. js-lingui-explicit-id
 #: src/features/auth/ui/login-form.tsx:142
 msgid "public.Two-factor authentication"
 msgstr "Two-factor authentication"
@@ -3740,6 +3836,11 @@ msgstr "Updated {value0}"
 #: src/features/auth/ui/login-form.tsx:239
 msgid "public.Use a code from your authenticator app or a recovery code. A recovery code works only once and disables two-factor authentication when used."
 msgstr "Use a code from your authenticator app or a recovery code. A recovery code works only once and disables two-factor authentication when used."
+
+#. js-lingui-explicit-id
+#: src/appearance/shell.tsx:160
+msgid "public.User menu"
+msgstr "User menu"
 
 #. js-lingui-explicit-id
 #: src/features/engagement/ui/comments.tsx:246

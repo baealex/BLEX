@@ -1,7 +1,6 @@
 import { ui } from '../i18n/public-ui.js';
 import { activateDocumentLocale } from '../i18n';
 import { reloadAfterCatalogFailure } from './catalog-recovery';
-import { siteText } from './messages.js';
 import { escapeAction } from './quick-search-escape.js';
 import './tailwind.css';
 import './site.scss';
@@ -39,10 +38,7 @@ function setTheme(preference = readCookie(THEME_COOKIE_KEY), updateControls = hy
     root.style.colorScheme = theme;
     if (updateControls) {
         for (const button of document.querySelectorAll<HTMLButtonElement>('[data-site-theme-toggle]')) {
-            const label = siteText(
-                root.lang === 'en' ? 'en' : 'ko',
-                dark ? 'Switch to light mode' : 'Switch to dark mode'
-            );
+            const label = dark ? ui('Switch to light mode') : ui('Switch to dark mode');
             button.setAttribute('aria-label', label);
             button.title = label;
         }
