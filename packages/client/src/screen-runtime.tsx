@@ -3,11 +3,11 @@ import { I18nProvider } from '@lingui/react';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { ScreenPage } from './application/screen-page';
 import ErrorBoundary from './components/ErrorBoundary';
-import { parseScreen, parseScreenPage, type Screen } from './components/screen-props';
+import { parseScreen, parseScreenPage, type Screen, screenViewerName } from './components/screen-props';
 import { i18n } from './i18n';
 import type { AppLocale } from './i18n/locale';
 import { activateScreenLocale, loadScreenCatalog } from './i18n/screen-catalog';
-import { createQueryClient, sessionStoragePersister, shouldPersistQuery } from './lib/query-client';
+import { createQueryClient, createSessionStoragePersister, shouldPersistQuery } from './lib/query-client';
 
 export { activateScreenLocale };
 
@@ -102,7 +102,7 @@ export async function loadScreen(value: unknown, locale: AppLocale): Promise<Rea
                         <PersistQueryClientProvider
                             client={createQueryClient()}
                             persistOptions={{
-                                persister: sessionStoragePersister,
+                                persister: createSessionStoragePersister(screenViewerName(data)),
                                 maxAge: 1000 * 60 * 60 * 24,
                                 dehydrateOptions: { shouldDehydrateQuery: shouldPersistQuery }
                             }}

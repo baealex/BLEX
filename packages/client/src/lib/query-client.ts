@@ -3,76 +3,59 @@ import type { PersistedClient, Persister } from '@tanstack/react-query-persist-c
 import { getDocumentLocale, getDocumentTimeZone } from '../i18n/locale';
 import { buildQueryCacheKey } from './query-cache-key';
 
-const getCurrentUsername = () => {
-    return window.configuration?.user?.username || 'anonymous';
-};
-
-const getCurrentCacheKey = () => {
-    return buildQueryCacheKey(getCurrentUsername(), getDocumentLocale(), getDocumentTimeZone());
-};
-
 /** Queries can opt out with `meta: { persist: false }` when their payload is too large for sessionStorage. */
 export const shouldPersistQuery = (query: Query) => defaultShouldDehydrateQuery(query) && query.meta?.persist !== false;
 
-export const sessionStoragePersister: Persister = {
-    persistClient: async (client: PersistedClient) => {
-        if (typeof window === 'undefined') return;
+let cleanedCaches = false;
 
-        try {
-            const key = getCurrentCacheKey();
-            sessionStorage.setItem(key, JSON.stringify(client));
-        } catch (error) {
-            console.error('Failed to persist client:', error);
-        }
-    },
-    restoreClient: async () => {
-        if (typeof window === 'undefined') return undefined;
-
-        try {
-            const key = getCurrentCacheKey();
-            const cached = sessionStorage.getItem(key);
-            return cached ? JSON.parse(cached) : undefined;
-        } catch (error) {
-            console.error('Failed to restore client:', error);
-            return undefined;
-        }
-    },
-    removeClient: async () => {
-        if (typeof window === 'undefined') return;
-
-        try {
-            const key = getCurrentCacheKey();
-            sessionStorage.removeItem(key);
-        } catch (error) {
-            console.error('Failed to remove client:', error);
-        }
-    }
-};
-
-export function cleanupOldCaches(): void {
-    if (typeof window === 'undefined' || !window.sessionStorage) {
-        return;
-    }
-
-    const currentCacheKey = getCurrentCacheKey();
+/** Removes the caches of other viewers, languages, and time zones once per page load, when the first screen restores. */
+function removeOtherCaches(currentCacheKey: string): void {
+    if (cleanedCaches) return;
+    cleanedCaches = true;
     const keysToRemove: string[] = [];
-
     for (let i = 0; i < sessionStorage.length; i++) {
         const key = sessionStorage.key(i);
-        if (key?.startsWith('rq-cache-') && key !== currentCacheKey) {
-            keysToRemove.push(key);
-        }
+        if (key?.startsWith('rq-cache-') && key !== currentCacheKey) keysToRemove.push(key);
     }
+    for (const key of keysToRemove) sessionStorage.removeItem(key);
+}
 
-    keysToRemove.forEach((key) => {
-        sessionStorage.removeItem(key);
-    });
+/**
+ * Keeps a screen's queries in sessionStorage for its viewer, given by the screen's own data. The key is read when
+ * the cache is used, after the page's language is active. A screen loads before the page it belongs to shows,
+ * so nothing here may depend on the previous page.
+ */
+export function createSessionStoragePersister(username: string | undefined): Persister {
+    const cacheKey = () => buildQueryCacheKey(username, getDocumentLocale(), getDocumentTimeZone());
+    return {
+        persistClient: async (client: PersistedClient) => {
+            try {
+                sessionStorage.setItem(cacheKey(), JSON.stringify(client));
+            } catch (error) {
+                console.error('Failed to persist client:', error);
+            }
+        },
+        restoreClient: async () => {
+            try {
+                const key = cacheKey();
+                removeOtherCaches(key);
+                const cached = sessionStorage.getItem(key);
+                return cached ? JSON.parse(cached) : undefined;
+            } catch (error) {
+                console.error('Failed to restore client:', error);
+                return undefined;
+            }
+        },
+        removeClient: async () => {
+            try {
+                sessionStorage.removeItem(cacheKey());
+            } catch (error) {
+                console.error('Failed to remove client:', error);
+            }
+        }
+    };
 }
 
 export function createQueryClient() {
     return new QueryClient({ defaultOptions: { queries: { refetchOnWindowFocus: false } } });
-}
-
-if (typeof window !== 'undefined') {
-    cleanupOldCaches();
 }

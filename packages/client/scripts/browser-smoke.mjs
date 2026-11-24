@@ -465,6 +465,39 @@ const renderScreensInApplicationRoot = async () => {
     expect(await page.evaluate(() => window.__smokeSameDocument)).toBe(true);
 };
 
+const keepSessionCacheAfterPublicPage = async () => {
+    const cachedLists = () =>
+        page.evaluate(() =>
+            Object.keys(sessionStorage).filter(
+                (key) => key.startsWith('rq-cache-') && sessionStorage.getItem(key)?.includes('posts-setting')
+            )
+        );
+    await open('/settings/posts');
+    await expect.poll(cachedLists).toHaveLength(1);
+    const [key] = await cachedLists();
+    expect(key).toContain(`-${account.username}-`);
+    // A fresh public page, then the first screen inside the application, which loads before that page commits.
+    await open('/');
+    const postsRequest = '**/v1/setting/posts*';
+    const { promise: released, resolve: release } = Promise.withResolvers();
+    let held;
+    await page.route(postsRequest, (route) => {
+        held = released.then(() => route.continue());
+        return held;
+    });
+    try {
+        await visitInApplication('/settings/posts');
+        await expect(page).toHaveURL(`${origin}/settings/posts`);
+        // The list comes from the viewer's session cache while its request is still on the way.
+        await expect(page.getByRole('heading', { level: 1, name: /^포스트 \(\d+\)$/ })).toBeVisible();
+        expect(await cachedLists()).toEqual([key]);
+    } finally {
+        release();
+        await held;
+        await page.unroute(postsRequest);
+    }
+};
+
 const keepLatestDraftList = async () => {
     await open('/write');
     let requests = 0;
@@ -877,6 +910,7 @@ try {
         ['invalid screen data fails safely without interpreting names as HTML', rejectInvalidScreenData],
         ['a screen render error leaves the application working', isolateScreenRenderError],
         ['screens render in the application root and leave nothing behind', renderScreensInApplicationRoot],
+        ["a screen opened after a fresh public page keeps its viewer's session cache", keepSessionCacheAfterPublicPage],
         ['back and forward return to each fragment the reader followed', returnToFragmentPositions],
         ['the code block copy button speaks the page language once its translations load', translateCodeCopyButton],
         ['pinned post selection supports arrow keys and resets after a search', selectPinnedPostWithKeyboard],

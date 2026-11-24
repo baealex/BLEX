@@ -39,6 +39,12 @@ const isFooterBrand = (value: unknown): value is FooterBrand =>
             (page: unknown) => isRecord(page) && typeof page.title === 'string' && typeof page.slug === 'string'
         ));
 
+/** The signed-in viewer the server rendered the screen for, if any. */
+export const screenViewerName = ({ configuration }: ScreenPageData): string | undefined =>
+    isRecord(configuration.user) && typeof configuration.user.username === 'string'
+        ? configuration.user.username
+        : undefined;
+
 /** Validate the page around a screen before rendering it. The screen's own props go through `parseScreen`. */
 export function parseScreenPage(value: unknown): ScreenPageData | null {
     if (!isRecord(value) || !isRecord(value.screen) || typeof value.screen.name !== 'string') return null;
