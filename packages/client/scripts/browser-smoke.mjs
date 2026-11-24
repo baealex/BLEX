@@ -35,12 +35,29 @@ page.on('response', (response) => {
 const open = (path) => page.goto(`${origin}${path}`, { waitUntil: 'networkidle' });
 
 const createFirstAdmin = async () => {
-    await open(`/setup?token=${encodeURIComponent(setupToken)}`);
-    await page.locator('input[name=username]').fill(account.username);
-    await page.locator('input[name=displayName]').fill(account.displayName);
-    await page.locator('input[name=email]').fill(account.email);
-    await page.locator('input[name=password]').fill(account.password);
-    await page.locator('input[name=passwordCheck]').fill(account.password);
+    // The form is filled before its code arrives, and hydration has to keep every field.
+    const setupModule = '**/assets/ui/assets/setup-page-*.js';
+    const { promise: filled, resolve: release } = Promise.withResolvers();
+    let continued;
+    await page.route(setupModule, (route) => {
+        continued = filled.then(() => route.continue());
+        return continued;
+    });
+    try {
+        await page.goto(`${origin}/setup?token=${encodeURIComponent(setupToken)}`, { waitUntil: 'commit' });
+        await page.locator('input[name=username]').fill(account.username);
+        await page.locator('input[name=displayName]').fill(account.displayName);
+        await page.locator('input[name=email]').fill(account.email);
+        await page.locator('input[name=password]').fill(account.password);
+        await page.locator('input[name=passwordCheck]').fill(account.password);
+    } finally {
+        release();
+        await continued;
+        await page.unroute(setupModule);
+    }
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('input[name=username]')).toHaveValue(account.username);
+    await expect(page.locator('input[name=passwordCheck]')).toHaveValue(account.password);
     await page.getByRole('button', { name: '관리자 만들기' }).click();
     await page.waitForURL((url) => url.pathname !== '/setup');
 };
@@ -618,7 +635,7 @@ const keepRejectedPublishInEditor = async () => {
 
 try {
     for (const [name, step] of [
-        ['first admin', createFirstAdmin],
+        ['first admin, typed before the setup form hydrates', createFirstAdmin],
         ['account menu and logout', logOutFromAccountMenu],
         ['login', logIn],
         ['a failed translation file recovers with one reload', recoverFromFailedCatalog],
