@@ -10,7 +10,6 @@ import { CodeBlockHeader } from './code-block-header';
 import type { DecoratedCodeBlock } from './code-blocks-client';
 import { publicPostPath } from './paths';
 import type { PostPageData, RelatedPostView } from './post-page-data';
-import { usePostPrompts } from './post-prompts';
 
 function PostCover({ data }: { data: PostPageData }) {
     const { cover, image, avatar, authorPath, published, updated, seriesLink, timelapsePath } = data;
@@ -723,7 +722,6 @@ export function PostPage({
     const { visibility, cover, banners: allBanners, headings, canManage } = data;
     const fullCover = cover === 'split' || cover === 'overlay';
     const hasDock = visibility === 'public' || headings.length > 0 || (canManage && visibility !== 'draft');
-    const prompts = usePostPrompts(revision, hasDock);
     const banners = (position: string) =>
         allBanners
             .filter((banner) => banner.position === position)
@@ -739,8 +737,7 @@ export function PostPage({
 
     return (
         <>
-            {/* biome-ignore lint/a11y/useKeyWithClickEvents: this only observes activation of the links inside. */}
-            <main className="min-h-[calc(100vh-10.5rem)]" data-blex-post-page="" onClick={prompts.onClick}>
+            <main className="min-h-[calc(100vh-10.5rem)]" data-blex-post-page="">
                 {fullCover && coverSection}
                 <div className={`post-detail-body px-4 md:px-6${fullCover ? ' post-detail-body--after-cover' : ''}`}>
                     <div className="post-detail-layout">
@@ -816,7 +813,6 @@ export function PostPage({
             <div className="post-detail-footer-action-space">
                 <SiteFooter brand={data.brand} year={data.copyrightYear} />
             </div>
-            {prompts.dialogs}
         </>
     );
 }

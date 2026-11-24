@@ -1,7 +1,6 @@
 import { ui } from '../../../i18n/public-ui.js';
 import IconUser from '@tabler/icons-react/icons/IconUser';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { renderBodyIsland } from '../../../application/island.js';
 import type { LoginPromptAction } from './login-prompt.js';
 
 interface SocialProvider {
@@ -116,8 +115,4 @@ export function LoginPromptDialog({ action, next, onClose }: LoginPromptDialogPr
             </button>
         </dialog>
     );
-}
-
-export function showLoginPrompt(action: LoginPromptAction, next: string, signal: AbortSignal): void {
-    const close = renderBodyIsland(<LoginPromptDialog action={action} next={next} onClose={() => close()} />, signal);
 }
