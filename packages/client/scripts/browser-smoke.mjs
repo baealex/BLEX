@@ -358,50 +358,74 @@ const warnBeforeLeavingEditor = async () => {
     }
 };
 
+const reactRoots = () =>
+    page.evaluate(
+        () =>
+            [...document.querySelectorAll('*')].filter((element) =>
+                Object.keys(element).some((key) => key.startsWith('__reactContainer$'))
+            ).length
+    );
+
+const visitInApplication = (to) =>
+    page.evaluate((to) => document.dispatchEvent(new CustomEvent('blex:navigate', { detail: { to } })), to);
+
+/** The page still moves to another one in the same document. */
+const keepsApplicationWorking = async () => {
+    await page.evaluate(() => {
+        window.__smokeSameDocument = true;
+    });
+    await page.locator('[data-site-header] a[href="/"]').first().click();
+    await expect(page).toHaveURL(`${origin}/`);
+    expect(await page.evaluate(() => window.__smokeSameDocument)).toBe(true);
+    expect(await reactRoots()).toBe(1);
+};
+
+const screenDataScript = /(<script type="application\/json" id="blex-screen-page-data">)(.*?)(<\/script>)/s;
+const scriptJson = (value) =>
+    JSON.stringify(value).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
+
 const rejectInvalidScreenData = async () => {
-    await open('/settings/profile');
-    const settings = page.locator('[data-screen="SettingsApp"]:not([data-smoke-invalid-screen])');
-    await expect(settings).toHaveAttribute('data-screen-status', 'mounted');
+    const path = '/settings/profile';
+    const screenPage = (url) => url.pathname === path;
     const cases = [
-        { id: 'malformed-screen', name: '<img data-bootstrap-injection="">', encodedProps: '%' },
         {
-            id: 'invalid-settings-screen',
-            name: 'SettingsApp',
-            encodedProps: encodeURIComponent(JSON.stringify({ isEditor: false, isStaff: 'false' }))
+            name: '<img data-bootstrap-injection="">',
+            edit: (data) => ({ ...data, screen: { ...data.screen, name: '<img data-bootstrap-injection="">' } })
         },
-        { id: 'unknown-screen', name: 'MissingScreen', encodedProps: encodeURIComponent('{}') }
+        {
+            name: 'SettingsApp',
+            edit: (data) => ({ ...data, screen: { ...data.screen, props: { isEditor: false, isStaff: 'false' } } })
+        },
+        { name: 'MissingScreen', edit: (data) => ({ ...data, screen: { name: 'MissingScreen', props: {} } }) },
+        { name: 'Screen', edit: () => '{' }
     ];
-    try {
-        await page.evaluate((cases) => {
-            for (const { id, name, encodedProps } of cases) {
-                const element = document.createElement('div');
-                element.id = id;
-                element.dataset.smokeInvalidScreen = '';
-                element.dataset.screen = name;
-                element.dataset.screenStatus = 'pending';
-                element.dataset.screenProps = encodedProps;
-                document.body.append(element);
-            }
-        }, cases);
-        for (const { id, name } of cases) {
-            const screen = page.locator(`#${id}`);
-            await expect(screen).toHaveAttribute('data-screen-status', 'error');
-            await expect(screen).toHaveAttribute('data-screen-error', 'bootstrap_error');
-            await expect(screen).toHaveText(`Component Error: ${name}`);
-            await expect(screen.locator('img')).toHaveCount(0);
-        }
-        await expect(settings).toHaveAttribute('data-screen-status', 'mounted');
-    } finally {
-        await page.evaluate(() => {
-            for (const element of document.querySelectorAll('[data-smoke-invalid-screen]')) element.remove();
+    for (const { name, edit } of cases) {
+        // A server bug or a changed response sends data the screen cannot use.
+        await page.route(screenPage, async (route) => {
+            const response = await route.fetch();
+            const body = (await response.text()).replace(screenDataScript, (_, start, json, end) => {
+                const edited = edit(JSON.parse(json));
+                return start + (typeof edited === 'string' ? edited : scriptJson(edited)) + end;
+            });
+            return route.fulfill({ response, body });
         });
+        try {
+            for (const arrive of [() => open(path), () => visitInApplication(path)]) {
+                await arrive();
+                const screen = page.locator('#blex-route-content [data-screen]');
+                await expect(screen).toHaveAttribute('data-screen-status', 'error');
+                await expect(screen).toHaveAttribute('data-screen-error', 'bootstrap_error');
+                await expect(screen).toHaveText(`Component Error: ${name}`);
+                await expect(page.locator('#blex-route-content img[data-bootstrap-injection]')).toHaveCount(0);
+                await keepsApplicationWorking();
+            }
+        } finally {
+            await page.unroute(screenPage);
+        }
     }
 };
 
 const isolateScreenRenderError = async () => {
-    await open('/settings/profile');
-    const settings = page.locator('[data-screen="SettingsApp"]');
-    await expect(settings).toHaveAttribute('data-screen-status', 'mounted');
     // The search screen's own module, not the server's search page module.
     const searchChunk = /\/assets\/ui\/assets\/search-[\w-]{8}\.js$/;
     await page.route(searchChunk, (route) =>
@@ -411,22 +435,66 @@ const isolateScreenRenderError = async () => {
         })
     );
     try {
-        await page.evaluate(() => {
-            const element = document.createElement('div');
-            element.id = 'broken-screen';
-            element.dataset.screen = 'SearchPage';
-            element.dataset.screenStatus = 'pending';
-            element.dataset.screenProps = encodeURIComponent('{}');
-            document.body.append(element);
-        });
-        const brokenScreen = page.locator('#broken-screen');
-        await expect(brokenScreen).toHaveAttribute('data-screen-status', 'error');
-        await expect(brokenScreen).toHaveAttribute('data-screen-error', 'render_error');
-        await expect(brokenScreen).toHaveText('Component Error: SearchPage');
-        await expect(settings).toHaveAttribute('data-screen-status', 'mounted');
+        await open('/search?q=smoke');
+        const screen = page.locator('[data-screen="SearchPage"]');
+        await expect(screen).toHaveAttribute('data-screen-status', 'error');
+        await expect(screen).toHaveAttribute('data-screen-error', 'render_error');
+        await expect(screen).toHaveText('Component Error: SearchPage');
+        await expect(page.locator('[data-site-header]')).toBeVisible();
+        await keepsApplicationWorking();
     } finally {
-        await page.evaluate(() => document.querySelector('#broken-screen')?.remove());
         await page.unroute(searchChunk);
+    }
+};
+
+const renderScreensInApplicationRoot = async () => {
+    await open('/');
+    await page.evaluate(() => {
+        window.__smokeSameDocument = true;
+    });
+    for (const path of ['/search?q=smoke', '/settings/profile', '/admin-settings/site-settings', '/write']) {
+        await visitInApplication(path);
+        await expect(page).toHaveURL(`${origin}${path}`);
+        await expect(page.locator('[data-screen]')).toHaveAttribute('data-screen-status', 'mounted');
+        expect(await reactRoots()).toBe(1);
+        await page.goBack();
+        await expect(page).toHaveURL(`${origin}/`);
+        await expect(page.locator('[data-screen]')).toHaveCount(0);
+        expect(await reactRoots()).toBe(1);
+    }
+    expect(await page.evaluate(() => window.__smokeSameDocument)).toBe(true);
+};
+
+const keepSessionCacheAfterPublicPage = async () => {
+    const cachedLists = () =>
+        page.evaluate(() =>
+            Object.keys(sessionStorage).filter(
+                (key) => key.startsWith('rq-cache-') && sessionStorage.getItem(key)?.includes('posts-setting')
+            )
+        );
+    await open('/settings/posts');
+    await expect.poll(cachedLists).toHaveLength(1);
+    const [key] = await cachedLists();
+    expect(key).toContain(`-${account.username}-`);
+    // A fresh public page, then the first screen inside the application, which loads before that page commits.
+    await open('/');
+    const postsRequest = '**/v1/setting/posts*';
+    const { promise: released, resolve: release } = Promise.withResolvers();
+    let held;
+    await page.route(postsRequest, (route) => {
+        held = released.then(() => route.continue());
+        return held;
+    });
+    try {
+        await visitInApplication('/settings/posts');
+        await expect(page).toHaveURL(`${origin}/settings/posts`);
+        // The list comes from the viewer's session cache while its request is still on the way.
+        await expect(page.getByRole('heading', { level: 1, name: /^포스트 \(\d+\)$/ })).toBeVisible();
+        expect(await cachedLists()).toEqual([key]);
+    } finally {
+        release();
+        await held;
+        await page.unroute(postsRequest);
     }
 };
 
@@ -531,7 +599,9 @@ const selectPinnedPostWithKeyboard = async () => {
 };
 
 const useSettingsListWithKeyboard = async () => {
-    await open('/settings/series');
+    // The series are created before the list first loads. A suspense query keeps a list cached under a second
+    // ago, so reloading right after it loaded would show it without them.
+    await open('/');
     const csrf = (await page.context().cookies()).find((cookie) => cookie.name === 'csrftoken')?.value;
     expect(csrf).toBeTruthy();
     const created = [];
@@ -545,7 +615,7 @@ const useSettingsListWithKeyboard = async () => {
         expect(result.status).toBe('DONE');
         created.push(result.body);
     }
-    await page.reload({ waitUntil: 'networkidle' });
+    await open('/settings/series');
     const first = page.getByRole('button', { name: 'Keyboard series A 0개의 포스트', exact: true });
     await expect(page.getByRole('heading', { name: 'Keyboard series A', exact: true })).toBeVisible();
     await first.focus();
@@ -838,7 +908,9 @@ try {
             keepThemePreferenceAcrossPages
         ],
         ['invalid screen data fails safely without interpreting names as HTML', rejectInvalidScreenData],
-        ['a screen render error leaves other screens mounted', isolateScreenRenderError],
+        ['a screen render error leaves the application working', isolateScreenRenderError],
+        ['screens render in the application root and leave nothing behind', renderScreensInApplicationRoot],
+        ["a screen opened after a fresh public page keeps its viewer's session cache", keepSessionCacheAfterPublicPage],
         ['back and forward return to each fragment the reader followed', returnToFragmentPositions],
         ['the code block copy button speaks the page language once its translations load', translateCodeCopyButton],
         ['pinned post selection supports arrow keys and resets after a search', selectPinnedPostWithKeyboard],

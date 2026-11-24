@@ -100,17 +100,19 @@ export interface PageProps {
         rssUrl?: string;
         brand: SiteBrand;
         documentStyleHref: string;
-        configurationJson: string;
-        globalsJson?: string;
+        /** Values screens read from `window`. */
+        configuration: Record<string, unknown>;
+        globals?: Record<string, unknown>;
         captcha: boolean;
         csrf: string;
         searchPage?: boolean;
         editorPage: boolean;
         viewer: HeaderViewer | null;
         contentClass?: string;
-        screen: string;
+        /** The screen the browser renders in place of the loading status, with props it validates. */
+        screen: { name: string; props: Record<string, unknown> };
+        loadingText: string;
         footer: boolean;
-        loaderHref: string;
     };
     'docs/developer-api/reference': { assetRoot: string; settingsJson: string; locale: 'ko' | 'en' };
     'work-logs/index': WorkLogIndexProps;

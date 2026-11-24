@@ -53,12 +53,12 @@ const publicEntries = [
     ...workLogPageEntries.map((name) => source(`src/features/work-logs/${name}.tsx`)),
     ...contentPageEntries.map((path) => source(`src/features/${path}.tsx`)),
     source('src/features/posts/code-blocks-client.ts'),
-    source('src/application/screen-host/client.ts'),
     source('src/appearance/site-client.ts')
 ];
 
-// The screen loader starts the screen runtime, which brings the screen catalogs and React Compiler output.
-const screenEntries = [source('src/scripts/screen-loader.ts')];
+// The application imports the screen runtime only when a page holds a screen. It brings the screens,
+// their catalogs, and React Compiler output, so public pages stop at it.
+const screenEntries = [source('src/screen-runtime.tsx')];
 
 // Public pages run without React Compiler output, so their modules stay outside it.
 // Mutable shared UI and editor state stay outside it as well.
@@ -71,8 +71,8 @@ const publicMessage = (id: string) => id.startsWith('public.');
 
 /**
  * `messages.po` gives public pages only their `public.` messages, and `messages.po?lingui`, the same
- * catalog under another module id, gives screens the rest. Code that public pages load before a screen
- * starts must not use a screen message, reach the screen catalogs, or carry React Compiler output.
+ * catalog under another module id, gives screens the rest. Code that public pages load before the screen
+ * runtime must not use a screen message, reach the screen catalogs, or carry React Compiler output.
  */
 function splitCatalogs(): Plugin {
     const screenMessages = new Set<string>();
@@ -108,6 +108,7 @@ function splitCatalogs(): Plugin {
             for (const chunk of pending) {
                 for (const file of [...chunk.imports, ...chunk.dynamicImports]) {
                     const imported = chunks.get(file);
+                    if (imported && screenEntries.includes(imported.facadeModuleId ?? '')) continue;
                     if (imported && !publicChunks.has(imported)) {
                         publicChunks.add(imported);
                         pending.push(imported);
@@ -179,7 +180,13 @@ async function bundlePublicEntries(): Promise<Map<string, PublicChunk>> {
         plugins: browserPlugins(),
         build: {
             write: false,
-            rolldownOptions: { input: publicEntries, preserveEntrySignatures: 'exports-only', treeshake }
+            rolldownOptions: {
+                input: publicEntries,
+                // The application's import of the screen runtime stays an import, so no screen code is bundled.
+                external: (id) => screenEntries.includes(id.replace(/\?.*$/, '')),
+                preserveEntrySignatures: 'exports-only',
+                treeshake
+            }
         }
     });
     const outputs = (Array.isArray(result) ? result : [result]) as Rolldown.RolldownOutput[];
@@ -187,6 +194,8 @@ async function bundlePublicEntries(): Promise<Map<string, PublicChunk>> {
     const chunks = new Map<string, PublicChunk>();
     for (const chunk of outputs.flatMap(({ output }) => output)) {
         if (chunk.type !== 'chunk') continue;
+        if (chunk.moduleIds.some((id) => screenEntries.includes(id)))
+            throw new Error(`The public pages were bundled with the screen runtime in ${chunk.fileName}.`);
         const owner = chunk.isEntry || chunk.isDynamicEntry ? chunk.facadeModuleId : null;
         // Each distinct name becomes one chunk, so two public chunks never share a name.
         let name = owner
@@ -279,7 +288,7 @@ export default defineConfig({
             // Grouping only the captured modules needs entries that may gain exports.
             preserveEntrySignatures: 'allow-extension',
             treeshake,
-            input: [...publicEntries, ...screenEntries, source('styles/main.scss')],
+            input: [...publicEntries, source('styles/main.scss')],
             output: {
                 codeSplitting: {
                     includeDependenciesRecursively: false,

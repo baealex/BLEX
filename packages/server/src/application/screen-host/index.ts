@@ -2,7 +2,7 @@ import { systemMessage } from '../../platform/messages.js';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { readAdminAccess } from '../../features/site-admin/access.js';
-import { applicationContentSecurityPolicy, scriptJson } from '../../platform/document.js';
+import { applicationContentSecurityPolicy } from '../../platform/document.js';
 import { renderPage } from '../../platform/views.js';
 import { authCookieOptions, csrfCookie, requestCookies } from '../../platform/cookies.js';
 import { decryptSecret } from '../../features/auth/encrypted-secret.js';
@@ -11,7 +11,7 @@ import { createToken } from '../../features/auth/session.js';
 import { hasAdministrator } from '../../features/auth/setup.js';
 import { readPublicSiteBrand } from '../../features/discovery/http/pages.js';
 import { resolveUiLocale } from '../../platform/locale.js';
-import { readUiAsset, readUiFile } from '../../platform/ui-assets.js';
+import { readUiFile } from '../../platform/ui-assets.js';
 
 export interface ScreenHostOptions {
   currentUser(request: FastifyRequest): Promise<{ id: number; username: string } | null>;
@@ -43,7 +43,6 @@ const editorPrefixes = [
   'developer-api',
 ];
 const documentStyleEntry = 'styles/main.scss';
-const loaderEntry = 'src/scripts/screen-loader.ts';
 
 const hasPrefix = (path: string, prefixes: string[]) => {
   const normalized = path.replace(/^\/+|\/+$/g, '');
@@ -116,11 +115,7 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
     viewer: ScreenViewer | null,
     page: ScreenPage,
   ) => {
-    const [brand, documentStyleHref, loader] = await Promise.all([
-      readPublicSiteBrand(db),
-      readUiFile(documentStyleEntry),
-      readUiAsset(loaderEntry),
-    ]);
+    const [brand, documentStyleHref] = await Promise.all([readPublicSiteBrand(db), readUiFile(documentStyleEntry)]);
     let csrf = requestCookies(request)[csrfCookie] ?? '';
     if (!/^[A-Za-z0-9_-]{43}$/.test(csrf)) {
       csrf = createToken();
@@ -133,7 +128,6 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
       timeZone: viewer?.state.timeZone || process.env.TZ || 'Asia/Seoul',
       ...(viewer ? { user: { isAuthenticated: 'True', username: viewer.user.username } } : {}),
     };
-    const screen = `<div data-screen="${page.component}" data-screen-status="pending" data-screen-props="${encodeURIComponent(JSON.stringify(page.props))}"><div role="status" aria-live="polite" class="flex min-h-52 items-center justify-center gap-2 py-12 text-sm font-medium text-content-secondary"><span aria-hidden="true" class="h-4 w-4 animate-spin rounded-full border-2 border-line-strong border-t-action motion-reduce:animate-none"></span><span>${systemMessage('Loading…')}</span></div></div>`;
     const robots = page.robots ?? 'noindex,nofollow';
     const html = renderPage('screen-host', {
       lang: configuration.locale,
@@ -144,8 +138,8 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
       rssUrl: page.searchPage ? new URL('/rss', options.siteUrl).href : undefined,
       brand,
       documentStyleHref,
-      configurationJson: scriptJson(configuration),
-      globalsJson: page.globals ? scriptJson(page.globals) : undefined,
+      configuration,
+      globals: page.globals,
       captcha: Boolean(page.captcha),
       csrf,
       searchPage: page.searchPage,
@@ -160,9 +154,9 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
           }
         : null,
       contentClass: page.contentClass,
-      screen,
+      screen: { name: page.component, props: page.props },
+      loadingText: systemMessage('Loading…'),
       footer: Boolean(page.footer),
-      loaderHref: loader.script,
     });
     return reply
       .type('text/html; charset=utf-8')

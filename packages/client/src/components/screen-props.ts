@@ -1,4 +1,5 @@
 import type { ComponentProps } from 'react';
+import type { ScreenPageData } from '../application/screen-page';
 import type PostEditor from '../features/editor';
 import type SearchPage from '../features/search';
 import type SettingsApp from '../features/settings';
@@ -22,6 +23,47 @@ const isOptionalBoolean = (value: unknown): value is boolean | undefined => valu
 
 const isAdminCapabilities = (value: unknown): value is Partial<AdminCapabilities> =>
     isRecord(value) && Object.values(value).every(isBoolean);
+
+const isNullableString = (value: unknown): value is string | null => value === null || typeof value === 'string';
+
+type FooterBrand = NonNullable<ScreenPageData['footer']>['brand'];
+
+const isFooterBrand = (value: unknown): value is FooterBrand =>
+    value === undefined ||
+    (isRecord(value) &&
+        typeof value.siteName === 'string' &&
+        isNullableString(value.logoUrl) &&
+        isNullableString(value.darkLogoUrl) &&
+        Array.isArray(value.footerPages) &&
+        value.footerPages.every(
+            (page: unknown) => isRecord(page) && typeof page.title === 'string' && typeof page.slug === 'string'
+        ));
+
+/** The signed-in viewer the server rendered the screen for, if any. */
+export const screenViewerName = ({ configuration }: ScreenPageData): string | undefined =>
+    isRecord(configuration.user) && typeof configuration.user.username === 'string'
+        ? configuration.user.username
+        : undefined;
+
+/** Validate the page around a screen before rendering it. The screen's own props go through `parseScreen`. */
+export function parseScreenPage(value: unknown): ScreenPageData | null {
+    if (!isRecord(value) || !isRecord(value.screen) || typeof value.screen.name !== 'string') return null;
+    const { csrf, contentClass, footer, configuration, globals } = value;
+    if (typeof csrf !== 'string' || !isOptionalString(contentClass)) return null;
+    let pageFooter: ScreenPageData['footer'];
+    if (footer !== undefined) {
+        if (!isRecord(footer) || typeof footer.copyrightYear !== 'number' || !isFooterBrand(footer.brand)) return null;
+        pageFooter = { brand: footer.brand, copyrightYear: footer.copyrightYear };
+    }
+    return {
+        screen: { name: value.screen.name, props: value.screen.props },
+        csrf,
+        contentClass,
+        footer: pageFooter,
+        configuration: isRecord(configuration) ? configuration : {},
+        globals: isRecord(globals) ? globals : {}
+    };
+}
 
 /** Validate the JSON boundary before passing props to a lazy-loaded screen. */
 export function parseScreen(name: string, props: unknown): Screen | null {
