@@ -57,16 +57,13 @@ type ResetView =
 
 async function sendResetPage(db: PrismaClient, reply: FastifyReply, view: ResetView, status = 200) {
   const brand = await readPublicSiteBrand(db);
-  const fieldClass = 'block h-12 w-full rounded-lg border border-line bg-surface px-3';
-  const linkClass =
-    'mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-action px-4 text-content-inverted hover:bg-action-hover active:scale-95';
   return reply
     .code(status)
     .type('text/html; charset=utf-8')
     .header('Cache-Control', 'private, no-store')
     .header('Referrer-Policy', 'no-referrer')
     .header('X-Robots-Tag', 'noindex, nofollow, noarchive')
-    .send(renderPage('password-reset/$token', { brand, view, linkClass, fieldClass }));
+    .send(renderPage('password-reset/$token', { brand, view }));
 }
 
 export function registerPasswordReset(app: FastifyInstance, db: PrismaClient, siteUrl: URL, config: AuthConfig) {
