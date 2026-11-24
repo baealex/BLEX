@@ -47,7 +47,7 @@ The post detail, home, tag list, and tag pages render in the main React tree: `f
 
 Use semantic Tailwind tokens and follow the [Design Guide](DESIGN_GUIDE.md) and [UI Change Style Guide](UI_CHANGE_STYLE_GUIDE.md). Keep screen-specific CSS close to the feature.
 
-The server sets the document language from the user preference or site default. Public SSR and browser components use `ui()` with literal English product copy; React screens use the existing Lingui macros. Both use the same PO catalogs. Activate the document catalog before hydration and the destination catalog before internal navigation. Resolve translated labels during rendering, never at module initialization. Do not pass authored content through translation helpers or create a separate runtime per feature. See [Translation Guide](TRANSLATION_GUIDE.md) for current coverage and checks.
+The server sets the document language from the user preference or site default. Public SSR and browser components use `ui()` with literal English product copy; React screens use the existing Lingui macros. Both use the same PO catalogs, but the public page build keeps only the `ui()` messages and fails if public code uses a screen message. Activate the document catalog before hydration and the destination catalog before internal navigation. Resolve translated labels during rendering, never at module initialization. Do not pass authored content through translation helpers or create a separate runtime per feature. See [Translation Guide](TRANSLATION_GUIDE.md) for current coverage and checks.
 
 ## Development and checks
 
