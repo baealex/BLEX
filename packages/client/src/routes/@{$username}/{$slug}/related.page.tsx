@@ -24,7 +24,7 @@ export default function renderPage({
             <body>
                 <main>
                     <a href={publicPostPath(username, slug)}>{ui('Back to post')}</a>
-                    <h1>{ui('Related posts', {}, 'public.Related posts.f333fc06')}</h1>
+                    <h1>{ui('Related posts')}</h1>
                     {items.length ? (
                         <ul>
                             {items.map((item) => (

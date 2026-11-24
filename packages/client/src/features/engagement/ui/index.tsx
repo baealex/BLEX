@@ -106,7 +106,7 @@ export function AuthorHeader(props: AuthorHeaderProps) {
                 <img
                     className="reader-author-cover"
                     src={author.cover}
-                    alt={ui("{value0}'s cover", { value0: author.username }, "public.{value0}'s cover.d419acb3")}
+                    alt={ui("{value0}'s cover", { value0: author.username })}
                     loading="lazy"
                 />
             ) : null}

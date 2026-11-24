@@ -833,7 +833,7 @@ const useSettingsListWithKeyboard = async () => {
     await expect(page).toHaveURL(`${origin}/settings/series`);
 
     await page.getByRole('button', { name: 'Keyboard series A 시리즈 메뉴 열기', exact: true }).click();
-    await page.getByRole('menuitem', { name: '시리즈 편집', exact: true }).click();
+    await page.getByRole('menuitem', { name: '시리즈 수정', exact: true }).click();
     await expect(page).toHaveURL(`${origin}/settings/series/edit/${created[0].id}`);
     await expect(page.getByRole('textbox').first()).toHaveValue('Keyboard series A');
     await page.setViewportSize({ width: 1280, height: 900 });

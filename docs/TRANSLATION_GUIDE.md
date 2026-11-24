@@ -21,7 +21,7 @@ English is the source language for catalogs. Korean and English catalogs are inc
 ## Why the sources are separate
 
 - The client's PO catalogs hold every message the browser renders. Each page downloads only the parts it uses: `public.` messages on every public page, `developer.` messages on the Developer API guide, and the rest on screens.
-- The server keeps its own catalog because it formats messages outside React: API responses, notifications, Telegram and webhook deliveries, and page titles, often in another user's language. Reading the client's compiled catalogs would make the API depend on the client build, and the browser catalogs would have to leave out messages they never show. Developer API text uses `developer.` IDs because the Developer API words some site sentences differently, such as its token and permission errors.
+- The server keeps its own catalog because it formats messages outside React: API responses, notifications, Telegram and webhook deliveries, and page titles, often in another user's language. Reading the client's compiled catalogs would make the API depend on the client build, and the browser catalogs would have to leave out messages they never show. Developer API text uses `developer.` IDs so the check can confirm that every reference and error sentence the API sends is translated; a sentence it shares with the site keeps the site's Korean.
 - `/v1` handlers write more than 100 status sentences as plain English in over 200 places, and the response hook translates them. Some code still compares those English sentences, such as the sign-in wording and the Developer API's error codes, so moving them to `systemMessage()` is a refactor of its own. Use `systemMessage()` for new `/v1` messages: the fallback catalog is not checked for missing sentences.
 - The reusable editor keeps type-checked catalogs that its hosts can override.
 
@@ -50,7 +50,9 @@ pnpm i18n:check
 
 Use existing Lingui macros in React screens. For public SSR/browser copy, call `ui('English source', { placeholders })` with a literal English message. The extractor records its call site and derives a `public.` ID from the source. When changing an established source sentence, pass the original ID as the third argument to preserve its identity. Never pass authored content or a computed source sentence to this helper.
 
-`pnpm i18n:check` fails when a PO catalog is stale or misses a Korean translation, and when the server catalog misses one for a `systemMessage()` or literal `developerText()` call, an English Developer API error, or a title, summary, description, or tag of the generated OpenAPI document. It also compares placeholders.
+`pnpm i18n:check` fails when a PO catalog is stale or misses a Korean translation, and when the server catalog misses one for a `systemMessage()` or literal `developerText()` call, an English Developer API error, or a title, summary, description, or tag of the generated OpenAPI document. It also compares placeholders, and fails when one English source has different Korean translations across the server catalog, the `/v1` fallback catalog, and the PO catalogs. When a screen needs other wording, such as a sort option, list its entry with the reason in `intentionalVariants` in `packages/server/test/message-catalog.test.ts`.
+
+Use one Korean term per concept. The account role is 작가 (작가 권한, 작가 초대); the person who wrote a given post or comment is 작성자.
 
 Keep explicit, domain-prefixed Lingui IDs stable and provide clear English default messages. Preserve placeholders and ICU expressions. Keep PO catalogs under version control; generated Lingui `.mjs` files are ignored.
 

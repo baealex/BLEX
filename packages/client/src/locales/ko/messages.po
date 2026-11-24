@@ -271,7 +271,7 @@ msgstr "복사"
 #. js-lingui-explicit-id
 #: src/features/settings/developer-api/DeveloperApiSetting.tsx:383
 msgid "common.copy_failed"
-msgstr "복사하지 못했습니다."
+msgstr "복사에 실패했습니다."
 
 #. js-lingui-explicit-id
 #: src/features/settings/developer-api/DeveloperApiSetting.tsx:376
@@ -940,7 +940,7 @@ msgstr "이 포스트를 휴지통으로 옮길까요? 포스트 설정에서 �
 #: src/features/editor/components/PostCoverEditor.tsx:190
 #: src/features/editor/components/PostCoverEditor.tsx:306
 msgid "editor.cover.add_image"
-msgstr "대표 이미지 추가"
+msgstr "커버 이미지 추가"
 
 #. js-lingui-explicit-id
 #: src/features/editor/components/PostCoverEditor.tsx:193
@@ -960,7 +960,7 @@ msgstr "공유와 목록에 사용할 이미지를 추가하세요"
 #. js-lingui-explicit-id
 #: src/features/editor/components/PostCoverEditor.tsx:142
 msgid "editor.cover.image"
-msgstr "대표 이미지"
+msgstr "커버 이미지"
 
 #. js-lingui-explicit-id
 #: src/features/editor/components/SettingsDrawer.tsx:514
@@ -992,7 +992,7 @@ msgstr "커버 숨김"
 #. js-lingui-explicit-id
 #: src/features/editor/utils/coverSettings.ts:48
 msgid "editor.cover.layout.hidden_description"
-msgstr "대표 이미지는 공유와 목록에만 사용하고 포스트 상단에는 보이지 않습니다."
+msgstr "커버 이미지는 공유와 목록에만 사용하고 포스트 상단에는 보이지 않습니다."
 
 #. js-lingui-explicit-id
 #: src/features/editor/utils/coverSettings.ts:33
@@ -1012,7 +1012,7 @@ msgstr "분할"
 #. js-lingui-explicit-id
 #: src/features/editor/utils/coverSettings.ts:26
 msgid "editor.cover.layout.split_description"
-msgstr "제목과 대표 이미지를 좌우로 배치합니다."
+msgstr "제목과 커버 이미지를 좌우로 배치합니다."
 
 #. js-lingui-explicit-id
 #: src/features/editor/utils/coverSettings.ts:103
@@ -1052,7 +1052,7 @@ msgstr "16:9 와이드"
 #. js-lingui-explicit-id
 #: src/features/editor/components/PostCoverEditor.tsx:240
 msgid "editor.cover.remove_image"
-msgstr "대표 이미지 삭제"
+msgstr "커버 이미지 삭제"
 
 #. js-lingui-explicit-id
 #: src/features/editor/components/PostCoverEditor.tsx:165
@@ -1062,7 +1062,7 @@ msgstr "공유 이미지 삭제"
 #. js-lingui-explicit-id
 #: src/features/editor/components/PostCoverEditor.tsx:304
 msgid "editor.cover.replace_image"
-msgstr "대표 이미지 교체"
+msgstr "커버 이미지 교체"
 
 #. js-lingui-explicit-id
 #: src/features/editor/components/SettingsDrawer.tsx:469
@@ -1945,7 +1945,7 @@ msgstr "독자가 새 댓글과 답글을 작성할 수 있습니다"
 #: src/features/editor/components/SettingsDrawer.tsx:445
 #: src/features/editor/components/SettingsDrawer.tsx:455
 msgid "editor.settings.no_series"
-msgstr "선택 안 함"
+msgstr "시리즈 선택 안 함"
 
 #. js-lingui-explicit-id
 #: src/features/editor/components/SettingsDrawer.tsx:319
@@ -2192,11 +2192,6 @@ msgstr "{value0}님의 댓글"
 #. js-lingui-explicit-id
 #: src/features/authors/profile-ui.tsx:148
 msgid "public.{value0}'s cover"
-msgstr "{value0}의 커버"
-
-#. js-lingui-explicit-id
-#: src/features/engagement/ui/index.tsx:108
-msgid "public.{value0}'s cover.d419acb3"
 msgstr "{value0}님의 커버"
 
 #. js-lingui-explicit-id
@@ -2237,7 +2232,7 @@ msgstr "접근 권한이 없습니다"
 #. js-lingui-explicit-id
 #: src/features/auth/ui/login-form.tsx:220
 msgid "public.Account"
-msgstr "로그인 계정"
+msgstr "계정"
 
 #. js-lingui-explicit-id
 #: src/appearance/shell.tsx:144
@@ -2304,7 +2299,7 @@ msgstr "전체 태그"
 #. js-lingui-explicit-id
 #: src/routes/sign.page.tsx:140
 msgid "public.Already have an account?"
-msgstr "이미 계정이 있나요?"
+msgstr "이미 계정이 있으신가요?"
 
 #. js-lingui-explicit-id
 #: src/features/authors/activity-ui.tsx:63
@@ -2562,7 +2557,7 @@ msgstr "계정 접근을 복구하려면 사이트 관리자에게 문의하세�
 #. js-lingui-explicit-id
 #: src/features/discovery/search-ui.tsx:187
 msgid "public.Content"
-msgstr "내용"
+msgstr "본문"
 
 #. js-lingui-explicit-id
 #: src/features/auth/ui/login-form.tsx:164
@@ -2781,7 +2776,7 @@ msgstr "계정이 없으신가요?"
 #: src/routes/@{$username}/{$slug}/index.page.tsx:541
 #: src/routes/@{$username}/{$slug}/index.page.tsx:702
 msgid "public.Edit"
-msgstr "수정하기"
+msgstr "수정"
 
 #. js-lingui-explicit-id
 #: src/features/auth/ui/login-form.tsx:249
@@ -2797,12 +2792,12 @@ msgstr "소개글 수정"
 #: src/routes/@{$username}/{$slug}/revisions.page.tsx:83
 #: src/routes/@{$username}/{$slug}/timelapse.page.tsx:38
 msgid "public.Edit post"
-msgstr "글 편집"
+msgstr "포스트 수정"
 
 #. js-lingui-explicit-id
 #: src/routes/@{$username}/series/$seriesSlug.page.tsx:69
 msgid "public.Edit series"
-msgstr "시리즈 편집"
+msgstr "시리즈 수정"
 
 #. js-lingui-explicit-id
 #: src/features/work-logs/pages.tsx:584
@@ -2858,12 +2853,12 @@ msgstr "인증 코드를 입력해 주세요."
 #. js-lingui-explicit-id
 #: src/routes/sign.page.tsx:75
 msgid "public.Enter your display name"
-msgstr "표시 이름을 입력하세요"
+msgstr "표시 이름을 입력해 주세요"
 
 #. js-lingui-explicit-id
 #: src/routes/sign.page.tsx:87
 msgid "public.Enter your email address"
-msgstr "이메일을 입력하세요"
+msgstr "이메일 주소를 입력해 주세요"
 
 #. js-lingui-explicit-id
 #: src/features/auth/ui/login-form.tsx:281
@@ -2873,22 +2868,12 @@ msgstr "비밀번호를 입력해 주세요"
 #. js-lingui-explicit-id
 #: src/routes/sign.page.tsx:114
 msgid "public.Enter your password again"
-msgstr "비밀번호를 한 번 더 입력하세요"
-
-#. js-lingui-explicit-id
-#: src/routes/sign.page.tsx:98
-msgid "public.Enter your password.047b6c50"
-msgstr "비밀번호를 입력하세요"
+msgstr "비밀번호를 다시 입력해 주세요"
 
 #. js-lingui-explicit-id
 #: src/features/auth/ui/login-form.tsx:263
 msgid "public.Enter your username"
 msgstr "사용자 이름을 입력해 주세요"
-
-#. js-lingui-explicit-id
-#: src/routes/sign.page.tsx:60
-msgid "public.Enter your username.259a7b95"
-msgstr "아이디를 입력하세요"
 
 #. js-lingui-explicit-id
 #: src/features/work-logs/pages.tsx:287
@@ -2939,7 +2924,7 @@ msgstr "최초 발행"
 #. js-lingui-explicit-id
 #: src/features/engagement/ui/telegram-hint.tsx:80
 msgid "public.Get new posts on Telegram"
-msgstr "새 글을 텔레그램으로 받아보세요"
+msgstr "텔레그램으로 새 글 받기"
 
 #. js-lingui-explicit-id
 #: src/routes/errors/forbidden.page.tsx:53
@@ -3264,7 +3249,7 @@ msgstr "조건에 맞는 포스트가 없습니다"
 #. js-lingui-explicit-id
 #: src/routes/@{$username}/{$slug}/related.page.tsx:38
 msgid "public.No posts share these tags."
-msgstr "공통 태그가 붙은 글이 없습니다."
+msgstr "공통 태그가 붙은 포스트가 없습니다."
 
 #. js-lingui-explicit-id
 #: src/routes/@{$username}/series/$seriesSlug.page.tsx:145
@@ -3302,7 +3287,7 @@ msgstr "검색 결과가 없습니다"
 #. js-lingui-explicit-id
 #: src/routes/@{$username}/{$slug}/revisions.page.tsx:105
 msgid "public.No saved revisions."
-msgstr "저장된 수정 기록이 없습니다."
+msgstr "저장된 수정 이력이 없습니다."
 
 #. js-lingui-explicit-id
 #: src/routes/@{$username}/series/index.page.tsx:119
@@ -3533,7 +3518,7 @@ msgstr "최근 포스트"
 #: src/appearance/quick-search.tsx:50
 #: src/appearance/quick-search.tsx:92
 msgid "public.Recent searches"
-msgstr "최근 검색"
+msgstr "최근 검색어"
 
 #. js-lingui-explicit-id
 #: src/features/authors/profile-ui.tsx:71
@@ -3553,12 +3538,7 @@ msgstr "관련 포스트"
 #. js-lingui-explicit-id
 #: src/routes/@{$username}/{$slug}/related.page.tsx:19
 msgid "public.Related posts · {title}"
-msgstr "관련 글 · {title}"
-
-#. js-lingui-explicit-id
-#: src/routes/@{$username}/{$slug}/related.page.tsx:27
-msgid "public.Related posts.f333fc06"
-msgstr "관련 글"
+msgstr "관련 포스트 · {title}"
 
 #. js-lingui-explicit-id
 #: src/features/engagement/ui/comments.tsx:484
@@ -3599,17 +3579,17 @@ msgstr "이 기록으로 복원"
 #: src/routes/@{$username}/{$slug}/revisions.page.tsx:90
 #: src/routes/@{$username}/{$slug}/timelapse.page.tsx:40
 msgid "public.Revision history"
-msgstr "수정 기록"
+msgstr "수정 이력"
 
 #. js-lingui-explicit-id
 #: src/routes/@{$username}/{$slug}/revisions.page.tsx:78
 msgid "public.Revision history · {value0} · BLEX"
-msgstr "수정 기록 · {value0} · BLEX"
+msgstr "수정 이력 · {value0} · BLEX"
 
 #. js-lingui-explicit-id
 #: src/routes/@{$username}/{$slug}/revisions.page.tsx:103
 msgid "public.Revisions"
-msgstr "수정 기록 목록"
+msgstr "수정본 목록"
 
 #. js-lingui-explicit-id
 #: src/features/authors/about-editor.tsx:167
@@ -3969,11 +3949,6 @@ msgid "public.Subscribed"
 msgstr "구독 중"
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/telegram-hint.tsx:78
-msgid "public.Subscribed.9afbe521"
-msgstr "구독했어요"
-
-#. js-lingui-explicit-id
 #: src/appearance/shell.tsx:67
 #: src/appearance/site-client.ts:35
 msgid "public.Switch to dark mode"
@@ -4174,12 +4149,6 @@ msgid "public.Username"
 msgstr "사용자 이름"
 
 #. js-lingui-explicit-id
-#: src/routes/setup.page.tsx:48
-#: src/routes/sign.page.tsx:55
-msgid "public.Username.367001d7"
-msgstr "아이디"
-
-#. js-lingui-explicit-id
 #: src/features/auth/ui/login-form.tsx:291
 msgid "public.Verify"
 msgstr "인증 확인"
@@ -4373,7 +4342,7 @@ msgstr "작성자 필터 적용 중: <0>@{usernameFilter}</0>"
 #. js-lingui-explicit-id
 #: src/features/search/SearchPage.tsx:588
 msgid "search.empty.body"
-msgstr "다른 검색어를 시도해보세요."
+msgstr "다른 검색어로 다시 시도해 주세요."
 
 #. js-lingui-explicit-id
 #: src/features/search/SearchPage.tsx:585
@@ -4418,7 +4387,7 @@ msgstr "검색 중"
 #. js-lingui-explicit-id
 #: src/features/search/SearchPage.tsx:343
 msgid "search.match.content"
-msgstr "내용"
+msgstr "본문"
 
 #. js-lingui-explicit-id
 #: src/features/search/SearchPage.tsx:335
@@ -4681,32 +4650,32 @@ msgstr "인증 앱에 표시된 6자리 코드를 입력하세요"
 #. js-lingui-explicit-id
 #: src/features/settings/account/AccountSetting.tsx:209
 msgid "settings.account.two_factor.disable_confirm"
-msgstr "2차 인증을 해제할까요?"
+msgstr "2단계 인증을 해제할까요?"
 
 #. js-lingui-explicit-id
 #: src/features/settings/account/AccountSetting.tsx:254
 msgid "settings.account.two_factor.disable_failed"
-msgstr "2차 인증을 해제하지 못했습니다."
+msgstr "2단계 인증을 해제하지 못했습니다."
 
 #. js-lingui-explicit-id
 #: src/features/settings/account/AccountSetting.tsx:245
 msgid "settings.account.two_factor.disable_success"
-msgstr "2차 인증을 해제했습니다."
+msgstr "2단계 인증을 해제했습니다."
 
 #. js-lingui-explicit-id
 #: src/features/settings/account/AccountSetting.tsx:205
 msgid "settings.account.two_factor.disable_title"
-msgstr "2차 인증 해제"
+msgstr "2단계 인증 해제"
 
 #. js-lingui-explicit-id
 #: src/features/settings/account/AccountSetting.tsx:234
 msgid "settings.account.two_factor.enable_failed"
-msgstr "2차 인증을 활성화하지 못했습니다."
+msgstr "2단계 인증을 활성화하지 못했습니다."
 
 #. js-lingui-explicit-id
 #: src/features/settings/account/AccountSetting.tsx:272
 msgid "settings.account.two_factor.enable_success"
-msgstr "2차 인증을 활성화했습니다."
+msgstr "2단계 인증을 활성화했습니다."
 
 #. js-lingui-explicit-id
 #: src/features/settings/account/AccountSetting.tsx:285
@@ -4717,7 +4686,7 @@ msgstr "잘못된 인증 코드입니다."
 #. js-lingui-explicit-id
 #: src/features/settings/account/components/TwoFactorModal.tsx:74
 msgid "settings.account.two_factor.qr_code"
-msgstr "2차 인증 QR 코드"
+msgstr "2단계 인증 QR 코드"
 
 #. js-lingui-explicit-id
 #: src/features/settings/account/components/TwoFactorModal.tsx:85
@@ -4747,12 +4716,12 @@ msgstr "인증 앱(Google Authenticator, Authy 등)으로 아래 QR 코드를 �
 #. js-lingui-explicit-id
 #: src/features/settings/account/components/TwoFactorModal.tsx:59
 msgid "settings.account.two_factor.setup_title"
-msgstr "2차 인증 설정"
+msgstr "2단계 인증 설정"
 
 #. js-lingui-explicit-id
 #: src/features/settings/account/components/SecuritySection.tsx:28
 msgid "settings.account.two_factor.title"
-msgstr "2차 인증"
+msgstr "2단계 인증"
 
 #. js-lingui-explicit-id
 #: src/features/settings/account/components/TwoFactorModal.tsx:22
@@ -4762,7 +4731,7 @@ msgstr "올바른 6자리 코드를 입력해 주세요."
 #. js-lingui-explicit-id
 #: src/features/settings/account/components/TwoFactorModal.tsx:154
 msgid "settings.account.two_factor.verify"
-msgstr "인증"
+msgstr "인증 확인"
 
 #. js-lingui-explicit-id
 #: src/features/settings/account/components/TwoFactorModal.tsx:150
@@ -4772,22 +4741,22 @@ msgstr "확인 중..."
 #. js-lingui-explicit-id
 #: src/features/settings/account/AccountSetting.tsx:70
 msgid "settings.account.username.confirm_message"
-msgstr "사용자 필명을 변경할까요? 작성한 포스트가 있으면 6개월에 한 번만 변경할 수 있습니다."
+msgstr "사용자 이름을 변경할까요? 작성한 포스트가 있으면 6개월에 한 번만 변경할 수 있습니다."
 
 #. js-lingui-explicit-id
 #: src/features/settings/account/AccountSetting.tsx:66
 msgid "settings.account.username.confirm_title"
-msgstr "사용자 필명 변경"
+msgstr "사용자 이름 변경"
 
 #. js-lingui-explicit-id
 #: src/features/settings/account/AccountSetting.tsx:54
 msgid "settings.account.username.different_required"
-msgstr "변경할 사용자 필명을 입력해 주세요."
+msgstr "변경할 사용자 이름을 입력해 주세요."
 
 #. js-lingui-explicit-id
 #: src/features/settings/account/components/UsernameSection.tsx:71
 msgid "settings.account.username.form_label"
-msgstr "사용자 필명 변경"
+msgstr "사용자 이름 변경"
 
 #. js-lingui-explicit-id
 #: src/features/settings/account/components/UsernameSection.tsx:90
@@ -4797,27 +4766,27 @@ msgstr "로그인과 주소(URL)에 사용됩니다. 포스트가 있으면 6개
 #. js-lingui-explicit-id
 #: src/features/settings/account/components/UsernameSection.tsx:81
 msgid "settings.account.username.label"
-msgstr "사용자 필명"
+msgstr "사용자 이름"
 
 #. js-lingui-explicit-id
 #: src/features/settings/account/components/UsernameSection.tsx:85
 msgid "settings.account.username.placeholder"
-msgstr "사용자 필명"
+msgstr "사용자 이름"
 
 #. js-lingui-explicit-id
 #: src/features/settings/account/components/UsernameSection.tsx:114
 msgid "settings.account.username.update"
-msgstr "필명 업데이트"
+msgstr "사용자 이름 업데이트"
 
 #. js-lingui-explicit-id
 #: src/features/settings/account/AccountSetting.tsx:99
 msgid "settings.account.username.update_failed"
-msgstr "사용자 필명을 변경하지 못했습니다."
+msgstr "사용자 이름을 변경하지 못했습니다."
 
 #. js-lingui-explicit-id
 #: src/features/settings/account/AccountSetting.tsx:89
 msgid "settings.account.username.update_success"
-msgstr "사용자 필명을 변경했습니다."
+msgstr "사용자 이름을 변경했습니다."
 
 #. js-lingui-explicit-id
 #: src/features/settings/account/components/UsernameSection.tsx:110
@@ -4827,12 +4796,12 @@ msgstr "업데이트 중..."
 #. js-lingui-explicit-id
 #: src/features/settings/account/components/UsernameSection.tsx:36
 msgid "settings.account.username.validation.max_length"
-msgstr "사용자 필명은 30자 이내여야 합니다."
+msgstr "사용자 이름은 30자 이내여야 합니다."
 
 #. js-lingui-explicit-id
 #: src/features/settings/account/components/UsernameSection.tsx:29
 msgid "settings.account.username.validation.min_length"
-msgstr "사용자 필명은 3자 이상이어야 합니다."
+msgstr "사용자 이름은 3자 이상이어야 합니다."
 
 #. js-lingui-explicit-id
 #: src/features/settings/integrations/AdminIntegrationSetting.tsx:196
@@ -5051,7 +5020,7 @@ msgstr "배너 활성화"
 #. js-lingui-explicit-id
 #: src/features/settings/shared/BannerEditorBase.tsx:513
 msgid "settings.banners.editor.active.label"
-msgstr "노출"
+msgstr "활성"
 
 #. js-lingui-explicit-id
 #: src/features/settings/shared/BannerEditorBase.tsx:575
@@ -5146,12 +5115,12 @@ msgstr "나가기"
 #. js-lingui-explicit-id
 #: src/features/settings/shared/BannerEditorBase.tsx:202
 msgid "settings.banners.editor.unsaved.message"
-msgstr "변경사항이 저장되지 않았습니다. 페이지를 나가시겠습니까?"
+msgstr "변경사항이 저장되지 않았습니다. 페이지를 나갈까요?"
 
 #. js-lingui-explicit-id
 #: src/features/settings/shared/BannerEditorBase.tsx:198
 msgid "settings.banners.editor.unsaved.title"
-msgstr "저장하지 않은 변경사항"
+msgstr "저장되지 않은 변경사항"
 
 #. js-lingui-explicit-id
 #: src/features/settings/shared/BannerSettingBase.tsx:251
@@ -5596,7 +5565,7 @@ msgstr "설정"
 #. js-lingui-explicit-id
 #: src/features/settings/forms/FormsSetting.tsx:242
 msgid "settings.forms.add"
-msgstr "새 서식 추가"
+msgstr "서식 추가"
 
 #. js-lingui-explicit-id
 #: src/features/settings/forms/FormsSetting.tsx:346
@@ -5661,7 +5630,7 @@ msgstr "등록된 서식이 없습니다"
 #. js-lingui-explicit-id
 #: src/features/settings/forms/FormsSetting.tsx:296
 msgid "settings.forms.fields.content"
-msgstr "내용"
+msgstr "본문"
 
 #. js-lingui-explicit-id
 #: src/features/settings/forms/FormsSetting.tsx:302
@@ -5726,7 +5695,7 @@ msgstr "제목은 100자 이내로 입력해주세요."
 #. js-lingui-explicit-id
 #: src/features/settings/forms/FormsSetting.tsx:35
 msgid "settings.forms.validation.title_required"
-msgstr "제목을 입력해주세요."
+msgstr "제목을 입력해 주세요."
 
 #. js-lingui-explicit-id
 #: src/features/settings/login/LoginSetting.tsx:667
@@ -5871,7 +5840,7 @@ msgstr "저장 후 숨김"
 #. js-lingui-explicit-id
 #: src/features/settings/login/LoginSetting.tsx:224
 msgid "settings.login.social.status.unsaved"
-msgstr "변경사항 미저장"
+msgstr "저장되지 않은 변경사항"
 
 #. js-lingui-explicit-id
 #: src/features/settings/login/LoginSetting.tsx:234
@@ -6008,17 +5977,17 @@ msgstr "(비활성 작성자)"
 #. js-lingui-explicit-id
 #: src/features/settings/moderation-posts/index.tsx:180
 msgid "settings.moderation.posts.description"
-msgstr "모든 작성자의 발행 글을 숨기거나 휴지통으로 옮길 수 있습니다. 임시저장과 예약 글은 보이지 않습니다."
+msgstr "모든 작성자의 발행 포스트를 숨기거나 휴지통으로 옮길 수 있습니다. 임시저장과 예약 포스트는 보이지 않습니다."
 
 #. js-lingui-explicit-id
 #: src/features/settings/moderation-posts/index.tsx:365
 msgid "settings.moderation.posts.empty"
-msgstr "검색 결과에 맞는 글이 없습니다."
+msgstr "검색 결과에 맞는 포스트가 없습니다."
 
 #. js-lingui-explicit-id
 #: src/features/settings/moderation-posts/index.tsx:222
 msgid "settings.moderation.posts.filter_label"
-msgstr "상태별로 글 필터링"
+msgstr "상태별로 포스트 필터링"
 
 #. js-lingui-explicit-id
 #: src/features/settings/moderation-posts/index.tsx:26
@@ -6028,7 +5997,7 @@ msgstr "공개 및 숨김"
 #. js-lingui-explicit-id
 #: src/features/settings/moderation-posts/index.tsx:102
 msgid "settings.moderation.posts.hidden_done"
-msgstr "글을 숨겼습니다."
+msgstr "포스트를 숨겼습니다."
 
 #. js-lingui-explicit-id
 #: src/features/settings/moderation-posts/index.tsx:336
@@ -6038,7 +6007,7 @@ msgstr "숨기기"
 #. js-lingui-explicit-id
 #: src/features/settings/moderation-posts/index.tsx:187
 msgid "settings.moderation.posts.list_title"
-msgstr "발행된 글"
+msgstr "발행된 포스트"
 
 #. js-lingui-explicit-id
 #: src/features/settings/moderation-posts/index.tsx:284
@@ -6053,12 +6022,12 @@ msgstr "복원"
 #. js-lingui-explicit-id
 #: src/features/settings/moderation-posts/index.tsx:114
 msgid "settings.moderation.posts.restored_done"
-msgstr "글을 복원했습니다."
+msgstr "포스트를 복원했습니다."
 
 #. js-lingui-explicit-id
 #: src/features/settings/moderation-posts/index.tsx:205
 msgid "settings.moderation.posts.search_label"
-msgstr "글 검색"
+msgstr "포스트 검색"
 
 #. js-lingui-explicit-id
 #: src/features/settings/moderation-posts/index.tsx:209
@@ -6068,12 +6037,12 @@ msgstr "제목 또는 작성자 검색"
 #. js-lingui-explicit-id
 #: src/features/settings/moderation-posts/index.tsx:334
 msgid "settings.moderation.posts.show"
-msgstr "공개하기"
+msgstr "공개로 변경"
 
 #. js-lingui-explicit-id
 #: src/features/settings/moderation-posts/index.tsx:106
 msgid "settings.moderation.posts.shown_done"
-msgstr "글을 다시 공개했습니다."
+msgstr "포스트를 다시 공개했습니다."
 
 #. js-lingui-explicit-id
 #: src/features/settings/moderation-posts/index.tsx:40
@@ -6093,7 +6062,7 @@ msgstr "휴지통"
 #. js-lingui-explicit-id
 #: src/features/settings/moderation-posts/index.tsx:176
 msgid "settings.moderation.posts.title"
-msgstr "전체 글"
+msgstr "전체 포스트"
 
 #. js-lingui-explicit-id
 #: src/features/settings/moderation-posts/index.tsx:141
@@ -6104,7 +6073,7 @@ msgstr "휴지통으로 이동"
 #. js-lingui-explicit-id
 #: src/features/settings/moderation-posts/index.tsx:132
 msgid "settings.moderation.posts.trash_message"
-msgstr "{author}님의 \"{title}\" 글을 휴지통으로 옮길까요? 사이트에서 사라지며, 휴지통 필터에서 복원할 수 있습니다."
+msgstr "{author}님의 \"{title}\" 포스트를 휴지통으로 옮길까요? 사이트에서 사라지며, 휴지통 필터에서 복원할 수 있습니다."
 
 #. js-lingui-explicit-id
 #: src/features/settings/moderation-posts/index.tsx:128
@@ -6114,7 +6083,7 @@ msgstr "휴지통으로 이동"
 #. js-lingui-explicit-id
 #: src/features/settings/moderation-posts/index.tsx:110
 msgid "settings.moderation.posts.trashed_done"
-msgstr "글을 휴지통으로 옮겼습니다."
+msgstr "포스트를 휴지통으로 옮겼습니다."
 
 #. js-lingui-explicit-id
 #: src/features/settings/moderation-comments/index.tsx:114
@@ -6203,7 +6172,7 @@ msgstr "전체 댓글"
 #. js-lingui-explicit-id
 #: src/features/settings/layout/SettingsNavigation.tsx:323
 msgid "settings.navigation.moderation_posts"
-msgstr "전체 글"
+msgstr "전체 포스트"
 
 #. js-lingui-explicit-id
 #: src/features/settings/layout/SettingsNavigation.tsx:146
@@ -6385,7 +6354,7 @@ msgstr "활성화된 공지만 블로그에 표시됩니다."
 #. js-lingui-explicit-id
 #: src/features/settings/shared/NoticeSettingBase.tsx:384
 msgid "settings.notices.form.active.label"
-msgstr "공지 활성화"
+msgstr "활성"
 
 #. js-lingui-explicit-id
 #: src/features/settings/shared/NoticeSettingBase.tsx:331
@@ -6573,7 +6542,7 @@ msgstr "텔레그램을 연결하면 새 포스트, 댓글, 팔로우 알림을 
 #. js-lingui-explicit-id
 #: src/features/settings/notify/components/NotificationsSection.tsx:94
 msgid "settings.notifications.telegram.title"
-msgstr "텔레그램 연동"
+msgstr "텔레그램 연결하기"
 
 #. js-lingui-explicit-id
 #: src/features/settings/notify/components/NotificationsSection.tsx:70
@@ -6798,7 +6767,7 @@ msgstr "휴지통 보기"
 #. js-lingui-explicit-id
 #: src/features/settings/posts/components/PostCard.tsx:244
 msgid "settings.posts.card.edit"
-msgstr "포스트 편집"
+msgstr "포스트 수정"
 
 #. js-lingui-explicit-id
 #: src/features/settings/posts/components/PostCard.tsx:236
@@ -6931,7 +6900,7 @@ msgstr "{count, plural, other {#개 적용}}"
 #: src/features/settings/posts/components/PostsFilter.tsx:265
 #: src/features/settings/posts/PostsSetting.tsx:140
 msgid "settings.posts.filters.clear"
-msgstr "필터 초기화"
+msgstr "필터 지우기"
 
 #. js-lingui-explicit-id
 #: src/features/settings/posts/components/PostsFilter.tsx:181
@@ -7205,7 +7174,7 @@ msgstr "링크 이름을 입력해 주세요."
 #. js-lingui-explicit-id
 #: src/features/settings/posts/components/PostShareLinksDialog.tsx:313
 msgid "settings.posts.share_links.pause"
-msgstr "일시중지"
+msgstr "일시 정지"
 
 #. js-lingui-explicit-id
 #: src/features/settings/posts/components/PostShareLinksDialog.tsx:250
@@ -7649,7 +7618,7 @@ msgstr "홈페이지"
 #. js-lingui-explicit-id
 #: src/features/settings/profile/ProfileSetting.tsx:61
 msgid "settings.profile.homepage.validation.url"
-msgstr "유효한 URL을 입력해 주세요."
+msgstr "올바른 URL을 입력해 주세요."
 
 #. js-lingui-explicit-id
 #: src/features/settings/profile/ProfileSetting.tsx:95
@@ -7786,7 +7755,7 @@ msgstr "추가 규칙 포함"
 #. js-lingui-explicit-id
 #: src/features/settings/seo-aeo/SeoAeoSetting.tsx:590
 msgid "settings.seo_aeo.robots.preview.default_only"
-msgstr "기본 정책만"
+msgstr "기본 정책만 적용 중"
 
 #. js-lingui-explicit-id
 #: src/features/settings/seo-aeo/SeoAeoSetting.tsx:603
@@ -7836,7 +7805,7 @@ msgstr "추가 규칙 저장 중"
 #. js-lingui-explicit-id
 #: src/features/settings/seo-aeo/SeoAeoSetting.tsx:381
 msgid "settings.seo_aeo.robots.status.unsaved"
-msgstr "저장되지 않은 변경 있음"
+msgstr "저장되지 않은 변경사항"
 
 #. js-lingui-explicit-id
 #: src/features/settings/seo-aeo/SeoAeoSetting.tsx:162
@@ -7997,7 +7966,7 @@ msgstr "현재 노출 상태"
 #. js-lingui-explicit-id
 #: src/features/settings/series/SeriesSetting.tsx:277
 msgid "settings.series.create_new"
-msgstr "새 시리즈 생성"
+msgstr "시리즈 생성"
 
 #. js-lingui-explicit-id
 #: src/features/settings/series/components/SeriesEditor.tsx:319
@@ -8142,7 +8111,7 @@ msgstr "변경사항이 저장되지 않았습니다. 페이지를 나갈까요?
 #. js-lingui-explicit-id
 #: src/features/settings/series/components/SeriesEditor.tsx:193
 msgid "settings.series.editor.unsaved.title"
-msgstr "저장하지 않은 변경사항"
+msgstr "저장되지 않은 변경사항"
 
 #. js-lingui-explicit-id
 #: src/features/settings/series/components/SeriesEditor.tsx:615
@@ -8218,7 +8187,7 @@ msgstr "시리즈가 없습니다"
 #. js-lingui-explicit-id
 #: src/features/settings/series/SeriesSetting.tsx:111
 msgid "settings.series.item.edit"
-msgstr "시리즈 편집"
+msgstr "시리즈 수정"
 
 #. js-lingui-explicit-id
 #: src/features/settings/series/SeriesSetting.tsx:103
@@ -8254,7 +8223,7 @@ msgstr "시리즈 순서가 변경되었습니다."
 #. js-lingui-explicit-id
 #: src/features/settings/series/components/PostSelector.tsx:108
 msgid "settings.series.posts.clear_search"
-msgstr "검색 지우기"
+msgstr "검색어 지우기"
 
 #. js-lingui-explicit-id
 #: src/features/settings/series/components/PostSelector.tsx:93
@@ -8496,7 +8465,7 @@ msgstr "커스텀"
 #. js-lingui-explicit-id
 #: src/features/settings/site-settings/SiteSettingSetting.tsx:163
 msgid "settings.site.brand.status.default"
-msgstr "기본값"
+msgstr "기본"
 
 #. js-lingui-explicit-id
 #: src/features/settings/site-settings/SiteSettingSetting.tsx:267
@@ -8881,7 +8850,7 @@ msgstr "HTML을 입력하면 미리보기가 표시됩니다."
 #. js-lingui-explicit-id
 #: src/features/settings/static-pages/components/StaticPageEditor.tsx:568
 msgid "settings.static_pages.editor.publish_settings"
-msgstr "게시 설정"
+msgstr "발행 설정"
 
 #. js-lingui-explicit-id
 #: src/features/settings/static-pages/components/StaticPageEditor.tsx:573
@@ -8925,12 +8894,12 @@ msgstr "나가기"
 #. js-lingui-explicit-id
 #: src/features/settings/static-pages/components/StaticPageEditor.tsx:88
 msgid "settings.static_pages.editor.unsaved.message"
-msgstr "변경사항이 저장되지 않았습니다. 페이지를 나가시겠습니까?"
+msgstr "변경사항이 저장되지 않았습니다. 페이지를 나갈까요?"
 
 #. js-lingui-explicit-id
 #: src/features/settings/static-pages/components/StaticPageEditor.tsx:84
 msgid "settings.static_pages.editor.unsaved.title"
-msgstr "저장하지 않은 변경사항"
+msgstr "저장되지 않은 변경사항"
 
 #. js-lingui-explicit-id
 #: src/features/settings/static-pages/components/StaticPageEditor.tsx:174
@@ -9539,7 +9508,7 @@ msgstr "사용자 목록을 불러오지 못했습니다. 잠시 후 다시 시�
 #. js-lingui-explicit-id
 #: src/features/settings/users/index.tsx:765
 msgid "settings.users.list.title"
-msgstr "사용자 목록"
+msgstr "사용자"
 
 #. js-lingui-explicit-id
 #: src/features/settings/users/index.tsx:822

@@ -47,7 +47,7 @@ export function SetupPage({
                                 </label>
                             )}
                             <label className={authField}>
-                                {ui('Username', {}, 'public.Username.367001d7')}
+                                {ui('Username')}
                                 <input
                                     className={authInput}
                                     name="username"
