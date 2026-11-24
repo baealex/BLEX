@@ -4,7 +4,7 @@ import type { PageProps } from '@blex/contracts/pages';
  * Everything the browser needs to hydrate the sign-up, setup, identity check, and password reset forms.
  * It is public in the HTML, so each field is listed by hand. Each CSRF token is the visitor's own, which its form posts.
  * The setup token and the reset link stay out: the browser reads them back from the server form.
- * The site brand stays out too, because the footer is read back from the server markup.
+ * Apart from the site name the sign-up heading shows, the site brand stays out: the footer is read back from the server markup.
  */
 export interface SignupPageData {
     page: 'sign';
