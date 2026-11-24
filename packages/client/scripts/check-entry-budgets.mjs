@@ -23,9 +23,14 @@ const builds = { web: readBuild('web'), client: readBuild('client') };
 // Every public page loads these two entries from the separate build served at /assets/ui/.
 const publicPageEntries = ['src/application/client.tsx', 'src/appearance/site-client.ts'];
 
-// Size limits keep about 10% headroom over the current build so ordinary feature work
+// Public pages hydrate only after their document catalog loads, so their totals include the larger one.
+const publicCatalogs = ['src/locales/en/messages.po', 'src/locales/ko/messages.po'];
+
+// Screen limits keep about 10% headroom over the current build so ordinary feature work
 // does not fail on a few bytes. They still catch a sudden jump, such as a heavy
 // dependency landing in a shared entry. Re-baseline them when headroom runs low.
+// Public page limits are fixed targets instead: 150 KiB of compressed JavaScript, and
+// 170 KiB for the post page, the mobile JavaScript example in web.dev's budget guide.
 const budgets = [
     {
         entries: ['src/scripts/screen-loader.ts'],
@@ -109,36 +114,36 @@ const budgets = [
         build: 'client',
         entries: publicPageEntries,
         label: 'public page scripts',
-        maxInitialBytes: 380 * 1024,
-        maxInitialGzipBytes: 123 * 1024
+        maxInitialBytes: 460 * 1024,
+        maxInitialGzipBytes: 150 * 1024
     },
     {
         build: 'client',
         entries: [...publicPageEntries, 'src/features/discovery/discovery-page.tsx'],
         label: 'public discovery page scripts',
-        maxInitialBytes: 380 * 1024,
-        maxInitialGzipBytes: 123 * 1024
+        maxInitialBytes: 460 * 1024,
+        maxInitialGzipBytes: 150 * 1024
     },
     {
         build: 'client',
         entries: [...publicPageEntries, 'src/features/posts/post-page.tsx', 'src/features/posts/code-blocks-client.ts'],
         label: 'public post page scripts',
-        maxInitialBytes: 430 * 1024,
-        maxInitialGzipBytes: 141 * 1024
+        maxInitialBytes: 520 * 1024,
+        maxInitialGzipBytes: 170 * 1024
     },
     {
         build: 'client',
         entries: [...publicPageEntries, 'src/features/auth/ui/login-client.tsx'],
         label: 'public login page scripts',
-        maxInitialBytes: 390 * 1024,
-        maxInitialGzipBytes: 127 * 1024
+        maxInitialBytes: 460 * 1024,
+        maxInitialGzipBytes: 150 * 1024
     },
     {
         build: 'client',
         entries: [...publicPageEntries, 'src/application/screen-host/client.ts'],
         label: 'public screen host scripts',
-        maxInitialBytes: 380 * 1024,
-        maxInitialGzipBytes: 124 * 1024
+        maxInitialBytes: 460 * 1024,
+        maxInitialGzipBytes: 150 * 1024
     }
 ];
 
@@ -210,11 +215,20 @@ const getFileStats = ({ manifest, outDir }, key) => {
     };
 };
 
+const getLargestCatalog = (build) => {
+    const catalogs = publicCatalogs.filter((key) => build.manifest[key]).map((key) => getFileStats(build, key));
+    if (catalogs.length !== publicCatalogs.length) {
+        throw new Error(`Missing public catalogs: ${publicCatalogs.join(', ')}`);
+    }
+    return catalogs.reduce((largest, item) => (item.gzipBytes > largest.gzipBytes ? item : largest));
+};
+
 let hasFailure = false;
 
 for (const budget of budgets) {
     const build = builds[budget.build ?? 'web'];
     const stats = collectInitialGraph(build, budget.entries).map((key) => getFileStats(build, key));
+    if (budget.build === 'client') stats.push(getLargestCatalog(build));
     const totalRawBytes = stats.reduce((sum, item) => sum + item.rawBytes, 0);
     const totalGzipBytes = stats.reduce((sum, item) => sum + item.gzipBytes, 0);
     const unexpectedStats = budget.allowedInitialNames
