@@ -67,6 +67,8 @@ const contentPageEntries = [
     'posts/share-links-page'
 ];
 
+const authFormPageEntries = ['signup-page', 'setup-page', 'reauthenticate-page', 'password-reset-page'];
+
 export default defineConfig({
     plugins: [tailwind(), lingui(), publicCatalog(), babel({ presets: [linguiTransformerBabelPreset()] })],
     base: '/assets/ui/',
@@ -81,6 +83,9 @@ export default defineConfig({
                 fileURLToPath(new URL('./src/application/client.tsx', import.meta.url)),
                 // Separate entries keep their shared code out of the application entry, which must run only once.
                 fileURLToPath(new URL('./src/features/auth/ui/login-page.tsx', import.meta.url)),
+                ...authFormPageEntries.map((name) =>
+                    fileURLToPath(new URL(`./src/features/auth/ui/${name}.tsx`, import.meta.url))
+                ),
                 fileURLToPath(new URL('./src/features/posts/post-page.tsx', import.meta.url)),
                 fileURLToPath(new URL('./src/features/discovery/discovery-page.tsx', import.meta.url)),
                 ...authorPageEntries.map((name) =>

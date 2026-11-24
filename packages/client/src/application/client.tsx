@@ -15,6 +15,7 @@ import { ApplicationFrame, type ApplicationView } from './frame.js';
 import { opensOutsideApplication, type BlexNavigateDetail } from './navigation.js';
 import { ApplicationPrompts, offerTelegramHint, openLoginPromptFrom } from './prompts.js';
 import {
+    authFormPageDataSelector,
     authorPageDataSelector,
     contentPageDataSelector,
     discoveryPageDataSelector,
@@ -30,6 +31,7 @@ import {
     showAboutLoadError,
     storedAboutDraft
 } from '../features/authors/about-draft';
+import type { AuthFormPageData } from '../features/auth/ui/form-page-data';
 import type { AuthorMountContext, AuthorPageData } from '../features/authors/author-page-data';
 import type { DeveloperQuickstartData } from '../features/developer-api/quickstart-data';
 import type { ErrorPageData, StaticPageData } from '../features/discovery/content-page-data';
@@ -90,6 +92,10 @@ interface ContentPageModule {
     mountPage(data: never, content: Element): ReactNode;
 }
 
+interface AuthFormPageModule {
+    mountPage(value: unknown, content: Element): ReactNode;
+}
+
 /** A page that renders in the React tree from the data its server document carries. */
 interface TreePage {
     key: string;
@@ -126,6 +132,7 @@ let visitingFromApplication = false;
 let screenGlobalNames: string[] = [];
 let postRevision = 0;
 let authorRevision = 0;
+let authFormRevision = 0;
 let postManagementRevision = 0;
 let markShellHydrated = () => {};
 let failShellHydration: (error: unknown) => void = () => {};
@@ -429,6 +436,28 @@ function readLoginPage(source: Document, content: Element, pageUrl: URL): TreePa
     );
 }
 
+const authFormPageModules: Record<AuthFormPageData['page'], () => Promise<AuthFormPageModule>> = {
+    sign: () => import('../features/auth/ui/signup-page'),
+    setup: () => import('../features/auth/ui/setup-page'),
+    reauthenticate: () => import('../features/auth/ui/reauthenticate-page'),
+    'password-reset': () => import('../features/auth/ui/password-reset-page')
+};
+
+/** Each form module checks its own data, so a page it rejects keeps the server form. */
+function readAuthFormPage(source: Document, content: Element, pageUrl: URL): TreePage | null {
+    const value = parseElementJson(source.querySelector(authFormPageDataSelector));
+    if (!isRecord(value) || !Object.keys(authFormPageModules).includes(String(value.page))) return null;
+    const page = value.page as AuthFormPageData['page'];
+    // A form's response at the same address starts a fresh form, as the server sent it.
+    authFormRevision += 1;
+    return createTreePage(
+        `auth-form:${pageRequestKey(pageUrl)}:${authFormRevision}`,
+        () => authFormPageModules[page]().then(({ mountPage }) => mountPage(value, content)),
+        // Without its code, the server form keeps what the visitor typed and still submits.
+        { keepsServerMarkup: true }
+    );
+}
+
 const postManagementPageModules: Record<PostManagementPageData['page'], () => Promise<ContentPageModule>> = {
     revisions: () => import('../features/posts/revisions-page'),
     timelapse: () => import('../features/posts/timelapse-page'),
@@ -523,6 +552,7 @@ function readApplicationDocument(source: Document, url: string): ApplicationDocu
         readAuthorPage(source, content, pageUrl) ??
         readContentPage(source, content, pageUrl) ??
         readLoginPage(source, content, pageUrl) ??
+        readAuthFormPage(source, content, pageUrl) ??
         readPostManagementPage(source, content, pageUrl);
     return {
         view: {

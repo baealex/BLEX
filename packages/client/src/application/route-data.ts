@@ -17,6 +17,9 @@ export const contentPageDataId = 'blex-content-page-data';
 export const contentPageDataSelector = pageDataSelector(contentPageDataId);
 export const loginPageDataId = 'blex-login-page-data';
 export const loginPageDataSelector = pageDataSelector(loginPageDataId);
+/** Sign-up, first administrator setup, identity check, and password reset forms. */
+export const authFormPageDataId = 'blex-auth-form-page-data';
+export const authFormPageDataSelector = pageDataSelector(authFormPageDataId);
 /** A post author's revision history, writing timeline, and share links. */
 export const postManagementPageDataId = 'blex-post-management-page-data';
 export const postManagementPageDataSelector = pageDataSelector(postManagementPageDataId);
