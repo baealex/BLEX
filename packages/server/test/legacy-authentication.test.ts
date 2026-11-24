@@ -76,7 +76,8 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     captchaDb.close();
     const captchaPage = await app.inject('/sign');
     assert.equal(captchaPage.statusCode, 200, captchaPage.body);
-    assert.match(captchaPage.body, /data-blex-trusted-script="hcaptcha"/);
+    // The screen loads hCaptcha itself from the site key in its props.
+    assert.doesNotMatch(captchaPage.body, /js\.hcaptcha\.com/);
     assert.match(captchaPage.body, /"hcaptchaSiteKey":"synthetic-site-key"/);
     const resetCaptchaDb = new DatabaseSync(path);
     resetCaptchaDb.prepare('UPDATE LoginSetting SET hcaptchaEnabled = 0, hcaptchaSiteKey = ? WHERE id = 1').run('');

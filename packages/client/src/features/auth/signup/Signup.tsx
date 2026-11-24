@@ -2,19 +2,10 @@ import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import SocialLogin from '~/features/auth/social-login';
+import { loadHcaptcha } from '~/features/auth/ui/hcaptcha';
 import { useResolvedTheme } from '~/hooks/useResolvedTheme';
 import { getBrowserTimeZone } from '~/i18n/locale';
 import { InlineIcon, AlertCircle, AlertTriangle, UserPlus, Loader2 } from '~/ui/icons';
-
-declare global {
-    interface Window {
-        hcaptcha?: {
-            render: (container: string | HTMLElement, params: unknown) => string;
-            reset: (widgetId?: string) => void;
-            remove: (widgetId?: string) => void;
-        };
-    }
-}
 
 export interface SignupProps {
     /** Empty when the site does not ask for a security check. */
@@ -139,17 +130,17 @@ const Signup = ({ hcaptchaSiteKey, nextUrl = '', inviteCode }: SignupProps) => {
 
     useEffect(() => {
         setIsVisible(true);
-        if (hcaptchaSiteKey && window.hcaptcha) {
-            renderCaptcha();
-        } else if (hcaptchaSiteKey) {
-            const checkHCaptcha = setInterval(() => {
-                if (window.hcaptcha) {
-                    clearInterval(checkHCaptcha);
-                    renderCaptcha();
-                }
-            }, 100);
-            return () => clearInterval(checkHCaptcha);
-        }
+        if (!hcaptchaSiteKey) return;
+        let active = true;
+        loadHcaptcha().then(
+            () => {
+                if (active) renderCaptcha();
+            },
+            (error: unknown) => console.error('The hCaptcha widget could not be initialized.', error)
+        );
+        return () => {
+            active = false;
+        };
     }, [hcaptchaSiteKey, renderCaptcha]);
 
     useEffect(() => {

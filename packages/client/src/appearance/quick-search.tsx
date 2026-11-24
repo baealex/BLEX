@@ -1,8 +1,7 @@
-import { siteText, type SiteLocale } from './messages.js';
-import { getDocumentLocale } from '../i18n/locale.js';
+import { ui } from '../i18n/public-ui.js';
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { flushSync } from 'react-dom';
 import { SiteIcon } from './icons.js';
-import { escapeAction } from './quick-search-escape.js';
 import { recentSearches, rememberSearch } from './recent-searches.js';
 
 interface SearchRow {
@@ -35,19 +34,7 @@ function resultRows(matches: unknown): SearchRow[] {
     });
 }
 
-/**
- * `onReady` runs once this component's own handlers are live.
- * `startClosed` reports that the reader already dismissed the box with Esc while this code was loading.
- */
-export function QuickSearch({
-    onReady,
-    startClosed,
-    locale = getDocumentLocale()
-}: {
-    onReady?: () => void;
-    startClosed?: () => boolean;
-    locale?: SiteLocale;
-}) {
+export function QuickSearch() {
     const container = useRef<HTMLDivElement>(null);
     const input = useRef<HTMLInputElement>(null);
     const list = useRef<HTMLUListElement>(null);
@@ -56,7 +43,7 @@ export function QuickSearch({
     const [open, setOpen] = useState(false);
     const [selected, setSelected] = useState(-1);
     const [view, setView] = useState<SearchView>({
-        heading: siteText(locale, 'Recent searches'),
+        heading: ui('Recent searches'),
         rows: [],
         emptyMessage: ''
     });
@@ -84,14 +71,9 @@ export function QuickSearch({
             });
             const result = await response.json();
             if (!controller.signal.aborted)
-                show(
-                    siteText(locale, 'Quick search results'),
-                    resultRows(result.body?.results),
-                    siteText(locale, 'No quick search results.')
-                );
+                show(ui('Quick search results'), resultRows(result.body?.results), ui('No quick search results.'));
         } catch {
-            if (!controller.signal.aborted)
-                show(siteText(locale, 'Quick search results'), [], siteText(locale, 'Try again on the search page.'));
+            if (!controller.signal.aborted) show(ui('Quick search results'), [], ui('Try again on the search page.'));
         } finally {
             if (request.current === controller) request.current = undefined;
         }
@@ -103,15 +85,15 @@ export function QuickSearch({
         const term = query();
         if (!term) {
             show(
-                siteText(locale, 'Recent searches'),
+                ui('Recent searches'),
                 recentSearches()
                     .slice(0, 6)
                     .map((entry) => ({ href: `/search?${new URLSearchParams({ q: entry })}`, title: entry })),
-                siteText(locale, 'No recent searches.')
+                ui('No recent searches.')
             );
             return;
         }
-        show(siteText(locale, 'Quick search results'), [], siteText(locale, 'Searching…'));
+        show(ui('Quick search results'), [], ui('Searching…'));
         delay.current = window.setTimeout(() => {
             delay.current = undefined;
             void fetchResults(term);
@@ -123,43 +105,29 @@ export function QuickSearch({
         const closeOnOutsideClick = (event: MouseEvent) => {
             if (event.target instanceof Node && !container.current?.contains(event.target)) setOpen(false);
         };
-        const focusOnShortcut = (event: globalThis.KeyboardEvent) => {
-            if (
-                (event.metaKey || event.ctrlKey) &&
-                event.key.toLowerCase() === 'k' &&
-                container.current?.getClientRects().length
-            ) {
-                event.preventDefault();
-                input.current?.focus();
-            }
-        };
-        const closeOnPageChange = () => {
+        const close = () => {
             cancel();
             setOpen(false);
         };
         document.addEventListener('click', closeOnOutsideClick);
-        document.addEventListener('keydown', focusOnShortcut);
-        document.addEventListener('blex:before-page-change', closeOnPageChange);
-        // The box can take focus before this code has loaded.
-        if (document.activeElement === input.current && !startClosed?.()) suggest();
-        onReady?.();
+        // The site script answers Esc and Cmd/Ctrl+K in the box, before and after this code loads. It closes
+        // the panel during the key press, so a second Esc right after it sees the panel closed and clears the box.
+        const closeNow = () => flushSync(close);
+        document.addEventListener('blex:before-page-change', close);
+        document.addEventListener('blex:quick-search-close', closeNow);
+        // The box can take focus before this code has loaded, and the site script cancels this event
+        // when Esc has already closed it.
+        const open = document.dispatchEvent(new Event('blex:quick-search-ready', { cancelable: true }));
+        if (open && document.activeElement === input.current) suggest();
         return () => {
             cancel();
             document.removeEventListener('click', closeOnOutsideClick);
-            document.removeEventListener('keydown', focusOnShortcut);
-            document.removeEventListener('blex:before-page-change', closeOnPageChange);
+            document.removeEventListener('blex:before-page-change', close);
+            document.removeEventListener('blex:quick-search-close', closeNow);
         };
     }, []);
 
     const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-        if (event.key === 'Escape') {
-            const action = escapeAction(event.nativeEvent, open, event.currentTarget.value !== '');
-            if (action !== 'none') event.preventDefault();
-            if (action === 'close' || action === 'clear') cancel();
-            if (action === 'close') setOpen(false);
-            if (action === 'clear') event.currentTarget.value = '';
-            return;
-        }
         if (!open) return;
         const links = Array.from(list.current?.querySelectorAll('a') ?? []);
         if (event.key === 'Enter' && selected >= 0 && links[selected]) {
@@ -186,8 +154,8 @@ export function QuickSearch({
                     ref={input}
                     name="q"
                     type="search"
-                    placeholder={siteText(locale, 'Search')}
-                    aria-label={siteText(locale, 'Search')}
+                    placeholder={ui('Search')}
+                    aria-label={ui('Search')}
                     autoComplete="off"
                     className="min-w-0 flex-1 bg-transparent text-sm text-content placeholder:text-content-hint focus:outline-none"
                     onFocus={suggest}

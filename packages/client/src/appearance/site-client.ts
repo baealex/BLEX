@@ -1,7 +1,8 @@
 import { ui } from '../i18n/public-ui.js';
 import { activateDocumentLocale } from '../i18n';
+import { removeSignedInCaches } from '../lib/query-cache-key';
 import { reloadAfterCatalogFailure } from './catalog-recovery';
-import { siteText } from './messages.js';
+import { escapeAction } from './quick-search-escape.js';
 import './tailwind.css';
 import './site.scss';
 import { THEME_COOKIE_KEY, writeThemePreferenceCookie } from './theme-cookie';
@@ -13,6 +14,13 @@ let routeController: AbortController | undefined;
 let routeGeneration = 0;
 let hydrated = !document.getElementById('blex-application');
 let clientBindingsInstalled = false;
+let signingOut = false;
+// This script answers Esc and Cmd/Ctrl+K in the header's search box, before and after the box hydrates.
+// Focusing the box opens its panel once it hydrates, so before that Esc treats the panel as open unless
+// Esc already closed it, and typing or focusing opens it again.
+let searchHydrated = false;
+let searchClosed = false;
+const searchInput = '[data-site-search] input';
 
 function readCookie(key: string): string {
     const value = document.cookie.split('; ').find((entry) => entry.startsWith(`${key}=`));
@@ -33,10 +41,7 @@ function setTheme(preference = readCookie(THEME_COOKIE_KEY), updateControls = hy
     root.style.colorScheme = theme;
     if (updateControls) {
         for (const button of document.querySelectorAll<HTMLButtonElement>('[data-site-theme-toggle]')) {
-            const label = siteText(
-                root.lang === 'en' ? 'en' : 'ko',
-                dark ? 'Switch to light mode' : 'Switch to dark mode'
-            );
+            const label = dark ? ui('Switch to light mode') : ui('Switch to dark mode');
             button.setAttribute('aria-label', label);
             button.title = label;
         }
@@ -148,27 +153,6 @@ function bindRouteElements() {
         );
     }
 
-    for (const form of document.querySelectorAll<HTMLFormElement>('[data-site-logout]')) {
-        form.addEventListener(
-            'submit',
-            (event) => {
-                const field = form.elements.namedItem('csrfmiddlewaretoken');
-                if (!(field instanceof HTMLInputElement)) return;
-                field.value ||= readCookie('csrftoken');
-                if (field.value) return;
-                event.preventDefault();
-                void fetch('/v1/login', { credentials: 'same-origin' })
-                    .then(() => {
-                        if (!form.isConnected || signal.aborted) return;
-                        field.value = readCookie('csrftoken');
-                        if (field.value) form.requestSubmit();
-                    })
-                    .catch(() => undefined);
-            },
-            { signal }
-        );
-    }
-
     if (document.querySelector('[data-heatmap-days]')) {
         void import('./author-heatmap.js').then(({ mountAuthorHeatmaps }) => {
             if (!signal.aborted) mountAuthorHeatmaps(signal);
@@ -235,14 +219,70 @@ function handleGlobalClick(event: MouseEvent) {
     }
 }
 
+function answerSearchKey(event: KeyboardEvent) {
+    const input = document.querySelector<HTMLInputElement>(searchInput);
+    if (!input) return;
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        // Narrow screens hide the box and link to the search page instead.
+        if (!input.getClientRects().length) return;
+        event.preventDefault();
+        input.focus();
+    } else if (event.key === 'Escape' && event.target === input) {
+        const open = searchHydrated
+            ? !document.querySelector<HTMLElement>('[data-site-search-panel]')?.hidden
+            : !searchClosed;
+        const action = escapeAction(event, open, input.value !== '');
+        if (action !== 'none') event.preventDefault();
+        if (action === 'close') searchClosed = true;
+        if (action === 'clear') input.value = '';
+        // The box stops looking for results and closes its panel.
+        if (action === 'close' || action === 'clear') document.dispatchEvent(new Event('blex:quick-search-close'));
+    }
+}
+
 function handleGlobalKeydown(event: KeyboardEvent) {
+    answerSearchKey(event);
     if (event.key !== 'Escape') return;
     for (const details of document.querySelectorAll<HTMLDetailsElement>('[data-account-menu]')) details.open = false;
+}
+
+function reopenSearch(event: Event) {
+    if (event.target instanceof Element && event.target.matches(searchInput)) searchClosed = false;
 }
 
 function handleDialogClose(event: Event) {
     if (event.target instanceof HTMLDialogElement && event.target.id === 'blex-mobile-menu')
         document.querySelector<HTMLButtonElement>('[data-site-menu-open]')?.setAttribute('aria-expanded', 'false');
+}
+
+/**
+ * A viewer's screens keep their queries in session storage, so the viewer's caches go when they sign out.
+ * The sign-out form can post natively or through the application, and an open screen can still save its cache
+ * until the page that follows replaces it, so they go again when that page shows or this document is left.
+ */
+function signOut() {
+    signingOut = true;
+    removeSignedInCaches();
+}
+
+function handleSubmit(event: SubmitEvent) {
+    const form = event.target;
+    if (!(form instanceof HTMLFormElement) || !form.matches('[data-site-logout]')) return;
+    // Public pages leave the token out of the form, so it comes from the cookie, also before the page hydrates.
+    const field = form.elements.namedItem('csrfmiddlewaretoken');
+    if (field instanceof HTMLInputElement) field.value ||= readCookie('csrftoken');
+    if (field instanceof HTMLInputElement && !field.value) {
+        event.preventDefault();
+        const generation = routeGeneration;
+        void fetch('/v1/login', { credentials: 'same-origin' })
+            .then(() => {
+                field.value = readCookie('csrftoken');
+                if (field.value && form.isConnected && generation === routeGeneration) form.requestSubmit();
+            })
+            .catch(() => undefined);
+        return;
+    }
+    signOut();
 }
 
 function handleBeforePageChange() {
@@ -253,6 +293,11 @@ function handleBeforePageChange() {
 }
 
 function handlePageChange() {
+    // A page that still offers the sign-out form belongs to a viewer who has not signed out yet.
+    if (signingOut && !document.querySelector('[data-site-logout]')) {
+        signingOut = false;
+        removeSignedInCaches();
+    }
     if (hydrated) {
         routeGeneration += 1;
         disposeRouteBindings();
@@ -279,6 +324,22 @@ function activateClientBindings() {
 document.addEventListener('click', handleGlobalClick, true);
 document.addEventListener('keydown', handleGlobalKeydown, true);
 document.addEventListener('close', handleDialogClose, true);
+document.addEventListener('submit', handleSubmit, true);
+// Deleting an account signs its viewer out as well.
+document.addEventListener('blex:sign-out', signOut);
+window.addEventListener('pagehide', () => {
+    if (signingOut) removeSignedInCaches();
+});
+document.addEventListener('focusin', reopenSearch, true);
+document.addEventListener('input', reopenSearch, true);
+document.addEventListener(
+    'blex:quick-search-ready',
+    (event) => {
+        searchHydrated = true;
+        if (searchClosed) event.preventDefault();
+    },
+    { once: true }
+);
 systemTheme.addEventListener('change', () => setTheme(undefined, hydrated && localeReady));
 document.addEventListener('blex:before-page-change', handleBeforePageChange);
 document.addEventListener('blex:page-change', handlePageChange);

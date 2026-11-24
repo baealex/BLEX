@@ -319,6 +319,8 @@ const AccountSettings = () => {
             const { data } = await deleteAccount();
 
             if (data.status === 'DONE') {
+                // Deleting the account signed this viewer out, and the site script removes their session caches.
+                document.dispatchEvent(new Event('blex:sign-out'));
                 toast.success(
                     t({
                         id: 'settings.account.delete.success',

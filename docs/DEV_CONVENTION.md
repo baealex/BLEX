@@ -52,7 +52,7 @@ Read [Translation Guide](TRANSLATION_GUIDE.md) for catalog locations and current
 - Use English source messages in translation catalogs and have Korean translations reviewed.
 - Preserve user-authored content exactly as written.
 - Keep API keys, enums, numbers, and ISO-formatted dates independent of translated display text.
-- All screens read the locale supplied by the server; do not independently select a locale based on the browser's language. Public pages use `ui()` with literal English sources; server messages use `systemMessage()`. Resolve translated values during the request or render rather than at module initialization.
+- All screens read the locale supplied by the server; do not independently select a locale based on the browser's language. Public pages use `ui()` with literal English sources, except the Developer API guide, which uses macros with `developer.` IDs; server messages use `systemMessage()`, and Developer API reference and error text `developerText()`. Resolve translated values during the request or render rather than at module initialization.
 - Resolve supported UI languages in this order: the user's saved preference, then the site's default (`BLEX_DEFAULT_LANGUAGE`, falling back to Korean). Use `platform/locale.ts` for server-side selection.
 
 ## Verification

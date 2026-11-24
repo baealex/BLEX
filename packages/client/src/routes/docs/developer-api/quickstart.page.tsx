@@ -1,6 +1,6 @@
 import { DeveloperQuickstartPage } from '~/features/developer-api/quickstart';
 import { createDeveloperQuickstartData } from '~/features/developer-api/quickstart-data';
-import { developerText } from '~/features/developer-api/messages';
+import { t } from '@lingui/core/macro';
 import { SiteHeader, SiteTheme } from '~/appearance/shell';
 import { pageDataScript, renderApplicationDocument } from '~/application/document';
 import { contentPageDataId } from '~/application/route-data';
@@ -15,11 +15,11 @@ export default function renderPage(props: PageProps['docs/developer-api/quicksta
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <meta name="robots" content="noindex" />
-                <title>{`${developerText(locale, 'Developer API quickstart')} | ${brand.siteName}`}</title>
+                <title>{`${t({ id: 'developer.quickstart.title', message: 'Developer API quickstart' })} | ${brand.siteName}`}</title>
                 <SiteTheme />
             </head>
             <body className="bg-surface-page text-content antialiased">
-                <SiteHeader brand={brand} viewer={viewer} locale={locale} />
+                <SiteHeader brand={brand} viewer={viewer} />
                 <DeveloperQuickstartPage data={data} />
                 {pageDataScript(contentPageDataId, data)}
             </body>

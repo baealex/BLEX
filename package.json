@@ -18,7 +18,7 @@
         "test:browser": "pnpm --filter @blex/client run test:browser",
         "lint": "biome check --max-diagnostics=none --error-on-warnings",
         "type-check": "turbo run type-check",
-        "i18n:check": "pnpm --filter @blex/client run i18n:check",
+        "i18n:check": "pnpm --filter @blex/client run i18n:check && pnpm --filter @blex/server run i18n:check",
         "check:entry-budgets": "pnpm --filter @blex/client run check:entry-budgets",
         "db:migrate": "pnpm --filter @blex/server run db:migrate",
         "format": "biome check --write"

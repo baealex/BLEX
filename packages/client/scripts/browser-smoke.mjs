@@ -153,6 +153,28 @@ const useSiteControlsBeforeHydration = async () => {
         await toggle.click();
         await expect(root).toHaveAttribute('data-theme', theme);
     });
+    const search = page.locator('[data-site-header] [data-site-search] input');
+    await holding('**/assets/blex/app.js', '/', async () => {
+        await page.keyboard.press('ControlOrMeta+k');
+        await expect(search).toBeFocused();
+        await search.fill('before hydration');
+        // Focusing the box opens its panel once the header hydrates, so Esc closes that first and keeps the text.
+        await search.press('Escape');
+        await expect(search).toHaveValue('before hydration');
+    });
+    // The site script titles the theme buttons once the header has hydrated.
+    await expect(page.locator('[data-site-theme-toggle]').first()).toHaveAttribute('title', /.+/);
+    await expect(page.locator('[data-site-search-panel]')).toBeHidden();
+    await expect(search).toBeFocused();
+    await search.press('Escape');
+    await expect(search).toHaveValue('');
+    // After hydration, typing opens the panel, and two quick presses close it and then clear the box.
+    await search.fill('after hydration');
+    await expect(page.locator('[data-site-search-panel]')).toBeVisible();
+    await search.press('Escape');
+    await search.press('Escape');
+    await expect(page.locator('[data-site-search-panel]')).toBeHidden();
+    await expect(search).toHaveValue('');
     await page.context().clearCookies({ name: 'blex_theme' });
     await holding('**/assets/ui/assets/discovery-page-*.js', '/tags', async () => {
         // The site script titles the theme buttons once the header has hydrated.
@@ -479,6 +501,112 @@ const keepSignupDestination = async () => {
     }
 };
 
+// Stands in for hCaptcha's script: `window.hcaptcha` exists at once and the API finishes loading later.
+// Without `render=explicit`, it then draws into every `.h-captcha` element by itself, as the real script does.
+const fakeHcaptcha = `(() => {
+    const params = new URL(document.currentScript.src).searchParams;
+    const renders = (window.__smokeHcaptchaRenders ??= []);
+    let ready = false;
+    let count = 0;
+    const draw = (container, source) => {
+        renders.push(ready ? source : 'before-ready');
+        const frame = document.createElement('iframe');
+        frame.dataset.hcaptchaWidgetId = String((count += 1));
+        container.append(frame);
+        return frame.dataset.hcaptchaWidgetId;
+    };
+    window.hcaptcha = {
+        render: (container) => draw(container, 'explicit'),
+        remove: (id) => document.querySelector('iframe[data-hcaptcha-widget-id="' + id + '"]')?.remove()
+    };
+    setTimeout(() => {
+        ready = true;
+        if (params.get('render') !== 'explicit')
+            for (const element of document.querySelectorAll('.h-captcha')) draw(element, 'automatic');
+        const onload = params.get('onload');
+        if (onload) window[onload]();
+    }, 300);
+})();`;
+
+const drawHcaptchaOnceReady = async () => {
+    await open('/');
+    const csrf = (await page.context().cookies()).find((cookie) => cookie.name === 'csrftoken')?.value;
+    expect(csrf).toBeTruthy();
+    const updateCaptcha = async (data) => {
+        const response = await page.request.put(`${origin}/v1/login-settings`, {
+            headers: { origin, 'x-csrftoken': csrf },
+            data
+        });
+        expect((await response.json()).status).toBe('DONE');
+    };
+    await updateCaptcha({
+        hcaptchaEnabled: true,
+        hcaptchaSiteKey: '10000000-ffff-ffff-ffff-000000000001',
+        hcaptchaSecretKey: 'smoke-captcha-secret'
+    });
+    const visitor = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+    try {
+        await visitor.route(
+            (url) => url.hostname === 'js.hcaptcha.com',
+            (route) => route.fulfill({ contentType: 'text/javascript', body: fakeHcaptcha })
+        );
+        const renders = () => visitor.evaluate(() => window.__smokeHcaptchaRenders ?? []);
+        const formWidgets = visitor.locator('#blex-route-content [data-blex-hcaptcha-widget] iframe');
+        await visitor.goto(`${origin}/login`, { waitUntil: 'networkidle' });
+        const token = (await visitor.context().cookies()).find((cookie) => cookie.name === 'csrftoken')?.value;
+        expect(token).toBeTruthy();
+        // A sign-up post the application did not send fails, and the server form arrives as a full page load.
+        await visitor.evaluate((token) => {
+            const form = document.createElement('form');
+            form.method = 'post';
+            form.action = '/sign';
+            for (const [name, value] of Object.entries({
+                csrfmiddlewaretoken: token,
+                username: 'captchasmoke',
+                password: 'captcha-smoke-1',
+                passwordCheck: 'captcha-smoke-2'
+            })) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name;
+                input.value = value;
+                form.append(input);
+            }
+            document.body.append(form);
+            // A later task, so this evaluation returns before the page unloads.
+            setTimeout(() => HTMLFormElement.prototype.submit.call(form));
+        }, token);
+        await visitor.waitForURL(`${origin}/sign`);
+        await visitor.waitForLoadState('networkidle');
+        await expect.poll(renders).toEqual(['explicit']);
+        await expect(formWidgets).toHaveCount(1);
+
+        // The next failed post answers inside the application, and its new form gets one widget of its own.
+        await visitor.evaluate(() => {
+            window.__smokeSameDocument = true;
+        });
+        const form = visitor.locator('#blex-route-content form[action^="/sign"]');
+        await form.locator('input[name=username]').fill('captchasmoke');
+        await form.locator('input[name=name]').fill('Captcha Smoke');
+        await form.locator('input[name=email]').fill('captcha-smoke@example.com');
+        await form.locator('input[name=password]').fill('captcha-smoke-1');
+        await form.locator('input[name=passwordCheck]').fill('captcha-smoke-2');
+        await form.locator('button[type=submit]').click();
+        await expect.poll(renders).toEqual(['explicit', 'explicit']);
+        await expect(formWidgets).toHaveCount(1);
+        expect(await visitor.evaluate(() => window.__smokeSameDocument)).toBe(true);
+
+        // The sign-up screen draws its widget through the same loader.
+        await visitor.goto(`${origin}/sign`, { waitUntil: 'networkidle' });
+        await expect(visitor.locator('[data-screen="Signup"]')).toHaveAttribute('data-screen-status', 'mounted');
+        await expect.poll(renders).toEqual(['explicit']);
+        await expect(visitor.locator('[data-screen="Signup"] iframe')).toHaveCount(1);
+    } finally {
+        await visitor.close();
+        await updateCaptcha({ hcaptchaEnabled: false });
+    }
+};
+
 const keepSessionCacheAfterPublicPage = async () => {
     const cachedLists = () =>
         page.evaluate(() =>
@@ -510,6 +638,74 @@ const keepSessionCacheAfterPublicPage = async () => {
         await held;
         await page.unroute(postsRequest);
     }
+};
+
+const removeSessionCachesOnSignOut = async () => {
+    const caches = () => page.evaluate(() => Object.keys(sessionStorage).filter((key) => key.startsWith('rq-cache-')));
+    const viewerCaches = async () => (await caches()).filter((key) => key.includes(`-${account.username}-`));
+    const signOutFromHeader = async () => {
+        const menu = page.locator('[data-site-header] [data-account-menu]');
+        await menu.locator('summary').click();
+        await menu.getByRole('button', { name: '로그아웃' }).click();
+        await expect(page.locator('[data-site-header] [data-account-menu]')).toHaveCount(0);
+    };
+
+    // A signed-out visitor's screens keep their queries under this name. None of them uses a query yet,
+    // so the tab gets one by hand, as it would have before the viewer signed in.
+    const visitorCache = 'rq-cache-v3-anonymous-ko-UTC';
+    await open('/settings/posts');
+    await expect.poll(viewerCaches).toHaveLength(1);
+    await page.evaluate((key) => {
+        sessionStorage.setItem(key, '{"timestamp":0}');
+        window.__smokeSameDocument = true;
+    }, visitorCache);
+
+    // Signing out from the header while the settings screen is open removes only the viewer's caches.
+    await signOutFromHeader();
+    expect(await page.evaluate(() => window.__smokeSameDocument)).toBe(true);
+    await expect.poll(caches).toEqual([visitorCache]);
+    // Moving on as a signed-out visitor removes nothing.
+    await visitInApplication('/tags');
+    await expect(page).toHaveURL(`${origin}/tags`);
+    await open('/');
+    expect(await caches()).toEqual([visitorCache]);
+
+    // Before the page hydrates, the same form posts natively.
+    await logIn();
+    await open('/settings/posts');
+    await expect.poll(viewerCaches).toHaveLength(1);
+    const app = '**/assets/blex/app.js';
+    const { promise: released, resolve: release } = Promise.withResolvers();
+    let held;
+    await page.route(app, (route) => {
+        if (held) return route.continue();
+        held = released.then(() => route.continue()).catch(() => undefined);
+        return held;
+    });
+    try {
+        await page.goto(`${origin}/`, { waitUntil: 'commit' });
+        await expect(page.locator('html')).toHaveAttribute('data-theme-preference', /.+/);
+        await page.evaluate(() => {
+            window.__smokeSameDocument = true;
+        });
+        const menu = page.locator('[data-site-header] [data-account-menu]');
+        await menu.locator('summary').click();
+        await Promise.all([
+            page.waitForEvent('framenavigated'),
+            menu.getByRole('button', { name: '로그아웃' }).click()
+        ]);
+    } finally {
+        release();
+        await held;
+        await page.unroute(app);
+    }
+    await page.waitForLoadState('networkidle');
+    // The home page leaves the form's token to the site script, which takes it from the cookie.
+    await expect(page).toHaveURL(`${origin}/`);
+    expect(await page.evaluate(() => window.__smokeSameDocument)).toBeUndefined();
+    await expect(page.locator('[data-site-header] [data-account-menu]')).toHaveCount(0);
+    expect(await viewerCaches()).toEqual([]);
+    await logIn();
 };
 
 const keepLatestDraftList = async () => {
@@ -912,7 +1108,10 @@ try {
         ['login', logIn],
         ['a failed translation file recovers with one reload', recoverFromFailedCatalog],
         ['mobile menu', openMobileMenu],
-        ['site menus and the theme answer before the header or the page hydrates', useSiteControlsBeforeHydration],
+        [
+            'site menus, the theme, and header search keys answer before the header or the page hydrates',
+            useSiteControlsBeforeHydration
+        ],
         [
             'a post whose code fails to load keeps the typed comment, its open menu, and the login prompt',
             keepPostMarkupWhenItsCodeFails
@@ -925,7 +1124,12 @@ try {
         ['a screen render error leaves the application working', isolateScreenRenderError],
         ['screens render in the application root and leave nothing behind', renderScreensInApplicationRoot],
         ["a screen opened after a fresh public page keeps its viewer's session cache", keepSessionCacheAfterPublicPage],
+        [
+            "signing out removes the viewer's session caches and keeps a signed-out visitor's",
+            removeSessionCachesOnSignOut
+        ],
         ['the sign-up screen keeps where to go next and its invitation', keepSignupDestination],
+        ['the sign-up form and screen draw one hCaptcha widget once its API has loaded', drawHcaptchaOnceReady],
         ['back and forward return to each fragment the reader followed', returnToFragmentPositions],
         ['the code block copy button speaks the page language once its translations load', translateCodeCopyButton],
         ['pinned post selection supports arrow keys and resets after a search', selectPinnedPostWithKeyboard],

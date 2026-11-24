@@ -2,7 +2,6 @@ import { Children, cloneElement, isValidElement, type ReactElement, type ReactNo
 import { renderToStaticMarkup, renderToString } from 'react-dom/server';
 import { SiteHeader, SiteTheme, type SiteHeaderProps } from '../appearance/shell.js';
 import { ApplicationFrame } from './frame.js';
-import { getDocumentLocale } from '../i18n/locale.js';
 
 type Element = ReactElement<{ children?: ReactNode }>;
 
@@ -69,14 +68,7 @@ export function renderApplicationDocument(page: ReactElement, mode: ContentMode 
     return '<!doctype html>' + renderToString(cloneElement(page, {}, nextHead, nextBody));
 }
 
-function clientHeader({
-    brand,
-    viewer,
-    searchPage,
-    editorPage,
-    hideAuthLinks,
-    locale = getDocumentLocale()
-}: SiteHeaderProps): SiteHeaderProps {
+function clientHeader({ brand, viewer, searchPage, editorPage, hideAuthLinks }: SiteHeaderProps): SiteHeaderProps {
     return {
         brand: brand && {
             siteName: brand.siteName,
@@ -92,7 +84,6 @@ function clientHeader({
         },
         searchPage,
         editorPage,
-        hideAuthLinks,
-        locale
+        hideAuthLinks
     };
 }

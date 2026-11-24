@@ -1,7 +1,7 @@
 import type { DeveloperCommands } from '@blex/contracts/developer-api';
 import type { PageProps } from '@blex/contracts/pages';
 import { publicBrand } from '../discovery/discovery-page-data';
-import type { DeveloperLocale } from './messages.js';
+import type { AppLocale } from '../../i18n/locale';
 
 /**
  * Everything the browser needs to hydrate the quickstart.
@@ -9,7 +9,7 @@ import type { DeveloperLocale } from './messages.js';
  */
 export interface DeveloperQuickstartData {
     page: 'developer-quickstart';
-    locale: DeveloperLocale;
+    locale: AppLocale;
     siteOrigin: string;
     commands: DeveloperCommands;
     brand?: ReturnType<typeof publicBrand>;
