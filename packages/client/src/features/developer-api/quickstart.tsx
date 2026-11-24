@@ -38,16 +38,22 @@ export function DeveloperQuickstart({
     commands: DeveloperCommands;
 }) {
     const t = (source: DeveloperMessage) => developerText(locale, source);
-    const rich = (source: DeveloperMessage, values: Record<string, ReactNode>) =>
-        t(source)
+    const rich = (source: DeveloperMessage, values: Record<string, ReactNode>) => {
+        const occurrences = new Map<string, number>();
+        return t(source)
             .split(/(\{\w+\})/g)
-            .map((part, index) => (
-                <Fragment key={index}>
-                    {/^\{\w+\}$/.test(part) && Object.getOwnPropertyDescriptor(values, part.slice(1, -1))
-                        ? values[part.slice(1, -1)]
-                        : part}
-                </Fragment>
-            ));
+            .map((part) => {
+                const occurrence = occurrences.get(part) ?? 0;
+                occurrences.set(part, occurrence + 1);
+                return (
+                    <Fragment key={JSON.stringify([part, occurrence])}>
+                        {/^\{\w+\}$/.test(part) && Object.getOwnPropertyDescriptor(values, part.slice(1, -1))
+                            ? values[part.slice(1, -1)]
+                            : part}
+                    </Fragment>
+                );
+            });
+    };
     const steps = [
         ['token', '1. Create a token'],
         ['connect', '2. Check the connection'],

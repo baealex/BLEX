@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Hash, Plus, X } from '~/ui/icons';
 import { Button } from '~/components/shared';
@@ -9,11 +9,21 @@ interface TagManagerProps {
     onTagsChange: (tags: string[]) => void;
 }
 
+const focusTagInput = (input: HTMLInputElement | null) => {
+    input?.focus({ preventScroll: true });
+};
+
 const TagManager = ({ tags, onTagsChange }: TagManagerProps) => {
     const { i18n, t } = useLingui();
     const [newTag, setNewTag] = useState('');
     const [isAdding, setIsAdding] = useState(false);
-    const inputRef = useRef<HTMLInputElement>(null);
+    const returnFocus = useRef(false);
+    const restoreAddButtonFocus = useCallback((button: HTMLButtonElement | null) => {
+        if (button && returnFocus.current) {
+            returnFocus.current = false;
+            button.focus({ preventScroll: true });
+        }
+    }, []);
 
     const handleAddTag = () => {
         const processedTag = normalizeTagInput(newTag);
@@ -21,7 +31,6 @@ const TagManager = ({ tags, onTagsChange }: TagManagerProps) => {
         if (processedTag && !tags.includes(processedTag)) {
             onTagsChange([...tags, processedTag]);
             setNewTag('');
-            inputRef.current?.focus();
         }
     };
 
@@ -34,6 +43,9 @@ const TagManager = ({ tags, onTagsChange }: TagManagerProps) => {
             e.preventDefault();
             handleAddTag();
         } else if (e.key === 'Escape') {
+            e.preventDefault();
+            e.stopPropagation();
+            returnFocus.current = true;
             setNewTag('');
             setIsAdding(false);
         } else if (e.key === 'Backspace' && !newTag && tags.length > 0) {
@@ -72,7 +84,7 @@ const TagManager = ({ tags, onTagsChange }: TagManagerProps) => {
                 <div className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-line bg-surface-subtle px-3 py-1.5">
                     <Hash aria-hidden className="h-3.5 w-3.5 text-content-hint" />
                     <input
-                        ref={inputRef}
+                        ref={focusTagInput}
                         type="text"
                         aria-label={t({
                             id: 'editor.tags.new_name',
@@ -91,16 +103,13 @@ const TagManager = ({ tags, onTagsChange }: TagManagerProps) => {
                             id: 'editor.tags.name_placeholder',
                             message: 'Tag name'
                         })}
-                        autoFocus
                     />
                 </div>
             ) : (
                 <Button
                     type="button"
-                    onClick={() => {
-                        setIsAdding(true);
-                        setTimeout(() => inputRef.current?.focus(), 100);
-                    }}
+                    ref={restoreAddButtonFocus}
+                    onClick={() => setIsAdding(true)}
                     variant="ghost"
                     size="sm"
                     leftIcon={<Plus aria-hidden className="h-4 w-4" />}

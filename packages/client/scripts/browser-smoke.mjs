@@ -281,6 +281,135 @@ const selectPinnedPostWithKeyboard = async () => {
     }
 };
 
+const useSettingsListWithKeyboard = async () => {
+    await open('/settings/series');
+    const csrf = (await page.context().cookies()).find((cookie) => cookie.name === 'csrftoken')?.value;
+    expect(csrf).toBeTruthy();
+    const created = [];
+    for (const name of ['Keyboard series A', 'Keyboard series B']) {
+        const response = await page.request.post(`${origin}/v1/series`, {
+            headers: { origin, 'x-csrftoken': csrf },
+            data: { name, url: name.toLowerCase().replaceAll(' ', '-') }
+        });
+        expect(response.ok()).toBe(true);
+        const result = await response.json();
+        expect(result.status).toBe('DONE');
+        created.push(result.body);
+    }
+    await page.reload({ waitUntil: 'networkidle' });
+    const first = page.getByRole('button', { name: 'Keyboard series A 0개의 포스트', exact: true });
+    await expect(page.getByRole('heading', { name: 'Keyboard series A', exact: true })).toBeVisible();
+    await first.focus();
+    await page.keyboard.down('Space');
+    await expect(page).toHaveURL(`${origin}/settings/series`);
+    await page.keyboard.up('Space');
+    await expect(page).toHaveURL(`${origin}/@${account.username}/series/${created[0].url}`);
+
+    await page.setViewportSize({ width: 375, height: 812 });
+    await open('/settings/series');
+    const handle = page.getByRole('button', { name: 'Keyboard series A 시리즈 순서 변경', exact: true });
+    await handle.focus();
+    await handle.press('Space');
+    await expect(handle).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('[aria-live="assertive"]')).toContainText(`droppable area ${created[0].id}.`);
+    // The keyboard sensor installs its key listener in a later task after announcing the drag.
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    await handle.press('ArrowUp');
+    await expect(page.locator('[aria-live="assertive"]')).toContainText(`droppable area ${created[1].id}.`);
+    const reordered = page.waitForResponse(
+        (response) => new URL(response.url()).pathname === '/v1/series/order' && response.request().method() === 'PUT'
+    );
+    await handle.press('Space');
+    expect((await (await reordered).json()).status).toBe('DONE');
+    const order = await (await page.request.get(`${origin}/v1/setting/series`)).json();
+    expect(order.body.series.map((series) => series.id)).toEqual([created[0].id, created[1].id]);
+    await expect(page).toHaveURL(`${origin}/settings/series`);
+
+    await page.getByRole('button', { name: 'Keyboard series A 시리즈 메뉴 열기', exact: true }).click();
+    await page.getByRole('menuitem', { name: '시리즈 편집', exact: true }).click();
+    await expect(page).toHaveURL(`${origin}/settings/series/edit/${created[0].id}`);
+    await expect(page.getByRole('textbox').first()).toHaveValue('Keyboard series A');
+    await page.setViewportSize({ width: 1280, height: 900 });
+};
+
+const keepTagFocusWithUserAction = async () => {
+    await open('/write');
+    const add = page.getByRole('button', { name: '태그 추가', exact: true });
+    const input = page.getByRole('textbox', { name: '새 태그 이름', exact: true });
+    await add.click();
+    await expect(input).toBeFocused();
+    await input.fill('kept-tag');
+    await input.press('Enter');
+    await expect(input).toBeFocused();
+    await expect(input).toHaveValue('');
+    await input.fill('discarded-tag');
+    await input.press('Escape');
+    await expect(input).toHaveCount(0);
+    await expect(add).toBeFocused();
+    await add.press('Space');
+    await expect(input).toBeFocused();
+    await expect(input).toHaveValue('');
+    const title = page.getByPlaceholder('제목을 입력하세요');
+    await title.click();
+    await expect(input).toHaveCount(0);
+    await expect(title).toBeFocused();
+    await page.getByRole('button', { name: /kept-tag.*태그/ }).click();
+};
+
+const keepSearchFocusWithUserAction = async () => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await open('/search');
+    const screen = page.locator('[data-screen="SearchPage"]');
+    const input = screen.getByRole('textbox', { name: '포스트 검색', exact: true });
+    await expect(screen).toHaveAttribute('data-screen-status', 'mounted');
+    await expect(input).not.toBeFocused();
+    await input.fill('focus-check');
+    await input.press('Enter');
+    await expect(page).toHaveURL(`${origin}/search?q=focus-check`);
+    await expect(screen.getByRole('heading', { name: '검색 결과가 없습니다', exact: true })).toBeVisible();
+    await screen.getByRole('button', { name: '검색어 초기화', exact: true }).click();
+    await expect(input).toHaveValue('');
+    await expect(input).toBeFocused();
+    await screen.getByRole('button', { name: 'focus-check', exact: true }).focus();
+    await page.goBack();
+    await expect(input).toHaveValue('focus-check');
+    await expect(input).not.toBeFocused();
+    await page.goForward();
+    await expect(input).toHaveValue('');
+    await expect(input).not.toBeFocused();
+    await page.setViewportSize({ width: 1280, height: 900 });
+};
+
+const keepThemePreferenceAcrossPages = async () => {
+    await page.emulateMedia({ colorScheme: 'light' });
+    await open('/');
+    const root = page.locator('html');
+    const toggle = page.locator('[data-site-theme-toggle]:visible').first();
+    await expect(root).toHaveAttribute('data-theme', 'light');
+    await toggle.click();
+    await expect(root).toHaveAttribute('data-theme', 'dark');
+    const cookie = (await page.context().cookies()).find((entry) => entry.name === 'blex_theme');
+    expect(cookie).toMatchObject({ value: 'dark', path: '/', sameSite: 'Lax', secure: false });
+    expect(Math.abs(cookie.expires - Date.now() / 1000 - 31_536_000)).toBeLessThan(60);
+    await open('/settings/profile');
+    await expect(root).toHaveAttribute('data-theme', 'dark');
+    await page.reload({ waitUntil: 'networkidle' });
+    await expect(root).toHaveAttribute('data-theme', 'dark');
+    await toggle.click();
+    await expect(root).toHaveAttribute('data-theme', 'light');
+    await open('/');
+    await expect(root).toHaveAttribute('data-theme', 'light');
+    await page.reload({ waitUntil: 'networkidle' });
+    await expect(root).toHaveAttribute('data-theme', 'light');
+    await page.context().clearCookies({ name: 'blex_theme' });
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await expect(root).toHaveAttribute('data-theme', 'dark');
+    await expect(root).toHaveAttribute('data-theme-preference', 'system');
+    await page.emulateMedia({ colorScheme: 'light' });
+    await expect(root).toHaveAttribute('data-theme', 'light');
+    await page.emulateMedia({ colorScheme: null });
+};
+
 const keepMediaControlFocus = async () => {
     await open('/write');
     const editor = page.locator('.ProseMirror');
@@ -341,9 +470,19 @@ try {
         ['login', logIn],
         ['a failed translation file recovers with one reload', recoverFromFailedCatalog],
         ['mobile menu', openMobileMenu],
+        [
+            'theme preference persists across public and settings pages and follows the system when cleared',
+            keepThemePreferenceAcrossPages
+        ],
         ['invalid screen data fails safely without interpreting names as HTML', rejectInvalidScreenData],
         ['a screen render error leaves other screens mounted', isolateScreenRenderError],
         ['pinned post selection supports arrow keys and resets after a search', selectPinnedPostWithKeyboard],
+        ['settings list separates native activation, keyboard reordering, and menus', useSettingsListWithKeyboard],
+        ['tag input returns focus on Escape without stealing focus after blur', keepTagFocusWithUserAction],
+        [
+            'search focuses on explicit clearing and preserves history without grabbing focus',
+            keepSearchFocusWithUserAction
+        ],
         ['editor', openEditor],
         ['latest draft list survives an older response', keepLatestDraftList],
         ['media keyboard controls keep focus and settings labels activate their controls', keepMediaControlFocus],

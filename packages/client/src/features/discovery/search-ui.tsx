@@ -32,11 +32,17 @@ export function QueryFilter({
     id: string;
 }): ReactNode {
     const others = withoutParams(search, 'q', 'page');
+    const occurrences = new Map<string, number>();
     return (
         <form method="get" action={path} className="relative">
-            {[...others].map(([name, value], index) => (
-                <input key={`${name}-${index}`} type="hidden" name={name} value={value} />
-            ))}
+            {[...others].map(([name, value]) => {
+                const identity = JSON.stringify([name, value]);
+                const occurrence = occurrences.get(identity) ?? 0;
+                occurrences.set(identity, occurrence + 1);
+                return (
+                    <input key={JSON.stringify([name, value, occurrence])} type="hidden" name={name} value={value} />
+                );
+            })}
             <div className="relative">
                 <input
                     id={id}

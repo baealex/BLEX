@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { requireAdminCapability } from '~/features/settings/guards';
-import { lazyPage } from '~/features/settings/lazy-page';
+import { lazy } from 'react';
 
 export const Route = createFileRoute('/admin-settings/_layout/login')({
     beforeLoad: requireAdminCapability('canManageLoginSettings'),
-    component: lazyPage(() => import('~/features/settings/login'))
+    component: lazy(() => import('~/features/settings/login'))
 });
