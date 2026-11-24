@@ -2251,6 +2251,16 @@ msgid "public.Continue with your {provider} account"
 msgstr "{provider} 계정으로 계속"
 
 #. js-lingui-explicit-id
+#: src/features/posts/code-block-header.tsx:35
+msgid "public.Copied!"
+msgstr "복사 완료!"
+
+#. js-lingui-explicit-id
+#: src/features/posts/code-block-header.tsx:27
+msgid "public.Copy code"
+msgstr "코드 복사"
+
+#. js-lingui-explicit-id
 #: src/features/work-logs/pages.tsx:602
 msgid "public.Copy link"
 msgstr "링크 복사"
