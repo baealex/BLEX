@@ -1,14 +1,12 @@
 import { getDocumentLocale } from '../../i18n/locale.js';
 import { ui } from '../../i18n/public-ui.js';
-import type { ReactNode } from 'react';
-import { SiteIcon } from '../../appearance/icons';
+import { Fragment, type ReactNode } from 'react';
 import { SiteFooter, SiteHeader, SiteTheme } from '../../appearance/shell';
 import { type ContentMode, renderApplicationDocument, scriptJson } from '../../application/document';
 import { discoveryPageDataId } from '../../application/route-data';
-import type { NoticeRow, PageMeta, SiteBrand } from '@blex/contracts/public';
+import type { PageMeta, SiteBrand } from '@blex/contracts/public';
 import { DiscoveryPage } from './discovery-page';
 import type { DiscoveryPageData } from './discovery-page-data';
-import { noticeLink } from './view-helpers';
 
 export function PublicSiteMark({
     brand,
@@ -61,20 +59,25 @@ export function PageLayout({ meta, children }: { meta: PageMeta; children: React
     );
 }
 
-export function renderDiscoveryPage(meta: PageMeta, data: DiscoveryPageData): string {
+/** A page that hydrates in the application tree from a JSON script directly under `<body>`. */
+export function renderTreeDocument(meta: PageMeta, page: ReactNode, dataId: string, data: unknown): string {
     return renderPublicDocument(
         meta,
         [
-            <DiscoveryPage key="page" data={data} />,
+            <Fragment key="page">{page}</Fragment>,
             <script
                 key="data"
                 type="application/json"
-                id={discoveryPageDataId}
+                id={dataId}
                 dangerouslySetInnerHTML={{ __html: scriptJson(data) }}
             />
         ],
         'tree'
     );
+}
+
+export function renderDiscoveryPage(meta: PageMeta, data: DiscoveryPageData): string {
+    return renderTreeDocument(meta, <DiscoveryPage data={data} />, discoveryPageDataId, data);
 }
 
 function renderPublicDocument(meta: PageMeta, content: ReactNode, mode?: ContentMode): string {
@@ -130,51 +133,5 @@ function renderPublicDocument(meta: PageMeta, content: ReactNode, mode?: Content
             </body>
         </html>,
         mode
-    );
-}
-
-export function NoticeSection({ notices }: { notices: NoticeRow[] }): ReactNode {
-    if (!notices.length) return null;
-    return (
-        <section className="mb-14" aria-label={ui('Author notices')}>
-            <div className="mb-4 flex items-end justify-between gap-4">
-                <h2 className="text-2xl font-bold tracking-tight text-content">{ui('Notices')}</h2>
-                {notices.length > 1 ? (
-                    <span className="pb-1 text-xs font-medium tabular-nums text-content-hint">
-                        {ui('{value0, plural, one{# notice} other{# notices}}', { value0: notices.length })}
-                    </span>
-                ) : null}
-            </div>
-            <div className="divide-y divide-line-light border-y border-line-light">
-                {notices.map((notice, index) => {
-                    const href = noticeLink(notice.url);
-                    const content = (
-                        <div className="flex items-center justify-between gap-4 px-1">
-                            <div className="min-w-0 flex-1">
-                                <h3 className="truncate text-base font-semibold leading-snug text-content">
-                                    {notice.title}
-                                </h3>
-                            </div>
-                            <div className="flex shrink-0 items-center gap-2 text-content-hint">
-                                {notices.length > 1 ? (
-                                    <span className="text-[11px] font-medium tabular-nums">{`${index + 1}/${notices.length}`}</span>
-                                ) : null}
-                                <SiteIcon name="arrow-right" className="text-xs" />
-                            </div>
-                        </div>
-                    );
-                    const props = {
-                        className:
-                            'group block py-3.5 transition-colors duration-150 hover:bg-surface-subtle/50 active:bg-surface-subtle/70'
-                    };
-                    const Tag = href ? 'a' : 'div';
-                    return (
-                        <Tag key={notice.id} {...props} {...(href ? { href } : {})}>
-                            {content}
-                        </Tag>
-                    );
-                })}
-            </div>
-        </section>
     );
 }

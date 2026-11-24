@@ -1,6 +1,7 @@
 import { ui } from '../../i18n/public-ui.js';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from 'react';
 import { SiteIcon } from '../../appearance/icons.js';
+import type { AboutDraft } from './about-draft';
 
 const editLinkClass =
     'inline-flex items-center justify-center rounded-lg bg-surface-subtle px-4 py-2 text-sm font-semibold text-content-secondary transition-colors hover:bg-surface-subtle/80 hover:text-content';
@@ -39,14 +40,6 @@ async function saveAbout(url: string, content: string) {
             message: ui('Could not save because of a network error.')
         };
     }
-}
-
-export function AboutHeading() {
-    return (
-        <div className="mb-6">
-            <h2 className="text-2xl font-bold text-content">{ui('Bio')}</h2>
-        </div>
-    );
 }
 
 /** The inside of the owner's about section. `aboutHtml` is always the sanitized value from the server. */
@@ -108,7 +101,6 @@ export function AboutEditor({
 
     return (
         <>
-            <AboutHeading />
             <p
                 data-about-message=""
                 hidden={!notice?.text}
@@ -174,26 +166,22 @@ export function AboutEditor({
 
 /**
  * The inside of the dedicated edit page.
- * Hydration resets the textarea to its server text, so `onHydrated` puts the writer's text back in the same commit.
+ * Hydration resets the textarea to its server text, so `draft` puts the writer's text back in the same commit.
  */
 export function AboutPageEditor({
     aboutMarkdown,
     saveUrl,
     returnPath,
-    onHydrated
+    draft
 }: {
     aboutMarkdown: string;
     saveUrl: string;
     returnPath: string;
-    onHydrated?: (input: HTMLTextAreaElement) => void;
+    draft?: AboutDraft;
 }) {
     const input = useRef<HTMLTextAreaElement>(null);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState('');
-
-    useLayoutEffect(() => {
-        if (input.current) onHydrated?.(input.current);
-    }, [onHydrated]);
 
     const save = () => {
         setSaving(true);
@@ -204,6 +192,11 @@ export function AboutPageEditor({
             })
             .finally(() => setSaving(false));
     };
+    const sendEarlySave = useEffectEvent(save);
+
+    useLayoutEffect(() => {
+        if (input.current && draft?.handOff(input.current)) sendEarlySave();
+    }, [draft]);
 
     return (
         <>

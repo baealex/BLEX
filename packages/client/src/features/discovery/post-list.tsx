@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { SiteIcon, type SiteIconName } from '../../appearance/icons';
 import { LoginPromptLink } from '../engagement/ui/login-prompt-link';
 import type { CardLikes, PostRow } from '@blex/contracts/public';
+import type { DiscoveryPagination } from './discovery-page-data';
 import { avatarUrl, dateLabel, dateValue, mediaUrl, pageUrl } from './view-helpers';
 
 export function postPath(post: Pick<PostRow, 'authorUsername' | 'slug'>): string {
@@ -350,6 +351,13 @@ export function Pagination({
                 {item(pages, 'chevrons-right', false, page >= pages, undefined, ui('Last page'))}
             </div>
         </nav>
+    );
+}
+
+export function PageNavigation({ pagination }: { pagination: DiscoveryPagination }): ReactNode {
+    const { path, search, preserve, page, pages } = pagination;
+    return (
+        <Pagination path={path} search={new URLSearchParams(search)} preserve={preserve} page={page} pages={pages} />
     );
 }
 

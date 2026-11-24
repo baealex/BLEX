@@ -124,6 +124,20 @@ const budgets = [
         maxInitialBytes: 460 * 1024,
         maxInitialGzipBytes: 150 * 1024
     },
+    // Each author route loads only its own module, so each one has to fit. The owner's inline editor loads after them.
+    ...[
+        ['overview', ['author-overview-page']],
+        ['posts', ['author-posts-page']],
+        ['series', ['author-series-page']],
+        ['series detail', ['author-series-detail-page']],
+        ['introduction editor', ['author-about-edit-page']]
+    ].map(([route, modules]) => ({
+        build: 'client',
+        entries: [...publicPageEntries, ...modules.map((name) => `src/features/authors/${name}.tsx`)],
+        label: `public author page scripts (${route})`,
+        maxInitialBytes: 460 * 1024,
+        maxInitialGzipBytes: 150 * 1024
+    })),
     {
         build: 'client',
         entries: [...publicPageEntries, 'src/features/posts/post-page.tsx', 'src/features/posts/code-blocks-client.ts'],

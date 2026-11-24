@@ -57,22 +57,27 @@ export interface TagPageData extends DiscoveryPageBase {
 
 export type DiscoveryPageData = HomePageData | TagsPageData | TagPageData;
 
-function pageBase(meta: PageMeta, pagination: DiscoveryPagination): DiscoveryPageBase {
-    const { brand } = meta;
-    return {
-        brand: brand && {
+export function publicBrand({ brand }: PageMeta): DiscoveryPageBase['brand'] {
+    return (
+        brand && {
             siteName: brand.siteName,
             logoUrl: brand.logoUrl,
             darkLogoUrl: brand.darkLogoUrl,
             footerPages: brand.footerPages.map(({ title, slug }) => ({ title, slug }))
-        },
+        }
+    );
+}
+
+function pageBase(meta: PageMeta, pagination: DiscoveryPagination): DiscoveryPageBase {
+    return {
+        brand: publicBrand(meta),
         copyrightYear: new Date().getFullYear(),
         pagination
     };
 }
 
 // Signed-out readers post nothing, so their copy of the page carries no token.
-function publicLikes(meta: PageMeta, likes: CardLikes | undefined): PostCardLikes | undefined {
+export function publicLikes(meta: PageMeta, likes: CardLikes | undefined): PostCardLikes | undefined {
     return likes && { csrfToken: meta.viewer ? likes.csrfToken : '', returnTo: likes.returnTo };
 }
 

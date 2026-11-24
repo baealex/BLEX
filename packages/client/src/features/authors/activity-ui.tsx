@@ -1,15 +1,8 @@
 import { ui } from '../../i18n/public-ui.js';
 import { SiteIcon, type SiteIconName } from '../../appearance/icons';
+import type { AuthorActivityView } from './author-page-data';
 
-interface RecentActivity {
-    type: 'post' | 'series' | 'comment' | 'like';
-    title: string;
-    url: string;
-    date: string;
-    sortDate: number;
-}
-
-const activityLabels: Record<RecentActivity['type'], { label: string; icon: SiteIconName }> = {
+const activityLabels: Record<AuthorActivityView['recent'][number]['type'], { label: string; icon: SiteIconName }> = {
     post: {
         get label() {
             return ui('New post published');
@@ -49,15 +42,18 @@ function ActivityHeatmap({ days }: { days: Record<string, number> }) {
                 </div>
                 <p className="text-xs text-content-hint">{ui('Unit: activities')}</p>
             </div>
+            {/* The site script may draw the chart before hydration, so React must not read or replace its children. */}
             <div
                 className="author-heatmap-chart mx-auto min-h-[150px] w-fit"
                 data-heatmap-days={JSON.stringify(days)}
+                suppressHydrationWarning={true}
+                dangerouslySetInnerHTML={{ __html: '' }}
             />
         </div>
     );
 }
 
-export function AuthorActivitySection({ days, recent }: { days: Record<string, number>; recent: RecentActivity[] }) {
+export function AuthorActivitySection({ days, recent }: AuthorActivityView) {
     return (
         <section>
             <h2 className="mb-4 text-2xl font-bold tracking-tight text-content">{ui('Annual activity')}</h2>
@@ -74,7 +70,7 @@ export function AuthorActivitySection({ days, recent }: { days: Record<string, n
                         <div className="space-y-3">
                             {recent.map((activity) => (
                                 <a
-                                    key={`${activity.type}:${activity.url}:${activity.sortDate}`}
+                                    key={activity.key}
                                     href={activity.url}
                                     className="flex items-center gap-4 rounded-xl bg-surface px-3 py-3 ring-1 ring-line/60 hover:ring-line-strong"
                                 >
