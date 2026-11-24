@@ -18,6 +18,7 @@ import {
   countOwnedLogs,
   insertEntry,
   insertWorkLog,
+  readAttachmentPart,
   readEntry,
   readEntryInput,
   readOwnedLog,
@@ -61,6 +62,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
     await routes.register(formBody);
     await routes.register(multipart, {
       attachFieldsToBody: 'keyValues',
+      onFile: readAttachmentPart,
       limits: { files: 1, fields: 12, parts: 16, fileSize: MAX_ATTACHMENT_SIZE },
     });
 
