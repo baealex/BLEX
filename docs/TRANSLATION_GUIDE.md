@@ -13,9 +13,10 @@ Public pages and client-rendered React screens share the Lingui catalogs. Authen
 | System notifications | Message keys, parameters, and text templates in `packages/server/src/features/notifications/model.ts` |
 | Public SSR and browser UI, including the shared header, footer, and quick search | `ui()` in `packages/client/src/i18n/public-ui.ts`, extracted into the same PO catalogs by `scripts/public-ui-extractor.mjs` |
 | Server product messages | English sources in `systemMessage()` calls; Korean translations in `packages/server/data/ui-messages.ko.json`; existing API fallback catalog in `data/api-messages.ko.json` |
-| Developer API documentation | Typed English source messages and Korean translations under `features/developer-api/locales/ko.ts` in the client and server; schema metadata is translated on a copy, preserving API names, enums, defaults, and examples |
+| Developer API guide | Lingui macros with explicit `developer.` IDs in `features/developer-api/quickstart.tsx` and the guide's route pages, in the same PO catalogs |
+| Developer API reference and errors | Typed English source messages and Korean translations under `packages/server/src/features/developer-api/locales/ko.ts`; schema metadata is translated on a copy, preserving API names, enums, defaults, and examples |
 
-English is the source language for catalogs. Korean and English catalogs are included. Public pages load only the `public.` messages of a catalog (`messages.po`). Before a screen renders, `src/i18n/screen-catalog.ts` adds the rest (`messages.po?lingui`) to the same Lingui instance. The web runtime reads the server-supplied document language; it does not choose a separate locale from `navigator.language`.
+English is the source language for catalogs. Korean and English catalogs are included. Public pages load only the `public.` messages of a catalog (`messages.po`). Before a screen renders, `src/i18n/screen-catalog.ts` adds the rest (`messages.po?lingui`) to the same Lingui instance. The Developer API guide adds only its `developer.` messages (`messages.po?developer?lingui`) through `features/developer-api/developer-catalog.ts`; screens and other public pages never load them. The guide uses macros rather than `ui()` because the build drops a macro's English source from the page code, so the guide's sentences are downloaded once, in the reader's language. The web runtime reads the server-supplied document language; it does not choose a separate locale from `navigator.language`.
 
 ## Language priority
 
@@ -50,7 +51,7 @@ For the reusable editor, update the translations in its type-checked locale file
 
 ## Add a language
 
-- Add its code to `SUPPORTED_LOCALES` in `packages/client/src/i18n/locale.ts` and its catalog loaders in `src/i18n/index.ts` and `src/i18n/screen-catalog.ts` in the same app.
+- Add its code to `SUPPORTED_LOCALES` in `packages/client/src/i18n/locale.ts` and its catalog loaders in `src/i18n/index.ts`, `src/i18n/screen-catalog.ts`, and `src/features/developer-api/developer-catalog.ts` in the same app.
 - Add and translate the PO catalog. The Lingui configuration derives its locales from `SUPPORTED_LOCALES`.
 - If used by the reusable editor, add its type-checked message catalog and loader as described in the editor README.
 - Register the locale and its messages in the typed Developer API catalogs as well.

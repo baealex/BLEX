@@ -522,6 +522,327 @@ msgid "common.uploading"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:117
+#: src/routes/docs/developer-api/reference.page.tsx:16
+msgid "developer.api_name"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:252
+msgid "developer.quickstart.connect.command"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:247
+msgid "developer.quickstart.connect.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:257
+msgid "developer.quickstart.connect.result"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:68
+#: src/features/developer-api/quickstart.tsx:244
+msgid "developer.quickstart.connect.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:14
+msgid "developer.quickstart.copied"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:33
+msgid "developer.quickstart.copy"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:16
+msgid "developer.quickstart.copy_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:30
+msgid "developer.quickstart.copy_label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:295
+msgid "developer.quickstart.draft.command"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:283
+msgid "developer.quickstart.draft.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:300
+msgid "developer.quickstart.draft.post_number"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:332
+msgid "developer.quickstart.draft.posts_link"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:309
+msgid "developer.quickstart.draft.replace_number"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:325
+msgid "developer.quickstart.draft.review"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:319
+msgid "developer.quickstart.draft.save_command"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:69
+#: src/features/developer-api/quickstart.tsx:279
+msgid "developer.quickstart.draft.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:106
+msgid "developer.quickstart.errors.400_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:105
+msgid "developer.quickstart.errors.400_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:75
+msgid "developer.quickstart.errors.401_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:74
+msgid "developer.quickstart.errors.401_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:83
+msgid "developer.quickstart.errors.403_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:82
+msgid "developer.quickstart.errors.403_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:90
+msgid "developer.quickstart.errors.404_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:89
+msgid "developer.quickstart.errors.404_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:98
+msgid "developer.quickstart.errors.409_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:97
+msgid "developer.quickstart.errors.409_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:451
+msgid "developer.quickstart.errors.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:430
+msgid "developer.quickstart.image.command"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:420
+msgid "developer.quickstart.image.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:435
+msgid "developer.quickstart.image.markdown"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:416
+msgid "developer.quickstart.image.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:123
+msgid "developer.quickstart.intro"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:128
+msgid "developer.quickstart.intro_publish"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:387
+msgid "developer.quickstart.more.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:384
+msgid "developer.quickstart.more.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:363
+msgid "developer.quickstart.publish.command"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:346
+msgid "developer.quickstart.publish.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:368
+msgid "developer.quickstart.publish.result"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:70
+#: src/features/developer-api/quickstart.tsx:342
+msgid "developer.quickstart.publish.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:353
+msgid "developer.quickstart.publish.warning"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:469
+msgid "developer.quickstart.reference.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:479
+msgid "developer.quickstart.reference.link"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:466
+msgid "developer.quickstart.reference.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:134
+msgid "developer.quickstart.requirements"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:140
+msgid "developer.quickstart.steps"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:120
+#: src/routes/docs/developer-api/quickstart.page.tsx:18
+msgid "developer.quickstart.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:213
+msgid "developer.quickstart.token.copy_value"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:161
+msgid "developer.quickstart.token.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:234
+msgid "developer.quickstart.token.keep_secret"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:170
+msgid "developer.quickstart.token.open_settings"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:198
+msgid "developer.quickstart.token.read_scope"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:191
+msgid "developer.quickstart.token.select_scopes"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:180
+msgid "developer.quickstart.token.settings_link"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:222
+msgid "developer.quickstart.token.setup"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:231
+msgid "developer.quickstart.token.setup_command"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:67
+#: src/features/developer-api/quickstart.tsx:158
+msgid "developer.quickstart.token.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:203
+msgid "developer.quickstart.token.write_scope"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:266
+msgid "developer.quickstart.troubleshooting_link"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:403
+msgid "developer.quickstart.update.command"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:407
+msgid "developer.quickstart.update.conflicts"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:398
+msgid "developer.quickstart.update.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:395
+msgid "developer.quickstart.update.title"
+msgstr ""
+
+#. js-lingui-explicit-id
 #: src/features/editor/components/SettingsDrawer.tsx:631
 msgid "editor.actions.delete_post"
 msgstr ""

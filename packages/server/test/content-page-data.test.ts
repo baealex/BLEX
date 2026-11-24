@@ -102,7 +102,7 @@ test('the developer quickstart lists its page data by hand', async () => {
     const { body, statusCode } = await app.inject({ url: '/docs/developer-api/quickstart', headers: editor });
     assert.equal(statusCode, 200);
     const data = pageData(body);
-    assert.deepEqual(Object.keys(data), ['page', 'locale', 'siteOrigin', 'commands', 'brand', 'copyrightYear']);
+    assert.deepEqual(Object.keys(data), ['page', 'siteOrigin', 'commands', 'brand', 'copyrightYear']);
     assert.equal(data.page, 'developer-quickstart');
     assert.equal(data.siteOrigin, testSiteUrl.origin);
     assert.deepEqual(Object.keys(data.commands as object), ['me', 'create', 'publish', 'update', 'image']);

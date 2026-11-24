@@ -522,6 +522,327 @@ msgid "common.uploading"
 msgstr "Uploading..."
 
 #. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:117
+#: src/routes/docs/developer-api/reference.page.tsx:16
+msgid "developer.api_name"
+msgstr "BLEX Developer API"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:252
+msgid "developer.quickstart.connect.command"
+msgstr "Check your account"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:247
+msgid "developer.quickstart.connect.description"
+msgstr "Fetch your account details to check that your token works."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:257
+msgid "developer.quickstart.connect.result"
+msgstr "If {username} in the response shows your username, you are connected. If you get an error, see {troubleshooting}."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:68
+#: src/features/developer-api/quickstart.tsx:244
+msgid "developer.quickstart.connect.title"
+msgstr "2. Check the connection"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:14
+msgid "developer.quickstart.copied"
+msgstr "Copied."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:33
+msgid "developer.quickstart.copy"
+msgstr "Copy"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:16
+msgid "developer.quickstart.copy_failed"
+msgstr "Could not copy."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:30
+msgid "developer.quickstart.copy_label"
+msgstr "Copy {label}"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:295
+msgid "developer.quickstart.draft.command"
+msgstr "Create a draft"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:283
+msgid "developer.quickstart.draft.description"
+msgstr "{title} is the title and {markdown} is the body. Sending {status} saves a draft that other people cannot see yet."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:300
+msgid "developer.quickstart.draft.post_number"
+msgstr "{id} in the response is your new post number. If it is 123, save it as shown below. {replace}."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:332
+msgid "developer.quickstart.draft.posts_link"
+msgstr "Post management"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:309
+msgid "developer.quickstart.draft.replace_number"
+msgstr "Replace 123 with the number from your response"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:325
+msgid "developer.quickstart.draft.review"
+msgstr "You can also review and edit your draft in {posts}. It is fine to stop here."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:319
+msgid "developer.quickstart.draft.save_command"
+msgstr "Save the post number"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:69
+#: src/features/developer-api/quickstart.tsx:279
+msgid "developer.quickstart.draft.title"
+msgstr "3. Save your first draft"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:106
+msgid "developer.quickstart.errors.400_description"
+msgstr "Read error.message and error.fields in the response. Check JSON quotes and commas, and the values of your fields."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:105
+msgid "developer.quickstart.errors.400_title"
+msgstr "400 / 422 · Check what you sent"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:75
+msgid "developer.quickstart.errors.401_description"
+msgstr "Check that you copied the full token and that it has not expired or been revoked. In a new terminal, run the setup commands from step 1 again."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:74
+msgid "developer.quickstart.errors.401_title"
+msgstr "401 · Check your token"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:83
+msgid "developer.quickstart.errors.403_description"
+msgstr "Use an author account and a token with both Read posts and Write posts selected."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:82
+msgid "developer.quickstart.errors.403_title"
+msgstr "403 · Check your token permissions"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:90
+msgid "developer.quickstart.errors.404_description"
+msgstr "Set POST_ID to data.id from your response. You can only fetch or edit posts belonging to your account."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:89
+msgid "developer.quickstart.errors.404_title"
+msgstr "404 · Check your post number"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:98
+msgid "developer.quickstart.errors.409_description"
+msgstr "An already published draft cannot be published again. If there is an edit conflict, fetch the latest post and review your changes."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:97
+msgid "developer.quickstart.errors.409_title"
+msgstr "409 · The post has changed"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:451
+msgid "developer.quickstart.errors.title"
+msgstr "Start here if you get an error"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:430
+msgid "developer.quickstart.image.command"
+msgstr "Upload an image"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:420
+msgid "developer.quickstart.image.description"
+msgstr "Replace {file} with the path to an image on your computer, then upload it."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:435
+msgid "developer.quickstart.image.markdown"
+msgstr "Put {url} from the response into {markdown} and include it in your Markdown body."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:416
+msgid "developer.quickstart.image.title"
+msgstr "Add an image to the body"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:123
+msgid "developer.quickstart.intro"
+msgstr "Create your first post with a few terminal commands."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:128
+msgid "developer.quickstart.intro_publish"
+msgstr "Save a draft first, then publish when you are ready."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:387
+msgid "developer.quickstart.more.description"
+msgstr "Expand an example when you need it. Keep using the post number you saved above."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:384
+msgid "developer.quickstart.more.title"
+msgstr "Try a little more"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:363
+msgid "developer.quickstart.publish.command"
+msgstr "Publish the draft"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:346
+msgid "developer.quickstart.publish.description"
+msgstr "After reviewing the content, run the command below. {publish}."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:368
+msgid "developer.quickstart.publish.result"
+msgstr "You are done when {status} is {published}. Add {url} to this site’s address to open the published post."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:70
+#: src/features/developer-api/quickstart.tsx:342
+msgid "developer.quickstart.publish.title"
+msgstr "4. Publish when ready"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:353
+msgid "developer.quickstart.publish.warning"
+msgstr "Your draft will be published immediately and visible to other people"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:469
+msgid "developer.quickstart.reference.description"
+msgstr "The API reference covers search, tags, series, and scheduled publishing. Enter your full token in Authorize to send requests from your browser."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:479
+msgid "developer.quickstart.reference.link"
+msgstr "Open the API reference"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:466
+msgid "developer.quickstart.reference.title"
+msgstr "Need another feature?"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:134
+msgid "developer.quickstart.requirements"
+msgstr "Use a macOS or Linux terminal, or WSL or Git Bash on Windows. You will need curl."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:140
+msgid "developer.quickstart.steps"
+msgstr "Quickstart steps"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:120
+#: src/routes/docs/developer-api/quickstart.page.tsx:18
+msgid "developer.quickstart.title"
+msgstr "Developer API quickstart"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:213
+msgid "developer.quickstart.token.copy_value"
+msgstr "Create the token and copy its full value. You can only see the full token once."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:161
+msgid "developer.quickstart.token.description"
+msgstr "A token works like a password that lets an external tool use the API with your account."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:234
+msgid "developer.quickstart.token.keep_secret"
+msgstr "Keep your token out of public repositories and posts. If it leaks, revoke it in Token management and create another."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:170
+msgid "developer.quickstart.token.open_settings"
+msgstr "Sign in with an author account and open {tokens}."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:198
+msgid "developer.quickstart.token.read_scope"
+msgstr "Read posts"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:191
+msgid "developer.quickstart.token.select_scopes"
+msgstr "Name your token and select both {read} and {write}."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:180
+msgid "developer.quickstart.token.settings_link"
+msgstr "Token management"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:222
+msgid "developer.quickstart.token.setup"
+msgstr "Replace {token} below with the token you copied, then paste the commands into your terminal. Run the remaining commands in the same terminal."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:231
+msgid "developer.quickstart.token.setup_command"
+msgstr "Set up your terminal"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:67
+#: src/features/developer-api/quickstart.tsx:158
+msgid "developer.quickstart.token.title"
+msgstr "1. Create a token"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:203
+msgid "developer.quickstart.token.write_scope"
+msgstr "Write posts"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:266
+msgid "developer.quickstart.troubleshooting_link"
+msgstr "Troubleshooting"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:403
+msgid "developer.quickstart.update.command"
+msgstr "Update the title"
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:407
+msgid "developer.quickstart.update.conflicts"
+msgstr "If several tools edit the same post, use expected_updated_at to prevent conflicts. See the API reference for details."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:398
+msgid "developer.quickstart.update.description"
+msgstr "Send only the fields you want to change. The body and tags you omit are kept."
+
+#. js-lingui-explicit-id
+#: src/features/developer-api/quickstart.tsx:395
+msgid "developer.quickstart.update.title"
+msgstr "Change a post title"
+
+#. js-lingui-explicit-id
 #: src/features/editor/components/SettingsDrawer.tsx:631
 msgid "editor.actions.delete_post"
 msgstr "Delete post"
