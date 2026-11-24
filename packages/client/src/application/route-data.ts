@@ -17,6 +17,9 @@ export const contentPageDataId = 'blex-content-page-data';
 export const contentPageDataSelector = pageDataSelector(contentPageDataId);
 export const loginPageDataId = 'blex-login-page-data';
 export const loginPageDataSelector = pageDataSelector(loginPageDataId);
+/** A post author's revision history, writing timeline, and share links. */
+export const postManagementPageDataId = 'blex-post-management-page-data';
+export const postManagementPageDataSelector = pageDataSelector(postManagementPageDataId);
 
 /** The post body inside the server document. The child chain keeps banners and comments from standing in for it. */
 export const postBodySelector = '.post-detail-main > article > [itemprop="articleBody"]';
