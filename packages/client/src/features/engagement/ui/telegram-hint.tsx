@@ -2,7 +2,6 @@ import { ui } from '../../../i18n/public-ui.js';
 import IconBrandTelegram from '@tabler/icons-react/icons/IconBrandTelegram';
 import IconX from '@tabler/icons-react/icons/IconX';
 import { useEffect } from 'react';
-import { createRoot } from 'react-dom/client';
 import { ENTRANCE_DURATION, INTERACTION_DURATION } from '../../../ui/lib/designTokens';
 
 const cookieName = 'blex_telegram_hint';
@@ -109,19 +108,4 @@ export function TelegramHint({ raised, onClose }: TelegramHintProps) {
             </aside>
         </div>
     );
-}
-
-/** Documents without the application root, such as the post editor, show the notice from a root of their own. */
-export function showTelegramHint(signal: AbortSignal): void {
-    if (!claimTelegramHint()) return;
-    const host = document.body.appendChild(document.createElement('div'));
-    const root = createRoot(host);
-    const close = () => {
-        signal.removeEventListener('abort', close);
-        root.unmount();
-        host.remove();
-    };
-    signal.addEventListener('abort', close, { once: true });
-    // Only application pages have the post action dock.
-    root.render(<TelegramHint raised={false} onClose={close} />);
 }

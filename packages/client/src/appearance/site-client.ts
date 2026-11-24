@@ -228,19 +228,6 @@ function bindRouteElements() {
             if (!signal.aborted) mountAuthorHeatmaps(signal);
         });
     }
-    // Application pages show this prompt from their React tree.
-    if (!document.getElementById('blex-application')) offerTelegramHint(signal);
-}
-
-function offerTelegramHint(signal: AbortSignal) {
-    if (!/(?:^|; )blex_telegram_hint=/.test(document.cookie)) return;
-    // The prompt is optional, and its cookie stays so the next page can try again.
-    void import('../features/engagement/ui/telegram-hint').then(
-        ({ showTelegramHint }) => {
-            if (!signal.aborted) showTelegramHint(signal);
-        },
-        () => undefined
-    );
 }
 
 function handleGlobalClick(event: MouseEvent) {
