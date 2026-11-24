@@ -6,6 +6,7 @@ import { toIsoDateTime } from '../developer-api/index.js';
 import { publicPostWhere } from '../posts/data/visibility.js';
 import { sanitizePostHtml } from '../posts/post-html.js';
 import { publicPostPath } from '../posts/public-post.js';
+import { readableDescription } from '../posts/shared.js';
 import { done, failure } from '../../platform/response.js';
 
 interface ActivityOptions {
@@ -251,7 +252,7 @@ export async function relatedPosts(db: PrismaClient, sourceId: number, sourceAut
         slug: post.slug,
         title: post.title,
         image: post.image,
-        description: post.description,
+        description: readableDescription(post.description),
         readTime: post.readTime,
         published: post.publishedAt,
         username: post.author.username,

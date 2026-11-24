@@ -4,6 +4,7 @@ import { resolveUiLocale } from '../../../platform/locale.js';
 import type { AuthenticatedToken } from './token-auth.js';
 import { postIdsMatching, type PostTextField } from '../../posts/data/text-match.js';
 import { publicPostWhere } from '../../posts/data/visibility.js';
+import { readableDescription } from '../../posts/shared.js';
 import {
   type DeveloperApiError,
   type QueryValue,
@@ -227,7 +228,7 @@ export async function postDetail(db: PrismaClient, post: PostDetailRow) {
   const contentHtml = post.content?.html ?? '';
   return {
     ...data,
-    description: post.description,
+    description: readableDescription(post.description),
     content: contentHtml,
     contentHtml,
     renderedHtml: contentHtml,
