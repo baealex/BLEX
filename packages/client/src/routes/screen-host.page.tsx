@@ -1,10 +1,8 @@
-import { renderToString } from 'react-dom/server';
 import { SiteFooter, SiteHeader, SiteTheme } from '~/appearance/shell';
 import { renderApplicationDocument } from '~/application/document';
 import type { PageProps } from '@blex/contracts/pages';
 
 export default function renderPage({
-    movesInApplication,
     lang,
     robots,
     title,
@@ -64,13 +62,9 @@ export default function renderPage({
                 </main>
                 {footer && <SiteFooter brand={brand} />}
                 <script type="module" src="/assets/blex/screen-host.js" />
-                <script
-                    type="module"
-                    src={loaderHref}
-                    {...(movesInApplication ? { 'data-blex-page-module': 'screen' } : {})}
-                />
+                <script type="module" src={loaderHref} data-blex-page-module="screen" />
             </body>
         </html>
     );
-    return movesInApplication ? renderApplicationDocument(page) : `<!doctype html>${renderToString(page)}`;
+    return renderApplicationDocument(page);
 }

@@ -92,7 +92,6 @@ export type RelatedPost = {
 /** Everything the server passes to each server-rendered route. */
 export interface PageProps {
     'screen-host': {
-        movesInApplication: boolean;
         lang: string;
         robots: string;
         title: string;

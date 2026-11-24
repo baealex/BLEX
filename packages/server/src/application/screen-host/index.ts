@@ -173,10 +173,7 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
     };
     const screen = `<div data-screen="${page.component}" data-screen-status="pending" data-screen-props="${encodeURIComponent(JSON.stringify(page.props))}"><div role="status" aria-live="polite" class="flex min-h-52 items-center justify-center gap-2 py-12 text-sm font-medium text-content-secondary"><span aria-hidden="true" class="h-4 w-4 animate-spin rounded-full border-2 border-line-strong border-t-action motion-reduce:animate-none"></span><span>${systemMessage('Loading…')}</span></div></div>`;
     const robots = page.robots ?? 'noindex,nofollow';
-    // The editor keeps full page loads so its unsaved-changes warning covers every way of leaving.
-    const movesInApplication = page.component !== 'PostEditor';
     const html = renderPage('screen-host', {
-      movesInApplication,
       lang: configuration.locale,
       robots,
       title: page.title(brand.siteName),

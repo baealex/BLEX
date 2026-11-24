@@ -1707,6 +1707,16 @@ msgid "editor.trash.title"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/features/editor/hooks/useLeaveWarning.ts:33
+msgid "editor.unsaved.leave"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/editor/hooks/useLeaveWarning.ts:29
+msgid "editor.unsaved.leave_description"
+msgstr ""
+
+#. js-lingui-explicit-id
 #: src/features/editor/NewPostEditor.tsx:398
 msgid "editor.unsaved.switch_draft"
 msgstr ""
@@ -1717,6 +1727,7 @@ msgid "editor.unsaved.switch_draft_description"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/features/editor/hooks/useLeaveWarning.ts:25
 #: src/features/editor/NewPostEditor.tsx:390
 msgid "editor.unsaved.title"
 msgstr ""
