@@ -12,6 +12,9 @@ export const postPageDataSelector = pageDataSelector(postPageDataId);
 export const discoveryPageDataSelector = pageDataSelector(discoveryPageDataId);
 export const authorPageDataId = 'blex-author-page-data';
 export const authorPageDataSelector = pageDataSelector(authorPageDataId);
+/** The work log list, a log, its delete pages, and shared logs. */
+export const workLogPageDataId = 'blex-work-log-page-data';
+export const workLogPageDataSelector = pageDataSelector(workLogPageDataId);
 /** Static, error, and developer guide pages, which carry little data of their own. */
 export const contentPageDataId = 'blex-content-page-data';
 export const contentPageDataSelector = pageDataSelector(contentPageDataId);

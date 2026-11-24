@@ -56,6 +56,8 @@ const authorPageEntries = [
     'about-editor'
 ];
 
+const workLogPageEntries = ['index-page', 'detail-page', 'delete-page', 'shared-page'];
+
 const contentPageEntries = [
     'discovery/search-page',
     'discovery/static-page',
@@ -90,6 +92,9 @@ export default defineConfig({
                 fileURLToPath(new URL('./src/features/discovery/discovery-page.tsx', import.meta.url)),
                 ...authorPageEntries.map((name) =>
                     fileURLToPath(new URL(`./src/features/authors/${name}.tsx`, import.meta.url))
+                ),
+                ...workLogPageEntries.map((name) =>
+                    fileURLToPath(new URL(`./src/features/work-logs/${name}.tsx`, import.meta.url))
                 ),
                 ...contentPageEntries.map((path) =>
                     fileURLToPath(new URL(`./src/features/${path}.tsx`, import.meta.url))
