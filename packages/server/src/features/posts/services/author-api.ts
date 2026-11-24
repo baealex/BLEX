@@ -11,7 +11,14 @@ import {
   trashPost,
   updatePost,
 } from './post-store.js';
-import { type AuthoringPostInput, type AuthoringUser, type StoredPost, type UserRow, dateAsIso } from '../shared.js';
+import {
+  type AuthoringPostInput,
+  type AuthoringUser,
+  type StoredPost,
+  type UserRow,
+  dateAsIso,
+  readableDescription,
+} from '../shared.js';
 
 export function apiPostBase(post: StoredPost, contentHtml: string): Record<string, unknown> {
   return {
@@ -19,7 +26,7 @@ export function apiPostBase(post: StoredPost, contentHtml: string): Record<strin
     title: post.title,
     subtitle: post.subtitle,
     url: post.url,
-    description: post.description,
+    description: readableDescription(post.description),
     publishedDate: dateAsIso(post.publishedDate),
     updatedDate: dateAsIso(post.updatedDate),
     isScheduled: Boolean(post.publishedDate && post.publishedDate.valueOf() > Date.now()),

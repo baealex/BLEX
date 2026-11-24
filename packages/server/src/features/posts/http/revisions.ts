@@ -25,6 +25,7 @@ import {
   forbidden,
   notFound,
   queryObject,
+  readableDescription,
 } from '../shared.js';
 
 export function registerRevisionsRoutes(routes: FastifyInstance, db: PrismaClient, options: AuthoringOptions) {
@@ -209,7 +210,7 @@ export function registerRevisionsRoutes(routes: FastifyInstance, db: PrismaClien
           ...revisionSummary(revision),
           contentHtml: sanitizePostHtml(revision.content),
           contentText: plainText(revision.content),
-          description: revision.description,
+          description: readableDescription(revision.description),
         },
       });
     },

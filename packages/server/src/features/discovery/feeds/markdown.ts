@@ -1,3 +1,5 @@
+import { decodeHtmlEntities } from '../../../platform/html-entities.js';
+
 type HtmlNode = {
   tag: string | null;
   attrs: Record<string, string>;
@@ -148,7 +150,7 @@ function parseHtml(html: string): HtmlNode {
       }
       continue;
     }
-    const text = decodeEntities(token);
+    const text = decodeHtmlEntities(token);
     const preservesWhitespace = openCount('pre') > 0 || openCount('textarea') > 0;
     parent.children.push({
       tag: null,
@@ -172,7 +174,7 @@ function parseAttributes(source: string): Record<string, string> {
   const pattern = /([^\s=/>]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g;
   for (const match of source.matchAll(pattern)) {
     const name = match[1].toLowerCase();
-    attributes[name] = decodeEntities(match[2] ?? match[3] ?? match[4] ?? '');
+    attributes[name] = decodeHtmlEntities(match[2] ?? match[3] ?? match[4] ?? '');
   }
   return attributes;
 }
@@ -350,21 +352,6 @@ function findAll(node: HtmlNode, tag: string): HtmlNode[] {
     found.push(...findAll(child, tag));
   }
   return found;
-}
-
-function decodeEntities(value: string): string {
-  return value.replace(/&(#(?:x[\da-f]+|\d+)|amp|lt|gt|quot|apos|nbsp);/gi, (entity, name: string) => {
-    if (name[0] === '#') {
-      const number =
-        name[1]?.toLowerCase() === 'x' ? Number.parseInt(name.slice(2), 16) : Number.parseInt(name.slice(1), 10);
-      return Number.isFinite(number) && number > 0 && number <= 0x10ffff ? String.fromCodePoint(number) : entity;
-    }
-    return (
-      ({ amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: '\u00a0' } as Record<string, string>)[
-        name.toLowerCase()
-      ] ?? entity
-    );
-  });
 }
 
 function escapeHtml(value: string): string {
