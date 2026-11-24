@@ -38,6 +38,7 @@ export function TimelapsePage({ data, frameHtml }: { data: TimelapsePageData; fr
                             // A reader can open or close a frame before the page's code arrives.
                             <details
                                 className="frame"
+                                // biome-ignore lint/suspicious/noArrayIndexKey: frames never reorder, and two can share a save time.
                                 key={`${frame.savedAt}:${index}`}
                                 open={index === frames.length - 1}
                                 suppressHydrationWarning
