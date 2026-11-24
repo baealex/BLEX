@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { ui } from '../../i18n/public-ui.js';
 
 const COPIED_RESET_MS = 2000;
 const copyPath =
@@ -23,14 +24,16 @@ export function CodeBlockHeader({ code, label }: { code: HTMLElement; label: str
         reset.current = setTimeout(() => setCopied(false), COPIED_RESET_MS);
     };
 
+    const copyLabel = ui('Copy code');
+
     return (
         <>
             <span className="code-language">{label}</span>
             <button
                 type="button"
                 className="code-copy-button"
-                title={copied ? 'Copied!' : 'Copy code'}
-                aria-label="Copy code"
+                title={copied ? ui('Copied!') : copyLabel}
+                aria-label={copyLabel}
                 onClick={() => void copy()}
             >
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
