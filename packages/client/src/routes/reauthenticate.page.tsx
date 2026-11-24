@@ -1,25 +1,15 @@
 import { getDocumentLocale } from '../i18n/locale.js';
 import { ui } from '../i18n/public-ui.js';
 import { SiteFooter, SiteHeader, SiteTheme } from '~/appearance/shell';
-import { renderApplicationDocument } from '~/application/document';
+import { pageDataScript, renderApplicationDocument } from '~/application/document';
+import { authFormPageDataId } from '~/application/route-data';
+import { createReauthenticatePageData } from '~/features/auth/ui/form-page-data';
+import { ReauthenticatePage } from '~/features/auth/ui/reauthenticate-page';
 import type { PageProps } from '@blex/contracts/pages';
 
-function reauthenticationPath(next: string) {
-    return `/reauthenticate?${new URLSearchParams({ next })}`;
-}
-
-export default function renderPage({
-    brand,
-    account,
-    viewer,
-    csrf,
-    error,
-    showForm,
-    next,
-    pendingFactor,
-    fieldClass,
-    visibleProviders
-}: PageProps['reauthenticate']): string {
+export default function renderPage(props: PageProps['reauthenticate']): string {
+    const { brand, account, viewer, csrf } = props;
+    const data = createReauthenticatePageData(props);
     return renderApplicationDocument(
         <html lang={getDocumentLocale()}>
             <head>
@@ -40,91 +30,10 @@ export default function renderPage({
                         csrfToken: csrf
                     }}
                 />
-                <main className="min-h-[calc(100vh-10.5rem)]">
-                    <div className="mx-auto my-16 w-full max-w-md px-4">
-                        <section className="rounded-2xl border border-line bg-surface p-6 shadow-subtle">
-                            <h1 className="text-xl font-semibold text-content">{ui('Verify your identity')}</h1>
-                            <p className="mt-2 text-sm text-content-secondary">
-                                {ui('After verification, return to settings and try your change again.')}
-                            </p>
-                            {error && (
-                                <p className="mt-4 text-danger" role="alert">
-                                    {error}
-                                </p>
-                            )}
-                            {showForm && (
-                                <form action={reauthenticationPath(next)} method="post" className="mt-5 space-y-4">
-                                    <input type="hidden" name="csrfmiddlewaretoken" value={csrf} />
-                                    {!pendingFactor && (
-                                        <label className="block space-y-1">
-                                            <span className="text-sm text-content">{ui('Current password')}</span>
-                                            <input
-                                                className={fieldClass}
-                                                type="password"
-                                                name="password"
-                                                autoComplete="current-password"
-                                                required
-                                            />
-                                        </label>
-                                    )}
-                                    {account.hasSecondFactor && (
-                                        <label className="block space-y-1">
-                                            <span className="text-sm text-content">
-                                                {ui('Authenticator code or recovery key')}
-                                            </span>
-                                            <input
-                                                className={fieldClass}
-                                                name="code"
-                                                autoComplete="one-time-code"
-                                                maxLength={64}
-                                                required
-                                            />
-                                        </label>
-                                    )}
-                                    <button
-                                        className="min-h-11 w-full rounded-lg bg-action px-4 text-content-inverted hover:bg-action-hover active:scale-95"
-                                        type="submit"
-                                    >
-                                        {ui('Confirm')}
-                                    </button>
-                                </form>
-                            )}
-                            {visibleProviders.length > 0 ? (
-                                <div className="mt-5 space-y-3">
-                                    {visibleProviders.map((provider) => (
-                                        <form
-                                            key={provider.key}
-                                            action={`/login/start/${provider.key}?${new URLSearchParams({ next })}`}
-                                            method="post"
-                                        >
-                                            <input type="hidden" name="csrfmiddlewaretoken" value={csrf} />
-                                            <button
-                                                className="min-h-11 w-full rounded-lg border border-line px-4 hover:bg-surface-subtle active:scale-95"
-                                                type="submit"
-                                            >
-                                                {ui('Continue with {value0}', { value0: provider.name })}
-                                            </button>
-                                        </form>
-                                    ))}
-                                </div>
-                            ) : (
-                                !showForm && (
-                                    <p className="mt-4 text-sm text-content-secondary">
-                                        {ui('Contact the site administrator to recover access to your account.')}
-                                    </p>
-                                )
-                            )}
-                            <a
-                                className="mt-4 inline-flex min-h-11 items-center text-sm text-content-secondary hover:underline"
-                                href={next}
-                            >
-                                {ui('Cancel')}
-                            </a>
-                        </section>
-                    </div>
-                </main>
-                <SiteFooter brand={brand} />
+                <ReauthenticatePage data={data} footer={<SiteFooter brand={brand} />} />
+                {pageDataScript(authFormPageDataId, data)}
             </body>
-        </html>
+        </html>,
+        'tree'
     );
 }

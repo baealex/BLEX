@@ -222,7 +222,6 @@ export function registerAccountSecurity(app: FastifyInstance, db: PrismaClient, 
     const visibleProviders = pendingFactor ? [] : providers;
     const viewer = await readSecurityViewer(db, account.id);
     const brand = await readPublicSiteBrand(db);
-    const fieldClass = 'block h-12 w-full rounded-lg border border-line bg-surface px-3';
     return reply
       .type('text/html; charset=utf-8')
       .header('Cache-Control', 'private, no-store')
@@ -236,7 +235,6 @@ export function registerAccountSecurity(app: FastifyInstance, db: PrismaClient, 
           showForm,
           next,
           pendingFactor,
-          fieldClass,
           visibleProviders,
         }),
       );

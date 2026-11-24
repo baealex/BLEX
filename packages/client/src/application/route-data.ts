@@ -20,6 +20,9 @@ export const contentPageDataId = 'blex-content-page-data';
 export const contentPageDataSelector = pageDataSelector(contentPageDataId);
 export const loginPageDataId = 'blex-login-page-data';
 export const loginPageDataSelector = pageDataSelector(loginPageDataId);
+/** Sign-up, first administrator setup, identity check, and password reset forms. */
+export const authFormPageDataId = 'blex-auth-form-page-data';
+export const authFormPageDataSelector = pageDataSelector(authFormPageDataId);
 
 /** The post body inside the server document. The child chain keeps banners and comments from standing in for it. */
 export const postBodySelector = '.post-detail-main > article > [itemprop="articleBody"]';
