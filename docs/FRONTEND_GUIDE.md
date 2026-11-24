@@ -28,6 +28,8 @@ The post detail, home, tag list, tag, author, series, static, 404, 403, and Deve
 
 Each author route, static page, error page, and the quickstart loads only its own module. The owner's inline introduction editor hydrates in its own Suspense boundary once its code arrives. On the introduction edit page, `features/authors/about-draft.ts` runs with the application entry: it restores a saved draft, holds hydration while a Hangul syllable is being composed, and accepts Save before the editor code arrives. If that code fails to load, the page keeps the writer's text and offers a retry that keeps it in the tab.
 
+The login prompt and the one-time Telegram notice render in the application tree from `application/prompts.tsx`, on every application page, even when the page's own module did not load. The post editor loads as its own document without that tree, so the site script shows the Telegram notice there from a small root of its own.
+
 ## Pages and browser behavior
 
 - Use `renderApplicationDocument` from a `*.page.tsx` file for pages in the main application so direct visits receive server-rendered HTML and internal navigation uses the app router.
