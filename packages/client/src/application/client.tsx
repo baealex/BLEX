@@ -335,10 +335,14 @@ function readPostPage(source: Document, content: Element): TreePage | null {
     const bodyHtml = body.innerHTML;
     postRevision += 1;
     const revision = postRevision;
-    return createTreePage(`post:${data.postPath}`, () =>
-        import('../features/posts/post-page').then(({ PostPage }) => (
-            <PostPage data={data} bodyHtml={bodyHtml} revision={revision} />
-        ))
+    return createTreePage(
+        `post:${data.postPath}`,
+        () =>
+            import('../features/posts/post-page').then(({ PostPage }) => (
+                <PostPage data={data} bodyHtml={bodyHtml} revision={revision} />
+            )),
+        // Without its code, the server markup keeps a comment being typed and an open share menu.
+        { keepsServerMarkup: true }
     );
 }
 
@@ -831,7 +835,7 @@ function shouldLeaveLinkNative(anchor: HTMLAnchorElement): boolean {
     return false;
 }
 
-function handleDocumentClick(event: MouseEvent): void {
+function clickedLink(event: MouseEvent): HTMLAnchorElement | null {
     if (
         event.defaultPrevented ||
         event.button !== 0 ||
@@ -840,17 +844,23 @@ function handleDocumentClick(event: MouseEvent): void {
         event.shiftKey ||
         event.altKey
     )
-        return;
+        return null;
     const target = event.target;
-    if (!(target instanceof Element)) return;
+    if (!(target instanceof Element)) return null;
     const anchor = target.closest<HTMLAnchorElement>('a[href]');
     // A click in editable text places the caret, and browsers do not follow links there.
-    if (!anchor || anchor.isContentEditable) return;
-    if (openLoginPromptFrom(anchor)) {
-        event.preventDefault();
-        return;
-    }
-    if (shouldLeaveLinkNative(anchor)) return;
+    return anchor && !anchor.isContentEditable ? anchor : null;
+}
+
+// Runs in the capture phase because React stops clicks inside a page whose code has not arrived or failed to load.
+function handleLoginPromptClick(event: MouseEvent): void {
+    const anchor = clickedLink(event);
+    if (anchor && openLoginPromptFrom(anchor)) event.preventDefault();
+}
+
+function handleDocumentClick(event: MouseEvent): void {
+    const anchor = clickedLink(event);
+    if (!anchor || shouldLeaveLinkNative(anchor)) return;
 
     let destination: URL;
     try {
@@ -1564,6 +1574,7 @@ if (appRoot && initialDocument) {
                 void appRouter.load().then(() => renderLoadedPage(appRouter));
             });
             document.addEventListener('blex:navigate', dispatchNavigateEvent);
+            document.addEventListener('click', handleLoginPromptClick, true);
             document.addEventListener('click', handleDocumentClick);
             document.addEventListener('submit', handleDocumentSubmit);
             installPositionTracking();
