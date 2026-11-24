@@ -27,6 +27,8 @@ const authorPageEntries = [
     'about-editor'
 ];
 
+const workLogPageEntries = ['index-page', 'detail-page', 'delete-page', 'shared-page'];
+
 const contentPageEntries = [
     'discovery/search-page',
     'discovery/static-page',
@@ -48,6 +50,7 @@ const publicEntries = [
     source('src/features/posts/post-page.tsx'),
     source('src/features/discovery/discovery-page.tsx'),
     ...authorPageEntries.map((name) => source(`src/features/authors/${name}.tsx`)),
+    ...workLogPageEntries.map((name) => source(`src/features/work-logs/${name}.tsx`)),
     ...contentPageEntries.map((path) => source(`src/features/${path}.tsx`)),
     source('src/features/posts/code-blocks-client.ts'),
     source('src/application/screen-host/client.ts'),
@@ -60,7 +63,7 @@ const screenEntries = [source('src/scripts/screen-loader.ts')];
 // Public pages run without React Compiler output, so their modules stay outside it.
 // Mutable shared UI and editor state stay outside it as well.
 const publicSources =
-    /\/src\/(?:application|appearance|i18n|features\/(?:auth\/ui|authors|developer-api|discovery|engagement|posts))\//;
+    /\/src\/(?:application|appearance|i18n|features\/(?:auth\/ui|authors|developer-api|discovery|engagement|posts|work-logs))\//;
 const uncompiledSources = /\/src\/(?:ui|features\/editor\/tiptap)\//;
 
 const compiledCatalog = /^\/\*eslint-disable\*\/export const messages=JSON\.parse\(("(?:[^"\\]|\\.)*")\);?$/s;

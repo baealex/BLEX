@@ -139,6 +139,19 @@ const budgets = [
         maxInitialBytes: 460 * 1024,
         maxInitialGzipBytes: 150 * 1024
     })),
+    // Each work log page loads only its own module.
+    ...[
+        ['list', 'index-page'],
+        ['log', 'detail-page'],
+        ['delete', 'delete-page'],
+        ['shared', 'shared-page']
+    ].map(([route, module]) => ({
+        entries: [...publicPageEntries, `src/features/work-logs/${module}.tsx`],
+        catalogs: publicCatalogs,
+        label: `public work log page scripts (${route})`,
+        maxInitialBytes: 460 * 1024,
+        maxInitialGzipBytes: 150 * 1024
+    })),
     // Search, static, error, developer guide, and post management pages also load only their own module.
     ...[
         ['search', 'discovery/search-page'],
