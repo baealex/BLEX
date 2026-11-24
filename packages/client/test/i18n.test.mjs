@@ -54,7 +54,7 @@ describe('locale-sensitive cache boundaries', () => {
         assert.notEqual(korean, english);
         assert.notEqual(korean, buildQueryCacheKey('another-reader', 'ko', 'Asia/Seoul'));
         assert.notEqual(korean, buildQueryCacheKey('reader', 'ko', 'UTC'));
-        assert.equal(buildQueryCacheKey(undefined, 'ko', 'UTC'), 'rq-cache-v3-anonymous-ko-UTC');
+        assert.equal(buildQueryCacheKey(undefined, 'ko', 'UTC'), 'rq-cache-v4-anonymous-ko-UTC');
     });
 });
 
