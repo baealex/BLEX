@@ -1919,6 +1919,11 @@ msgid "public.Account"
 msgstr "로그인 계정"
 
 #. js-lingui-explicit-id
+#: src/appearance/shell.tsx:144
+msgid "public.Account menu"
+msgstr "계정 메뉴"
+
+#. js-lingui-explicit-id
 #: src/appearance/author-heatmap.ts:54
 msgid "public.Activity"
 msgstr "활동"
@@ -2775,6 +2780,11 @@ msgid "public.Log in"
 msgstr "로그인"
 
 #. js-lingui-explicit-id
+#: src/appearance/shell.tsx:113
+msgid "public.Log out"
+msgstr "로그아웃"
+
+#. js-lingui-explicit-id
 #: src/features/authors/profile-ui.tsx:74
 msgid "public.Manage author posts"
 msgstr "작성자 글 관리"
@@ -2794,6 +2804,17 @@ msgstr "글 관리"
 #: src/routes/@{$username}/{$slug}/index.page.tsx:692
 msgid "public.Markdown reference URL"
 msgstr "*.md 참조 주소"
+
+#. js-lingui-explicit-id
+#: src/appearance/shell.tsx:215
+#: src/appearance/shell.tsx:232
+msgid "public.Menu"
+msgstr "메뉴"
+
+#. js-lingui-explicit-id
+#: src/appearance/shell.tsx:198
+msgid "public.Mobile menu"
+msgstr "모바일 메뉴"
 
 #. js-lingui-explicit-id
 #: src/routes/tags.page.tsx:56
@@ -2826,6 +2847,12 @@ msgstr "시리즈 이동"
 #: src/routes/password-reset/$token.page.tsx:62
 msgid "public.New password"
 msgstr "새 비밀번호"
+
+#. js-lingui-explicit-id
+#: src/appearance/shell.tsx:92
+#: src/appearance/shell.tsx:153
+msgid "public.New post"
+msgstr "새 포스트"
 
 #. js-lingui-explicit-id
 #: src/features/authors/activity-ui.tsx:15
@@ -2937,6 +2964,16 @@ msgid "public.No public series yet"
 msgstr "아직 공개된 시리즈가 없습니다"
 
 #. js-lingui-explicit-id
+#: src/appearance/quick-search.tsx:78
+msgid "public.No quick search results."
+msgstr "빠른 검색 결과가 없습니다."
+
+#. js-lingui-explicit-id
+#: src/appearance/quick-search.tsx:96
+msgid "public.No recent searches."
+msgstr "최근 검색어가 없습니다."
+
+#. js-lingui-explicit-id
 #: src/routes/search.page.tsx:48
 msgid "public.No results"
 msgstr "검색 결과가 없습니다"
@@ -2980,6 +3017,11 @@ msgstr "표시할 작성 기록이 없습니다."
 #: src/features/discovery/layout.tsx:179
 msgid "public.Notices"
 msgstr "공지"
+
+#. js-lingui-explicit-id
+#: src/appearance/shell.tsx:205
+msgid "public.Notifications"
+msgstr "알림"
 
 #. js-lingui-explicit-id
 #: src/routes/@{$username}/series/$seriesSlug.page.tsx:85
@@ -3114,6 +3156,11 @@ msgid "public.Previous page"
 msgstr "이전 페이지"
 
 #. js-lingui-explicit-id
+#: src/appearance/shell.tsx:81
+msgid "public.Profile"
+msgstr "프로필"
+
+#. js-lingui-explicit-id
 #: src/routes/@{$username}/series/index.page.tsx:123
 msgid "public.Public series will appear here."
 msgstr "시리즈가 공개되면 이곳에 표시됩니다."
@@ -3135,6 +3182,13 @@ msgid "public.Published posts will appear here."
 msgstr "공개된 포스트가 발행되면 이곳에 표시됩니다."
 
 #. js-lingui-explicit-id
+#: src/appearance/quick-search.tsx:78
+#: src/appearance/quick-search.tsx:80
+#: src/appearance/quick-search.tsx:100
+msgid "public.Quick search results"
+msgstr "빠른 검색 결과"
+
+#. js-lingui-explicit-id
 #: src/routes/@{$username}/{$slug}/index.page.tsx:285
 msgid "public.Reading"
 msgstr "읽는 중"
@@ -3153,6 +3207,12 @@ msgstr "최근 기록"
 #: src/features/authors/profile-ui.tsx:71
 msgid "public.Recent posts"
 msgstr "최근 포스트"
+
+#. js-lingui-explicit-id
+#: src/appearance/quick-search.tsx:50
+#: src/appearance/quick-search.tsx:92
+msgid "public.Recent searches"
+msgstr "최근 검색"
 
 #. js-lingui-explicit-id
 #: src/features/authors/profile-ui.tsx:71
@@ -3301,6 +3361,11 @@ msgstr "시리즈 검색"
 #: src/routes/tags.page.tsx:35
 msgid "public.Search tags"
 msgstr "태그 검색"
+
+#. js-lingui-explicit-id
+#: src/appearance/quick-search.tsx:100
+msgid "public.Searching…"
+msgstr "검색 중…"
 
 #. js-lingui-explicit-id
 #: src/routes/@{$username}/{$slug}/index.page.tsx:150
@@ -3504,6 +3569,21 @@ msgid "public.Sign-in failed. (HTTP {value0})"
 msgstr "로그인에 실패했습니다. (HTTP {value0})"
 
 #. js-lingui-explicit-id
+#: src/appearance/shell.tsx:172
+msgid "public.Signed in as"
+msgstr "로그인한 계정"
+
+#. js-lingui-explicit-id
+#: src/appearance/shell.tsx:285
+msgid "public.Site information"
+msgstr "사이트 정보"
+
+#. js-lingui-explicit-id
+#: src/appearance/shell.tsx:239
+msgid "public.Site menu"
+msgstr "사이트 메뉴"
+
+#. js-lingui-explicit-id
 #: src/features/discovery/layout.tsx:138
 msgid "public.Site notice"
 msgstr "사이트 공지"
@@ -3571,6 +3651,17 @@ msgstr "구독 중"
 #: src/features/engagement/ui/telegram-hint.tsx:78
 msgid "public.Subscribed.9afbe521"
 msgstr "구독했어요"
+
+#. js-lingui-explicit-id
+#: src/appearance/shell.tsx:67
+#: src/appearance/site-client.ts:35
+msgid "public.Switch to dark mode"
+msgstr "다크 모드로 전환"
+
+#. js-lingui-explicit-id
+#: src/appearance/site-client.ts:35
+msgid "public.Switch to light mode"
+msgstr "라이트 모드로 전환"
 
 #. js-lingui-explicit-id
 #: src/routes/@{$username}/{$slug}/index.page.tsx:204
@@ -3696,6 +3787,11 @@ msgid "public.Try again"
 msgstr "다시 시도"
 
 #. js-lingui-explicit-id
+#: src/appearance/quick-search.tsx:80
+msgid "public.Try again on the search page."
+msgstr "검색 화면에서 다시 시도해 주세요."
+
+#. js-lingui-explicit-id
 #: src/features/auth/ui/login-form.tsx:142
 msgid "public.Two-factor authentication"
 msgstr "2단계 인증"
@@ -3740,6 +3836,11 @@ msgstr "{value0} 수정됨"
 #: src/features/auth/ui/login-form.tsx:239
 msgid "public.Use a code from your authenticator app or a recovery code. A recovery code works only once and disables two-factor authentication when used."
 msgstr "인증 앱의 코드 또는 복구 코드를 사용할 수 있습니다. 복구 코드는 한 번만 쓸 수 있고, 사용하면 2단계 인증이 해제됩니다."
+
+#. js-lingui-explicit-id
+#: src/appearance/shell.tsx:160
+msgid "public.User menu"
+msgstr "사용자 메뉴"
 
 #. js-lingui-explicit-id
 #: src/features/engagement/ui/comments.tsx:246

@@ -11,8 +11,7 @@ Public pages and client-rendered React screens share the Lingui catalogs. Authen
 | Web screens | `packages/client/src/locales/{locale}/messages.po`; host locale supplied by `packages/server/src/application/screen-host/index.ts` |
 | Reusable editor | `packages/client/src/features/editor/tiptap/TiptapEditor/i18n/locales/{locale}.ts` |
 | System notifications | Message keys, parameters, and text templates in `packages/server/src/features/notifications/model.ts` |
-| Shared header and quick search | Typed `siteText()` messages in `packages/client/src/appearance/messages.ts`, using the supplied document locale |
-| Public SSR and browser UI | `ui()` in `packages/client/src/i18n/public-ui.ts`, extracted into the same PO catalogs by `scripts/public-ui-extractor.mjs` |
+| Public SSR and browser UI, including the shared header, footer, and quick search | `ui()` in `packages/client/src/i18n/public-ui.ts`, extracted into the same PO catalogs by `scripts/public-ui-extractor.mjs` |
 | Server product messages | English sources in `systemMessage()` calls; Korean translations in `packages/server/data/ui-messages.ko.json`; existing API fallback catalog in `data/api-messages.ko.json` |
 | Developer API documentation | Typed English source messages and Korean translations under `features/developer-api/locales/ko.ts` in the client and server; schema metadata is translated on a copy, preserving API names, enums, defaults, and examples |
 
@@ -54,7 +53,7 @@ For the reusable editor, update the translations in its type-checked locale file
 - Add its code to `SUPPORTED_LOCALES` in `packages/client/src/i18n/locale.ts` and its catalog loaders in `src/i18n/index.ts` and `src/i18n/screen-catalog.ts` in the same app.
 - Add and translate the PO catalog. The Lingui configuration derives its locales from `SUPPORTED_LOCALES`.
 - If used by the reusable editor, add its type-checked message catalog and loader as described in the editor README.
-- Register the locale and its messages in the typed shared-header and Developer API catalogs as well.
+- Register the locale and its messages in the typed Developer API catalogs as well.
 - Update the server's supported languages and release gate in `packages/server/src/platform/locale.ts`, and add any affected message templates. Adding a browser catalog alone does not add server support.
 - Verify the affected SSR pages, web screens, notifications, and editor before making the language available to users.
 

@@ -341,7 +341,7 @@ export function DeveloperQuickstartPage({ data }: { data: DeveloperQuickstartDat
             <main className="min-h-[calc(100vh-10.5rem)]">
                 <DeveloperQuickstart locale={data.locale} commands={data.commands} siteOrigin={data.siteOrigin} />
             </main>
-            <SiteFooter brand={data.brand} locale={data.locale} year={data.copyrightYear} />
+            <SiteFooter brand={data.brand} year={data.copyrightYear} />
         </>
     );
 }
