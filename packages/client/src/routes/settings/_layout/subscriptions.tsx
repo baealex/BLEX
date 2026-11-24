@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { lazyPage } from '~/features/settings/lazy-page';
+import { lazy } from 'react';
 
 export const Route = createFileRoute('/settings/_layout/subscriptions')({
-    component: lazyPage(() => import('~/features/settings/subscriptions'))
+    component: lazy(() => import('~/features/settings/subscriptions'))
 });

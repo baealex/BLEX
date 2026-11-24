@@ -7,6 +7,7 @@ import './site.scss';
 import { loadAboutEditors } from '../features/authors/about-editor-loader';
 import { escapeAction } from './quick-search-escape';
 import { rememberSearch } from './recent-searches';
+import { THEME_COOKIE_KEY, writeThemePreferenceCookie } from './theme-cookie';
 
 const root = document.documentElement;
 const systemTheme = matchMedia('(prefers-color-scheme: dark)');
@@ -26,7 +27,7 @@ function readCookie(key: string): string {
     }
 }
 
-function setTheme(preference = readCookie('blex_theme'), updateControls = hydrated) {
+function setTheme(preference = readCookie(THEME_COOKIE_KEY), updateControls = hydrated) {
     const mode = preference === 'dark' || preference === 'light' ? preference : 'system';
     const dark = mode === 'dark' || (mode === 'system' && systemTheme.matches);
     const theme = dark ? 'dark' : 'light';
@@ -71,7 +72,7 @@ function bindThemeButtons() {
         themeButtons.add(button);
         button.addEventListener('click', () => {
             const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
-            document.cookie = `blex_theme=${next}; Path=/; Max-Age=31536000; SameSite=Lax${location.protocol === 'https:' ? '; Secure' : ''}`;
+            writeThemePreferenceCookie(next);
             setTheme(next);
         });
     }

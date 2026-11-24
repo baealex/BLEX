@@ -1,9 +1,9 @@
-import type { ReactNode, ButtonHTMLAttributes } from 'react';
+import type { ReactNode, ComponentPropsWithRef } from 'react';
 import { Loader2 } from './icons';
 import { cx } from '../lib/classnames';
 import { INTERACTION_DURATION } from '../lib/designTokens';
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends ComponentPropsWithRef<'button'> {
     variant?: 'primary' | 'secondary' | 'danger' | 'danger-solid' | 'ghost';
     size?: 'sm' | 'md' | 'lg';
     density?: 'default' | 'compact';

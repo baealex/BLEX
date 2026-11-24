@@ -307,35 +307,35 @@ const ColumnsFloatingMenu = ({ editor }: ColumnsFloatingMenuProps) => {
 };
 
 const LayoutPreview = ({ layout, active }: { layout: ColumnLayout; active: boolean }) => {
-    const getColumns = () => {
+    const getColumns = (): Record<string, number> => {
         switch (layout) {
             case '1:1':
-                return [1, 1];
+                return { left: 1, right: 1 };
             case '1:2':
-                return [1, 2];
+                return { left: 1, right: 2 };
             case '2:1':
-                return [2, 1];
+                return { left: 2, right: 1 };
             case '1:1:1':
-                return [1, 1, 1];
+                return { left: 1, middle: 1, right: 1 };
             case '1:2:1':
-                return [1, 2, 1];
+                return { left: 1, middle: 2, right: 1 };
             case '2:1:1':
-                return [2, 1, 1];
+                return { left: 2, middle: 1, right: 1 };
             case '1:1:2':
-                return [1, 1, 2];
+                return { left: 1, middle: 1, right: 2 };
             default:
-                return [1, 1];
+                return { left: 1, right: 1 };
         }
     };
 
-    const columns = getColumns();
-    const total = columns.reduce((a, b) => a + b, 0);
+    const columns = Object.entries(getColumns());
+    const total = columns.reduce((sum, [, ratio]) => sum + ratio, 0);
 
     return (
         <div className="flex gap-0.5 h-3">
-            {columns.map((ratio, i) => (
+            {columns.map(([position, ratio]) => (
                 <div
-                    key={i}
+                    key={position}
                     className={`h-full rounded-sm ${active ? 'bg-white/60' : 'bg-gray-400'}`}
                     style={{ width: `${(ratio / total) * 24}px` }}
                 />

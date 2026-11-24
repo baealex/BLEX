@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { lazyPage } from '~/features/settings/lazy-page';
+import { lazy } from 'react';
 
 export const Route = createFileRoute('/admin-settings/_layout/global-notices')({
-    component: lazyPage(() => import('~/features/settings/global-notices'))
+    component: lazy(() => import('~/features/settings/global-notices'))
 });

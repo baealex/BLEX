@@ -1,11 +1,11 @@
-export type ThemePreference = 'light' | 'dark' | 'system';
+import { THEME_COOKIE_KEY, writeThemePreferenceCookie, type ThemePreference } from '../appearance/theme-cookie';
+
+export { THEME_COOKIE_KEY, type ThemePreference } from '../appearance/theme-cookie';
 export type ResolvedTheme = 'light' | 'dark';
 
-export const THEME_COOKIE_KEY = 'blex_theme';
 export const THEME_CHANGE_EVENT = 'blex:theme-change';
 
 const SYSTEM_DARK_MEDIA_QUERY = '(prefers-color-scheme: dark)';
-const THEME_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
 const VALID_PREFERENCES: ThemePreference[] = ['light', 'dark', 'system'];
 
 interface ThemeChangeDetail {
@@ -48,17 +48,6 @@ const getThemePreferenceFromCookie = (): ThemePreference | null => {
     }
 
     return null;
-};
-
-const writeThemePreferenceCookie = (preference: ThemePreference) => {
-    const secureAttribute = window.location.protocol === 'https:' ? '; Secure' : '';
-
-    if (preference === 'system') {
-        document.cookie = `${THEME_COOKIE_KEY}=; Max-Age=0; Path=/; SameSite=Lax${secureAttribute}`;
-        return;
-    }
-
-    document.cookie = `${THEME_COOKIE_KEY}=${encodeURIComponent(preference)}; Max-Age=${THEME_COOKIE_MAX_AGE_SECONDS}; Path=/; SameSite=Lax${secureAttribute}`;
 };
 
 const getSystemTheme = (): ResolvedTheme => {

@@ -1,4 +1,4 @@
-import { type ReactNode, useCallback, useEffect, useState } from 'react';
+import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { formatPublishedDate } from '~/i18n/formatters';
 import { normalizeLocale } from '~/i18n/locale';
@@ -147,6 +147,7 @@ const getVisiblePages = (currentPage: number, lastPage: number) => {
 const SearchPage = ({ username }: SearchPageProps) => {
     const { i18n, t } = useLingui();
     const locale = normalizeLocale(i18n.locale);
+    const inputRef = useRef<HTMLInputElement>(null);
     const [queryInput, setQueryInput] = useState('');
     const [activeQuery, setActiveQuery] = useState('');
     const [usernameFilter, setUsernameFilter] = useState((username ?? '').trim());
@@ -296,6 +297,7 @@ const SearchPage = ({ username }: SearchPageProps) => {
         setErrorMessage(null);
         setHasSearched(false);
         pushSearchUrl('', 1, usernameFilter);
+        inputRef.current?.focus({ preventScroll: true });
     };
 
     const handlePageChange = (nextPage: number) => {
@@ -382,6 +384,8 @@ const SearchPage = ({ username }: SearchPageProps) => {
                             <InlineIcon icon={SearchIcon} className="text-sm text-content-hint" />
                         )}
                         <input
+                            id="search-query"
+                            ref={inputRef}
                             type="text"
                             value={queryInput}
                             onChange={(event) => setQueryInput(event.target.value)}
@@ -395,7 +399,6 @@ const SearchPage = ({ username }: SearchPageProps) => {
                             })}
                             className="flex-1 bg-transparent text-sm text-content placeholder-content-hint focus:outline-none"
                             autoComplete="off"
-                            autoFocus={!parseSearchParams().query}
                         />
                         {queryInput && (
                             <button

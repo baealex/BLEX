@@ -72,6 +72,10 @@ The test creates the first administrator account, then checks signing out, signi
 
 The writing journey saves a draft with inline and cover images, reloads it, publishes it, recovers unsaved edits after a reload, updates the published post, and moves it to the trash and back. It also delays a real autosave request and verifies that edits typed while it is pending are subsequently saved. The checks cover mobile and desktop widths and reopen saved states to verify the content and images. These requests use the real server and database. `BLEX_SMOKE_URL` overrides the default `http://127.0.0.1:8040` target for `pnpm test:smoke`.
 
+Settings list checks create real series, verify that Space activates a list item on key release, reorder through a separate keyboard drag handle, and open the edit menu at a mobile width. The list title remains available as a heading.
+
+Focus checks cover adding tags, returning to the add button with Escape, leaving an empty tag field, and clearing a search. Entering search and moving backward or forward through search history must not grab input focus. Theme checks preserve the preference between public pages and settings after reload, and follow the system when the cookie is absent. Cookie policy tests cover the one-year lifetime, site-wide path, SameSite setting, HTTPS-only Secure attribute, and deletion for the system preference.
+
 ## Migrations and CI
 
 Verify schema changes on an empty SQLite database and a copy prepared with the [upgrade guide](UPGRADE_FROM_3.md). Cover constraint changes with representative data, including invalid duplicates where relevant. Until 4.0 ships, `0001_init` must match the output of the regeneration command in the [Backend Guide](BACKEND_GUIDE.md#database-changes).

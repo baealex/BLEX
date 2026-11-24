@@ -1,4 +1,4 @@
-import type { KeyboardEvent, ReactNode } from 'react';
+import { useId, type ReactNode } from 'react';
 import { useLingui } from '@lingui/react/macro';
 import type { DraggableAttributes } from '@dnd-kit/core';
 import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
@@ -28,15 +28,7 @@ interface SettingsListItemProps {
 
 const SettingsListItem = ({ onClick, className, dragHandleProps, left, actions, children }: SettingsListItemProps) => {
     const { t } = useLingui();
-
-    const handleContentKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-        if (!onClick) return;
-
-        if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault();
-            onClick();
-        }
-    };
+    const contentId = useId();
 
     return (
         <div className={`${LIST_ITEM_SHELL}${onClick ? ' hover:ring-line' : ''}`}>
@@ -63,15 +55,17 @@ const SettingsListItem = ({ onClick, className, dragHandleProps, left, actions, 
                     )}
 
                     {onClick ? (
-                        <div
-                            role="button"
-                            tabIndex={0}
-                            className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-line-strong"
-                            onClick={onClick}
-                            onKeyDown={handleContentKeyDown}
-                        >
+                        <div className="relative flex min-w-0 flex-1 items-center gap-3 rounded-lg text-left">
+                            <button
+                                type="button"
+                                aria-labelledby={contentId}
+                                className="absolute inset-0 z-10 w-full cursor-pointer rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-line-strong"
+                                onClick={onClick}
+                            />
                             {left}
-                            <div className="min-w-0 flex-1">{children}</div>
+                            <div id={contentId} className="min-w-0 flex-1">
+                                {children}
+                            </div>
                         </div>
                     ) : (
                         <>
