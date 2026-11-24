@@ -68,6 +68,8 @@ test('the sign-in page hydrates from its model fields alone', async () => {
         url,
       );
       assert.doesNotMatch(body, /client_id_marker|client_secret_marker/, url);
+      // A form posted before its code loads still returns to this path.
+      assert.ok(body.includes(`<input type="hidden" name="next" value="${next}"/>`), url);
       // The form hydrates in the application root, not in a root of its own.
       assert.doesNotMatch(body, /id="blex-login"|data-model=|data-blex-page-module/, url);
       assert.match(body, /<\/div><\/div><script type="application\/json" id="blex-login-page-data">/, url);

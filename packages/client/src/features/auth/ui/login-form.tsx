@@ -199,6 +199,8 @@ export function LoginForm({ model }: LoginFormProps) {
                     aria-busy={isSubmitting}
                 >
                     <input type="hidden" name="csrfmiddlewaretoken" value={model.csrfToken} />
+                    {/* Only a native post, sent when this code has not loaded, reads it. */}
+                    <input type="hidden" name="next" value={model.next} />
 
                     {isOAuthChallenge ? (
                         <>
