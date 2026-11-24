@@ -1,3 +1,4 @@
+import type { MultipartFile } from '@fastify/multipart';
 import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyRequest } from 'fastify';
 import type { WorkLogEntryView, WorkLogView } from '@blex/contracts/work-logs';
@@ -113,6 +114,13 @@ export async function readEntry(
     select: entrySelect,
   });
   return entry ? toEntryRow(entry) : null;
+}
+
+/** Sets a file part's body value; the multipart plugin reads `value` before the buffered bytes. */
+export async function readAttachmentPart(part: MultipartFile & { value?: Buffer | null }): Promise<void> {
+  const data = await part.toBuffer();
+  // A file input left empty still sends a part with no filename and no bytes, which is not an attachment.
+  part.value = part.filename || data.length ? data : null;
 }
 
 export async function readEntryInput(request: FastifyRequest): Promise<EntryInput> {

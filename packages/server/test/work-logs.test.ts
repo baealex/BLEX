@@ -123,14 +123,19 @@ function form(fields: Array<[string, string]>) {
   return new URLSearchParams(fields).toString();
 }
 
-function multipart(fields: Array<[string, string]>, file: Buffer, boundary = 'work-log-boundary') {
+function multipart(
+  fields: Array<[string, string]>,
+  file: Buffer,
+  filename = 'upload.bin',
+  boundary = 'work-log-boundary',
+) {
   const parts: Buffer[] = [];
   for (const [name, value] of fields) {
     parts.push(Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="${name}"\r\n\r\n${value}\r\n`));
   }
   parts.push(
     Buffer.from(
-      `--${boundary}\r\nContent-Disposition: form-data; name="attachment"; filename="upload.bin"\r\nContent-Type: application/octet-stream\r\n\r\n`,
+      `--${boundary}\r\nContent-Disposition: form-data; name="attachment"; filename="${filename}"\r\nContent-Type: application/octet-stream\r\n\r\n`,
     ),
   );
   parts.push(file);
@@ -505,6 +510,74 @@ test('validates images before storing uploads and rolls back files when database
   const cleanup = new DatabaseSync(databasePath);
   cleanup.exec('DROP TRIGGER reject_orphan_proof');
   cleanup.close();
+});
+
+test('saves text entries when the form sends an unused file input as an empty part', async () => {
+  // Browsers send a file input left empty as a part with no filename and no bytes.
+  const postEntry = (fields: Array<[string, string]>, file: Buffer, filename: string) => {
+    const body = multipart([['csrfmiddlewaretoken', csrfToken], ...fields], file, filename);
+    return app.inject({
+      method: 'POST',
+      url: '/work-logs/1/entry/',
+      headers: { ...headers(1), 'content-type': body.contentType },
+      payload: body.payload,
+    });
+  };
+
+  const textOnly = await postEntry(
+    [
+      ['title', 'Text only'],
+      ['text', 'Saved without a file.'],
+    ],
+    Buffer.alloc(0),
+    '',
+  );
+  assert.equal(textOnly.statusCode, 302, textOnly.body);
+  assert.deepEqual(
+    await prisma.workLogEntry.findMany({
+      where: { logId: 1, title: 'Text only' },
+      select: { text: true, mediaType: true, attachment: true },
+    }),
+    [{ text: 'Saved without a file.', mediaType: '', attachment: '' }],
+  );
+  assert.deepEqual(await listFiles(join(mediaRoot, '_work_logs')), [privateFileName]);
+
+  const blank = await postEntry(
+    [
+      ['title', ''],
+      ['text', ''],
+    ],
+    Buffer.alloc(0),
+    '',
+  );
+  assert.equal(blank.statusCode, 200, blank.body);
+  assert.match(blank.body, /메모를 작성하거나 파일을 첨부해 주세요/);
+
+  const namedEmptyFile = await postEntry(
+    [
+      ['title', 'Empty upload'],
+      ['text', 'Kept for another try.'],
+    ],
+    Buffer.alloc(0),
+    'empty.png',
+  );
+  assert.equal(namedEmptyFile.statusCode, 200, namedEmptyFile.body);
+  assert.match(namedEmptyFile.body, /12MB 이하의 파일을 첨부해 주세요/);
+  assert.match(namedEmptyFile.body, /Kept for another try\./);
+
+  const unnamedFile = await postEntry(
+    [
+      ['title', 'Unnamed upload'],
+      ['text', ''],
+    ],
+    Buffer.from('<script>not an image</script>'),
+    '',
+  );
+  assert.equal(unnamedFile.statusCode, 200, unnamedFile.body);
+  assert.match(unnamedFile.body, /PNG, JPEG, WebP, MP4, WebM 파일을 선택해 주세요/);
+
+  assert.equal(await prisma.workLogEntry.count({ where: { logId: 1 } }), 4);
+  assert.deepEqual(await listFiles(join(mediaRoot, '_work_logs')), [privateFileName]);
 });
 
 test('deleting an entry removes its media and closes emptied snapshots; deleting a log removes remaining files', async () => {
