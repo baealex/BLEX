@@ -7,6 +7,7 @@ import {
     createRootRoute,
     createRoute,
     createRouter,
+    type HistoryLocation,
     type RouterHistory
 } from '@tanstack/react-router';
 import { type ReactNode, use, useLayoutEffect, useState } from 'react';
@@ -575,7 +576,8 @@ async function loadApplicationDocument({
         // The address bar already shows the requested URL, so the redirect target takes over its history entry.
         stagedDocuments.set(pageRequestKey(redirected), page);
         abortController.abort();
-        visit(redirected.pathname + redirected.search + redirected.hash, true);
+        // Any leave warning already allowed this move, and asking again would let the aborted load finish first.
+        visit(redirected.pathname + redirected.search + redirected.hash, true, true);
         throw new DOMException('Navigation was redirected.', 'AbortError');
     }
 
@@ -595,11 +597,11 @@ function beginPageChange(to: string): void {
 }
 
 // History paths go in directly because a router destination would read a `$` segment as a route parameter.
-function visit(path: string, replace = false): void {
+function visit(path: string, replace = false, ignoreBlocker = false): void {
     visitingFromApplication = true;
     try {
-        if (replace) router?.history.replace(path);
-        else router?.history.push(path);
+        if (replace) router?.history.replace(path, undefined, { ignoreBlocker });
+        else router?.history.push(path, undefined, { ignoreBlocker });
     } finally {
         visitingFromApplication = false;
     }
@@ -609,14 +611,18 @@ function screenScope(pathname: string): string | null {
     if (/^\/(?:settings|admin-settings)(?:\/|$)/.test(pathname)) return 'settings';
     if (/^\/search\/?$/.test(pathname)) return 'search';
     if (/^\/sign\/?$/.test(pathname)) return 'sign';
+    if (/^\/write\/?$/.test(pathname) || /^\/@[^/]+\/[^/]+\/edit\/?$/.test(pathname)) return 'editor';
     return null;
 }
 
 // Settings owns its own routes. Search and signup only own the URL changes they make themselves.
-function staysInActiveScreen(pathname: string): boolean {
+// The editor owns only its history entry: it records a draft there, and its leave warning can keep back or forward there.
+// Visits wait for that warning, so they are told apart by the new entry each one makes.
+function staysInActiveScreen({ pathname, state }: HistoryLocation): boolean {
     if (!currentDocument?.screen) return false;
     const scope = screenScope(pathname);
     if (!scope || scope !== screenScope(new URL(currentDocument.url).pathname)) return false;
+    if (scope === 'editor') return state.__TSR_key === currentHistoryKey;
     return scope === 'settings' || !visitingFromApplication;
 }
 
@@ -775,8 +781,7 @@ const excludedFileExtension =
 function isInternalApplicationUrl(url: URL): boolean {
     if (url.origin !== window.location.origin || !['http:', 'https:'].includes(url.protocol)) return false;
     if (/^\/(?:assets|resources|images|media|api|docs)(?:\/|$)/i.test(url.pathname)) return false;
-    if (/^\/write\/?$/i.test(url.pathname) || /^\/@[^/]+\/[^/]+\/(?:edit|timelapse)\/?$/i.test(url.pathname))
-        return false;
+    if (/^\/@[^/]+\/[^/]+\/timelapse\/?$/i.test(url.pathname)) return false;
     if (excludedFileExtension.test(url.pathname)) return false;
     if (/^\/login\/(?:start|callback)(?:\/|$)/i.test(url.pathname) || /^\/oauth(?:\/|$)/i.test(url.pathname))
         return false;
@@ -809,7 +814,8 @@ function handleDocumentClick(event: MouseEvent): void {
     const target = event.target;
     if (!(target instanceof Element)) return;
     const anchor = target.closest<HTMLAnchorElement>('a[href]');
-    if (!anchor) return;
+    // A click in editable text places the caret, and browsers do not follow links there.
+    if (!anchor || anchor.isContentEditable) return;
     if (openLoginPromptFrom(anchor)) {
         event.preventDefault();
         return;
@@ -834,6 +840,13 @@ function handleDocumentClick(event: MouseEvent): void {
     event.preventDefault();
     saveCurrentPosition();
     visit(`${destination.pathname}${destination.search}${destination.hash}`);
+}
+
+/** True while a screen would ask before the page unloads, such as an editor with unsaved changes. */
+function warnsBeforeLeaving(): boolean {
+    return (router?.history._getBlockers() ?? []).some(({ enableBeforeUnload = true }) =>
+        typeof enableBeforeUnload === 'function' ? enableBeforeUnload() : enableBeforeUnload
+    );
 }
 
 function formHasTarget(form: HTMLFormElement, submitter: HTMLElement | null): boolean {
@@ -867,6 +880,8 @@ function handleDocumentSubmit(event: SubmitEvent): void {
     if (!isInternalApplicationUrl(destination)) return;
 
     if (method === 'post') {
+        // A post takes effect before any page change a screen could block, so the browser's unload warning asks first.
+        if (warnsBeforeLeaving()) return;
         if (enctype !== 'application/x-www-form-urlencoded' && enctype !== 'multipart/form-data') return;
         const data = formPostData(form, submitter);
         if (
@@ -1508,10 +1523,11 @@ if (appRoot && initialDocument) {
             // Most page bodies are server HTML, so this router owns history and loading while React renders one stable frame.
             appRouter.history.subscribe(({ location, action }) => {
                 navigationType = action.type === 'PUSH' || action.type === 'REPLACE' ? action.type : 'POP';
-                if (!appRouter.state.isLoading && staysInActiveScreen(location.pathname)) {
+                if (!appRouter.state.isLoading && staysInActiveScreen(location)) {
                     saveCurrentPosition();
                     queueMicrotask(() => {
-                        currentHistoryKey = browserHistoryKey();
+                        // A blocked back or forward reports the entry it returns to before the browser gets there.
+                        currentHistoryKey = location.state.__TSR_key ?? browserHistoryKey();
                     });
                     return;
                 }
