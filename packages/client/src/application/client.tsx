@@ -23,6 +23,7 @@ import {
     postBodySelector,
     postManagementPageDataSelector,
     postPageDataSelector,
+    screenPageDataSelector,
     workLogPageDataSelector
 } from './route-data.js';
 import type { SiteHeaderProps } from '../appearance/shell.js';
@@ -78,7 +79,6 @@ interface ApplicationDocument {
     url: string;
     head: PageHead;
     bodyAttributes: Array<[string, string]>;
-    pageModules: Array<{ name: 'editor' | 'screen'; source: string }>;
     needsHcaptcha: boolean;
     screen: ScreenData | null;
     treePage: TreePage | null;
@@ -106,6 +106,10 @@ interface TreePage {
     keepsServerMarkup: boolean;
     /** Runs when the page's code failed and its server markup stays on screen. */
     onLoadFailed?: () => void;
+    /** The server sent only a placeholder, so the page renders on the client, however late its code arrives. */
+    rendersOnClient: boolean;
+    /** Runs once the page's language is active, right before its content first shows. */
+    beforeShow?: () => Promise<void>;
 }
 
 interface PageChangeDetail {
@@ -124,7 +128,7 @@ const routeHeadAttribute = 'data-blex-route-head';
 const scrollStoragePrefix = 'blex-route-position:';
 let currentDocument: ApplicationDocument | null = null;
 let currentPageCleanup: (() => void) | null = null;
-let pageModuleGeneration = 0;
+let routeFeatureGeneration = 0;
 let currentHistoryKey = 'default';
 let hasCommittedInitialDocument = false;
 let router: ApplicationRouter | null = null;
@@ -137,6 +141,7 @@ let authorRevision = 0;
 let workLogRevision = 0;
 let authFormRevision = 0;
 let postManagementRevision = 0;
+let screenRevision = 0;
 let markShellHydrated = () => {};
 let failShellHydration: (error: unknown) => void = () => {};
 const shellHydrated = new Promise<void>((resolve, reject) => {
@@ -272,26 +277,8 @@ function hasTrustedHcaptchaScript(source: Document, pageUrl: URL): boolean {
     });
 }
 
-function pageModuleSources(source: Document): ApplicationDocument['pageModules'] {
-    return Array.from(source.querySelectorAll<HTMLScriptElement>('script[data-blex-page-module]'))
-        .map((script): ApplicationDocument['pageModules'][number] | null => {
-            const name = script.dataset.blexPageModule;
-            const src = script.getAttribute('src');
-            if ((name !== 'editor' && name !== 'screen') || !src) return null;
-            return {
-                name,
-                source: src
-            };
-        })
-        .filter((entry): entry is ApplicationDocument['pageModules'][number] => entry !== null);
-}
-
 function bodyAttributes(source: Document): Array<[string, string]> {
     return source.body ? attributesOf(source.body) : [];
-}
-
-function readScriptJson(source: Document, id: string): unknown {
-    return parseElementJson(source.getElementById(id));
 }
 
 function parseElementJson(element: Element | null): unknown {
@@ -302,15 +289,6 @@ function parseElementJson(element: Element | null): unknown {
     } catch {
         return undefined;
     }
-}
-
-function readScreenData(source: Document, content: Element): ScreenData | null {
-    if (!content.querySelector('[data-screen]')) return null;
-    const globals = readScriptJson(source, 'blex-screen-globals');
-    return {
-        configuration: readScriptJson(source, 'blex-screen-config'),
-        globals: isRecord(globals) ? globals : {}
-    };
 }
 
 function applyScreenData(screen: ScreenData | null): void {
@@ -328,9 +306,48 @@ function applyScreenData(screen: ScreenData | null): void {
 function createTreePage(
     key: string,
     load: TreePage['load'],
-    { keepsServerMarkup = false, onLoadFailed }: Partial<Pick<TreePage, 'keepsServerMarkup' | 'onLoadFailed'>> = {}
+    {
+        keepsServerMarkup = false,
+        onLoadFailed,
+        rendersOnClient = false,
+        beforeShow
+    }: Partial<Omit<TreePage, 'key' | 'load'>> = {}
 ): TreePage {
-    return { key, load, keepsServerMarkup, onLoadFailed };
+    let loading: Promise<ReactNode> | undefined;
+    // A page that renders on the client keeps waiting for the load a navigation started.
+    return { key, load: () => (loading ??= load()), keepsServerMarkup, onLoadFailed, rendersOnClient, beforeShow };
+}
+
+const loadScreenRuntime = () =>
+    import('../screen-runtime').catch((error: unknown) => {
+        // A tab opened before a deploy asks for files that are gone, so it takes the reload a missing catalog starts.
+        document.dispatchEvent(new Event('blex:catalog-failed'));
+        throw error;
+    });
+
+/**
+ * Settings, search, sign-up, and the editor render on the client from their data, in place of a loading status.
+ * The screen runtime checks that data, so a page whose data is broken shows the screen's error instead of loading.
+ */
+function readScreenPage(source: Document, pageUrl: URL): { screen: ScreenData; treePage: TreePage } | null {
+    const element = source.querySelector(screenPageDataSelector);
+    if (!element) return null;
+    const value = parseElementJson(element);
+    const data = isRecord(value) ? value : {};
+    const locale = normalizeLocale(source.documentElement.lang);
+    screenRevision += 1;
+    return {
+        screen: { configuration: data.configuration, globals: isRecord(data.globals) ? data.globals : {} },
+        treePage: createTreePage(
+            `screen:${pageRequestKey(pageUrl)}:${screenRevision}`,
+            () => loadScreenRuntime().then(({ loadScreen }) => loadScreen(value, locale)),
+            {
+                rendersOnClient: true,
+                // The previous page can be in another language, so the screen's messages are added once this one's is active.
+                beforeShow: () => loadScreenRuntime().then(({ activateScreenLocale }) => activateScreenLocale(locale))
+            }
+        )
+    };
 }
 
 function readPostPage(source: Document, content: Element): TreePage | null {
@@ -511,6 +528,11 @@ function hydrateTreePageWhenLoaded(page: ApplicationDocument): void {
     const { treePage } = page;
     if (!treePage) return;
     const request = treePage.load();
+    // The placeholder hydrates as it is, and the page replaces it once the shell commits.
+    if (treePage.rendersOnClient) {
+        request.catch(() => undefined);
+        return;
+    }
     // A rejection must not reach React, which would discard the readable server markup.
     const loading = request.catch(() => new Promise<ReactNode>(() => {}));
     page.view = {
@@ -533,14 +555,18 @@ function hydrateTreePageWhenLoaded(page: ApplicationDocument): void {
     });
 }
 
-/** After a navigation, a page that cannot load in time stays as server markup and ignores its late code. */
+/**
+ * After a navigation, a page that cannot load in time stays as server markup and ignores its late code.
+ * A page that renders on the client shows its placeholder instead, until the code arrives.
+ */
 async function prepareTreeContent(page: ApplicationDocument): Promise<void> {
     const { treePage } = page;
     if (!treePage || page.view.content !== undefined) return;
     let timer: number | undefined;
     const content = await Promise.race([
         treePage.load().catch((error: unknown) => {
-            console.error('The page could not be loaded.', error);
+            // A page that renders on the client reports its failure once it commits.
+            if (!treePage.rendersOnClient) console.error('The page could not be loaded.', error);
             return null;
         }),
         new Promise<null>((resolve) => {
@@ -569,8 +595,9 @@ function readApplicationDocument(source: Document, url: string): ApplicationDocu
     } catch {
         return null;
     }
-    const screen = readScreenData(source, content);
+    const screenPage = readScreenPage(source, pageUrl);
     const treePage =
+        screenPage?.treePage ??
         readPostPage(source, content) ??
         readDiscoveryPage(source, pageUrl) ??
         readAuthorPage(source, content, pageUrl) ??
@@ -583,14 +610,13 @@ function readApplicationDocument(source: Document, url: string): ApplicationDocu
         view: {
             header,
             html: content.innerHTML,
-            contentKey: treePage?.key ?? (screen ? pageRequestKey(pageUrl) : undefined)
+            contentKey: treePage?.key
         },
         url: pageUrl.href,
         head: collectHead(source, pageUrl),
         bodyAttributes: bodyAttributes(source),
-        pageModules: pageModuleSources(source),
         needsHcaptcha: hasTrustedHcaptchaScript(source, pageUrl),
-        screen,
+        screen: screenPage?.screen ?? null,
         treePage
     };
 }
@@ -1266,6 +1292,10 @@ function restorePagePosition(type: PageChangeDetail['navigationType'], locationK
         top: 0,
         behavior: 'instant'
     });
+    focusPageHeading();
+}
+
+function focusPageHeading(): void {
     const heading = document.querySelector<HTMLElement>(
         '#blex-route-content h1, #blex-route-content [data-page-title], #blex-route-content main'
     );
@@ -1285,7 +1315,7 @@ function focusWithoutScroll(element: HTMLElement): void {
 }
 
 function disposeActivePage(): void {
-    pageModuleGeneration += 1;
+    routeFeatureGeneration += 1;
     for (const controller of activePostRequests) controller.abort();
     activePostRequests.clear();
     const cleanup = currentPageCleanup;
@@ -1293,50 +1323,8 @@ function disposeActivePage(): void {
     try {
         cleanup?.();
     } catch (error) {
-        console.error('A BLEX page module failed to clean up.', error);
+        console.error('A BLEX page feature failed to clean up.', error);
     }
-}
-
-function permittedPageModuleUrl(module: ApplicationDocument['pageModules'][number], pageUrl: string): URL | null {
-    let url: URL;
-    try {
-        url = new URL(module.source, pageUrl);
-    } catch {
-        return null;
-    }
-    if (url.origin !== window.location.origin || !['http:', 'https:'].includes(url.protocol) || url.search || url.hash)
-        return null;
-    const alias = url.pathname === '/assets/blex/' + module.name + '.js';
-    const manifestAsset = !url.pathname.includes('..') && /^\/assets\/ui\/[A-Za-z0-9._/-]+\.m?js$/i.test(url.pathname);
-    return alias || manifestAsset ? url : null;
-}
-
-async function mountPageModules(
-    page: ApplicationDocument,
-    content: ParentNode,
-    generation: number
-): Promise<(() => void) | null> {
-    const cleanups: Array<() => void> = [];
-    for (const source of page.pageModules) {
-        const url = permittedPageModuleUrl(source, page.url);
-        if (!url) continue;
-        try {
-            const module = (await import(/* @vite-ignore */ url.href)) as {
-                mountPage?: (scope: ParentNode) => undefined | (() => void);
-            };
-            if (generation !== pageModuleGeneration) break;
-            if (typeof module.mountPage !== 'function') continue;
-            const cleanup = module.mountPage(content);
-            if (typeof cleanup === 'function') cleanups.push(cleanup);
-        } catch (error) {
-            if (generation === pageModuleGeneration) console.error('A BLEX page module could not be mounted.', error);
-        }
-    }
-    if (generation !== pageModuleGeneration) {
-        cleanupAll(cleanups);
-        return null;
-    }
-    return cleanups.length ? () => cleanupAll(cleanups) : null;
 }
 
 interface HcaptchaApi {
@@ -1414,7 +1402,7 @@ async function mountHcaptcha(
 ): Promise<(() => void) | null> {
     if (!page.needsHcaptcha) return null;
     const api = await loadHcaptchaApi();
-    if (generation !== pageModuleGeneration || currentDocument !== page) return null;
+    if (generation !== routeFeatureGeneration || currentDocument !== page) return null;
     const mounted: Array<{ element: HTMLElement; widgetId: string }> = [];
     for (const element of content.querySelectorAll<HTMLElement>('[data-blex-hcaptcha-widget]')) {
         if (element.dataset.hcaptchaWidgetId || element.querySelector('iframe')) continue;
@@ -1444,39 +1432,43 @@ async function mountHcaptcha(
     };
 }
 
-function cleanupAll(cleanups: Array<() => void>): void {
-    for (const cleanup of cleanups.reverse()) {
-        try {
-            cleanup();
-        } catch (error) {
-            console.error('A BLEX page module failed to clean up.', error);
-        }
-    }
-}
-
 async function activateRouteFeatures(
     page: ApplicationDocument,
     content: ParentNode,
     generation: number
 ): Promise<(() => void) | null> {
-    const cleanups: Array<() => void> = [];
-    const moduleCleanup = await mountPageModules(page, content, generation);
-    if (moduleCleanup) cleanups.push(moduleCleanup);
-    if (generation !== pageModuleGeneration || currentDocument !== page) {
-        cleanupAll(cleanups);
-        return null;
-    }
     try {
-        const captchaCleanup = await mountHcaptcha(page, content, generation);
-        if (captchaCleanup) cleanups.push(captchaCleanup);
+        return await mountHcaptcha(page, content, generation);
     } catch (error) {
-        if (generation === pageModuleGeneration) console.error('The hCaptcha widget could not be initialized.', error);
-    }
-    if (generation !== pageModuleGeneration || currentDocument !== page) {
-        cleanupAll(cleanups);
+        if (generation === routeFeatureGeneration)
+            console.error('The hCaptcha widget could not be initialized.', error);
         return null;
     }
-    return cleanups.length ? () => cleanupAll(cleanups) : null;
+}
+
+/** A page that renders on the client replaces its placeholder whenever its code arrives. */
+function showWhenLoaded(page: ApplicationDocument, treePage: TreePage): void {
+    void treePage
+        .load()
+        .then(async (content) => {
+            // Only a screen whose messages failed to load fails here, and its content is then the error, which needs none.
+            await treePage.beforeShow?.().catch(() => undefined);
+            if (currentDocument !== page || page.view.content !== undefined) return;
+            page.view = {
+                ...page.view,
+                html: '',
+                content
+            };
+            const routeContent = document.getElementById('blex-route-content');
+            const hadFocus = routeContent?.contains(document.activeElement) ?? false;
+            flushSync(() => showApplicationPage?.(page.view));
+            // The placeholder that held focus is gone, so the page heading takes it as after a move.
+            if (hadFocus && !document.getElementById('blex-route-content')?.contains(document.activeElement))
+                focusPageHeading();
+        })
+        .catch((error: unknown) => {
+            if (currentDocument === page) console.error('The page could not be loaded.', error);
+        });
 }
 
 function browserHistoryKey(): string {
@@ -1499,17 +1491,20 @@ function commitApplicationPage(page: ApplicationDocument, hash: string): void {
     const changeType = navigationType;
     currentDocument = page;
     currentHistoryKey = key;
-    applyScreenData(page.screen);
     // Screens fill in after they mount, so the browser restores their scroll within the same document.
     history.scrollRestoration = page.screen ? 'auto' : 'manual';
     applyDocumentState(page, initial);
     const content = document.getElementById('blex-route-content');
     if (content) {
-        if (page.treePage && page.view.content === undefined) page.treePage.onLoadFailed?.();
+        const { treePage } = page;
+        if (treePage && page.view.content === undefined) {
+            if (treePage.rendersOnClient) showWhenLoaded(page, treePage);
+            else treePage.onLoadFailed?.();
+        }
         if (navigated) restorePagePosition(changeType, key, hash);
-        const generation = ++pageModuleGeneration;
+        const generation = ++routeFeatureGeneration;
         void activateRouteFeatures(page, content, generation).then((cleanup) => {
-            if (generation !== pageModuleGeneration || currentDocument !== page) {
+            if (generation !== routeFeatureGeneration || currentDocument !== page) {
                 cleanup?.();
                 return;
             }
@@ -1540,12 +1535,15 @@ async function renderLoadedPage(activeRouter: ApplicationRouter): Promise<void> 
     const isCurrentPage = () => activeRouter.state.matches[activeRouter.state.matches.length - 1]?.loaderData === page;
     try {
         await activateLocale(normalizeLocale(page.head.lang));
+        if (page.view.content !== undefined) await page.treePage?.beforeShow?.();
     } catch {
         if (isCurrentPage()) window.location.assign(page.url);
         return;
     }
     if (!isCurrentPage()) return;
     if (page.head.lang) document.documentElement.lang = page.head.lang;
+    // A screen reads these while it renders.
+    applyScreenData(page.screen);
     flushSync(() => showApplicationPage?.(page.view));
     commitApplicationPage(page, window.location.hash);
 }
@@ -1610,6 +1608,7 @@ const initialDocument = readApplicationDocument(document, window.location.href);
 
 if (appRoot && initialDocument) {
     history.scrollRestoration = initialDocument.screen ? 'auto' : 'manual';
+    applyScreenData(initialDocument.screen);
     const appRouter = createApplicationRouter();
     router = appRouter;
     hydrateTreePageWhenLoaded(initialDocument);

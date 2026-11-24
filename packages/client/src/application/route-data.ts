@@ -27,5 +27,9 @@ export const authFormPageDataSelector = pageDataSelector(authFormPageDataId);
 export const postManagementPageDataId = 'blex-post-management-page-data';
 export const postManagementPageDataSelector = pageDataSelector(postManagementPageDataId);
 
+/** Settings, admin settings, search, sign-up, and the post editor, which render on the client. */
+export const screenPageDataId = 'blex-screen-page-data';
+export const screenPageDataSelector = pageDataSelector(screenPageDataId);
+
 /** The post body inside the server document. The child chain keeps banners and comments from standing in for it. */
 export const postBodySelector = '.post-detail-main > article > [itemprop="articleBody"]';

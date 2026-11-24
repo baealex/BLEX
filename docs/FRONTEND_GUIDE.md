@@ -1,6 +1,6 @@
 # Frontend Guide
 
-BLEX renders pages with React on the server and uses a shared TanStack Router application for browser navigation. Additional React screens are loaded from `packages/client/` through the server screen host.
+BLEX renders pages with React on the server and uses a shared TanStack Router application for browser navigation. The React screens, settings, admin settings, search, sign-up, and the post editor, come from the server screen host and render in the same application tree.
 
 ## Code layout
 
@@ -16,7 +16,7 @@ BLEX renders pages with React on the server and uses a shared TanStack Router ap
 | Shared UI primitives | `packages/client/src/ui/` |
 | Tiptap editor | `packages/client/src/features/editor/tiptap/` |
 
-The client package produces two builds under `packages/server/dist/`: `client` for the browser, served at `/assets/ui/`, and `ssr` for the views the server renders. The browser build holds the public entry points and the React screens, so screens share one React, Lingui, and TanStack instance with the application. Every module that public pages load keeps the chunk it would have without screens: the build bundles the public entries once on their own and groups modules the same way, and a module that screens share with a page entry or lazy module moves to a shared chunk beside it.
+The client package produces two builds under `packages/server/dist/`: `client` for the browser, served at `/assets/ui/`, and `ssr` for the views the server renders. The browser build holds the public entry points and the React screens, so screens share one React, Lingui, and TanStack instance with the application. The application entry imports the screen runtime, `src/screen-runtime.tsx`, only on a screen page, and the build stops there when it checks what public pages load. Every module that public pages load keeps the chunk it would have without screens: the build bundles the public entries once on their own, leaving the screen runtime out, and groups modules the same way, and a module that screens share with a page entry or lazy module moves to a shared chunk beside it.
 
 Public pages and React screens share the theme, prose, and syntax styles in `packages/client/src/appearance/`. `packages/client/styles/main.scss` adds screen-document scrolling, media transitions, and print rules.
 
@@ -32,6 +32,8 @@ The login prompt and the one-time Telegram notice render in the application tree
 
 The work log pages render in the main React tree too: `features/work-logs/index-page.tsx`, `detail-page.tsx`, `delete-page.tsx`, and `shared-page.tsx` each load only their own module, from data built in `page-data.ts`. What the writer wrote, such as log titles, entries, and share headlines, stays out of the data because hydration reads it back from the server markup, and ids appear only where the page already shows them in a link, form, or media address. A shared log is public, so its data carries no CSRF token. The forms keep what was typed before their code arrives and still submit if it fails to load. The chosen attachment's name and the new share link's copy button are React handlers.
 
+Screen pages render in the main React tree as well, but on the client: the screen host sends a loading status in the screen's place and the page's data in `blex-screen-page-data`, and the application hydrates the status as it is. The screen runtime then checks that data, loads the screen's module and its messages for the page's language, and builds the page content with the screen inside `StrictMode`, an error boundary, Lingui's `I18nProvider`, and a React Query client persisted in session storage. These load with the runtime, so public pages do not carry them. After a move inside the application, a screen that loads within three seconds replaces the previous page directly; a slower one shows the loading status first and replaces it when it arrives. A screen that cannot load or render shows its error in place, and the header and links keep working. The application sets the `window` values screens still read, `configuration` and the sign-up values, before the screen renders. A screen document also names `/assets/blex/screen.js` in a `nomodule` script that browsers skip: an application from before this change imports it on its way to a screen, and it reloads that tab.
+
 ## Pages and browser behavior
 
 - Use `renderApplicationDocument` from a `*.page.tsx` file for pages in the main application so direct visits receive server-rendered HTML and internal navigation uses the app router.
@@ -44,7 +46,7 @@ The work log pages render in the main React tree too: `features/work-logs/index-
 ## Components, state, and requests
 
 - Keep props and API boundaries typed. Prefer composition and existing shared controls over new configurable component systems.
-- Decode screen-host JSON as `unknown` and validate it with `components/screen-props.ts` before rendering. Keep the screen name paired with its component props, and update the parser when a screen's inputs change.
+- Decode screen-host JSON as `unknown` and validate it with `components/screen-props.ts` before rendering: `parseScreenPage` for the page around the screen and `parseScreen` for its props. Keep the screen name paired with its component props, and update the parser when a screen's inputs change.
 - Put shareable filters and pagination in the URL; keep transient form and interaction state local.
 - Follow the request pattern used by the code you are changing. The main app uses browser `fetch` and forms; web screens use their existing Axios client, React Query, and form libraries.
 - Preserve the runtime's CSRF handling and check API error responses before consuming their bodies.

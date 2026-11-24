@@ -1,5 +1,5 @@
 import fastifyStatic from '@fastify/static';
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { fileURLToPath } from 'node:url';
 import { clientAssets, readUiAsset } from './ui-assets.js';
 
@@ -31,21 +31,21 @@ export function registerSiteAssets(app: FastifyInstance) {
       const { script } = await readUiAsset('src/application/client.tsx');
       return reply.header('Cache-Control', 'no-store').redirect(script, 302);
     });
-    routes.get('/assets/blex/screen-host.js', async (_request, reply) => {
-      const { script } = await readUiAsset('src/application/screen-host/client.ts');
-      return reply.header('Cache-Control', 'no-store').redirect(script, 302);
-    });
-    // Screens used to load from /assets/web/, so only a tab opened before they joined the browser build asks
-    // for it. The module sends the missing catalog event, which reloads pages that listen for it; a page
-    // without that listener still shows its screen error.
-    routes.get('/assets/web/*', (request, reply) => {
-      if (!/\.js$/.test(request.url.split('?')[0])) return reply.callNotFound();
-      return reply
+    // Only a tab opened before an update asks for these. The module sends the missing catalog event, which reloads
+    // pages that listen for it; a page without that listener still shows its screen error. Screens used to load
+    // from /assets/web/. A screen document names /assets/blex/screen.js for applications that mounted screens
+    // in a root of their own: they import it on the way to a screen, and reload into one that renders it.
+    const reloadsStaleTab = (_request: FastifyRequest, reply: FastifyReply) =>
+      reply
         .type('text/javascript; charset=utf-8')
         .header('Cache-Control', 'no-store')
         .send(
           "document.dispatchEvent(new Event('blex:catalog-failed'));throw new Error('BLEX was updated. Reload the page.');",
         );
+    routes.get('/assets/blex/screen.js', reloadsStaleTab);
+    routes.get('/assets/web/*', (request, reply) => {
+      if (!/\.js$/.test(request.url.split('?')[0])) return reply.callNotFound();
+      return reloadsStaleTab(request, reply);
     });
     routes.get('/favicon.ico', (_request, reply) => reply.sendFile('favicon.ico'));
     routes.get<{ Params: { name: string } }>('/resources/:name', (request, reply) => {

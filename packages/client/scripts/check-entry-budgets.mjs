@@ -23,9 +23,7 @@ const build = readBuild();
 // Every public page loads these two entries.
 const publicPageEntries = ['src/application/client.tsx', 'src/appearance/site-client.ts'];
 
-// Screen pages are application pages that also run the screen host entry before any screen.
-const screenHostEntries = [...publicPageEntries, 'src/application/screen-host/client.ts'];
-const screenLoader = 'src/scripts/screen-loader.ts';
+// Screen pages are application pages whose application entry loads the screen runtime, and the runtime the screen.
 const screenRuntime = 'src/screen-runtime.tsx';
 
 // Public pages hydrate only after their document catalog loads, so their totals include the larger one.
@@ -33,17 +31,17 @@ const screenRuntime = 'src/screen-runtime.tsx';
 const publicCatalogs = ['src/locales/en/messages.po', 'src/locales/ko/messages.po'];
 const screenCatalogs = ['src/locales/en/messages.po?lingui', 'src/locales/ko/messages.po?lingui'];
 
-// Screen budgets count what a screen adds to the application page it opens in: its loader, runtime,
+// Screen budgets count what a screen adds to the application page it opens in: its runtime,
 // screen code, and screen catalog. React and the other modules the page already loaded are not counted
-// again. Their limits, the loader's and the runtime's included, keep about 10% headroom over the current
+// again. Their limits, the runtime's included, keep about 10% headroom over the current
 // build (the next whole file for small file counts) so ordinary feature work does not fail on a few bytes,
 // and still catch a sudden jump, such as a heavy dependency landing in a shared entry.
 // Re-baseline them when headroom runs low.
 // Public page limits are fixed targets instead: 150 KiB of compressed JavaScript, and
 // 170 KiB for the post page, the mobile JavaScript example in web.dev's budget guide.
 const screenBudget = (label, screen, maxInitialFiles, maxInitialKiB, maxInitialGzipKiB) => ({
-    entries: [screenLoader, screenRuntime, screen],
-    loadedBefore: screenHostEntries,
+    entries: [screenRuntime, screen],
+    loadedBefore: publicPageEntries,
     catalogs: screenCatalogs,
     reportsPage: true,
     label,
@@ -54,18 +52,8 @@ const screenBudget = (label, screen, maxInitialFiles, maxInitialKiB, maxInitialG
 
 const budgets = [
     {
-        entries: [screenLoader],
-        loadedBefore: screenHostEntries,
-        label: 'base page scripts',
-        maxInitialFiles: 2,
-        maxInitialBytes: 1.7 * 1024,
-        maxInitialGzipBytes: 0.9 * 1024,
-        allowedInitialNames: [screenLoader, 'preload-helper', 'theme'],
-        requiredDynamicNames: [screenRuntime]
-    },
-    {
         entries: [screenRuntime],
-        loadedBefore: [...screenHostEntries, screenLoader],
+        loadedBefore: publicPageEntries,
         label: 'on-demand screen runtime',
         maxInitialFiles: 3,
         maxInitialBytes: 43 * 1024,
@@ -118,7 +106,9 @@ const budgets = [
         catalogs: publicCatalogs,
         label: 'public page scripts',
         maxInitialBytes: 460 * 1024,
-        maxInitialGzipBytes: 150 * 1024
+        maxInitialGzipBytes: 150 * 1024,
+        // Screen pages hold the same application entries, which load the screen runtime only for them.
+        requiredDynamicNames: [screenRuntime]
     },
     {
         entries: [...publicPageEntries, 'src/features/discovery/discovery-page.tsx'],
@@ -197,14 +187,7 @@ const budgets = [
         label: `public auth form page scripts (${route})`,
         maxInitialBytes: 460 * 1024,
         maxInitialGzipBytes: 150 * 1024
-    })),
-    {
-        entries: screenHostEntries,
-        catalogs: publicCatalogs,
-        label: 'public screen host scripts',
-        maxInitialBytes: 460 * 1024,
-        maxInitialGzipBytes: 150 * 1024
-    }
+    }))
 ];
 
 const assetBudgets = [
@@ -421,7 +404,7 @@ for (const budget of assetBudgets) {
 
 // These entries load through redirecting /assets/blex aliases, and browsers key modules by the requested URL.
 // A chunk that imports one by its hashed file would run it a second time.
-const redirectedEntries = new Set(screenHostEntries);
+const redirectedEntries = new Set(publicPageEntries);
 
 for (const [key, item] of Object.entries(build.manifest)) {
     const imported = [...(item.imports ?? []), ...(item.dynamicImports ?? [])].filter((name) =>

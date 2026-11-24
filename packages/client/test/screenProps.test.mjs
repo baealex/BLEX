@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
-import { parseScreen } from '../src/components/screen-props.ts';
+import { parseScreen, parseScreenPage } from '../src/components/screen-props.ts';
 
 describe('screen bootstrap props', () => {
     test('accepts every screen payload the host sends', () => {
@@ -100,5 +100,57 @@ describe('screen bootstrap props', () => {
             name: 'SearchPage',
             props: { username: 'writer' }
         });
+    });
+});
+
+describe('screen page data', () => {
+    const page = {
+        screen: { name: 'SearchPage', props: { username: 'writer' } },
+        csrf: 'token',
+        contentClass: 'max-w-7xl',
+        footer: {
+            brand: {
+                siteName: 'BLEX',
+                logoUrl: null,
+                darkLogoUrl: null,
+                footerPages: [{ title: 'About', slug: 'about' }]
+            },
+            copyrightYear: 2026
+        },
+        configuration: { locale: 'ko' },
+        globals: {}
+    };
+
+    test('keeps the frame the server sent and leaves the props to the screen', () => {
+        assert.deepEqual(parseScreenPage(page), page);
+        assert.deepEqual(parseScreenPage({ ...page, footer: undefined, contentClass: undefined }), {
+            ...page,
+            footer: undefined,
+            contentClass: undefined
+        });
+        assert.deepEqual(parseScreenPage({ ...page, configuration: null, globals: [] }), {
+            ...page,
+            configuration: {},
+            globals: {}
+        });
+    });
+
+    test('rejects a page whose frame cannot render', () => {
+        const brand = page.footer.brand;
+        for (const invalid of [
+            null,
+            [],
+            'page',
+            { ...page, screen: null },
+            { ...page, screen: { name: 1, props: {} } },
+            { ...page, csrf: undefined },
+            { ...page, contentClass: 1 },
+            { ...page, footer: null },
+            { ...page, footer: { ...page.footer, copyrightYear: '2026' } },
+            { ...page, footer: { ...page.footer, brand: { ...brand, footerPages: [{ title: 'About' }] } } },
+            { ...page, footer: { ...page.footer, brand: { ...brand, logoUrl: 1 } } }
+        ]) {
+            assert.equal(parseScreenPage(invalid), null);
+        }
     });
 });

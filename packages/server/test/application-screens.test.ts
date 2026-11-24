@@ -76,10 +76,29 @@ async function screensApp() {
   };
 }
 
+interface ScreenPageData {
+  screen: { name: string; props: Record<string, unknown> };
+  csrf: string;
+  footer?: { brand?: { siteName?: unknown }; copyrightYear?: unknown };
+  configuration: Record<string, unknown>;
+  globals: Record<string, unknown>;
+}
+
+function screenPageData(body: string): ScreenPageData {
+  const match = /<script type="application\/json" id="blex-screen-page-data">(.*?)<\/script>/s.exec(body);
+  assert.ok(match, 'the page renders a 3.x screen');
+  assert.doesNotMatch(match[1], /[<>]/, 'embedded JSON cannot close its script');
+  const data = JSON.parse(match[1]) as ScreenPageData;
+  // The server shows a loading status in the screen's place until the browser renders it.
+  assert.match(
+    body,
+    new RegExp(`<div data-screen="${data.screen.name}" data-screen-status="pending"><div role="status"`),
+  );
+  return data;
+}
+
 function screenProps(body: string) {
-  const match = /<div data-screen="([^"]+)"[^>]*data-screen-props="([^"]+)"/.exec(body);
-  assert.ok(match, 'the page mounts a 3.x screen');
-  return { name: match[1], props: JSON.parse(decodeURIComponent(match[2])) as Record<string, unknown> };
+  return screenPageData(body).screen;
 }
 
 function multipart(fields: Record<string, string>, file?: { name: string; filename: string; content: Buffer }) {
@@ -236,12 +255,16 @@ test('keeps the stored date output formats', () => {
 test('answers requests for the removed screen build with the missing catalog event', async () => {
   const fixture = await screensApp();
   try {
-    const old = await fixture.app.inject('/assets/web/chunks/search.PS94_Svm.js');
-    assert.equal(old.statusCode, 200);
-    assert.match(String(old.headers['content-type']), /^text\/javascript/);
-    assert.equal(old.headers['cache-control'], 'no-store');
-    assert.match(old.body, /dispatchEvent\(new Event\('blex:catalog-failed'\)\)/);
+    // Tabs from before screens joined the browser build, and applications that mounted screens in a root of their own.
+    for (const url of ['/assets/web/chunks/search.PS94_Svm.js', '/assets/blex/screen.js']) {
+      const old = await fixture.app.inject(url);
+      assert.equal(old.statusCode, 200, url);
+      assert.match(String(old.headers['content-type']), /^text\/javascript/, url);
+      assert.equal(old.headers['cache-control'], 'no-store', url);
+      assert.match(old.body, /dispatchEvent\(new Event\('blex:catalog-failed'\)\)/, url);
+    }
     assert.equal((await fixture.app.inject('/assets/web/mainStyle.BGuVjzlT.css')).statusCode, 404);
+    assert.equal((await fixture.app.inject('/assets/blex/screen-host.js')).statusCode, 404);
   } finally {
     await fixture.close();
   }
@@ -302,10 +325,15 @@ test('mounts the 3.x editor for new, draft, and existing posts', async () => {
     const editPage = await fixture.app.inject({ url: '/@writer/kept/edit', headers });
     const edit = screenProps(editPage.body);
     assert.deepEqual([edit.props.mode, edit.props.postUrl], ['edit', 'kept']);
-    // The application moves to and from the editor, so its header is the application's header.
+    // The application moves to and from the editor and renders it in its own tree, so the page runs no other script.
     for (const page of [write, editPage]) {
       assert.ok(isApplicationDocument(page.body));
-      assert.match(page.body, /<script type="module" src="[^"]+" data-blex-page-module="screen">/);
+      assert.deepEqual(
+        [...page.body.matchAll(/<script\b[^>]*\bsrc="([^"]+)"[^>]*>/g)].map(([tag, src]) =>
+          /\bnomodule\b/i.test(tag) ? `nomodule ${src}` : src,
+        ),
+        ['/assets/blex/theme.js', '/assets/blex/app.js', 'nomodule /assets/blex/screen.js'],
+      );
     }
   } finally {
     await fixture.close();
@@ -506,11 +534,20 @@ test('mounts the 3.x search and signup screens', async () => {
     assert.match(search.body, /name="robots" content="noindex,follow"/);
     assert.doesNotMatch(search.body, /data-site-search/);
     assert.doesNotMatch(search.body, /isAuthenticated/);
+    // The browser renders the frame around the screen from the same data, the footer and form token included.
+    const searchData = screenPageData(search.body);
+    assert.match(searchData.csrf, /^[A-Za-z0-9_-]{43}$/);
+    assert.match(search.body, new RegExp(`name="csrfmiddlewaretoken" value="${searchData.csrf}"`));
+    assert.equal(typeof searchData.footer?.brand?.siteName, 'string');
+    assert.equal(typeof searchData.footer?.copyrightYear, 'number');
+    assert.equal(
+      screenPageData((await fixture.app.inject({ url: '/write', headers: signIn(fixture.db, 1) })).body).footer,
+      undefined,
+    );
 
     const signup = await fixture.app.inject('/sign?invite=welcome&next=/tags');
     assert.equal(screenProps(signup.body).name, 'Signup');
-    const globals = /id="blex-screen-globals"[^>]*>([^<]+)</.exec(signup.body);
-    assert.deepEqual(JSON.parse(globals?.[1] ?? '{}'), {
+    assert.deepEqual(screenPageData(signup.body).globals, {
       HCAPTCHA_SITE_KEY: '',
       NEXT_URL: '/tags',
       INVITE_CODE: 'welcome',
