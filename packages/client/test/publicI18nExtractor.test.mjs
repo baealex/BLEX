@@ -28,6 +28,7 @@ test('ignores similarly named functions that do not come from the public transla
 });
 
 test('refuses authored or computed content and untranslated Korean source messages', () => {
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: the extractor reads this template literal as source text.
     for (const expression of ['post.title', '`Hello ${name}`', "'한국어 문구'", "'Save', {}, id"]) {
         assert.throws(
             () =>

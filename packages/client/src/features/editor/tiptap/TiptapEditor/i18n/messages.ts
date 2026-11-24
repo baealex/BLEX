@@ -62,7 +62,7 @@ export const resolveEditorMessages = (
 
 export const formatEditorMessage = (message: string, values: EditorMessageValues = {}) =>
     message.replace(/\{(\w+)\}/g, (placeholder, key: string) =>
-        Object.prototype.hasOwnProperty.call(values, key) ? String(values[key]) : placeholder
+        Object.hasOwn(values, key) ? String(values[key]) : placeholder
     );
 
 export { enEditorMessages };

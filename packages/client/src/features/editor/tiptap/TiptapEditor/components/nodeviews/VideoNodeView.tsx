@@ -105,7 +105,7 @@ export const VideoNodeView = ({ node, selected, editor, getPos }: NodeViewProps)
                     >
                         <source src={src} type="video/mp4" />
                     </video>
-                    {/* Tiptap ignores button mousedown events, so the drag handle stays a keyboard-accessible div. */}
+                    {/* biome-ignore lint/a11y/useSemanticElements: Tiptap ignores button mousedown events, so the drag handle stays a keyboard-accessible div. */}
                     <div
                         role="button"
                         tabIndex={0}

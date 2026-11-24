@@ -923,13 +923,11 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
                     <p className="text-sm">{ui('The author is not accepting new comments or replies on this post.')}</p>
                 </div>
             )}
+            {/* The site script closes a dialog when its backdrop is clicked, and Esc closes it natively. */}
             <dialog
                 ref={deleteDialog}
                 aria-labelledby="comment-delete-title"
                 onClose={() => setDeleteId(null)}
-                onClick={(event) => {
-                    if (event.target === event.currentTarget) setDeleteId(null);
-                }}
                 className="fixed inset-0 m-auto h-fit w-[calc(100%-2rem)] max-w-sm rounded-2xl border border-line bg-surface p-6 text-content shadow-xl backdrop:bg-black/50"
             >
                 <h2 id="comment-delete-title" className="mb-2 text-lg font-semibold">
