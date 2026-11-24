@@ -6,7 +6,13 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["packages/**/*.{ts,tsx,js,mjs}", ".github/scripts/*.mjs", "!**/routeTree.gen.ts"]
+    "includes": [
+      "packages/**/*.{ts,tsx,js,mjs}",
+      ".github/scripts/*.mjs",
+      "!**/routeTree.gen.ts",
+      // Swagger UI's own bundle, served as published.
+      "!packages/server/data/swagger-ui"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -19,32 +25,41 @@
     "rules": {
       "preset": "recommended",
       "a11y": {
-        "noAutofocus": "warn",
-        "noLabelWithoutControl": "warn",
-        "noStaticElementInteractions": "warn",
-        "useAriaPropsSupportedByRole": "warn",
-        "useButtonType": "warn",
-        "useFocusableInteractive": "warn",
-        "useIframeTitle": "warn",
-        "useKeyWithClickEvents": "warn",
-        "useMediaCaption": "warn",
-        "useSemanticElements": "warn"
+        "noAutofocus": "error",
+        "noLabelWithoutControl": "error",
+        "noStaticElementInteractions": "error",
+        "useAriaPropsSupportedByRole": "error",
+        "useButtonType": "error",
+        "useFocusableInteractive": "error",
+        "useIframeTitle": "error",
+        "useKeyWithClickEvents": "error",
+        // Videos are uploaded without caption files, so there is no track to add.
+        "useMediaCaption": "off",
+        "useSemanticElements": "error"
       },
       "correctness": {
-        "noComponentHookFactories": "warn",
-        "noVoidTypeReturn": "warn",
-        "useExhaustiveDependencies": "warn",
-        "useJsxKeyInIterable": "warn"
+        "noComponentHookFactories": "error",
+        "noVoidTypeReturn": "error",
+        "useExhaustiveDependencies": {
+          "level": "error",
+          // Some effects list a value they never read so they re-run when it changes, such as to clear a selection.
+          "options": { "reportUnnecessaryDependencies": false }
+        },
+        "useJsxKeyInIterable": "error"
       },
       "security": {
         "noDangerouslySetInnerHtml": "off"
       },
       "suspicious": {
-        "noArrayIndexKey": "warn",
+        "noArrayIndexKey": "error",
         "noControlCharactersInRegex": "off",
-        "noImplicitAnyLet": "warn",
-        "noShadowRestrictedNames": "warn",
-        "useIterableCallbackReturn": "warn"
+        // The theme and Telegram hint cookies change synchronously; the Cookie Store API is async and not yet widely available.
+        "noDocumentCookie": "off",
+        "noImplicitAnyLet": "error",
+        "noPrototypeBuiltins": "error",
+        "noShadowRestrictedNames": "error",
+        "noTemplateCurlyInString": "error",
+        "useIterableCallbackReturn": "error"
       }
     }
   },
@@ -61,6 +76,17 @@
     }
   },
   "overrides": [
+    {
+      "includes": [".github/scripts/**"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            // These scripts read the GitHub Actions environment and never run as Turborepo tasks.
+            "noUndeclaredEnvVars": "off"
+          }
+        }
+      }
+    },
     {
       "includes": ["packages/client/**", "packages/contracts/**"],
       "formatter": {

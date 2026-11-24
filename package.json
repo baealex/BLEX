@@ -16,7 +16,7 @@
         "test:client": "pnpm --filter @blex/client run test",
         "test:smoke": "pnpm --filter @blex/client run test:smoke",
         "test:browser": "pnpm --filter @blex/client run test:browser",
-        "lint": "biome check --max-diagnostics=none",
+        "lint": "biome check --max-diagnostics=none --error-on-warnings",
         "type-check": "turbo run type-check",
         "i18n:check": "pnpm --filter @blex/client run i18n:check",
         "check:entry-budgets": "pnpm --filter @blex/client run check:entry-budgets",
