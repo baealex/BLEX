@@ -3,13 +3,21 @@ import { I18nProvider } from '@lingui/react';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { ScreenPage } from './application/screen-page';
 import ErrorBoundary from './components/ErrorBoundary';
-import { parseScreen, parseScreenPage, type Screen, screenViewerName } from './components/screen-props';
+import { parseScreen, parseScreenPage, type Screen } from './components/screen-props';
 import { i18n } from './i18n';
-import type { AppLocale } from './i18n/locale';
+import { type AppLocale, setDocumentTimeZone } from './i18n/locale';
 import { activateScreenLocale, loadScreenCatalog } from './i18n/screen-catalog';
 import { createQueryClient, createSessionStoragePersister, shouldPersistQuery } from './lib/query-client';
 
-export { activateScreenLocale };
+/**
+ * Applies what a screen needs from its page right before it first shows: the page's language with the screen's
+ * messages, and the viewer's time zone for its dates and its session cache.
+ */
+export async function prepareScreen(value: unknown, locale: AppLocale): Promise<void> {
+    const data = parseScreenPage(value);
+    if (data) setDocumentTimeZone(data.timeZone);
+    await activateScreenLocale(locale);
+}
 
 const screenErrorText = (name: string) => `Component Error: ${name}`;
 
@@ -22,7 +30,7 @@ async function loadScreenElement(screen: Screen): Promise<ReactNode> {
         }
         case 'Signup': {
             const { default: Signup } = await import('./features/auth/signup');
-            return <Signup />;
+            return <Signup {...screen.props} />;
         }
         case 'PostEditor': {
             const { default: PostEditor } = await import('./features/editor');
@@ -102,7 +110,7 @@ export async function loadScreen(value: unknown, locale: AppLocale): Promise<Rea
                         <PersistQueryClientProvider
                             client={createQueryClient()}
                             persistOptions={{
-                                persister: createSessionStoragePersister(screenViewerName(data)),
+                                persister: createSessionStoragePersister(data.viewer?.username),
                                 maxAge: 1000 * 60 * 60 * 24,
                                 dehydrateOptions: { shouldDehydrateQuery: shouldPersistQuery }
                             }}

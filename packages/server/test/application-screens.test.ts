@@ -80,8 +80,8 @@ interface ScreenPageData {
   screen: { name: string; props: Record<string, unknown> };
   csrf: string;
   footer?: { brand?: { siteName?: unknown }; copyrightYear?: unknown };
-  configuration: Record<string, unknown>;
-  globals: Record<string, unknown>;
+  viewer: { username: string } | null;
+  timeZone: string;
 }
 
 function screenPageData(body: string): ScreenPageData {
@@ -320,6 +320,9 @@ test('mounts the 3.x editor for new, draft, and existing posts', async () => {
     const headers = signIn(fixture.db, 1);
     const write = await fixture.app.inject({ url: '/write', headers });
     assert.equal(screenProps(write.body).props.mode, 'new');
+    // The screen keys its session cache to this viewer and shows dates in their time zone.
+    assert.deepEqual(screenPageData(write.body).viewer, { username: 'writer' });
+    assert.equal(screenPageData(write.body).timeZone, process.env.TZ || 'Asia/Seoul');
     const draft = screenProps((await fixture.app.inject({ url: '/write?draft=draft', headers })).body);
     assert.deepEqual([draft.name, draft.props.mode, draft.props.draftUrl], ['PostEditor', 'draft', 'draft']);
     const editPage = await fixture.app.inject({ url: '/@writer/kept/edit', headers });
@@ -533,7 +536,7 @@ test('mounts the 3.x search and signup screens', async () => {
     assert.deepEqual(screenProps(search.body).props, { username: 'writer' });
     assert.match(search.body, /name="robots" content="noindex,follow"/);
     assert.doesNotMatch(search.body, /data-site-search/);
-    assert.doesNotMatch(search.body, /isAuthenticated/);
+    assert.equal(screenPageData(search.body).viewer, null);
     // The browser renders the frame around the screen from the same data, the footer and form token included.
     const searchData = screenPageData(search.body);
     assert.match(searchData.csrf, /^[A-Za-z0-9_-]{43}$/);
@@ -547,10 +550,10 @@ test('mounts the 3.x search and signup screens', async () => {
 
     const signup = await fixture.app.inject('/sign?invite=welcome&next=/tags');
     assert.equal(screenProps(signup.body).name, 'Signup');
-    assert.deepEqual(screenPageData(signup.body).globals, {
-      HCAPTCHA_SITE_KEY: '',
-      NEXT_URL: '/tags',
-      INVITE_CODE: 'welcome',
+    assert.deepEqual(screenProps(signup.body).props, {
+      hcaptchaSiteKey: '',
+      nextUrl: '/tags',
+      inviteCode: 'welcome',
     });
     assert.doesNotMatch(signup.body, /js\.hcaptcha\.com\/1\/api\.js/);
 

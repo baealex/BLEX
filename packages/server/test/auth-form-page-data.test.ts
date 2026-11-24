@@ -73,10 +73,7 @@ test('the sign-up form hydrates from its form fields without the captcha secret'
     const page = await app.inject({ url: '/sign?invite=invite_marker&next=%2F%40writer', headers: visitor });
     assert.equal(page.statusCode, 200);
     assert.match(page.body, /data-screen="Signup"/);
-    assert.match(
-      page.body,
-      /"HCAPTCHA_SITE_KEY":"site_key_marker","NEXT_URL":"\/@writer","INVITE_CODE":"invite_marker"/,
-    );
+    assert.match(page.body, /"hcaptchaSiteKey":"site_key_marker","nextUrl":"\/@writer","inviteCode":"invite_marker"/);
     assert.doesNotMatch(page.body, /captcha_secret_marker|client_id_marker|client_secret_marker/);
 
     const failed = await app.inject({

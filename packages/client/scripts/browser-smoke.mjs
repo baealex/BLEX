@@ -465,6 +465,20 @@ const renderScreensInApplicationRoot = async () => {
     expect(await page.evaluate(() => window.__smokeSameDocument)).toBe(true);
 };
 
+const keepSignupDestination = async () => {
+    // A visitor's sign-up screen takes where to go next and the invitation from its own data.
+    const visitor = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+    try {
+        await visitor.goto(`${origin}/sign?next=/tags&invite=smoke-invite`, { waitUntil: 'networkidle' });
+        const screen = visitor.locator('[data-screen="Signup"]');
+        await expect(screen).toHaveAttribute('data-screen-status', 'mounted');
+        await expect(screen.locator('a[href^="/login"]')).toHaveAttribute('href', '/login?next=%2Ftags');
+        expect(await visitor.evaluate(() => 'configuration' in window || 'NEXT_URL' in window)).toBe(false);
+    } finally {
+        await visitor.close();
+    }
+};
+
 const keepSessionCacheAfterPublicPage = async () => {
     const cachedLists = () =>
         page.evaluate(() =>
@@ -911,6 +925,7 @@ try {
         ['a screen render error leaves the application working', isolateScreenRenderError],
         ['screens render in the application root and leave nothing behind', renderScreensInApplicationRoot],
         ["a screen opened after a fresh public page keeps its viewer's session cache", keepSessionCacheAfterPublicPage],
+        ['the sign-up screen keeps where to go next and its invitation', keepSignupDestination],
         ['back and forward return to each fragment the reader followed', returnToFragmentPositions],
         ['the code block copy button speaks the page language once its translations load', translateCodeCopyButton],
         ['pinned post selection supports arrow keys and resets after a search', selectPinnedPostWithKeyboard],

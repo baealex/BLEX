@@ -1,11 +1,15 @@
+// The server serves these at fixed paths.
+const staticRoot = '/resources/';
+const mediaRoot = '/resources/media/';
+
 export const getStaticPath = (resource: string) => {
-    if (resource.startsWith(window.configuration.static)) return resource;
-    return window.configuration.static + resource;
+    if (resource.startsWith(staticRoot)) return resource;
+    return staticRoot + resource;
 };
 
 export const getMediaPath = (resource: string) => {
-    if (resource.startsWith(window.configuration.media)) return resource;
-    return window.configuration.media + resource;
+    if (resource.startsWith(mediaRoot)) return resource;
+    return mediaRoot + resource;
 };
 
 export const userResource = (assets?: string) => {

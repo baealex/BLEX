@@ -13,10 +13,15 @@ declare global {
             reset: (widgetId?: string) => void;
             remove: (widgetId?: string) => void;
         };
-        HCAPTCHA_SITE_KEY?: string;
-        NEXT_URL: string;
-        INVITE_CODE?: string;
     }
+}
+
+export interface SignupProps {
+    /** Empty when the site does not ask for a security check. */
+    hcaptchaSiteKey?: string;
+    /** Where the new member goes after signing up; empty for the home page. */
+    nextUrl?: string;
+    inviteCode?: string;
 }
 
 const getCsrfToken = (): string => {
@@ -60,7 +65,7 @@ const getPasswordStrength = (pw: string): PasswordStrength | null => {
     };
 };
 
-const Signup = () => {
+const Signup = ({ hcaptchaSiteKey, nextUrl = '', inviteCode }: SignupProps) => {
     const { t } = useLingui();
     const [username, setUsername] = useState('');
     const [name, setName] = useState('');
@@ -104,7 +109,7 @@ const Signup = () => {
     const widgetIdRef = useRef<string | null>(null);
 
     const renderCaptcha = useCallback(() => {
-        if (!captchaRef.current || !window.hcaptcha || !window.HCAPTCHA_SITE_KEY) {
+        if (!captchaRef.current || !window.hcaptcha || !hcaptchaSiteKey) {
             return;
         }
 
@@ -120,7 +125,7 @@ const Signup = () => {
         try {
             setCaptchaToken('');
             widgetIdRef.current = window.hcaptcha.render(captchaRef.current, {
-                sitekey: window.HCAPTCHA_SITE_KEY,
+                sitekey: hcaptchaSiteKey,
                 theme: resolvedTheme,
                 size: 'normal',
                 callback: (token: string) => {
@@ -130,13 +135,13 @@ const Signup = () => {
         } catch {
             // Ignore error
         }
-    }, [resolvedTheme]);
+    }, [hcaptchaSiteKey, resolvedTheme]);
 
     useEffect(() => {
         setIsVisible(true);
-        if (window.HCAPTCHA_SITE_KEY && window.hcaptcha) {
+        if (hcaptchaSiteKey && window.hcaptcha) {
             renderCaptcha();
-        } else if (window.HCAPTCHA_SITE_KEY) {
+        } else if (hcaptchaSiteKey) {
             const checkHCaptcha = setInterval(() => {
                 if (window.hcaptcha) {
                     clearInterval(checkHCaptcha);
@@ -145,7 +150,7 @@ const Signup = () => {
             }, 100);
             return () => clearInterval(checkHCaptcha);
         }
-    }, [renderCaptcha]);
+    }, [hcaptchaSiteKey, renderCaptcha]);
 
     useEffect(() => {
         return () => {
@@ -260,7 +265,7 @@ const Signup = () => {
             return;
         }
 
-        if (window.HCAPTCHA_SITE_KEY && !captchaToken) {
+        if (hcaptchaSiteKey && !captchaToken) {
             setSignupError(
                 t({
                     id: 'auth.signup.complete_security_check',
@@ -281,8 +286,8 @@ const Signup = () => {
                 timeZone: getBrowserTimeZone() || ''
             });
 
-            if (window.INVITE_CODE) {
-                formData.append('inviteCode', window.INVITE_CODE);
+            if (inviteCode) {
+                formData.append('inviteCode', inviteCode);
             }
 
             if (captchaToken) {
@@ -300,7 +305,7 @@ const Signup = () => {
             const data = await response.json();
 
             if (data.status === 'DONE') {
-                window.location.assign(window.NEXT_URL || '/');
+                window.location.assign(nextUrl || '/');
             } else {
                 setSignupError(
                     data.errorMessage ||
@@ -322,8 +327,7 @@ const Signup = () => {
         }
     };
 
-    const nextUrl = window.NEXT_URL || '';
-    const isInviteSignup = Boolean(window.INVITE_CODE);
+    const isInviteSignup = Boolean(inviteCode);
 
     return (
         <div
@@ -354,7 +358,7 @@ const Signup = () => {
             <div className="bg-surface/60 backdrop-blur-2xl rounded-[2rem] shadow-elevated border border-line/40 p-8 md:p-10 relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-b from-surface/40 to-transparent pointer-events-none" />
                 <div className="relative z-10">
-                    {!isInviteSignup && <SocialLogin showPasswordDivider />}
+                    {!isInviteSignup && <SocialLogin nextUrl={nextUrl} showPasswordDivider />}
 
                     {/* Signup Form */}
                     <form className="space-y-5" noValidate onSubmit={handleSubmit}>
@@ -603,7 +607,7 @@ const Signup = () => {
                         </div>
 
                         {/* HCaptcha Widget */}
-                        {window.HCAPTCHA_SITE_KEY && (
+                        {hcaptchaSiteKey && (
                             <div className="flex justify-center py-2">
                                 <div ref={captchaRef} className="transform scale-100 origin-center" />
                             </div>

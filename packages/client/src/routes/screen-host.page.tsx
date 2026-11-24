@@ -13,8 +13,8 @@ function createScreenPageData(props: PageProps['screen-host']): ScreenPageData {
         footer: props.footer
             ? { brand: publicBrand({ brand: props.brand }), copyrightYear: new Date().getFullYear() }
             : undefined,
-        configuration: props.configuration,
-        globals: props.globals ?? {}
+        viewer: props.viewer?.username ? { username: props.viewer.username } : null,
+        timeZone: props.timeZone
     };
 }
 

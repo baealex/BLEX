@@ -18,7 +18,6 @@
   "include": [
     "vite*.config.ts",
     "lingui.config.ts",
-    "src/i18n/locale.ts",
-    "src/types/type.d.ts"
+    "src/i18n/locale.ts"
   ]
 }

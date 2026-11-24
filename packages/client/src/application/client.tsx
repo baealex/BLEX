@@ -69,18 +69,14 @@ interface PageHead {
     scripts: HeadScript[];
 }
 
-interface ScreenData {
-    configuration: unknown;
-    globals: Record<string, unknown>;
-}
-
 interface ApplicationDocument {
     view: ApplicationView;
     url: string;
     head: PageHead;
     bodyAttributes: Array<[string, string]>;
     needsHcaptcha: boolean;
-    screen: ScreenData | null;
+    /** Settings, search, sign-up, or the editor, which own some of their URL changes. */
+    screen: boolean;
     treePage: TreePage | null;
 }
 
@@ -135,7 +131,6 @@ let router: ApplicationRouter | null = null;
 let navigationType: PageChangeDetail['navigationType'] = 'PUSH';
 let showApplicationPage: ((view: ApplicationView) => void) | null = null;
 let visitingFromApplication = false;
-let screenGlobalNames: string[] = [];
 let postRevision = 0;
 let authorRevision = 0;
 let workLogRevision = 0;
@@ -291,18 +286,6 @@ function parseElementJson(element: Element | null): unknown {
     }
 }
 
-function applyScreenData(screen: ScreenData | null): void {
-    const target = window as unknown as Record<string, unknown>;
-    for (const name of screenGlobalNames) delete target[name];
-    screenGlobalNames = screen ? Object.keys(screen.globals) : [];
-    if (screen) {
-        target.configuration = screen.configuration;
-        Object.assign(target, screen.globals);
-    } else {
-        delete target.configuration;
-    }
-}
-
 function createTreePage(
     key: string,
     load: TreePage['load'],
@@ -329,25 +312,21 @@ const loadScreenRuntime = () =>
  * Settings, search, sign-up, and the editor render on the client from their data, in place of a loading status.
  * The screen runtime checks that data, so a page whose data is broken shows the screen's error instead of loading.
  */
-function readScreenPage(source: Document, pageUrl: URL): { screen: ScreenData; treePage: TreePage } | null {
+function readScreenPage(source: Document, pageUrl: URL): TreePage | null {
     const element = source.querySelector(screenPageDataSelector);
     if (!element) return null;
     const value = parseElementJson(element);
-    const data = isRecord(value) ? value : {};
     const locale = normalizeLocale(source.documentElement.lang);
     screenRevision += 1;
-    return {
-        screen: { configuration: data.configuration, globals: isRecord(data.globals) ? data.globals : {} },
-        treePage: createTreePage(
-            `screen:${pageRequestKey(pageUrl)}:${screenRevision}`,
-            () => loadScreenRuntime().then(({ loadScreen }) => loadScreen(value, locale)),
-            {
-                rendersOnClient: true,
-                // The previous page can be in another language, so the screen's messages are added once this one's is active.
-                beforeShow: () => loadScreenRuntime().then(({ activateScreenLocale }) => activateScreenLocale(locale))
-            }
-        )
-    };
+    return createTreePage(
+        `screen:${pageRequestKey(pageUrl)}:${screenRevision}`,
+        () => loadScreenRuntime().then(({ loadScreen }) => loadScreen(value, locale)),
+        {
+            rendersOnClient: true,
+            // The previous page can be in another language or none of the screen's settings, so they apply here.
+            beforeShow: () => loadScreenRuntime().then(({ prepareScreen }) => prepareScreen(value, locale))
+        }
+    );
 }
 
 function readPostPage(source: Document, content: Element): TreePage | null {
@@ -597,7 +576,7 @@ function readApplicationDocument(source: Document, url: string): ApplicationDocu
     }
     const screenPage = readScreenPage(source, pageUrl);
     const treePage =
-        screenPage?.treePage ??
+        screenPage ??
         readPostPage(source, content) ??
         readDiscoveryPage(source, pageUrl) ??
         readAuthorPage(source, content, pageUrl) ??
@@ -616,7 +595,7 @@ function readApplicationDocument(source: Document, url: string): ApplicationDocu
         head: collectHead(source, pageUrl),
         bodyAttributes: bodyAttributes(source),
         needsHcaptcha: hasTrustedHcaptchaScript(source, pageUrl),
-        screen: screenPage?.screen ?? null,
+        screen: screenPage !== null,
         treePage
     };
 }
@@ -1542,8 +1521,6 @@ async function renderLoadedPage(activeRouter: ApplicationRouter): Promise<void> 
     }
     if (!isCurrentPage()) return;
     if (page.head.lang) document.documentElement.lang = page.head.lang;
-    // A screen reads these while it renders.
-    applyScreenData(page.screen);
     flushSync(() => showApplicationPage?.(page.view));
     commitApplicationPage(page, window.location.hash);
 }
@@ -1608,7 +1585,6 @@ const initialDocument = readApplicationDocument(document, window.location.href);
 
 if (appRoot && initialDocument) {
     history.scrollRestoration = initialDocument.screen ? 'auto' : 'manual';
-    applyScreenData(initialDocument.screen);
     const appRouter = createApplicationRouter();
     router = appRouter;
     hydrateTreePageWhenLoaded(initialDocument);
