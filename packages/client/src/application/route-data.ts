@@ -10,6 +10,8 @@ const pageDataSelector = (id: string) => `body > script[type="application/json"]
 
 export const postPageDataSelector = pageDataSelector(postPageDataId);
 export const discoveryPageDataSelector = pageDataSelector(discoveryPageDataId);
+export const authorPageDataId = 'blex-author-page-data';
+export const authorPageDataSelector = pageDataSelector(authorPageDataId);
 
 /** The post body inside the server document. The child chain keeps banners and comments from standing in for it. */
 export const postBodySelector = '.post-detail-main > article > [itemprop="articleBody"]';

@@ -13,8 +13,20 @@ import { type ReactNode, use, useEffect, useLayoutEffect, useState } from 'react
 import { ApplicationFrame, type ApplicationView } from './frame.js';
 import { openLoginPromptFrom } from './login-prompt.js';
 import { opensOutsideApplication, type BlexNavigateDetail } from './navigation.js';
-import { discoveryPageDataSelector, postBodySelector, postPageDataSelector } from './route-data.js';
+import {
+    authorPageDataSelector,
+    discoveryPageDataSelector,
+    postBodySelector,
+    postPageDataSelector
+} from './route-data.js';
 import type { SiteHeaderProps } from '../appearance/shell.js';
+import {
+    type AboutDraft,
+    guardAboutDraft,
+    showAboutLoadError,
+    storedAboutDraft
+} from '../features/authors/about-draft';
+import type { AuthorMountContext, AuthorPageData } from '../features/authors/author-page-data';
 import type { DiscoveryPageData } from '../features/discovery/discovery-page-data';
 import type { PostPageData } from '../features/posts/post-page-data';
 
@@ -61,12 +73,20 @@ interface ApplicationDocument {
     treePage: TreePage | null;
 }
 
+interface AuthorPageModule {
+    mountPage(data: never, content: Element, context: AuthorMountContext): ReactNode | Promise<ReactNode>;
+}
+
 /** A page that renders in the React tree from the data its server document carries. */
 interface TreePage {
     key: string;
     load: () => Promise<ReactNode>;
     /** Post pages hand their browser-only prompts back to the site script when they cannot mount. */
     announcesUnmounted: boolean;
+    /** Leaves the live server markup in place when the first load fails, keeping typed text and drawn charts. */
+    keepsServerMarkup: boolean;
+    /** Runs when the page's code failed and its server markup stays on screen. */
+    onLoadFailed?: () => void;
     /** True once this document's page has committed in the React tree. */
     mounted: boolean;
     /** Resolves when the page has mounted or can no longer mount. */
@@ -99,6 +119,15 @@ let showApplicationPage: ((view: ApplicationView) => void) | null = null;
 let visitingFromApplication = false;
 let screenGlobalNames: string[] = [];
 let postRevision = 0;
+let authorRevision = 0;
+let markShellHydrated = () => {};
+let failShellHydration: (error: unknown) => void = () => {};
+const shellHydrated = new Promise<void>((resolve, reject) => {
+    markShellHydrated = resolve;
+    failShellHydration = reject;
+});
+// Only pages that wait for the shell observe this; the startup error is reported where it happens.
+shellHydrated.catch(() => undefined);
 const treePageWaitMs = 3000;
 const stagedDocuments = new Map<string, ApplicationDocument>();
 const pendingPostForms = new WeakSet<HTMLFormElement>();
@@ -279,12 +308,20 @@ function applyScreenData(screen: ScreenData | null): void {
     }
 }
 
-function createTreePage(key: string, load: TreePage['load'], announcesUnmounted = false): TreePage {
+function createTreePage(
+    key: string,
+    load: TreePage['load'],
+    {
+        announcesUnmounted = false,
+        keepsServerMarkup = false,
+        onLoadFailed
+    }: Partial<Pick<TreePage, 'announcesUnmounted' | 'keepsServerMarkup' | 'onLoadFailed'>> = {}
+): TreePage {
     let settle = () => {};
     const settled = new Promise<void>((resolve) => {
         settle = resolve;
     });
-    return { key, load, announcesUnmounted, mounted: false, settled, settle };
+    return { key, load, announcesUnmounted, keepsServerMarkup, onLoadFailed, mounted: false, settled, settle };
 }
 
 function readPostPage(source: Document, content: Element): TreePage | null {
@@ -301,7 +338,7 @@ function readPostPage(source: Document, content: Element): TreePage | null {
             import('../features/posts/post-page').then(({ PostPage }) => (
                 <PostPage data={data} bodyHtml={bodyHtml} revision={revision} />
             )),
-        true
+        { announcesUnmounted: true }
     );
 }
 
@@ -311,6 +348,47 @@ function readDiscoveryPage(source: Document, pageUrl: URL): TreePage | null {
     const data = value as unknown as DiscoveryPageData;
     return createTreePage(`discovery:${pageRequestKey(pageUrl)}`, () =>
         import('../features/discovery/discovery-page').then(({ DiscoveryPage }) => <DiscoveryPage data={data} />)
+    );
+}
+
+const authorPageModules: Record<AuthorPageData['page'], () => Promise<AuthorPageModule>> = {
+    overview: () => import('../features/authors/author-overview-page'),
+    posts: () => import('../features/authors/author-posts-page'),
+    series: () => import('../features/authors/author-series-page'),
+    'series-detail': () => import('../features/authors/author-series-detail-page'),
+    'about-edit': () => import('../features/authors/author-about-edit-page')
+};
+
+function readAuthorPage(source: Document, content: Element, pageUrl: URL): TreePage | null {
+    const value = parseElementJson(source.querySelector(authorPageDataSelector));
+    if (!isRecord(value) || !Object.keys(authorPageModules).includes(String(value.page))) return null;
+    const data = value as unknown as AuthorPageData;
+    const hydrating = source === document;
+    const editsAbout = data.page === 'about-edit';
+    let draft: AboutDraft | undefined;
+    authorRevision += 1;
+    return createTreePage(
+        `author:${pageRequestKey(pageUrl)}:${authorRevision}`,
+        () => {
+            if (editsAbout) draft = hydrating ? guardAboutDraft(content) : storedAboutDraft();
+            const ready = async () => {
+                // Once the shell is live, a key press hydrates the editor before an IME can start composing.
+                if (hydrating) await shellHydrated;
+                await draft?.settled();
+            };
+            return authorPageModules[data.page]().then(({ mountPage }) =>
+                mountPage(data as never, content, { hydrating, draft, ready })
+            );
+        },
+        {
+            keepsServerMarkup: true,
+            onLoadFailed: editsAbout
+                ? () => {
+                      draft?.release();
+                      showAboutLoadError();
+                  }
+                : undefined
+        }
     );
 }
 
@@ -341,11 +419,16 @@ function hydrateTreePageWhenLoaded(page: ApplicationDocument): void {
     request.catch((error: unknown) => {
         console.error('The page could not be loaded.', error);
         if (currentDocument && currentDocument !== page) return;
-        page.view = {
-            ...page.view,
-            content: undefined
-        };
-        showApplicationPage?.(page.view);
+        if (treePage.keepsServerMarkup) {
+            // The boundary stays dehydrated, so React leaves the writer's text and any drawn chart alone.
+            treePage.onLoadFailed?.();
+        } else {
+            page.view = {
+                ...page.view,
+                content: undefined
+            };
+            showApplicationPage?.(page.view);
+        }
         treePage.settle();
     });
 }
@@ -405,7 +488,8 @@ function readApplicationDocument(source: Document, url: string): ApplicationDocu
         return null;
     }
     const screen = readScreenData(source, content);
-    const treePage = readPostPage(source, content) ?? readDiscoveryPage(source, pageUrl);
+    const treePage =
+        readPostPage(source, content) ?? readDiscoveryPage(source, pageUrl) ?? readAuthorPage(source, content, pageUrl);
     return {
         view: {
             header,
@@ -1311,6 +1395,7 @@ function commitApplicationPage(page: ApplicationDocument, hash: string): void {
     applyDocumentState(page, initial);
     const content = document.getElementById('blex-route-content');
     if (content) {
+        if (page.treePage && page.view.content === undefined) page.treePage.onLoadFailed?.();
         if (navigated) restorePagePosition(changeType, key, hash);
         const generation = ++pageModuleGeneration;
         void activateRouteFeatures(page, content, generation).then((cleanup) => {
@@ -1360,6 +1445,7 @@ function ApplicationRoute({ initialPage }: { initialPage: ApplicationDocument })
 
     useLayoutEffect(() => {
         showApplicationPage = setView;
+        markShellHydrated();
         // The page chunk may have failed while this first render was in progress.
         setView(initialPage.view);
         if (!hasCommittedInitialDocument) commitApplicationPage(initialPage, window.location.hash);
@@ -1438,6 +1524,7 @@ if (appRoot && initialDocument) {
         })
         .catch((error: unknown) => {
             console.error('BLEX could not start its client, so the page stays as server HTML.', error);
+            failShellHydration(error);
         });
 } else {
     console.error('BLEX client routing was skipped because the application document marker is missing.');

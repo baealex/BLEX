@@ -1,23 +1,10 @@
 import { SiteIcon } from '../../appearance/icons.js';
 import { SiteFooter } from '../../appearance/shell.js';
 import { ui } from '../../i18n/public-ui.js';
-import type {
-    DiscoveryPageData,
-    DiscoveryPagination,
-    HomePageData,
-    TagPageData,
-    TagsPageData
-} from './discovery-page-data';
+import type { DiscoveryPageData, HomePageData, TagPageData, TagsPageData } from './discovery-page-data';
 import { NoticeCarousel } from './notice-carousel';
-import { EmptyState, Pagination, PostCardGrid } from './post-list';
+import { EmptyState, PageNavigation, PostCardGrid } from './post-list';
 import { DropdownFilter, QueryFilter, ReactFragment } from './search-ui';
-
-function PageNavigation({ pagination }: { pagination: DiscoveryPagination }) {
-    const { path, search, preserve, page, pages } = pagination;
-    return (
-        <Pagination path={path} search={new URLSearchParams(search)} preserve={preserve} page={page} pages={pages} />
-    );
-}
 
 function HomeContent({ data }: { data: HomePageData }) {
     return (

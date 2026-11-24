@@ -4,7 +4,6 @@ import { reloadAfterCatalogFailure } from './catalog-recovery';
 import { siteText } from './messages.js';
 import './tailwind.css';
 import './site.scss';
-import { loadAboutEditors } from '../features/authors/about-editor-loader';
 import { escapeAction } from './quick-search-escape';
 import { rememberSearch } from './recent-searches';
 import { THEME_COOKIE_KEY, writeThemePreferenceCookie } from './theme-cookie';
@@ -154,7 +153,6 @@ function bindRouteElements() {
     const controller = new AbortController();
     routeController = controller;
     const { signal } = controller;
-    loadAboutEditors(signal);
 
     for (const form of document.querySelectorAll<HTMLFormElement>('[data-settings-brand-upload]')) {
         const input = form.querySelector<HTMLInputElement>('input[type="file"]');

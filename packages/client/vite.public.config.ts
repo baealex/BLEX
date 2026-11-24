@@ -47,6 +47,15 @@ function publicCatalog(): Plugin {
     };
 }
 
+const authorPageEntries = [
+    'author-overview-page',
+    'author-posts-page',
+    'author-series-page',
+    'author-series-detail-page',
+    'author-about-edit-page',
+    'about-editor'
+];
+
 export default defineConfig({
     plugins: [tailwind(), lingui(), publicCatalog(), babel({ presets: [linguiTransformerBabelPreset()] })],
     base: '/assets/ui/',
@@ -63,6 +72,9 @@ export default defineConfig({
                 // Separate entries keep their shared code out of the application entry, which must run only once.
                 fileURLToPath(new URL('./src/features/posts/post-page.tsx', import.meta.url)),
                 fileURLToPath(new URL('./src/features/discovery/discovery-page.tsx', import.meta.url)),
+                ...authorPageEntries.map((name) =>
+                    fileURLToPath(new URL(`./src/features/authors/${name}.tsx`, import.meta.url))
+                ),
                 fileURLToPath(new URL('./src/features/posts/code-blocks-client.ts', import.meta.url)),
                 fileURLToPath(new URL('./src/application/screen-host/client.ts', import.meta.url)),
                 fileURLToPath(new URL('./src/appearance/site-client.ts', import.meta.url))
