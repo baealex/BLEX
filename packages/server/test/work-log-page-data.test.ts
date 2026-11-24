@@ -31,12 +31,13 @@ async function workLogApp() {
   const fixture = await createMigratedDatabase();
   seedEditor(fixture.db, 1, 'writer');
   seedEditor(fixture.db, 2, 'other');
-  insertRow(fixture.db, 'WorkLog', { id: 7, ownerId: 1, title: `log_title_marker ${forged}`, createdAt: Date.now() });
-  for (const [id, title, text] of [
-    [21, 'entry_title_marker', `entry_text_marker ${forged}`],
-    [22, '', 'entry_text_marker only text'],
+  const created = Date.now();
+  insertRow(fixture.db, 'WorkLog', { id: 7, ownerId: 1, title: `log_title_marker ${forged}`, createdAt: created });
+  for (const [id, title, text, minutesAgo] of [
+    [21, 'entry_title_marker', `entry_text_marker ${forged}`, 1],
+    [22, '', 'entry_text_marker only text', 2],
   ] as const) {
-    insertRow(fixture.db, 'WorkLogEntry', { id, logId: 7, title, text, createdAt: Date.now() - id });
+    insertRow(fixture.db, 'WorkLogEntry', { id, logId: 7, title, text, createdAt: created - minutesAgo * 60_000 });
   }
   insertRow(fixture.db, 'WorkLogShare', {
     id: 3,
