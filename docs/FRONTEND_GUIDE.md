@@ -35,6 +35,7 @@ The login prompt and the one-time Telegram notice render in the application tree
 - Use `renderApplicationDocument` from a `*.page.tsx` file for pages in the main application so direct visits receive server-rendered HTML and internal navigation uses the app router.
 - Include the initial content and metadata in the server response. Avoid a second browser request for data already needed to render the page.
 - Initialize browser features when their route loads. Remove event listeners, disconnect observers, and destroy editor instances when navigating away.
+- Moves within the application do not fire `beforeunload`. A screen that warns about unsaved edits also blocks the shared `window.blexHistory`, and returns its warning from `enableBeforeUnload` so the application leaves form posts to the browser while it applies.
 - Keep browser-only APIs out of server render paths. Load large editor and interaction modules when the relevant screen needs them.
 - Keep forms, focus, keyboard navigation, loading feedback, and error states usable. Check direct visits, internal navigation, and back/forward behavior.
 
