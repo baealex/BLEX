@@ -13,7 +13,14 @@ import { csrfPattern, formInput, validCsrf } from '../../platform/csrf.js';
 import { registerLoginPage } from './login-page.js';
 import { registerPasswordReset } from './password-reset.js';
 import { reserveLoginAttempt } from './login-attempts.js';
-import { consumePendingOAuth, oauthChallengeCookie, readPendingOAuth, registerOAuthRoutes } from './oauth.js';
+import {
+  consumePendingOAuth,
+  loginPath,
+  oauthChallengeCookie,
+  readPendingOAuth,
+  registerOAuthRoutes,
+  safeReturnPath,
+} from './oauth.js';
 import { authenticatePassword } from './password-login.js';
 import { createSession, deleteSession, loginBody, readSession } from './session.js';
 import { registerAccountSecurity } from './security.js';
@@ -39,7 +46,7 @@ function signedInBody(user: Parameters<typeof loginBody>[0], spentRecoveryKey: s
 }
 
 /** A sign-in form posted before the client starts lands on a page instead of the raw JSON response. */
-async function sendFormLoginToPage(request: FastifyRequest, reply: FastifyReply, payload: unknown) {
+async function sendFormLoginToPage(siteUrl: URL, request: FastifyRequest, reply: FastifyReply, payload: unknown) {
   if (request.headers['sec-fetch-dest'] !== 'document' || typeof payload !== 'string') return payload;
   let result: { status?: string; body?: { security?: boolean } };
   try {
@@ -48,9 +55,10 @@ async function sendFormLoginToPage(request: FastifyRequest, reply: FastifyReply,
     return payload;
   }
   const signedIn = reply.statusCode === 200 && result.status === 'DONE' && !result.body?.security;
+  const next = safeReturnPath(formInput(request).next, siteUrl);
   reply
     .code(303)
-    .header('Location', signedIn ? '/' : '/login')
+    .header('Location', signedIn ? next : loginPath(next))
     .removeHeader('Content-Type');
   return '';
 }
@@ -88,7 +96,9 @@ export function registerAuthentication(app: FastifyInstance, db: PrismaClient, s
       return success(loginBody(user));
     });
 
-    routes.post('/v1/login', { onSend: sendFormLoginToPage }, async (request, reply) => {
+    const onSend = (request: FastifyRequest, reply: FastifyReply, payload: unknown) =>
+      sendFormLoginToPage(siteUrl, request, reply, payload);
+    routes.post('/v1/login', { onSend }, async (request, reply) => {
       if (!validCsrf(request, siteUrl)) return reply.code(403).send(failure('RJ'));
       const { username = '', password = '', code = '', oauth2fa: oauthTwoFactor, oauthToken } = formInput(request);
       const oauthRequest = oauthTwoFactor === true || oauthTwoFactor === 'true' || Boolean(oauthToken);

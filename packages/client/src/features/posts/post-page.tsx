@@ -737,7 +737,7 @@ export function PostPage({
 
     return (
         <>
-            <main className="min-h-[calc(100vh-10.5rem)]" data-blex-post-page="">
+            <main className="min-h-[calc(100vh-10.5rem)]">
                 {fullCover && coverSection}
                 <div className={`post-detail-body px-4 md:px-6${fullCover ? ' post-detail-body--after-cover' : ''}`}>
                     <div className="post-detail-layout">

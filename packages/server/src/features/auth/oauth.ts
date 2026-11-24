@@ -59,7 +59,7 @@ export function safeReturnPath(value: unknown, siteUrl: URL): string {
   }
 }
 
-function loginPath(next: string): string {
+export function loginPath(next: string): string {
   return next === '/' ? '/login' : `/login?${new URLSearchParams({ next })}`;
 }
 
