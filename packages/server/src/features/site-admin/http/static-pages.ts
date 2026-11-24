@@ -1,8 +1,9 @@
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import { done as success, failure } from '../../../platform/response.js';
+import { staticPageHtml } from '../../discovery/shared.js';
 import { readStaticPage, readStaticPages, saveStaticPage, staticPagePayload } from '../services/static-pages.js';
-import { type AdminSettingsOptions, apiAccess, apiJsonBody, csrfValid, validRouteId } from '../shared.js';
+import { type AdminSettingsOptions, apiAccess, apiJsonBody, csrfValid, stringValue, validRouteId } from '../shared.js';
 
 export function registerStaticPagesRoutes(routes: FastifyInstance, db: PrismaClient, options: AdminSettingsOptions) {
   routes.get('/v1/static-pages', async (request, reply) => {
@@ -26,6 +27,13 @@ export function registerStaticPagesRoutes(routes: FastifyInstance, db: PrismaCli
     if ('response' in permission) return reply.send(permission.response);
     const saved = await saveStaticPage(db, permission.user.id, staticPagePayload(apiJsonBody(request)));
     return saved.ok ? reply.send(success(saved.body)) : reply.send(failure(saved.code, saved.message));
+  });
+
+  routes.post<{ Body: unknown }>('/v1/static-pages/preview', { bodyLimit: 1024 * 1024 }, async (request, reply) => {
+    if (!csrfValid(request, options)) return reply.code(403).type('text/plain; charset=utf-8').send('Forbidden');
+    const permission = await apiAccess(request, db, options);
+    if ('response' in permission) return reply.send(permission.response);
+    return reply.send(success({ html: staticPageHtml(stringValue(apiJsonBody(request).content)) }));
   });
 
   routes.put<{ Params: { pageId: string }; Body: unknown }>(

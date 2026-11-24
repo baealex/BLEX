@@ -64,8 +64,17 @@ export function parsePostId(value: string): number | null {
 const dryRunEnabled = /^(true|on|yes|1|y|t)$/i;
 const dryRunDisabled = /^(false|off|no|0|n|f)$/i;
 
-/** Any value asking for a dry run wins, and a value that cannot be read stops the request before it can delete. */
-export function parseDryRun(query: QueryValue): { dryRun: boolean; invalid?: { field: string; value: string } } {
+/**
+ * Any value asking for a dry run wins, and a value that cannot be read stops the request before it can delete.
+ * So does a misspelled flag such as `dry-run`, because ignoring it would delete for a caller who asked only to check.
+ */
+export function parseDryRun(query: QueryValue): {
+  dryRun: boolean;
+  invalid?: { field: string; value: string };
+  misspelled?: string;
+} {
+  const misspelled = readScalar(query.dryRunMisspelled);
+  if (misspelled !== undefined) return { dryRun: true, misspelled };
   let dryRun = false;
   for (const [field, sent] of [
     ['dry_run', query.dryRun],
@@ -93,6 +102,18 @@ export function parseValidationError(reply: FastifyReply, field: string, value: 
             input: value,
           },
         ],
+      },
+    },
+  });
+}
+
+export function misspelledDryRunError(reply: FastifyReply, field: string) {
+  return reply.code(422).send({
+    error: {
+      code: 'request.invalid_payload',
+      message: 'The request payload could not be validated.',
+      fields: {
+        errors: [{ type: 'extra_forbidden', loc: ['query', field], msg: 'Unknown query parameter. Use dry_run.' }],
       },
     },
   });

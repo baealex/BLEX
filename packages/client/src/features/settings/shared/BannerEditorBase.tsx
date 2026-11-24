@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useNavigate, useBlocker } from '@tanstack/react-router';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
@@ -21,12 +21,14 @@ import {
     createGlobalBanner,
     updateGlobalBanner,
     deleteGlobalBanner,
+    previewBannerHtml,
     type BannerCreateData,
     type BannerUpdateData,
     type GlobalBannerCreateData,
     type GlobalBannerUpdateData
 } from '~/lib/api/settings';
 import BannerPreviewFrame from './BannerPreviewFrame';
+import { useSanitizedPreview } from './useSanitizedPreview';
 import {
     bannerPositionMessages,
     bannerPositionOptions,
@@ -358,6 +360,15 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
     const title = watch('title');
     const contentHtml = watch('contentHtml');
     const isActive = watch('isActive');
+    const renderPreview = useCallback(
+        async (html: string) => {
+            const { data } = await previewBannerHtml(scope, html);
+            if (data.status !== 'DONE') throw new Error(data.errorMessage);
+            return data.body.html;
+        },
+        [scope]
+    );
+    const previewHtml = useSanitizedPreview(contentHtml, renderPreview);
 
     const handleDelete = async () => {
         const confirmMessage = title
@@ -596,7 +607,8 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
 
                 <div className="mx-auto max-w-[1720px] space-y-6 px-4 pb-8 pt-6 md:px-6">
                     <BannerPreviewFrame
-                        contentHtml={contentHtml}
+                        previewHtml={previewHtml}
+                        hasContent={contentHtml.trim().length > 0}
                         position={position}
                         hasSelectedPosition={hasSelectedPosition}
                         onPositionChange={handlePositionChange}

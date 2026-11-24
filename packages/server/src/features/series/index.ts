@@ -298,23 +298,13 @@ export function registerAuthorCollections(
       request: FastifyRequest,
       reply: FastifyReply,
       username: string,
-      mode: 'add' | 'remove' | 'order' | 'available',
+      mode: 'add' | 'remove' | 'order',
     ) => {
       const owner = await db.user.findUnique({ where: { username }, select: { id: true, username: true } });
       if (!owner) return reply.code(404).send('Not found');
       const { user, error } = await pinnedOwnerEditor(request, owner.id);
       if (!user) return error;
       if (!options.validateCsrf(request)) return reply.code(403).send(apiError('RJ'));
-      if (mode === 'available') {
-        const result = await readPinnablePosts(
-          db,
-          owner.id,
-          queryValue(request, 'q'),
-          queryValue(request, 'limit'),
-          queryValue(request, 'page'),
-        );
-        return 'code' in result ? pinnedError(result) : apiDone({ posts: result.posts, ...result.pagination });
-      }
       if (mode === 'order') {
         const urls = parsePinnedUrls(bodyRecord(request.body).postUrls);
         if (!urls) return pinnedError({ code: 'IP', key: 'pinned_posts.invalid_format' });
@@ -337,8 +327,19 @@ export function registerAuthorCollections(
     routes.put<{ Params: { username: string } }>('/v1/users/@:username/pinned-posts/order', (request, reply) =>
       authorPinnedMutation(request, reply, request.params.username, 'order'),
     );
-    routes.get<{ Params: { username: string } }>('/v1/users/@:username/pinnable-posts', (request, reply) =>
-      authorPinnedMutation(request, reply, request.params.username, 'available'),
-    );
+    routes.get<{ Params: { username: string } }>('/v1/users/@:username/pinnable-posts', async (request, reply) => {
+      const owner = await db.user.findUnique({ where: { username: request.params.username }, select: { id: true } });
+      if (!owner) return reply.code(404).send('Not found');
+      const { user, error } = await pinnedOwnerEditor(request, owner.id);
+      if (!user) return error;
+      const result = await readPinnablePosts(
+        db,
+        owner.id,
+        queryValue(request, 'q'),
+        queryValue(request, 'limit'),
+        queryValue(request, 'page'),
+      );
+      return 'code' in result ? pinnedError(result) : apiDone({ posts: result.posts, ...result.pagination });
+    });
   });
 }

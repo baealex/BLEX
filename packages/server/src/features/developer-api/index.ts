@@ -30,6 +30,7 @@ import {
   type QueryValue,
   errorReply,
   formatError,
+  misspelledDryRunError,
   parseDryRun,
   parsePostId,
   parseValidationError,
@@ -265,7 +266,8 @@ function registerDeveloperRoutes(app: FastifyInstance, db: PrismaClient, options
         if (!token) return reply;
         const id = parsePostId(request.params.postId);
         if (id === null) return parseValidationError(reply, 'post_id', request.params.postId);
-        const { dryRun, invalid } = parseDryRun(request.query);
+        const { dryRun, invalid, misspelled } = parseDryRun(request.query);
+        if (misspelled) return misspelledDryRunError(reply, misspelled);
         if (invalid) return parseValidationError(reply, invalid.field, invalid.value);
         const original = await readOwnedPost(db, token.user.id, id);
         if (!original) return postNotFound(db, reply, token.user.id);
