@@ -15,6 +15,7 @@ import { openLoginPromptFrom } from './login-prompt.js';
 import { opensOutsideApplication, type BlexNavigateDetail } from './navigation.js';
 import {
     authorPageDataSelector,
+    contentPageDataSelector,
     discoveryPageDataSelector,
     postBodySelector,
     postPageDataSelector
@@ -27,6 +28,8 @@ import {
     storedAboutDraft
 } from '../features/authors/about-draft';
 import type { AuthorMountContext, AuthorPageData } from '../features/authors/author-page-data';
+import type { DeveloperQuickstartData } from '../features/developer-api/quickstart-data';
+import type { ErrorPageData, StaticPageData } from '../features/discovery/content-page-data';
 import type { DiscoveryPageData } from '../features/discovery/discovery-page-data';
 import type { PostPageData } from '../features/posts/post-page-data';
 
@@ -75,6 +78,12 @@ interface ApplicationDocument {
 
 interface AuthorPageModule {
     mountPage(data: never, content: Element, context: AuthorMountContext): ReactNode | Promise<ReactNode>;
+}
+
+type ContentPageData = StaticPageData | ErrorPageData | DeveloperQuickstartData;
+
+interface ContentPageModule {
+    mountPage(data: never, content: Element): ReactNode;
 }
 
 /** A page that renders in the React tree from the data its server document carries. */
@@ -392,6 +401,22 @@ function readAuthorPage(source: Document, content: Element, pageUrl: URL): TreeP
     );
 }
 
+const contentPageModules: Record<ContentPageData['page'], () => Promise<ContentPageModule>> = {
+    static: () => import('../features/discovery/static-page'),
+    'not-found': () => import('../features/discovery/not-found-page'),
+    forbidden: () => import('../features/discovery/forbidden-page'),
+    'developer-quickstart': () => import('../features/developer-api/quickstart')
+};
+
+function readContentPage(source: Document, content: Element, pageUrl: URL): TreePage | null {
+    const value = parseElementJson(source.querySelector(contentPageDataSelector));
+    if (!isRecord(value) || !Object.keys(contentPageModules).includes(String(value.page))) return null;
+    const data = value as unknown as ContentPageData;
+    return createTreePage(`content:${pageRequestKey(pageUrl)}`, () =>
+        contentPageModules[data.page]().then(({ mountPage }) => mountPage(data as never, content))
+    );
+}
+
 function TreeRoute({ page, children }: { page: TreePage; children: ReactNode }) {
     useEffect(() => {
         page.mounted = true;
@@ -489,7 +514,10 @@ function readApplicationDocument(source: Document, url: string): ApplicationDocu
     }
     const screen = readScreenData(source, content);
     const treePage =
-        readPostPage(source, content) ?? readDiscoveryPage(source, pageUrl) ?? readAuthorPage(source, content, pageUrl);
+        readPostPage(source, content) ??
+        readDiscoveryPage(source, pageUrl) ??
+        readAuthorPage(source, content, pageUrl) ??
+        readContentPage(source, content, pageUrl);
     return {
         view: {
             header,

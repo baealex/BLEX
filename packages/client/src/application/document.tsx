@@ -10,6 +10,11 @@ export function scriptJson(value: unknown): string {
     return JSON.stringify(value).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
 }
 
+/** The data a `tree` page hydrates from. Body scripts stay direct children of `<body>`, where the client reads them. */
+export function pageDataScript(id: string, data: unknown): ReactElement {
+    return <script key="data" type="application/json" id={id} dangerouslySetInnerHTML={{ __html: scriptJson(data) }} />;
+}
+
 /**
  * How the browser takes over a page's content:
  * `static` keeps it as server markup, `island` hydrates part of it from a separate root,

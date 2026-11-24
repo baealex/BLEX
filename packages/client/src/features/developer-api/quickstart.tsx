@@ -1,21 +1,32 @@
-import { Fragment, type ReactNode } from 'react';
+import { Fragment, type ReactNode, useState } from 'react';
 import type { DeveloperCommands } from '@blex/contracts/developer-api';
+import { SiteFooter } from '../../appearance/shell.js';
 import { developerText, type DeveloperLocale, type DeveloperMessage } from './messages.js';
+import type { DeveloperQuickstartData } from './quickstart-data';
 
 function Command({ locale, label, children }: { locale: DeveloperLocale; label: string; children: string }) {
+    const [status, setStatus] = useState('');
+    const copy = async () => {
+        try {
+            await navigator.clipboard.writeText(children);
+            setStatus(developerText(locale, 'Copied.'));
+        } catch {
+            setStatus(developerText(locale, 'Could not copy.'));
+        }
+    };
     return (
         <div className="mt-4 min-w-0 overflow-hidden rounded-xl border border-line bg-surface-subtle">
             <div className="flex min-h-11 items-center justify-between gap-3 border-b border-line px-4">
                 <span className="text-xs font-medium text-content-secondary">{label}</span>
                 <div className="flex items-center gap-2">
-                    <span className="text-xs text-content-secondary" data-copy-status="" role="status" />
+                    <span className="text-xs text-content-secondary" role="status">
+                        {status}
+                    </span>
                     <button
                         type="button"
                         className="min-h-11 shrink-0 px-2 text-xs font-medium text-content-secondary transition-colors duration-150 hover:text-content active:scale-95"
                         aria-label={developerText(locale, 'Copy {label}', { label })}
-                        data-copy-link={children}
-                        data-copy-message={developerText(locale, 'Copied.')}
-                        data-copy-error-message={developerText(locale, 'Could not copy.')}
+                        onClick={() => void copy()}
                     >
                         {developerText(locale, 'Copy')}
                     </button>
@@ -321,4 +332,19 @@ export function DeveloperQuickstart({
             </footer>
         </div>
     );
+}
+
+export function DeveloperQuickstartPage({ data }: { data: DeveloperQuickstartData }) {
+    return (
+        <>
+            <main className="min-h-[calc(100vh-10.5rem)]">
+                <DeveloperQuickstart locale={data.locale} commands={data.commands} siteOrigin={data.siteOrigin} />
+            </main>
+            <SiteFooter brand={data.brand} locale={data.locale} year={data.copyrightYear} />
+        </>
+    );
+}
+
+export function mountPage(data: DeveloperQuickstartData) {
+    return <DeveloperQuickstartPage data={data} />;
 }

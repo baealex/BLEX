@@ -135,10 +135,22 @@ for (const locale of ['ko', 'en'] as const)
         assert.ok(validate(body), `${method} ${path}: ${JSON.stringify(validate.errors)}`);
       }
       const quickstart = await fixture.app.inject({ url: '/docs/developer-api/quickstart', headers: fixture.editor });
+      // Each copy button copies the command its code block shows.
       const commands: string[] = [];
+      let block: string | null = null;
+      let inPre = false;
       const parser = new Parser({
-        onopentag(name, attrs) {
-          if (name === 'button' && attrs['data-copy-link']?.startsWith('curl ')) commands.push(attrs['data-copy-link']);
+        onopentag(name) {
+          if (name === 'pre') inPre = true;
+          if (name === 'code' && inPre) block = '';
+        },
+        ontext(text) {
+          if (block !== null) block += text;
+        },
+        onclosetag(name) {
+          if (name === 'code' && block?.startsWith('curl ')) commands.push(block);
+          if (name === 'code') block = null;
+          if (name === 'pre') inPre = false;
         },
       });
       parser.end(quickstart.body);
@@ -237,9 +249,12 @@ test('uses one locale for documentation, OpenAPI, and API errors without transla
             assert.match(response.body, locale === 'en' ? /aria-label="Account menu"/ : /aria-label="계정 메뉴"/);
             assert.match(
               response.body,
-              locale === 'en'
-                ? /data-copy-error-message="Could not copy\."/
-                : /data-copy-error-message="복사에 실패했습니다\."/,
+              locale === 'en' ? /aria-label="Copy Check your account"/ : /aria-label="계정 확인 복사"/,
+            );
+            // The browser shows its copy status in the same language the page data names.
+            assert.match(
+              response.body,
+              new RegExp(`id="blex-content-page-data">\\{"page":"developer-quickstart","locale":"${locale}"`),
             );
           }
         }

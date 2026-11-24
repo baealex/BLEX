@@ -1,16 +1,14 @@
-import { DeveloperQuickstart } from '~/features/developer-api/quickstart';
+import { DeveloperQuickstartPage } from '~/features/developer-api/quickstart';
+import { createDeveloperQuickstartData } from '~/features/developer-api/quickstart-data';
 import { developerText } from '~/features/developer-api/messages';
-import { SiteFooter, SiteHeader, SiteTheme } from '~/appearance/shell';
-import { renderApplicationDocument } from '~/application/document';
+import { SiteHeader, SiteTheme } from '~/appearance/shell';
+import { pageDataScript, renderApplicationDocument } from '~/application/document';
+import { contentPageDataId } from '~/application/route-data';
 import type { PageProps } from '@blex/contracts/pages';
 
-export default function renderPage({
-    brand,
-    viewer,
-    locale,
-    commands,
-    siteOrigin
-}: PageProps['docs/developer-api/quickstart']): string {
+export default function renderPage(props: PageProps['docs/developer-api/quickstart']): string {
+    const { brand, viewer, locale } = props;
+    const data = createDeveloperQuickstartData(props);
     return renderApplicationDocument(
         <html lang={locale}>
             <head>
@@ -22,11 +20,10 @@ export default function renderPage({
             </head>
             <body className="bg-surface-page text-content antialiased">
                 <SiteHeader brand={brand} viewer={viewer} locale={locale} />
-                <main className="min-h-[calc(100vh-10.5rem)]">
-                    <DeveloperQuickstart locale={locale} commands={commands} siteOrigin={siteOrigin} />
-                </main>
-                <SiteFooter brand={brand} locale={locale} />
+                <DeveloperQuickstartPage data={data} />
+                {pageDataScript(contentPageDataId, data)}
             </body>
-        </html>
+        </html>,
+        'tree'
     );
 }

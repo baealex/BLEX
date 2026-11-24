@@ -56,6 +56,13 @@ const authorPageEntries = [
     'about-editor'
 ];
 
+const contentPageEntries = [
+    'discovery/static-page',
+    'discovery/not-found-page',
+    'discovery/forbidden-page',
+    'developer-api/quickstart'
+];
+
 export default defineConfig({
     plugins: [tailwind(), lingui(), publicCatalog(), babel({ presets: [linguiTransformerBabelPreset()] })],
     base: '/assets/ui/',
@@ -74,6 +81,9 @@ export default defineConfig({
                 fileURLToPath(new URL('./src/features/discovery/discovery-page.tsx', import.meta.url)),
                 ...authorPageEntries.map((name) =>
                     fileURLToPath(new URL(`./src/features/authors/${name}.tsx`, import.meta.url))
+                ),
+                ...contentPageEntries.map((path) =>
+                    fileURLToPath(new URL(`./src/features/${path}.tsx`, import.meta.url))
                 ),
                 fileURLToPath(new URL('./src/features/posts/code-blocks-client.ts', import.meta.url)),
                 fileURLToPath(new URL('./src/application/screen-host/client.ts', import.meta.url)),
