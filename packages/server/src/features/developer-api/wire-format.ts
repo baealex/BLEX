@@ -53,10 +53,18 @@ export function keysFromWire(value: unknown): unknown {
   return convertKeys(value, (key) => (documentedName.test(key) ? snakeToCamel(key) : null));
 }
 
-/** `dryRun` is the one undocumented spelling kept, because a caller who wrote it asked not to delete. */
+/**
+ * `dryRun` is the one undocumented spelling kept, because a caller who wrote it asked not to delete.
+ * Any other spelling of the flag is passed on so a delete can refuse it instead of ignoring it.
+ */
 function queryFromWire(query: unknown): unknown {
   const converted = keysFromWire(query);
-  if (isPlainObject(query) && isPlainObject(converted)) converted.dryRunCamelCase = query.dryRun;
+  if (isPlainObject(query) && isPlainObject(converted)) {
+    converted.dryRunCamelCase = query.dryRun;
+    converted.dryRunMisspelled = Object.keys(query).find(
+      (key) => key !== 'dry_run' && key !== 'dryRun' && key.toLowerCase().replace(/[\W_]/g, '') === 'dryrun',
+    );
+  }
   return converted;
 }
 
