@@ -380,6 +380,44 @@ const keepSearchFocusWithUserAction = async () => {
     await page.setViewportSize({ width: 1280, height: 900 });
 };
 
+const keepNoticeFocusWhenCarouselStarts = async () => {
+    await open('/');
+    const csrf = (await page.context().cookies()).find((cookie) => cookie.name === 'csrftoken')?.value;
+    expect(csrf).toBeTruthy();
+    const headers = { origin, 'x-csrftoken': csrf };
+    const notices = [];
+    const chunk = '**/assets/ui/assets/discovery-page-*.js';
+    const { promise: released, resolve: release } = Promise.withResolvers();
+    let continued;
+    try {
+        for (const title of ['First smoke notice', 'Second smoke notice']) {
+            const response = await page.request.post(`${origin}/v1/global-notices`, {
+                headers,
+                data: { title, url: '/tags' }
+            });
+            const result = await response.json();
+            expect(result.status).toBe('DONE');
+            notices.push(result.body.id);
+        }
+        await page.route(chunk, (route) => {
+            continued = released.then(() => route.continue());
+            return continued;
+        });
+        await page.goto(`${origin}/`, { waitUntil: 'commit' });
+        const second = page.locator('[data-notice-slide]').nth(1);
+        await second.focus();
+        release();
+        await expect(page.locator('[data-notice-controls]')).toBeVisible();
+        await expect(second).toBeVisible();
+        await expect(second).toBeFocused();
+    } finally {
+        release();
+        await continued;
+        await page.unroute(chunk);
+        for (const id of notices) await page.request.delete(`${origin}/v1/global-notices/${id}`, { headers });
+    }
+};
+
 const keepThemePreferenceAcrossPages = async () => {
     await page.emulateMedia({ colorScheme: 'light' });
     await open('/');
@@ -483,6 +521,7 @@ try {
             'search focuses on explicit clearing and preserves history without grabbing focus',
             keepSearchFocusWithUserAction
         ],
+        ['a notice focused before the home page hydrates stays shown and focused', keepNoticeFocusWhenCarouselStarts],
         ['editor', openEditor],
         ['latest draft list survives an older response', keepLatestDraftList],
         ['media keyboard controls keep focus and settings labels activate their controls', keepMediaControlFocus],
