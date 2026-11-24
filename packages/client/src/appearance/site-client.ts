@@ -2,6 +2,7 @@ import { ui } from '../i18n/public-ui.js';
 import { activateDocumentLocale } from '../i18n';
 import { reloadAfterCatalogFailure } from './catalog-recovery';
 import { siteText } from './messages.js';
+import { escapeAction } from './quick-search-escape.js';
 import './tailwind.css';
 import './site.scss';
 import { THEME_COOKIE_KEY, writeThemePreferenceCookie } from './theme-cookie';
@@ -13,6 +14,11 @@ let routeController: AbortController | undefined;
 let routeGeneration = 0;
 let hydrated = !document.getElementById('blex-application');
 let clientBindingsInstalled = false;
+// Until the header's search box hydrates, this script answers its keys as the box does after.
+// Focusing the box opens its panel then, so Esc closes it first, and typing or focusing opens it again.
+let searchHydrated = false;
+let searchClosed = false;
+const searchInput = '[data-site-search] input';
 
 function readCookie(key: string): string {
     const value = document.cookie.split('; ').find((entry) => entry.startsWith(`${key}=`));
@@ -235,9 +241,30 @@ function handleGlobalClick(event: MouseEvent) {
     }
 }
 
+function answerSearchKey(event: KeyboardEvent) {
+    const input = document.querySelector<HTMLInputElement>(searchInput);
+    if (!input) return;
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        // Narrow screens hide the box and link to the search page instead.
+        if (!input.getClientRects().length) return;
+        event.preventDefault();
+        input.focus();
+    } else if (event.key === 'Escape' && event.target === input) {
+        const action = escapeAction(event, !searchClosed, input.value !== '');
+        if (action !== 'none') event.preventDefault();
+        if (action === 'close') searchClosed = true;
+        if (action === 'clear') input.value = '';
+    }
+}
+
 function handleGlobalKeydown(event: KeyboardEvent) {
+    if (!searchHydrated) answerSearchKey(event);
     if (event.key !== 'Escape') return;
     for (const details of document.querySelectorAll<HTMLDetailsElement>('[data-account-menu]')) details.open = false;
+}
+
+function reopenSearch(event: Event) {
+    if (event.target instanceof Element && event.target.matches(searchInput)) searchClosed = false;
 }
 
 function handleDialogClose(event: Event) {
@@ -279,6 +306,16 @@ function activateClientBindings() {
 document.addEventListener('click', handleGlobalClick, true);
 document.addEventListener('keydown', handleGlobalKeydown, true);
 document.addEventListener('close', handleDialogClose, true);
+document.addEventListener('focusin', reopenSearch, true);
+document.addEventListener('input', reopenSearch, true);
+document.addEventListener(
+    'blex:quick-search-ready',
+    (event) => {
+        searchHydrated = true;
+        if (searchClosed) event.preventDefault();
+    },
+    { once: true }
+);
 systemTheme.addEventListener('change', () => setTheme(undefined, hydrated && localeReady));
 document.addEventListener('blex:before-page-change', handleBeforePageChange);
 document.addEventListener('blex:page-change', handlePageChange);

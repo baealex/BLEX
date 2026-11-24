@@ -42,6 +42,7 @@ Screen pages render in the main React tree as well, but on the client: the scree
 - Moves within the application do not fire `beforeunload`. A screen that warns about unsaved edits also blocks the shared `window.blexHistory`, and returns its warning from `enableBeforeUnload` so the application leaves form posts to the browser while it applies.
 - Keep browser-only APIs out of server render paths. Load large editor and interaction modules when the relevant screen needs them.
 - Keep forms, focus, keyboard navigation, loading feedback, and error states usable. Check direct visits, internal navigation, and back/forward behavior.
+- Before the page hydrates, `appearance/site-client.ts` answers the site menus, the theme button, and the header search box's Esc and Cmd/Ctrl+K in the capture phase. The search box takes its keys over in the commit that hydrates it, and keeps its panel closed if Esc closed it before then.
 
 ## Components, state, and requests
 

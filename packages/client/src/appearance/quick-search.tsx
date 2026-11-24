@@ -1,6 +1,6 @@
 import { siteText, type SiteLocale } from './messages.js';
 import { getDocumentLocale } from '../i18n/locale.js';
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { SiteIcon } from './icons.js';
 import { escapeAction } from './quick-search-escape.js';
 import { recentSearches, rememberSearch } from './recent-searches.js';
@@ -35,19 +35,7 @@ function resultRows(matches: unknown): SearchRow[] {
     });
 }
 
-/**
- * `onReady` runs once this component's own handlers are live.
- * `startClosed` reports that the reader already dismissed the box with Esc while this code was loading.
- */
-export function QuickSearch({
-    onReady,
-    startClosed,
-    locale = getDocumentLocale()
-}: {
-    onReady?: () => void;
-    startClosed?: () => boolean;
-    locale?: SiteLocale;
-}) {
+export function QuickSearch({ locale = getDocumentLocale() }: { locale?: SiteLocale }) {
     const container = useRef<HTMLDivElement>(null);
     const input = useRef<HTMLInputElement>(null);
     const list = useRef<HTMLUListElement>(null);
@@ -118,8 +106,9 @@ export function QuickSearch({
         }, suggestDelayMs);
     };
 
+    // A layout effect, so the site script stops answering the box in the commit that makes these handlers live.
     // biome-ignore lint/correctness/useExhaustiveDependencies: these listeners live as long as the header and only use refs and state setters.
-    useEffect(() => {
+    useLayoutEffect(() => {
         const closeOnOutsideClick = (event: MouseEvent) => {
             if (event.target instanceof Node && !container.current?.contains(event.target)) setOpen(false);
         };
@@ -140,9 +129,12 @@ export function QuickSearch({
         document.addEventListener('click', closeOnOutsideClick);
         document.addEventListener('keydown', focusOnShortcut);
         document.addEventListener('blex:before-page-change', closeOnPageChange);
-        // The box can take focus before this code has loaded.
-        if (document.activeElement === input.current && !startClosed?.()) suggest();
-        onReady?.();
+        // The box can take focus before this code has loaded. The site script answered it until now,
+        // and cancels this event when Esc has already closed the box.
+        const open = input.current?.dispatchEvent(
+            new Event('blex:quick-search-ready', { bubbles: true, cancelable: true })
+        );
+        if (open && document.activeElement === input.current) suggest();
         return () => {
             cancel();
             document.removeEventListener('click', closeOnOutsideClick);
