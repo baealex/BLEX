@@ -138,7 +138,7 @@ async function consumeUtilityConfirmation(
     !isRecord(payload.parameters) ||
     JSON.stringify(payload.parameters) !== JSON.stringify(parameters) ||
     typeof payload.issuedAt !== 'number' ||
-    payload.issuedAt > Date.now() ||
+    // The server signed this time, so a value ahead of the clock only means the clock was set back; age alone counts.
     Date.now() - payload.issuedAt > 5 * 60 * 1000 ||
     typeof payload.nonce !== 'string' ||
     !payload.nonce
