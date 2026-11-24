@@ -350,6 +350,29 @@ test('pinned APIs expose public rows, reserve trash, paginate, and guard author 
   assert.equal(noCsrf.statusCode, 403);
 });
 
+test('reading pinnable posts needs no CSRF token, but changing pins still does', async () => {
+  const sessionOnly = (id: number) => ({ 'x-test-user': String(id) });
+  const setting = await app.inject({ url: '/v1/setting/pinnable-posts', headers: sessionOnly(1) });
+  const author = await app.inject({ url: '/v1/users/@writer/pinnable-posts', headers: sessionOnly(1) });
+  for (const response of [setting, author]) {
+    assert.equal(response.statusCode, 200, response.body);
+    assert.equal(response.json().status, 'DONE', response.body);
+  }
+  assert.deepEqual(author.json().body, setting.json().body);
+
+  const otherAuthor = await app.inject({ url: '/v1/users/@writer/pinnable-posts', headers: sessionOnly(2) });
+  assert.equal(otherAuthor.json().errorCode, 'error:AT');
+  assert.equal((await app.inject('/v1/users/@writer/pinnable-posts')).json().errorCode, 'error:NL');
+
+  const unprotectedChange = await app.inject({
+    method: 'DELETE',
+    url: '/v1/users/@writer/pinned-posts',
+    headers: jsonHeaders(1, false),
+    payload: { postUrl: 'public-unassigned' },
+  });
+  assert.equal(unprotectedChange.statusCode, 403);
+});
+
 test('the pinned API removes rows', async () => {
   const removed = await app.inject({
     method: 'DELETE',

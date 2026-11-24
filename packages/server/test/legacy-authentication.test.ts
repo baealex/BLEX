@@ -65,7 +65,7 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
   try {
     const loginPage = await app.inject('/login');
     assert.equal(loginPage.statusCode, 200, loginPage.body);
-    assert.match(loginPage.body, /data-blex-page-module="login"/);
+    assert.match(loginPage.body, /<script type="application\/json" id="blex-login-page-data">/);
     const page = await app.inject('/sign?invite=synthetic-invite');
     assert.equal(page.statusCode, 200);
     assert.match(page.body, /value="synthetic-invite"/);

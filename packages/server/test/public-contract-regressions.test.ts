@@ -17,7 +17,7 @@ import {
   testSiteUrl,
   prismaDate,
 } from './fixtures/migrated-database.js';
-import { assertFast } from './support/assert-fast.js';
+import { assertLinearTime } from './support/assert-linear-time.js';
 
 const daysAgo = (days: number) => new Date(Date.now() - days * 86_400_000).toISOString().slice(0, -1).replace('T', ' ');
 const future = new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, -1).replace('T', ' ');
@@ -370,7 +370,7 @@ test('renders raw HTML in Markdown with the 3.x whitespace and sorted attributes
 });
 
 test('HTML to Markdown stays fast on unbalanced quotes', () => {
-  assertFast('unbalanced quotes', () => htmlToMarkdown("<br '\"><br '>".repeat(40_000)));
+  assertLinearTime('unbalanced quotes', htmlToMarkdown, (size) => "<br '\"><br '>".repeat(size), 40_000);
 });
 
 test('a deeply nested post keeps its text in Markdown', () => {

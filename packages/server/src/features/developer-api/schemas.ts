@@ -331,7 +331,8 @@ export const developerSchemas = {
     querystring: Type.Object({
       dry_run: queryValue(
         Type.Union([Type.Literal(''), booleanInput], {
-          description: 'Set true to check the target without deleting it.',
+          description:
+            'Set true to check the target without deleting it. Other spellings such as dry-run are refused with 422, not ignored.',
         }),
       ),
     }),

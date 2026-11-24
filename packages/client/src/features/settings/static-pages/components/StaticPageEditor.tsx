@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useCallback, useState, useRef } from 'react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Link, useNavigate, useBlocker } from '@tanstack/react-router';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
@@ -17,8 +17,10 @@ import {
     createStaticPage,
     updateStaticPage,
     deleteStaticPage,
+    previewStaticPageHtml,
     type StaticPageCreateData
 } from '~/lib/api/settings';
+import { useSanitizedPreview } from '../../shared/useSanitizedPreview';
 
 const toSlug = (text: string, trim = false) => {
     let result = text
@@ -72,6 +74,12 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
     const [order, setOrder] = useState(page?.order ?? 0);
     const [activePanel, setActivePanel] = useState<'code' | 'preview'>('code');
     const pageUrlPath = `/static/${slug || 'slug'}`;
+    const renderPreview = useCallback(async (html: string) => {
+        const { data } = await previewStaticPageHtml(html);
+        if (data.status !== 'DONE') throw new Error(data.errorMessage);
+        return data.body.html;
+    }, []);
+    const previewHtml = useSanitizedPreview(content, renderPreview, activePanel === 'preview');
 
     const markDirty = () => {
         isDirtyRef.current = true;
@@ -451,7 +459,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                     </Trans>
                                 </div>
                                 {content.trim() ? (
-                                    <div className="break-words" dangerouslySetInnerHTML={{ __html: content }} />
+                                    <div className="break-words" dangerouslySetInnerHTML={{ __html: previewHtml }} />
                                 ) : (
                                     <div className="flex min-h-[360px] items-center justify-center text-sm text-content-hint">
                                         <Trans id="settings.static_pages.editor.preview.empty">

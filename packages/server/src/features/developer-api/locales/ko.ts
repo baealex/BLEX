@@ -79,7 +79,8 @@ export const developerKorean = {
   'Move a post to trash': '포스트를 휴지통으로 이동',
   'Requires posts:write. Check the target first with dry_run=true. Trashed posts can be restored on the site.':
     'posts:write 권한이 필요합니다. 먼저 dry_run=true로 확인할 수 있습니다. 휴지통으로 옮긴 글은 사이트에서 복원할 수 있습니다.',
-  'Set true to check the target without deleting it.': 'true이면 실제로 삭제하지 않고 대상만 확인합니다.',
+  'Set true to check the target without deleting it. Other spellings such as dry-run are refused with 422, not ignored.':
+    'true이면 실제로 삭제하지 않고 대상만 확인합니다. dry-run처럼 다르게 쓴 이름은 무시하지 않고 422로 거절합니다.',
   'List your tags': '내 태그 목록',
   'Requires posts:read. Returns tags and usage counts from your posts, excluding trash.':
     'posts:read 권한이 필요합니다. 휴지통을 제외한 내 글의 태그와 사용 횟수를 가져옵니다.',
@@ -110,6 +111,7 @@ export const developerKorean = {
   'Use a supported Content-Type.': '지원하는 Content-Type으로 요청해 주세요.',
   'Check this field’s type and value.': '이 항목의 형식과 값을 확인해 주세요.',
   'Input should be a valid integer': '올바른 정수를 입력해 주세요.',
+  'Unknown query parameter. Use dry_run.': '알 수 없는 쿼리 매개변수입니다. dry_run을 사용해 주세요.',
   'Input should be a valid boolean': '올바른 참·거짓 값을 입력해 주세요.',
   'must be string': '문자열이어야 합니다.',
   'must be object': '객체여야 합니다.',

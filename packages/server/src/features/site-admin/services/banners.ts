@@ -1,5 +1,5 @@
 import type { BannerPosition, BannerType, Prisma, PrismaClient } from '@prisma/client';
-import { sanitizeBannerHtml } from '../../posts/post-html.js';
+import { sanitizeBannerHtml, sanitizePostHtml } from '../../posts/post-html.js';
 import type { AdminBanner } from '../types.js';
 import { type ApiResult, type Body, isDatabaseInteger, isoDate, orderValue, stringValue } from '../shared.js';
 
@@ -33,6 +33,15 @@ function serializeBanner(row: BannerRow, scope: BannerScope): AdminBanner {
     updatedDate: isoDate(row.updatedAt),
     createdBy: row.user?.username ?? null,
   };
+}
+
+function storedBannerHtml(html: string, scope: BannerScope): string {
+  return scope === 'global' ? html : sanitizeBannerHtml(html);
+}
+
+/** What a post page shows for banner HTML once saved, so the editor preview never inserts markup the site strips. */
+export function bannerPreviewHtml(html: string, scope: BannerScope): string {
+  return sanitizePostHtml(storedBannerHtml(html, scope));
 }
 
 function bannersIn(scope: BannerScope, ownerId: number | null): Prisma.SiteBannerWhereInput {
@@ -107,13 +116,8 @@ export function saveBanner(
     const current = id === undefined ? null : await readBanner(tx, id, scope, ownerId);
     if (id !== undefined && !current) return { ok: false, code: 'NF', message: 'Banner not found.' };
     const title = 'title' in input ? stringValue(input.title) : (current?.title ?? '');
-    const submittedHtml = stringValue(input.contentHtml);
     const contentHtml =
-      'contentHtml' in input
-        ? scope === 'global'
-          ? submittedHtml
-          : sanitizeBannerHtml(submittedHtml)
-        : (current?.contentHtml ?? '');
+      'contentHtml' in input ? storedBannerHtml(stringValue(input.contentHtml), scope) : (current?.contentHtml ?? '');
     if (id === undefined && !title) return { ok: false, code: 'VA', message: 'Enter a banner name.' };
     if (id === undefined && !contentHtml) return { ok: false, code: 'VA', message: 'Enter banner HTML.' };
     const placement = bannerPlacement(

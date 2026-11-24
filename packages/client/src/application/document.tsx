@@ -17,10 +17,9 @@ export function pageDataScript(id: string, data: unknown): ReactElement {
 
 /**
  * How the browser takes over a page's content:
- * `static` keeps it as server markup, `island` hydrates part of it from a separate root,
- * and `tree` hydrates all of it inside the application root.
+ * `static` keeps it as server markup, and `tree` hydrates all of it inside the application root.
  */
-export type ContentMode = 'static' | 'island' | 'tree';
+export type ContentMode = 'static' | 'tree';
 
 // A page supplies its React head, header and content once, for direct visits and router loads.
 export function renderApplicationDocument(page: ReactElement, mode: ContentMode = 'static'): string {
@@ -47,7 +46,7 @@ export function renderApplicationDocument(page: ReactElement, mode: ContentMode 
               }
             : {
                   header,
-                  html: mode === 'island' ? renderToString(<>{content}</>) : renderToStaticMarkup(<>{content}</>)
+                  html: renderToStaticMarkup(<>{content}</>)
               };
     const headContent = Children.toArray(head.props.children);
     if (!headContent.some((node) => isValidElement(node) && node.type === SiteTheme))

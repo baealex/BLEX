@@ -376,6 +376,25 @@ test('a dry run under either name never deletes, and an unreadable flag is refus
       assert.equal(response.json().error.code, 'request.invalid_payload', query);
       assert.deepEqual(response.json().error.fields.errors[0].loc, ['query', field], query);
     }
+    const documented422 =
+      spec.paths['/api/developer/v1/posts/{post_id}'].delete.responses['422'].content?.['application/json'].schema;
+    assert.ok(documented422);
+    for (const [query, field] of [
+      ['dry-run=true', 'dry-run'],
+      ['dryrun=1', 'dryrun'],
+      ['DRY_RUN=true', 'DRY_RUN'],
+      ['Dry-Run=yes', 'Dry-Run'],
+      ['dry-run=false', 'dry-run'],
+      ['dry_run=false&dry-run=true', 'dry-run'],
+      ['dryRun=true&DRYRUN=false', 'DRYRUN'],
+    ]) {
+      const response = await remove(query);
+      assert.equal(response.statusCode, 422, query);
+      assert.equal(response.json().error.code, 'request.invalid_payload', query);
+      assert.equal(response.json().error.fields.errors[0].type, 'extra_forbidden', query);
+      assert.deepEqual(response.json().error.fields.errors[0].loc, ['query', field], query);
+      assert.deepEqual(schemaProblems(response.json(), documented422, query), []);
+    }
     assert.equal((await prisma.post.findUniqueOrThrow({ where: { id: 1 } })).deletedAt, null);
 
     assert.equal((await remove('dryRun=false')).json().data.deleted, true);
