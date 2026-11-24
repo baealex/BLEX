@@ -8,7 +8,6 @@ describe('screen bootstrap props', () => {
             ['SearchPage', {}],
             ['SearchPage', { username: 'writer' }],
             ['Signup', {}],
-            ['Toaster', {}],
             ['PostEditor', { mode: 'new', username: 'writer', showFirstPublishGuide: true }],
             ['PostEditor', { mode: 'draft', username: 'writer', draftUrl: 'saved-draft' }],
             ['PostEditor', { mode: 'edit', username: 'writer', postUrl: 'existing-post' }],

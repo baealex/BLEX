@@ -228,50 +228,79 @@ const keepPostMarkupWhenItsCodeFails = async () => {
     }
 };
 
+const toasterChunk = '**/assets/ui/assets/toaster-*.js';
+
+/** Fills a field, shows a toast whose code the route breaks, and checks that the page and the typed value stay. */
+const keepDocumentWhenToastBreaks = async (field, value, showToast) => {
+    const toaster = page.waitForRequest((request) => /\/toaster-[^/]*\.js$/.test(new URL(request.url()).pathname));
+    await page.evaluate(() => {
+        window.__smokeSameDocument = true;
+        sessionStorage.removeItem('blex:catalog-reload');
+    });
+    await field.fill(value);
+    await showToast();
+    await toaster;
+    // The first toasts wait up to a second for the toaster before they are dropped.
+    await page.waitForTimeout(1200);
+    await expect(page.locator('[data-sonner-toaster]')).toHaveCount(0);
+    expect(await page.evaluate(() => window.__smokeSameDocument)).toBe(true);
+    await expect(field).toHaveValue(value);
+    await expect(page.locator('[data-site-header]')).toBeVisible();
+};
+
+const saveProfileBio = async () => {
+    await open('/settings/profile');
+    await expect(page.locator('[data-screen="SettingsApp"]')).toHaveAttribute('data-screen-status', 'mounted');
+    return {
+        bio: page.locator('[data-screen="SettingsApp"] textarea').first(),
+        save: () => page.getByRole('button', { name: '기본 정보 저장', exact: true }).click()
+    };
+};
+
 const keepUnsavedWorkWhenToastCodeFails = async () => {
     const drafts = '**/v1/drafts';
-    const toaster = '**/assets/ui/assets/toaster-*.js';
-    const { promise: released, resolve: release } = Promise.withResolvers();
-    // Holding the autosave keeps the editor's edits unsaved while the toast code fails.
-    await page.route(drafts, async (route) => {
-        if (route.request().method() !== 'POST') return route.continue();
-        await released;
-        return route.abort();
-    });
+    // Failing saves keep the editor's edits unsaved while the toast code fails.
+    await page.route(drafts, (route) => (route.request().method() === 'POST' ? route.abort() : route.continue()));
     // A tab opened before a deploy asks for a toaster file that is gone.
-    await page.route(toaster, (route) => route.abort());
-    const keepsDocument = async (field, value) => {
-        await page.evaluate(() => {
-            window.__smokeSameDocument = true;
-            sessionStorage.removeItem('blex:catalog-reload');
-        });
-        await field.fill(value);
-        await page.evaluate(() => window.toast.error('Smoke toast'));
-        await expect(page.locator('#blex-toast-root')).toHaveAttribute('data-screen-status', 'error');
-        expect(await page.evaluate(() => window.__smokeSameDocument)).toBe(true);
-        await expect(field).toHaveValue(value);
-    };
+    await page.route(toasterChunk, (route) => route.abort());
     try {
-        await open('/settings/profile');
-        await expect(page.locator('[data-screen="SettingsApp"]')).toHaveAttribute('data-screen-status', 'mounted');
-        await keepsDocument(
-            page.locator('[data-screen="SettingsApp"] textarea').first(),
-            'Typed before a toast failed'
-        );
+        const profile = await saveProfileBio();
+        await keepDocumentWhenToastBreaks(profile.bio, 'Typed before a toast failed', profile.save);
 
         await open('/write');
         const title = page.getByPlaceholder('제목을 입력하세요');
         await page.locator('.ProseMirror').click();
         await page.keyboard.insertText('Body typed before a toast failed');
-        await keepsDocument(title, 'Kept when a toast fails');
+        await keepDocumentWhenToastBreaks(title, 'Kept when a toast fails', () =>
+            page.getByRole('button', { name: '임시 저장', exact: true }).click()
+        );
         // A missing catalog leaves the page too while its unsaved edits would warn before leaving.
         await page.evaluate(() => document.dispatchEvent(new Event('blex:catalog-failed')));
         await expect(page.locator('.ProseMirror')).toContainText('Body typed before a toast failed');
         expect(await page.evaluate(() => window.__smokeSameDocument)).toBe(true);
     } finally {
-        release();
-        await page.unroute(toaster);
+        await page.unroute(toasterChunk);
         await page.unroute(drafts);
+    }
+};
+
+const isolateToasterRenderError = async () => {
+    await page.route(toasterChunk, (route) =>
+        route.fulfill({
+            contentType: 'text/javascript',
+            body: 'export default function BrokenToaster() { throw new Error("smoke-toaster-render-error"); }'
+        })
+    );
+    try {
+        const profile = await saveProfileBio();
+        await keepDocumentWhenToastBreaks(profile.bio, 'Typed before the toaster broke', profile.save);
+        await expect(page.locator('[data-screen="SettingsApp"]')).toHaveAttribute('data-screen-status', 'mounted');
+        // The application still moves between pages.
+        await page.locator('[data-site-header] a[href="/"]').first().click();
+        await expect(page).toHaveURL(`${origin}/`);
+        expect(await page.evaluate(() => window.__smokeSameDocument)).toBe(true);
+    } finally {
+        await page.unroute(toasterChunk);
     }
 };
 
@@ -373,8 +402,9 @@ const isolateScreenRenderError = async () => {
     await open('/settings/profile');
     const settings = page.locator('[data-screen="SettingsApp"]');
     await expect(settings).toHaveAttribute('data-screen-status', 'mounted');
-    const toasterChunk = '**/assets/ui/assets/toaster-*.js';
-    await page.route(toasterChunk, (route) =>
+    // The search screen's own module, not the server's search page module.
+    const searchChunk = /\/assets\/ui\/assets\/search-[\w-]{8}\.js$/;
+    await page.route(searchChunk, (route) =>
         route.fulfill({
             contentType: 'text/javascript',
             body: 'export default function BrokenScreen() { throw new Error("smoke-screen-render-error"); }'
@@ -384,18 +414,19 @@ const isolateScreenRenderError = async () => {
         await page.evaluate(() => {
             const element = document.createElement('div');
             element.id = 'broken-screen';
-            element.dataset.screen = 'Toaster';
+            element.dataset.screen = 'SearchPage';
             element.dataset.screenStatus = 'pending';
+            element.dataset.screenProps = encodeURIComponent('{}');
             document.body.append(element);
         });
         const brokenScreen = page.locator('#broken-screen');
         await expect(brokenScreen).toHaveAttribute('data-screen-status', 'error');
         await expect(brokenScreen).toHaveAttribute('data-screen-error', 'render_error');
-        await expect(brokenScreen).toHaveText('Component Error: Toaster');
+        await expect(brokenScreen).toHaveText('Component Error: SearchPage');
         await expect(settings).toHaveAttribute('data-screen-status', 'mounted');
     } finally {
         await page.evaluate(() => document.querySelector('#broken-screen')?.remove());
-        await page.unroute(toasterChunk);
+        await page.unroute(searchChunk);
     }
 };
 
@@ -821,6 +852,7 @@ try {
         ['editor', openEditor],
         ['the editor opens in the application and warns before unsaved edits leave it', warnBeforeLeavingEditor],
         ['a toast whose code fails to load leaves typed and unsaved work in place', keepUnsavedWorkWhenToastCodeFails],
+        ['a toaster that throws leaves the page and the application working', isolateToasterRenderError],
         ['latest draft list survives an older response', keepLatestDraftList],
         ['media keyboard controls keep focus and settings labels activate their controls', keepMediaControlFocus],
         ...editorPublishingChecks({ page, open, username: account.username }),

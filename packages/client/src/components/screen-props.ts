@@ -8,8 +8,7 @@ export type Screen =
     | { name: 'SearchPage'; props: ComponentProps<typeof SearchPage> }
     | { name: 'Signup'; props: Record<string, never> }
     | { name: 'PostEditor'; props: ComponentProps<typeof PostEditor> }
-    | { name: 'SettingsApp'; props: ComponentProps<typeof SettingsApp> }
-    | { name: 'Toaster'; props: Record<string, never> };
+    | { name: 'SettingsApp'; props: ComponentProps<typeof SettingsApp> };
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
     typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -34,7 +33,6 @@ export function parseScreen(name: string, props: unknown): Screen | null {
             return isOptionalString(username) ? { name, props: { username } } : null;
         }
         case 'Signup':
-        case 'Toaster':
             return { name, props: {} };
         case 'PostEditor': {
             const { mode, username, postUrl, draftUrl, showFirstPublishGuide } = props;
