@@ -36,7 +36,8 @@ export function registerSiteAssets(app: FastifyInstance) {
       return reply.header('Cache-Control', 'no-store').redirect(script, 302);
     });
     // Screens used to load from /assets/web/, so only a tab opened before they joined the browser build asks
-    // for it. The module starts that tab's reload for a missing catalog instead of leaving a broken screen.
+    // for it. The module sends the missing catalog event, which reloads pages that listen for it; a page
+    // without that listener still shows its screen error.
     routes.get('/assets/web/*', (request, reply) => {
       if (!/\.js$/.test(request.url.split('?')[0])) return reply.callNotFound();
       return reply

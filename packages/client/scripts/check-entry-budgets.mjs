@@ -35,19 +35,21 @@ const screenCatalogs = ['src/locales/en/messages.po?lingui', 'src/locales/ko/mes
 
 // Screen budgets count what a screen adds to the application page it opens in: its loader, runtime,
 // screen code, and screen catalog. React and the other modules the page already loaded are not counted
-// again. Their limits keep about 10% headroom so ordinary feature work does not fail on a few bytes,
+// again. Their limits, the loader's and the runtime's included, keep about 10% headroom over the current
+// build (the next whole file for small file counts) so ordinary feature work does not fail on a few bytes,
 // and still catch a sudden jump, such as a heavy dependency landing in a shared entry.
 // Re-baseline them when headroom runs low.
 // Public page limits are fixed targets instead: 150 KiB of compressed JavaScript, and
 // 170 KiB for the post page, the mobile JavaScript example in web.dev's budget guide.
-const screenBudget = (label, screen, maxInitialBytes, maxInitialGzipBytes) => ({
+const screenBudget = (label, screen, maxInitialFiles, maxInitialKiB, maxInitialGzipKiB) => ({
     entries: [screenLoader, screenRuntime, screen],
     loadedBefore: screenHostEntries,
     catalogs: screenCatalogs,
     reportsPage: true,
     label,
-    maxInitialBytes,
-    maxInitialGzipBytes
+    maxInitialFiles,
+    maxInitialBytes: maxInitialKiB * 1024,
+    maxInitialGzipBytes: maxInitialGzipKiB * 1024
 });
 
 const budgets = [
@@ -55,9 +57,9 @@ const budgets = [
         entries: [screenLoader],
         loadedBefore: screenHostEntries,
         label: 'base page scripts',
-        maxInitialFiles: 6,
-        maxInitialBytes: 65 * 1024,
-        maxInitialGzipBytes: 24 * 1024,
+        maxInitialFiles: 2,
+        maxInitialBytes: 1.7 * 1024,
+        maxInitialGzipBytes: 0.9 * 1024,
         allowedInitialNames: [screenLoader, 'preload-helper', 'theme'],
         requiredDynamicNames: [screenRuntime, 'toast']
     },
@@ -65,9 +67,9 @@ const budgets = [
         entries: [screenRuntime],
         loadedBefore: [...screenHostEntries, screenLoader],
         label: 'on-demand screen runtime',
-        maxInitialFiles: 13,
-        maxInitialBytes: 265 * 1024,
-        maxInitialGzipBytes: 85 * 1024,
+        maxInitialFiles: 3,
+        maxInitialBytes: 43 * 1024,
+        maxInitialGzipBytes: 15 * 1024,
         allowedInitialNames: [
             screenRuntime,
             'rolldown-runtime',
@@ -99,10 +101,10 @@ const budgets = [
             'zod'
         ]
     },
-    screenBudget('signup screen experience', 'src/features/auth/signup/index.ts', 350 * 1024, 117 * 1024),
-    screenBudget('search screen experience', 'src/features/search/index.tsx', 345 * 1024, 114 * 1024),
-    screenBudget('settings screen experience', 'src/features/settings/index.tsx', 530 * 1024, 176 * 1024),
-    screenBudget('post editor screen experience', 'src/features/editor/index.tsx', 1475 * 1024, 478 * 1024),
+    screenBudget('signup screen experience', 'src/features/auth/signup/index.ts', 14, 261, 73),
+    screenBudget('search screen experience', 'src/features/search/index.tsx', 13, 256, 71),
+    screenBudget('settings screen experience', 'src/features/settings/index.tsx', 10, 363, 104),
+    screenBudget('post editor screen experience', 'src/features/editor/index.tsx', 62, 1381, 430),
     {
         entries: ['styles/main.scss'],
         label: 'base page styles',

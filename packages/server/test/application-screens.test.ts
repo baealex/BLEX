@@ -232,7 +232,7 @@ test('keeps the stored date output formats', () => {
   assert.equal(localDateTimeText('2029-12-31 15:00:00'), '2030-01-01 00:00');
 });
 
-test('answers a tab from before the browser build with the reload a missing catalog starts', async () => {
+test('answers requests for the removed screen build with the missing catalog event', async () => {
   const fixture = await screensApp();
   try {
     const old = await fixture.app.inject('/assets/web/chunks/search.PS94_Svm.js');
