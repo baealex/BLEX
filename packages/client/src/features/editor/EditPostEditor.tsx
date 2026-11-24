@@ -10,6 +10,7 @@ import SettingsDrawer from './components/SettingsDrawer';
 import ScheduleStatusNotice from './components/ScheduleStatusNotice';
 import EditRecoveryNotice from './components/EditRecoveryNotice';
 import PostRevisionDialog from './components/PostRevisionDialog';
+import { useLeaveWarning } from './hooks/useLeaveWarning';
 import { getSeries } from '~/lib/api/settings';
 import {
     cancelPostSchedule,
@@ -319,6 +320,13 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             window.removeEventListener('pagehide', handlePageHide);
         };
     }, [hasUnsavedChanges, persistRecovery]);
+
+    useLeaveWarning({
+        warns: () => !isIntentionalSubmitRef.current && hasUnsavedChanges(),
+        beforeLeave: () => {
+            if (!isIntentionalSubmitRef.current) persistRecovery();
+        }
+    });
 
     const handleRecoverEdit = () => {
         if (!availableRecovery) return;
