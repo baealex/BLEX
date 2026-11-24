@@ -50,11 +50,10 @@ pnpm check:entry-budgets
 
 Editor and web logic tests live in `packages/client/test/` and use Node's test runner. Use browser checks for behavior that needs real DOM APIs, built assets, or navigation. Avoid adding browser tests for pure logic or visual preferences.
 
-Run the browser smoke test against an automatically managed local instance after building both the server and web assets:
+Run the browser smoke test against an automatically managed local instance after building the server and browser assets:
 
 ```sh
 pnpm build
-pnpm build:client
 pnpm --filter @blex/client exec playwright install --only-shell chromium
 pnpm test:browser
 ```

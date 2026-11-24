@@ -86,7 +86,7 @@ export async function registerRoutes(
         return null;
       },
     });
-    registerScreenHost(app, db, { currentUser, siteUrl, webAssetsRoot: auth.webAssetsRoot, cipherKey: auth.cipherKey });
+    registerScreenHost(app, db, { currentUser, siteUrl, cipherKey: auth.cipherKey });
     registerAuthentication(app, db, siteUrl, { ...auth, mediaRoot });
     registerPersonalSettings(app, db, { ...routeOptions, updatePassword: passwordUpdater(db, siteUrl, auth) });
     registerNotifications(app, db, routeOptions);

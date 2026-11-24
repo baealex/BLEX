@@ -55,7 +55,7 @@ process.once('SIGTERM', interrupt);
 
 try {
     await access(serverEntry);
-    await access(new URL('../../server/dist/web/.vite/manifest.json', import.meta.url));
+    await access(new URL('../../server/dist/client/.vite/manifest.json', import.meta.url));
     directory = await mkdtemp(join(tmpdir(), 'blex-browser-smoke-'));
     const media = join(directory, 'media');
     await mkdir(media);
@@ -112,8 +112,7 @@ try {
 } catch (error) {
     console.error(error);
     if (serverOutput) console.error(serverOutput);
-    if (error.code === 'ENOENT')
-        console.error('Build first with pnpm build and pnpm build:client, then run pnpm test:browser.');
+    if (error.code === 'ENOENT') console.error('Build first with pnpm build, then run pnpm test:browser.');
     process.exitCode = 1;
 } finally {
     await stop(smoke);

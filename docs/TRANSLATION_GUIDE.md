@@ -16,7 +16,7 @@ Public pages and client-rendered React screens share the Lingui catalogs. Authen
 | Server product messages | English sources in `systemMessage()` calls; Korean translations in `packages/server/data/ui-messages.ko.json`; existing API fallback catalog in `data/api-messages.ko.json` |
 | Developer API documentation | Typed English source messages and Korean translations under `features/developer-api/locales/ko.ts` in the client and server; schema metadata is translated on a copy, preserving API names, enums, defaults, and examples |
 
-English is the source language for catalogs. Korean and English catalogs are included. The web runtime reads the server-supplied document language, falling back to `window.configuration.locale`; it does not choose a separate locale from `navigator.language`.
+English is the source language for catalogs. Korean and English catalogs are included. Public pages load only the `public.` messages of a catalog (`messages.po`). Before a screen renders, `src/i18n/screen-catalog.ts` adds the rest (`messages.po?lingui`) to the same Lingui instance. The web runtime reads the server-supplied document language, falling back to `window.configuration.locale`; it does not choose a separate locale from `navigator.language`.
 
 ## Language priority
 
@@ -51,7 +51,7 @@ For the reusable editor, update the translations in its type-checked locale file
 
 ## Add a language
 
-- Add its code to `SUPPORTED_LOCALES` in `packages/client/src/i18n/locale.ts` and its catalog loader in `src/i18n/index.ts` in the same app.
+- Add its code to `SUPPORTED_LOCALES` in `packages/client/src/i18n/locale.ts` and its catalog loaders in `src/i18n/index.ts` and `src/i18n/screen-catalog.ts` in the same app.
 - Add and translate the PO catalog. The Lingui configuration derives its locales from `SUPPORTED_LOCALES`.
 - If used by the reusable editor, add its type-checked message catalog and loader as described in the editor README.
 - Register the locale and its messages in the typed shared-header and Developer API catalogs as well.

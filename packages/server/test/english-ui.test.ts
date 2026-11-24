@@ -1,7 +1,4 @@
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import test, { type TestContext } from 'node:test';
 import { buildApp } from '../src/app.js';
 import {
@@ -33,19 +30,6 @@ function configureEnglish(t: TestContext) {
 async function englishApp(t: TestContext) {
   configureEnglish(t);
   const fixture = await createMigratedDatabase();
-  const assets = await mkdtemp(join(tmpdir(), 'blex-english-assets-'));
-  await mkdir(join(assets, '.vite'));
-  await writeFile(
-    join(assets, '.vite/manifest.json'),
-    JSON.stringify(
-      Object.fromEntries(
-        ['styles/main.scss', 'styles/post.scss', 'src/scripts/screen-loader.ts'].map((entry) => [
-          entry,
-          { file: entry },
-        ]),
-      ),
-    ),
-  );
   const app = await buildApp(
     fixture.path,
     testSiteUrl,
@@ -53,14 +37,12 @@ async function englishApp(t: TestContext) {
       secretKey: testSecretKey,
       cipherKey: testCipherKey,
       setupToken: 'english-ui-setup-token',
-      webAssetsRoot: `${assets}/`,
     },
     fixture.mediaRoot,
   );
   t.after(async () => {
     await app.close();
     await fixture.cleanup();
-    await rm(assets, { recursive: true, force: true });
   });
   return { ...fixture, app };
 }

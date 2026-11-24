@@ -1307,8 +1307,7 @@ function permittedPageModuleUrl(module: ApplicationDocument['pageModules'][numbe
     if (url.origin !== window.location.origin || !['http:', 'https:'].includes(url.protocol) || url.search || url.hash)
         return null;
     const alias = url.pathname === '/assets/blex/' + module.name + '.js';
-    const manifestAsset =
-        !url.pathname.includes('..') && /^\/assets\/(?:ui|web)\/[A-Za-z0-9._/-]+\.m?js$/i.test(url.pathname);
+    const manifestAsset = !url.pathname.includes('..') && /^\/assets\/ui\/[A-Za-z0-9._/-]+\.m?js$/i.test(url.pathname);
     return alias || manifestAsset ? url : null;
 }
 

@@ -1,9 +1,6 @@
 import { systemMessage } from '../../platform/messages.js';
-import fastifyStatic from '@fastify/static';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { access, readFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
 import { readAdminAccess } from '../../features/site-admin/access.js';
 import { applicationContentSecurityPolicy, scriptJson } from '../../platform/document.js';
 import { renderPage } from '../../platform/views.js';
@@ -14,16 +11,11 @@ import { createToken } from '../../features/auth/session.js';
 import { hasAdministrator } from '../../features/auth/setup.js';
 import { readPublicSiteBrand } from '../../features/discovery/http/pages.js';
 import { resolveUiLocale } from '../../platform/locale.js';
-
-interface ManifestEntry {
-  file: string;
-}
-type Manifest = Record<string, ManifestEntry>;
+import { readUiAsset, readUiFile } from '../../platform/ui-assets.js';
 
 export interface ScreenHostOptions {
   currentUser(request: FastifyRequest): Promise<{ id: number; username: string } | null>;
   siteUrl: URL;
-  webAssetsRoot?: string;
   cipherKey: string;
 }
 
@@ -50,7 +42,6 @@ const editorPrefixes = [
   'webhook',
   'developer-api',
 ];
-const webAssetPrefix = '/assets/web/';
 const documentStyleEntry = 'styles/main.scss';
 const loaderEntry = 'src/scripts/screen-loader.ts';
 
@@ -58,22 +49,6 @@ const hasPrefix = (path: string, prefixes: string[]) => {
   const normalized = path.replace(/^\/+|\/+$/g, '');
   return prefixes.some((prefix) => normalized === prefix || normalized.startsWith(`${prefix}/`));
 };
-
-export async function resolveWebAssetsRoot(): Promise<string | undefined> {
-  const root = new URL('../../../web/', import.meta.url);
-  try {
-    await access(new URL('.vite/manifest.json', root));
-    return fileURLToPath(root);
-  } catch {
-    return undefined;
-  }
-}
-
-function manifestAsset(manifest: Manifest, entry: string): string {
-  const asset = manifest[entry];
-  if (!asset) throw new Error(`The BLEX settings bundle is missing ${entry}.`);
-  return `${webAssetPrefix}${asset.file}`;
-}
 
 function decryptsToValue(encrypted: string, cipherKey: string): boolean {
   try {
@@ -135,30 +110,17 @@ async function readCaptchaSiteKey(db: PrismaClient, cipherKey: string): Promise<
 }
 
 export function registerScreenHost(app: FastifyInstance, db: PrismaClient, options: ScreenHostOptions) {
-  let manifest: Promise<Manifest> | undefined;
-  const { webAssetsRoot } = options;
-  const readManifest = () =>
-    (manifest ??= readFile(`${webAssetsRoot}.vite/manifest.json`, 'utf8').then((text) => JSON.parse(text) as Manifest));
-
-  if (webAssetsRoot) {
-    app.register(async (routes) => {
-      await routes.register(fastifyStatic, {
-        root: webAssetsRoot,
-        prefix: webAssetPrefix,
-        maxAge: '1y',
-        immutable: true,
-        decorateReply: false,
-      });
-    });
-  }
-
   const sendDocument = async (
     request: FastifyRequest,
     reply: FastifyReply,
     viewer: ScreenViewer | null,
     page: ScreenPage,
   ) => {
-    const [brand, assets] = await Promise.all([readPublicSiteBrand(db), readManifest()]);
+    const [brand, documentStyleHref, loader] = await Promise.all([
+      readPublicSiteBrand(db),
+      readUiFile(documentStyleEntry),
+      readUiAsset(loaderEntry),
+    ]);
     let csrf = requestCookies(request)[csrfCookie] ?? '';
     if (!/^[A-Za-z0-9_-]{43}$/.test(csrf)) {
       csrf = createToken();
@@ -181,7 +143,7 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
       faviconUrl: brand.faviconUrl,
       rssUrl: page.searchPage ? new URL('/rss', options.siteUrl).href : undefined,
       brand,
-      documentStyleHref: manifestAsset(assets, documentStyleEntry),
+      documentStyleHref,
       configurationJson: scriptJson(configuration),
       globalsJson: page.globals ? scriptJson(page.globals) : undefined,
       captcha: Boolean(page.captcha),
@@ -200,7 +162,7 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
       contentClass: page.contentClass,
       screen,
       footer: Boolean(page.footer),
-      loaderHref: manifestAsset(assets, loaderEntry),
+      loaderHref: loader.script,
     });
     return reply
       .type('text/html; charset=utf-8')
@@ -220,13 +182,6 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
     componentProps: (isEditor: boolean, state: ViewerState) => Record<string, unknown>,
     pageTitle: string,
   ) => {
-    if (!webAssetsRoot) {
-      return reply
-        .code(503)
-        .type('text/plain; charset=utf-8')
-        .header('Cache-Control', 'no-store')
-        .send('The web screens are not built. Run `pnpm build:client` and restart the server.');
-    }
     const state = await readViewerState(db, user.id, options.cipherKey);
     return sendDocument(
       request,
@@ -378,8 +333,8 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
     const path = rawPath.replace(/\/{2,}/g, '/');
     const editorResponse = await sendEditor(request, reply, path, query);
     if (editorResponse) return editorResponse;
-    if (webAssetsRoot && path === '/search') return sendSearch(request, reply, new URLSearchParams(query));
-    if (webAssetsRoot && path === '/sign') {
+    if (path === '/search') return sendSearch(request, reply, new URLSearchParams(query));
+    if (path === '/sign') {
       const signup = await sendSignup(request, reply, new URLSearchParams(query));
       if (signup) return signup;
     }

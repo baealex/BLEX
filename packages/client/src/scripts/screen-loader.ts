@@ -13,6 +13,8 @@ const loadScreenRuntime = () => {
 
     runtimePromise = import('../screen-runtime').catch((error: unknown) => {
         console.error('[BLEX] Failed to load the screen runtime', error);
+        // A tab opened before a deploy asks for files that are gone, so it takes the reload a missing catalog starts.
+        document.dispatchEvent(new Event('blex:catalog-failed'));
         throw error;
     });
 

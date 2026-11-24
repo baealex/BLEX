@@ -1,8 +1,5 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import test, { type TestContext } from 'node:test';
 import { PrismaClient } from '@prisma/client';
 import type { FastifyRequest } from 'fastify';
@@ -70,7 +67,6 @@ test('new accounts inherit the site default unless a supported language was expl
 test('keeps web screens, API messages, notifications, and Telegram on the same language priority', async (t) => {
   configureLanguages(t);
   const fixture = await createMigratedDatabase();
-  const webAssetsRoot = await mkdtemp(join(tmpdir(), 'blex-locale-web-'));
   const db = new PrismaClient({ datasourceUrl: `file:${fixture.path}?connection_limit=1` });
   seedEditor(fixture.db, 1, 'writer');
   insertRow(fixture.db, 'IntegrationSetting', {
@@ -99,25 +95,12 @@ test('keeps web screens, API messages, notifications, and Telegram on the same l
     tokenHash: createHash('sha256').update(token).digest('hex'),
     scopes: JSON.stringify(['posts:read']),
   });
-  await mkdir(join(webAssetsRoot, '.vite'));
-  await writeFile(
-    join(webAssetsRoot, '.vite/manifest.json'),
-    JSON.stringify(
-      Object.fromEntries(
-        ['styles/main.scss', 'styles/post.scss', 'src/scripts/screen-loader.ts'].map((entry) => [
-          entry,
-          { file: entry },
-        ]),
-      ),
-    ),
-  );
   const app = await buildApp(
     fixture.path,
     testSiteUrl,
     {
       secretKey: testSecretKey,
       cipherKey: testCipherKey,
-      webAssetsRoot: `${webAssetsRoot}/`,
     },
     fixture.mediaRoot,
   );
@@ -125,7 +108,6 @@ test('keeps web screens, API messages, notifications, and Telegram on the same l
     await app.close();
     await db.$disconnect();
     await fixture.cleanup();
-    await rm(webAssetsRoot, { recursive: true, force: true });
   });
   const headers = signIn(fixture.db, 1);
 

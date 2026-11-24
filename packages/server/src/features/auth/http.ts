@@ -30,7 +30,6 @@ export interface AuthConfig {
   mediaRoot?: string;
   deliverNotifications?: boolean;
   trustedProxies?: string[];
-  webAssetsRoot?: string;
   developerRateLimit?: Partial<DeveloperRateLimit>;
 }
 

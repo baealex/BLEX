@@ -110,26 +110,33 @@ test('liked posts and the server search page hydrate from public views', async (
     );
     assert.doesNotMatch(JSON.stringify(liked), /writer-private|unique_body_marker|authorId|"id":/);
 
-    // Without the search screen, the server's own page answers and carries no viewer data.
-    for (const headers of [{ cookie: `csrftoken=${'v'.repeat(43)}` }, liker]) {
-      const search = await app.inject({ url: '/search?q=Tagged', headers });
-      assert.equal(search.statusCode, 200);
-      const data = pageData(search.body) as DiscoveryData & { results: Array<Record<string, unknown>> };
-      assert.equal(data.page, 'search');
-      assert.deepEqual(Object.keys(data.results[0]), [
-        'href',
-        'title',
-        'image',
-        'author',
-        'date',
-        'readTime',
-        'description',
-        'matched',
-      ]);
-      assert.deepEqual(data.results[0].matched, ['title']);
-      const serialized = JSON.stringify(data);
-      assert.doesNotMatch(serialized, /writer-private|unique_body_marker|authorId|csrf|"id":/i);
-      assert.ok(!serialized.includes('v'.repeat(43)) && !(token && serialized.includes(token)));
+    // The search screen answers while the screen host runs. Without it, as in read-only mode,
+    // the server's own page answers and carries no viewer data.
+    assert.match((await app.inject({ url: '/search?q=Tagged', headers: liker })).body, /data-screen="SearchPage"/);
+    const readOnly = await buildApp(fixture.path, testSiteUrl, undefined, fixture.mediaRoot);
+    try {
+      for (const headers of [{ cookie: `csrftoken=${'v'.repeat(43)}` }, liker]) {
+        const search = await readOnly.inject({ url: '/search?q=Tagged', headers });
+        assert.equal(search.statusCode, 200);
+        const data = pageData(search.body) as DiscoveryData & { results: Array<Record<string, unknown>> };
+        assert.equal(data.page, 'search');
+        assert.deepEqual(Object.keys(data.results[0]), [
+          'href',
+          'title',
+          'image',
+          'author',
+          'date',
+          'readTime',
+          'description',
+          'matched',
+        ]);
+        assert.deepEqual(data.results[0].matched, ['title']);
+        const serialized = JSON.stringify(data);
+        assert.doesNotMatch(serialized, /writer-private|unique_body_marker|authorId|csrf|"id":/i);
+        assert.ok(!serialized.includes('v'.repeat(43)) && !(token && serialized.includes(token)));
+      }
+    } finally {
+      await readOnly.close();
     }
   } finally {
     await close();

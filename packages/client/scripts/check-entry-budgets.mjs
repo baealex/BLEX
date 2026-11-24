@@ -5,12 +5,12 @@ import { gzipSync } from 'node:zlib';
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
 
-const readBuild = (name) => {
-    const outDir = resolve(currentDir, '../../server/dist', name);
+const readBuild = () => {
+    const outDir = resolve(currentDir, '../../server/dist/client');
     const manifestPath = resolve(outDir, '.vite/manifest.json');
 
     if (!existsSync(manifestPath)) {
-        console.error(`Missing build output: packages/server/dist/${name}/.vite/manifest.json`);
+        console.error('Missing build output: packages/server/dist/client/.vite/manifest.json');
         console.error('Run pnpm build:client before checking entry budgets.');
         process.exit(1);
     }
@@ -18,37 +18,60 @@ const readBuild = (name) => {
     return { outDir, manifest: JSON.parse(readFileSync(manifestPath, 'utf8')) };
 };
 
-const builds = { web: readBuild('web'), client: readBuild('client') };
+const build = readBuild();
 
-// Every public page loads these two entries from the separate build served at /assets/ui/.
+// Every public page loads these two entries.
 const publicPageEntries = ['src/application/client.tsx', 'src/appearance/site-client.ts'];
 
-// Public pages hydrate only after their document catalog loads, so their totals include the larger one.
-const publicCatalogs = ['src/locales/en/messages.po', 'src/locales/ko/messages.po'];
+// Screen pages are application pages that also run the screen host entry before any screen.
+const screenHostEntries = [...publicPageEntries, 'src/application/screen-host/client.ts'];
+const screenLoader = 'src/scripts/screen-loader.ts';
+const screenRuntime = 'src/screen-runtime.tsx';
 
-// Screen limits keep about 10% headroom over the current build so ordinary feature work
-// does not fail on a few bytes. They still catch a sudden jump, such as a heavy
-// dependency landing in a shared entry. Re-baseline them when headroom runs low.
+// Public pages hydrate only after their document catalog loads, so their totals include the larger one.
+// Screens add the rest of the messages before they render, so their totals include the larger screen catalog.
+const publicCatalogs = ['src/locales/en/messages.po', 'src/locales/ko/messages.po'];
+const screenCatalogs = ['src/locales/en/messages.po?lingui', 'src/locales/ko/messages.po?lingui'];
+
+// Screen budgets count what a screen adds to the application page it opens in: its loader, runtime,
+// screen code, and screen catalog. React and the other modules the page already loaded are not counted
+// again. Their limits, the loader's and the runtime's included, keep about 10% headroom over the current
+// build (the next whole file for small file counts) so ordinary feature work does not fail on a few bytes,
+// and still catch a sudden jump, such as a heavy dependency landing in a shared entry.
+// Re-baseline them when headroom runs low.
 // Public page limits are fixed targets instead: 150 KiB of compressed JavaScript, and
 // 170 KiB for the post page, the mobile JavaScript example in web.dev's budget guide.
+const screenBudget = (label, screen, maxInitialFiles, maxInitialKiB, maxInitialGzipKiB) => ({
+    entries: [screenLoader, screenRuntime, screen],
+    loadedBefore: screenHostEntries,
+    catalogs: screenCatalogs,
+    reportsPage: true,
+    label,
+    maxInitialFiles,
+    maxInitialBytes: maxInitialKiB * 1024,
+    maxInitialGzipBytes: maxInitialGzipKiB * 1024
+});
+
 const budgets = [
     {
-        entries: ['src/scripts/screen-loader.ts'],
+        entries: [screenLoader],
+        loadedBefore: screenHostEntries,
         label: 'base page scripts',
-        maxInitialFiles: 6,
-        maxInitialBytes: 65 * 1024,
-        maxInitialGzipBytes: 24 * 1024,
-        allowedInitialNames: ['src/scripts/screen-loader.ts', 'preload-helper', 'theme'],
-        requiredDynamicNames: ['src/screen-runtime.tsx', 'toast']
+        maxInitialFiles: 2,
+        maxInitialBytes: 1.7 * 1024,
+        maxInitialGzipBytes: 0.9 * 1024,
+        allowedInitialNames: [screenLoader, 'preload-helper', 'theme'],
+        requiredDynamicNames: [screenRuntime, 'toast']
     },
     {
-        entries: ['src/screen-runtime.tsx'],
+        entries: [screenRuntime],
+        loadedBefore: [...screenHostEntries, screenLoader],
         label: 'on-demand screen runtime',
-        maxInitialFiles: 13,
-        maxInitialBytes: 265 * 1024,
-        maxInitialGzipBytes: 85 * 1024,
+        maxInitialFiles: 3,
+        maxInitialBytes: 43 * 1024,
+        maxInitialGzipBytes: 15 * 1024,
         allowedInitialNames: [
-            'src/screen-runtime.tsx',
+            screenRuntime,
             'rolldown-runtime',
             'jsx-runtime',
             'react',
@@ -78,30 +101,10 @@ const budgets = [
             'zod'
         ]
     },
-    {
-        entries: ['src/screen-runtime.tsx', 'src/features/auth/signup/index.ts'],
-        label: 'signup screen experience',
-        maxInitialBytes: 350 * 1024,
-        maxInitialGzipBytes: 117 * 1024
-    },
-    {
-        entries: ['src/screen-runtime.tsx', 'src/features/search/index.tsx'],
-        label: 'search screen experience',
-        maxInitialBytes: 345 * 1024,
-        maxInitialGzipBytes: 114 * 1024
-    },
-    {
-        entries: ['src/screen-runtime.tsx', 'src/features/settings/index.tsx'],
-        label: 'settings screen experience',
-        maxInitialBytes: 530 * 1024,
-        maxInitialGzipBytes: 176 * 1024
-    },
-    {
-        entries: ['src/screen-runtime.tsx', 'src/features/editor/index.tsx'],
-        label: 'post editor screen experience',
-        maxInitialBytes: 1475 * 1024,
-        maxInitialGzipBytes: 478 * 1024
-    },
+    screenBudget('signup screen experience', 'src/features/auth/signup/index.ts', 14, 261, 73),
+    screenBudget('search screen experience', 'src/features/search/index.tsx', 13, 256, 71),
+    screenBudget('settings screen experience', 'src/features/settings/index.tsx', 10, 363, 104),
+    screenBudget('post editor screen experience', 'src/features/editor/index.tsx', 62, 1381, 430),
     {
         entries: ['styles/main.scss'],
         label: 'base page styles',
@@ -111,15 +114,15 @@ const budgets = [
         allowedInitialNames: ['styles/main.scss']
     },
     {
-        build: 'client',
         entries: publicPageEntries,
+        catalogs: publicCatalogs,
         label: 'public page scripts',
         maxInitialBytes: 460 * 1024,
         maxInitialGzipBytes: 150 * 1024
     },
     {
-        build: 'client',
         entries: [...publicPageEntries, 'src/features/discovery/discovery-page.tsx'],
+        catalogs: publicCatalogs,
         label: 'public discovery page scripts',
         maxInitialBytes: 460 * 1024,
         maxInitialGzipBytes: 150 * 1024
@@ -132,8 +135,8 @@ const budgets = [
         ['series detail', ['author-series-detail-page']],
         ['introduction editor', ['author-about-edit-page']]
     ].map(([route, modules]) => ({
-        build: 'client',
         entries: [...publicPageEntries, ...modules.map((name) => `src/features/authors/${name}.tsx`)],
+        catalogs: publicCatalogs,
         label: `public author page scripts (${route})`,
         maxInitialBytes: 460 * 1024,
         maxInitialGzipBytes: 150 * 1024
@@ -145,8 +148,8 @@ const budgets = [
         ['delete', 'delete-page'],
         ['shared', 'shared-page']
     ].map(([route, module]) => ({
-        build: 'client',
         entries: [...publicPageEntries, `src/features/work-logs/${module}.tsx`],
+        catalogs: publicCatalogs,
         label: `public work log page scripts (${route})`,
         maxInitialBytes: 460 * 1024,
         maxInitialGzipBytes: 150 * 1024
@@ -162,22 +165,22 @@ const budgets = [
         ['writing timeline', 'posts/timelapse-page'],
         ['share links', 'posts/share-links-page']
     ].map(([route, module]) => ({
-        build: 'client',
         entries: [...publicPageEntries, `src/features/${module}.tsx`],
+        catalogs: publicCatalogs,
         label: `public content page scripts (${route})`,
         maxInitialBytes: 460 * 1024,
         maxInitialGzipBytes: 150 * 1024
     })),
     {
-        build: 'client',
         entries: [...publicPageEntries, 'src/features/posts/post-page.tsx', 'src/features/posts/code-blocks-client.ts'],
+        catalogs: publicCatalogs,
         label: 'public post page scripts',
         maxInitialBytes: 520 * 1024,
         maxInitialGzipBytes: 170 * 1024
     },
     {
-        build: 'client',
         entries: [...publicPageEntries, 'src/features/auth/ui/login-page.tsx'],
+        catalogs: publicCatalogs,
         label: 'public login page scripts',
         maxInitialBytes: 460 * 1024,
         maxInitialGzipBytes: 150 * 1024
@@ -189,15 +192,15 @@ const budgets = [
         ['identity check', 'reauthenticate-page'],
         ['password reset', 'password-reset-page']
     ].map(([route, module]) => ({
-        build: 'client',
         entries: [...publicPageEntries, `src/features/auth/ui/${module}.tsx`],
+        catalogs: publicCatalogs,
         label: `public auth form page scripts (${route})`,
         maxInitialBytes: 460 * 1024,
         maxInitialGzipBytes: 150 * 1024
     })),
     {
-        build: 'client',
-        entries: [...publicPageEntries, 'src/application/screen-host/client.ts'],
+        entries: screenHostEntries,
+        catalogs: publicCatalogs,
         label: 'public screen host scripts',
         maxInitialBytes: 460 * 1024,
         maxInitialGzipBytes: 150 * 1024
@@ -272,22 +275,27 @@ const getFileStats = ({ manifest, outDir }, key) => {
     };
 };
 
-const getLargestCatalog = (build) => {
-    const catalogs = publicCatalogs.filter((key) => build.manifest[key]).map((key) => getFileStats(build, key));
-    if (catalogs.length !== publicCatalogs.length) {
-        throw new Error(`Missing public catalogs: ${publicCatalogs.join(', ')}`);
+const getLargestCatalog = (build, keys) => {
+    const catalogs = keys.filter((key) => build.manifest[key]).map((key) => getFileStats(build, key));
+    if (catalogs.length !== keys.length) {
+        throw new Error(`Missing catalogs: ${keys.join(', ')}`);
     }
     return catalogs.reduce((largest, item) => (item.gzipBytes > largest.gzipBytes ? item : largest));
 };
 
+const sumBytes = (stats) => ({
+    rawBytes: stats.reduce((sum, item) => sum + item.rawBytes, 0),
+    gzipBytes: stats.reduce((sum, item) => sum + item.gzipBytes, 0)
+});
+
 let hasFailure = false;
 
 for (const budget of budgets) {
-    const build = builds[budget.build ?? 'web'];
-    const stats = collectInitialGraph(build, budget.entries).map((key) => getFileStats(build, key));
-    if (budget.build === 'client') stats.push(getLargestCatalog(build));
-    const totalRawBytes = stats.reduce((sum, item) => sum + item.rawBytes, 0);
-    const totalGzipBytes = stats.reduce((sum, item) => sum + item.gzipBytes, 0);
+    const loadedBefore = new Set(budget.loadedBefore ? collectInitialGraph(build, budget.loadedBefore) : []);
+    const graph = collectInitialGraph(build, [...(budget.loadedBefore ?? []), ...budget.entries]);
+    const stats = graph.filter((key) => !loadedBefore.has(key)).map((key) => getFileStats(build, key));
+    if (budget.catalogs) stats.push(getLargestCatalog(build, budget.catalogs));
+    const { rawBytes: totalRawBytes, gzipBytes: totalGzipBytes } = sumBytes(stats);
     const unexpectedStats = budget.allowedInitialNames
         ? stats.filter((item) => !budget.allowedInitialNames.includes(item.name))
         : [];
@@ -307,6 +315,16 @@ for (const budget of budgets) {
     console.log(`- Files: ${stats.length}`);
     console.log(`- Raw size: ${formatKiB(totalRawBytes)}`);
     console.log(`- Gzip size: ${formatKiB(totalGzipBytes)}`);
+
+    if (budget.reportsPage) {
+        // For reference only: everything the screen page downloads, including the application entry.
+        const page = sumBytes([
+            ...graph.map((key) => getFileStats(build, key)),
+            getLargestCatalog(build, publicCatalogs),
+            getLargestCatalog(build, screenCatalogs)
+        ]);
+        console.log(`- Whole page, no limit: ${formatKiB(page.rawBytes)} raw / ${formatKiB(page.gzipBytes)} gzip`);
+    }
 
     if (budget.allowedInitialNames || budget.blockedHints) {
         for (const item of stats) {
@@ -360,13 +378,13 @@ for (const budget of budgets) {
 }
 
 for (const budget of assetBudgets) {
-    const item = builds.client.manifest[budget.entry];
+    const item = build.manifest[budget.entry];
     if (!item) {
         throw new Error(`Missing manifest entry: ${budget.entry}`);
     }
 
     const assets = item.css ?? [];
-    const contents = assets.map((file) => readFileSync(resolve(builds.client.outDir, file)));
+    const contents = assets.map((file) => readFileSync(resolve(build.outDir, file)));
     const totalBytes = contents.reduce((sum, source) => sum + source.length, 0);
     const totalGzipBytes = contents.reduce((sum, source) => sum + gzipSync(source).length, 0);
     const violations = [];
@@ -403,9 +421,9 @@ for (const budget of assetBudgets) {
 
 // These entries load through redirecting /assets/blex aliases, and browsers key modules by the requested URL.
 // A chunk that imports one by its hashed file would run it a second time.
-const redirectedEntries = new Set([...publicPageEntries, 'src/application/screen-host/client.ts']);
+const redirectedEntries = new Set(screenHostEntries);
 
-for (const [key, item] of Object.entries(builds.client.manifest)) {
+for (const [key, item] of Object.entries(build.manifest)) {
     const imported = [...(item.imports ?? []), ...(item.dynamicImports ?? [])].filter((name) =>
         redirectedEntries.has(name)
     );

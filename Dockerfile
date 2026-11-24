@@ -97,7 +97,6 @@ COPY --from=traced-files /traced/packages/server/node_modules ./node_modules
 COPY --from=build /app/packages/server/dist/src ./dist/src
 COPY --from=web-builder /app/packages/server/dist/client ./dist/client
 COPY --from=web-builder /app/packages/server/dist/ssr ./dist/ssr
-COPY --from=web-builder /app/packages/server/dist/web ./dist/web
 COPY packages/server/data ./data
 COPY packages/server/public ./public
 EXPOSE 8040

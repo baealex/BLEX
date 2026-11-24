@@ -228,6 +228,53 @@ const keepPostMarkupWhenItsCodeFails = async () => {
     }
 };
 
+const keepUnsavedWorkWhenToastCodeFails = async () => {
+    const drafts = '**/v1/drafts';
+    const toaster = '**/assets/ui/assets/toaster-*.js';
+    const { promise: released, resolve: release } = Promise.withResolvers();
+    // Holding the autosave keeps the editor's edits unsaved while the toast code fails.
+    await page.route(drafts, async (route) => {
+        if (route.request().method() !== 'POST') return route.continue();
+        await released;
+        return route.abort();
+    });
+    // A tab opened before a deploy asks for a toaster file that is gone.
+    await page.route(toaster, (route) => route.abort());
+    const keepsDocument = async (field, value) => {
+        await page.evaluate(() => {
+            window.__smokeSameDocument = true;
+            sessionStorage.removeItem('blex:catalog-reload');
+        });
+        await field.fill(value);
+        await page.evaluate(() => window.toast.error('Smoke toast'));
+        await expect(page.locator('#blex-toast-root')).toHaveAttribute('data-screen-status', 'error');
+        expect(await page.evaluate(() => window.__smokeSameDocument)).toBe(true);
+        await expect(field).toHaveValue(value);
+    };
+    try {
+        await open('/settings/profile');
+        await expect(page.locator('[data-screen="SettingsApp"]')).toHaveAttribute('data-screen-status', 'mounted');
+        await keepsDocument(
+            page.locator('[data-screen="SettingsApp"] textarea').first(),
+            'Typed before a toast failed'
+        );
+
+        await open('/write');
+        const title = page.getByPlaceholder('제목을 입력하세요');
+        await page.locator('.ProseMirror').click();
+        await page.keyboard.insertText('Body typed before a toast failed');
+        await keepsDocument(title, 'Kept when a toast fails');
+        // A missing catalog leaves the page too while its unsaved edits would warn before leaving.
+        await page.evaluate(() => document.dispatchEvent(new Event('blex:catalog-failed')));
+        await expect(page.locator('.ProseMirror')).toContainText('Body typed before a toast failed');
+        expect(await page.evaluate(() => window.__smokeSameDocument)).toBe(true);
+    } finally {
+        release();
+        await page.unroute(toaster);
+        await page.unroute(drafts);
+    }
+};
+
 const openEditor = async () => {
     await open('/write');
     await expect(page.getByPlaceholder('제목을 입력하세요')).toBeVisible();
@@ -326,7 +373,7 @@ const isolateScreenRenderError = async () => {
     await open('/settings/profile');
     const settings = page.locator('[data-screen="SettingsApp"]');
     await expect(settings).toHaveAttribute('data-screen-status', 'mounted');
-    const toasterChunk = '**/assets/web/chunks/toaster.*.js';
+    const toasterChunk = '**/assets/ui/assets/toaster-*.js';
     await page.route(toasterChunk, (route) =>
         route.fulfill({
             contentType: 'text/javascript',
@@ -773,6 +820,7 @@ try {
         ['a notice focused before the home page hydrates stays shown and focused', keepNoticeFocusWhenCarouselStarts],
         ['editor', openEditor],
         ['the editor opens in the application and warns before unsaved edits leave it', warnBeforeLeavingEditor],
+        ['a toast whose code fails to load leaves typed and unsaved work in place', keepUnsavedWorkWhenToastCodeFails],
         ['latest draft list survives an older response', keepLatestDraftList],
         ['media keyboard controls keep focus and settings labels activate their controls', keepMediaControlFocus],
         ...editorPublishingChecks({ page, open, username: account.username }),

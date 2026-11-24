@@ -66,12 +66,34 @@ async function formApp({ empty = false } = {}) {
   };
 }
 
-test('the sign-up page hydrates from its form fields without the captcha secret', async () => {
+test('the sign-up form hydrates from its form fields without the captcha secret', async () => {
   const { app, close } = await formApp();
   try {
+    // A visit opens the sign-up screen; the server form answers when a form post fails.
     const page = await app.inject({ url: '/sign?invite=invite_marker&next=%2F%40writer', headers: visitor });
     assert.equal(page.statusCode, 200);
-    assert.deepEqual(pageData(page.body), {
+    assert.match(page.body, /data-screen="Signup"/);
+    assert.match(
+      page.body,
+      /"HCAPTCHA_SITE_KEY":"site_key_marker","NEXT_URL":"\/@writer","INVITE_CODE":"invite_marker"/,
+    );
+    assert.doesNotMatch(page.body, /captcha_secret_marker|client_id_marker|client_secret_marker/);
+
+    const failed = await app.inject({
+      method: 'POST',
+      url: '/sign?next=%2F%40writer',
+      headers: { ...visitor, origin: testSiteUrl.origin },
+      payload: {
+        csrfmiddlewaretoken: visitorToken,
+        username: 'newreader',
+        password: 'one',
+        passwordCheck: 'two',
+        inviteCode: 'invite_marker',
+      },
+    });
+    assert.equal(failed.statusCode, 200);
+    const { error, ...data } = pageData(failed.body);
+    assert.deepEqual(data, {
       page: 'sign',
       siteName: 'BLEX',
       csrfToken: visitorToken,
@@ -79,22 +101,11 @@ test('the sign-up page hydrates from its form fields without the captcha secret'
       providers: ['GitHub'],
       captchaSiteKey: 'site_key_marker',
       invite: 'invite_marker',
-      error: '',
     });
-    assert.match(page.body, /data-sitekey="site_key_marker" data-blex-hcaptcha-widget=""><\/div>/);
-    assert.doesNotMatch(page.body, /captcha_secret_marker|client_id_marker|client_secret_marker/);
-
-    const failed = await app.inject({
-      method: 'POST',
-      url: '/sign',
-      headers: { ...visitor, origin: testSiteUrl.origin },
-      payload: { csrfmiddlewaretoken: visitorToken, username: 'newreader', password: 'one', passwordCheck: 'two' },
-    });
-    assert.equal(failed.statusCode, 200);
-    const data = pageData(failed.body);
-    assert.equal(data.csrfToken, visitorToken);
-    assert.equal(typeof data.error, 'string');
-    assert.notEqual(data.error, '');
+    assert.equal(typeof error, 'string');
+    assert.notEqual(error, '');
+    assert.match(failed.body, /data-sitekey="site_key_marker" data-blex-hcaptcha-widget=""><\/div>/);
+    assert.doesNotMatch(failed.body, /captcha_secret_marker|client_id_marker|client_secret_marker/);
   } finally {
     await close();
   }

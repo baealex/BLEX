@@ -1,11 +1,9 @@
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import test from 'node:test';
 import sharp from 'sharp';
 import { buildApp } from '../src/app.js';
 import { isApplicationDocument } from '../src/platform/document.js';
+import { readUiFile } from '../src/platform/ui-assets.js';
 import { normalizedTags } from '../src/features/posts/services/post-content.js';
 import {
   isoWithOffset,
@@ -28,7 +26,7 @@ import {
 
 const recent = new Date(Date.now() - 3_600_000).toISOString().slice(0, -1).replace('T', ' ');
 
-async function screensApp({ assets = true } = {}) {
+async function screensApp() {
   const fixture = await createMigratedDatabase();
   const { db } = fixture;
   seedEditor(db, 1, 'writer');
@@ -60,20 +58,10 @@ async function screensApp({ assets = true } = {}) {
   seedPost(db, 2, 1, 'trashed', { publishedAt: recent, deletedAt: recent });
   insertRow(db, '_PostToTag', { A: 2, B: 2 });
   seedPost(db, 3, 1, 'draft', { publishedAt: null });
-  const webAssetsRoot = await mkdtemp(join(tmpdir(), 'blex-v4-web-'));
-  await mkdir(join(webAssetsRoot, '.vite'));
-  const manifest = Object.fromEntries(
-    ['styles/main.scss', 'src/scripts/screen-loader.ts'].map((entry) => [
-      entry,
-      { file: entry.endsWith('.scss') ? 'document.hash.css' : `${entry.split('/').pop()}.hash` },
-    ]),
-  );
-  await writeFile(join(webAssetsRoot, '.vite/manifest.json'), JSON.stringify(manifest));
-  await writeFile(join(webAssetsRoot, 'document.hash.css'), '/* Screen document styles. */');
   const app = await buildApp(
     fixture.path,
     testSiteUrl,
-    { secretKey: testSecretKey, cipherKey: testCipherKey, ...(assets ? { webAssetsRoot: `${webAssetsRoot}/` } : {}) },
+    { secretKey: testSecretKey, cipherKey: testCipherKey },
     fixture.mediaRoot,
   );
   await app.ready();
@@ -83,7 +71,6 @@ async function screensApp({ assets = true } = {}) {
     async close() {
       await app.close();
       await fixture.cleanup();
-      await rm(webAssetsRoot, { recursive: true, force: true });
     },
   };
 }
@@ -245,15 +232,31 @@ test('keeps the stored date output formats', () => {
   assert.equal(localDateTimeText('2029-12-31 15:00:00'), '2030-01-01 00:00');
 });
 
+test('answers requests for the removed screen build with the missing catalog event', async () => {
+  const fixture = await screensApp();
+  try {
+    const old = await fixture.app.inject('/assets/web/chunks/search.PS94_Svm.js');
+    assert.equal(old.statusCode, 200);
+    assert.match(String(old.headers['content-type']), /^text\/javascript/);
+    assert.equal(old.headers['cache-control'], 'no-store');
+    assert.match(old.body, /dispatchEvent\(new Event\('blex:catalog-failed'\)\)/);
+    assert.equal((await fixture.app.inject('/assets/web/mainStyle.BGuVjzlT.css')).statusCode, 404);
+  } finally {
+    await fixture.close();
+  }
+});
+
 test('serves all stylesheets required by hosted screens', async () => {
   const fixture = await screensApp();
   try {
+    const documentStyle = await readUiFile('styles/main.scss');
+    assert.match(documentStyle, /^\/assets\/ui\/.+\.css$/);
     for (const url of ['/settings/posts', '/write', '/search']) {
       const response = await fixture.app.inject({ url, headers: signIn(fixture.db, 1) });
       assert.equal(response.statusCode, 200, url);
       const styles = [...response.body.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((match) => match[1]);
       assert.equal(styles.filter((href) => href === '/assets/blex/theme.css').length, 1, url);
-      assert.ok(styles.includes('/assets/web/document.hash.css'), url);
+      assert.ok(styles.includes(documentStyle), url);
       for (const href of styles) {
         const asset = await fixture.app.inject(href);
         assert.equal(asset.statusCode, 200, href);
@@ -418,15 +421,10 @@ test('passes each role its settings capabilities', async () => {
   }
 });
 
-test('answers settings and editor pages with 503 when the web screens are not built', async () => {
-  const fixture = await screensApp({ assets: false });
+test('sends anonymous visitors to sign in and hides screens a viewer cannot open', async () => {
+  const fixture = await screensApp();
   try {
     const writer = signIn(fixture.db, 1);
-    for (const url of ['/settings/account', '/settings/posts', '/write', '/@writer/kept/edit']) {
-      const response = await fixture.app.inject({ url, headers: writer });
-      assert.equal(response.statusCode, 503, url);
-      assert.match(response.body, /pnpm build:client/);
-    }
     const anonymous = await fixture.app.inject('/settings/account');
     assert.equal(anonymous.statusCode, 302);
     assert.match(String(anonymous.headers.location), /^\/login\?next=/);

@@ -1,7 +1,6 @@
 import { buildApp } from './app.js';
 import { createToken } from './features/auth/session.js';
 import { trustedProxiesFromEnv } from './platform/runtime-config.js';
-import { resolveWebAssetsRoot } from './application/screen-host/index.js';
 import { DatabaseSetupError, prepareDatabase } from './startup/prepare-database.js';
 
 const dbPath = process.env.BLEX_V4_DB_PATH;
@@ -34,10 +33,9 @@ if (!readOnly) {
     process.exit(1);
   }
 }
-const webAssetsRoot = await resolveWebAssetsRoot();
 const auth =
   !readOnly && secretKey && cipherKey
-    ? { secretKey, cipherKey, setupToken, trustedProxies, deliverNotifications: true, webAssetsRoot }
+    ? { secretKey, cipherKey, setupToken, trustedProxies, deliverNotifications: true }
     : undefined;
 const app = await buildApp(dbPath, siteUrl, auth, process.env.BLEX_V4_MEDIA_PATH);
 
