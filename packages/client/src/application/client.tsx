@@ -17,6 +17,7 @@ import {
     authorPageDataSelector,
     contentPageDataSelector,
     discoveryPageDataSelector,
+    loginPageDataSelector,
     postBodySelector,
     postPageDataSelector
 } from './route-data.js';
@@ -70,7 +71,7 @@ interface ApplicationDocument {
     url: string;
     head: PageHead;
     bodyAttributes: Array<[string, string]>;
-    pageModules: Array<{ name: 'login' | 'editor' | 'screen'; source: string }>;
+    pageModules: Array<{ name: 'editor' | 'screen'; source: string }>;
     needsHcaptcha: boolean;
     screen: ScreenData | null;
     treePage: TreePage | null;
@@ -269,7 +270,7 @@ function pageModuleSources(source: Document): ApplicationDocument['pageModules']
         .map((script): ApplicationDocument['pageModules'][number] | null => {
             const name = script.dataset.blexPageModule;
             const src = script.getAttribute('src');
-            if ((name !== 'login' && name !== 'editor' && name !== 'screen') || !src) return null;
+            if ((name !== 'editor' && name !== 'screen') || !src) return null;
             return {
                 name,
                 source: src
@@ -417,6 +418,18 @@ function readContentPage(source: Document, content: Element, pageUrl: URL): Tree
     );
 }
 
+/** The sign-in module checks its own data, so a page it rejects keeps the server form. */
+function readLoginPage(source: Document, content: Element, pageUrl: URL): TreePage | null {
+    const value = parseElementJson(source.querySelector(loginPageDataSelector));
+    if (!isRecord(value)) return null;
+    return createTreePage(
+        `login:${pageRequestKey(pageUrl)}`,
+        () => import('../features/auth/ui/login-page').then(({ mountPage }) => mountPage(value, content)),
+        // Without its code, the server form keeps the typed credentials and still submits.
+        { keepsServerMarkup: true }
+    );
+}
+
 function TreeRoute({ page, children }: { page: TreePage; children: ReactNode }) {
     useEffect(() => {
         page.mounted = true;
@@ -517,7 +530,8 @@ function readApplicationDocument(source: Document, url: string): ApplicationDocu
         readPostPage(source, content) ??
         readDiscoveryPage(source, pageUrl) ??
         readAuthorPage(source, content, pageUrl) ??
-        readContentPage(source, content, pageUrl);
+        readContentPage(source, content, pageUrl) ??
+        readLoginPage(source, content, pageUrl);
     return {
         view: {
             header,
