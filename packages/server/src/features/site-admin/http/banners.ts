@@ -1,13 +1,22 @@
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import { done as success, failure } from '../../../platform/response.js';
-import { bannerApi, bannerPayload, readBanner, readBanners, saveBanner, saveBannerOrder } from '../services/banners.js';
+import {
+  bannerApi,
+  bannerPayload,
+  bannerPreviewHtml,
+  readBanner,
+  readBanners,
+  saveBanner,
+  saveBannerOrder,
+} from '../services/banners.js';
 import {
   type AdminSettingsOptions,
   apiAccess,
   apiJsonBody,
   csrfValid,
   editorApiAccess,
+  stringValue,
   validRouteId,
 } from '../shared.js';
 
@@ -28,6 +37,13 @@ export function registerBannersRoutes(routes: FastifyInstance, db: PrismaClient,
     if ('response' in permission) return reply.send(permission.response);
     await saveBannerOrder(db, apiJsonBody(request).order, 'user', permission.user.id);
     return reply.send(success({ message: 'Banner order updated.' }));
+  });
+
+  routes.post<{ Body: unknown }>('/v1/banners/preview', { bodyLimit: 1024 * 1024 }, async (request, reply) => {
+    if (!csrfValid(request, options)) return reply.code(403).type('text/plain; charset=utf-8').send('Forbidden');
+    const permission = await editorApiAccess(request, db, options);
+    if ('response' in permission) return reply.send(permission.response);
+    return reply.send(success({ html: bannerPreviewHtml(stringValue(apiJsonBody(request).contentHtml), 'user') }));
   });
 
   routes.get<{ Params: { bannerId: string } }>('/v1/banners/:bannerId(^\\d+$)', async (request, reply) => {
@@ -84,6 +100,13 @@ export function registerBannersRoutes(routes: FastifyInstance, db: PrismaClient,
     const permission = await apiAccess(request, db, options);
     if ('response' in permission) return reply.send(permission.response);
     return reply.send(success({ banners: (await readBanners(db)).map((banner) => bannerApi(banner)) }));
+  });
+
+  routes.post<{ Body: unknown }>('/v1/global-banners/preview', { bodyLimit: 1024 * 1024 }, async (request, reply) => {
+    if (!csrfValid(request, options)) return reply.code(403).type('text/plain; charset=utf-8').send('Forbidden');
+    const permission = await apiAccess(request, db, options);
+    if ('response' in permission) return reply.send(permission.response);
+    return reply.send(success({ html: bannerPreviewHtml(stringValue(apiJsonBody(request).contentHtml), 'global') }));
   });
 
   routes.get<{ Params: { bannerId: string } }>('/v1/global-banners/:bannerId(^\\d+$)', async (request, reply) => {

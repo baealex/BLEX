@@ -33,10 +33,10 @@ export async function registerLoginPage(app: FastifyInstance, db: PrismaClient, 
       reply.clearCookie(oauthChallengeCookie, cookieOptions);
     }
     const pending = request.query.restart === '1' ? null : await readPendingOAuth(db, challengeToken);
-    const [configured, brand, loginAssets] = await Promise.all([
+    const [configured, brand, { css }] = await Promise.all([
       publicOAuthProviders(db, config.cipherKey),
       readPublicSiteBrand(db),
-      readUiAsset('src/features/auth/ui/login-client.tsx'),
+      readUiAsset('src/features/auth/ui/login-page.tsx'),
     ]);
     const model: LoginModel = {
       csrfToken,
@@ -45,7 +45,8 @@ export async function registerLoginPage(app: FastifyInstance, db: PrismaClient, 
       pendingOAuth: pending ? { username: pending.username } : null,
     };
 
-    const html = renderPage('login', { brand, loginAssets, model });
+    // The stylesheet still loads from the head, so the form is styled before its code arrives.
+    const html = renderPage('login', { brand, loginAssets: { css }, model });
     return reply
       .type('text/html; charset=utf-8')
       .header(
