@@ -312,6 +312,8 @@ const useSettingsListWithKeyboard = async () => {
     await handle.press('Space');
     await expect(handle).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('[aria-live="assertive"]')).toContainText(`droppable area ${created[0].id}.`);
+    // The keyboard sensor installs its key listener in a later task after announcing the drag.
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
     await handle.press('ArrowUp');
     await expect(page.locator('[aria-live="assertive"]')).toContainText(`droppable area ${created[1].id}.`);
     const reordered = page.waitForResponse(
