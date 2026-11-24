@@ -1,5 +1,6 @@
 import type { ComponentProps } from 'react';
 import type { ScreenPageData } from '../application/screen-page';
+import type Signup from '../features/auth/signup';
 import type PostEditor from '../features/editor';
 import type SearchPage from '../features/search';
 import type SettingsApp from '../features/settings';
@@ -7,7 +8,7 @@ import type { AdminCapabilities } from '../features/settings/access';
 
 export type Screen =
     | { name: 'SearchPage'; props: ComponentProps<typeof SearchPage> }
-    | { name: 'Signup'; props: Record<string, never> }
+    | { name: 'Signup'; props: ComponentProps<typeof Signup> }
     | { name: 'PostEditor'; props: ComponentProps<typeof PostEditor> }
     | { name: 'SettingsApp'; props: ComponentProps<typeof SettingsApp> };
 
@@ -39,17 +40,16 @@ const isFooterBrand = (value: unknown): value is FooterBrand =>
             (page: unknown) => isRecord(page) && typeof page.title === 'string' && typeof page.slug === 'string'
         ));
 
-/** The signed-in viewer the server rendered the screen for, if any. */
-export const screenViewerName = ({ configuration }: ScreenPageData): string | undefined =>
-    isRecord(configuration.user) && typeof configuration.user.username === 'string'
-        ? configuration.user.username
-        : undefined;
-
 /** Validate the page around a screen before rendering it. The screen's own props go through `parseScreen`. */
 export function parseScreenPage(value: unknown): ScreenPageData | null {
     if (!isRecord(value) || !isRecord(value.screen) || typeof value.screen.name !== 'string') return null;
-    const { csrf, contentClass, footer, configuration, globals } = value;
-    if (typeof csrf !== 'string' || !isOptionalString(contentClass)) return null;
+    const { csrf, contentClass, footer, viewer, timeZone } = value;
+    if (typeof csrf !== 'string' || !isOptionalString(contentClass) || typeof timeZone !== 'string') return null;
+    let pageViewer: ScreenPageData['viewer'] = null;
+    if (viewer !== null) {
+        if (!isRecord(viewer) || typeof viewer.username !== 'string') return null;
+        pageViewer = { username: viewer.username };
+    }
     let pageFooter: ScreenPageData['footer'];
     if (footer !== undefined) {
         if (!isRecord(footer) || typeof footer.copyrightYear !== 'number' || !isFooterBrand(footer.brand)) return null;
@@ -60,8 +60,8 @@ export function parseScreenPage(value: unknown): ScreenPageData | null {
         csrf,
         contentClass,
         footer: pageFooter,
-        configuration: isRecord(configuration) ? configuration : {},
-        globals: isRecord(globals) ? globals : {}
+        viewer: pageViewer,
+        timeZone
     };
 }
 
@@ -74,8 +74,13 @@ export function parseScreen(name: string, props: unknown): Screen | null {
             const { username } = props;
             return isOptionalString(username) ? { name, props: { username } } : null;
         }
-        case 'Signup':
-            return { name, props: {} };
+        case 'Signup': {
+            const { hcaptchaSiteKey, nextUrl, inviteCode } = props;
+            if (!isOptionalString(hcaptchaSiteKey) || !isOptionalString(nextUrl) || !isOptionalString(inviteCode)) {
+                return null;
+            }
+            return { name, props: { hcaptchaSiteKey, nextUrl, inviteCode } };
+        }
         case 'PostEditor': {
             const { mode, username, postUrl, draftUrl, showFirstPublishGuide } = props;
             if (

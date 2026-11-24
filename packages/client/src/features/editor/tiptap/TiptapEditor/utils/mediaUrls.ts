@@ -5,28 +5,8 @@ const getCurrentOrigin = () => {
     return window.location.origin;
 };
 
-const getMediaPathPrefixes = () => {
-    if (typeof window === 'undefined') return MEDIA_PATH_PREFIXES;
-
-    const configuration = (
-        window as Window & {
-            configuration?: { media?: string };
-        }
-    ).configuration;
-    const configuredMedia = configuration?.media;
-
-    if (!configuredMedia) return MEDIA_PATH_PREFIXES;
-
-    try {
-        const mediaUrl = new URL(configuredMedia, window.location.href);
-        return Array.from(new Set([...MEDIA_PATH_PREFIXES, mediaUrl.pathname]));
-    } catch {
-        return MEDIA_PATH_PREFIXES;
-    }
-};
-
 const hasMediaPath = (pathname: string) => {
-    return getMediaPathPrefixes().some((prefix) => pathname.startsWith(prefix));
+    return MEDIA_PATH_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 };
 
 export const normalizeMediaUrlForStorage = (url: string | null | undefined) => {

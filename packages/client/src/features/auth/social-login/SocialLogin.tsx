@@ -42,7 +42,7 @@ const SocialLogin = ({ nextUrl, showPasswordDivider = false }: SocialLoginProps)
     }
 
     const params = new URLSearchParams({
-        next: nextUrl || window.NEXT_URL || '/',
+        next: nextUrl || '/',
         timeZone: getBrowserTimeZone() || ''
     });
 

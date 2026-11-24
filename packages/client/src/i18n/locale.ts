@@ -28,22 +28,23 @@ export const getDocumentLocale = (): AppLocale => {
         return renderingLocale ?? DEFAULT_LOCALE;
     }
 
-    return normalizeLocale(document.documentElement.lang || window.configuration?.locale);
+    return normalizeLocale(document.documentElement.lang);
 };
 
 export const getBrowserTimeZone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 let documentTimeZone: string | undefined;
 
-export const getDocumentTimeZone = () => {
-    if (documentTimeZone || typeof window === 'undefined') return documentTimeZone;
-    const timeZone = window.configuration?.timeZone;
-    if (!timeZone) return undefined;
+/** The viewer's time zone from the first screen this page load showed, which later pages keep. */
+export const getDocumentTimeZone = () => documentTimeZone;
+
+/** Screens give the time zone from their data before they render; an unknown zone falls back to UTC. */
+export const setDocumentTimeZone = (timeZone: string): void => {
+    if (documentTimeZone || !timeZone) return;
     try {
         new Intl.DateTimeFormat('en', { timeZone });
         documentTimeZone = timeZone;
     } catch {
         documentTimeZone = 'UTC';
     }
-    return documentTimeZone;
 };

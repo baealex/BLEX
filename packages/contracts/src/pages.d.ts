@@ -100,9 +100,8 @@ export interface PageProps {
         rssUrl?: string;
         brand: SiteBrand;
         documentStyleHref: string;
-        /** Values screens read from `window`. */
-        configuration: Record<string, unknown>;
-        globals?: Record<string, unknown>;
+        /** The viewer's time zone, or the site's. */
+        timeZone: string;
         captcha: boolean;
         csrf: string;
         searchPage?: boolean;

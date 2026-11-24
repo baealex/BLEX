@@ -141,9 +141,6 @@ test('keeps web screens, API messages, notifications, and Telegram on the same l
         assert.equal(screen.statusCode, 200, screen.body);
         assert.equal(screen.headers['content-language'], scenario.expected);
         assert.match(screen.body, new RegExp(`<html lang="${scenario.expected}"`));
-        const data = /<script[^>]*id="blex-screen-page-data"[^>]*>(.*?)<\/script>/s.exec(screen.body);
-        assert.ok(data);
-        assert.equal(JSON.parse(data[1]).configuration.locale, scenario.expected);
 
         const missingSeries = await app.inject({ url: '/v1/series/999', headers: requestHeaders });
         assert.equal(

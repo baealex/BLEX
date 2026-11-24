@@ -93,7 +93,6 @@ interface ScreenPage {
   robots?: string;
   canonical?: string;
   contentClass?: string;
-  globals?: Record<string, unknown>;
   captcha?: boolean;
   searchPage?: boolean;
   footer?: boolean;
@@ -121,16 +120,10 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
       csrf = createToken();
       reply.setCookie(csrfCookie, csrf, authCookieOptions(options.siteUrl));
     }
-    const configuration = {
-      media: '/resources/media/',
-      static: '/resources/',
-      locale: resolveUiLocale(viewer?.state.language),
-      timeZone: viewer?.state.timeZone || process.env.TZ || 'Asia/Seoul',
-      ...(viewer ? { user: { isAuthenticated: 'True', username: viewer.user.username } } : {}),
-    };
+    const locale = resolveUiLocale(viewer?.state.language);
     const robots = page.robots ?? 'noindex,nofollow';
     const html = renderPage('screen-host', {
-      lang: configuration.locale,
+      lang: locale,
       robots,
       title: page.title(brand.siteName),
       canonical: page.canonical,
@@ -138,8 +131,7 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
       rssUrl: page.searchPage ? new URL('/rss', options.siteUrl).href : undefined,
       brand,
       documentStyleHref,
-      configuration,
-      globals: page.globals,
+      timeZone: viewer?.state.timeZone || process.env.TZ || 'Asia/Seoul',
       captcha: Boolean(page.captcha),
       csrf,
       searchPage: page.searchPage,
@@ -160,7 +152,7 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
     });
     return reply
       .type('text/html; charset=utf-8')
-      .header('Content-Language', configuration.locale)
+      .header('Content-Language', locale)
       .header('Cache-Control', 'private, no-store')
       .header('Vary', 'Cookie')
       .header('Content-Security-Policy', applicationContentSecurityPolicy(options.siteUrl))
@@ -196,17 +188,16 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
     const siteKey = await readCaptchaSiteKey(db, options.cipherKey);
     return sendDocument(request, reply, null, {
       component: 'Signup',
-      props: {},
+      props: {
+        hcaptchaSiteKey: siteKey,
+        nextUrl: next === '/' ? '' : next,
+        inviteCode: (query.get('invite') ?? '').trim(),
+      },
       title: (site) => systemMessage('Sign up - {value0}', { value0: site }),
       robots: 'noindex',
       contentClass: 'flex items-center justify-center my-16 px-4 md:px-6',
       footer: true,
       captcha: Boolean(siteKey),
-      globals: {
-        HCAPTCHA_SITE_KEY: siteKey,
-        NEXT_URL: next === '/' ? '' : next,
-        INVITE_CODE: (query.get('invite') ?? '').trim(),
-      },
     });
   };
 

@@ -8,6 +8,7 @@ describe('screen bootstrap props', () => {
             ['SearchPage', {}],
             ['SearchPage', { username: 'writer' }],
             ['Signup', {}],
+            ['Signup', { hcaptchaSiteKey: 'site-key', nextUrl: '/tags', inviteCode: 'welcome' }],
             ['PostEditor', { mode: 'new', username: 'writer', showFirstPublishGuide: true }],
             ['PostEditor', { mode: 'draft', username: 'writer', draftUrl: 'saved-draft' }],
             ['PostEditor', { mode: 'edit', username: 'writer', postUrl: 'existing-post' }],
@@ -51,6 +52,9 @@ describe('screen bootstrap props', () => {
             assert.equal(parseScreen('PostEditor', props), null);
         }
         assert.equal(parseScreen('SearchPage', { username: ['writer'] }), null);
+        for (const props of [{ hcaptchaSiteKey: true }, { nextUrl: ['/tags'] }, { inviteCode: 1 }]) {
+            assert.equal(parseScreen('Signup', props), null);
+        }
     });
 
     test('rejects truthy permission strings and malformed capability maps', () => {
@@ -94,7 +98,7 @@ describe('screen bootstrap props', () => {
     test('does not let JSON props replace the selected screen or its mounted callback', () => {
         assert.deepEqual(parseScreen('Signup', { __name: 'SettingsApp', __onMounted: 'override', isStaff: true }), {
             name: 'Signup',
-            props: {}
+            props: { hcaptchaSiteKey: undefined, nextUrl: undefined, inviteCode: undefined }
         });
         assert.deepEqual(parseScreen('SearchPage', { username: 'writer', __name: 'PostEditor' }), {
             name: 'SearchPage',
@@ -117,8 +121,8 @@ describe('screen page data', () => {
             },
             copyrightYear: 2026
         },
-        configuration: { locale: 'ko' },
-        globals: {}
+        viewer: { username: 'writer' },
+        timeZone: 'Asia/Seoul'
     };
 
     test('keeps the frame the server sent and leaves the props to the screen', () => {
@@ -128,11 +132,8 @@ describe('screen page data', () => {
             footer: undefined,
             contentClass: undefined
         });
-        assert.deepEqual(parseScreenPage({ ...page, configuration: null, globals: [] }), {
-            ...page,
-            configuration: {},
-            globals: {}
-        });
+        assert.deepEqual(parseScreenPage({ ...page, viewer: null }), { ...page, viewer: null });
+        assert.deepEqual(parseScreenPage({ ...page, viewer: { username: 'writer', isStaff: true } }), page);
     });
 
     test('rejects a page whose frame cannot render', () => {
@@ -144,6 +145,9 @@ describe('screen page data', () => {
             { ...page, screen: null },
             { ...page, screen: { name: 1, props: {} } },
             { ...page, csrf: undefined },
+            { ...page, viewer: undefined },
+            { ...page, viewer: { username: 1 } },
+            { ...page, timeZone: undefined },
             { ...page, contentClass: 1 },
             { ...page, footer: null },
             { ...page, footer: { ...page.footer, copyrightYear: '2026' } },

@@ -13,9 +13,10 @@ export interface ScreenPageData {
     csrf: string;
     contentClass?: string;
     footer?: { brand: ReturnType<typeof publicBrand>; copyrightYear: number };
-    /** Values screens read from `window`, set by the application before the screen renders. */
-    configuration: Record<string, unknown>;
-    globals: Record<string, unknown>;
+    /** The signed-in viewer the server rendered the screen for, whose session cache the screen keeps. */
+    viewer: { username: string } | null;
+    /** The viewer's time zone, or the site's, for the dates screens show. */
+    timeZone: string;
 }
 
 /** The frame around a screen, the same for the server's loading status and the screen that replaces it. */

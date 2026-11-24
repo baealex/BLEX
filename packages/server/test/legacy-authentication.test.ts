@@ -68,7 +68,7 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     assert.match(loginPage.body, /<script type="application\/json" id="blex-login-page-data">/);
     const page = await app.inject('/sign?invite=synthetic-invite');
     assert.equal(page.statusCode, 200);
-    assert.match(page.body, /"INVITE_CODE":"synthetic-invite"/);
+    assert.match(page.body, /"inviteCode":"synthetic-invite"/);
     const captchaDb = new DatabaseSync(path);
     captchaDb
       .prepare('UPDATE LoginSetting SET hcaptchaEnabled = 1, hcaptchaSiteKey = ?, hcaptchaSecretKey = ? WHERE id = 1')
@@ -77,7 +77,7 @@ test('signs up a reader and redeems a legacy editor invitation only once', async
     const captchaPage = await app.inject('/sign');
     assert.equal(captchaPage.statusCode, 200, captchaPage.body);
     assert.match(captchaPage.body, /data-blex-trusted-script="hcaptcha"/);
-    assert.match(captchaPage.body, /"HCAPTCHA_SITE_KEY":"synthetic-site-key"/);
+    assert.match(captchaPage.body, /"hcaptchaSiteKey":"synthetic-site-key"/);
     const resetCaptchaDb = new DatabaseSync(path);
     resetCaptchaDb.prepare('UPDATE LoginSetting SET hcaptchaEnabled = 0, hcaptchaSiteKey = ? WHERE id = 1').run('');
     resetCaptchaDb.close();
