@@ -21,7 +21,7 @@ import {
   testSecretKey,
   testSiteUrl,
 } from './fixtures/migrated-database.js';
-import { assertFast } from './support/assert-fast.js';
+import { assertLinearTime } from './support/assert-linear-time.js';
 
 type Fixture = Awaited<ReturnType<typeof createMigratedDatabase>>;
 type Headers = Record<string, string>;
@@ -132,15 +132,15 @@ const lineSeparator = String.fromCharCode(0x2028);
 const nul = String.fromCharCode(0);
 
 test('Markdown parsing stays fast on inputs built to backtrack', () => {
-  const inputs = {
-    brackets: '['.repeat(64_000),
-    imageBrackets: '!['.repeat(32_000),
-    unclosedLinks: '[a]('.repeat(32_000),
-    unclosedImages: '![a]('.repeat(16_000),
-    headingSpaces: `# a${' '.repeat(3_000)}b`,
-    listSpaces: `- ${' '.repeat(64_000)}${lineSeparator}`,
+  const inputs: Record<string, [(size: number) => string, number]> = {
+    brackets: [(size) => '['.repeat(size), 64_000],
+    imageBrackets: [(size) => '!['.repeat(size), 32_000],
+    unclosedLinks: [(size) => '[a]('.repeat(size), 32_000],
+    unclosedImages: [(size) => '![a]('.repeat(size), 16_000],
+    headingSpaces: [(size) => `# a${' '.repeat(size)}b`, 3_000],
+    listSpaces: [(size) => `- ${' '.repeat(size)}${lineSeparator}`, 64_000],
   };
-  for (const [label, input] of Object.entries(inputs)) assertFast(label, () => markdownToHtml(input));
+  for (const [label, [input, size]] of Object.entries(inputs)) assertLinearTime(label, markdownToHtml, input, size);
 });
 
 test('Markdown output cannot be amplified from a small document', () => {
@@ -169,17 +169,18 @@ test('Markdown keeps its safety and block contract', () => {
 });
 
 test('HTML to Markdown stays fast on inputs built to backtrack', () => {
-  const inputs = {
-    attributeSpaces: `<a title="${' '.repeat(64_000)}x">t</a>`,
-    tagSpaces: `<a${' '.repeat(64_000)}x>t</a>`,
-    unclosedTags: '<a'.repeat(64_000),
-    unclosedQuotes: '<a "'.repeat(32_000),
-    closersUnderDepth: `${'<div>'.repeat(1_000)}${'</x>y'.repeat(200_000)}`,
-    paragraphNewlines: `<p>a${'\n'.repeat(64_000)}b</p>`,
-    codeNewlines: `<pre><code>a${'\n'.repeat(64_000)}b</code></pre>`,
-    unclosedComments: '<!--'.repeat(30_000),
+  const inputs: Record<string, [(size: number) => string, number]> = {
+    attributeSpaces: [(size) => `<a title="${' '.repeat(size)}x">t</a>`, 64_000],
+    tagSpaces: [(size) => `<a${' '.repeat(size)}x>t</a>`, 64_000],
+    unclosedTags: [(size) => '<a'.repeat(size), 64_000],
+    unclosedQuotes: [(size) => '<a "'.repeat(size), 32_000],
+    // Depth grows with the closers, because each closer once searched every open tag.
+    closersUnderDepth: [(size) => `${'<div>'.repeat(size / 200)}${'</x>y'.repeat(size)}`, 200_000],
+    paragraphNewlines: [(size) => `<p>a${'\n'.repeat(size)}b</p>`, 64_000],
+    codeNewlines: [(size) => `<pre><code>a${'\n'.repeat(size)}b</code></pre>`, 64_000],
+    unclosedComments: [(size) => '<!--'.repeat(size), 30_000],
   };
-  for (const [label, input] of Object.entries(inputs)) assertFast(label, () => htmlToMarkdown(input));
+  for (const [label, [input, size]] of Object.entries(inputs)) assertLinearTime(label, htmlToMarkdown, input, size);
 });
 
 test('HTML to Markdown tidies link and punctuation spacing', () => {
@@ -188,7 +189,7 @@ test('HTML to Markdown tidies link and punctuation spacing', () => {
 });
 
 test('repeated headings get unique ids in linear time', () => {
-  assertFast('headings', () => postOutline('<h2>a</h2>'.repeat(16_000)));
+  assertLinearTime('headings', postOutline, (size) => '<h2>a</h2>'.repeat(size), 16_000);
   const { headings } = postOutline('<h2>a</h2><h2 id="a-1">b</h2><h2>a</h2><h2>a</h2>');
   assert.deepEqual(
     headings.map(({ id }) => id),
@@ -284,6 +285,58 @@ test('static page styles cannot close their element and inject markup', async ()
     }
     const plain = (await app.inject('/static/plain')).body;
     assert.ok(plain.includes('<style>@media (width < 600px) { p { color: red; } }</style>'));
+  });
+});
+
+test('banner and static page previews show the public HTML, never markup the site strips', async () => {
+  await withApp(async ({ app, fixture, writer, reader }) => {
+    fixture.db.prepare('UPDATE "User" SET "isStaff" = 1 WHERE id = 1').run();
+    const author = signIn(fixture.db, 2);
+    seedPost(fixture.db, 10, 2, 'with-banners');
+    const source =
+      '<p class="note">Preview text</p><img src="/a.png" onerror="this.dataset.ran=1">' +
+      '<script>document.title="ran"</script><style>.note{color:red}</style><form action="/x"><button>Send</button></form>';
+    const post = (url: string, headers: Headers, payload: object) =>
+      app.inject({ method: 'POST', url, headers: json(headers), payload: JSON.stringify(payload) });
+    const previewOf = async (url: string, headers: Headers, payload: object) => {
+      const response = await post(url, headers, payload);
+      assert.equal(response.json().status, 'DONE', response.body);
+      const { html } = response.json().body as { html: string };
+      assert.match(html, /Preview text/, url);
+      assert.doesNotMatch(html, /onerror|<script|<form|<button/, url);
+      return html;
+    };
+
+    const globalHtml = await previewOf('/v1/global-banners/preview', writer, { contentHtml: source });
+    const userHtml = await previewOf('/v1/banners/preview', author, { contentHtml: source });
+    const pageHtml = await previewOf('/v1/static-pages/preview', writer, { content: source });
+    assert.doesNotMatch(globalHtml, /<style/);
+    assert.match(pageHtml, /<style>\.note\{color:red\}<\/style>/);
+
+    const banner = { title: 'Banner', contentHtml: source, bannerType: 'horizontal', position: 'top', isActive: true };
+    assert.equal((await post('/v1/global-banners', writer, banner)).json().status, 'DONE');
+    assert.equal((await post('/v1/banners', author, { ...banner, position: 'bottom' })).json().status, 'DONE');
+    const postPage = (await app.inject('/@other/with-banners')).body;
+    assert.ok(postPage.includes(globalHtml));
+    assert.ok(postPage.includes(userHtml));
+    insertRow(fixture.db, 'StaticPage', {
+      id: 1,
+      slug: 'previewed',
+      title: 'Previewed',
+      content: source,
+      isPublished: 1,
+    });
+    assert.ok((await app.inject('/static/previewed')).body.includes(pageHtml));
+
+    for (const [url, headers] of [
+      ['/v1/global-banners/preview', author],
+      ['/v1/static-pages/preview', author],
+      ['/v1/banners/preview', reader],
+    ] as const) {
+      assert.equal((await post(url, headers, { contentHtml: source, content: source })).json().errorCode, 'error:RJ');
+    }
+    const withoutCsrf = { cookie: writer.cookie.replace(/; csrftoken=.*/, '') };
+    assert.equal((await post('/v1/global-banners/preview', withoutCsrf, { contentHtml: source })).statusCode, 403);
   });
 });
 

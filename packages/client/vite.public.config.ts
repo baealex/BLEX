@@ -75,8 +75,8 @@ export default defineConfig({
             preserveEntrySignatures: 'exports-only',
             input: [
                 fileURLToPath(new URL('./src/application/client.tsx', import.meta.url)),
-                fileURLToPath(new URL('./src/features/auth/ui/login-client.tsx', import.meta.url)),
                 // Separate entries keep their shared code out of the application entry, which must run only once.
+                fileURLToPath(new URL('./src/features/auth/ui/login-page.tsx', import.meta.url)),
                 fileURLToPath(new URL('./src/features/posts/post-page.tsx', import.meta.url)),
                 fileURLToPath(new URL('./src/features/discovery/discovery-page.tsx', import.meta.url)),
                 ...authorPageEntries.map((name) =>

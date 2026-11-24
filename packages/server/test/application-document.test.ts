@@ -55,7 +55,7 @@ test('opens a saved form result as a full page only when it redirects outside th
 });
 
 test('keeps the route mount export in the built login entry', async () => {
-  const entry = 'src/features/auth/ui/login-client.tsx';
+  const entry = 'src/features/auth/ui/login-page.tsx';
   const { script } = await readUiAsset(entry);
   const source = await readFile(new URL(script.slice('/assets/ui/'.length), clientAssets), 'utf8');
   assert.match(source, /\bexport\s*\{[^}]*\bmountPage\b/, entry);

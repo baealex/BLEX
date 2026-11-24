@@ -1359,6 +1359,40 @@ test('lets only one of two simultaneous requests spend a cleanup confirmation', 
   assert.equal(await prisma.adminLog.count(), 1);
 });
 
+test('a cleanup confirmation survives the clock stepping back and still expires after five minutes', async (t) => {
+  t.mock.timers.enable({ apis: ['Date'], now: Date.now() });
+  const preview = async () =>
+    (
+      body(
+        await app.inject({
+          method: 'POST',
+          url: '/v1/utilities/clean-tags',
+          headers: jsonHeaders(2),
+          payload: JSON.stringify({ dryRun: true }),
+        }),
+      ).body as { confirmationToken: string }
+    ).confirmationToken;
+  const execute = (confirmationToken: string) =>
+    app.inject({
+      method: 'POST',
+      url: '/v1/utilities/clean-tags',
+      headers: jsonHeaders(2),
+      payload: JSON.stringify({ dryRun: false, confirmationToken }),
+    });
+
+  const issuedAt = Date.now();
+  const stale = await preview();
+  t.mock.timers.setTime(issuedAt + 5 * 60 * 1000 + 1);
+  assert.equal(body(await execute(stale)).errorCode, 'error:RJ');
+
+  // Time synchronization can set the system clock back between the preview and the confirmation.
+  const reissuedAt = Date.now();
+  const confirmation = await preview();
+  t.mock.timers.setTime(reissuedAt - 1_000);
+  const executed = await execute(confirmation);
+  assert.equal(body(executed).status, 'DONE', executed.body);
+});
+
 test('reading absent singleton settings shows defaults without creating rows, and the first write creates them', async () => {
   const database = new DatabaseSync(databasePath);
   database.exec('DELETE FROM SiteSetting; DELETE FROM LoginSetting; DELETE FROM IntegrationSetting;');
