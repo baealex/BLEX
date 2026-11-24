@@ -70,7 +70,13 @@ const recoverFromFailedCatalog = async () => {
         if (request.isNavigationRequest() && request.frame() === page.mainFrame()) documents += 1;
     };
     page.on('request', countDocument);
-    await page.route(catalog, (route) => (documents === 1 ? route.abort() : route.continue()));
+    await page.route(catalog, async (route) => {
+        if (documents !== 1) return route.continue();
+        const response = await route.fetch();
+        // The header's text module can share the file name, so only a module exporting a catalog fails.
+        if (/\bas messages\}/.test(await response.text())) return route.abort();
+        return route.fulfill({ response });
+    });
     try {
         await page.goto(`${origin}/tags`, { waitUntil: 'commit' });
         await expect.poll(() => documents).toBe(2);
@@ -154,6 +160,46 @@ const openEditor = async () => {
     await expect(command).toBeFocused();
     await command.press('Enter');
     await expect(search).toHaveCount(0);
+};
+
+const warnBeforeLeavingEditor = async () => {
+    const drafts = '**/v1/drafts';
+    const { promise: released, resolve: release } = Promise.withResolvers();
+    // Holding the autosave keeps the title unsaved while the warning is checked.
+    await page.route(drafts, async (route) => {
+        if (route.request().method() !== 'POST') return route.continue();
+        await released;
+        return route.abort();
+    });
+    try {
+        await open('/');
+        await page.evaluate(() => {
+            window.__smokeSameDocument = true;
+        });
+        await page.locator('[data-site-header] a[href="/write"]').first().click();
+        const title = page.getByPlaceholder('제목을 입력하세요');
+        await expect(title).toBeVisible();
+        await expect(page).toHaveURL(`${origin}/write`);
+        await title.fill('Unsaved title');
+        const warning = page.getByRole('dialog', { name: '저장되지 않은 변경사항' });
+        const home = page.locator('[data-site-header] a[href="/"]').first();
+        await home.click();
+        await expect(warning).toBeVisible();
+        await warning.getByRole('button', { name: '취소', exact: true }).click();
+        await expect(warning).toHaveCount(0);
+        await page.goBack();
+        await expect(warning).toBeVisible();
+        await warning.getByRole('button', { name: '취소', exact: true }).click();
+        await expect(page).toHaveURL(`${origin}/write`);
+        await expect(title).toHaveValue('Unsaved title');
+        await home.click();
+        await warning.getByRole('button', { name: '나가기', exact: true }).click();
+        await expect(page).toHaveURL(`${origin}/`);
+        expect(await page.evaluate(() => window.__smokeSameDocument)).toBe(true);
+    } finally {
+        release();
+        await page.unroute(drafts);
+    }
 };
 
 const rejectInvalidScreenData = async () => {
@@ -530,6 +576,7 @@ try {
             keepSearchFocusWithUserAction
         ],
         ['editor', openEditor],
+        ['the editor opens in the application and warns before unsaved edits leave it', warnBeforeLeavingEditor],
         ['latest draft list survives an older response', keepLatestDraftList],
         ['media keyboard controls keep focus and settings labels activate their controls', keepMediaControlFocus],
         ...editorPublishingChecks({ page, open, username: account.username }),

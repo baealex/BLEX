@@ -4,8 +4,6 @@ import { reloadAfterCatalogFailure } from './catalog-recovery';
 import { siteText } from './messages.js';
 import './tailwind.css';
 import './site.scss';
-import { escapeAction } from './quick-search-escape';
-import { rememberSearch } from './recent-searches';
 import { THEME_COOKIE_KEY, writeThemePreferenceCookie } from './theme-cookie';
 
 const root = document.documentElement;
@@ -69,70 +67,6 @@ function updateHeader() {
     if (!header) return;
     header.classList.toggle('border-line-light', scrollY > 0);
     header.classList.toggle('border-transparent', scrollY === 0);
-}
-
-/**
- * Outside the application frame, React for the search box loads only once the reader reaches for it.
- * These listeners cover the box until the island takes over, and the plain form keeps working if it never does.
- */
-function bindStandaloneSearch(signal: AbortSignal) {
-    const search = document.querySelector<HTMLElement>('[data-site-search]');
-    const form = search?.querySelector('form');
-    const input = search?.querySelector('input');
-    if (!search || !form || !input) return;
-    const untilMounted = new AbortController();
-    const listening = { signal: untilMounted.signal };
-    signal.addEventListener('abort', () => untilMounted.abort(), { once: true, ...listening });
-    let loading = false;
-    let dismissed = false;
-    const load = () => {
-        if (loading) return;
-        loading = true;
-        void import('./quick-search-client').then(
-            ({ mountQuickSearch }) => {
-                if (!signal.aborted)
-                    mountQuickSearch(
-                        search,
-                        signal,
-                        () => untilMounted.abort(),
-                        () => dismissed
-                    );
-            },
-            () => {
-                loading = false;
-            }
-        );
-    };
-    const engage = () => {
-        dismissed = false;
-        load();
-    };
-    input.addEventListener('focus', engage, listening);
-    input.addEventListener('input', engage, listening);
-    input.addEventListener(
-        'keydown',
-        (event) => {
-            if (event.key !== 'Escape') return;
-            const action = escapeAction(event, false, input.value !== '');
-            if (action !== 'none') event.preventDefault();
-            if (action === 'clear') input.value = '';
-            if (action !== 'hold') dismissed = true;
-        },
-        listening
-    );
-    form.addEventListener('submit', () => rememberSearch(input.value.trim()), listening);
-    document.addEventListener(
-        'keydown',
-        (event) => {
-            if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'k') return;
-            if (!search.getClientRects().length) return;
-            event.preventDefault();
-            input.focus();
-            load();
-        },
-        listening
-    );
-    if (document.activeElement === input) load();
 }
 
 function bindRouteElements() {
@@ -267,7 +201,6 @@ function bindRouteElements() {
         );
     }
 
-    if (!document.getElementById('blex-application')) bindStandaloneSearch(signal);
     if (document.querySelector('[data-heatmap-days]')) {
         void import('./author-heatmap.js').then(({ mountAuthorHeatmaps }) => {
             if (!signal.aborted) mountAuthorHeatmaps(signal);
@@ -334,7 +267,10 @@ function handleGlobalClick(event: MouseEvent) {
     }
 
     const dialog = target instanceof HTMLDialogElement ? target : target.closest('dialog');
-    if (dialog instanceof HTMLDialogElement && (target === dialog || target.closest('a[href^="#"]'))) dialog.close();
+    // A page with unsaved edits asks before a menu link leaves it, and the open menu would block that question.
+    const leavesMenu = dialog?.id === 'blex-mobile-menu' && target.closest('a[href]');
+    if (dialog instanceof HTMLDialogElement && (target === dialog || target.closest('a[href^="#"]') || leavesMenu))
+        dialog.close();
 
     const copiedButton = target.closest<HTMLElement>('[data-copy-link]');
     if (copiedButton) void copyLink(copiedButton, routeGeneration);

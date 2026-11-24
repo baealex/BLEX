@@ -14,6 +14,7 @@ import ScheduleStatusNotice from './components/ScheduleStatusNotice';
 import { useAutoSave } from './hooks/useAutoSave';
 import { useImageUpload } from './hooks/useImageUpload';
 import { useFormSubmit } from './hooks/useFormSubmit';
+import { useLeaveWarning } from './hooks/useLeaveWarning';
 import { Info } from '~/ui/icons';
 import { startFirstPublishTour as startFirstPublishTourDriver } from './utils/firstPublishTour';
 import { getPublishChecklist } from './utils/publishChecklist';
@@ -173,9 +174,13 @@ const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: Ne
                 setCurrentDraftUrl(url);
             }
 
-            const newUrl = new URL(window.location.href);
-            newUrl.searchParams.set('draft', url);
-            window.history.replaceState({}, '', newUrl.toString());
+            // Moving away keeps this screen until the next page arrives, and the address then belongs to that page.
+            // The kept history state tells the application this is still the editor's own entry.
+            if (/^\/write\/?$/.test(window.location.pathname)) {
+                const newUrl = new URL(window.location.href);
+                newUrl.searchParams.set('draft', url);
+                window.history.replaceState(window.history.state, '', newUrl.toString());
+            }
         }
 
         initialDataRef.current = {
@@ -378,6 +383,8 @@ const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: Ne
         window.addEventListener('beforeunload', handleBeforeUnload);
         return () => window.removeEventListener('beforeunload', handleBeforeUnload);
     });
+
+    useLeaveWarning({ warns: () => !isIntentionalSubmitRef.current && hasUnsavedChanges() });
 
     const handleSelectDraft = async (url: string) => {
         if (url === currentDraftUrl) {
