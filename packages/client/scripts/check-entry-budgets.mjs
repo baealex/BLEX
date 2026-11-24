@@ -160,7 +160,7 @@ const budgets = [
     },
     {
         build: 'client',
-        entries: [...publicPageEntries, 'src/features/auth/ui/login-client.tsx'],
+        entries: [...publicPageEntries, 'src/features/auth/ui/login-page.tsx'],
         label: 'public login page scripts',
         maxInitialBytes: 460 * 1024,
         maxInitialGzipBytes: 150 * 1024
