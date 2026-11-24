@@ -410,6 +410,30 @@ const keepThemePreferenceAcrossPages = async () => {
     await page.emulateMedia({ colorScheme: null });
 };
 
+const returnToFragmentPositions = async () => {
+    await open('/docs/developer-api/quickstart');
+    const top = (id) => page.locator(`#${id}`).evaluate((section) => Math.round(section.getBoundingClientRect().top));
+    const follow = async (id) => {
+        // A scripted click leaves the page where the previous fragment put it.
+        await page
+            .locator(`a[href="#${id}"]`)
+            .first()
+            .evaluate((link) => link.click());
+        await expect(page).toHaveURL(new RegExp(`#${id}$`));
+        await expect.poll(() => top(id)).toBeLessThan(200);
+    };
+    await follow('connect');
+    const connectTop = await top('connect');
+    await follow('draft');
+    await page.goBack();
+    await expect(page).toHaveURL(/#connect$/);
+    await expect.poll(() => top('connect')).toBe(connectTop);
+    await page.goBack();
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+    await page.goForward();
+    await expect.poll(() => top('connect')).toBe(connectTop);
+};
+
 const keepMediaControlFocus = async () => {
     await open('/write');
     const editor = page.locator('.ProseMirror');
@@ -476,6 +500,7 @@ try {
         ],
         ['invalid screen data fails safely without interpreting names as HTML', rejectInvalidScreenData],
         ['a screen render error leaves other screens mounted', isolateScreenRenderError],
+        ['back and forward return to each fragment the reader followed', returnToFragmentPositions],
         ['pinned post selection supports arrow keys and resets after a search', selectPinnedPostWithKeyboard],
         ['settings list separates native activation, keyboard reordering, and menus', useSettingsListWithKeyboard],
         ['tag input returns focus on Escape without stealing focus after blur', keepTagFocusWithUserAction],
