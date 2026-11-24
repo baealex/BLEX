@@ -3,7 +3,8 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { syncPostPublication } from '../../notifications/model.js';
 import { localDate, timeSince } from '../../../platform/date-format.js';
 import { readDraftPreview, readPostPresentation } from '../public-post.js';
-import { postContentSecurityPolicy, renderPublicPostPage } from '../public-post-view.js';
+import { renderPublicPostPage } from '../public-post-view.js';
+import { draftPreviewContentSecurityPolicy } from '../../../platform/document.js';
 import { sanitizePostHtml } from '../post-html.js';
 import { done, failure as failed } from '../../../platform/response.js';
 import {
@@ -58,7 +59,9 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
     return account ? notFound(reply) : reply;
   });
 
-  routes.get<{ Params: { slug: string } }>('/write/preview/:slug', async (request, reply) => {
+  // The editor shows this page in a frame, so it is the one page the site itself may frame.
+  const siteFrame = { config: { framedBySite: true } };
+  routes.get<{ Params: { slug: string } }>('/write/preview/:slug', siteFrame, async (request, reply) => {
     const account = await currentAccount(request, db, options);
     if (account?.role !== 'EDITOR') return notFound(reply);
     const post = await readDraftPreview(db, account.id, request.params.slug);
@@ -69,7 +72,8 @@ export function registerEditorRoutes(routes: FastifyInstance, db: PrismaClient, 
       .type('text/html; charset=utf-8')
       .header('Cache-Control', 'private, no-store')
       .header('X-Robots-Tag', 'noindex, nofollow')
-      .header('Content-Security-Policy', postContentSecurityPolicy)
+      .header('Content-Security-Policy', draftPreviewContentSecurityPolicy(options.siteUrl))
+      .header('X-Frame-Options', 'SAMEORIGIN')
       .send(
         renderPublicPostPage(
           post,

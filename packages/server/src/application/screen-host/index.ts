@@ -207,7 +207,7 @@ export function registerScreenHost(app: FastifyInstance, db: PrismaClient, optio
       .header('Content-Language', configuration.locale)
       .header('Cache-Control', 'private, no-store')
       .header('Vary', 'Cookie')
-      .header('Content-Security-Policy', applicationContentSecurityPolicy)
+      .header('Content-Security-Policy', applicationContentSecurityPolicy(options.siteUrl))
       .send(html);
   };
 
