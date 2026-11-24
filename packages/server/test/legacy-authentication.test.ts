@@ -282,6 +282,38 @@ test('a sign-in form posted before the client starts lands on a page', async () 
     const fetched = await post({ 'sec-fetch-dest': 'empty' }, password);
     assert.equal(fetched.statusCode, 200);
     assert.equal(fetched.json().status, 'DONE');
+
+    // The server form posts its token and return path as fields.
+    const submit = (secret: string, next: string) =>
+      app.inject({
+        method: 'POST',
+        url: '/v1/login',
+        headers: {
+          origin: headers.origin,
+          cookie: headers.cookie,
+          'content-type': 'application/x-www-form-urlencoded',
+          ...navigation,
+        },
+        payload: new URLSearchParams({
+          csrfmiddlewaretoken: headers['x-csrftoken'],
+          username: 'formuser',
+          password: secret,
+          next,
+        }).toString(),
+      });
+    for (const [next, location] of [
+      ['/@formuser/kept?tab=1#comments', '/@formuser/kept?tab=1#comments'],
+      ['//evil.example/', '/'],
+      ['https://evil.example/', '/'],
+      ['/\\evil.example', '/'],
+    ]) {
+      const returned = await submit(password, next);
+      assert.equal(returned.statusCode, 303, next);
+      assert.equal(returned.headers.location, location, next);
+    }
+    const retry = await submit('not-the-password', '/@formuser/kept?tab=1');
+    assert.equal(retry.headers.location, '/login?next=%2F%40formuser%2Fkept%3Ftab%3D1');
+    assert.equal((await submit('not-the-password', '//evil.example/')).headers.location, '/login');
   } finally {
     await app.close();
     await rm(directory, { recursive: true });
