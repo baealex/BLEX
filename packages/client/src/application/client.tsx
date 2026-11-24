@@ -20,7 +20,8 @@ import {
     discoveryPageDataSelector,
     loginPageDataSelector,
     postBodySelector,
-    postPageDataSelector
+    postPageDataSelector,
+    workLogPageDataSelector
 } from './route-data.js';
 import type { SiteHeaderProps } from '../appearance/shell.js';
 import {
@@ -34,6 +35,7 @@ import type { DeveloperQuickstartData } from '../features/developer-api/quicksta
 import type { ErrorPageData, StaticPageData } from '../features/discovery/content-page-data';
 import type { DiscoveryPageData } from '../features/discovery/discovery-page-data';
 import type { PostPageData } from '../features/posts/post-page-data';
+import type { WorkLogPageData } from '../features/work-logs/page-data';
 
 interface HeadLink {
     attributes: Array<[string, string]>;
@@ -124,6 +126,7 @@ let visitingFromApplication = false;
 let screenGlobalNames: string[] = [];
 let postRevision = 0;
 let authorRevision = 0;
+let workLogRevision = 0;
 let markShellHydrated = () => {};
 let failShellHydration: (error: unknown) => void = () => {};
 const shellHydrated = new Promise<void>((resolve, reject) => {
@@ -389,6 +392,27 @@ function readAuthorPage(source: Document, content: Element, pageUrl: URL): TreeP
     );
 }
 
+const workLogPageModules: Record<WorkLogPageData['page'], () => Promise<ContentPageModule>> = {
+    index: () => import('../features/work-logs/index-page'),
+    detail: () => import('../features/work-logs/detail-page'),
+    delete: () => import('../features/work-logs/delete-page'),
+    shared: () => import('../features/work-logs/shared-page')
+};
+
+function readWorkLogPage(source: Document, content: Element, pageUrl: URL): TreePage | null {
+    const value = parseElementJson(source.querySelector(workLogPageDataSelector));
+    if (!isRecord(value) || !Object.keys(workLogPageModules).includes(String(value.page))) return null;
+    const data = value as unknown as WorkLogPageData;
+    workLogRevision += 1;
+    // Each response mounts fresh, so a form that posts back to its own page starts over like a page load.
+    return createTreePage(
+        `work-log:${pageRequestKey(pageUrl)}:${workLogRevision}`,
+        () => workLogPageModules[data.page]().then(({ mountPage }) => mountPage(data as never, content)),
+        // Without its code, the server forms keep what the writer typed and still submit.
+        { keepsServerMarkup: true }
+    );
+}
+
 const contentPageModules: Record<ContentPageData['page'], () => Promise<ContentPageModule>> = {
     static: () => import('../features/discovery/static-page'),
     'not-found': () => import('../features/discovery/not-found-page'),
@@ -489,6 +513,7 @@ function readApplicationDocument(source: Document, url: string): ApplicationDocu
         readPostPage(source, content) ??
         readDiscoveryPage(source, pageUrl) ??
         readAuthorPage(source, content, pageUrl) ??
+        readWorkLogPage(source, content, pageUrl) ??
         readContentPage(source, content, pageUrl) ??
         readLoginPage(source, content, pageUrl);
     return {
