@@ -6,7 +6,9 @@ import { normalizeLocale } from '~/i18n/locale';
 import type { BannerPosition } from './bannerI18n';
 
 interface BannerPreviewFrameProps {
-    contentHtml: string;
+    /** Server-rendered HTML, never the editor source, so the preview matches public pages. */
+    previewHtml: string;
+    hasContent: boolean;
     position: BannerPosition;
     hasSelectedPosition: boolean;
     onPositionChange: (position: BannerPosition) => void;
@@ -14,7 +16,8 @@ interface BannerPreviewFrameProps {
 }
 
 const BannerPreviewFrame = ({
-    contentHtml,
+    previewHtml,
+    hasContent,
     position,
     hasSelectedPosition,
     onPositionChange,
@@ -22,7 +25,6 @@ const BannerPreviewFrame = ({
 }: BannerPreviewFrameProps) => {
     const { i18n } = useLingui();
     const locale = normalizeLocale(i18n.locale);
-    const hasHtml = contentHtml.trim().length > 0;
     const mutedPostClass = hasSelectedPosition ? 'opacity-100' : 'opacity-50';
     const todayLabel = new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(new Date());
 
@@ -40,8 +42,8 @@ const BannerPreviewFrame = ({
                         values: { position: slot }
                     })}
                 >
-                    {hasHtml ? (
-                        <div dangerouslySetInnerHTML={{ __html: contentHtml }} />
+                    {hasContent ? (
+                        <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
                     ) : (
                         <div className="py-2 text-xs text-content-hint">
                             {i18n._({
@@ -96,8 +98,8 @@ const BannerPreviewFrame = ({
                         values: { position: slot }
                     })}
                 >
-                    {hasHtml ? (
-                        <div dangerouslySetInnerHTML={{ __html: contentHtml }} />
+                    {hasContent ? (
+                        <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
                     ) : (
                         <div className="py-2 text-xs text-content-hint">
                             {i18n._({

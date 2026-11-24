@@ -708,6 +708,23 @@ export const updateGlobalBannerOrder = async (order: [number, number][]) => {
     );
 };
 
+// The server returns the HTML public pages show for this input, so previews never insert the raw source.
+export const previewBannerHtml = async (scope: 'user' | 'global', contentHtml: string) => {
+    return http.post<Response<{ html: string }>>(
+        scope === 'global' ? 'v1/global-banners/preview' : 'v1/banners/preview',
+        { contentHtml },
+        { headers: { 'Content-Type': 'application/json' } }
+    );
+};
+
+export const previewStaticPageHtml = async (content: string) => {
+    return http.post<Response<{ html: string }>>(
+        'v1/static-pages/preview',
+        { content },
+        { headers: { 'Content-Type': 'application/json' } }
+    );
+};
+
 // Site Setting API
 export interface SocialAuthProviderSetting {
     key: string;

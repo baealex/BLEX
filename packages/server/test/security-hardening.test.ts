@@ -287,6 +287,58 @@ test('static page styles cannot close their element and inject markup', async ()
   });
 });
 
+test('banner and static page previews show the public HTML, never markup the site strips', async () => {
+  await withApp(async ({ app, fixture, writer, reader }) => {
+    fixture.db.prepare('UPDATE "User" SET "isStaff" = 1 WHERE id = 1').run();
+    const author = signIn(fixture.db, 2);
+    seedPost(fixture.db, 10, 2, 'with-banners');
+    const source =
+      '<p class="note">Preview text</p><img src="/a.png" onerror="this.dataset.ran=1">' +
+      '<script>document.title="ran"</script><style>.note{color:red}</style><form action="/x"><button>Send</button></form>';
+    const post = (url: string, headers: Headers, payload: object) =>
+      app.inject({ method: 'POST', url, headers: json(headers), payload: JSON.stringify(payload) });
+    const previewOf = async (url: string, headers: Headers, payload: object) => {
+      const response = await post(url, headers, payload);
+      assert.equal(response.json().status, 'DONE', response.body);
+      const { html } = response.json().body as { html: string };
+      assert.match(html, /Preview text/, url);
+      assert.doesNotMatch(html, /onerror|<script|<form|<button/, url);
+      return html;
+    };
+
+    const globalHtml = await previewOf('/v1/global-banners/preview', writer, { contentHtml: source });
+    const userHtml = await previewOf('/v1/banners/preview', author, { contentHtml: source });
+    const pageHtml = await previewOf('/v1/static-pages/preview', writer, { content: source });
+    assert.doesNotMatch(globalHtml, /<style/);
+    assert.match(pageHtml, /<style>\.note\{color:red\}<\/style>/);
+
+    const banner = { title: 'Banner', contentHtml: source, bannerType: 'horizontal', position: 'top', isActive: true };
+    assert.equal((await post('/v1/global-banners', writer, banner)).json().status, 'DONE');
+    assert.equal((await post('/v1/banners', author, { ...banner, position: 'bottom' })).json().status, 'DONE');
+    const postPage = (await app.inject('/@other/with-banners')).body;
+    assert.ok(postPage.includes(globalHtml));
+    assert.ok(postPage.includes(userHtml));
+    insertRow(fixture.db, 'StaticPage', {
+      id: 1,
+      slug: 'previewed',
+      title: 'Previewed',
+      content: source,
+      isPublished: 1,
+    });
+    assert.ok((await app.inject('/static/previewed')).body.includes(pageHtml));
+
+    for (const [url, headers] of [
+      ['/v1/global-banners/preview', author],
+      ['/v1/static-pages/preview', author],
+      ['/v1/banners/preview', reader],
+    ] as const) {
+      assert.equal((await post(url, headers, { contentHtml: source, content: source })).json().errorCode, 'error:RJ');
+    }
+    const withoutCsrf = { cookie: writer.cookie.replace(/; csrftoken=.*/, '') };
+    assert.equal((await post('/v1/global-banners/preview', withoutCsrf, { contentHtml: source })).statusCode, 403);
+  });
+});
+
 test('upload routes refuse large bodies that are not multipart before login', async () => {
   await withApp(async ({ app, writer }) => {
     const large = JSON.stringify({ value: 'a'.repeat(9 * 1024 * 1024) });
