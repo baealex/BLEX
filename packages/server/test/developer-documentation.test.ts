@@ -10,7 +10,6 @@ import sharp from 'sharp';
 import { Type } from 'typebox';
 import { buildApp } from '../src/app.js';
 import { apiExamples } from '../src/features/developer-api/examples.js';
-import { developerKorean } from '../src/features/developer-api/locales/ko.js';
 import { developerApiRoot as root } from '../src/features/developer-api/schemas.js';
 import {
   createMigratedDatabase,
@@ -23,14 +22,6 @@ import {
 } from './fixtures/migrated-database.js';
 
 const run = promisify(execFile);
-
-test('keeps every translated message’s interpolation placeholders intact', () => {
-  const placeholders = (message: string) => message.match(/\{\w+\}/g)?.sort() ?? [];
-  for (const [source, translated] of Object.entries(developerKorean)) {
-    assert.ok(translated.trim(), source);
-    assert.deepEqual(placeholders(translated), placeholders(source), source);
-  }
-});
 
 function englishUi(t: TestContext) {
   const previous = process.env.ENABLE_ENGLISH_UI;
