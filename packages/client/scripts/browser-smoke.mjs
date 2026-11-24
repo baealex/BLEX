@@ -563,6 +563,53 @@ const returnToFragmentPositions = async () => {
     await expect.poll(() => top('connect')).toBe(connectTop);
 };
 
+const translateCodeCopyButton = async () => {
+    await open('/');
+    const csrf = (await page.context().cookies()).find((cookie) => cookie.name === 'csrftoken')?.value;
+    expect(csrf).toBeTruthy();
+    const created = await (
+        await page.request.post(`${origin}/v1/posts`, {
+            headers: { origin, 'x-csrftoken': csrf },
+            data: {
+                title: 'Code copy labels',
+                url: `code-copy-labels-${Date.now()}`,
+                contentHtml: '<pre><code class="language-javascript">const copied = true;</code></pre>'
+            }
+        })
+    ).json();
+    expect(created.status).toBe('DONE');
+    const catalog = /\/messages[-.][^/]*\.js/;
+    const { promise: released, resolve: release } = Promise.withResolvers();
+    await page.route(catalog, async (route) => {
+        const response = await route.fetch();
+        // The header's text module can share the file name, so only a module exporting a catalog waits.
+        if (/\bas messages\}/.test(await response.text())) await released;
+        return route.fulfill({ response });
+    });
+    await page.context().grantPermissions(['clipboard-read', 'clipboard-write'], { origin });
+    try {
+        const postCode = page.waitForResponse((response) => /\/post-page-[^/]*\.js$/.test(response.url()));
+        await page.goto(`${origin}/@${account.username}/${created.body.url}`, { waitUntil: 'commit' });
+        await postCode;
+        await page.evaluate(
+            () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+        );
+        // The labels are translated, so the button waits for the page's catalog even when the page code is ready.
+        const button = page.locator('.code-copy-button');
+        await expect(button).toHaveCount(0);
+        release();
+        await expect(button).toHaveAttribute('aria-label', '코드 복사');
+        await expect(button).toHaveAttribute('title', '코드 복사');
+        await button.click();
+        await expect(button).toHaveAttribute('title', '복사 완료!');
+        await expect(button).toHaveAttribute('aria-label', '코드 복사');
+    } finally {
+        release();
+        await page.unroute(catalog);
+        await page.context().clearPermissions();
+    }
+};
+
 const keepMediaControlFocus = async () => {
     await open('/write');
     const editor = page.locator('.ProseMirror');
@@ -631,6 +678,7 @@ try {
         ['invalid screen data fails safely without interpreting names as HTML', rejectInvalidScreenData],
         ['a screen render error leaves other screens mounted', isolateScreenRenderError],
         ['back and forward return to each fragment the reader followed', returnToFragmentPositions],
+        ['the code block copy button speaks the page language once its translations load', translateCodeCopyButton],
         ['pinned post selection supports arrow keys and resets after a search', selectPinnedPostWithKeyboard],
         ['settings list separates native activation, keyboard reordering, and menus', useSettingsListWithKeyboard],
         ['tag input returns focus on Escape without stealing focus after blur', keepTagFocusWithUserAction],

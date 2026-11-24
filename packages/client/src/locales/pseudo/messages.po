@@ -2251,6 +2251,16 @@ msgid "public.Continue with your {provider} account"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/features/posts/code-block-header.tsx:35
+msgid "public.Copied!"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/posts/code-block-header.tsx:27
+msgid "public.Copy code"
+msgstr ""
+
+#. js-lingui-explicit-id
 #: src/features/work-logs/pages.tsx:602
 msgid "public.Copy link"
 msgstr ""
