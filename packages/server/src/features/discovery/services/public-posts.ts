@@ -3,6 +3,7 @@ import type { Prisma, PrismaClient } from '@prisma/client';
 import { storedDateText } from '../../../platform/date-format.js';
 import { postIdsMatching } from '../../posts/data/text-match.js';
 import { publicPostWhere } from '../../posts/data/visibility.js';
+import { readableDescription } from '../../posts/shared.js';
 import { type AuthorRow, PAGE_SIZE, type PostQueryOptions, type PostRow, type PublicPageViewer } from '../shared.js';
 import { csrfCookie } from '../page-context.js';
 import type { CardLikes } from '@blex/contracts/public';
@@ -32,7 +33,7 @@ function postCard(post: PostCard): PostRow {
     subtitle: post.subtitle,
     image: post.image,
     readTime: post.readTime,
-    description: post.description,
+    description: readableDescription(post.description),
     publishedDate: post.publishedAt && storedDateText(post.publishedAt),
     authorUsername: post.author.username,
     authorAvatar: post.author.profile?.avatar ?? null,

@@ -257,6 +257,54 @@ test('keeps the 3.x search and feed metadata on public posts', async () => {
   }
 });
 
+test('a description made from the body reads as text wherever it is shown', async () => {
+  const fixture = await publicApp();
+  const { app, db } = fixture;
+  try {
+    seedPost(db, 7, 1, 'generics', {
+      title: 'Generics',
+      description: 'Promise&lt;Post | null&gt; &amp; more',
+      publishedAt: daysAgo(1),
+    });
+    insertRow(db, 'Tag', { id: 1, name: 'typescript' });
+    insertRow(db, '_PostToTag', { A: 1, B: 1 });
+    insertRow(db, '_PostToTag', { A: 7, B: 1 });
+    const rawToken = 'blex_pat_writertoken_contract-secret';
+    insertRow(db, 'DeveloperToken', {
+      id: 1,
+      userId: 1,
+      name: 'Writer',
+      tokenPrefix: 'writertoken',
+      tokenHash: createHash('sha256').update(rawToken, 'utf8').digest('hex'),
+      scopes: '["posts:read"]',
+    });
+    const text = 'Promise<Post | null> & more';
+    const escapedOnce = 'Promise&lt;Post | null&gt; &amp; more';
+
+    for (const url of ['/', '/@writer/generics', '/@writer/posts']) {
+      const { body } = await app.inject(url);
+      assert.ok(body.includes(escapedOnce), url);
+      assert.ok(!body.includes('&amp;lt;'), url);
+    }
+    assert.ok(!(await app.inject('/search?q=Promise')).body.includes('&amp;lt;'));
+    assert.equal((await app.inject('/v1/search?q=Promise')).json().body.results[0].description, text);
+    const view = await app.inject('/v1/users/@writer/posts/generics?mode=view');
+    assert.equal(view.json().body.description, text);
+    const edit = await app.inject({ url: '/v1/users/@writer/posts/generics?mode=edit', headers: signIn(db, 1) });
+    assert.equal(edit.json().body.description, text);
+    const related = await app.inject('/v1/users/@writer/posts/part-one/related');
+    assert.ok(related.body.includes(JSON.stringify(text).slice(1, -1)));
+    const api = await app.inject({
+      url: '/api/developer/v1/posts/7',
+      headers: { authorization: `Bearer ${rawToken}` },
+    });
+    assert.equal(api.json().data.description, text);
+    assert.equal(db.prepare('SELECT description FROM "Post" WHERE id = 7').get()?.description, escapedOnce);
+  } finally {
+    await fixture.close();
+  }
+});
+
 test('asks anonymous readers to log in through the shared modal controls', async () => {
   const fixture = await publicApp();
   try {
