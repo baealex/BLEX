@@ -828,9 +828,12 @@ function handleDocumentClick(event: MouseEvent): void {
     } catch {
         return;
     }
-    if (!isInternalApplicationUrl(destination)) return;
     const current = new URL(window.location.href);
-    if (sameRoute(destination, current) && destination.hash !== current.hash) return;
+    if (sameRoute(destination, current) && destination.hash !== current.hash) {
+        // The browser gives a fragment it follows itself no history key, so back and forward could not return
+        // to it. Screens keep native fragments because the browser restores their scroll.
+        if (!currentDocument || currentDocument.screen) return;
+    } else if (!isInternalApplicationUrl(destination)) return;
     if (destination.href === current.href) return;
     if (!router) return;
 
