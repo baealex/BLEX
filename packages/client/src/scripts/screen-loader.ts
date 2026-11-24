@@ -45,30 +45,4 @@ const initializeScreenLoader = () => {
     });
 };
 
-type ToastMethod = 'success' | 'error' | 'info' | 'warning' | 'loading' | 'promise' | 'dismiss' | 'message';
-
-const loadToast = () => import('../utils/toast').then((module) => module.toast);
-
-const createLazyToastCall =
-    (method?: ToastMethod) =>
-    (...args: unknown[]) =>
-        loadToast().then((toast) => {
-            if (method) {
-                return (toast[method] as (...toastArgs: unknown[]) => unknown)(...args);
-            }
-
-            return (toast as (...toastArgs: unknown[]) => unknown)(...args);
-        });
-
-window.toast = Object.assign(createLazyToastCall(), {
-    success: createLazyToastCall('success'),
-    error: createLazyToastCall('error'),
-    info: createLazyToastCall('info'),
-    warning: createLazyToastCall('warning'),
-    loading: createLazyToastCall('loading'),
-    promise: createLazyToastCall('promise'),
-    dismiss: createLazyToastCall('dismiss'),
-    message: createLazyToastCall('message')
-});
-
 initializeScreenLoader();

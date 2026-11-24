@@ -61,7 +61,7 @@ const budgets = [
         maxInitialBytes: 1.7 * 1024,
         maxInitialGzipBytes: 0.9 * 1024,
         allowedInitialNames: [screenLoader, 'preload-helper', 'theme'],
-        requiredDynamicNames: [screenRuntime, 'toast']
+        requiredDynamicNames: [screenRuntime]
     },
     {
         entries: [screenRuntime],

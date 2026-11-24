@@ -2,6 +2,7 @@ import { type ComponentType, useEffect, useSyncExternalStore } from 'react';
 import type { LoginPromptDialogProps } from '../features/engagement/ui/login-prompt-dialog.js';
 import { isLoginPromptAction, type LoginPromptAction } from '../features/engagement/ui/login-prompt.js';
 import type { TelegramHintProps } from '../features/engagement/ui/telegram-hint.js';
+import { readToaster, subscribeToaster } from './toaster.js';
 
 interface OpenPrompts {
     login: { Dialog: ComponentType<LoginPromptDialogProps>; action: LoginPromptAction; next: string } | null;
@@ -73,6 +74,7 @@ export function ApplicationPrompts() {
         () => open,
         () => closed
     );
+    const toaster = useSyncExternalStore(subscribeToaster, readToaster, () => null);
 
     useEffect(() => {
         document.addEventListener('blex:before-page-change', closePrompts);
@@ -90,6 +92,7 @@ export function ApplicationPrompts() {
                 />
             )}
             {hint && <hint.Hint raised={hint.raised} onClose={closeHint} />}
+            {toaster}
         </>
     );
 }

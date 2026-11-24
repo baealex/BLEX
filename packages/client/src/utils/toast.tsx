@@ -1,7 +1,9 @@
-import type { ReactNode } from 'react';
+import { type ReactNode, StrictMode, useEffect } from 'react';
+import { I18nProvider } from '@lingui/react';
+import { showToaster } from '~/application/toaster';
+import ErrorBoundary from '~/components/ErrorBoundary';
+import { i18n } from '~/i18n';
 import { toast as sonnerToast } from '~/ui/toast';
-
-const TOASTER_ROOT_ID = 'blex-toast-root';
 
 const DURATION = {
     success: 2000,
@@ -10,6 +12,9 @@ const DURATION = {
     warning: 4000
 } as const;
 
+// Sonner drops a toast sent before its toaster listens, so the first toasts wait for it, but not past this.
+const TOASTER_WAIT_MS = 1000;
+
 type ToastMessage = string | ReactNode;
 
 type ToastOptions = {
@@ -17,59 +22,47 @@ type ToastOptions = {
     [key: string]: unknown;
 };
 
-const ensureToaster = () => {
-    if (typeof document === 'undefined') {
-        return null;
-    }
-
-    const existingToaster = document.getElementById(TOASTER_ROOT_ID);
-    if (existingToaster) {
-        return existingToaster;
-    }
-
-    const toaster = document.createElement('div');
-    toaster.id = TOASTER_ROOT_ID;
-    toaster.dataset.screen = 'Toaster';
-    toaster.dataset.screenStatus = 'pending';
-    document.body.appendChild(toaster);
-
-    return toaster;
+const Mounted = ({ onMounted }: { onMounted: () => void }) => {
+    useEffect(onMounted, [onMounted]);
+    return null;
 };
 
-const runWhenToasterReady = <T>(callback: () => T) => {
-    const toaster = ensureToaster();
-    if (!toaster || toaster.dataset.screenStatus === 'mounted') {
+let toasterMounted = false;
+let toasterReady: Promise<void> | null = null;
+
+/**
+ * The toaster loads with the first toast and renders in the application, beside its prompts.
+ * It shows over work in progress, so a toaster that fails to load or render only loses its toasts.
+ */
+const mountToaster = () => {
+    toasterReady ??= new Promise<void>((resolve) => {
+        const ready = () => {
+            toasterMounted = true;
+            resolve();
+        };
+        window.setTimeout(resolve, TOASTER_WAIT_MS);
+        import('~/features/toaster').then(({ default: Toaster }) => {
+            showToaster(
+                <StrictMode>
+                    <ErrorBoundary fallback={null} onError={resolve}>
+                        <I18nProvider i18n={i18n}>
+                            <Toaster />
+                            <Mounted onMounted={ready} />
+                        </I18nProvider>
+                    </ErrorBoundary>
+                </StrictMode>
+            );
+        }, resolve);
+    });
+    return toasterReady;
+};
+
+const runWhenToasterReady = <T,>(callback: () => T) => {
+    if (toasterMounted) {
         return callback();
     }
 
-    let isResolved = false;
-    let observer: MutationObserver | undefined;
-    const timeoutRef: { id?: number } = {};
-
-    const run = () => {
-        if (isResolved) return;
-
-        isResolved = true;
-        if (timeoutRef.id !== undefined) {
-            window.clearTimeout(timeoutRef.id);
-        }
-        observer?.disconnect();
-        callback();
-    };
-
-    if (typeof MutationObserver !== 'undefined') {
-        observer = new MutationObserver(() => {
-            if (toaster.dataset.screenStatus === 'mounted') {
-                run();
-            }
-        });
-        observer.observe(toaster, {
-            attributes: true,
-            attributeFilter: ['data-screen-status']
-        });
-    }
-
-    timeoutRef.id = window.setTimeout(run, 1000);
+    void mountToaster().then(callback);
 };
 
 export const toast = Object.assign(
