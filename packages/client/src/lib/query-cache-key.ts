@@ -12,8 +12,8 @@ export const buildQueryCacheKey = (
     timeZone: string | undefined
 ): string => {
     const viewer = username?.trim();
-    const identity = viewer ? `${versionPrefix}@${encodeURIComponent(viewer)}-` : signedOutPrefix;
-    return `${identity}${locale}-${encodeURIComponent(timeZone || '')}`;
+    const viewerPrefix = viewer ? `${versionPrefix}@${encodeURIComponent(viewer)}-` : signedOutPrefix;
+    return `${viewerPrefix}${locale}-${encodeURIComponent(timeZone || '')}`;
 };
 
 /** Removes the session query caches of signed-in viewers and older formats, keeping those of signed-out visitors. */
