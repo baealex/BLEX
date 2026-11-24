@@ -59,10 +59,14 @@ const authorPageEntries = [
 const workLogPageEntries = ['index-page', 'detail-page', 'delete-page', 'shared-page'];
 
 const contentPageEntries = [
+    'discovery/search-page',
     'discovery/static-page',
     'discovery/not-found-page',
     'discovery/forbidden-page',
-    'developer-api/quickstart'
+    'developer-api/quickstart',
+    'posts/revisions-page',
+    'posts/timelapse-page',
+    'posts/share-links-page'
 ];
 
 const authFormPageEntries = ['signup-page', 'setup-page', 'reauthenticate-page', 'password-reset-page'];

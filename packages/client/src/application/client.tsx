@@ -21,6 +21,7 @@ import {
     discoveryPageDataSelector,
     loginPageDataSelector,
     postBodySelector,
+    postManagementPageDataSelector,
     postPageDataSelector,
     workLogPageDataSelector
 } from './route-data.js';
@@ -35,7 +36,8 @@ import type { AuthFormPageData } from '../features/auth/ui/form-page-data';
 import type { AuthorMountContext, AuthorPageData } from '../features/authors/author-page-data';
 import type { DeveloperQuickstartData } from '../features/developer-api/quickstart-data';
 import type { ErrorPageData, StaticPageData } from '../features/discovery/content-page-data';
-import type { DiscoveryPageData } from '../features/discovery/discovery-page-data';
+import type { DiscoveryPageData, SearchPageData } from '../features/discovery/discovery-page-data';
+import type { PostManagementPageData } from '../features/posts/management-page-data';
 import type { PostPageData } from '../features/posts/post-page-data';
 import type { WorkLogPageData } from '../features/work-logs/page-data';
 
@@ -134,6 +136,7 @@ let postRevision = 0;
 let authorRevision = 0;
 let workLogRevision = 0;
 let authFormRevision = 0;
+let postManagementRevision = 0;
 let markShellHydrated = () => {};
 let failShellHydration: (error: unknown) => void = () => {};
 const shellHydrated = new Promise<void>((resolve, reject) => {
@@ -351,9 +354,18 @@ function readPostPage(source: Document, content: Element): TreePage | null {
 
 function readDiscoveryPage(source: Document, pageUrl: URL): TreePage | null {
     const value = parseElementJson(source.querySelector(discoveryPageDataSelector));
-    if (!isRecord(value) || !['home', 'tags', 'tag'].includes(String(value.page))) return null;
+    if (!isRecord(value)) return null;
+    const key = `discovery:${pageRequestKey(pageUrl)}`;
+    // Search renders here only without the search screen, so the home page does not carry its code.
+    if (value.page === 'search') {
+        const data = value as unknown as SearchPageData;
+        return createTreePage(key, () =>
+            import('../features/discovery/search-page').then(({ SearchPage }) => <SearchPage data={data} />)
+        );
+    }
+    if (!['home', 'tags', 'tag', 'interests'].includes(String(value.page))) return null;
     const data = value as unknown as DiscoveryPageData;
-    return createTreePage(`discovery:${pageRequestKey(pageUrl)}`, () =>
+    return createTreePage(key, () =>
         import('../features/discovery/discovery-page').then(({ DiscoveryPage }) => <DiscoveryPage data={data} />)
     );
 }
@@ -470,6 +482,26 @@ function readAuthFormPage(source: Document, content: Element, pageUrl: URL): Tre
     );
 }
 
+const postManagementPageModules: Record<PostManagementPageData['page'], () => Promise<ContentPageModule>> = {
+    revisions: () => import('../features/posts/revisions-page'),
+    timelapse: () => import('../features/posts/timelapse-page'),
+    'share-links': () => import('../features/posts/share-links-page')
+};
+
+function readPostManagementPage(source: Document, content: Element, pageUrl: URL): TreePage | null {
+    const value = parseElementJson(source.querySelector(postManagementPageDataSelector));
+    if (!isRecord(value) || !Object.keys(postManagementPageModules).includes(String(value.page))) return null;
+    const data = value as unknown as PostManagementPageData;
+    postManagementRevision += 1;
+    // Each response mounts fresh, so a form that posts back to its own page starts over like a page load.
+    return createTreePage(
+        `post-management:${pageRequestKey(pageUrl)}:${postManagementRevision}`,
+        () => postManagementPageModules[data.page]().then(({ mountPage }) => mountPage(data as never, content)),
+        // Without its code, the server forms keep what the author typed and still submit.
+        { keepsServerMarkup: true }
+    );
+}
+
 function LoadingTreeRoute({ loading }: { loading: Promise<ReactNode> }) {
     return use(loading);
 }
@@ -545,7 +577,8 @@ function readApplicationDocument(source: Document, url: string): ApplicationDocu
         readWorkLogPage(source, content, pageUrl) ??
         readContentPage(source, content, pageUrl) ??
         readLoginPage(source, content, pageUrl) ??
-        readAuthFormPage(source, content, pageUrl);
+        readAuthFormPage(source, content, pageUrl) ??
+        readPostManagementPage(source, content, pageUrl);
     return {
         view: {
             header,
@@ -840,7 +873,6 @@ const excludedFileExtension =
 function isInternalApplicationUrl(url: URL): boolean {
     if (url.origin !== window.location.origin || !['http:', 'https:'].includes(url.protocol)) return false;
     if (/^\/(?:assets|resources|images|media|api|docs)(?:\/|$)/i.test(url.pathname)) return false;
-    if (/^\/@[^/]+\/[^/]+\/timelapse\/?$/i.test(url.pathname)) return false;
     if (excludedFileExtension.test(url.pathname)) return false;
     if (/^\/login\/(?:start|callback)(?:\/|$)/i.test(url.pathname) || /^\/oauth(?:\/|$)/i.test(url.pathname))
         return false;
