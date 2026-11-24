@@ -1,7 +1,7 @@
 import type { PageProps } from '@blex/contracts/pages';
-import type { CardLikes, PageMeta } from '@blex/contracts/public';
-import { type PostCardLikes, type PostCardView, postCardView } from './post-list';
-import { noticeLink } from './view-helpers';
+import type { CardLikes, PageMeta, PostRow } from '@blex/contracts/public';
+import { type PostCardLikes, type PostCardView, postCardView, postPath } from './post-list';
+import { avatarUrl, dateLabel, dateValue, mediaUrl, noticeLink } from './view-helpers';
 
 export interface NoticeSlide {
     id: number;
@@ -55,7 +55,34 @@ export interface TagPageData extends DiscoveryPageBase {
     likes?: PostCardLikes;
 }
 
-export type DiscoveryPageData = HomePageData | TagsPageData | TagPageData;
+/** The signed-in reader's liked posts. Every card is one they liked. */
+export interface InterestsPageData extends DiscoveryPageBase {
+    page: 'interests';
+    posts: PostCardView[];
+    likes: PostCardLikes;
+}
+
+export interface SearchResultView {
+    href: string;
+    title: string;
+    image: string | null;
+    author: { username: string; avatar: string };
+    date: { iso: string | null; text: string } | null;
+    readTime: number;
+    description: string;
+    matched: Array<'title' | 'description' | 'tag' | 'content'>;
+}
+
+/** The search page the server renders when the search screen is not installed. It loads its own module. */
+export interface SearchPageData extends DiscoveryPageBase {
+    page: 'search';
+    searchText: string;
+    username: string;
+    count: number;
+    results: SearchResultView[];
+}
+
+export type DiscoveryPageData = HomePageData | TagsPageData | TagPageData | InterestsPageData;
 
 export function publicBrand({ brand }: Pick<PageMeta, 'brand'>): DiscoveryPageBase['brand'] {
     return (
@@ -137,5 +164,62 @@ export function createTagPageData({
         tagName,
         posts: posts.map((post) => postCardView(post, { likes })),
         likes: publicLikes(meta, likes)
+    };
+}
+
+export function createInterestsPageData({
+    meta,
+    posts,
+    csrfToken,
+    path,
+    checkedPage,
+    pages
+}: PageProps['interests']): InterestsPageData {
+    const likes = { csrfToken, returnTo: path, likedIds: new Set(posts.map((post) => post.id)) };
+    return {
+        ...pageBase(meta, { path, search: '', preserve: [], page: checkedPage, pages }),
+        page: 'interests',
+        posts: posts.map((post) => postCardView(post, { likes, relativeDate: true })),
+        likes: { csrfToken, returnTo: path }
+    };
+}
+
+const matchedFields = [
+    ['title', 'titleScore'],
+    ['description', 'descriptionScore'],
+    ['tag', 'tagScore'],
+    ['content', 'contentScore']
+] as const;
+
+function searchResultView(post: PostRow): SearchResultView {
+    const hasImage = Boolean(post.image && post.image !== 'None' && post.image !== 'null');
+    return {
+        href: postPath(post),
+        title: post.title,
+        image: hasImage ? mediaUrl(post.image) : null,
+        author: { username: post.authorUsername, avatar: avatarUrl(post.authorAvatar) },
+        date: post.publishedDate ? { iso: dateValue(post.publishedDate), text: dateLabel(post.publishedDate) } : null,
+        readTime: post.readTime,
+        description: post.description,
+        matched: matchedFields.filter(([, score]) => (post[score] ?? 0) > 0).map(([field]) => field)
+    };
+}
+
+export function createSearchPageData({
+    meta,
+    searchText,
+    username,
+    posts,
+    count,
+    checkedPage,
+    pages
+}: PageProps['search']): SearchPageData {
+    return {
+        ...pageBase(meta, { path: '/search', search: '', preserve: [], page: checkedPage, pages }),
+        page: 'search',
+        searchText,
+        username,
+        count,
+        results: posts.map(searchResultView)
     };
 }
