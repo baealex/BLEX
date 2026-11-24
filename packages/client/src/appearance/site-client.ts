@@ -1,5 +1,6 @@
 import { ui } from '../i18n/public-ui.js';
 import { activateDocumentLocale } from '../i18n';
+import { removeSignedInCaches } from '../lib/query-cache-key';
 import { reloadAfterCatalogFailure } from './catalog-recovery';
 import './tailwind.css';
 import './site.scss';
@@ -12,6 +13,7 @@ let routeController: AbortController | undefined;
 let routeGeneration = 0;
 let hydrated = !document.getElementById('blex-application');
 let clientBindingsInstalled = false;
+let signingOut = false;
 
 function readCookie(key: string): string {
     const value = document.cookie.split('; ').find((entry) => entry.startsWith(`${key}=`));
@@ -144,27 +146,6 @@ function bindRouteElements() {
         );
     }
 
-    for (const form of document.querySelectorAll<HTMLFormElement>('[data-site-logout]')) {
-        form.addEventListener(
-            'submit',
-            (event) => {
-                const field = form.elements.namedItem('csrfmiddlewaretoken');
-                if (!(field instanceof HTMLInputElement)) return;
-                field.value ||= readCookie('csrftoken');
-                if (field.value) return;
-                event.preventDefault();
-                void fetch('/v1/login', { credentials: 'same-origin' })
-                    .then(() => {
-                        if (!form.isConnected || signal.aborted) return;
-                        field.value = readCookie('csrftoken');
-                        if (field.value) form.requestSubmit();
-                    })
-                    .catch(() => undefined);
-            },
-            { signal }
-        );
-    }
-
     if (document.querySelector('[data-heatmap-days]')) {
         void import('./author-heatmap.js').then(({ mountAuthorHeatmaps }) => {
             if (!signal.aborted) mountAuthorHeatmaps(signal);
@@ -241,6 +222,36 @@ function handleDialogClose(event: Event) {
         document.querySelector<HTMLButtonElement>('[data-site-menu-open]')?.setAttribute('aria-expanded', 'false');
 }
 
+/**
+ * A viewer's screens keep their queries in session storage, so the viewer's caches go when they sign out.
+ * The sign-out form can post natively or through the application, and an open screen can still save its cache
+ * until the page that follows replaces it, so they go again when that page shows or this document is left.
+ */
+function signOut() {
+    signingOut = true;
+    removeSignedInCaches();
+}
+
+function handleSubmit(event: SubmitEvent) {
+    const form = event.target;
+    if (!(form instanceof HTMLFormElement) || !form.matches('[data-site-logout]')) return;
+    // Public pages leave the token out of the form, so it comes from the cookie, also before the page hydrates.
+    const field = form.elements.namedItem('csrfmiddlewaretoken');
+    if (field instanceof HTMLInputElement) field.value ||= readCookie('csrftoken');
+    if (field instanceof HTMLInputElement && !field.value) {
+        event.preventDefault();
+        const generation = routeGeneration;
+        void fetch('/v1/login', { credentials: 'same-origin' })
+            .then(() => {
+                field.value = readCookie('csrftoken');
+                if (field.value && form.isConnected && generation === routeGeneration) form.requestSubmit();
+            })
+            .catch(() => undefined);
+        return;
+    }
+    signOut();
+}
+
 function handleBeforePageChange() {
     routeGeneration += 1;
     if (!hydrated) return;
@@ -249,6 +260,11 @@ function handleBeforePageChange() {
 }
 
 function handlePageChange() {
+    // A page that still offers the sign-out form belongs to a viewer who has not signed out yet.
+    if (signingOut && !document.querySelector('[data-site-logout]')) {
+        signingOut = false;
+        removeSignedInCaches();
+    }
     if (hydrated) {
         routeGeneration += 1;
         disposeRouteBindings();
@@ -275,6 +291,12 @@ function activateClientBindings() {
 document.addEventListener('click', handleGlobalClick, true);
 document.addEventListener('keydown', handleGlobalKeydown, true);
 document.addEventListener('close', handleDialogClose, true);
+document.addEventListener('submit', handleSubmit, true);
+// Deleting an account signs its viewer out as well.
+document.addEventListener('blex:sign-out', signOut);
+window.addEventListener('pagehide', () => {
+    if (signingOut) removeSignedInCaches();
+});
 systemTheme.addEventListener('change', () => setTheme(undefined, hydrated && localeReady));
 document.addEventListener('blex:before-page-change', handleBeforePageChange);
 document.addEventListener('blex:page-change', handlePageChange);
