@@ -86,7 +86,8 @@ export function DropdownFilter({
     current: string;
 }): ReactNode {
     return (
-        <details className="group relative w-full" data-account-menu="">
+        // The browser can open this menu natively before the page's code arrives.
+        <details className="group relative w-full" data-account-menu="" suppressHydrationWarning>
             <summary
                 aria-haspopup="listbox"
                 className={
