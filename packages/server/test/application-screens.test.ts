@@ -325,6 +325,57 @@ test('keeps login, role, and ownership answers for editor URLs the screen cannot
   }
 });
 
+test('lets only the site frame the editor draft preview', async () => {
+  const fixture = await screensApp();
+  const policy = (response: { headers: Record<string, unknown> }) =>
+    Object.fromEntries(
+      String(response.headers['content-security-policy'])
+        .split('; ')
+        .map((directive) => {
+          const [name, ...sources] = directive.split(' ');
+          return [name, sources];
+        }),
+    );
+  try {
+    const writer = signIn(fixture.db, 1);
+    const preview = await fixture.app.inject({ url: '/write/preview/draft', headers: writer });
+    assert.equal(preview.statusCode, 200, preview.body);
+    assert.deepEqual(policy(preview)['frame-ancestors'], ["'self'"]);
+    assert.equal(preview.headers['x-frame-options'], 'SAMEORIGIN');
+
+    const editor = await fixture.app.inject({ url: '/write', headers: writer });
+    // Same-origin frames are limited to the preview path, next to the embeds posts and captcha already load.
+    assert.deepEqual(policy(editor)['frame-src'], [
+      'https://youtube.com',
+      'https://www.youtube.com',
+      'https://youtube-nocookie.com',
+      'https://www.youtube-nocookie.com',
+      'https://hcaptcha.com',
+      'https://*.hcaptcha.com',
+      'http://site.test/write/preview/',
+    ]);
+    assert.deepEqual({ ...policy(preview), 'frame-ancestors': ["'none'"] }, policy(editor));
+
+    const refusals: Array<[string, Record<string, string>]> = [
+      ['/write', writer],
+      ['/@writer/kept', {}],
+      ['/@writer/kept', writer],
+      ['/', {}],
+      ['/write/preview/draft', { accept: 'text/html' }],
+    ];
+    for (const [url, headers] of refusals) {
+      const response = await fixture.app.inject({ url, headers });
+      const label = `${url} ${headers.cookie ? 'signed in' : 'anonymous'}`;
+      assert.equal(response.statusCode, url.startsWith('/write/preview/') ? 404 : 200, label);
+      assert.deepEqual(policy(response)['frame-ancestors'], ["'none'"], label);
+      assert.deepEqual(policy(response)['frame-src'], policy(editor)['frame-src'], label);
+      assert.equal(response.headers['x-frame-options'], 'DENY', label);
+    }
+  } finally {
+    await fixture.close();
+  }
+});
+
 test('passes each role its settings capabilities', async () => {
   const fixture = await screensApp();
   try {

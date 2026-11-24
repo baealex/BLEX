@@ -39,6 +39,7 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
     trustProxy: auth?.trustedProxies ?? false,
   });
   const httpsSite = siteUrl.protocol === 'https:';
+  const documentPolicy = applicationContentSecurityPolicy(siteUrl);
   app.addHook('onRequest', async (request, reply) => {
     const forwarded = String(request.headers['x-forwarded-proto'] ?? '')
       .split(',')[0]
@@ -66,15 +67,19 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
         reply
           .type('text/html; charset=utf-8')
           .header('Content-Language', requestLocale())
-          .header('Content-Security-Policy', applicationContentSecurityPolicy)
+          .header('Content-Security-Policy', documentPolicy)
           .removeHeader('Content-Length');
         return page;
       } catch (error) {
         request.log.warn(error);
       }
     }
-    if (contentType.startsWith('text/html') && isApplicationDocument(payload)) {
-      reply.header('Content-Security-Policy', applicationContentSecurityPolicy);
+    if (
+      contentType.startsWith('text/html') &&
+      isApplicationDocument(payload) &&
+      !request.routeOptions.config.framedBySite
+    ) {
+      reply.header('Content-Security-Policy', documentPolicy);
     }
     if (
       reply.statusCode === 200 &&
