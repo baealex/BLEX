@@ -232,6 +232,20 @@ test('keeps the stored date output formats', () => {
   assert.equal(localDateTimeText('2029-12-31 15:00:00'), '2030-01-01 00:00');
 });
 
+test('answers a tab from before the browser build with the reload a missing catalog starts', async () => {
+  const fixture = await screensApp();
+  try {
+    const old = await fixture.app.inject('/assets/web/chunks/search.PS94_Svm.js');
+    assert.equal(old.statusCode, 200);
+    assert.match(String(old.headers['content-type']), /^text\/javascript/);
+    assert.equal(old.headers['cache-control'], 'no-store');
+    assert.match(old.body, /dispatchEvent\(new Event\('blex:catalog-failed'\)\)/);
+    assert.equal((await fixture.app.inject('/assets/web/mainStyle.BGuVjzlT.css')).statusCode, 404);
+  } finally {
+    await fixture.close();
+  }
+});
+
 test('serves all stylesheets required by hosted screens', async () => {
   const fixture = await screensApp();
   try {

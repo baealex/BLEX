@@ -35,6 +35,17 @@ export function registerSiteAssets(app: FastifyInstance) {
       const { script } = await readUiAsset('src/application/screen-host/client.ts');
       return reply.header('Cache-Control', 'no-store').redirect(script, 302);
     });
+    // Screens used to load from /assets/web/, so only a tab opened before they joined the browser build asks
+    // for it. The module starts that tab's reload for a missing catalog instead of leaving a broken screen.
+    routes.get('/assets/web/*', (request, reply) => {
+      if (!/\.js$/.test(request.url.split('?')[0])) return reply.callNotFound();
+      return reply
+        .type('text/javascript; charset=utf-8')
+        .header('Cache-Control', 'no-store')
+        .send(
+          "document.dispatchEvent(new Event('blex:catalog-failed'));throw new Error('BLEX was updated. Reload the page.');",
+        );
+    });
     routes.get('/favicon.ico', (_request, reply) => reply.sendFile('favicon.ico'));
     routes.get<{ Params: { name: string } }>('/resources/:name', (request, reply) => {
       const { name } = request.params;
