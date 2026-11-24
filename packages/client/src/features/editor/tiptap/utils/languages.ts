@@ -4,6 +4,8 @@ import hljs from 'highlight.js/lib/core';
 export interface Language {
     value: string;
     label: string;
+    /** Other names highlight.js gives the language. Markdown fences often use them, such as `ts` for TypeScript. */
+    aliases?: readonly string[];
     loader?: () => Promise<{ default: LanguageFn }>;
 }
 
@@ -15,36 +17,43 @@ export const SUPPORTED_LANGUAGES: Language[] = [
     {
         value: 'javascript',
         label: 'JavaScript',
+        aliases: ['js', 'jsx', 'mjs', 'cjs'],
         loader: () => import('highlight.js/lib/languages/javascript')
     },
     {
         value: 'typescript',
         label: 'TypeScript',
+        aliases: ['ts', 'tsx', 'mts', 'cts'],
         loader: () => import('highlight.js/lib/languages/typescript')
     },
     {
         value: 'python',
         label: 'Python',
+        aliases: ['py', 'gyp', 'ipython'],
         loader: () => import('highlight.js/lib/languages/python')
     },
     {
         value: 'java',
         label: 'Java',
+        aliases: ['jsp'],
         loader: () => import('highlight.js/lib/languages/java')
     },
     {
         value: 'cpp',
         label: 'C++',
+        aliases: ['cc', 'hpp', 'hh', 'hxx', 'cxx'],
         loader: () => import('highlight.js/lib/languages/cpp')
     },
     {
         value: 'c',
         label: 'C',
+        aliases: ['h'],
         loader: () => import('highlight.js/lib/languages/c')
     },
     {
         value: 'csharp',
         label: 'C#',
+        aliases: ['cs'],
         loader: () => import('highlight.js/lib/languages/csharp')
     },
     {
@@ -55,21 +64,25 @@ export const SUPPORTED_LANGUAGES: Language[] = [
     {
         value: 'ruby',
         label: 'Ruby',
+        aliases: ['rb', 'gemspec', 'podspec', 'thor', 'irb'],
         loader: () => import('highlight.js/lib/languages/ruby')
     },
     {
         value: 'go',
         label: 'Go',
+        aliases: ['golang'],
         loader: () => import('highlight.js/lib/languages/go')
     },
     {
         value: 'rust',
         label: 'Rust',
+        aliases: ['rs'],
         loader: () => import('highlight.js/lib/languages/rust')
     },
     {
         value: 'kotlin',
         label: 'Kotlin',
+        aliases: ['kt', 'kts'],
         loader: () => import('highlight.js/lib/languages/kotlin')
     },
     {
@@ -95,26 +108,31 @@ export const SUPPORTED_LANGUAGES: Language[] = [
     {
         value: 'json',
         label: 'JSON',
+        aliases: ['jsonc'],
         loader: () => import('highlight.js/lib/languages/json')
     },
     {
         value: 'xml',
         label: 'XML',
+        aliases: ['xhtml', 'rss', 'atom', 'xjb', 'xsd', 'xsl', 'plist', 'wsf', 'svg'],
         loader: () => import('highlight.js/lib/languages/xml')
     },
     {
         value: 'yaml',
         label: 'YAML',
+        aliases: ['yml'],
         loader: () => import('highlight.js/lib/languages/yaml')
     },
     {
         value: 'markdown',
         label: 'Markdown',
+        aliases: ['md', 'mkdown', 'mkd'],
         loader: () => import('highlight.js/lib/languages/markdown')
     },
     {
         value: 'bash',
         label: 'Bash',
+        aliases: ['sh', 'zsh'],
         loader: () => import('highlight.js/lib/languages/bash')
     },
     {
@@ -130,18 +148,24 @@ export const SUPPORTED_LANGUAGES: Language[] = [
     {
         value: 'dockerfile',
         label: 'Dockerfile',
+        aliases: ['docker'],
         loader: () => import('highlight.js/lib/languages/dockerfile')
     }
 ];
 
+function findLanguage(value: string): Language | undefined {
+    return (
+        SUPPORTED_LANGUAGES.find((lang) => lang.value === value) ??
+        SUPPORTED_LANGUAGES.find((lang) => lang.aliases?.includes(value))
+    );
+}
+
 export function getLanguageLabel(value: string): string {
-    const language = SUPPORTED_LANGUAGES.find((lang) => lang.value === value);
-    return language?.label || 'Plain Text';
+    return findLanguage(value)?.label || 'Plain Text';
 }
 
 export function getLanguageLoader(value: string): (() => Promise<{ default: LanguageFn }>) | null {
-    const language = SUPPORTED_LANGUAGES.find((lang) => lang.value === value);
-    return language?.loader || null;
+    return findLanguage(value)?.loader || null;
 }
 
 export function registerLanguage(name: string, languageFn: LanguageFn): void {

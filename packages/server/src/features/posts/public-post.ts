@@ -2,6 +2,7 @@ import type { Prisma, PrismaClient } from '@prisma/client';
 import { storedDateText } from '../../platform/date-format.js';
 import { publicPostWhere } from './data/visibility.js';
 import { sanitizePostHtml } from './post-html.js';
+import { readableDescription } from './shared.js';
 import { readPublicSiteBrand, type SiteBrand } from '../discovery/http/pages.js';
 
 export interface PublicPost {
@@ -121,7 +122,7 @@ function publicPostFields(post: SelectedPublicPost, username: string, avatar: st
     coverLayout: post.coverLayout,
     coverImageRatio: post.coverImageRatio,
     coverImagePosition: post.coverImagePosition,
-    description: post.description,
+    description: readableDescription(post.description),
     contentHtml: sanitizePostHtml(post.content?.html ?? ''),
   };
 }
