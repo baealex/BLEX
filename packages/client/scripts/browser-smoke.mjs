@@ -640,6 +640,74 @@ const keepSessionCacheAfterPublicPage = async () => {
     }
 };
 
+const removeSessionCachesOnSignOut = async () => {
+    const caches = () => page.evaluate(() => Object.keys(sessionStorage).filter((key) => key.startsWith('rq-cache-')));
+    const viewerCaches = async () => (await caches()).filter((key) => key.includes(`-${account.username}-`));
+    const signOutFromHeader = async () => {
+        const menu = page.locator('[data-site-header] [data-account-menu]');
+        await menu.locator('summary').click();
+        await menu.getByRole('button', { name: '로그아웃' }).click();
+        await expect(page.locator('[data-site-header] [data-account-menu]')).toHaveCount(0);
+    };
+
+    // A signed-out visitor's screens keep their queries under this name. None of them uses a query yet,
+    // so the tab gets one by hand, as it would have before the viewer signed in.
+    const visitorCache = 'rq-cache-v3-anonymous-ko-UTC';
+    await open('/settings/posts');
+    await expect.poll(viewerCaches).toHaveLength(1);
+    await page.evaluate((key) => {
+        sessionStorage.setItem(key, '{"timestamp":0}');
+        window.__smokeSameDocument = true;
+    }, visitorCache);
+
+    // Signing out from the header while the settings screen is open removes only the viewer's caches.
+    await signOutFromHeader();
+    expect(await page.evaluate(() => window.__smokeSameDocument)).toBe(true);
+    await expect.poll(caches).toEqual([visitorCache]);
+    // Moving on as a signed-out visitor removes nothing.
+    await visitInApplication('/tags');
+    await expect(page).toHaveURL(`${origin}/tags`);
+    await open('/');
+    expect(await caches()).toEqual([visitorCache]);
+
+    // Before the page hydrates, the same form posts natively.
+    await logIn();
+    await open('/settings/posts');
+    await expect.poll(viewerCaches).toHaveLength(1);
+    const app = '**/assets/blex/app.js';
+    const { promise: released, resolve: release } = Promise.withResolvers();
+    let held;
+    await page.route(app, (route) => {
+        if (held) return route.continue();
+        held = released.then(() => route.continue()).catch(() => undefined);
+        return held;
+    });
+    try {
+        await page.goto(`${origin}/`, { waitUntil: 'commit' });
+        await expect(page.locator('html')).toHaveAttribute('data-theme-preference', /.+/);
+        await page.evaluate(() => {
+            window.__smokeSameDocument = true;
+        });
+        const menu = page.locator('[data-site-header] [data-account-menu]');
+        await menu.locator('summary').click();
+        await Promise.all([
+            page.waitForEvent('framenavigated'),
+            menu.getByRole('button', { name: '로그아웃' }).click()
+        ]);
+    } finally {
+        release();
+        await held;
+        await page.unroute(app);
+    }
+    await page.waitForLoadState('networkidle');
+    // The home page leaves the form's token to the site script, which takes it from the cookie.
+    await expect(page).toHaveURL(`${origin}/`);
+    expect(await page.evaluate(() => window.__smokeSameDocument)).toBeUndefined();
+    await expect(page.locator('[data-site-header] [data-account-menu]')).toHaveCount(0);
+    expect(await viewerCaches()).toEqual([]);
+    await logIn();
+};
+
 const keepLatestDraftList = async () => {
     await open('/write');
     let requests = 0;
@@ -1056,6 +1124,10 @@ try {
         ['a screen render error leaves the application working', isolateScreenRenderError],
         ['screens render in the application root and leave nothing behind', renderScreensInApplicationRoot],
         ["a screen opened after a fresh public page keeps its viewer's session cache", keepSessionCacheAfterPublicPage],
+        [
+            "signing out removes the viewer's session caches and keeps a signed-out visitor's",
+            removeSessionCachesOnSignOut
+        ],
         ['the sign-up screen keeps where to go next and its invitation', keepSignupDestination],
         ['the sign-up form and screen draw one hCaptcha widget once its API has loaded', drawHcaptchaOnceReady],
         ['back and forward return to each fragment the reader followed', returnToFragmentPositions],
