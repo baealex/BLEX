@@ -166,6 +166,19 @@ const budgets = [
         maxInitialBytes: 460 * 1024,
         maxInitialGzipBytes: 150 * 1024
     },
+    // The sign-up, setup, identity check, and password reset forms each load only their own module.
+    ...[
+        ['sign up', 'signup-page'],
+        ['setup', 'setup-page'],
+        ['identity check', 'reauthenticate-page'],
+        ['password reset', 'password-reset-page']
+    ].map(([route, module]) => ({
+        entries: [...publicPageEntries, `src/features/auth/ui/${module}.tsx`],
+        catalogs: publicCatalogs,
+        label: `public auth form page scripts (${route})`,
+        maxInitialBytes: 460 * 1024,
+        maxInitialGzipBytes: 150 * 1024
+    })),
     {
         entries: screenHostEntries,
         catalogs: publicCatalogs,

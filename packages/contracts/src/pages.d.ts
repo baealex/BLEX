@@ -263,8 +263,6 @@ export interface PageProps {
             | { state: 'form'; username: string; csrf: string; action: string; error?: string }
             | { state: 'done' }
             | { state: 'invalid' };
-        linkClass: 'mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-action px-4 text-content-inverted hover:bg-action-hover active:scale-95';
-        fieldClass: 'block h-12 w-full rounded-lg border border-line bg-surface px-3';
     };
     reauthenticate: {
         brand: SiteBrand;
@@ -275,7 +273,6 @@ export interface PageProps {
         showForm: boolean;
         next: string;
         pendingFactor: boolean;
-        fieldClass: 'block h-12 w-full rounded-lg border border-line bg-surface px-3';
         visibleProviders: Array<{ key: 'google' | 'github'; name: string; clientId: string }>;
     };
     setup: { error: string; csrf: string; token: string };

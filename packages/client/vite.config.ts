@@ -34,10 +34,13 @@ const contentPageEntries = [
     'developer-api/quickstart'
 ];
 
+const authFormPageEntries = ['signup-page', 'setup-page', 'reauthenticate-page', 'password-reset-page'];
+
 const publicEntries = [
     source('src/application/client.tsx'),
     // Separate entries keep their shared code out of the application entry, which must run only once.
     source('src/features/auth/ui/login-page.tsx'),
+    ...authFormPageEntries.map((name) => source(`src/features/auth/ui/${name}.tsx`)),
     source('src/features/posts/post-page.tsx'),
     source('src/features/discovery/discovery-page.tsx'),
     ...authorPageEntries.map((name) => source(`src/features/authors/${name}.tsx`)),
