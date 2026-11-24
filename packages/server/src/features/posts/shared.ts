@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { isoWithOffset } from '../../platform/date-format.js';
+import { decodeHtmlEntities } from '../../platform/html-entities.js';
 import { failure as failed } from '../../platform/response.js';
 
 export interface AuthoringUser {
@@ -90,6 +91,11 @@ export const POST_TITLE_MAX = 65;
 export const POST_SUBTITLE_MAX = 120;
 
 export const POST_DESCRIPTION_MAX = 250;
+
+/** A description made from the body keeps the body's character references, so every reader decodes it once. */
+export function readableDescription(stored: string): string {
+  return decodeHtmlEntities(stored);
+}
 
 export const POST_URL_MAX = 65;
 
