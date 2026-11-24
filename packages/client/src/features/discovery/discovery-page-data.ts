@@ -57,7 +57,7 @@ export interface TagPageData extends DiscoveryPageBase {
 
 export type DiscoveryPageData = HomePageData | TagsPageData | TagPageData;
 
-export function publicBrand({ brand }: PageMeta): DiscoveryPageBase['brand'] {
+export function publicBrand({ brand }: Pick<PageMeta, 'brand'>): DiscoveryPageBase['brand'] {
     return (
         brand && {
             siteName: brand.siteName,

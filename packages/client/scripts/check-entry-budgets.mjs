@@ -138,6 +138,19 @@ const budgets = [
         maxInitialBytes: 460 * 1024,
         maxInitialGzipBytes: 150 * 1024
     })),
+    // Static, error, and developer guide pages also load only their own module.
+    ...[
+        ['static', 'discovery/static-page'],
+        ['not found', 'discovery/not-found-page'],
+        ['forbidden', 'discovery/forbidden-page'],
+        ['developer quickstart', 'developer-api/quickstart']
+    ].map(([route, module]) => ({
+        build: 'client',
+        entries: [...publicPageEntries, `src/features/${module}.tsx`],
+        label: `public content page scripts (${route})`,
+        maxInitialBytes: 460 * 1024,
+        maxInitialGzipBytes: 150 * 1024
+    })),
     {
         build: 'client',
         entries: [...publicPageEntries, 'src/features/posts/post-page.tsx', 'src/features/posts/code-blocks-client.ts'],

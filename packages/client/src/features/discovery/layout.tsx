@@ -2,7 +2,7 @@ import { getDocumentLocale } from '../../i18n/locale.js';
 import { ui } from '../../i18n/public-ui.js';
 import { Fragment, type ReactNode } from 'react';
 import { SiteFooter, SiteHeader, SiteTheme } from '../../appearance/shell';
-import { type ContentMode, renderApplicationDocument, scriptJson } from '../../application/document';
+import { type ContentMode, pageDataScript, renderApplicationDocument, scriptJson } from '../../application/document';
 import { discoveryPageDataId } from '../../application/route-data';
 import type { PageMeta, SiteBrand } from '@blex/contracts/public';
 import { DiscoveryPage } from './discovery-page';
@@ -61,19 +61,7 @@ export function PageLayout({ meta, children }: { meta: PageMeta; children: React
 
 /** A page that hydrates in the application tree from a JSON script directly under `<body>`. */
 export function renderTreeDocument(meta: PageMeta, page: ReactNode, dataId: string, data: unknown): string {
-    return renderPublicDocument(
-        meta,
-        [
-            <Fragment key="page">{page}</Fragment>,
-            <script
-                key="data"
-                type="application/json"
-                id={dataId}
-                dangerouslySetInnerHTML={{ __html: scriptJson(data) }}
-            />
-        ],
-        'tree'
-    );
+    return renderPublicDocument(meta, [<Fragment key="page">{page}</Fragment>, pageDataScript(dataId, data)], 'tree');
 }
 
 export function renderDiscoveryPage(meta: PageMeta, data: DiscoveryPageData): string {
