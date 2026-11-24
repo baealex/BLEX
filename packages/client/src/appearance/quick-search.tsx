@@ -1,7 +1,7 @@
 import { ui } from '../i18n/public-ui.js';
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { flushSync } from 'react-dom';
 import { SiteIcon } from './icons.js';
-import { escapeAction } from './quick-search-escape.js';
 import { recentSearches, rememberSearch } from './recent-searches.js';
 
 interface SearchRow {
@@ -34,11 +34,7 @@ function resultRows(matches: unknown): SearchRow[] {
     });
 }
 
-/**
- * `onReady` runs once this component's own handlers are live.
- * `startClosed` reports that the reader already dismissed the box with Esc while this code was loading.
- */
-export function QuickSearch({ onReady, startClosed }: { onReady?: () => void; startClosed?: () => boolean }) {
+export function QuickSearch() {
     const container = useRef<HTMLDivElement>(null);
     const input = useRef<HTMLInputElement>(null);
     const list = useRef<HTMLUListElement>(null);
@@ -109,43 +105,29 @@ export function QuickSearch({ onReady, startClosed }: { onReady?: () => void; st
         const closeOnOutsideClick = (event: MouseEvent) => {
             if (event.target instanceof Node && !container.current?.contains(event.target)) setOpen(false);
         };
-        const focusOnShortcut = (event: globalThis.KeyboardEvent) => {
-            if (
-                (event.metaKey || event.ctrlKey) &&
-                event.key.toLowerCase() === 'k' &&
-                container.current?.getClientRects().length
-            ) {
-                event.preventDefault();
-                input.current?.focus();
-            }
-        };
-        const closeOnPageChange = () => {
+        const close = () => {
             cancel();
             setOpen(false);
         };
         document.addEventListener('click', closeOnOutsideClick);
-        document.addEventListener('keydown', focusOnShortcut);
-        document.addEventListener('blex:before-page-change', closeOnPageChange);
-        // The box can take focus before this code has loaded.
-        if (document.activeElement === input.current && !startClosed?.()) suggest();
-        onReady?.();
+        // The site script answers Esc and Cmd/Ctrl+K in the box, before and after this code loads. It closes
+        // the panel during the key press, so a second Esc right after it sees the panel closed and clears the box.
+        const closeNow = () => flushSync(close);
+        document.addEventListener('blex:before-page-change', close);
+        document.addEventListener('blex:quick-search-close', closeNow);
+        // The box can take focus before this code has loaded, and the site script cancels this event
+        // when Esc has already closed it.
+        const open = document.dispatchEvent(new Event('blex:quick-search-ready', { cancelable: true }));
+        if (open && document.activeElement === input.current) suggest();
         return () => {
             cancel();
             document.removeEventListener('click', closeOnOutsideClick);
-            document.removeEventListener('keydown', focusOnShortcut);
-            document.removeEventListener('blex:before-page-change', closeOnPageChange);
+            document.removeEventListener('blex:before-page-change', close);
+            document.removeEventListener('blex:quick-search-close', closeNow);
         };
     }, []);
 
     const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-        if (event.key === 'Escape') {
-            const action = escapeAction(event.nativeEvent, open, event.currentTarget.value !== '');
-            if (action !== 'none') event.preventDefault();
-            if (action === 'close' || action === 'clear') cancel();
-            if (action === 'close') setOpen(false);
-            if (action === 'clear') event.currentTarget.value = '';
-            return;
-        }
         if (!open) return;
         const links = Array.from(list.current?.querySelectorAll('a') ?? []);
         if (event.key === 'Enter' && selected >= 0 && links[selected]) {

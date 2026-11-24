@@ -153,6 +153,28 @@ const useSiteControlsBeforeHydration = async () => {
         await toggle.click();
         await expect(root).toHaveAttribute('data-theme', theme);
     });
+    const search = page.locator('[data-site-header] [data-site-search] input');
+    await holding('**/assets/blex/app.js', '/', async () => {
+        await page.keyboard.press('ControlOrMeta+k');
+        await expect(search).toBeFocused();
+        await search.fill('before hydration');
+        // Focusing the box opens its panel once the header hydrates, so Esc closes that first and keeps the text.
+        await search.press('Escape');
+        await expect(search).toHaveValue('before hydration');
+    });
+    // The site script titles the theme buttons once the header has hydrated.
+    await expect(page.locator('[data-site-theme-toggle]').first()).toHaveAttribute('title', /.+/);
+    await expect(page.locator('[data-site-search-panel]')).toBeHidden();
+    await expect(search).toBeFocused();
+    await search.press('Escape');
+    await expect(search).toHaveValue('');
+    // After hydration, typing opens the panel, and two quick presses close it and then clear the box.
+    await search.fill('after hydration');
+    await expect(page.locator('[data-site-search-panel]')).toBeVisible();
+    await search.press('Escape');
+    await search.press('Escape');
+    await expect(page.locator('[data-site-search-panel]')).toBeHidden();
+    await expect(search).toHaveValue('');
     await page.context().clearCookies({ name: 'blex_theme' });
     await holding('**/assets/ui/assets/discovery-page-*.js', '/tags', async () => {
         // The site script titles the theme buttons once the header has hydrated.
@@ -1086,7 +1108,10 @@ try {
         ['login', logIn],
         ['a failed translation file recovers with one reload', recoverFromFailedCatalog],
         ['mobile menu', openMobileMenu],
-        ['site menus and the theme answer before the header or the page hydrates', useSiteControlsBeforeHydration],
+        [
+            'site menus, the theme, and header search keys answer before the header or the page hydrates',
+            useSiteControlsBeforeHydration
+        ],
         [
             'a post whose code fails to load keeps the typed comment, its open menu, and the login prompt',
             keepPostMarkupWhenItsCodeFails
