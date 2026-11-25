@@ -243,7 +243,28 @@ const textLink =
     'inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-content transition-colors duration-150 hover:text-content-secondary';
 const sectionTitle = 'text-xl font-bold tracking-tight text-content';
 
-function PostSeriesCard({
+function SeriesProgress({ index, total }: { index: number; total: number }) {
+    // Past two dozen posts, separate steps would blur into one line anyway.
+    if (total > 24)
+        return (
+            <div aria-hidden="true" className="mt-3.5 h-1 overflow-hidden rounded-full bg-line">
+                <div className="h-full rounded-full bg-content" style={{ width: `${(index / total) * 100}%` }} />
+            </div>
+        );
+    const steps = Array.from({ length: total }, (_, position) => position + 1);
+    return (
+        <div aria-hidden="true" className="mt-3.5 flex gap-1">
+            {steps.map((step) => (
+                <span key={step} className={`h-1 flex-1 rounded-full ${step <= index ? 'bg-content' : 'bg-line'}`} />
+            ))}
+        </div>
+    );
+}
+
+const seriesTile =
+    'flex min-h-11 flex-col gap-1.5 rounded-2xl px-5 pt-4 pb-5 ring-1 ring-line transition-shadow duration-150 hover:ring-line-strong active:scale-[0.99]';
+
+function PostSeries({
     name,
     seriesPath,
     author,
@@ -254,86 +275,111 @@ function PostSeriesCard({
     author: string;
     navigation: PostSeriesNavigation | null;
 }) {
-    const allPosts = 'text-sm font-medium text-content-secondary hover:text-content';
+    const heading = (
+        <div className="flex items-end justify-between gap-4">
+            <div className="min-w-0">
+                <p className={quietLabel}>{ui('Series')}</p>
+                <h2 id="post-series-heading" className={`mt-1 break-words break-keep ${sectionTitle}`}>
+                    <a href={seriesPath} className="transition-colors duration-150 hover:text-content-secondary">
+                        {name}
+                    </a>
+                </h2>
+            </div>
+            {navigation && (
+                <p className="shrink-0 text-sm font-semibold tabular-nums text-content-secondary">
+                    {`${navigation.index} / ${navigation.total}`}
+                </p>
+            )}
+        </div>
+    );
     if (!navigation) {
         return (
-            <section
-                className="mb-16 mt-16 rounded-2xl bg-surface p-6 text-center ring-1 ring-line/60 sm:p-8"
-                aria-labelledby="post-series-heading"
-            >
-                <h2 id="post-series-heading" className="mb-2 text-lg font-bold text-content">
-                    <a href={seriesPath}>{name}</a>
-                </h2>
-                <p className="mb-6 text-sm text-content-secondary">
+            <section className="mt-20" aria-labelledby="post-series-heading">
+                {heading}
+                <p className="mt-3 text-sm text-content-secondary">
                     {ui('This hidden post does not appear in the series list.')}
                 </p>
-                <a href={seriesPath} className={allPosts}>
+                <a href={seriesPath} className={textLink}>
                     {ui('View all series')}
+                    <SiteIcon name="arrow-right" className="text-xs" />
                 </a>
             </section>
         );
     }
+    const { index, total, entries, previous, next } = navigation;
     const link = (entry: PostSeriesEntry) => publicPostPath(author, entry.url);
-    const step = (entry: PostSeriesEntry | null, label: string) =>
-        entry ? (
-            <a href={link(entry)} rel={label === ui('Previous') ? 'prev' : 'next'} className={allPosts}>
-                {label}
-            </a>
-        ) : (
-            <span className="text-sm font-medium text-line-strong">{label}</span>
-        );
     return (
-        <section
-            className="mb-16 mt-16 rounded-2xl bg-surface p-6 ring-1 ring-line/60 sm:p-8"
-            aria-labelledby="post-series-heading"
-        >
-            <p className="mb-3 text-sm font-medium text-content-secondary">
-                {`${navigation.index} / ${navigation.total}`}
-            </p>
-            <h2 id="post-series-heading" className="mb-2 text-2xl font-bold text-content">
-                <a href={seriesPath}>{name}</a>
-            </h2>
-            <ol className="mt-6 space-y-2">
-                {navigation.entries.map((entry) => (
-                    <li
-                        key={entry.url}
-                        className={`flex items-center gap-4 rounded-xl p-3${entry.index === navigation.index ? ' bg-surface-subtle' : ''}`}
-                    >
-                        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-subtle text-sm font-bold text-content-secondary">
-                            {entry.index}
-                        </span>
-                        {entry.index === navigation.index ? (
-                            <>
-                                <span className="flex-1 font-semibold text-content" aria-current="page">
-                                    {entry.title}
-                                </span>
-                                <span className="rounded-md bg-action px-2.5 py-1 text-xs font-bold text-content-inverted">
-                                    {ui('Reading')}
-                                </span>
-                            </>
-                        ) : (
-                            <a
-                                href={link(entry)}
-                                className="flex-1 font-medium text-content-secondary hover:text-content"
-                            >
-                                {entry.title}
-                            </a>
-                        )}
-                    </li>
-                ))}
-            </ol>
-            {navigation.total > 1 && (
-                <nav
-                    aria-label={ui('Navigate series')}
-                    className="mt-8 flex items-center justify-between gap-4 border-t border-line-light pt-6"
-                >
-                    {step(navigation.previous, ui('Previous'))}
-                    <a href={seriesPath} className={allPosts}>
-                        {ui('All posts')}
-                    </a>
-                    {step(navigation.next, ui('Next'))}
+        <section className="mt-20" aria-labelledby="post-series-heading">
+            {heading}
+            <SeriesProgress index={index} total={total} />
+            {(previous || next) && (
+                <nav aria-label={ui('Navigate series')} className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    {previous && (
+                        <a href={link(previous)} rel="prev" className={seriesTile}>
+                            <span className={quietLabel}>{ui('Previous post')}</span>
+                            <span className="line-clamp-2 font-semibold leading-snug break-words break-keep text-content">
+                                {previous.title}
+                            </span>
+                        </a>
+                    )}
+                    {next && (
+                        <a href={link(next)} rel="next" className={`${seriesTile} sm:col-start-2 sm:text-right`}>
+                            <span className={quietLabel}>{ui('Next post')}</span>
+                            <span className="line-clamp-2 font-semibold leading-snug break-words break-keep text-content">
+                                {next.title}
+                            </span>
+                        </a>
+                    )}
                 </nav>
             )}
+            <details className="group mt-2">
+                <summary className={`${textLink} cursor-pointer list-none [&::-webkit-details-marker]:hidden`}>
+                    {ui('Posts in this series')}
+                    <SiteIcon
+                        name="chevron-down"
+                        className="text-xs transition-transform duration-150 group-open:rotate-180"
+                    />
+                </summary>
+                <ol className="mt-1 border-t border-line-light">
+                    {entries.map((entry) => {
+                        const here = entry.index === index;
+                        const content = (
+                            <>
+                                <span className="w-6 shrink-0 tabular-nums text-content-hint">{entry.index}</span>
+                                <span className="min-w-0 flex-1 break-words break-keep">{entry.title}</span>
+                                {here && (
+                                    <span className="shrink-0 text-[13px] font-semibold text-content-secondary">
+                                        {ui('Reading')}
+                                    </span>
+                                )}
+                            </>
+                        );
+                        const row = 'flex min-h-11 items-baseline gap-3 py-3 text-[15px] leading-snug';
+                        return (
+                            <li key={entry.url} className="border-b border-line-light">
+                                {here ? (
+                                    <span aria-current="page" className={`${row} font-semibold text-content`}>
+                                        {content}
+                                    </span>
+                                ) : (
+                                    <a
+                                        href={link(entry)}
+                                        className={`${row} text-content-secondary transition-colors duration-150 hover:text-content`}
+                                    >
+                                        {content}
+                                    </a>
+                                )}
+                            </li>
+                        );
+                    })}
+                </ol>
+                {total > entries.length && (
+                    <a href={seriesPath} className={`${textLink} mt-1`}>
+                        {ui('{count, plural, one{See # post} other{See all # posts}}', { count: total })}
+                        <SiteIcon name="arrow-right" className="text-xs" />
+                    </a>
+                )}
+            </details>
         </section>
     );
 }
@@ -875,7 +921,7 @@ export function PostPage({
                                 <PostColophon data={data} />
                             </article>
                             {visibility !== 'draft' && data.seriesLink && data.seriesName && (
-                                <PostSeriesCard
+                                <PostSeries
                                     name={data.seriesName}
                                     seriesPath={data.seriesLink}
                                     author={data.username}
