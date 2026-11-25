@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { SiteIcon, type SiteIconName } from '../../appearance/icons.js';
 import { SiteFooter } from '../../appearance/shell.js';
@@ -11,40 +11,52 @@ import type { DecoratedCodeBlock } from './code-blocks-client';
 import { publicPostPath } from './paths';
 import type { PostPageData, RelatedPostView } from './post-page-data';
 
+function MetaDot({ inverted = false }: { inverted?: boolean }) {
+    return (
+        <span
+            aria-hidden="true"
+            className={`size-[3px] shrink-0 rounded-full ${inverted ? 'bg-white/60' : 'bg-content-hint'}`}
+        />
+    );
+}
+
 function PostCover({ data }: { data: PostPageData }) {
-    const { cover, image, avatar, authorPath, published, updated, seriesLink, timelapsePath } = data;
+    const { cover, image, avatar, authorPath, published, seriesLink, seriesNavigation, timelapsePath } = data;
     const inverted = cover === 'overlay';
     const large = inverted || cover === 'split';
     const metadataColor = inverted ? 'text-white/80' : 'text-content-secondary';
-    const separator = inverted ? 'text-white/55' : 'text-line-strong';
     const heading = (
         <>
             {seriesLink && (
-                <div className="mb-6 flex items-center gap-2">
-                    <a
-                        href={seriesLink}
-                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${inverted ? 'bg-white/90 text-neutral-950 hover:bg-white' : 'bg-action text-content-inverted hover:bg-action-hover'}`}
-                    >
-                        <SiteIcon name="stack-2" className="size-3 opacity-70" />
-                        {data.seriesName}
-                    </a>
-                </div>
+                <a
+                    href={seriesLink}
+                    className={`mb-3 inline-flex min-h-11 max-w-full items-center gap-2 text-sm font-semibold transition-colors duration-150 ${inverted ? 'text-white/80 hover:text-white' : 'text-content-secondary hover:text-content'}`}
+                >
+                    <SiteIcon name="stack-2" className="shrink-0 text-base" />
+                    <span className={`truncate ${inverted ? 'text-white' : 'text-content'}`}>{data.seriesName}</span>
+                    {seriesNavigation && (
+                        <>
+                            <MetaDot inverted={inverted} />
+                            <span className="shrink-0 tabular-nums">{`${seriesNavigation.index} / ${seriesNavigation.total}`}</span>
+                        </>
+                    )}
+                </a>
             )}
             <h1
                 itemProp="headline"
-                className={`${large ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl lg:text-4xl'} ${inverted ? 'text-white' : 'text-content'} ${data.subtitle ? (large ? 'mb-4' : 'mb-3') : inverted ? 'mb-6' : 'mb-8'} font-bold leading-tight break-words`}
+                className={`${large ? 'text-3xl sm:text-4xl' : 'text-[1.75rem] sm:text-4xl'} ${inverted ? 'text-white' : 'text-content'} font-bold leading-tight tracking-tight break-words break-keep`}
             >
                 {data.title}
             </h1>
             {data.subtitle && (
                 <p
-                    className={`text-lg font-medium leading-relaxed sm:text-xl ${inverted ? 'mb-6 text-white/85' : 'mb-8 text-content-secondary'}`}
+                    className={`mt-3 text-lg font-medium leading-relaxed break-keep sm:text-xl ${inverted ? 'text-white/85' : 'text-content-secondary'}`}
                 >
                     {data.subtitle}
                 </p>
             )}
             <div
-                className={`flex items-center gap-4 text-sm ${large ? '' : 'border-b border-line-light pb-8'}`}
+                className="mt-6 flex items-center gap-3 sm:mt-7"
                 itemProp="author"
                 itemScope
                 itemType="https://schema.org/Person"
@@ -53,46 +65,44 @@ function PostCover({ data }: { data: PostPageData }) {
                     <img
                         src={avatar}
                         alt={data.username}
-                        className={`size-10 rounded-full object-cover ring-2 transition-all ${inverted ? 'ring-white/60 group-hover:ring-white' : 'ring-line-light group-hover:ring-line-strong'}`}
+                        className={`size-10 rounded-full object-cover ring-1 transition-shadow duration-150 ${inverted ? 'ring-white/60 group-hover:ring-white' : 'ring-line group-hover:ring-line-strong'}`}
                     />
                 </a>
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <div className="min-w-0">
                     <a
                         href={authorPath}
-                        className={`font-semibold transition-colors ${inverted ? 'text-white hover:text-white/80' : 'text-content hover:text-content-secondary'}`}
+                        className={`text-sm font-semibold transition-colors duration-150 ${inverted ? 'text-white hover:text-white/80' : 'text-content hover:text-content-secondary'}`}
                         itemProp="name"
                     >
                         {data.username}
                     </a>
-                    {published && (
-                        <>
-                            <span className={separator}>·</span>
-                            <time className={metadataColor} dateTime={published.iso}>
-                                {`${published.text} ${data.visibility === 'draft' ? ui('Preview') : ui('Publish')}`}
-                            </time>
-                        </>
-                    )}
-                    {updated && published && updated.text !== published.text && (
-                        <>
-                            <span className={separator}>·</span>
-                            <time className={metadataColor} dateTime={updated.iso}>
-                                {`${updated.text} ${ui('Update')}`}
-                            </time>
-                        </>
-                    )}
-                    <span className={separator}>·</span>
-                    <span className={metadataColor}>
-                        <span className="sr-only">{`${ui('Reading time:')} `}</span>
-                        {ui('{minutes} min read', { minutes: data.readTime })}
-                    </span>
-                    {timelapsePath && (
-                        <>
-                            <span className={separator}>·</span>
-                            <a href={timelapsePath} className={`${metadataColor} underline-offset-2 hover:underline`}>
-                                {ui('See how it was written')}
-                            </a>
-                        </>
-                    )}
+                    <div className={`flex flex-wrap items-center gap-x-2 text-[13px] leading-6 ${metadataColor}`}>
+                        {published && (
+                            <>
+                                <time dateTime={published.iso}>
+                                    {data.visibility === 'draft'
+                                        ? `${published.text} ${ui('Preview')}`
+                                        : published.text}
+                                </time>
+                                <MetaDot inverted={inverted} />
+                            </>
+                        )}
+                        <span>
+                            <span className="sr-only">{`${ui('Reading time:')} `}</span>
+                            {ui('{minutes} min read', { minutes: data.readTime })}
+                        </span>
+                        {timelapsePath && (
+                            <>
+                                <MetaDot inverted={inverted} />
+                                <a
+                                    href={timelapsePath}
+                                    className={`underline decoration-1 underline-offset-[3px] transition-colors duration-150 ${inverted ? 'decoration-white/50 hover:text-white' : 'decoration-line-strong hover:text-content'}`}
+                                >
+                                    {ui('See how it was written')}
+                                </a>
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
         </>
@@ -134,15 +144,16 @@ function PostCover({ data }: { data: PostPageData }) {
                 </div>
             </section>
         );
+    const shown = cover !== 'none' && picture;
     return (
         <>
-            <div className={`post-cover-${cover} mb-12 sm:mb-16`}>{heading}</div>
-            {cover !== 'none' && picture && <div className="mb-12 sm:mb-16">{picture}</div>}
+            <div className={`post-cover-${cover} ${shown ? 'mb-8 sm:mb-10' : 'mb-12 sm:mb-14'}`}>{heading}</div>
+            {shown && <div className="mb-10 sm:mb-14">{picture}</div>}
         </>
     );
 }
 
-function OutlineLinks({ headings, mobile }: { headings: PostPageData['headings']; mobile?: boolean }) {
+function OutlineLinks({ headings }: { headings: PostPageData['headings'] }) {
     return (
         <nav className="px-4 py-4" aria-label={ui('Table of contents')} data-site-outline>
             <ul className="space-y-1">
@@ -150,8 +161,8 @@ function OutlineLinks({ headings, mobile }: { headings: PostPageData['headings']
                     <li key={heading.id}>
                         <a
                             href={`#${encodeURIComponent(heading.id)}`}
-                            className={`toc-item block rounded-lg px-3 text-sm text-content-secondary transition-all duration-150 hover:bg-surface-subtle hover:text-content active:scale-95 ${mobile ? 'py-3' : 'py-2'}`}
-                            style={{ paddingInlineStart: heading.level * 12 + (mobile ? 16 : -6) }}
+                            className="toc-item block rounded-lg px-3 py-3 text-sm text-content-secondary transition-all duration-150 hover:bg-surface-subtle hover:text-content active:scale-95"
+                            style={{ paddingInlineStart: heading.level * 12 + 16 }}
                         >
                             {heading.text}
                         </a>
@@ -161,6 +172,76 @@ function OutlineLinks({ headings, mobile }: { headings: PostPageData['headings']
         </nav>
     );
 }
+
+/** The heading the reader is in: the last one that has scrolled up under the sticky header. */
+function useCurrentHeading(headings: PostPageData['headings']): string | null {
+    const [current, setCurrent] = useState<string | null>(null);
+    useEffect(() => {
+        const elements = headings.flatMap((heading) => document.getElementById(heading.id) ?? []);
+        if (!elements.length) return;
+        let frame = 0;
+        const update = () => {
+            frame = 0;
+            let passed: string | null = null;
+            for (const element of elements) {
+                if (element.getBoundingClientRect().top > 120) break;
+                passed = element.id;
+            }
+            setCurrent(passed);
+        };
+        const schedule = () => {
+            frame ||= requestAnimationFrame(update);
+        };
+        const controller = new AbortController();
+        window.addEventListener('scroll', schedule, { passive: true, signal: controller.signal });
+        window.addEventListener('resize', schedule, { signal: controller.signal });
+        update();
+        return () => {
+            controller.abort();
+            cancelAnimationFrame(frame);
+        };
+    }, [headings]);
+    return current;
+}
+
+/** The desktop outline stays quiet beside the text: one rule, with the reader's place marked on it. */
+function SideOutline({ headings }: { headings: PostPageData['headings'] }) {
+    const current = useCurrentHeading(headings);
+    const top = Math.min(...headings.map((heading) => heading.level));
+    return (
+        <nav
+            className="max-h-[min(calc(100vh-10rem),36rem)] overscroll-contain pr-2"
+            aria-label={ui('Table of contents')}
+            data-site-outline
+        >
+            <p aria-hidden="true" className="text-[13px] font-semibold text-content-secondary">
+                {ui('Table of contents')}
+            </p>
+            <ul className="mt-3 border-l border-line">
+                {headings.map((heading) => {
+                    const here = heading.id === current;
+                    return (
+                        <li key={heading.id}>
+                            <a
+                                href={`#${encodeURIComponent(heading.id)}`}
+                                aria-current={here ? 'location' : undefined}
+                                className={`toc-item -ml-px block border-l-2 py-1.5 text-sm leading-normal transition-colors duration-150 ${here ? 'border-content font-semibold text-content' : 'border-transparent text-content-secondary hover:text-content'}`}
+                                style={{ paddingInlineStart: 14 + (heading.level - top) * 14 }}
+                            >
+                                {heading.text}
+                            </a>
+                        </li>
+                    );
+                })}
+            </ul>
+        </nav>
+    );
+}
+
+const quietLabel = 'text-[13px] font-semibold text-content-secondary';
+const textLink =
+    'inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-content transition-colors duration-150 hover:text-content-secondary';
+const sectionTitle = 'text-xl font-bold tracking-tight text-content';
 
 function PostSeriesCard({
     name,
@@ -257,95 +338,151 @@ function PostSeriesCard({
     );
 }
 
-function ArticleInfo({ data }: { data: PostPageData }) {
-    const { postPath, authorPath, published, updated, csrfToken, subscription: author } = data;
-    const bio = data.authorBio;
-    const homepage = data.authorHomepage;
-    const subscription =
-        author &&
-        (data.viewerAuthenticated ? (
-            <form action={`/v1/users/@${encodeURIComponent(author.username)}/subscription`} method="post">
-                <input type="hidden" name="returnTo" value={postPath} />
-                <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} />
-                {author.isSubscribed && <input type="hidden" name="action" value="unsubscribe" />}
-                <button
-                    type="submit"
-                    className="shrink-0 rounded-full border border-line px-3 py-1.5 text-xs font-semibold hover:bg-surface-subtle"
-                    aria-label={ui('Subscribe to new posts by {value0}', { value0: author.username })}
-                    aria-pressed={author.isSubscribed}
-                >
-                    {author.isSubscribed ? ui('Subscribed') : ui('Subscribe')}
-                </button>
-            </form>
-        ) : (
+const subscribeButton =
+    'inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full px-4 text-[13px] font-semibold ring-1 transition-colors duration-150 active:scale-[0.98] sm:w-auto';
+
+function ColophonSubscription({ data }: { data: PostPageData }) {
+    const { postPath, csrfToken, subscription: author } = data;
+    if (!author) return null;
+    const label = ui('Subscribe to new posts by {value0}', { value0: author.username });
+    if (!data.viewerAuthenticated)
+        return (
             <LoginPromptLink
                 returnTo={postPath}
                 action="subscribe"
-                aria-label={ui('Subscribe to new posts by {value0}', { value0: author.username })}
-                className="shrink-0 rounded-full border border-line px-3 py-1.5 text-xs font-semibold hover:bg-surface-subtle"
+                aria-label={label}
+                className={`${subscribeButton} shrink-0 text-content ring-line hover:ring-line-strong`}
             >
+                <SiteIcon name="bell" className="text-xs" />
                 {ui('Subscribe')}
             </LoginPromptLink>
-        ));
-    const entries: Array<[string, ReactNode]> = [
-        [
-            ui('Author'),
-            <div key="author" className="flex items-start justify-between gap-4">
-                <div>
-                    <a href={authorPath} className="font-semibold hover:text-content-secondary">
-                        {data.username}
-                    </a>
-                    {bio && <p className="mt-1 leading-relaxed text-content-secondary">{bio}</p>}
-                </div>
-                {subscription}
-            </div>
-        ]
-    ];
-    if (published)
-        entries.push([
-            data.visibility === 'draft' ? ui('Preview source') : ui('First published'),
-            <time key="published" dateTime={published.iso}>
-                {published.text}
-            </time>
-        ]);
-    if (updated && published && updated.text !== published.text)
-        entries.push([
-            ui('Updated'),
-            <time key="updated" dateTime={updated.iso}>
-                {updated.text}
-            </time>
-        ]);
-    if (homepage)
-        entries.push([
-            ui('Author website'),
-            <a
-                key="homepage"
-                href={homepage}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="break-words hover:text-content"
-            >
-                {homepage}
-            </a>
-        ]);
+        );
     return (
-        <section
-            className="my-16 rounded-2xl bg-surface p-6 ring-1 ring-line/60 sm:p-8"
-            aria-labelledby="post-info-heading"
+        <form
+            className="mb-0 shrink-0"
+            action={`/v1/users/@${encodeURIComponent(author.username)}/subscription`}
+            method="post"
         >
-            <h2
-                id="post-info-heading"
-                className="mb-6 border-b border-line-light pb-4 text-lg font-bold leading-snug text-content"
+            <input type="hidden" name="returnTo" value={postPath} />
+            <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} />
+            {author.isSubscribed && <input type="hidden" name="action" value="unsubscribe" />}
+            <button
+                type="submit"
+                className={`${subscribeButton} ${author.isSubscribed ? 'text-content-secondary ring-line hover:text-content' : 'text-content ring-line hover:ring-line-strong'}`}
+                aria-label={label}
+                aria-pressed={author.isSubscribed}
             >
+                <SiteIcon name={author.isSubscribed ? 'check' : 'bell'} className="text-xs" />
+                {author.isSubscribed ? ui('Subscribed') : ui('Subscribe')}
+            </button>
+        </form>
+    );
+}
+
+const colophonRow = 'grid gap-4 border-b border-line sm:grid-cols-[6rem_minmax(0,1fr)]';
+
+/** What a book prints on its last page: who wrote this post, when, and under which tags. */
+function PostColophon({ data }: { data: PostPageData }) {
+    const { authorPath, published, updated, timelapsePath, tags } = data;
+    const homepage = data.authorHomepage;
+    const revised = updated && published && updated.text !== published.text ? updated : undefined;
+    const timelapse = timelapsePath && (
+        <>
+            <MetaDot />
+            <a
+                href={timelapsePath}
+                className="text-[13px] font-semibold text-content underline decoration-line-strong decoration-1 underline-offset-[3px] transition-colors duration-150 hover:text-content-secondary"
+            >
+                {ui('See how it was written')}
+            </a>
+        </>
+    );
+    const date = (label: string, value: NonNullable<PostPageData['published']>, last: boolean) => (
+        <div className={`${colophonRow} grid-cols-[5rem_minmax(0,1fr)] items-baseline py-3.5`}>
+            <dt className={quietLabel}>{label}</dt>
+            <dd className="flex min-w-0 flex-wrap items-center gap-x-2 text-[15px] leading-relaxed text-content">
+                <time dateTime={value.iso}>{value.text}</time>
+                {last && timelapse}
+            </dd>
+        </div>
+    );
+    return (
+        <section className="mt-16 border-t border-content" aria-labelledby="post-info-heading">
+            <h2 id="post-info-heading" className="sr-only">
                 {ui('Post information')}
             </h2>
-            <dl className="grid gap-4 text-sm">
-                {entries.map(([label, value]) => (
-                    <div key={label} className="sm:flex sm:items-start sm:gap-6">
-                        <dt className="text-xs font-medium text-content-hint sm:w-24 sm:shrink-0">{label}</dt>
-                        <dd className="mt-1 min-w-0 flex-1 text-content-secondary sm:mt-0">{value}</dd>
+            <dl>
+                <div className={`${colophonRow} grid-cols-[3.5rem_minmax(0,1fr)] items-start py-6`}>
+                    <dt>
+                        <span className="sr-only">{ui('Author')}</span>
+                        <img
+                            src={data.avatar}
+                            alt=""
+                            className="size-14 rounded-full object-cover ring-1 ring-line"
+                            loading="lazy"
+                        />
+                    </dt>
+                    <dd className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+                        <div className="min-w-0">
+                            <p className="break-words text-lg font-bold leading-snug tracking-tight text-content">
+                                {data.username}
+                            </p>
+                            {data.authorBio && (
+                                <p className="mt-0.5 text-sm leading-relaxed break-keep text-content-secondary">
+                                    {data.authorBio}
+                                </p>
+                            )}
+                            <div className="flex flex-wrap gap-x-5">
+                                <a href={authorPath} className={textLink}>
+                                    {ui('View profile')}
+                                    <SiteIcon name="arrow-right" className="text-xs" />
+                                </a>
+                                {homepage && (
+                                    <a
+                                        href={homepage}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex min-h-11 min-w-0 items-center gap-1.5 text-sm font-medium text-content-secondary transition-colors duration-150 hover:text-content"
+                                    >
+                                        <SiteIcon name="link" className="shrink-0 text-xs" />
+                                        <span className="sr-only">{`${ui('Author website')}: `}</span>
+                                        <span className="truncate">
+                                            {homepage.replace(/^https?:\/\//i, '').replace(/\/$/, '')}
+                                        </span>
+                                    </a>
+                                )}
+                            </div>
+                        </div>
+                        <ColophonSubscription data={data} />
+                    </dd>
+                </div>
+                {published &&
+                    date(
+                        data.visibility === 'draft' ? ui('Preview source') : ui('First published'),
+                        published,
+                        !revised
+                    )}
+                {revised && date(ui('Updated'), revised, true)}
+                {tags.length > 0 && (
+                    <div className={`${colophonRow} grid-cols-[5rem_minmax(0,1fr)] items-start py-1`}>
+                        <dt className={`flex min-h-11 items-center ${quietLabel}`}>{ui('Tags')}</dt>
+                        <dd className="flex min-w-0 flex-wrap gap-x-4" itemProp="keywords">
+                            {tags.map((tag) => (
+                                <a
+                                    key={tag}
+                                    href={`/tag/${encodeURIComponent(tag)}`}
+                                    className="inline-flex min-h-11 min-w-0 items-center text-[15px] leading-snug break-words text-content-secondary transition-colors duration-150 hover:text-content"
+                                >
+                                    {/* One text run, so a long tag wraps with its mark. */}
+                                    <span className="min-w-0">
+                                        <span className="text-content-hint">#</span>
+                                        {tag}
+                                    </span>
+                                </a>
+                            ))}
+                        </dd>
                     </div>
-                ))}
+                )}
             </dl>
         </section>
     );
@@ -354,78 +491,57 @@ function ArticleInfo({ data }: { data: PostPageData }) {
 const dockButton =
     'inline-flex h-11 min-w-11 items-center justify-center gap-1 rounded-full text-content-secondary transition-all duration-200 hover:bg-surface-subtle/80 hover:text-content active:scale-95';
 
+/** Rows like the author's overview, so a list of posts reads the same everywhere. */
 function RelatedPosts({ posts, username }: { posts: RelatedPostView[]; username: string }) {
-    if (!posts.length)
-        return (
-            <div className="py-12 text-center">
-                <div className="mb-4 inline-flex size-16 items-center justify-center rounded-full bg-surface-subtle">
-                    <SiteIcon name="compass" className="text-2xl text-content-hint" />
-                </div>
-                <h3 className="mb-2 text-lg font-semibold">{ui('Browse more posts by {username}', { username })}</h3>
-                <p className="mb-6 text-sm text-content-secondary">{ui('Find more posts on this profile.')}</p>
-                <a
-                    href={`/@${encodeURIComponent(username)}`}
-                    className="inline-flex items-center gap-2 rounded-full bg-action px-5 py-2.5 text-sm font-medium text-content-inverted hover:bg-action-hover"
-                >
-                    <span>{ui('View profile')}</span>
-                    <SiteIcon name="arrow-right" className="text-xs opacity-70" />
-                </a>
-            </div>
-        );
+    if (!posts.length) return null;
     return (
-        <section aria-labelledby="related-post-heading">
-            <div className="mb-8 flex items-center gap-3">
-                <span className="h-6 w-1.5 rounded-full bg-action" />
-                <h3 id="related-post-heading" className="text-xl font-bold sm:text-2xl">
-                    {ui('Related posts')}
-                </h3>
-            </div>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                {posts.map((post) => {
-                    const { href, image, date } = post;
-                    return (
-                        <article
-                            key={href}
-                            className="group flex h-full flex-col overflow-hidden rounded-2xl bg-surface ring-1 ring-line/60 transition-all duration-150 hover:ring-line-strong/70"
-                        >
-                            {image && (
-                                <a href={href} className="block aspect-[16/9] overflow-hidden">
-                                    <img
-                                        className="size-full object-cover motion-safe:transition-transform motion-safe:group-hover:scale-105"
-                                        src={image}
-                                        alt={post.title}
-                                        loading="lazy"
-                                    />
-                                </a>
-                            )}
-                            <div className="flex flex-1 flex-col p-5">
-                                <h4 className="mb-2 line-clamp-2 text-base font-bold leading-snug">
-                                    <a href={href}>{post.title}</a>
-                                </h4>
-                                <div className="mb-3 flex gap-3 text-xs text-content-secondary">
-                                    {date && <time dateTime={date.iso}>{date.text}</time>}
+        <section className="mt-20" aria-labelledby="related-post-heading">
+            <h2 id="related-post-heading" className={sectionTitle}>
+                {ui('Related posts')}
+            </h2>
+            <ul className="mt-3 border-t border-line-light">
+                {posts.map((post) => (
+                    <li key={post.href} className="border-b border-line-light">
+                        <a href={post.href} className="group flex items-center gap-4 py-5 sm:gap-8 sm:py-6">
+                            <div className="min-w-0 flex-1">
+                                <h3 className="line-clamp-2 text-base font-semibold leading-snug tracking-tight break-keep text-content transition-colors duration-150 group-hover:text-content-secondary sm:text-lg">
+                                    {post.title}
+                                </h3>
+                                {post.description ? (
+                                    <p className="mt-1.5 hidden truncate text-sm text-content-secondary sm:block">
+                                        {post.description}
+                                    </p>
+                                ) : null}
+                                <p className="mt-2.5 flex flex-wrap items-center gap-x-2 text-[13px] text-content-secondary">
+                                    {post.username !== username && (
+                                        <>
+                                            <span className="font-semibold text-content">{post.username}</span>
+                                            <MetaDot />
+                                        </>
+                                    )}
+                                    {post.date && (
+                                        <>
+                                            <time dateTime={post.date.iso}>{post.date.text}</time>
+                                            <MetaDot />
+                                        </>
+                                    )}
                                     <span>{ui('{minutes} min', { minutes: post.readTime })}</span>
-                                </div>
-                                <p className="mb-4 line-clamp-3 flex-1 text-sm leading-relaxed text-content-secondary">
-                                    <a href={href}>{post.description}</a>
                                 </p>
-                                <a
-                                    href={`/@${encodeURIComponent(post.username)}`}
-                                    className="mt-auto flex items-center gap-2 border-t border-line-light pt-3 text-xs font-semibold"
-                                >
+                            </div>
+                            {post.image ? (
+                                <div className="aspect-[16/10] w-24 shrink-0 overflow-hidden rounded-xl bg-surface-subtle ring-1 ring-line/60 sm:w-36">
                                     <img
-                                        className="size-6 rounded-full object-cover"
-                                        src={post.avatar}
+                                        className="h-full w-full object-cover transition-transform duration-500 motion-safe:group-hover:scale-[1.03]"
+                                        src={post.image}
                                         alt=""
                                         loading="lazy"
                                     />
-                                    {post.username}
-                                </a>
-                            </div>
-                        </article>
-                    );
-                })}
-            </div>
+                                </div>
+                            ) : null}
+                        </a>
+                    </li>
+                ))}
+            </ul>
         </section>
     );
 }
@@ -661,7 +777,7 @@ function PostDock({ data }: { data: PostPageData }) {
                             </button>
                         </form>
                     </div>
-                    <OutlineLinks headings={headings} mobile />
+                    <OutlineLinks headings={headings} />
                 </dialog>
             )}
         </>
@@ -744,7 +860,7 @@ export function PostPage({
                         <aside className="post-detail-sidebar">
                             <div className="sticky top-28 space-y-4">{banners('left')}</div>
                         </aside>
-                        <div className="post-detail-main mt-6">
+                        <div className="post-detail-main mt-6 pb-16">
                             <article itemScope itemType="https://schema.org/BlogPosting">
                                 {visibility !== 'public' && (
                                     <PostStatusNotice
@@ -755,22 +871,8 @@ export function PostPage({
                                 {!fullCover && coverSection}
                                 {hasBanner('top') && <div className="mb-16 space-y-4">{banners('top')}</div>}
                                 <PostBody html={bodyHtml} />
-                                {data.tags.length > 0 && (
-                                    <div className="mb-16 flex flex-wrap gap-2" itemProp="keywords">
-                                        {data.tags.map((tag) => (
-                                            <a
-                                                key={tag}
-                                                href={`/tag/${encodeURIComponent(tag)}`}
-                                                className="inline-flex items-center rounded-full border border-line-light bg-surface-subtle px-4 py-2 text-sm font-medium text-content-secondary transition-all duration-150 hover:border-line hover:bg-line-light hover:text-content active:scale-95"
-                                            >
-                                                <span className="mr-1 text-content-hint">#</span>
-                                                {tag}
-                                            </a>
-                                        ))}
-                                    </div>
-                                )}
                                 {hasBanner('bottom') && <div className="mb-16 space-y-4">{banners('bottom')}</div>}
-                                <ArticleInfo data={data} />
+                                <PostColophon data={data} />
                             </article>
                             {visibility !== 'draft' && data.seriesLink && data.seriesName && (
                                 <PostSeriesCard
@@ -785,28 +887,15 @@ export function PostPage({
                                     <PostCommentsApp key={revision} model={data.comments} />
                                 </div>
                             )}
+                            {visibility === 'public' && <RelatedPosts posts={data.related} username={data.username} />}
                         </div>
                         <aside className="post-detail-sidebar">
                             <div className="sticky top-28 space-y-4">
-                                {headings.length > 0 && (
-                                    <div className="max-h-[400px] overscroll-contain overflow-y-auto rounded-2xl bg-surface ring-1 ring-line/60">
-                                        <div className="sticky top-0 z-10 border-b border-line-light bg-surface px-6 py-4">
-                                            <h2 className="text-sm font-bold tracking-wider">
-                                                {ui('Table of contents')}
-                                            </h2>
-                                        </div>
-                                        <OutlineLinks headings={headings} />
-                                    </div>
-                                )}
+                                {headings.length > 0 && <SideOutline headings={headings} />}
                                 {banners('right')}
                             </div>
                         </aside>
                     </div>
-                    {visibility === 'public' && (
-                        <div className="mx-auto my-16 max-w-7xl">
-                            <RelatedPosts posts={data.related} username={data.username} />
-                        </div>
-                    )}
                 </div>
                 {hasDock && <PostDock data={data} />}
             </main>
