@@ -190,7 +190,8 @@ function parseHeader(serialized: string | undefined): SiteHeaderProps | null | u
     if (
         ![value.searchPage, value.editorPage, value.hideAuthLinks].every(
             (entry) => entry === undefined || typeof entry === 'boolean'
-        )
+        ) ||
+        !isOptionalString(value.returnPath)
     )
         return undefined;
     return value as SiteHeaderProps;

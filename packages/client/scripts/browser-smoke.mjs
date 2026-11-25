@@ -547,6 +547,39 @@ const keepSignupDestination = async () => {
     }
 };
 
+const returnFromHeaderSignIn = async () => {
+    const visitor = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+    try {
+        const signIn = visitor.locator('[data-site-header] a[href^="/login"]').first();
+        await visitor.goto(`${origin}/tags`, { waitUntil: 'networkidle' });
+        await expect(signIn).toHaveAttribute('href', '/login?next=%2Ftags');
+        await visitor.evaluate(() => {
+            window.__smokeSameDocument = true;
+        });
+        // A move inside the application points the link at the new page.
+        const author = `/@${account.username}`;
+        await visitor.evaluate(
+            (to) => document.dispatchEvent(new CustomEvent('blex:navigate', { detail: { to } })),
+            author
+        );
+        await expect(visitor).toHaveURL(`${origin}${author}`);
+        await expect(signIn).toHaveAttribute('href', `/login?next=${encodeURIComponent(author)}`);
+        await signIn.click();
+        await expect(visitor).toHaveURL(`${origin}/login?next=${encodeURIComponent(author)}`);
+        // The sign-in page does not send its own link back to itself.
+        await expect(signIn).toHaveAttribute('href', '/login');
+        expect(await visitor.evaluate(() => window.__smokeSameDocument)).toBe(true);
+        await visitor.locator('#blex-login-username').fill(account.username);
+        const password = visitor.locator('input[type=password]').first();
+        await password.fill(account.password);
+        await password.press('Enter');
+        await expect(visitor).toHaveURL(`${origin}${author}`);
+        await expect(visitor.locator('[data-site-header] [data-account-menu]')).toHaveCount(1);
+    } finally {
+        await visitor.close();
+    }
+};
+
 // Stands in for hCaptcha's script: `window.hcaptcha` exists at once and the API finishes loading later.
 // Without `render=explicit`, it then draws into every `.h-captcha` element by itself, as the real script does.
 const fakeHcaptcha = `(() => {
@@ -1239,6 +1272,7 @@ try {
             removeUnsavedEditsOnSignOut
         ],
         ['the sign-up screen keeps where to go next and its invitation', keepSignupDestination],
+        ['signing in from the header returns to the page the visitor was reading', returnFromHeaderSignIn],
         ['the sign-up form and screen draw one hCaptcha widget once its API has loaded', drawHcaptchaOnceReady],
         ['back and forward return to each fragment the reader followed', returnToFragmentPositions],
         ['the code block copy button speaks the page language once its translations load', translateCodeCopyButton],
