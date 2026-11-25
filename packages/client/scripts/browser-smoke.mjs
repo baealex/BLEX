@@ -260,6 +260,27 @@ const keepPostMarkupWhenItsCodeFails = async () => {
     }
 };
 
+const keepRoutingPastAuthoredIds = async () => {
+    await open('/');
+    const csrf = (await page.context().cookies()).find((cookie) => cookie.name === 'csrftoken')?.value;
+    expect(csrf).toBeTruthy();
+    const created = await (
+        await page.request.post(`${origin}/v1/posts`, {
+            headers: { origin, 'x-csrftoken': csrf },
+            data: {
+                title: 'Authored element ids',
+                url: `authored-element-ids-${Date.now()}`,
+                contentHtml: '<div id="blexHistory"><p>An element the browser also names on window.</p></div>'
+            }
+        })
+    ).json();
+    expect(created.status).toBe('DONE');
+    await open(`/@${account.username}/${created.body.url}`);
+    // The post keeps the id, so the document names the element when the application starts.
+    expect(await page.evaluate(() => window.blexHistory instanceof HTMLElement)).toBe(true);
+    await keepsApplicationWorking();
+};
+
 const toasterChunk = '**/assets/ui/assets/toaster-*.js';
 
 /** Fills a field, shows a toast whose code the route breaks, and checks that the page and the typed value stay. */
@@ -1134,6 +1155,7 @@ try {
             'a post whose code fails to load keeps the typed comment, its open menu, and the login prompt',
             keepPostMarkupWhenItsCodeFails
         ],
+        ['a post with an element named like an application global keeps in-app navigation', keepRoutingPastAuthoredIds],
         [
             'theme preference persists across public and settings pages and follows the system when cleared',
             keepThemePreferenceAcrossPages
