@@ -624,10 +624,14 @@ const keepSessionCacheAfterPublicPage = async () => {
                 (key) => key.startsWith('rq-cache-') && sessionStorage.getItem(key)?.includes('posts-setting')
             )
         );
+    // A cache in the previous key format is never restored, and the first screen of the next page removes it.
+    const olderCache = `rq-cache-v3-${account.username}-ko-UTC`;
+    await page.evaluate((older) => sessionStorage.setItem(older, '{"timestamp":0}'), olderCache);
     await open('/settings/posts');
     await expect.poll(cachedLists).toHaveLength(1);
     const [key] = await cachedLists();
-    expect(key).toContain(`-${account.username}-`);
+    expect(key).toContain(`-@${account.username}-`);
+    expect(await page.evaluate((older) => sessionStorage.getItem(older), olderCache)).toBeNull();
     // A fresh public page, then the first screen inside the application, which loads before that page commits.
     await open('/');
     const postsRequest = '**/v1/setting/posts*';
@@ -652,7 +656,7 @@ const keepSessionCacheAfterPublicPage = async () => {
 
 const removeSessionCachesOnSignOut = async () => {
     const caches = () => page.evaluate(() => Object.keys(sessionStorage).filter((key) => key.startsWith('rq-cache-')));
-    const viewerCaches = async () => (await caches()).filter((key) => key.includes(`-${account.username}-`));
+    const viewerCaches = async () => (await caches()).filter((key) => key.includes(`-@${account.username}-`));
     const signOutFromHeader = async () => {
         const menu = page.locator('[data-site-header] [data-account-menu]');
         await menu.locator('summary').click();
@@ -662,15 +666,20 @@ const removeSessionCachesOnSignOut = async () => {
 
     // A signed-out visitor's screens keep their queries under this name. None of them uses a query yet,
     // so the tab gets one by hand, as it would have before the viewer signed in.
-    const visitorCache = 'rq-cache-v3-anonymous-ko-UTC';
+    const visitorCache = 'rq-cache-v4-anonymous-ko-UTC';
+    // The previous format gave a signed-out visitor and an account named anonymous this same name.
+    const olderCache = 'rq-cache-v3-anonymous-ko-UTC';
     await open('/settings/posts');
     await expect.poll(viewerCaches).toHaveLength(1);
-    await page.evaluate((key) => {
-        sessionStorage.setItem(key, '{"timestamp":0}');
-        window.__smokeSameDocument = true;
-    }, visitorCache);
+    await page.evaluate(
+        (keys) => {
+            for (const key of keys) sessionStorage.setItem(key, '{"timestamp":0}');
+            window.__smokeSameDocument = true;
+        },
+        [visitorCache, olderCache]
+    );
 
-    // Signing out from the header while the settings screen is open removes only the viewer's caches.
+    // Signing out from the header while the settings screen is open removes the viewer's and older caches.
     await signOutFromHeader();
     expect(await page.evaluate(() => window.__smokeSameDocument)).toBe(true);
     await expect.poll(caches).toEqual([visitorCache]);
