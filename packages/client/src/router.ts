@@ -2,6 +2,7 @@ import { createRouter } from '@tanstack/react-router';
 import type { SettingsRouterContext } from '~/features/settings/access';
 import { isSettingsPath } from '~/features/settings/settings-mode';
 import { applicationHistory } from '~/application/history';
+import { ScreenFailureMessage } from '~/application/screen-page';
 import { routeTree } from './routeTree.gen';
 
 export const createClientRouter = (context: SettingsRouterContext) => {
@@ -12,6 +13,8 @@ export const createClientRouter = (context: SettingsRouterContext) => {
         context,
         history: applicationHistory(),
         defaultPreload: 'intent',
+        // A tab whose code fails to load, or that throws, says so in the page language without the error's details.
+        defaultErrorComponent: ScreenFailureMessage,
         rewrite: {
             input: ({ url }) => {
                 if (isSettingsPath(url.pathname)) {

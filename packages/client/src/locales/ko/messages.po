@@ -2642,6 +2642,11 @@ msgid "public.Could not load the response page. Check whether your changes were 
 msgstr "서버 응답 페이지를 불러오지 못했습니다. 저장 상태를 확인해 주세요."
 
 #. js-lingui-explicit-id
+#: src/application/screen-page.tsx:44
+msgid "public.Could not load this page."
+msgstr "이 페이지를 불러오지 못했습니다."
+
+#. js-lingui-explicit-id
 #: src/features/engagement/ui/comments.tsx:691
 msgid "public.Could not post your comment."
 msgstr "댓글을 작성하는 중 문제가 발생했습니다."
@@ -3546,6 +3551,11 @@ msgid "public.Related posts · {title}"
 msgstr "관련 포스트 · {title}"
 
 #. js-lingui-explicit-id
+#: src/application/screen-page.tsx:50
+msgid "public.Reload"
+msgstr "새로고침"
+
+#. js-lingui-explicit-id
 #: src/features/engagement/ui/comments.tsx:484
 msgid "public.Reply"
 msgstr "답글"
@@ -4001,6 +4011,11 @@ msgstr "텔레그램 연결 안내"
 #: src/routes/@{$username}/about.edit.page.tsx:26
 msgid "public.Tell us about yourself."
 msgstr "자신을 소개해 보세요."
+
+#. js-lingui-explicit-id
+#: src/features/discovery/forbidden-page.tsx:28
+msgid "public.The account you are signed in with cannot open it."
+msgstr "로그인한 계정으로는 열 수 없는 페이지입니다."
 
 #. js-lingui-explicit-id
 #: src/features/engagement/ui/comments.tsx:904

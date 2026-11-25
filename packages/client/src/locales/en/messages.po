@@ -2642,6 +2642,11 @@ msgid "public.Could not load the response page. Check whether your changes were 
 msgstr "Could not load the response page. Check whether your changes were saved."
 
 #. js-lingui-explicit-id
+#: src/application/screen-page.tsx:44
+msgid "public.Could not load this page."
+msgstr "Could not load this page."
+
+#. js-lingui-explicit-id
 #: src/features/engagement/ui/comments.tsx:691
 msgid "public.Could not post your comment."
 msgstr "Could not post your comment."
@@ -3546,6 +3551,11 @@ msgid "public.Related posts · {title}"
 msgstr "Related posts · {title}"
 
 #. js-lingui-explicit-id
+#: src/application/screen-page.tsx:50
+msgid "public.Reload"
+msgstr "Reload"
+
+#. js-lingui-explicit-id
 #: src/features/engagement/ui/comments.tsx:484
 msgid "public.Reply"
 msgstr "Reply"
@@ -4001,6 +4011,11 @@ msgstr "Telegram connection reminder"
 #: src/routes/@{$username}/about.edit.page.tsx:26
 msgid "public.Tell us about yourself."
 msgstr "Tell us about yourself."
+
+#. js-lingui-explicit-id
+#: src/features/discovery/forbidden-page.tsx:28
+msgid "public.The account you are signed in with cannot open it."
+msgstr "The account you are signed in with cannot open it."
 
 #. js-lingui-explicit-id
 #: src/features/engagement/ui/comments.tsx:904

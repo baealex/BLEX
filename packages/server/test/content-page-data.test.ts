@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { buildApp } from '../src/app.js';
+import { renderPage } from '../src/platform/views.js';
 import {
   createMigratedDatabase,
   insertRow,
@@ -62,8 +63,29 @@ test('static and error pages hydrate from public data without authored HTML or a
       const data = pageData(body);
       assert.equal(data.page, page, url);
       assert.doesNotMatch(JSON.stringify(data), /static_html_marker|static_style_marker|csrf|"id":/i, url);
-      if (page !== 'static') assert.deepEqual(data, { page }, url);
+      if (page === 'not-found') assert.deepEqual(data, { page }, url);
+      if (page === 'forbidden') {
+        // Only whether someone is signed in, so the copy fits the visitor without naming them.
+        assert.deepEqual(data, { page, signedIn: true }, url);
+        assert.match(body, /로그인한 계정으로는 열 수 없는 페이지입니다\./);
+        assert.doesNotMatch(body, /로그인 후 다시 시도해주세요/);
+      }
     }
+
+    const signedOut = renderPage('errors/forbidden', {
+      brand: {
+        siteName: 'BLEX',
+        logoUrl: null,
+        darkLogoUrl: null,
+        faviconUrl: '/favicon.ico',
+        seoEnabled: true,
+        footerPages: [],
+      },
+      viewer: undefined,
+    });
+    assert.deepEqual(pageData(signedOut), { page: 'forbidden', signedIn: false });
+    assert.match(signedOut, /로그인 후 다시 시도해주세요\./);
+    assert.doesNotMatch(signedOut, /로그인한 계정으로는/);
 
     // The sanitized page and its stylesheet are read back from the server markup, so the data never repeats them.
     const { body } = await app.inject({ url: '/static/about', headers: visitor });

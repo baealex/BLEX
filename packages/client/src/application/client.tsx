@@ -902,6 +902,11 @@ function handleLoginPromptClick(event: MouseEvent): void {
 }
 
 function handleDocumentClick(event: MouseEvent): void {
+    // A screen that could not load offers a new page, and the server's copy of that button has no handler.
+    if (event.target instanceof Element && event.target.closest('[data-blex-reload]')) {
+        window.location.reload();
+        return;
+    }
     const anchor = clickedLink(event);
     if (!anchor || shouldLeaveLinkNative(anchor)) return;
 
@@ -1340,26 +1345,36 @@ async function activateRouteFeatures(
     }
 }
 
-/** A page that renders on the client replaces its placeholder whenever its code arrives. */
+/** A page that renders on the client replaces its placeholder whenever its code arrives, or says it could not. */
 function showWhenLoaded(page: ApplicationDocument, treePage: TreePage): void {
     void treePage
         .load()
-        .then(async (content) => {
-            // Only a screen whose messages failed to load fails here, and its content is then the error, which needs none.
-            await treePage.beforeShow?.().catch(() => undefined);
-            if (currentDocument !== page || page.view.content !== undefined) return;
-            page.view = {
-                ...page.view,
-                html: '',
-                content
-            };
-            const routeContent = document.getElementById('blex-route-content');
-            const hadFocus = routeContent?.contains(document.activeElement) ?? false;
-            flushSync(() => showApplicationPage?.(page.view));
-            // The placeholder that held focus is gone, so the page heading takes it as after a move.
-            if (hadFocus && !document.getElementById('blex-route-content')?.contains(document.activeElement))
-                focusPageHeading();
-        })
+        .then(
+            async (content) => {
+                // Only a screen whose messages failed to load fails here, and its content is then the error, which needs none.
+                await treePage.beforeShow?.().catch(() => undefined);
+                if (currentDocument !== page || page.view.content !== undefined) return;
+                page.view = {
+                    ...page.view,
+                    html: '',
+                    content
+                };
+                const routeContent = document.getElementById('blex-route-content');
+                const hadFocus = routeContent?.contains(document.activeElement) ?? false;
+                flushSync(() => showApplicationPage?.(page.view));
+                // The placeholder that held focus is gone, so the page heading takes it as after a move.
+                if (hadFocus && !document.getElementById('blex-route-content')?.contains(document.activeElement))
+                    focusPageHeading();
+            },
+            (error: unknown) => {
+                if (currentDocument !== page) return;
+                console.error('The page could not be loaded.', error);
+                // Only screens render on the client. Their loading status holds the message for a runtime that failed.
+                const status = document.querySelector('#blex-route-content [data-screen-status="pending"]');
+                status?.setAttribute('data-screen-status', 'error');
+                status?.setAttribute('data-screen-error', 'bootstrap_error');
+            }
+        )
         .catch((error: unknown) => {
             if (currentDocument === page) console.error('The page could not be loaded.', error);
         });

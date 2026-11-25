@@ -89,11 +89,13 @@ function screenPageData(body: string): ScreenPageData {
   assert.ok(match, 'the page renders a 3.x screen');
   assert.doesNotMatch(match[1], /[<>]/, 'embedded JSON cannot close its script');
   const data = JSON.parse(match[1]) as ScreenPageData;
-  // The server shows a loading status in the screen's place until the browser renders it.
+  // The server shows a loading status in the screen's place until the browser renders it, and holds the message
+  // the browser shows instead when the screen's code cannot load.
   assert.match(
     body,
-    new RegExp(`<div data-screen="${data.screen.name}" data-screen-status="pending"><div role="status"`),
+    new RegExp(`<div data-screen="${data.screen.name}" data-screen-status="pending" class="group"><div role="status"`),
   );
+  assert.match(body, /<div role="alert"[^>]*><p[^>]*>[^<]+<\/p><button[^>]*data-blex-reload/);
   return data;
 }
 

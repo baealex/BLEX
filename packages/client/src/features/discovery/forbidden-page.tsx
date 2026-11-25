@@ -1,7 +1,9 @@
 import { ui } from '../../i18n/public-ui.js';
+import type { ForbiddenPageData } from './content-page-data';
 import { goBack } from './not-found-parts';
 
-export function ForbiddenPage() {
+/** A signed-in visitor already has an account, so signing in again would not help. */
+export function ForbiddenPage({ signedIn }: { signedIn: boolean }) {
     return (
         <main className="fixed inset-0 z-[1000] flex min-h-screen items-center justify-center p-4">
             <div className="absolute inset-0 bg-surface-page" />
@@ -23,7 +25,9 @@ export function ForbiddenPage() {
                         <p className="text-xl leading-relaxed text-content-secondary">
                             {ui('You do not have permission to access this page.')}
                             <br />
-                            {ui('Sign in and try again.')}
+                            {signedIn
+                                ? ui('The account you are signed in with cannot open it.')
+                                : ui('Sign in and try again.')}
                         </p>
                     </div>
                     <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -47,6 +51,6 @@ export function ForbiddenPage() {
     );
 }
 
-export function mountPage() {
-    return <ForbiddenPage />;
+export function mountPage(data: ForbiddenPageData) {
+    return <ForbiddenPage signedIn={data.signedIn} />;
 }

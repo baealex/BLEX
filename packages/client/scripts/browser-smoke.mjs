@@ -448,6 +448,14 @@ const keepsApplicationWorking = async () => {
     expect(await reactRoots()).toBe(1);
 };
 
+/** A screen or tab that cannot load or render says so in the page language and offers a reload, without details. */
+const expectScreenFailure = async (scope) => {
+    const alert = scope.getByRole('alert');
+    await expect(alert).toContainText('이 페이지를 불러오지 못했습니다.');
+    await expect(alert.getByRole('button', { name: '새로고침', exact: true })).toBeVisible();
+    await expect(scope).not.toContainText(/Error|Something went wrong/);
+};
+
 const screenDataScript = /(<script type="application\/json" id="blex-screen-page-data">)(.*?)(<\/script>)/s;
 const scriptJson = (value) =>
     JSON.stringify(value).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
@@ -483,7 +491,8 @@ const rejectInvalidScreenData = async () => {
                 const screen = page.locator('#blex-route-content [data-screen]');
                 await expect(screen).toHaveAttribute('data-screen-status', 'error');
                 await expect(screen).toHaveAttribute('data-screen-error', 'bootstrap_error');
-                await expect(screen).toHaveText(`Component Error: ${name}`);
+                await expectScreenFailure(screen);
+                await expect(screen).not.toContainText(name);
                 await expect(page.locator('#blex-route-content img[data-bootstrap-injection]')).toHaveCount(0);
                 await keepsApplicationWorking();
             }
@@ -507,11 +516,55 @@ const isolateScreenRenderError = async () => {
         const screen = page.locator('[data-screen="SearchPage"]');
         await expect(screen).toHaveAttribute('data-screen-status', 'error');
         await expect(screen).toHaveAttribute('data-screen-error', 'render_error');
-        await expect(screen).toHaveText('Component Error: SearchPage');
+        await expectScreenFailure(screen);
         await expect(page.locator('[data-site-header]')).toBeVisible();
         await keepsApplicationWorking();
     } finally {
         await page.unroute(searchChunk);
+    }
+};
+
+const showScreenLoadFailures = async () => {
+    const path = '/settings/profile';
+    // A tab opened before a deploy asks for files that are gone: the screen runtime, a screen, or a settings tab.
+    for (const chunk of [
+        /\/assets\/ui\/assets\/screen-runtime-[\w-]{8}\.js$/,
+        /\/assets\/ui\/assets\/settings-[\w-]{8}\.js$/
+    ]) {
+        await page.route(chunk, (route) => route.abort());
+        try {
+            for (const arrive of [() => open(path), () => open('/').then(() => visitInApplication(path))]) {
+                // The automatic reload a missing file starts already ran in this tab.
+                await page.evaluate(() => sessionStorage.setItem('blex:catalog-reload', String(Date.now())));
+                await arrive();
+                await expect(page).toHaveURL(`${origin}${path}`);
+                const screen = page.locator('#blex-route-content [data-screen]');
+                await expect(screen).toHaveAttribute('data-screen-error', 'bootstrap_error');
+                await expectScreenFailure(screen);
+                await expect(page.locator('[data-site-header]')).toBeVisible();
+            }
+        } finally {
+            await unrouteWhenIdle(chunk);
+        }
+        // With the file back, the reload shows the screen.
+        await page.getByRole('button', { name: '새로고침', exact: true }).click();
+        await expect(page.locator('[data-screen="SettingsApp"]')).toHaveAttribute('data-screen-status', 'mounted');
+        await expect(page.getByRole('button', { name: '기본 정보 저장', exact: true })).toBeVisible();
+    }
+    const tab = /\/assets\/ui\/assets\/profile-[\w-]{8}\.js$/;
+    await page.route(tab, (route) => route.abort());
+    try {
+        await page.evaluate(() => sessionStorage.setItem('blex:catalog-reload', String(Date.now())));
+        await open(path);
+        const screen = page.locator('[data-screen="SettingsApp"]');
+        await expectScreenFailure(screen);
+        // The rest of settings keeps working.
+        await screen.locator('a[href="/settings/account"]:visible').first().click();
+        await expect(page).toHaveURL(`${origin}/settings/account`);
+        await expect(screen.getByRole('heading', { name: '계정', exact: true })).toBeVisible();
+        await expect(screen).not.toContainText('이 페이지를 불러오지 못했습니다.');
+    } finally {
+        await unrouteWhenIdle(tab);
     }
 };
 
@@ -946,6 +999,33 @@ const selectPinnedPostWithKeyboard = async () => {
     }
 };
 
+const keepNotificationTogglesOnSavedValues = async () => {
+    await open('/settings/notify');
+    await page.getByRole('button', { name: '설정', exact: true }).click();
+    const dialog = page.getByRole('dialog', { name: '알림 설정' });
+    // A new account has never set this preference, so the server sends null and it stays off.
+    const toggle = dialog.getByRole('checkbox', { name: '다른 사용자가 내 포스트를 추천할 때', exact: true });
+    await expect(toggle).not.toBeChecked();
+    const config = '**/v1/setting/notify-config';
+    await page.route(config, (route) => (route.request().method() === 'PUT' ? route.abort() : route.continue()));
+    try {
+        const failed = page.waitForEvent('requestfailed', (request) => request.url().endsWith('/notify-config'));
+        await toggle.focus();
+        await toggle.press('Space');
+        await failed;
+        // A save that fails leaves the toggle on the value the server still has.
+        await expect(toggle).not.toBeChecked();
+    } finally {
+        await page.unroute(config);
+    }
+    await toggle.press('Space');
+    await expect(toggle).toBeChecked();
+    await toggle.press('Space');
+    await expect(toggle).not.toBeChecked();
+    await dialog.getByRole('button', { name: '닫기', exact: true }).click();
+    await expect(dialog).toHaveCount(0);
+};
+
 const useSettingsListWithKeyboard = async () => {
     // The series are created before the list first loads. A suspense query keeps a list cached under a second
     // ago, so reloading right after it loaded would show it without them.
@@ -1045,6 +1125,31 @@ const keepSearchFocusWithUserAction = async () => {
     await expect(input).toHaveValue('');
     await expect(input).not.toBeFocused();
     await page.setViewportSize({ width: 1280, height: 900 });
+};
+
+const showSettingsTabTitleWhileItLoads = async () => {
+    await open('/admin-settings/site-settings');
+    await expect(page.getByRole('heading', { name: '블로그 꾸미기', exact: true })).toBeVisible();
+    // The Telegram settings wait for a live check with Telegram, which can take a while.
+    const settings = '**/v1/integration-settings';
+    const { promise: released, resolve: release } = Promise.withResolvers();
+    let held;
+    await page.route(settings, (route) => {
+        held = released.then(() => route.continue());
+        return held;
+    });
+    try {
+        await page.locator('a[href="/admin-settings/integrations"]:visible').first().click();
+        await expect(page).toHaveURL(`${origin}/admin-settings/integrations`);
+        await expect(page.getByRole('heading', { name: '텔레그램', exact: true })).toBeVisible();
+        await expect(page.getByRole('heading', { name: '블로그 꾸미기', exact: true })).toHaveCount(0);
+        release();
+        await expect(page.getByRole('button', { name: '텔레그램 설정 저장', exact: true })).toBeVisible();
+    } finally {
+        release();
+        await held;
+        await page.unroute(settings);
+    }
 };
 
 const keepNoticeFocusWhenCarouselStarts = async () => {
@@ -1261,6 +1366,10 @@ try {
         ],
         ['invalid screen data fails safely without interpreting names as HTML', rejectInvalidScreenData],
         ['a screen render error leaves the application working', isolateScreenRenderError],
+        [
+            'a screen or settings tab whose code fails to load says so in the page language and reloads',
+            showScreenLoadFailures
+        ],
         ['screens render in the application root and leave nothing behind', renderScreensInApplicationRoot],
         ["a screen opened after a fresh public page keeps its viewer's session cache", keepSessionCacheAfterPublicPage],
         [
@@ -1277,12 +1386,17 @@ try {
         ['back and forward return to each fragment the reader followed', returnToFragmentPositions],
         ['the code block copy button speaks the page language once its translations load', translateCodeCopyButton],
         ['pinned post selection supports arrow keys and resets after a search', selectPinnedPostWithKeyboard],
+        [
+            'notification toggles keep their saved values and the dialog closes by its translated name',
+            keepNotificationTogglesOnSavedValues
+        ],
         ['settings list separates native activation, keyboard reordering, and menus', useSettingsListWithKeyboard],
         ['tag input returns focus on Escape without stealing focus after blur', keepTagFocusWithUserAction],
         [
             'search focuses on explicit clearing and preserves history without grabbing focus',
             keepSearchFocusWithUserAction
         ],
+        ['a settings tab shows its own title while its settings load', showSettingsTabTitleWhileItLoads],
         ['a notice focused before the home page hydrates stays shown and focused', keepNoticeFocusWhenCarouselStarts],
         ['editor', openEditor],
         ['the editor opens in the application and warns before unsaved edits leave it', warnBeforeLeavingEditor],
