@@ -448,6 +448,14 @@ const keepsApplicationWorking = async () => {
     expect(await reactRoots()).toBe(1);
 };
 
+/** A screen or tab that cannot load or render says so in the page language and offers a reload, without details. */
+const expectScreenFailure = async (scope) => {
+    const alert = scope.getByRole('alert');
+    await expect(alert).toContainText('이 페이지를 불러오지 못했습니다.');
+    await expect(alert.getByRole('button', { name: '새로고침', exact: true })).toBeVisible();
+    await expect(scope).not.toContainText(/Error|Something went wrong/);
+};
+
 const screenDataScript = /(<script type="application\/json" id="blex-screen-page-data">)(.*?)(<\/script>)/s;
 const scriptJson = (value) =>
     JSON.stringify(value).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
@@ -483,7 +491,8 @@ const rejectInvalidScreenData = async () => {
                 const screen = page.locator('#blex-route-content [data-screen]');
                 await expect(screen).toHaveAttribute('data-screen-status', 'error');
                 await expect(screen).toHaveAttribute('data-screen-error', 'bootstrap_error');
-                await expect(screen).toHaveText(`Component Error: ${name}`);
+                await expectScreenFailure(screen);
+                await expect(screen).not.toContainText(name);
                 await expect(page.locator('#blex-route-content img[data-bootstrap-injection]')).toHaveCount(0);
                 await keepsApplicationWorking();
             }
@@ -507,11 +516,55 @@ const isolateScreenRenderError = async () => {
         const screen = page.locator('[data-screen="SearchPage"]');
         await expect(screen).toHaveAttribute('data-screen-status', 'error');
         await expect(screen).toHaveAttribute('data-screen-error', 'render_error');
-        await expect(screen).toHaveText('Component Error: SearchPage');
+        await expectScreenFailure(screen);
         await expect(page.locator('[data-site-header]')).toBeVisible();
         await keepsApplicationWorking();
     } finally {
         await page.unroute(searchChunk);
+    }
+};
+
+const showScreenLoadFailures = async () => {
+    const path = '/settings/profile';
+    // A tab opened before a deploy asks for files that are gone: the screen runtime, a screen, or a settings tab.
+    for (const chunk of [
+        /\/assets\/ui\/assets\/screen-runtime-[\w-]{8}\.js$/,
+        /\/assets\/ui\/assets\/settings-[\w-]{8}\.js$/
+    ]) {
+        await page.route(chunk, (route) => route.abort());
+        try {
+            for (const arrive of [() => open(path), () => open('/').then(() => visitInApplication(path))]) {
+                // The automatic reload a missing file starts already ran in this tab.
+                await page.evaluate(() => sessionStorage.setItem('blex:catalog-reload', String(Date.now())));
+                await arrive();
+                await expect(page).toHaveURL(`${origin}${path}`);
+                const screen = page.locator('#blex-route-content [data-screen]');
+                await expect(screen).toHaveAttribute('data-screen-error', 'bootstrap_error');
+                await expectScreenFailure(screen);
+                await expect(page.locator('[data-site-header]')).toBeVisible();
+            }
+        } finally {
+            await unrouteWhenIdle(chunk);
+        }
+        // With the file back, the reload shows the screen.
+        await page.getByRole('button', { name: '새로고침', exact: true }).click();
+        await expect(page.locator('[data-screen="SettingsApp"]')).toHaveAttribute('data-screen-status', 'mounted');
+        await expect(page.getByRole('button', { name: '기본 정보 저장', exact: true })).toBeVisible();
+    }
+    const tab = /\/assets\/ui\/assets\/profile-[\w-]{8}\.js$/;
+    await page.route(tab, (route) => route.abort());
+    try {
+        await page.evaluate(() => sessionStorage.setItem('blex:catalog-reload', String(Date.now())));
+        await open(path);
+        const screen = page.locator('[data-screen="SettingsApp"]');
+        await expectScreenFailure(screen);
+        // The rest of settings keeps working.
+        await screen.locator('a[href="/settings/account"]:visible').first().click();
+        await expect(page).toHaveURL(`${origin}/settings/account`);
+        await expect(screen.getByRole('heading', { name: '계정', exact: true })).toBeVisible();
+        await expect(screen).not.toContainText('이 페이지를 불러오지 못했습니다.');
+    } finally {
+        await unrouteWhenIdle(tab);
     }
 };
 
@@ -1228,6 +1281,10 @@ try {
         ],
         ['invalid screen data fails safely without interpreting names as HTML', rejectInvalidScreenData],
         ['a screen render error leaves the application working', isolateScreenRenderError],
+        [
+            'a screen or settings tab whose code fails to load says so in the page language and reloads',
+            showScreenLoadFailures
+        ],
         ['screens render in the application root and leave nothing behind', renderScreensInApplicationRoot],
         ["a screen opened after a fresh public page keeps its viewer's session cache", keepSessionCacheAfterPublicPage],
         [
