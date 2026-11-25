@@ -1,5 +1,6 @@
 import { SiteFooter } from '../../appearance/shell.js';
 import { ui } from '../../i18n/public-ui.js';
+import { ListRow, ListRows, MetaDot } from '../discovery/list-rows';
 import { EmptyState, PageNavigation } from '../discovery/post-list';
 import { DropdownFilter, QueryFilter, ReactFragment } from '../discovery/search-ui';
 import type { AuthorSeriesListData } from './author-page-data';
@@ -50,51 +51,31 @@ export function AuthorSeriesPage({ data }: { data: AuthorSeriesListData }) {
                         </div>
                         {data.series.length ? (
                             <>
-                                <ul className="mt-6 border-t border-line-light">
+                                <ListRows className="mt-6">
                                     {data.series.map((series) => (
-                                        <li key={series.href} className="border-b border-line-light">
-                                            <a
-                                                href={series.href}
-                                                className="group flex items-center gap-4 py-5 sm:gap-8 sm:py-6"
-                                            >
-                                                <div className="min-w-0 flex-1">
-                                                    <h2 className="line-clamp-2 text-base font-semibold leading-snug tracking-tight break-words break-keep text-content transition-colors duration-150 group-hover:text-content-secondary sm:text-lg">
-                                                        {series.name}
-                                                    </h2>
-                                                    {series.summary ? (
-                                                        <p className="mt-1.5 hidden truncate text-sm text-content-secondary sm:block">
-                                                            {series.summary}
-                                                        </p>
-                                                    ) : null}
-                                                    <p className="mt-2.5 flex flex-wrap items-center gap-x-2 text-[13px] text-content-secondary">
-                                                        <span>
-                                                            {ui('{value0, plural, one{# post} other{# posts}}', {
-                                                                value0: series.postCount
-                                                            })}
-                                                        </span>
-                                                        <span
-                                                            aria-hidden="true"
-                                                            className="size-1 rounded-full bg-content-hint"
-                                                        />
-                                                        <time dateTime={series.updated.iso ?? undefined}>
-                                                            {ui('Updated {value0}', { value0: series.updated.text })}
-                                                        </time>
-                                                    </p>
-                                                </div>
-                                                {series.image ? (
-                                                    <div className="aspect-[16/10] w-24 shrink-0 overflow-hidden rounded-xl bg-surface-subtle ring-1 ring-line/60 sm:w-36">
-                                                        <img
-                                                            className="h-full w-full object-cover transition-transform duration-500 motion-safe:group-hover:scale-[1.03]"
-                                                            src={series.image}
-                                                            alt=""
-                                                            loading="lazy"
-                                                        />
-                                                    </div>
-                                                ) : null}
-                                            </a>
-                                        </li>
+                                        <ListRow
+                                            key={series.href}
+                                            href={series.href}
+                                            title={series.name}
+                                            summary={series.summary}
+                                            image={series.image}
+                                            heading="h2"
+                                            meta={
+                                                <>
+                                                    <span>
+                                                        {ui('{value0, plural, one{# post} other{# posts}}', {
+                                                            value0: series.postCount
+                                                        })}
+                                                    </span>
+                                                    <MetaDot />
+                                                    <time dateTime={series.updated.iso ?? undefined}>
+                                                        {ui('Updated {value0}', { value0: series.updated.text })}
+                                                    </time>
+                                                </>
+                                            }
+                                        />
                                     ))}
-                                </ul>
+                                </ListRows>
                                 {data.pagination.pages > 1 ? (
                                     <div className="mt-10">
                                         <PageNavigation pagination={data.pagination} />

@@ -223,7 +223,6 @@ export interface PageProps {
         tagFilter: string;
         tagOptions: Array<{ name: string }>;
         posts: Array<PostRow>;
-        likes: CardLikes | undefined;
         searchText: string;
         checkedPage: number;
         pages: number;

@@ -5,6 +5,7 @@ import { SiteFooter } from '../../appearance/shell.js';
 import type { PostSeriesEntry, PostSeriesNavigation } from '@blex/contracts/pages';
 import { ui } from '../../i18n/public-ui.js';
 import { PostCommentsApp } from '../engagement/ui/comments.js';
+import { PostRows } from '../discovery/list-rows';
 import { LoginPromptLink } from '../engagement/ui/login-prompt-link.js';
 import { CodeBlockHeader } from './code-block-header';
 import type { DecoratedCodeBlock } from './code-blocks-client';
@@ -545,49 +546,18 @@ function RelatedPosts({ posts, username }: { posts: RelatedPostView[]; username:
             <h2 id="related-post-heading" className={sectionTitle}>
                 {ui('Related posts')}
             </h2>
-            <ul className="mt-3 border-t border-line-light">
-                {posts.map((post) => (
-                    <li key={post.href} className="border-b border-line-light">
-                        <a href={post.href} className="group flex items-center gap-4 py-5 sm:gap-8 sm:py-6">
-                            <div className="min-w-0 flex-1">
-                                <h3 className="line-clamp-2 text-base font-semibold leading-snug tracking-tight break-keep text-content transition-colors duration-150 group-hover:text-content-secondary sm:text-lg">
-                                    {post.title}
-                                </h3>
-                                {post.description ? (
-                                    <p className="mt-1.5 hidden truncate text-sm text-content-secondary sm:block">
-                                        {post.description}
-                                    </p>
-                                ) : null}
-                                <p className="mt-2.5 flex flex-wrap items-center gap-x-2 text-[13px] text-content-secondary">
-                                    {post.username !== username && (
-                                        <>
-                                            <span className="font-semibold text-content">{post.username}</span>
-                                            <MetaDot />
-                                        </>
-                                    )}
-                                    {post.date && (
-                                        <>
-                                            <time dateTime={post.date.iso}>{post.date.text}</time>
-                                            <MetaDot />
-                                        </>
-                                    )}
-                                    <span>{ui('{minutes} min', { minutes: post.readTime })}</span>
-                                </p>
-                            </div>
-                            {post.image ? (
-                                <div className="aspect-[16/10] w-24 shrink-0 overflow-hidden rounded-xl bg-surface-subtle ring-1 ring-line/60 sm:w-36">
-                                    <img
-                                        className="h-full w-full object-cover transition-transform duration-500 motion-safe:group-hover:scale-[1.03]"
-                                        src={post.image}
-                                        alt=""
-                                        loading="lazy"
-                                    />
-                                </div>
-                            ) : null}
-                        </a>
-                    </li>
-                ))}
-            </ul>
+            <PostRows
+                className="mt-3"
+                posts={posts.map((post) => ({
+                    href: post.href,
+                    title: post.title,
+                    summary: post.description,
+                    image: post.image ?? null,
+                    date: post.date ?? null,
+                    readTime: post.readTime,
+                    ...(post.username === username ? {} : { author: post.username })
+                }))}
+            />
         </section>
     );
 }

@@ -259,7 +259,9 @@ test('renders author overview and posts and redirects legacy author aliases', as
 
   const posts = await app.inject('/@writer/posts?q=Orion');
   assert.equal(posts.statusCode, 200, posts.body);
-  assert.match(posts.body, /Public new article/);
+  // Posts are rows like the author's series; liking happens on the post itself.
+  assert.match(posts.body, /<h2[^>]*>Public new article<\/h2>/);
+  assert.doesNotMatch(posts.body, /action="\/like\//);
   assert.doesNotMatch(posts.body, /Public older article|Hidden article|Draft article/);
   assert.match(posts.body, /name="robots" content="noindex,follow"/);
 

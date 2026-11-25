@@ -15,12 +15,7 @@ import {
   subscriptionState,
 } from '../services/profile.js';
 import { publicPostWhere } from '../../posts/data/visibility.js';
-import {
-  readCardLikes,
-  readFeaturedPosts,
-  readPublicPostCount,
-  readPublicPosts,
-} from '../../discovery/services/public-posts.js';
+import { readFeaturedPosts, readPublicPostCount, readPublicPosts } from '../../discovery/services/public-posts.js';
 import {
   PAGE_SIZE,
   type PageMeta,
@@ -222,7 +217,6 @@ export function registerProfileRoutes(
     ]);
     const pages = totalPages(count, PAGE_SIZE);
     const path = authorPath(author.username, '/posts');
-    const likes = await readCardLikes(db, request, viewer, posts);
     const noindex = hasUnexpected(query, ['page', 'q', 'tag']) || Boolean(searchText || tagFilter);
     const meta: PageMeta = {
       authorFeed: authorFeed(siteUrl, author.username),
@@ -250,7 +244,6 @@ export function registerProfileRoutes(
         tagFilter,
         tagOptions,
         posts,
-        likes,
         searchText,
         checkedPage,
         pages,

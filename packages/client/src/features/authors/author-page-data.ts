@@ -8,10 +8,11 @@ import type {
     PublicPageViewer,
     SubscriptionState
 } from '@blex/contracts/public';
-import { type DiscoveryPagination, publicBrand, publicLikes } from '../discovery/discovery-page-data';
+import { type DiscoveryPagination, publicBrand } from '../discovery/discovery-page-data';
 import type { AboutDraft } from './about-draft';
 import { isLongIntroduction } from './introduction-length';
-import { type PostCardLikes, type PostCardView, postCardView, postPath } from '../discovery/post-list';
+import type { PostRowView } from '../discovery/list-rows';
+import { postPath } from '../discovery/post-list';
 import { getDocumentLocale } from '../../i18n/locale.js';
 import { avatarUrl, dateLabel, dateValue, mediaUrl, noticeLink, safeExternalUrl } from '../discovery/view-helpers';
 
@@ -50,15 +51,7 @@ export interface FeaturedPostsView {
     canManage: boolean;
     /** The posts tab, for authors who have public posts. */
     allPosts: { href: string; count: number } | null;
-    posts: Array<{
-        href: string;
-        title: string;
-        subtitle: string;
-        /** Null when the post has no image of its own, so the row stays text-only. */
-        image: string | null;
-        date: { iso: string; text: string } | null;
-        readTime: number;
-    }>;
+    posts: PostRowView[];
 }
 
 export interface AuthorNoticeView {
@@ -111,8 +104,7 @@ export interface AuthorPostsData extends AuthorPageBase {
     tagFilter: string;
     tagOptions: string[];
     filtered: boolean;
-    posts: PostCardView[];
-    likes?: PostCardLikes;
+    posts: PostRowView[];
     pagination: DiscoveryPagination;
 }
 
@@ -266,6 +258,17 @@ function postImage(post: Pick<PostRow, 'image'>): string | null {
     return hasImage ? mediaUrl(post.image) : null;
 }
 
+function postRowView(post: PostRow, summary: string): PostRowView {
+    return {
+        href: postPath(post),
+        title: post.title,
+        summary,
+        image: postImage(post),
+        date: dateView(post.publishedDate),
+        readTime: post.readTime
+    };
+}
+
 export function featuredPostsView(
     author: AuthorRow,
     featured: { kind: 'featured' | 'recent'; posts: PostRow[] },
@@ -280,14 +283,7 @@ export function featuredPostsView(
             author.publicPostCount > 0
                 ? { href: authorPath(author.username, '/posts'), count: author.publicPostCount }
                 : null,
-        posts: featured.posts.map((post) => ({
-            href: postPath(post),
-            title: post.title,
-            subtitle: post.subtitle,
-            image: postImage(post),
-            date: dateView(post.publishedDate),
-            readTime: post.readTime
-        }))
+        posts: featured.posts.map((post) => postRowView(post, post.subtitle))
     };
 }
 
@@ -402,7 +398,6 @@ export function createAuthorPostsData({
     tagFilter,
     tagOptions,
     posts,
-    likes,
     searchText,
     checkedPage,
     pages
@@ -414,8 +409,7 @@ export function createAuthorPostsData({
         tagFilter,
         tagOptions: tagOptions.map((tag) => tag.name),
         filtered: Boolean(searchText || tagFilter),
-        posts: posts.map((post) => postCardView(post, { showAuthor: false, likes, relativeDate: true })),
-        likes: publicLikes(meta, likes),
+        posts: posts.map((post) => postRowView(post, post.description || post.subtitle)),
         pagination: { path, search: query.toString(), preserve: ['q', 'tag'], page: checkedPage, pages }
     };
 }
