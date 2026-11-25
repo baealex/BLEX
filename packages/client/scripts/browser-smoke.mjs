@@ -1014,6 +1014,31 @@ const keepSearchFocusWithUserAction = async () => {
     await page.setViewportSize({ width: 1280, height: 900 });
 };
 
+const showSettingsTabTitleWhileItLoads = async () => {
+    await open('/admin-settings/site-settings');
+    await expect(page.getByRole('heading', { name: '블로그 꾸미기', exact: true })).toBeVisible();
+    // The Telegram settings wait for a live check with Telegram, which can take a while.
+    const settings = '**/v1/integration-settings';
+    const { promise: released, resolve: release } = Promise.withResolvers();
+    let held;
+    await page.route(settings, (route) => {
+        held = released.then(() => route.continue());
+        return held;
+    });
+    try {
+        await page.locator('a[href="/admin-settings/integrations"]:visible').first().click();
+        await expect(page).toHaveURL(`${origin}/admin-settings/integrations`);
+        await expect(page.getByRole('heading', { name: '텔레그램', exact: true })).toBeVisible();
+        await expect(page.getByRole('heading', { name: '블로그 꾸미기', exact: true })).toHaveCount(0);
+        release();
+        await expect(page.getByRole('button', { name: '텔레그램 설정 저장', exact: true })).toBeVisible();
+    } finally {
+        release();
+        await held;
+        await page.unroute(settings);
+    }
+};
+
 const keepNoticeFocusWhenCarouselStarts = async () => {
     await open('/');
     const csrf = (await page.context().cookies()).find((cookie) => cookie.name === 'csrftoken')?.value;
@@ -1249,6 +1274,7 @@ try {
             'search focuses on explicit clearing and preserves history without grabbing focus',
             keepSearchFocusWithUserAction
         ],
+        ['a settings tab shows its own title while its settings load', showSettingsTabTitleWhileItLoads],
         ['a notice focused before the home page hydrates stays shown and focused', keepNoticeFocusWhenCarouselStarts],
         ['editor', openEditor],
         ['the editor opens in the application and warns before unsaved edits leave it', warnBeforeLeavingEditor],

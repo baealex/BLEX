@@ -1,10 +1,10 @@
-import { type FormEvent, useEffect, useRef, useState } from 'react';
+import { type FormEvent, Suspense, useEffect, useRef, useState } from 'react';
 import { useLingui } from '@lingui/react/macro';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { Check, Send } from '~/ui/icons';
 import { Toggle } from '~/ui/toggle';
 import { SettingsHeader } from '../layout';
-import { Button, Card, Checkbox, Input } from '~/components/shared';
+import { Button, Card, Checkbox, Input, LoadingState } from '~/components/shared';
 import { toast } from '~/utils/toast';
 import {
     getIntegrationSettings,
@@ -77,7 +77,7 @@ const hasIntegrationSettingsChanged = (
     );
 };
 
-const AdminIntegrationSetting = () => {
+const TelegramSettingsForm = () => {
     const { t } = useLingui();
     const queryClient = useQueryClient();
     const hasHydratedFormRef = useRef(false);
@@ -185,13 +185,6 @@ const AdminIntegrationSetting = () => {
 
     return (
         <form className="space-y-8" onSubmit={handleSave} autoComplete="off">
-            <SettingsHeader
-                title={t({
-                    id: 'settings.admin.telegram.title',
-                    message: 'Telegram'
-                })}
-            />
-
             <Card
                 title={t({
                     id: 'settings.admin.telegram.bot.title',
@@ -324,6 +317,35 @@ const AdminIntegrationSetting = () => {
                 </Button>
             </div>
         </form>
+    );
+};
+
+const AdminIntegrationSetting = () => {
+    const { t } = useLingui();
+
+    return (
+        <div className="space-y-8">
+            <SettingsHeader
+                title={t({
+                    id: 'settings.admin.telegram.title',
+                    message: 'Telegram'
+                })}
+            />
+            {/* The settings wait for a live check with Telegram, so the title shows with the tab instead of after it. */}
+            <Suspense
+                fallback={
+                    <LoadingState
+                        type="form"
+                        ariaLabel={t({
+                            id: 'common.loading',
+                            message: 'Loading'
+                        })}
+                    />
+                }
+            >
+                <TelegramSettingsForm />
+            </Suspense>
+        </div>
     );
 };
 
