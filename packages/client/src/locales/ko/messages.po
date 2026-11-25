@@ -1298,6 +1298,11 @@ msgid "editor.heading.new_post"
 msgstr "새 포스트"
 
 #. js-lingui-explicit-id
+#: src/features/editor/NewPostEditor.tsx:621
+msgid "editor.loading_draft"
+msgstr "임시 포스트를 불러오는 중..."
+
+#. js-lingui-explicit-id
 #: src/features/editor/EditPostEditor.tsx:835
 msgid "editor.loading_post"
 msgstr "포스트를 불러오는 중..."

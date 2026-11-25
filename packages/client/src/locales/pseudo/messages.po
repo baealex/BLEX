@@ -1298,6 +1298,11 @@ msgid "editor.heading.new_post"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/features/editor/NewPostEditor.tsx:621
+msgid "editor.loading_draft"
+msgstr ""
+
+#. js-lingui-explicit-id
 #: src/features/editor/EditPostEditor.tsx:835
 msgid "editor.loading_post"
 msgstr ""

@@ -863,7 +863,6 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 key={recoveryEditorRevision}
                 beforeContent={<ScheduleStatusNotice value={isScheduledPost ? formData.reservedDate : ''} />}
                 formRef={formRef}
-                isLoading={false}
                 formData={formData}
                 tags={tags}
                 imagePreview={imagePreview}

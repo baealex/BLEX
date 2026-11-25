@@ -48,10 +48,74 @@ const generateUrlFromTitle = (title: string) => {
     return normalizeUrlForSubmit(title);
 };
 
+const EMPTY_FORM_DATA = {
+    title: '',
+    subtitle: '',
+    url: '',
+    content: '',
+    metaDescription: '',
+    hide: false,
+    advertise: false,
+    allowComments: true,
+    coverLayout: 'default',
+    coverImagePosition: 'right',
+    coverImageRatio: 'auto',
+    reservedDate: ''
+};
+
+type PostFormData = typeof EMPTY_FORM_DATA;
+
+type DirtySnapshot = PostFormData & {
+    tags: string[];
+    seriesUrl: string;
+    imagePreview: string;
+    imageFilePending: boolean;
+    imageDeleted: boolean;
+};
+
+interface DirtySnapshotSource {
+    formData: PostFormData;
+    tags: string[];
+    seriesUrl: string;
+    imagePreview: string | null;
+    imageFilePending?: boolean;
+    imageDeleted?: boolean;
+}
+
+const toDirtySnapshot = ({
+    formData,
+    tags,
+    seriesUrl,
+    imagePreview,
+    imageFilePending = false,
+    imageDeleted = false
+}: DirtySnapshotSource): DirtySnapshot => ({
+    title: formData.title,
+    subtitle: formData.subtitle,
+    url: formData.url,
+    content: formData.content,
+    metaDescription: formData.metaDescription,
+    hide: formData.hide,
+    advertise: formData.advertise,
+    allowComments: formData.allowComments,
+    coverLayout: formData.coverLayout,
+    coverImagePosition: formData.coverImagePosition,
+    coverImageRatio: formData.coverImageRatio,
+    reservedDate: formData.reservedDate,
+    tags,
+    seriesUrl,
+    imagePreview: imagePreview || '',
+    imageFilePending,
+    imageDeleted
+});
+
+const EMPTY_POST_SNAPSHOT = toDirtySnapshot({ formData: EMPTY_FORM_DATA, tags: [], seriesUrl: '', imagePreview: null });
+
 const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: NewPostEditorProps) => {
     const { i18n, t } = useLingui();
     const { confirm } = useConfirm();
-    const [isLoading, setIsLoading] = useState(true);
+    // A new post has nothing to load, so the writer can start while the series list is still on its way.
+    const [isLoadingDraft, setIsLoadingDraft] = useState(Boolean(draftUrl));
     const [seriesList, setSeriesList] = useState<Series[]>([]);
     const [isDraftsPanelOpen, setIsDraftsPanelOpen] = useState(false);
     const [isSettingsDrawerOpen, setIsSettingsDrawerOpen] = useState(false);
@@ -64,20 +128,7 @@ const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: Ne
     const [isEditorMediaUploading, setIsEditorMediaUploading] = useState(false);
     const previewTriggerRef = useRef<HTMLButtonElement | null>(null);
 
-    const [formData, setFormData] = useState({
-        title: '',
-        subtitle: '',
-        url: '',
-        content: '',
-        metaDescription: '',
-        hide: false,
-        advertise: false,
-        allowComments: true,
-        coverLayout: 'default',
-        coverImagePosition: 'right',
-        coverImageRatio: 'auto',
-        reservedDate: ''
-    });
+    const [formData, setFormData] = useState(EMPTY_FORM_DATA);
 
     const [tags, setTags] = useState<string[]>([]);
     // A draft whose series could not be matched must keep it until the author picks another.
@@ -88,27 +139,8 @@ const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: Ne
         url: ''
     });
 
-    type DirtySnapshot = {
-        title: string;
-        subtitle: string;
-        url: string;
-        content: string;
-        metaDescription: string;
-        hide: boolean;
-        advertise: boolean;
-        allowComments: boolean;
-        coverLayout: string;
-        coverImagePosition: string;
-        coverImageRatio: string;
-        reservedDate: string;
-        tags: string[];
-        seriesUrl: string;
-        imagePreview: string;
-        imageFilePending: boolean;
-        imageDeleted: boolean;
-    };
-
-    const initialDataRef = useRef<DirtySnapshot | null>(null);
+    // What the server last had: the empty post, the loaded draft, or the last autosave. Never what was typed meanwhile.
+    const initialDataRef = useRef<DirtySnapshot>(EMPTY_POST_SNAPSHOT);
     const isIntentionalSubmitRef = useRef(false);
     const firstPublishGuideButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -123,25 +155,15 @@ const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: Ne
     } = useImageUpload();
 
     const buildDirtySnapshot = useCallback(
-        (): DirtySnapshot => ({
-            title: formData.title,
-            subtitle: formData.subtitle,
-            url: formData.url,
-            content: formData.content,
-            metaDescription: formData.metaDescription,
-            hide: formData.hide,
-            advertise: formData.advertise,
-            allowComments: formData.allowComments,
-            coverLayout: formData.coverLayout,
-            coverImagePosition: formData.coverImagePosition,
-            coverImageRatio: formData.coverImageRatio,
-            reservedDate: formData.reservedDate,
-            tags,
-            seriesUrl: selectedSeries.url || '',
-            imagePreview: imagePreview || '',
-            imageFilePending: Boolean(imageFile),
-            imageDeleted
-        }),
+        () =>
+            toDirtySnapshot({
+                formData,
+                tags,
+                seriesUrl: selectedSeries.url || '',
+                imagePreview,
+                imageFilePending: Boolean(imageFile),
+                imageDeleted
+            }),
         [formData, tags, selectedSeries.url, imagePreview, imageFile, imageDeleted]
     );
 
@@ -217,7 +239,7 @@ const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: Ne
     };
 
     const autoSaveOptions = {
-        enabled: !isLoading && !isEditorMediaUploading,
+        enabled: !isLoadingDraft && !isEditorMediaUploading,
         draftUrl: currentDraftUrl,
         onSuccess: handleAutoSaveSuccess,
         onError: handleAutoSaveError
@@ -269,7 +291,6 @@ const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: Ne
         ]
     );
 
-    const shouldShowFirstPublishGuide = !isLoading && showFirstPublishGuide;
     const editorTitle = draftUrl ? (
         <Trans id="editor.heading.edit_draft">Edit draft</Trans>
     ) : (
@@ -278,7 +299,7 @@ const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: Ne
 
     useEffect(() => {
         const fetchData = async () => {
-            setIsLoading(true);
+            setIsLoadingDraft(Boolean(draftUrl));
             setHasEditedSeries(false);
             try {
                 const { data: seriesResponse } = await getSeries();
@@ -302,9 +323,7 @@ const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: Ne
                         const newSubtitle = draftData.subtitle || '';
                         const newDescription = draftData.description || '';
                         const newReservedDate = toReservedDateValue(draftData.reservedDate);
-
-                        setFormData((prev) => ({
-                            ...prev,
+                        const draftFormData: PostFormData = {
                             title: newTitle,
                             subtitle: newSubtitle,
                             url: draftData.url || '',
@@ -317,23 +336,30 @@ const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: Ne
                             advertise: draftData.isAdvertise ?? false,
                             allowComments: !(draftData.blockComment ?? false),
                             reservedDate: newReservedDate
-                        }));
+                        };
+                        const matchingSeries = draftData.series
+                            ? mappedSeries.find((s) => s.url === draftData.series?.url)
+                            : undefined;
+
+                        setFormData(draftFormData);
                         setCurrentDraftUrl(draftData.url || draftUrl);
                         setIsUrlAutoSync(!draftData.url || draftData.url === generateUrlFromTitle(newTitle));
                         setTags(newTags);
 
-                        if (draftData.series) {
-                            const matchingSeries = mappedSeries.find((s) => s.url === draftData.series?.url);
-                            if (matchingSeries) {
-                                setSelectedSeries(matchingSeries);
-                            }
+                        if (matchingSeries) {
+                            setSelectedSeries(matchingSeries);
                         }
 
                         if (draftData.image) {
                             setImagePreviewUrl(draftData.image);
                         }
 
-                        // Store initial state after React state updates settle below.
+                        initialDataRef.current = toDirtySnapshot({
+                            formData: draftFormData,
+                            tags: newTags,
+                            seriesUrl: matchingSeries?.url || '',
+                            imagePreview: draftData.image || null
+                        });
                     }
                 }
             } catch {
@@ -349,26 +375,14 @@ const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: Ne
                           })
                 );
             } finally {
-                setIsLoading(false);
+                setIsLoadingDraft(false);
             }
         };
 
         fetchData();
     }, [draftUrl, setImagePreviewUrl, t]);
 
-    useEffect(() => {
-        if (!isLoading && !initialDataRef.current) {
-            initialDataRef.current = buildDirtySnapshot();
-        }
-    }, [isLoading, buildDirtySnapshot]);
-
-    const hasUnsavedChanges = () => {
-        const initial = initialDataRef.current;
-        if (!initial) return false;
-
-        const current = buildDirtySnapshot();
-        return JSON.stringify(current) !== JSON.stringify(initial);
-    };
+    const hasUnsavedChanges = () => JSON.stringify(buildDirtySnapshot()) !== JSON.stringify(initialDataRef.current);
 
     useEffect(() => {
         const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -596,9 +610,25 @@ const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: Ne
         await submitCurrentPost();
     };
 
+    // The loaded draft replaces every field, so the form waits for it rather than discard what was typed first.
+    if (isLoadingDraft) {
+        return (
+            <PostEditorWrapper title={editorTitle}>
+                <div className="flex items-center justify-center py-32">
+                    <div className="text-center space-y-4">
+                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-line border-t-action" />
+                        <p className="text-content-secondary text-sm font-medium">
+                            <Trans id="editor.loading_draft">Loading draft...</Trans>
+                        </p>
+                    </div>
+                </div>
+            </PostEditorWrapper>
+        );
+    }
+
     return (
         <PostEditorWrapper title={editorTitle}>
-            {shouldShowFirstPublishGuide && (
+            {showFirstPublishGuide && (
                 <div className="mb-4 flex justify-end">
                     <button
                         ref={firstPublishGuideButtonRef}
@@ -625,7 +655,6 @@ const NewPostEditor = ({ username, draftUrl, showFirstPublishGuide = false }: Ne
             <PostForm
                 beforeContent={<ScheduleStatusNotice value={formData.reservedDate} />}
                 formRef={formRef}
-                isLoading={isLoading}
                 formData={formData}
                 tags={tags}
                 imagePreview={imagePreview}
