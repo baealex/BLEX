@@ -118,6 +118,14 @@
     backdrop-filter: blur(var(--blur-frosted));
 }
 
+/* Bars that float at the bottom of the window stay opaque, so the text they pass over never shows through. */
+@utility floating-bar-surface {
+    background-color: var(--color-surface-elevated);
+    box-shadow:
+        0 0 0 1px var(--color-line),
+        var(--shadow-floating-bar);
+}
+
 @utility floating-glass-surface {
     background-color: var(--color-floating-glass-surface);
     border: 1px solid var(--color-floating-glass-border);

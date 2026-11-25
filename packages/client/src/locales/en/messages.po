@@ -302,8 +302,8 @@ msgstr "Create"
 #: src/features/settings/profile/ProfileSetting.tsx:246
 #: src/features/settings/series/components/SeriesEditor.tsx:362
 #: src/features/settings/series/components/SeriesEditor.tsx:594
-#: src/features/settings/series/SeriesSetting.tsx:70
-#: src/features/settings/series/SeriesSetting.tsx:119
+#: src/features/settings/series/SeriesSetting.tsx:71
+#: src/features/settings/series/SeriesSetting.tsx:120
 #: src/features/settings/shared/BannerEditorBase.tsx:392
 #: src/features/settings/shared/BannerEditorBase.tsx:632
 #: src/features/settings/shared/BannerSettingBase.tsx:139
@@ -314,7 +314,7 @@ msgstr "Create"
 #: src/features/settings/static-pages/components/StaticPageEditor.tsx:295
 #: src/features/settings/static-pages/components/StaticPageEditor.tsx:489
 #: src/features/settings/static-pages/components/StaticPageList.tsx:43
-#: src/features/settings/static-pages/StaticPagesSetting.tsx:71
+#: src/features/settings/static-pages/StaticPagesSetting.tsx:72
 #: src/features/settings/users/index.tsx:609
 #: src/features/settings/users/index.tsx:748
 msgid "common.delete"
@@ -499,8 +499,8 @@ msgid "common.search.clear"
 msgstr "Clear search"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/DraftPostListContent.tsx:117
-#: src/features/settings/posts/components/PostCard.tsx:125
+#: src/features/settings/posts/components/DraftPostListContent.tsx:118
+#: src/features/settings/posts/components/PostCard.tsx:126
 #: src/features/settings/posts/components/TrashPostListContent.tsx:140
 #: src/features/settings/posts/components/TrashPostListContent.tsx:215
 msgid "common.untitled"
@@ -2172,7 +2172,7 @@ msgstr "{value0, plural, one{# person liked this post.} other{# people liked thi
 
 #. js-lingui-explicit-id
 #: src/features/authors/author-overview-page.tsx:141
-#: src/features/authors/author-series-detail-page.tsx:66
+#: src/features/authors/author-series-detail-page.tsx:70
 msgid "public.{value0, plural, one{# post} other{# posts}}"
 msgstr "{value0, plural, one{# post} other{# posts}}"
 
@@ -2346,7 +2346,7 @@ msgid "public.Author filter:"
 msgstr "Author filter:"
 
 #. js-lingui-explicit-id
-#: src/features/authors/profile-ui.tsx:273
+#: src/features/authors/profile-ui.tsx:275
 msgid "public.Author menu"
 msgstr "Author menu"
 
@@ -2923,7 +2923,7 @@ msgid "public.First published"
 msgstr "First published"
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-detail-page.tsx:91
+#: src/features/authors/author-series-detail-page.tsx:97
 msgid "public.From part 1"
 msgstr "From part 1"
 
@@ -2996,7 +2996,7 @@ msgid "public.Later"
 msgstr "Later"
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-detail-page.tsx:99
+#: src/features/authors/author-series-detail-page.tsx:108
 msgid "public.Latest first"
 msgstr "Latest first"
 
@@ -3243,7 +3243,7 @@ msgid "public.No posts"
 msgstr "No posts"
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-detail-page.tsx:150
+#: src/features/authors/author-series-detail-page.tsx:159
 msgid "public.No posts have been added to this series yet."
 msgstr "No posts have been added to this series yet."
 
@@ -3263,7 +3263,7 @@ msgid "public.No posts share these tags."
 msgstr "No posts share these tags."
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-detail-page.tsx:149
+#: src/features/authors/author-series-detail-page.tsx:158
 #: src/features/discovery/discovery-page.tsx:41
 msgid "public.No posts yet"
 msgstr "No posts yet"
@@ -3372,7 +3372,7 @@ msgid "public.or"
 msgstr "or"
 
 #. js-lingui-explicit-id
-#: src/features/authors/profile-ui.tsx:254
+#: src/features/authors/profile-ui.tsx:256
 msgid "public.Overview"
 msgstr "Overview"
 
@@ -3420,7 +3420,7 @@ msgstr "Post status"
 
 #. js-lingui-explicit-id
 #: src/features/authors/author-posts-page.tsx:24
-#: src/features/authors/profile-ui.tsx:259
+#: src/features/authors/profile-ui.tsx:261
 msgid "public.Posts"
 msgstr "Posts"
 
@@ -3709,9 +3709,9 @@ msgstr "Select entries to share"
 
 #. js-lingui-explicit-id
 #: src/features/authors/author-overview-page.tsx:127
-#: src/features/authors/author-series-detail-page.tsx:37
+#: src/features/authors/author-series-detail-page.tsx:41
 #: src/features/authors/author-series-page.tsx:24
-#: src/features/authors/profile-ui.tsx:265
+#: src/features/authors/profile-ui.tsx:267
 #: src/features/discovery/post-list.tsx:58
 #: src/features/posts/post-page.tsx:282
 msgid "public.Series"
@@ -3945,7 +3945,7 @@ msgid "public.Sort order"
 msgstr "Sort order"
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-detail-page.tsx:85
+#: src/features/authors/author-series-detail-page.tsx:91
 msgid "public.Sort posts"
 msgstr "Sort posts"
 
@@ -4005,7 +4005,7 @@ msgid "public.Switch to light mode"
 msgstr "Switch to light mode"
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-detail-page.tsx:83
+#: src/features/authors/author-series-detail-page.tsx:89
 #: src/features/posts/post-page.tsx:159
 #: src/features/posts/post-page.tsx:215
 #: src/features/posts/post-page.tsx:219
@@ -4173,7 +4173,7 @@ msgid "public.Updated"
 msgstr "Updated"
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-detail-page.tsx:69
+#: src/features/authors/author-series-detail-page.tsx:75
 #: src/features/authors/author-series-page.tsx:73
 msgid "public.Updated {value0}"
 msgstr "Updated {value0}"
@@ -6563,17 +6563,17 @@ msgid "settings.notifications.config.update_success"
 msgstr "Notification settings updated."
 
 #. js-lingui-explicit-id
-#: src/features/settings/notify/components/NotificationsSection.tsx:81
+#: src/features/settings/notify/components/NotificationsSection.tsx:82
 msgid "settings.notifications.configure"
 msgstr "Settings"
 
 #. js-lingui-explicit-id
-#: src/features/settings/notify/components/NotificationsSection.tsx:168
+#: src/features/settings/notify/components/NotificationsSection.tsx:169
 msgid "settings.notifications.empty"
 msgstr "No notifications"
 
 #. js-lingui-explicit-id
-#: src/features/settings/notify/components/NotificationsSection.tsx:140
+#: src/features/settings/notify/components/NotificationsSection.tsx:141
 msgid "settings.notifications.link_unavailable"
 msgstr "Link unavailable"
 
@@ -6583,33 +6583,33 @@ msgid "settings.notifications.load_failed"
 msgstr "Could not load notifications."
 
 #. js-lingui-explicit-id
-#: src/features/settings/notify/components/NotificationsSection.tsx:136
+#: src/features/settings/notify/components/NotificationsSection.tsx:137
 msgid "settings.notifications.mark_read"
 msgstr "Mark as read"
 
 #. js-lingui-explicit-id
-#: src/features/settings/notify/components/NotificationsSection.tsx:44
-#: src/features/settings/notify/components/NotificationsSection.tsx:52
+#: src/features/settings/notify/components/NotificationsSection.tsx:45
+#: src/features/settings/notify/components/NotificationsSection.tsx:53
 msgid "settings.notifications.mark_read_failed"
 msgstr "Could not mark the notification as read."
 
 #. js-lingui-explicit-id
-#: src/features/settings/notify/components/NotificationsSection.tsx:158
+#: src/features/settings/notify/components/NotificationsSection.tsx:159
 msgid "settings.notifications.new"
 msgstr "New"
 
 #. js-lingui-explicit-id
-#: src/features/settings/notify/components/NotificationsSection.tsx:97
+#: src/features/settings/notify/components/NotificationsSection.tsx:98
 msgid "settings.notifications.telegram.description"
 msgstr "Connect Telegram to receive notifications about new posts, comments, and follows."
 
 #. js-lingui-explicit-id
-#: src/features/settings/notify/components/NotificationsSection.tsx:94
+#: src/features/settings/notify/components/NotificationsSection.tsx:95
 msgid "settings.notifications.telegram.title"
 msgstr "Connect Telegram"
 
 #. js-lingui-explicit-id
-#: src/features/settings/notify/components/NotificationsSection.tsx:70
+#: src/features/settings/notify/components/NotificationsSection.tsx:71
 msgid "settings.notifications.title"
 msgstr "Notifications"
 
@@ -6719,7 +6719,7 @@ msgid "settings.pinned_posts.pin"
 msgstr "Pin"
 
 #. js-lingui-explicit-id
-#: src/features/settings/pinned-posts/components/PinnedPostItem.tsx:49
+#: src/features/settings/pinned-posts/components/PinnedPostItem.tsx:50
 msgid "settings.pinned_posts.reorder_label"
 msgstr "Reorder pinned post: {title}"
 
@@ -6819,7 +6819,7 @@ msgid "settings.pinned_posts.trash_reservation"
 msgstr "{reservedCount, plural, one {# pinned post in the trash still counts toward your limit. It will reappear when restored.} other {# pinned posts in the trash still count toward your limit. They will reappear when restored.}}"
 
 #. js-lingui-explicit-id
-#: src/features/settings/pinned-posts/components/PinnedPostItem.tsx:78
+#: src/features/settings/pinned-posts/components/PinnedPostItem.tsx:79
 msgid "settings.pinned_posts.unpin"
 msgstr "Unpin"
 
@@ -6829,109 +6829,109 @@ msgid "settings.pinned_posts.view_trash"
 msgstr "View trash"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:244
+#: src/features/settings/posts/components/PostCard.tsx:245
 msgid "settings.posts.card.edit"
 msgstr "Edit post"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:236
+#: src/features/settings/posts/components/PostCard.tsx:237
 msgid "settings.posts.card.open_menu"
 msgstr "Open post menu: {title}"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:188
+#: src/features/settings/posts/components/PostCard.tsx:189
 msgid "settings.posts.card.read_time"
 msgstr "{minutes, plural, one {# min} other {# min}}"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:204
+#: src/features/settings/posts/components/PostCard.tsx:205
 msgid "settings.posts.card.recently_updated"
 msgstr "Recently updated"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:153
+#: src/features/settings/posts/components/PostCard.tsx:154
 msgid "settings.posts.card.view_post"
 msgstr "View post: {title}"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:299
+#: src/features/settings/posts/components/PostCard.tsx:300
 msgid "settings.posts.classification.close"
 msgstr "Close tag and series editor"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:313
+#: src/features/settings/posts/components/PostCard.tsx:314
 msgid "settings.posts.classification.label"
 msgstr "Tags · Series"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:303
+#: src/features/settings/posts/components/PostCard.tsx:304
 msgid "settings.posts.classification.open"
 msgstr "Open tag and series editor"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:324
+#: src/features/settings/posts/components/PostCard.tsx:325
 msgid "settings.posts.classification.save_required"
 msgstr "{fields}: save required"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:83
+#: src/features/settings/posts/components/PostCard.tsx:84
 msgid "settings.posts.classification.series"
 msgstr "Series"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:94
+#: src/features/settings/posts/components/PostCard.tsx:95
 msgid "settings.posts.classification.tag_count"
 msgstr "{count, plural, one {# tag} other {# tags}}"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:79
+#: src/features/settings/posts/components/PostCard.tsx:80
 msgid "settings.posts.classification.tags"
 msgstr "Tags"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:74
+#: src/features/settings/posts/components/PostCard.tsx:75
 msgid "settings.posts.classification.tags_and_series"
 msgstr "Tags and series"
 
 #. js-lingui-explicit-id
-#: src/features/settings/drafts/DraftsSetting.tsx:18
-#: src/features/settings/posts/PostsSetting.tsx:129
+#: src/features/settings/drafts/DraftsSetting.tsx:19
+#: src/features/settings/posts/PostsSetting.tsx:130
 msgid "settings.posts.create"
 msgstr "Write a new post"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/DraftPostListContent.tsx:169
+#: src/features/settings/posts/components/DraftPostListContent.tsx:170
 msgid "settings.posts.drafts.last_updated"
 msgstr "Last updated {date}"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/DraftPostListContent.tsx:34
+#: src/features/settings/posts/components/DraftPostListContent.tsx:35
 msgid "settings.posts.drafts.load_failed"
 msgstr "Could not load drafts."
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/DraftPostListContent.tsx:145
+#: src/features/settings/posts/components/DraftPostListContent.tsx:146
 msgid "settings.posts.drafts.open_menu"
 msgstr "Open draft menu: {title}"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/DraftPostListContent.tsx:79
-#: src/features/settings/posts/components/DraftPostListContent.tsx:87
+#: src/features/settings/posts/components/DraftPostListContent.tsx:80
+#: src/features/settings/posts/components/DraftPostListContent.tsx:88
 msgid "settings.posts.drafts.trash.failed"
 msgstr "Could not move the draft to trash."
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/DraftPostListContent.tsx:52
+#: src/features/settings/posts/components/DraftPostListContent.tsx:53
 msgid "settings.posts.drafts.trash.message"
 msgstr "Move this draft to the trash? You can restore it later."
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/DraftPostListContent.tsx:70
+#: src/features/settings/posts/components/DraftPostListContent.tsx:71
 msgid "settings.posts.drafts.trash.success"
 msgstr "Draft moved to trash."
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/DraftPostListContent.tsx:48
+#: src/features/settings/posts/components/DraftPostListContent.tsx:49
 msgid "settings.posts.drafts.trash.title"
 msgstr "Move draft to trash"
 
@@ -6941,17 +6941,17 @@ msgid "settings.posts.empty.default"
 msgstr "No posts"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/DraftPostListContent.tsx:103
+#: src/features/settings/posts/components/DraftPostListContent.tsx:104
 msgid "settings.posts.empty.drafts"
 msgstr "No drafts"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/PostsSetting.tsx:228
+#: src/features/settings/posts/PostsSetting.tsx:229
 msgid "settings.posts.empty.published"
 msgstr "No published posts"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/PostsSetting.tsx:242
+#: src/features/settings/posts/PostsSetting.tsx:243
 msgid "settings.posts.empty.scheduled"
 msgstr "No scheduled posts"
 
@@ -6962,7 +6962,7 @@ msgstr "{count, plural, one {# applied} other {# applied}}"
 
 #. js-lingui-explicit-id
 #: src/features/settings/posts/components/PostsFilter.tsx:266
-#: src/features/settings/posts/PostsSetting.tsx:140
+#: src/features/settings/posts/PostsSetting.tsx:141
 msgid "settings.posts.filters.clear"
 msgstr "Clear filters"
 
@@ -6977,7 +6977,7 @@ msgid "settings.posts.filters.expand"
 msgstr "More filters"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/PostsSetting.tsx:185
+#: src/features/settings/posts/PostsSetting.tsx:186
 msgid "settings.posts.filters.loading"
 msgstr "Loading post filters..."
 
@@ -7052,7 +7052,7 @@ msgid "settings.posts.filters.visibility_aria"
 msgstr "Select visibility filter. Current: {visibility}"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/PostsSetting.tsx:213
+#: src/features/settings/posts/PostsSetting.tsx:214
 msgid "settings.posts.list.loading"
 msgstr "Loading posts..."
 
@@ -7159,18 +7159,18 @@ msgid "settings.posts.scheduled_for"
 msgstr "Scheduled for {date}"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:399
-#: src/features/settings/posts/components/PostCard.tsx:409
+#: src/features/settings/posts/components/PostCard.tsx:400
+#: src/features/settings/posts/components/PostCard.tsx:410
 msgid "settings.posts.series.none"
 msgstr "No series"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:425
+#: src/features/settings/posts/components/PostCard.tsx:426
 msgid "settings.posts.series.save"
 msgstr "Save series"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:391
+#: src/features/settings/posts/components/PostCard.tsx:392
 msgid "settings.posts.series.select_aria"
 msgstr "Select series for {title}"
 
@@ -7272,7 +7272,7 @@ msgid "settings.posts.share_links.save_failed"
 msgstr "Could not save the share link."
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:252
+#: src/features/settings/posts/components/PostCard.tsx:253
 #: src/features/settings/posts/components/PostShareLinksDialog.tsx:138
 msgid "settings.posts.share_links.title"
 msgstr "Share links"
@@ -7283,7 +7283,7 @@ msgid "settings.posts.share_links.total"
 msgstr "Total estimated clicks"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/DraftPostListContent.tsx:182
+#: src/features/settings/posts/components/DraftPostListContent.tsx:183
 #: src/features/settings/posts/components/TrashPostListContent.tsx:34
 msgid "settings.posts.status.draft"
 msgstr "Draft"
@@ -7300,43 +7300,43 @@ msgid "settings.posts.status.scheduled"
 msgstr "Scheduled"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/PostsSetting.tsx:157
+#: src/features/settings/posts/PostsSetting.tsx:158
 msgid "settings.posts.tabs.aria"
 msgstr "Post status"
 
 #. js-lingui-explicit-id
-#: src/features/settings/drafts/DraftsSetting.tsx:11
-#: src/features/settings/posts/PostsSetting.tsx:93
+#: src/features/settings/drafts/DraftsSetting.tsx:12
+#: src/features/settings/posts/PostsSetting.tsx:94
 msgid "settings.posts.tabs.drafts"
 msgstr "Drafts"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/PostsSetting.tsx:77
+#: src/features/settings/posts/PostsSetting.tsx:78
 msgid "settings.posts.tabs.published"
 msgstr "Published"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/PostsSetting.tsx:85
+#: src/features/settings/posts/PostsSetting.tsx:86
 msgid "settings.posts.tabs.scheduled"
 msgstr "Scheduled"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/PostsSetting.tsx:101
+#: src/features/settings/posts/PostsSetting.tsx:102
 msgid "settings.posts.tabs.trash"
 msgstr "Trash"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:350
+#: src/features/settings/posts/components/PostCard.tsx:351
 msgid "settings.posts.tags.input_aria"
 msgstr "Tags for {title}"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:355
+#: src/features/settings/posts/components/PostCard.tsx:356
 msgid "settings.posts.tags.placeholder"
 msgstr "Enter tags..."
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:373
+#: src/features/settings/posts/components/PostCard.tsx:374
 msgid "settings.posts.tags.save"
 msgstr "Save tags"
 
@@ -7352,12 +7352,12 @@ msgid "settings.posts.tags.update_success"
 msgstr "Tags updated."
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/PostsSetting.tsx:111
+#: src/features/settings/posts/PostsSetting.tsx:112
 msgid "settings.posts.title"
 msgstr "Posts"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/PostsSetting.tsx:115
+#: src/features/settings/posts/PostsSetting.tsx:116
 msgid "settings.posts.title_count"
 msgstr "Posts ({count})"
 
@@ -7399,9 +7399,9 @@ msgid "settings.posts.trash.load_failed"
 msgstr "Could not load the trash."
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/DraftPostListContent.tsx:56
-#: src/features/settings/posts/components/DraftPostListContent.tsx:153
-#: src/features/settings/posts/components/PostCard.tsx:269
+#: src/features/settings/posts/components/DraftPostListContent.tsx:57
+#: src/features/settings/posts/components/DraftPostListContent.tsx:154
+#: src/features/settings/posts/components/PostCard.tsx:270
 #: src/features/settings/posts/hooks/usePostsActions.ts:92
 msgid "settings.posts.trash.move.confirm"
 msgstr "Move to trash"
@@ -7484,34 +7484,34 @@ msgid "settings.posts.visibility.changed_public"
 msgstr "Post is now public."
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:119
+#: src/features/settings/posts/components/PostCard.tsx:120
 msgid "settings.posts.visibility.make_private"
 msgstr "Make private"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:115
+#: src/features/settings/posts/components/PostCard.tsx:116
 msgid "settings.posts.visibility.make_private_after_publish"
 msgstr "Make private after publishing"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:110
+#: src/features/settings/posts/components/PostCard.tsx:111
 msgid "settings.posts.visibility.make_public"
 msgstr "Make public"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:106
+#: src/features/settings/posts/components/PostCard.tsx:107
 msgid "settings.posts.visibility.make_public_after_publish"
 msgstr "Make public after publishing"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:222
+#: src/features/settings/posts/components/PostCard.tsx:223
 #: src/features/settings/posts/components/PostsFilter.tsx:80
 #: src/features/settings/posts/components/TrashPostListContent.tsx:291
 msgid "settings.posts.visibility.private"
 msgstr "Private"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:218
+#: src/features/settings/posts/components/PostCard.tsx:219
 #: src/features/settings/posts/components/PostsFilter.tsx:76
 msgid "settings.posts.visibility.private_after_publish"
 msgstr "Private after publishing"
@@ -8028,20 +8028,20 @@ msgid "settings.seo_aeo.visibility.title"
 msgstr "Current visibility"
 
 #. js-lingui-explicit-id
-#: src/features/settings/series/SeriesSetting.tsx:277
+#: src/features/settings/series/SeriesSetting.tsx:278
 msgid "settings.series.create_new"
 msgstr "Create series"
 
 #. js-lingui-explicit-id
 #: src/features/settings/series/components/SeriesEditor.tsx:319
 #: src/features/settings/series/components/SeriesEditor.tsx:342
-#: src/features/settings/series/SeriesSetting.tsx:259
-#: src/features/settings/series/SeriesSetting.tsx:267
+#: src/features/settings/series/SeriesSetting.tsx:260
+#: src/features/settings/series/SeriesSetting.tsx:268
 msgid "settings.series.delete.failed"
 msgstr "Could not delete the series."
 
 #. js-lingui-explicit-id
-#: src/features/settings/series/SeriesSetting.tsx:65
+#: src/features/settings/series/SeriesSetting.tsx:66
 msgid "settings.series.delete.list_confirm"
 msgstr "Delete the series \"{title}\"?\n"
 "\n"
@@ -8049,18 +8049,18 @@ msgstr "Delete the series \"{title}\"?\n"
 
 #. js-lingui-explicit-id
 #: src/features/settings/series/components/SeriesEditor.tsx:328
-#: src/features/settings/series/SeriesSetting.tsx:251
+#: src/features/settings/series/SeriesSetting.tsx:252
 msgid "settings.series.delete.success"
 msgstr "Series deleted."
 
 #. js-lingui-explicit-id
 #: src/features/settings/series/components/SeriesEditor.tsx:352
-#: src/features/settings/series/SeriesSetting.tsx:61
+#: src/features/settings/series/SeriesSetting.tsx:62
 msgid "settings.series.delete.title"
 msgstr "Delete series"
 
 #. js-lingui-explicit-id
-#: src/features/settings/series/SeriesSetting.tsx:289
+#: src/features/settings/series/SeriesSetting.tsx:290
 msgid "settings.series.description"
 msgstr "Drag series to change the display order."
 
@@ -8244,43 +8244,43 @@ msgid "settings.series.editor.url.validation.max_length"
 msgstr "URL must be 50 characters or fewer."
 
 #. js-lingui-explicit-id
-#: src/features/settings/series/SeriesSetting.tsx:322
+#: src/features/settings/series/SeriesSetting.tsx:323
 msgid "settings.series.empty"
 msgstr "No series yet"
 
 #. js-lingui-explicit-id
-#: src/features/settings/series/SeriesSetting.tsx:111
+#: src/features/settings/series/SeriesSetting.tsx:112
 msgid "settings.series.item.edit"
 msgstr "Edit series"
 
 #. js-lingui-explicit-id
-#: src/features/settings/series/SeriesSetting.tsx:103
+#: src/features/settings/series/SeriesSetting.tsx:104
 msgid "settings.series.item.open_menu"
 msgstr "Open menu for series: {title}"
 
 #. js-lingui-explicit-id
-#: src/features/settings/series/SeriesSetting.tsx:134
+#: src/features/settings/series/SeriesSetting.tsx:135
 msgid "settings.series.item.post_count"
 msgstr "{count, plural, one {# post} other {# posts}}"
 
 #. js-lingui-explicit-id
-#: src/features/settings/series/SeriesSetting.tsx:89
+#: src/features/settings/series/SeriesSetting.tsx:90
 msgid "settings.series.item.reorder"
 msgstr "Change order of series: {title}"
 
 #. js-lingui-explicit-id
-#: src/features/settings/series/SeriesSetting.tsx:159
+#: src/features/settings/series/SeriesSetting.tsx:160
 msgid "settings.series.load_failed"
 msgstr "Could not load series."
 
 #. js-lingui-explicit-id
-#: src/features/settings/series/SeriesSetting.tsx:203
-#: src/features/settings/series/SeriesSetting.tsx:221
+#: src/features/settings/series/SeriesSetting.tsx:204
+#: src/features/settings/series/SeriesSetting.tsx:222
 msgid "settings.series.order.update_failed"
 msgstr "Could not update the series order."
 
 #. js-lingui-explicit-id
-#: src/features/settings/series/SeriesSetting.tsx:213
+#: src/features/settings/series/SeriesSetting.tsx:214
 msgid "settings.series.order.update_success"
 msgstr "Series order updated."
 
@@ -8345,7 +8345,7 @@ msgid "settings.series.posts.title"
 msgstr "Select posts to include"
 
 #. js-lingui-explicit-id
-#: src/features/settings/series/SeriesSetting.tsx:284
+#: src/features/settings/series/SeriesSetting.tsx:285
 msgid "settings.series.title_count"
 msgstr "Series ({count})"
 
@@ -8767,12 +8767,12 @@ msgid "settings.social_links.validation.url_required"
 msgstr "Enter a URL for every social link."
 
 #. js-lingui-explicit-id
-#: src/features/settings/static-pages/StaticPagesSetting.tsx:108
+#: src/features/settings/static-pages/StaticPagesSetting.tsx:109
 msgid "settings.static_pages.create"
 msgstr "Add page"
 
 #. js-lingui-explicit-id
-#: src/features/settings/static-pages/StaticPagesSetting.tsx:67
+#: src/features/settings/static-pages/StaticPagesSetting.tsx:68
 msgid "settings.static_pages.delete.confirm"
 msgstr "Delete this page?\n"
 "\n"
@@ -8780,7 +8780,7 @@ msgstr "Delete this page?\n"
 
 #. js-lingui-explicit-id
 #: src/features/settings/static-pages/components/StaticPageEditor.tsx:290
-#: src/features/settings/static-pages/StaticPagesSetting.tsx:62
+#: src/features/settings/static-pages/StaticPagesSetting.tsx:63
 msgid "settings.static_pages.delete.confirm_named"
 msgstr "Delete “{title}”?\n"
 "\n"
@@ -8789,24 +8789,24 @@ msgstr "Delete “{title}”?\n"
 #. js-lingui-explicit-id
 #: src/features/settings/static-pages/components/StaticPageEditor.tsx:218
 #: src/features/settings/static-pages/components/StaticPageEditor.tsx:237
-#: src/features/settings/static-pages/StaticPagesSetting.tsx:46
+#: src/features/settings/static-pages/StaticPagesSetting.tsx:47
 msgid "settings.static_pages.delete.failed"
 msgstr "Could not delete the static page."
 
 #. js-lingui-explicit-id
 #: src/features/settings/static-pages/components/StaticPageEditor.tsx:227
-#: src/features/settings/static-pages/StaticPagesSetting.tsx:37
+#: src/features/settings/static-pages/StaticPagesSetting.tsx:38
 msgid "settings.static_pages.delete.success"
 msgstr "Static page deleted."
 
 #. js-lingui-explicit-id
 #: src/features/settings/static-pages/components/StaticPageEditor.tsx:286
-#: src/features/settings/static-pages/StaticPagesSetting.tsx:57
+#: src/features/settings/static-pages/StaticPagesSetting.tsx:58
 msgid "settings.static_pages.delete.title"
 msgstr "Delete static page"
 
 #. js-lingui-explicit-id
-#: src/features/settings/static-pages/StaticPagesSetting.tsx:120
+#: src/features/settings/static-pages/StaticPagesSetting.tsx:121
 msgid "settings.static_pages.description"
 msgstr "Published pages are available at /static/{slug}."
 
@@ -8992,7 +8992,7 @@ msgid "settings.static_pages.editor.validation.title"
 msgstr "Enter a page name."
 
 #. js-lingui-explicit-id
-#: src/features/settings/static-pages/StaticPagesSetting.tsx:134
+#: src/features/settings/static-pages/StaticPagesSetting.tsx:135
 msgid "settings.static_pages.empty"
 msgstr "No static pages yet"
 
@@ -9002,7 +9002,7 @@ msgid "settings.static_pages.list.menu_label"
 msgstr "Open menu for {title}"
 
 #. js-lingui-explicit-id
-#: src/features/settings/static-pages/StaticPagesSetting.tsx:25
+#: src/features/settings/static-pages/StaticPagesSetting.tsx:26
 msgid "settings.static_pages.load_failed"
 msgstr "Could not load static pages."
 
@@ -9022,12 +9022,12 @@ msgid "settings.static_pages.status.public"
 msgstr "Public"
 
 #. js-lingui-explicit-id
-#: src/features/settings/static-pages/StaticPagesSetting.tsx:115
+#: src/features/settings/static-pages/StaticPagesSetting.tsx:116
 msgid "settings.static_pages.title_count"
 msgstr "Static pages ({count})"
 
 #. js-lingui-explicit-id
-#: src/features/settings/static-pages/StaticPagesSetting.tsx:92
+#: src/features/settings/static-pages/StaticPagesSetting.tsx:93
 msgid "settings.static_pages.view.unpublished"
 msgstr "Private pages cannot be opened. Publish the page and try again."
 

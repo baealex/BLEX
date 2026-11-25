@@ -29,6 +29,8 @@ The author's profile card is the one exception to flat surfaces: its cover sits 
 
 Moving between an author's overview and their posts or series carries the avatar between the card and the compact header with a view transition, so the reader sees they stay with the same person. It is the only motion between pages: the rest of the page changes at once, and readers who ask for reduced motion see none.
 
+Bars that float at the bottom of the window, the post's actions and every editor's save bar, share one opaque white pill: `floating-bar-surface` (or `.post-action-bar`), a hairline ring, a low shadow, and `FloatingBarDivider` between groups. Text never shows through them. The translucent glass surface is only for small menus inside the editor.
+
 An author's tabs share one narrow column, so the header and avatar stay put between them. A series page is the contents page of its posts, so it uses the post's grid and heading spacing instead: stepping from it into a post keeps the eyebrow, title, and byline in place. Lists of posts or series inside it use the shared row in `packages/client/src/features/discovery/list-rows.tsx`: title, a one-line summary on wide screens, quiet details, and an optional image on the right. Add a new list with that row rather than another card or row style. A series row uses the bundle cover, two outlined sheets behind the cover, and counts its parts, so a series never reads as a single post however many parts it has.
 
 ## Light and dark themes

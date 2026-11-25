@@ -100,6 +100,7 @@
         --blur-frosted: 12px;
         --blur-floating-glass: 10px;
         --shadow-floating-glass: 0 6px 20px rgb(15 23 42 / 0.10);
+        --shadow-floating-bar: 0 12px 32px -8px rgb(0 0 0 / 0.16);
 
         /* Branding / Media */
         --logo-filter: none;
@@ -215,6 +216,7 @@
         --blur-frosted: 14px;
         --blur-floating-glass: 12px;
         --shadow-floating-glass: 0 8px 24px rgb(0 0 0 / 0.40);
+        --shadow-floating-bar: 0 12px 32px -8px rgb(0 0 0 / 0.55);
 
         --logo-filter: invert(1);
         --media-filter: brightness(0.85) saturate(0.92);

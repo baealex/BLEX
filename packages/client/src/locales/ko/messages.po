@@ -302,8 +302,8 @@ msgstr "생성"
 #: src/features/settings/profile/ProfileSetting.tsx:246
 #: src/features/settings/series/components/SeriesEditor.tsx:362
 #: src/features/settings/series/components/SeriesEditor.tsx:594
-#: src/features/settings/series/SeriesSetting.tsx:70
-#: src/features/settings/series/SeriesSetting.tsx:119
+#: src/features/settings/series/SeriesSetting.tsx:71
+#: src/features/settings/series/SeriesSetting.tsx:120
 #: src/features/settings/shared/BannerEditorBase.tsx:392
 #: src/features/settings/shared/BannerEditorBase.tsx:632
 #: src/features/settings/shared/BannerSettingBase.tsx:139
@@ -314,7 +314,7 @@ msgstr "생성"
 #: src/features/settings/static-pages/components/StaticPageEditor.tsx:295
 #: src/features/settings/static-pages/components/StaticPageEditor.tsx:489
 #: src/features/settings/static-pages/components/StaticPageList.tsx:43
-#: src/features/settings/static-pages/StaticPagesSetting.tsx:71
+#: src/features/settings/static-pages/StaticPagesSetting.tsx:72
 #: src/features/settings/users/index.tsx:609
 #: src/features/settings/users/index.tsx:748
 msgid "common.delete"
@@ -499,8 +499,8 @@ msgid "common.search.clear"
 msgstr "검색어 지우기"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/DraftPostListContent.tsx:117
-#: src/features/settings/posts/components/PostCard.tsx:125
+#: src/features/settings/posts/components/DraftPostListContent.tsx:118
+#: src/features/settings/posts/components/PostCard.tsx:126
 #: src/features/settings/posts/components/TrashPostListContent.tsx:140
 #: src/features/settings/posts/components/TrashPostListContent.tsx:215
 msgid "common.untitled"
@@ -2172,7 +2172,7 @@ msgstr "{value0}명이 이 글에 공감했습니다."
 
 #. js-lingui-explicit-id
 #: src/features/authors/author-overview-page.tsx:141
-#: src/features/authors/author-series-detail-page.tsx:66
+#: src/features/authors/author-series-detail-page.tsx:70
 msgid "public.{value0, plural, one{# post} other{# posts}}"
 msgstr "{value0}개 포스트"
 
@@ -2346,7 +2346,7 @@ msgid "public.Author filter:"
 msgstr "작성자 필터: "
 
 #. js-lingui-explicit-id
-#: src/features/authors/profile-ui.tsx:273
+#: src/features/authors/profile-ui.tsx:275
 msgid "public.Author menu"
 msgstr "작성자 메뉴"
 
@@ -2923,7 +2923,7 @@ msgid "public.First published"
 msgstr "최초 발행"
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-detail-page.tsx:91
+#: src/features/authors/author-series-detail-page.tsx:97
 msgid "public.From part 1"
 msgstr "1편부터"
 
@@ -2996,7 +2996,7 @@ msgid "public.Later"
 msgstr "다음에"
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-detail-page.tsx:99
+#: src/features/authors/author-series-detail-page.tsx:108
 msgid "public.Latest first"
 msgstr "최신 글부터"
 
@@ -3243,7 +3243,7 @@ msgid "public.No posts"
 msgstr "포스트가 없습니다"
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-detail-page.tsx:150
+#: src/features/authors/author-series-detail-page.tsx:159
 msgid "public.No posts have been added to this series yet."
 msgstr "이 시리즈에는 아직 포스트가 추가되지 않았습니다."
 
@@ -3263,7 +3263,7 @@ msgid "public.No posts share these tags."
 msgstr "공통 태그가 붙은 포스트가 없습니다."
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-detail-page.tsx:149
+#: src/features/authors/author-series-detail-page.tsx:158
 #: src/features/discovery/discovery-page.tsx:41
 msgid "public.No posts yet"
 msgstr "아직 포스트가 없어요"
@@ -3372,7 +3372,7 @@ msgid "public.or"
 msgstr "또는"
 
 #. js-lingui-explicit-id
-#: src/features/authors/profile-ui.tsx:254
+#: src/features/authors/profile-ui.tsx:256
 msgid "public.Overview"
 msgstr "개요"
 
@@ -3420,7 +3420,7 @@ msgstr "포스트 상태"
 
 #. js-lingui-explicit-id
 #: src/features/authors/author-posts-page.tsx:24
-#: src/features/authors/profile-ui.tsx:259
+#: src/features/authors/profile-ui.tsx:261
 msgid "public.Posts"
 msgstr "포스트"
 
@@ -3709,9 +3709,9 @@ msgstr "기록 골라 공유하기"
 
 #. js-lingui-explicit-id
 #: src/features/authors/author-overview-page.tsx:127
-#: src/features/authors/author-series-detail-page.tsx:37
+#: src/features/authors/author-series-detail-page.tsx:41
 #: src/features/authors/author-series-page.tsx:24
-#: src/features/authors/profile-ui.tsx:265
+#: src/features/authors/profile-ui.tsx:267
 #: src/features/discovery/post-list.tsx:58
 #: src/features/posts/post-page.tsx:282
 msgid "public.Series"
@@ -3945,7 +3945,7 @@ msgid "public.Sort order"
 msgstr "정렬 방식"
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-detail-page.tsx:85
+#: src/features/authors/author-series-detail-page.tsx:91
 msgid "public.Sort posts"
 msgstr "포스트 정렬"
 
@@ -4005,7 +4005,7 @@ msgid "public.Switch to light mode"
 msgstr "라이트 모드로 전환"
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-detail-page.tsx:83
+#: src/features/authors/author-series-detail-page.tsx:89
 #: src/features/posts/post-page.tsx:159
 #: src/features/posts/post-page.tsx:215
 #: src/features/posts/post-page.tsx:219
@@ -4173,7 +4173,7 @@ msgid "public.Updated"
 msgstr "수정일"
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-detail-page.tsx:69
+#: src/features/authors/author-series-detail-page.tsx:75
 #: src/features/authors/author-series-page.tsx:73
 msgid "public.Updated {value0}"
 msgstr "{value0} 수정됨"
@@ -6563,17 +6563,17 @@ msgid "settings.notifications.config.update_success"
 msgstr "알림 설정을 업데이트했습니다."
 
 #. js-lingui-explicit-id
-#: src/features/settings/notify/components/NotificationsSection.tsx:81
+#: src/features/settings/notify/components/NotificationsSection.tsx:82
 msgid "settings.notifications.configure"
 msgstr "설정"
 
 #. js-lingui-explicit-id
-#: src/features/settings/notify/components/NotificationsSection.tsx:168
+#: src/features/settings/notify/components/NotificationsSection.tsx:169
 msgid "settings.notifications.empty"
 msgstr "알림이 없습니다"
 
 #. js-lingui-explicit-id
-#: src/features/settings/notify/components/NotificationsSection.tsx:140
+#: src/features/settings/notify/components/NotificationsSection.tsx:141
 msgid "settings.notifications.link_unavailable"
 msgstr "링크를 열 수 없음"
 
@@ -6583,33 +6583,33 @@ msgid "settings.notifications.load_failed"
 msgstr "알림을 불러오지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/features/settings/notify/components/NotificationsSection.tsx:136
+#: src/features/settings/notify/components/NotificationsSection.tsx:137
 msgid "settings.notifications.mark_read"
 msgstr "읽음으로 표시"
 
 #. js-lingui-explicit-id
-#: src/features/settings/notify/components/NotificationsSection.tsx:44
-#: src/features/settings/notify/components/NotificationsSection.tsx:52
+#: src/features/settings/notify/components/NotificationsSection.tsx:45
+#: src/features/settings/notify/components/NotificationsSection.tsx:53
 msgid "settings.notifications.mark_read_failed"
 msgstr "알림을 읽음으로 표시하지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/features/settings/notify/components/NotificationsSection.tsx:158
+#: src/features/settings/notify/components/NotificationsSection.tsx:159
 msgid "settings.notifications.new"
 msgstr "신규"
 
 #. js-lingui-explicit-id
-#: src/features/settings/notify/components/NotificationsSection.tsx:97
+#: src/features/settings/notify/components/NotificationsSection.tsx:98
 msgid "settings.notifications.telegram.description"
 msgstr "텔레그램을 연결하면 새 포스트, 댓글, 팔로우 알림을 받을 수 있습니다."
 
 #. js-lingui-explicit-id
-#: src/features/settings/notify/components/NotificationsSection.tsx:94
+#: src/features/settings/notify/components/NotificationsSection.tsx:95
 msgid "settings.notifications.telegram.title"
 msgstr "텔레그램 연결하기"
 
 #. js-lingui-explicit-id
-#: src/features/settings/notify/components/NotificationsSection.tsx:70
+#: src/features/settings/notify/components/NotificationsSection.tsx:71
 msgid "settings.notifications.title"
 msgstr "알림"
 
@@ -6719,7 +6719,7 @@ msgid "settings.pinned_posts.pin"
 msgstr "고정"
 
 #. js-lingui-explicit-id
-#: src/features/settings/pinned-posts/components/PinnedPostItem.tsx:49
+#: src/features/settings/pinned-posts/components/PinnedPostItem.tsx:50
 msgid "settings.pinned_posts.reorder_label"
 msgstr "{title} 고정 포스트 순서 변경"
 
@@ -6819,7 +6819,7 @@ msgid "settings.pinned_posts.trash_reservation"
 msgstr "{reservedCount, plural, other {휴지통의 고정 포스트 #개가 고정 한도를 유지합니다. 복원하면 다시 표시됩니다.}}"
 
 #. js-lingui-explicit-id
-#: src/features/settings/pinned-posts/components/PinnedPostItem.tsx:78
+#: src/features/settings/pinned-posts/components/PinnedPostItem.tsx:79
 msgid "settings.pinned_posts.unpin"
 msgstr "해제"
 
@@ -6829,109 +6829,109 @@ msgid "settings.pinned_posts.view_trash"
 msgstr "휴지통 보기"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:244
+#: src/features/settings/posts/components/PostCard.tsx:245
 msgid "settings.posts.card.edit"
 msgstr "포스트 수정"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:236
+#: src/features/settings/posts/components/PostCard.tsx:237
 msgid "settings.posts.card.open_menu"
 msgstr "{title} 포스트 메뉴 열기"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:188
+#: src/features/settings/posts/components/PostCard.tsx:189
 msgid "settings.posts.card.read_time"
 msgstr "{minutes, plural, other {#분}}"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:204
+#: src/features/settings/posts/components/PostCard.tsx:205
 msgid "settings.posts.card.recently_updated"
 msgstr "최근 수정"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:153
+#: src/features/settings/posts/components/PostCard.tsx:154
 msgid "settings.posts.card.view_post"
 msgstr "{title} 포스트 보기"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:299
+#: src/features/settings/posts/components/PostCard.tsx:300
 msgid "settings.posts.classification.close"
 msgstr "태그 및 시리즈 편집 닫기"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:313
+#: src/features/settings/posts/components/PostCard.tsx:314
 msgid "settings.posts.classification.label"
 msgstr "태그·시리즈"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:303
+#: src/features/settings/posts/components/PostCard.tsx:304
 msgid "settings.posts.classification.open"
 msgstr "태그 및 시리즈 편집 열기"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:324
+#: src/features/settings/posts/components/PostCard.tsx:325
 msgid "settings.posts.classification.save_required"
 msgstr "{fields} 저장 필요"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:83
+#: src/features/settings/posts/components/PostCard.tsx:84
 msgid "settings.posts.classification.series"
 msgstr "시리즈"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:94
+#: src/features/settings/posts/components/PostCard.tsx:95
 msgid "settings.posts.classification.tag_count"
 msgstr "{count, plural, other {태그 #개}}"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:79
+#: src/features/settings/posts/components/PostCard.tsx:80
 msgid "settings.posts.classification.tags"
 msgstr "태그"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:74
+#: src/features/settings/posts/components/PostCard.tsx:75
 msgid "settings.posts.classification.tags_and_series"
 msgstr "태그·시리즈"
 
 #. js-lingui-explicit-id
-#: src/features/settings/drafts/DraftsSetting.tsx:18
-#: src/features/settings/posts/PostsSetting.tsx:129
+#: src/features/settings/drafts/DraftsSetting.tsx:19
+#: src/features/settings/posts/PostsSetting.tsx:130
 msgid "settings.posts.create"
 msgstr "새 포스트 작성"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/DraftPostListContent.tsx:169
+#: src/features/settings/posts/components/DraftPostListContent.tsx:170
 msgid "settings.posts.drafts.last_updated"
 msgstr "마지막 수정 {date}"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/DraftPostListContent.tsx:34
+#: src/features/settings/posts/components/DraftPostListContent.tsx:35
 msgid "settings.posts.drafts.load_failed"
 msgstr "임시 포스트 목록을 불러오지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/DraftPostListContent.tsx:145
+#: src/features/settings/posts/components/DraftPostListContent.tsx:146
 msgid "settings.posts.drafts.open_menu"
 msgstr "{title} 임시 포스트 메뉴 열기"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/DraftPostListContent.tsx:79
-#: src/features/settings/posts/components/DraftPostListContent.tsx:87
+#: src/features/settings/posts/components/DraftPostListContent.tsx:80
+#: src/features/settings/posts/components/DraftPostListContent.tsx:88
 msgid "settings.posts.drafts.trash.failed"
 msgstr "임시 포스트를 휴지통으로 옮기지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/DraftPostListContent.tsx:52
+#: src/features/settings/posts/components/DraftPostListContent.tsx:53
 msgid "settings.posts.drafts.trash.message"
 msgstr "이 임시 포스트를 휴지통으로 옮길까요? 나중에 복원할 수 있습니다."
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/DraftPostListContent.tsx:70
+#: src/features/settings/posts/components/DraftPostListContent.tsx:71
 msgid "settings.posts.drafts.trash.success"
 msgstr "임시 포스트를 휴지통으로 옮겼습니다."
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/DraftPostListContent.tsx:48
+#: src/features/settings/posts/components/DraftPostListContent.tsx:49
 msgid "settings.posts.drafts.trash.title"
 msgstr "임시 포스트를 휴지통으로 이동"
 
@@ -6941,17 +6941,17 @@ msgid "settings.posts.empty.default"
 msgstr "포스트가 없습니다"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/DraftPostListContent.tsx:103
+#: src/features/settings/posts/components/DraftPostListContent.tsx:104
 msgid "settings.posts.empty.drafts"
 msgstr "임시 포스트가 없습니다"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/PostsSetting.tsx:228
+#: src/features/settings/posts/PostsSetting.tsx:229
 msgid "settings.posts.empty.published"
 msgstr "발행 포스트가 없습니다"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/PostsSetting.tsx:242
+#: src/features/settings/posts/PostsSetting.tsx:243
 msgid "settings.posts.empty.scheduled"
 msgstr "예약 포스트가 없습니다"
 
@@ -6962,7 +6962,7 @@ msgstr "{count, plural, other {#개 적용}}"
 
 #. js-lingui-explicit-id
 #: src/features/settings/posts/components/PostsFilter.tsx:266
-#: src/features/settings/posts/PostsSetting.tsx:140
+#: src/features/settings/posts/PostsSetting.tsx:141
 msgid "settings.posts.filters.clear"
 msgstr "필터 지우기"
 
@@ -6977,7 +6977,7 @@ msgid "settings.posts.filters.expand"
 msgstr "필터 더보기"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/PostsSetting.tsx:185
+#: src/features/settings/posts/PostsSetting.tsx:186
 msgid "settings.posts.filters.loading"
 msgstr "포스트 필터 불러오는 중..."
 
@@ -7052,7 +7052,7 @@ msgid "settings.posts.filters.visibility_aria"
 msgstr "공개 상태 필터 선택, 현재 {visibility}"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/PostsSetting.tsx:213
+#: src/features/settings/posts/PostsSetting.tsx:214
 msgid "settings.posts.list.loading"
 msgstr "포스트 불러오는 중..."
 
@@ -7159,18 +7159,18 @@ msgid "settings.posts.scheduled_for"
 msgstr "예약 {date}"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:399
-#: src/features/settings/posts/components/PostCard.tsx:409
+#: src/features/settings/posts/components/PostCard.tsx:400
+#: src/features/settings/posts/components/PostCard.tsx:410
 msgid "settings.posts.series.none"
 msgstr "시리즈 선택 안 함"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:425
+#: src/features/settings/posts/components/PostCard.tsx:426
 msgid "settings.posts.series.save"
 msgstr "시리즈 저장"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:391
+#: src/features/settings/posts/components/PostCard.tsx:392
 msgid "settings.posts.series.select_aria"
 msgstr "{title} 시리즈 선택"
 
@@ -7272,7 +7272,7 @@ msgid "settings.posts.share_links.save_failed"
 msgstr "공유 링크를 저장하지 못했어요."
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:252
+#: src/features/settings/posts/components/PostCard.tsx:253
 #: src/features/settings/posts/components/PostShareLinksDialog.tsx:138
 msgid "settings.posts.share_links.title"
 msgstr "공유 링크"
@@ -7283,7 +7283,7 @@ msgid "settings.posts.share_links.total"
 msgstr "누적 추정 클릭 수"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/DraftPostListContent.tsx:182
+#: src/features/settings/posts/components/DraftPostListContent.tsx:183
 #: src/features/settings/posts/components/TrashPostListContent.tsx:34
 msgid "settings.posts.status.draft"
 msgstr "임시 포스트"
@@ -7300,43 +7300,43 @@ msgid "settings.posts.status.scheduled"
 msgstr "예약 포스트"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/PostsSetting.tsx:157
+#: src/features/settings/posts/PostsSetting.tsx:158
 msgid "settings.posts.tabs.aria"
 msgstr "포스트 상태"
 
 #. js-lingui-explicit-id
-#: src/features/settings/drafts/DraftsSetting.tsx:11
-#: src/features/settings/posts/PostsSetting.tsx:93
+#: src/features/settings/drafts/DraftsSetting.tsx:12
+#: src/features/settings/posts/PostsSetting.tsx:94
 msgid "settings.posts.tabs.drafts"
 msgstr "임시 포스트"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/PostsSetting.tsx:77
+#: src/features/settings/posts/PostsSetting.tsx:78
 msgid "settings.posts.tabs.published"
 msgstr "발행 포스트"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/PostsSetting.tsx:85
+#: src/features/settings/posts/PostsSetting.tsx:86
 msgid "settings.posts.tabs.scheduled"
 msgstr "예약 포스트"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/PostsSetting.tsx:101
+#: src/features/settings/posts/PostsSetting.tsx:102
 msgid "settings.posts.tabs.trash"
 msgstr "휴지통"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:350
+#: src/features/settings/posts/components/PostCard.tsx:351
 msgid "settings.posts.tags.input_aria"
 msgstr "{title} 태그"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:355
+#: src/features/settings/posts/components/PostCard.tsx:356
 msgid "settings.posts.tags.placeholder"
 msgstr "태그를 입력하세요..."
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:373
+#: src/features/settings/posts/components/PostCard.tsx:374
 msgid "settings.posts.tags.save"
 msgstr "태그 저장"
 
@@ -7352,12 +7352,12 @@ msgid "settings.posts.tags.update_success"
 msgstr "태그가 수정되었습니다."
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/PostsSetting.tsx:111
+#: src/features/settings/posts/PostsSetting.tsx:112
 msgid "settings.posts.title"
 msgstr "포스트"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/PostsSetting.tsx:115
+#: src/features/settings/posts/PostsSetting.tsx:116
 msgid "settings.posts.title_count"
 msgstr "포스트 ({count})"
 
@@ -7399,9 +7399,9 @@ msgid "settings.posts.trash.load_failed"
 msgstr "휴지통을 불러오지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/DraftPostListContent.tsx:56
-#: src/features/settings/posts/components/DraftPostListContent.tsx:153
-#: src/features/settings/posts/components/PostCard.tsx:269
+#: src/features/settings/posts/components/DraftPostListContent.tsx:57
+#: src/features/settings/posts/components/DraftPostListContent.tsx:154
+#: src/features/settings/posts/components/PostCard.tsx:270
 #: src/features/settings/posts/hooks/usePostsActions.ts:92
 msgid "settings.posts.trash.move.confirm"
 msgstr "휴지통으로 이동"
@@ -7484,34 +7484,34 @@ msgid "settings.posts.visibility.changed_public"
 msgstr "포스트가 공개로 변경되었습니다."
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:119
+#: src/features/settings/posts/components/PostCard.tsx:120
 msgid "settings.posts.visibility.make_private"
 msgstr "비공개로 변경"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:115
+#: src/features/settings/posts/components/PostCard.tsx:116
 msgid "settings.posts.visibility.make_private_after_publish"
 msgstr "발행 시 비공개로 변경"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:110
+#: src/features/settings/posts/components/PostCard.tsx:111
 msgid "settings.posts.visibility.make_public"
 msgstr "공개로 변경"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:106
+#: src/features/settings/posts/components/PostCard.tsx:107
 msgid "settings.posts.visibility.make_public_after_publish"
 msgstr "발행 시 공개로 변경"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:222
+#: src/features/settings/posts/components/PostCard.tsx:223
 #: src/features/settings/posts/components/PostsFilter.tsx:80
 #: src/features/settings/posts/components/TrashPostListContent.tsx:291
 msgid "settings.posts.visibility.private"
 msgstr "비공개"
 
 #. js-lingui-explicit-id
-#: src/features/settings/posts/components/PostCard.tsx:218
+#: src/features/settings/posts/components/PostCard.tsx:219
 #: src/features/settings/posts/components/PostsFilter.tsx:76
 msgid "settings.posts.visibility.private_after_publish"
 msgstr "발행 후 비공개"
@@ -8028,20 +8028,20 @@ msgid "settings.seo_aeo.visibility.title"
 msgstr "현재 노출 상태"
 
 #. js-lingui-explicit-id
-#: src/features/settings/series/SeriesSetting.tsx:277
+#: src/features/settings/series/SeriesSetting.tsx:278
 msgid "settings.series.create_new"
 msgstr "시리즈 생성"
 
 #. js-lingui-explicit-id
 #: src/features/settings/series/components/SeriesEditor.tsx:319
 #: src/features/settings/series/components/SeriesEditor.tsx:342
-#: src/features/settings/series/SeriesSetting.tsx:259
-#: src/features/settings/series/SeriesSetting.tsx:267
+#: src/features/settings/series/SeriesSetting.tsx:260
+#: src/features/settings/series/SeriesSetting.tsx:268
 msgid "settings.series.delete.failed"
 msgstr "시리즈 삭제에 실패했습니다."
 
 #. js-lingui-explicit-id
-#: src/features/settings/series/SeriesSetting.tsx:65
+#: src/features/settings/series/SeriesSetting.tsx:66
 msgid "settings.series.delete.list_confirm"
 msgstr "\"{title}\" 시리즈를 정말 삭제할까요?\n"
 "\n"
@@ -8049,18 +8049,18 @@ msgstr "\"{title}\" 시리즈를 정말 삭제할까요?\n"
 
 #. js-lingui-explicit-id
 #: src/features/settings/series/components/SeriesEditor.tsx:328
-#: src/features/settings/series/SeriesSetting.tsx:251
+#: src/features/settings/series/SeriesSetting.tsx:252
 msgid "settings.series.delete.success"
 msgstr "시리즈가 삭제되었습니다."
 
 #. js-lingui-explicit-id
 #: src/features/settings/series/components/SeriesEditor.tsx:352
-#: src/features/settings/series/SeriesSetting.tsx:61
+#: src/features/settings/series/SeriesSetting.tsx:62
 msgid "settings.series.delete.title"
 msgstr "시리즈 삭제"
 
 #. js-lingui-explicit-id
-#: src/features/settings/series/SeriesSetting.tsx:289
+#: src/features/settings/series/SeriesSetting.tsx:290
 msgid "settings.series.description"
 msgstr "드래그하여 표시 순서를 조정할 수 있습니다."
 
@@ -8244,43 +8244,43 @@ msgid "settings.series.editor.url.validation.max_length"
 msgstr "URL은 50자 이내여야 합니다."
 
 #. js-lingui-explicit-id
-#: src/features/settings/series/SeriesSetting.tsx:322
+#: src/features/settings/series/SeriesSetting.tsx:323
 msgid "settings.series.empty"
 msgstr "시리즈가 없습니다"
 
 #. js-lingui-explicit-id
-#: src/features/settings/series/SeriesSetting.tsx:111
+#: src/features/settings/series/SeriesSetting.tsx:112
 msgid "settings.series.item.edit"
 msgstr "시리즈 수정"
 
 #. js-lingui-explicit-id
-#: src/features/settings/series/SeriesSetting.tsx:103
+#: src/features/settings/series/SeriesSetting.tsx:104
 msgid "settings.series.item.open_menu"
 msgstr "{title} 시리즈 메뉴 열기"
 
 #. js-lingui-explicit-id
-#: src/features/settings/series/SeriesSetting.tsx:134
+#: src/features/settings/series/SeriesSetting.tsx:135
 msgid "settings.series.item.post_count"
 msgstr "{count, plural, other {#개의 포스트}}"
 
 #. js-lingui-explicit-id
-#: src/features/settings/series/SeriesSetting.tsx:89
+#: src/features/settings/series/SeriesSetting.tsx:90
 msgid "settings.series.item.reorder"
 msgstr "{title} 시리즈 순서 변경"
 
 #. js-lingui-explicit-id
-#: src/features/settings/series/SeriesSetting.tsx:159
+#: src/features/settings/series/SeriesSetting.tsx:160
 msgid "settings.series.load_failed"
 msgstr "시리즈 목록을 불러오지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/features/settings/series/SeriesSetting.tsx:203
-#: src/features/settings/series/SeriesSetting.tsx:221
+#: src/features/settings/series/SeriesSetting.tsx:204
+#: src/features/settings/series/SeriesSetting.tsx:222
 msgid "settings.series.order.update_failed"
 msgstr "시리즈 순서 변경에 실패했습니다."
 
 #. js-lingui-explicit-id
-#: src/features/settings/series/SeriesSetting.tsx:213
+#: src/features/settings/series/SeriesSetting.tsx:214
 msgid "settings.series.order.update_success"
 msgstr "시리즈 순서가 변경되었습니다."
 
@@ -8345,7 +8345,7 @@ msgid "settings.series.posts.title"
 msgstr "포함할 포스트 선택"
 
 #. js-lingui-explicit-id
-#: src/features/settings/series/SeriesSetting.tsx:284
+#: src/features/settings/series/SeriesSetting.tsx:285
 msgid "settings.series.title_count"
 msgstr "시리즈 ({count})"
 
@@ -8767,12 +8767,12 @@ msgid "settings.social_links.validation.url_required"
 msgstr "모든 소셜 링크의 주소를 입력해 주세요."
 
 #. js-lingui-explicit-id
-#: src/features/settings/static-pages/StaticPagesSetting.tsx:108
+#: src/features/settings/static-pages/StaticPagesSetting.tsx:109
 msgid "settings.static_pages.create"
 msgstr "새 페이지 추가"
 
 #. js-lingui-explicit-id
-#: src/features/settings/static-pages/StaticPagesSetting.tsx:67
+#: src/features/settings/static-pages/StaticPagesSetting.tsx:68
 msgid "settings.static_pages.delete.confirm"
 msgstr "이 페이지를 삭제하시겠습니까?\n"
 "\n"
@@ -8780,7 +8780,7 @@ msgstr "이 페이지를 삭제하시겠습니까?\n"
 
 #. js-lingui-explicit-id
 #: src/features/settings/static-pages/components/StaticPageEditor.tsx:290
-#: src/features/settings/static-pages/StaticPagesSetting.tsx:62
+#: src/features/settings/static-pages/StaticPagesSetting.tsx:63
 msgid "settings.static_pages.delete.confirm_named"
 msgstr "“{title}” 페이지를 삭제하시겠습니까?\n"
 "\n"
@@ -8789,24 +8789,24 @@ msgstr "“{title}” 페이지를 삭제하시겠습니까?\n"
 #. js-lingui-explicit-id
 #: src/features/settings/static-pages/components/StaticPageEditor.tsx:218
 #: src/features/settings/static-pages/components/StaticPageEditor.tsx:237
-#: src/features/settings/static-pages/StaticPagesSetting.tsx:46
+#: src/features/settings/static-pages/StaticPagesSetting.tsx:47
 msgid "settings.static_pages.delete.failed"
 msgstr "정적 페이지 삭제에 실패했습니다."
 
 #. js-lingui-explicit-id
 #: src/features/settings/static-pages/components/StaticPageEditor.tsx:227
-#: src/features/settings/static-pages/StaticPagesSetting.tsx:37
+#: src/features/settings/static-pages/StaticPagesSetting.tsx:38
 msgid "settings.static_pages.delete.success"
 msgstr "정적 페이지가 삭제되었습니다."
 
 #. js-lingui-explicit-id
 #: src/features/settings/static-pages/components/StaticPageEditor.tsx:286
-#: src/features/settings/static-pages/StaticPagesSetting.tsx:57
+#: src/features/settings/static-pages/StaticPagesSetting.tsx:58
 msgid "settings.static_pages.delete.title"
 msgstr "정적 페이지 삭제"
 
 #. js-lingui-explicit-id
-#: src/features/settings/static-pages/StaticPagesSetting.tsx:120
+#: src/features/settings/static-pages/StaticPagesSetting.tsx:121
 msgid "settings.static_pages.description"
 msgstr "공개한 페이지는 /static/{slug} 주소로 제공됩니다."
 
@@ -8992,7 +8992,7 @@ msgid "settings.static_pages.editor.validation.title"
 msgstr "페이지 이름을 입력해주세요."
 
 #. js-lingui-explicit-id
-#: src/features/settings/static-pages/StaticPagesSetting.tsx:134
+#: src/features/settings/static-pages/StaticPagesSetting.tsx:135
 msgid "settings.static_pages.empty"
 msgstr "정적 페이지가 없습니다"
 
@@ -9002,7 +9002,7 @@ msgid "settings.static_pages.list.menu_label"
 msgstr "{title} 페이지 메뉴 열기"
 
 #. js-lingui-explicit-id
-#: src/features/settings/static-pages/StaticPagesSetting.tsx:25
+#: src/features/settings/static-pages/StaticPagesSetting.tsx:26
 msgid "settings.static_pages.load_failed"
 msgstr "정적 페이지 목록을 불러오는데 실패했습니다."
 
@@ -9022,12 +9022,12 @@ msgid "settings.static_pages.status.public"
 msgstr "공개"
 
 #. js-lingui-explicit-id
-#: src/features/settings/static-pages/StaticPagesSetting.tsx:115
+#: src/features/settings/static-pages/StaticPagesSetting.tsx:116
 msgid "settings.static_pages.title_count"
 msgstr "정적 페이지 ({count})"
 
 #. js-lingui-explicit-id
-#: src/features/settings/static-pages/StaticPagesSetting.tsx:92
+#: src/features/settings/static-pages/StaticPagesSetting.tsx:93
 msgid "settings.static_pages.view.unpublished"
 msgstr "비공개 페이지는 열 수 없습니다. 공개한 뒤 다시 시도해주세요."
 

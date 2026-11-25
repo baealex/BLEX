@@ -536,7 +536,7 @@ function PostColophon({ data }: { data: PostPageData }) {
 }
 
 const dockButton =
-    'inline-flex h-11 min-w-11 items-center justify-center gap-1 rounded-full text-content-secondary transition-all duration-200 hover:bg-surface-subtle/80 hover:text-content active:scale-95';
+    'inline-flex h-11 min-w-11 items-center justify-center rounded-full text-content-secondary transition-all duration-200 hover:bg-surface-subtle/80 hover:text-content active:scale-95';
 
 /** Rows like the author's overview, so a list of posts reads the same everywhere. */
 function RelatedPosts({ posts, username }: { posts: RelatedPostView[]; username: string }) {
@@ -675,7 +675,7 @@ function PostDock({ data }: { data: PostPageData }) {
                                     <input type="hidden" name="returnTo" value={postPath} />
                                     <button
                                         type="submit"
-                                        className={`${dockButton} px-2 text-sm font-medium`}
+                                        className={`${dockButton} gap-1.5 px-3 text-sm font-medium`}
                                         aria-label={`${like.isLiked ? ui('Unlike') : ui('Like')} (${like.countLikes})`}
                                         aria-pressed={like.isLiked}
                                     >
@@ -690,7 +690,7 @@ function PostDock({ data }: { data: PostPageData }) {
                                 <LoginPromptLink
                                     returnTo={postPath}
                                     action="like"
-                                    className={`${dockButton} px-2 text-sm font-medium`}
+                                    className={`${dockButton} gap-1.5 px-3 text-sm font-medium`}
                                     aria-label={ui('Like ({value0})', { value0: like?.countLikes ?? 0 })}
                                 >
                                     <SiteIcon name="heart" className="size-4" />
