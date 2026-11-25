@@ -25,6 +25,8 @@ This is the design system baseline. Update it only as a deliberate baseline chan
 
 Use radius to express hierarchy and density. Keep corners within the scale above. Interactive elements need visible hover, focus, and pressed feedback; motion should clarify a transition.
 
+The author's profile card is the one exception to flat surfaces: its cover sits behind it as a slightly rotated print, and both use `shadow-floating`. Keep every other surface flat and do not animate the card on hover, because it is not a control.
+
 ## Light and dark themes
 
 - Tokens live in `packages/client/src/appearance/variables.css`; the adjacent `tailwind.css` maps them through `@theme inline` for public pages and React screens. Keep color values in the token file.
