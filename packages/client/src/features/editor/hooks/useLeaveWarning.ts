@@ -1,5 +1,6 @@
 import { useEffect, useEffectEvent } from 'react';
 import { useLingui } from '@lingui/react/macro';
+import { applicationHistory } from '~/application/history';
 import { useConfirm } from '~/hooks/useConfirm';
 
 interface LeaveWarningOptions {
@@ -42,7 +43,7 @@ export const useLeaveWarning = ({ warns, beforeLeave }: LeaveWarningOptions) => 
 
     useEffect(
         () =>
-            window.blexHistory?.block({
+            applicationHistory().block({
                 blockerFn: () => staysOnPage(),
                 enableBeforeUnload: () => warnsNow()
             }),

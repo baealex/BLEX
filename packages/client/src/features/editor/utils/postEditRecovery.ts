@@ -1,5 +1,6 @@
+import { postEditRecoveryPrefix } from '../../../lib/signed-in-drafts.ts';
+
 const POST_EDIT_RECOVERY_VERSION = 1;
-const POST_EDIT_RECOVERY_PREFIX = 'blex:post-edit-recovery';
 
 export interface PostEditRecoverySnapshot {
     title: string;
@@ -103,7 +104,7 @@ const snapshotsMatch = (left: PostEditRecoverySnapshot, right: PostEditRecoveryS
     JSON.stringify(left) === JSON.stringify(right);
 
 export const buildPostEditRecoveryKey = ({ username, postUrl }: RecoveryIdentity) =>
-    `${POST_EDIT_RECOVERY_PREFIX}:v${POST_EDIT_RECOVERY_VERSION}:${encodeURIComponent(username)}:${encodeURIComponent(postUrl)}`;
+    `${postEditRecoveryPrefix}:v${POST_EDIT_RECOVERY_VERSION}:${encodeURIComponent(username)}:${encodeURIComponent(postUrl)}`;
 
 export const readPostEditRecovery = ({
     username,

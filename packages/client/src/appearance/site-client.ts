@@ -1,6 +1,7 @@
 import { ui } from '../i18n/public-ui.js';
 import { activateDocumentLocale } from '../i18n';
 import { removeSignedInCaches } from '../lib/query-cache-key';
+import { removeSignedInDrafts } from '../lib/signed-in-drafts';
 import { reloadAfterCatalogFailure } from './catalog-recovery';
 import { escapeAction } from './quick-search-escape.js';
 import './tailwind.css';
@@ -255,14 +256,21 @@ function handleDialogClose(event: Event) {
         document.querySelector<HTMLButtonElement>('[data-site-menu-open]')?.setAttribute('aria-expanded', 'false');
 }
 
+function removeSignedInData() {
+    removeSignedInCaches();
+    removeSignedInDrafts();
+}
+
 /**
- * A viewer's screens keep their queries in session storage, so the viewer's caches go when they sign out.
- * The sign-out form can post natively or through the application, and an open screen can still save its cache
+ * A viewer's screens keep their queries and unsaved edits in browser storage, so they go when the viewer signs out.
+ * The sign-out form can post natively or through the application, and an open screen can still save them
  * until the page that follows replaces it, so they go again when that page shows or this document is left.
  */
 function signOut() {
     signingOut = true;
-    removeSignedInCaches();
+    removeSignedInData();
+    // Added now, this runs after the open screens' own pagehide listeners, which save unsaved edits.
+    window.addEventListener('pagehide', removeSignedInData);
 }
 
 function handleSubmit(event: SubmitEvent) {
@@ -296,7 +304,8 @@ function handlePageChange() {
     // A page that still offers the sign-out form belongs to a viewer who has not signed out yet.
     if (signingOut && !document.querySelector('[data-site-logout]')) {
         signingOut = false;
-        removeSignedInCaches();
+        window.removeEventListener('pagehide', removeSignedInData);
+        removeSignedInData();
     }
     if (hydrated) {
         routeGeneration += 1;
@@ -327,9 +336,6 @@ document.addEventListener('close', handleDialogClose, true);
 document.addEventListener('submit', handleSubmit, true);
 // Deleting an account signs its viewer out as well.
 document.addEventListener('blex:sign-out', signOut);
-window.addEventListener('pagehide', () => {
-    if (signingOut) removeSignedInCaches();
-});
 document.addEventListener('focusin', reopenSearch, true);
 document.addEventListener('input', reopenSearch, true);
 document.addEventListener(
