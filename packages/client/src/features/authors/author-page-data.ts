@@ -127,6 +127,8 @@ export interface AuthorSeriesListData extends AuthorPageBase {
         summary: string;
         postCount: number;
         updated: { iso: string | null; text: string };
+        /** The first public post's image, or null when no post has one. */
+        image: string | null;
     }>;
     pagination: DiscoveryPagination;
 }
@@ -259,7 +261,7 @@ function profileView(
     };
 }
 
-function postImage(post: PostRow): string | null {
+function postImage(post: Pick<PostRow, 'image'>): string | null {
     const hasImage = Boolean(post.image && post.image !== 'None' && post.image !== 'null');
     return hasImage ? mediaUrl(post.image) : null;
 }
@@ -444,7 +446,8 @@ export function createAuthorSeriesListData({
             name: series.name,
             summary: series.textMarkdown,
             postCount: series.postCount,
-            updated: { iso: dateValue(series.updatedDate), text: dateLabel(series.updatedDate) }
+            updated: { iso: dateValue(series.updatedDate), text: dateLabel(series.updatedDate) },
+            image: postImage(series)
         })),
         pagination: { path, search: query.toString(), preserve: ['q', 'sort'], page: checkedPage, pages }
     };

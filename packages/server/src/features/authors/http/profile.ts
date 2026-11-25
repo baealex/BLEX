@@ -26,7 +26,7 @@ import {
   type PageMeta,
   type PublicPageOptions,
   type SeriesDetailRow,
-  type SeriesRow,
+  type SeriesListRow,
   type SubscriptionState,
   canonicalPageUrl,
   dateValue,
@@ -307,19 +307,26 @@ export function registerProfileRoutes(
       posts: (left, right) => right._count.posts - left._count.posts || left.order - right.order || left.id - right.id,
       custom: (left, right) => left.order - right.order || left.id - right.id,
     };
-    const seriesRows: SeriesRow[] = authorSeries
-      .sort(seriesOrder[sort])
-      .slice((checkedPage - 1) * 12, checkedPage * 12)
-      .map((row) => ({
-        id: row.id,
-        url: row.slug,
-        name: row.name,
-        textMarkdown: row.descriptionMarkdown,
-        textHtml: row.descriptionHtml,
-        createdDate: storedDateText(row.createdAt),
-        updatedDate: storedDateText(row.updatedAt),
-        postCount: row._count.posts,
-      }));
+    const pageSeries = authorSeries.sort(seriesOrder[sort]).slice((checkedPage - 1) * 12, checkedPage * 12);
+    // Each series shows the image of its first public post that has one, like a book's cover.
+    const covers = await db.post.findMany({
+      where: { AND: [publicPost, { seriesId: { in: pageSeries.map((row) => row.id) }, image: { not: '' } }] },
+      orderBy: [{ publishedAt: 'asc' }, { id: 'asc' }],
+      distinct: ['seriesId'],
+      select: { seriesId: true, image: true },
+    });
+    const coverImage = new Map(covers.map((post) => [post.seriesId, post.image]));
+    const seriesRows: SeriesListRow[] = pageSeries.map((row) => ({
+      id: row.id,
+      url: row.slug,
+      name: row.name,
+      textMarkdown: row.descriptionMarkdown,
+      textHtml: row.descriptionHtml,
+      createdDate: storedDateText(row.createdAt),
+      updatedDate: storedDateText(row.updatedAt),
+      postCount: row._count.posts,
+      image: coverImage.get(row.id) ?? '',
+    }));
     const { brand, siteName, viewer } = await getLayoutContext(request, reply, db, options);
     const [socialLinks, subscription] = await Promise.all([
       readAuthorSocialLinks(db, author.id),

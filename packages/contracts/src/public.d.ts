@@ -75,6 +75,11 @@ export interface SeriesRow {
     postCount: number;
 }
 
+/** A row on an author's series list. `image` is the first public post's image in reading order, or empty. */
+export interface SeriesListRow extends SeriesRow {
+    image: string;
+}
+
 export interface SeriesDetailRow extends SeriesRow {
     authorId: number;
     authorUsername: string;

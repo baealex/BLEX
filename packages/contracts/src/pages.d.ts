@@ -11,6 +11,7 @@ import type {
     PostRow,
     PublicPageViewer,
     SeriesDetailRow,
+    SeriesListRow,
     SeriesRow,
     SiteBrand,
     SubscriptionState,
@@ -29,6 +30,7 @@ export type {
     PostRow,
     PublicPageViewer,
     SeriesDetailRow,
+    SeriesListRow,
     SeriesRow,
     SiteBrand,
     SubscriptionState,
@@ -236,7 +238,7 @@ export interface PageProps {
         path: string;
         query: URLSearchParams;
         sort: string;
-        seriesRows: Array<SeriesRow>;
+        seriesRows: Array<SeriesListRow>;
         searchText: string;
         checkedPage: number;
         pages: number;
