@@ -74,7 +74,6 @@
         "@tiptap/suggestion": "^3.30.5",
         "axios": "^1.20.0",
         "driver.js": "^1.6.0",
-        "frappe-charts": "^1.6.2",
         "highlight.js": "^11.11.1",
         "lowlight": "^3.3.0",
         "react": "^19.3.1",

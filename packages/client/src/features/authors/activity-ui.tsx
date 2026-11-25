@@ -1,7 +1,8 @@
+import { useState } from 'react';
 import { ui } from '../../i18n/public-ui.js';
 import { SiteIcon, type SiteIconName } from '../../appearance/icons';
 import type { AuthorActivityView } from './author-page-data';
-import { authorSectionTitle } from './profile-ui';
+import { authorSectionTitle, authorTextLink } from './profile-ui';
 
 const activityLabels: Record<AuthorActivityView['recent'][number]['type'], { label: string; icon: SiteIconName }> = {
     post: {
@@ -30,71 +31,124 @@ const activityLabels: Record<AuthorActivityView['recent'][number]['type'], { lab
     }
 };
 
-function ActivityHeatmap({ days }: { days: Record<string, number> }) {
-    const total = Object.values(days).reduce((sum, count) => sum + count, 0);
+/** The bars only draw the year's rhythm; the table under "View by week" carries the numbers. */
+function ActivityBars({ weeks, months }: Pick<AuthorActivityView, 'weeks' | 'months'>) {
+    const max = Math.max(1, ...weeks.map((week) => week.count));
     return (
-        <div className="overflow-x-auto">
-            <div className="mb-4 flex items-end justify-between gap-3">
-                <div>
-                    <p className="text-xs font-medium text-content-secondary">{ui('Activity over the past year')}</p>
-                    <p className="text-lg font-semibold tabular-nums text-content">
-                        {ui('{count, plural, one{# activity} other{# activities}}', { count: total })}
-                    </p>
-                </div>
-                <p className="text-xs text-content-hint">{ui('Unit: activities')}</p>
+        <div aria-hidden="true" className="mt-4">
+            <div className="flex h-14 items-end gap-px sm:gap-[3px]">
+                {weeks.map((week) => (
+                    <span
+                        key={week.key}
+                        title={`${week.label} · ${week.count}`}
+                        className={`min-w-0 flex-1 rounded-[2px] ${week.count ? 'bg-content' : 'bg-line'}`}
+                        style={{
+                            height: week.count ? `${Math.max(24, Math.round((week.count / max) * 100))}%` : '6px'
+                        }}
+                    />
+                ))}
             </div>
-            {/* The site script may draw the chart before hydration, so React must not read or replace its children. */}
-            <div
-                className="author-heatmap-chart mx-auto min-h-[150px] w-fit"
-                data-heatmap-days={JSON.stringify(days)}
-                suppressHydrationWarning={true}
-                dangerouslySetInnerHTML={{ __html: '' }}
-            />
+            <div className="relative mt-2 h-4 text-xs text-content-secondary">
+                {months.map((month, index) => (
+                    <span
+                        key={month.index}
+                        className={`absolute top-0${index % 2 ? ' max-sm:hidden' : ''}`}
+                        style={{ left: `${(month.index / weeks.length) * 100}%` }}
+                    >
+                        {month.label}
+                    </span>
+                ))}
+            </div>
         </div>
     );
 }
 
-export function AuthorActivitySection({ days, recent }: AuthorActivityView) {
+export function AuthorActivitySection({ total, weeks, months, recent }: AuthorActivityView) {
+    const [showAll, setShowAll] = useState(false);
+    const active = weeks.filter((week) => week.count > 0);
+    const shown = 3;
     return (
         <section>
             <h2 className={`mb-3 ${authorSectionTitle}`}>{ui('Annual activity')}</h2>
-            <div className="mb-6 rounded-2xl bg-surface p-6 ring-1 ring-line/60 md:p-7">
-                <ActivityHeatmap days={days} />
-                {recent.length > 0 ? (
-                    <div className="mt-8 border-t border-line-light pt-6">
-                        <div className="mb-3 flex items-center justify-between px-1">
-                            <h3 className="text-sm font-semibold text-content">{ui('Activity history')}</h3>
-                            <span className="rounded-md bg-surface-subtle px-2 py-0.5 text-[11px] font-medium text-content-secondary">
-                                {ui('{count, plural, one{# item} other{# items}}', { count: recent.length })}
-                            </span>
-                        </div>
-                        <div className="space-y-3">
-                            {recent.map((activity) => (
-                                <a
-                                    key={activity.key}
-                                    href={activity.url}
-                                    className="flex items-center gap-4 rounded-xl bg-surface px-3 py-3 ring-1 ring-line/60 hover:ring-line-strong"
-                                >
-                                    <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-surface-subtle text-content-secondary">
-                                        <SiteIcon name={activityLabels[activity.type].icon} className="text-sm" />
-                                    </span>
-                                    <span className="min-w-0 flex-1">
-                                        <span className="mb-1 flex items-center justify-between gap-2 text-xs text-content-secondary">
-                                            <span>{activityLabels[activity.type].label}</span>
-                                            <span>{activity.date}</span>
-                                        </span>
-                                        <span className="line-clamp-1 text-sm font-semibold text-content-secondary">
-                                            {activity.title}
-                                        </span>
-                                    </span>
-                                </a>
+            <p className="flex flex-wrap items-baseline gap-x-2">
+                <span className="text-3xl font-bold tracking-tight tabular-nums text-content">{total}</span>
+                <span className="text-sm text-content-secondary">
+                    {ui(
+                        '{count, plural, one{public activity in the past year} other{public activities in the past year}}',
+                        {
+                            count: total
+                        }
+                    )}
+                </span>
+            </p>
+            <ActivityBars weeks={weeks} months={months} />
+            {active.length ? (
+                <details className="group mt-1">
+                    <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-1.5 text-sm font-semibold text-content transition-colors duration-150 hover:text-content-secondary [&::-webkit-details-marker]:hidden">
+                        {ui('View by week')}
+                        <SiteIcon
+                            name="chevron-down"
+                            className="text-xs transition-transform duration-150 group-open:rotate-180"
+                        />
+                    </summary>
+                    <table className="mt-1 w-full text-sm">
+                        <thead className="sr-only">
+                            <tr>
+                                <th scope="col">{ui('Week')}</th>
+                                <th scope="col">{ui('Activities')}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {active.map((week) => (
+                                <tr key={week.key} className="border-b border-line-light">
+                                    <td className="py-2 text-content-secondary">{week.label}</td>
+                                    <td className="py-2 text-right tabular-nums text-content">{week.count}</td>
+                                </tr>
                             ))}
-                        </div>
-                    </div>
-                ) : (
-                    <p className="mt-6 text-center text-sm text-content-secondary">{ui('No activity to display')}</p>
+                        </tbody>
+                    </table>
+                </details>
+            ) : null}
+            <ul className="mt-4 border-t border-line-light">
+                {recent.map((activity, index) => (
+                    <li key={activity.key} hidden={!showAll && index >= shown} className="border-b border-line-light">
+                        <a href={activity.url} className="group flex items-center gap-3 py-3">
+                            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-surface-subtle text-content-secondary">
+                                <SiteIcon name={activityLabels[activity.type].icon} className="text-sm" />
+                            </span>
+                            <span className="min-w-0 flex-1">
+                                <span className="block text-xs text-content-secondary">
+                                    {activityLabels[activity.type].label} · {activity.date}
+                                </span>
+                                <span className="block truncate text-sm font-semibold text-content transition-colors duration-150 group-hover:text-content-secondary">
+                                    {activity.title}
+                                </span>
+                            </span>
+                        </a>
+                    </li>
+                ))}
+                {recent.length ? null : (
+                    <li className="border-b border-line-light py-4 text-sm text-content-secondary">
+                        {ui('No public activity in the last 30 days.')}
+                    </li>
                 )}
-            </div>
+            </ul>
+            {recent.length > shown ? (
+                <button
+                    type="button"
+                    aria-expanded={showAll}
+                    onClick={() => setShowAll(!showAll)}
+                    className={`${authorTextLink} mt-1`}
+                >
+                    {showAll
+                        ? ui('Show less')
+                        : ui('{count, plural, one{Show # more} other{Show # more}}', { count: recent.length - shown })}
+                    <SiteIcon
+                        name="chevron-down"
+                        className={`text-xs transition-transform duration-150${showAll ? ' rotate-180' : ''}`}
+                    />
+                </button>
+            ) : null}
         </section>
     );
 }

@@ -189,6 +189,8 @@ export interface PageProps {
         seriesPreview: Array<{ url: string; name: string; postCount: number }>;
         activity: {
             days: Record<string, number>;
+            /** The first and last calendar day (`YYYY-MM-DD`) of the past year in the site's time zone. */
+            range: { start: string; end: string };
             recent: Array<{
                 type: 'post' | 'series' | 'comment' | 'like';
                 title: string;

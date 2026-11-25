@@ -30,9 +30,14 @@ function since(date: Date) {
   return relative.format(-Math.floor(age), 'minute');
 }
 
-async function heatmap(db: PrismaClient, userId: number, own: boolean) {
-  const end = new Date();
+/** The past year in the site's calendar, ending today. */
+function activityRange(end: Date) {
   const start = new Date(end.getTime() - 365 * 86_400_000);
+  return { start, firstDay: dateFormat.format(start), lastDay: dateFormat.format(end) };
+}
+
+async function heatmap(db: PrismaClient, userId: number, own: boolean, end = new Date()) {
+  const { start, firstDay: minDay, lastDay: maxDay } = activityRange(end);
   // Include both boundary days before applying the site's calendar time zone.
   const lower = new Date(start.getTime() - 2 * 86_400_000);
   const upper = new Date(end.getTime() + 2 * 86_400_000);
@@ -54,8 +59,6 @@ async function heatmap(db: PrismaClient, userId: number, own: boolean) {
       select: { createdAt: true },
     }),
   ]);
-  const minDay = dateFormat.format(start);
-  const maxDay = dateFormat.format(end);
   const days: Record<string, number> = {};
   // Day keys keep their first-seen order in the JSON: posts, then comments, then likes.
   const entries = [
@@ -165,9 +168,12 @@ async function recentActivities(db: PrismaClient, userId: number): Promise<Recen
     .slice(0, RECENT_ACTIVITY_LIMIT);
 }
 
+/** `range` names the calendar days `days` covers, so the page groups them without reading the reader's clock. */
 export async function readAuthorActivity(db: PrismaClient, userId: number) {
-  const [days, recent] = await Promise.all([heatmap(db, userId, false), recentActivities(db, userId)]);
-  return { days, recent };
+  const end = new Date();
+  const [days, recent] = await Promise.all([heatmap(db, userId, false, end), recentActivities(db, userId)]);
+  const { firstDay, lastDay } = activityRange(end);
+  return { days, range: { start: firstDay, end: lastDay }, recent };
 }
 
 export interface RelatedPost {

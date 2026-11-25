@@ -11,6 +11,7 @@ import type {
 import { type DiscoveryPagination, publicBrand, publicLikes } from '../discovery/discovery-page-data';
 import type { AboutDraft } from './about-draft';
 import { type PostCardLikes, type PostCardView, postCardView, postPath } from '../discovery/post-list';
+import { getDocumentLocale } from '../../i18n/locale.js';
 import { avatarUrl, dateLabel, dateValue, mediaUrl, noticeLink, safeExternalUrl } from '../discovery/view-helpers';
 
 export interface AuthorSubscriptionView {
@@ -66,7 +67,12 @@ export interface AuthorNoticeView {
 }
 
 export interface AuthorActivityView {
-    days: Record<string, number>;
+    /** Public posts, comments, and likes over the past year. */
+    total: number;
+    /** Seven-day spans, oldest first; the newest one ends today. */
+    weeks: Array<{ key: string; label: string; count: number }>;
+    /** Where each month starts among the weeks. */
+    months: Array<{ index: number; label: string }>;
     recent: Array<{
         key: string;
         type: 'post' | 'series' | 'comment' | 'like';
@@ -289,6 +295,47 @@ export function featuredPostsView(
     };
 }
 
+const dayLength = 86_400_000;
+const dayNumber = (day: string) => Date.parse(`${day}T00:00:00Z`) / dayLength;
+const dayKey = (day: number) => new Date(day * dayLength).toISOString().slice(0, 10);
+
+/**
+ * Groups the year's days into seven-day spans that end on its last day, so the newest span is always whole.
+ * The server names the days in the site's calendar, so the labels come from those days rather than a clock.
+ */
+function activityWeeks(
+    days: Record<string, number>,
+    range: { start: string; end: string }
+): Pick<AuthorActivityView, 'total' | 'weeks' | 'months'> {
+    const first = dayNumber(range.start);
+    const last = dayNumber(range.end);
+    const locale = getDocumentLocale();
+    const span = new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric', timeZone: 'UTC' });
+    const month = new Intl.DateTimeFormat(locale, { month: 'short', timeZone: 'UTC' });
+    const weeks: AuthorActivityView['weeks'] = [];
+    const months: AuthorActivityView['months'] = [];
+    if (!Number.isFinite(first) || !Number.isFinite(last) || first > last) return { total: 0, weeks, months };
+    for (let end = last; end >= first; end -= 7) {
+        const start = Math.max(first, end - 6);
+        let count = 0;
+        for (let day = start; day <= end; day += 1) count += days[dayKey(day)] ?? 0;
+        weeks.unshift({
+            key: dayKey(start),
+            label:
+                start === end
+                    ? span.format(new Date(start * dayLength))
+                    : `${span.format(new Date(start * dayLength))} – ${span.format(new Date(end * dayLength))}`,
+            count
+        });
+    }
+    weeks.forEach((week, index) => {
+        const current = week.key.slice(0, 7);
+        if (index > 0 && current !== weeks[index - 1].key.slice(0, 7) && index < weeks.length - 2)
+            months.push({ index, label: month.format(new Date(`${current}-01T00:00:00Z`)) });
+    });
+    return { total: weeks.reduce((sum, week) => sum + week.count, 0), weeks, months };
+}
+
 function noticeViews(notices: NoticeRow[]): AuthorNoticeView[] {
     return occurrenceKeys(notices, (notice) => `${notice.title}:${notice.url}`).map(({ key, row }) => ({
         key,
@@ -335,7 +382,7 @@ export function createAuthorOverviewData({
                   }))
                 : null,
         activity: {
-            days: activity.days,
+            ...activityWeeks(activity.days, activity.range),
             recent: occurrenceKeys(activity.recent, (entry) => `${entry.type}:${entry.url}`).map(({ key, row }) => ({
                 key,
                 type: row.type,

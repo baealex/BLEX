@@ -197,7 +197,7 @@ export function AuthorOverviewPage({ data, about }: { data: AuthorOverviewData; 
                             <NoticeSection notices={data.notices} />
                             {data.featured ? <FeaturedPostsSection view={data.featured} /> : null}
                             <AboutSection about={data.about} content={about} />
-                            <AuthorActivitySection days={data.activity.days} recent={data.activity.recent} />
+                            <AuthorActivitySection {...data.activity} />
                             {data.series && data.profile.tabs ? (
                                 <SeriesSection series={data.series} all={data.profile.tabs} />
                             ) : null}

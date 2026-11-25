@@ -2109,19 +2109,14 @@ msgid "pagination.previous"
 msgstr "Previous page"
 
 #. js-lingui-explicit-id
-#: src/features/authors/activity-ui.tsx:41
-msgid "public.{count, plural, one{# activity} other{# activities}}"
-msgstr "{count, plural, one{# activity} other{# activities}}"
-
-#. js-lingui-explicit-id
-#: src/features/authors/activity-ui.tsx:68
-msgid "public.{count, plural, one{# item} other{# items}}"
-msgstr "{count, plural, one{# item} other{# items}}"
-
-#. js-lingui-explicit-id
 #: src/features/discovery/search-page.tsx:222
 msgid "public.{count, plural, one{# result} other{# results}}"
 msgstr "{count, plural, one{# result} other{# results}}"
+
+#. js-lingui-explicit-id
+#: src/features/authors/activity-ui.tsx:76
+msgid "public.{count, plural, one{public activity in the past year} other{public activities in the past year}}"
+msgstr "{count, plural, one{public activity in the past year} other{public activities in the past year}}"
 
 #. js-lingui-explicit-id
 #: src/features/authors/featured-posts.tsx:65
@@ -2132,6 +2127,11 @@ msgstr "{count, plural, one{See # post} other{See all # posts}}"
 #: src/features/authors/author-overview-page.tsx:129
 msgid "public.{count, plural, one{See # series} other{See all # series}}"
 msgstr "{count, plural, one{See # series} other{See all # series}}"
+
+#. js-lingui-explicit-id
+#: src/features/authors/activity-ui.tsx:145
+msgid "public.{count, plural, one{Show # more} other{Show # more}}"
+msgstr "{count, plural, one{Show # more} other{Show # more}}"
 
 #. js-lingui-explicit-id
 #: src/features/posts/post-page.tsx:407
@@ -2260,19 +2260,9 @@ msgid "public.Account menu"
 msgstr "Account menu"
 
 #. js-lingui-explicit-id
-#: src/appearance/author-heatmap.ts:54
-msgid "public.Activity"
-msgstr "Activity"
-
-#. js-lingui-explicit-id
-#: src/features/authors/activity-ui.tsx:66
-msgid "public.Activity history"
-msgstr "Activity history"
-
-#. js-lingui-explicit-id
-#: src/features/authors/activity-ui.tsx:39
-msgid "public.Activity over the past year"
-msgstr "Activity over the past year"
+#: src/features/authors/activity-ui.tsx:98
+msgid "public.Activities"
+msgstr "Activities"
 
 #. js-lingui-explicit-id
 #: src/features/authors/profile-ui.tsx:135
@@ -2322,7 +2312,7 @@ msgid "public.Already have an account?"
 msgstr "Already have an account?"
 
 #. js-lingui-explicit-id
-#: src/features/authors/activity-ui.tsx:60
+#: src/features/authors/activity-ui.tsx:72
 msgid "public.Annual activity"
 msgstr "Annual activity"
 
@@ -2498,7 +2488,7 @@ msgid "public.Comment deleted."
 msgstr "Comment deleted."
 
 #. js-lingui-explicit-id
-#: src/features/authors/activity-ui.tsx:21
+#: src/features/authors/activity-ui.tsx:22
 msgid "public.Comment posted"
 msgstr "Comment posted"
 
@@ -2601,7 +2591,7 @@ msgid "public.Could not confirm the result. Check whether your changes were save
 msgstr "Could not confirm the result. Check whether your changes were saved before trying again."
 
 #. js-lingui-explicit-id
-#: src/appearance/site-client.ts:181
+#: src/appearance/site-client.ts:175
 msgid "public.Could not copy."
 msgstr "Could not copy."
 
@@ -3065,7 +3055,7 @@ msgid "public.Link copied"
 msgstr "Link copied"
 
 #. js-lingui-explicit-id
-#: src/appearance/site-client.ts:180
+#: src/appearance/site-client.ts:174
 msgid "public.Link copied."
 msgstr "Link copied."
 
@@ -3186,7 +3176,7 @@ msgid "public.New post"
 msgstr "New post"
 
 #. js-lingui-explicit-id
-#: src/features/authors/activity-ui.tsx:9
+#: src/features/authors/activity-ui.tsx:10
 msgid "public.New post published"
 msgstr "New post published"
 
@@ -3225,11 +3215,6 @@ msgstr "Next notice"
 #: src/features/work-logs/shared-page.tsx:183
 msgid "public.Next page"
 msgstr "Next page"
-
-#. js-lingui-explicit-id
-#: src/features/authors/activity-ui.tsx:95
-msgid "public.No activity to display"
-msgstr "No activity to display"
 
 #. js-lingui-explicit-id
 #: src/features/posts/revisions-page.tsx:53
@@ -3281,6 +3266,11 @@ msgstr "No posts share these tags."
 #: src/features/discovery/discovery-page.tsx:41
 msgid "public.No posts yet"
 msgstr "No posts yet"
+
+#. js-lingui-explicit-id
+#: src/features/authors/activity-ui.tsx:132
+msgid "public.No public activity in the last 30 days."
+msgstr "No public activity in the last 30 days."
 
 #. js-lingui-explicit-id
 #: src/features/authors/author-posts-page.tsx:73
@@ -3419,7 +3409,7 @@ msgid "public.Post information"
 msgstr "Post information"
 
 #. js-lingui-explicit-id
-#: src/features/authors/activity-ui.tsx:27
+#: src/features/authors/activity-ui.tsx:28
 msgid "public.Post liked"
 msgstr "Post liked"
 
@@ -3723,7 +3713,7 @@ msgid "public.Series"
 msgstr "Series"
 
 #. js-lingui-explicit-id
-#: src/features/authors/activity-ui.tsx:15
+#: src/features/authors/activity-ui.tsx:16
 msgid "public.Series created"
 msgstr "Series created"
 
@@ -3810,6 +3800,7 @@ msgid "public.Share with your Threads followers"
 msgstr "Share with your Threads followers"
 
 #. js-lingui-explicit-id
+#: src/features/authors/activity-ui.tsx:144
 #: src/features/authors/author-overview-page.tsx:66
 msgid "public.Show less"
 msgstr "Show less"
@@ -4148,11 +4139,6 @@ msgid "public.Two-factor authentication"
 msgstr "Two-factor authentication"
 
 #. js-lingui-explicit-id
-#: src/features/authors/activity-ui.tsx:44
-msgid "public.Unit: activities"
-msgstr "Unit: activities"
-
-#. js-lingui-explicit-id
 #: src/features/discovery/post-list.tsx:76
 #: src/features/engagement/ui/comments.tsx:498
 #: src/features/engagement/ui/index.tsx:155
@@ -4246,9 +4232,19 @@ msgid "public.View all series"
 msgstr "View all series"
 
 #. js-lingui-explicit-id
+#: src/features/authors/activity-ui.tsx:88
+msgid "public.View by week"
+msgstr "View by week"
+
+#. js-lingui-explicit-id
 #: src/features/posts/post-page.tsx:370
 msgid "public.View profile"
 msgstr "View profile"
+
+#. js-lingui-explicit-id
+#: src/features/authors/activity-ui.tsx:97
+msgid "public.Week"
+msgstr "Week"
 
 #. js-lingui-explicit-id
 #: src/features/auth/ui/login-form.tsx:160

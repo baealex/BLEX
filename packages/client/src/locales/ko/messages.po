@@ -2109,19 +2109,14 @@ msgid "pagination.previous"
 msgstr "이전 페이지"
 
 #. js-lingui-explicit-id
-#: src/features/authors/activity-ui.tsx:41
-msgid "public.{count, plural, one{# activity} other{# activities}}"
-msgstr "{count}회"
-
-#. js-lingui-explicit-id
-#: src/features/authors/activity-ui.tsx:68
-msgid "public.{count, plural, one{# item} other{# items}}"
-msgstr "{count}개"
-
-#. js-lingui-explicit-id
 #: src/features/discovery/search-page.tsx:222
 msgid "public.{count, plural, one{# result} other{# results}}"
 msgstr "{count}개의 결과"
+
+#. js-lingui-explicit-id
+#: src/features/authors/activity-ui.tsx:76
+msgid "public.{count, plural, one{public activity in the past year} other{public activities in the past year}}"
+msgstr "번의 공개 활동 · 지난 1년"
 
 #. js-lingui-explicit-id
 #: src/features/authors/featured-posts.tsx:65
@@ -2132,6 +2127,11 @@ msgstr "포스트 {count}편 모두 보기"
 #: src/features/authors/author-overview-page.tsx:129
 msgid "public.{count, plural, one{See # series} other{See all # series}}"
 msgstr "시리즈 {count}개 모두 보기"
+
+#. js-lingui-explicit-id
+#: src/features/authors/activity-ui.tsx:145
+msgid "public.{count, plural, one{Show # more} other{Show # more}}"
+msgstr "{count}개 더 보기"
 
 #. js-lingui-explicit-id
 #: src/features/posts/post-page.tsx:407
@@ -2260,19 +2260,9 @@ msgid "public.Account menu"
 msgstr "계정 메뉴"
 
 #. js-lingui-explicit-id
-#: src/appearance/author-heatmap.ts:54
-msgid "public.Activity"
+#: src/features/authors/activity-ui.tsx:98
+msgid "public.Activities"
 msgstr "활동"
-
-#. js-lingui-explicit-id
-#: src/features/authors/activity-ui.tsx:66
-msgid "public.Activity history"
-msgstr "활동 내역"
-
-#. js-lingui-explicit-id
-#: src/features/authors/activity-ui.tsx:39
-msgid "public.Activity over the past year"
-msgstr "지난 1년 활동"
 
 #. js-lingui-explicit-id
 #: src/features/authors/profile-ui.tsx:135
@@ -2322,7 +2312,7 @@ msgid "public.Already have an account?"
 msgstr "이미 계정이 있으신가요?"
 
 #. js-lingui-explicit-id
-#: src/features/authors/activity-ui.tsx:60
+#: src/features/authors/activity-ui.tsx:72
 msgid "public.Annual activity"
 msgstr "연간 활동"
 
@@ -2498,7 +2488,7 @@ msgid "public.Comment deleted."
 msgstr "댓글을 삭제했습니다."
 
 #. js-lingui-explicit-id
-#: src/features/authors/activity-ui.tsx:21
+#: src/features/authors/activity-ui.tsx:22
 msgid "public.Comment posted"
 msgstr "댓글을 남겼어요"
 
@@ -2601,7 +2591,7 @@ msgid "public.Could not confirm the result. Check whether your changes were save
 msgstr "요청 결과를 확인하지 못했습니다. 저장 상태를 확인한 뒤 필요한 경우 다시 시도해 주세요."
 
 #. js-lingui-explicit-id
-#: src/appearance/site-client.ts:181
+#: src/appearance/site-client.ts:175
 msgid "public.Could not copy."
 msgstr "복사에 실패했습니다."
 
@@ -3065,7 +3055,7 @@ msgid "public.Link copied"
 msgstr "링크를 복사했어요"
 
 #. js-lingui-explicit-id
-#: src/appearance/site-client.ts:180
+#: src/appearance/site-client.ts:174
 msgid "public.Link copied."
 msgstr "링크가 복사되었습니다."
 
@@ -3186,7 +3176,7 @@ msgid "public.New post"
 msgstr "새 포스트"
 
 #. js-lingui-explicit-id
-#: src/features/authors/activity-ui.tsx:9
+#: src/features/authors/activity-ui.tsx:10
 msgid "public.New post published"
 msgstr "새 포스트를 작성했어요"
 
@@ -3225,11 +3215,6 @@ msgstr "다음 공지"
 #: src/features/work-logs/shared-page.tsx:183
 msgid "public.Next page"
 msgstr "다음 페이지"
-
-#. js-lingui-explicit-id
-#: src/features/authors/activity-ui.tsx:95
-msgid "public.No activity to display"
-msgstr "표시할 활동이 없습니다"
 
 #. js-lingui-explicit-id
 #: src/features/posts/revisions-page.tsx:53
@@ -3281,6 +3266,11 @@ msgstr "공통 태그가 붙은 포스트가 없습니다."
 #: src/features/discovery/discovery-page.tsx:41
 msgid "public.No posts yet"
 msgstr "아직 포스트가 없어요"
+
+#. js-lingui-explicit-id
+#: src/features/authors/activity-ui.tsx:132
+msgid "public.No public activity in the last 30 days."
+msgstr "최근 30일 동안 공개 활동이 없어요."
 
 #. js-lingui-explicit-id
 #: src/features/authors/author-posts-page.tsx:73
@@ -3419,7 +3409,7 @@ msgid "public.Post information"
 msgstr "포스트 정보"
 
 #. js-lingui-explicit-id
-#: src/features/authors/activity-ui.tsx:27
+#: src/features/authors/activity-ui.tsx:28
 msgid "public.Post liked"
 msgstr "좋아요를 눌렀어요"
 
@@ -3723,7 +3713,7 @@ msgid "public.Series"
 msgstr "시리즈"
 
 #. js-lingui-explicit-id
-#: src/features/authors/activity-ui.tsx:15
+#: src/features/authors/activity-ui.tsx:16
 msgid "public.Series created"
 msgstr "시리즈를 만들었어요"
 
@@ -3810,6 +3800,7 @@ msgid "public.Share with your Threads followers"
 msgstr "Threads 팔로워에게 공유"
 
 #. js-lingui-explicit-id
+#: src/features/authors/activity-ui.tsx:144
 #: src/features/authors/author-overview-page.tsx:66
 msgid "public.Show less"
 msgstr "접기"
@@ -4148,11 +4139,6 @@ msgid "public.Two-factor authentication"
 msgstr "2단계 인증"
 
 #. js-lingui-explicit-id
-#: src/features/authors/activity-ui.tsx:44
-msgid "public.Unit: activities"
-msgstr "단위: 활동"
-
-#. js-lingui-explicit-id
 #: src/features/discovery/post-list.tsx:76
 #: src/features/engagement/ui/comments.tsx:498
 #: src/features/engagement/ui/index.tsx:155
@@ -4246,9 +4232,19 @@ msgid "public.View all series"
 msgstr "시리즈 전체 보기"
 
 #. js-lingui-explicit-id
+#: src/features/authors/activity-ui.tsx:88
+msgid "public.View by week"
+msgstr "주별로 보기"
+
+#. js-lingui-explicit-id
 #: src/features/posts/post-page.tsx:370
 msgid "public.View profile"
 msgstr "프로필 보기"
+
+#. js-lingui-explicit-id
+#: src/features/authors/activity-ui.tsx:97
+msgid "public.Week"
+msgstr "주"
 
 #. js-lingui-explicit-id
 #: src/features/auth/ui/login-form.tsx:160
