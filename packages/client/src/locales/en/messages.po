@@ -2120,7 +2120,7 @@ msgstr "{count, plural, one{public activity in the past year} other{public activ
 
 #. js-lingui-explicit-id
 #: src/features/authors/featured-posts.tsx:29
-#: src/features/posts/post-page.tsx:385
+#: src/features/posts/post-page.tsx:360
 msgid "public.{count, plural, one{See # post} other{See all # posts}}"
 msgstr "{count, plural, one{See # post} other{See all # posts}}"
 
@@ -2289,7 +2289,7 @@ msgid "public.After verification, return to settings and try your change again."
 msgstr "After verification, return to settings and try your change again."
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:757
+#: src/features/posts/post-page.tsx:732
 msgid "public.Agent link copied."
 msgstr "Agent link copied."
 
@@ -2336,7 +2336,7 @@ msgid "public.Authenticator code or recovery key"
 msgstr "Authenticator code or recovery key"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:470
+#: src/features/posts/post-page.tsx:445
 msgid "public.Author"
 msgstr "Author"
 
@@ -2356,7 +2356,7 @@ msgid "public.Author notices"
 msgstr "Author notices"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:501
+#: src/features/posts/post-page.tsx:476
 msgid "public.Author website"
 msgstr "Author website"
 
@@ -2394,7 +2394,7 @@ msgid "public.Browse the posts you have liked, most recently liked first."
 msgstr "Browse the posts you have liked, most recently liked first."
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:738
+#: src/features/posts/post-page.tsx:713
 msgid "public.Browser URL"
 msgstr "Browser URL"
 
@@ -2466,7 +2466,7 @@ msgid "public.Close"
 msgstr "Close"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:797
+#: src/features/posts/post-page.tsx:772
 msgid "public.Close table of contents"
 msgstr "Close table of contents"
 
@@ -2772,8 +2772,8 @@ msgid "public.Don't have an account?"
 msgstr "Don't have an account?"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:623
-#: src/features/posts/post-page.tsx:781
+#: src/features/posts/post-page.tsx:598
+#: src/features/posts/post-page.tsx:756
 msgid "public.Edit"
 msgstr "Edit"
 
@@ -2918,7 +2918,7 @@ msgid "public.First page"
 msgstr "First page"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:514
+#: src/features/posts/post-page.tsx:489
 msgid "public.First published"
 msgstr "First published"
 
@@ -3016,7 +3016,7 @@ msgstr "Leave a comment"
 #: src/features/engagement/ui/comments.tsx:509
 #: src/features/engagement/ui/comments.tsx:517
 #: src/features/engagement/ui/index.tsx:155
-#: src/features/posts/post-page.tsx:685
+#: src/features/posts/post-page.tsx:660
 msgid "public.Like"
 msgstr "Like"
 
@@ -3026,7 +3026,7 @@ msgid "public.Like · {value0}"
 msgstr "Like · {value0}"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:700
+#: src/features/posts/post-page.tsx:675
 msgid "public.Like ({value0})"
 msgstr "Like ({value0})"
 
@@ -3058,7 +3058,7 @@ msgid "public.Link copied."
 msgstr "Link copied."
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:762
+#: src/features/posts/post-page.tsx:737
 msgid "public.Link for agents"
 msgstr "Link for agents"
 
@@ -3120,7 +3120,7 @@ msgid "public.Manage social links"
 msgstr "Manage social links"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:763
+#: src/features/posts/post-page.tsx:738
 msgid "public.Markdown reference URL"
 msgstr "Markdown reference URL"
 
@@ -3158,7 +3158,7 @@ msgid "public.Navigate pages"
 msgstr "Navigate pages"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:323
+#: src/features/posts/post-page.tsx:298
 msgid "public.Navigate series"
 msgstr "Navigate series"
 
@@ -3213,7 +3213,7 @@ msgid "public.Next page"
 msgstr "Next page"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:334
+#: src/features/posts/post-page.tsx:309
 msgid "public.Next post"
 msgstr "Next post"
 
@@ -3351,12 +3351,12 @@ msgid "public.Oldest first"
 msgstr "Oldest first"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:598
+#: src/features/posts/post-page.tsx:573
 msgid "public.Only the author can view this post before its scheduled time. It will then appear at its public URL and in RSS, sitemaps, and Markdown."
 msgstr "Only the author can view this post before its scheduled time. It will then appear at its public URL and in RSS, sitemaps, and Markdown."
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:594
+#: src/features/posts/post-page.tsx:569
 msgid "public.Only the author can view this post. Turn off private visibility in post settings to publish it."
 msgstr "Only the author can view this post. Turn off private visibility in post settings to publish it."
 
@@ -3404,7 +3404,7 @@ msgid "public.Pause"
 msgstr "Pause"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:465
+#: src/features/posts/post-page.tsx:440
 msgid "public.Post information"
 msgstr "Post information"
 
@@ -3414,7 +3414,7 @@ msgid "public.Post liked"
 msgstr "Post liked"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:614
+#: src/features/posts/post-page.tsx:589
 msgid "public.Post status"
 msgstr "Post status"
 
@@ -3425,7 +3425,7 @@ msgid "public.Posts"
 msgstr "Posts"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:344
+#: src/features/posts/post-page.tsx:319
 msgid "public.Posts in this series"
 msgstr "Posts in this series"
 
@@ -3451,7 +3451,7 @@ msgid "public.Preview shared page"
 msgstr "Preview shared page"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:514
+#: src/features/posts/post-page.tsx:489
 msgid "public.Preview source"
 msgstr "Preview source"
 
@@ -3480,7 +3480,7 @@ msgid "public.Previous page"
 msgstr "Previous page"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:326
+#: src/features/posts/post-page.tsx:301
 msgid "public.Previous post"
 msgstr "Previous post"
 
@@ -3513,7 +3513,7 @@ msgid "public.Quick search results"
 msgstr "Quick search results"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:359
+#: src/features/posts/post-page.tsx:334
 msgid "public.Reading"
 msgstr "Reading"
 
@@ -3549,7 +3549,7 @@ msgid "public.Record what you tried or learned today."
 msgstr "Record what you tried or learned today."
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:553
+#: src/features/posts/post-page.tsx:528
 #: src/routes/@{$username}/{$slug}/related.page.tsx:27
 msgid "public.Related posts"
 msgstr "Related posts"
@@ -3698,7 +3698,7 @@ msgstr "Searching…"
 
 #. js-lingui-explicit-id
 #: src/features/posts/post-page.tsx:102
-#: src/features/posts/post-page.tsx:449
+#: src/features/posts/post-page.tsx:424
 msgid "public.See how it was written"
 msgstr "See how it was written"
 
@@ -3713,7 +3713,7 @@ msgstr "Select entries to share"
 #: src/features/authors/author-series-page.tsx:24
 #: src/features/authors/profile-ui.tsx:267
 #: src/features/discovery/post-list.tsx:58
-#: src/features/posts/post-page.tsx:288
+#: src/features/posts/post-page.tsx:264
 msgid "public.Series"
 msgstr "Series"
 
@@ -3739,12 +3739,12 @@ msgid "public.Setup token"
 msgstr "Setup token"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:731
+#: src/features/posts/post-page.tsx:706
 msgid "public.Share"
 msgstr "Share"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:667
+#: src/features/posts/post-page.tsx:642
 msgid "public.Share in a feed or message"
 msgstr "Share in a feed or message"
 
@@ -3760,47 +3760,47 @@ msgid "public.Share links · {title}"
 msgstr "Share links · {title}"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:654
+#: src/features/posts/post-page.tsx:629
 msgid "public.Share on Bluesky"
 msgstr "Share on Bluesky"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:666
+#: src/features/posts/post-page.tsx:641
 msgid "public.Share on Facebook"
 msgstr "Share on Facebook"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:660
+#: src/features/posts/post-page.tsx:635
 msgid "public.Share on LinkedIn"
 msgstr "Share on LinkedIn"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:645
+#: src/features/posts/post-page.tsx:620
 msgid "public.Share on Threads"
 msgstr "Share on Threads"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:636
+#: src/features/posts/post-page.tsx:611
 msgid "public.Share on X"
 msgstr "Share on X"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:725
+#: src/features/posts/post-page.tsx:700
 msgid "public.Share post or copy link"
 msgstr "Share post or copy link"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:655
+#: src/features/posts/post-page.tsx:630
 msgid "public.Share with your Bluesky followers"
 msgstr "Share with your Bluesky followers"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:661
+#: src/features/posts/post-page.tsx:636
 msgid "public.Share with your professional network"
 msgstr "Share with your professional network"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:646
+#: src/features/posts/post-page.tsx:621
 msgid "public.Share with your Threads followers"
 msgstr "Share with your Threads followers"
 
@@ -3816,7 +3816,7 @@ msgid "public.Show notice {value0}"
 msgstr "Show notice {value0}"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:714
+#: src/features/posts/post-page.tsx:689
 msgid "public.Show table of contents"
 msgstr "Show table of contents"
 
@@ -3950,7 +3950,7 @@ msgid "public.Sort posts"
 msgstr "Sort posts"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:738
+#: src/features/posts/post-page.tsx:713
 msgid "public.Standard link"
 msgstr "Standard link"
 
@@ -3969,8 +3969,8 @@ msgstr "Stop sharing"
 #: src/features/authors/profile-ui.tsx:65
 #: src/features/engagement/ui/index.tsx:88
 #: src/features/engagement/ui/index.tsx:98
-#: src/features/posts/post-page.tsx:410
-#: src/features/posts/post-page.tsx:429
+#: src/features/posts/post-page.tsx:385
+#: src/features/posts/post-page.tsx:404
 msgid "public.Subscribe"
 msgstr "Subscribe"
 
@@ -3981,7 +3981,7 @@ msgstr "Subscribe to {value0}"
 
 #. js-lingui-explicit-id
 #: src/features/authors/profile-ui.tsx:39
-#: src/features/posts/post-page.tsx:400
+#: src/features/posts/post-page.tsx:375
 msgid "public.Subscribe to new posts by {value0}"
 msgstr "Subscribe to new posts by {value0}"
 
@@ -3989,7 +3989,7 @@ msgstr "Subscribe to new posts by {value0}"
 #: src/features/authors/profile-ui.tsx:65
 #: src/features/engagement/ui/index.tsx:88
 #: src/features/engagement/ui/telegram-hint.tsx:86
-#: src/features/posts/post-page.tsx:429
+#: src/features/posts/post-page.tsx:404
 msgid "public.Subscribed"
 msgstr "Subscribed"
 
@@ -4009,7 +4009,7 @@ msgstr "Switch to light mode"
 #: src/features/posts/post-page.tsx:159
 #: src/features/posts/post-page.tsx:215
 #: src/features/posts/post-page.tsx:219
-#: src/features/posts/post-page.tsx:795
+#: src/features/posts/post-page.tsx:770
 msgid "public.Table of contents"
 msgstr "Table of contents"
 
@@ -4029,7 +4029,7 @@ msgid "public.Tagged in {value0} posts"
 msgstr "Tagged in {value0} posts"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:521
+#: src/features/posts/post-page.tsx:496
 msgid "public.Tags"
 msgstr "Tags"
 
@@ -4084,12 +4084,12 @@ msgid "public.This entry and its attachments will disappear from every share lin
 msgstr "This entry and its attachments will disappear from every share link. Links containing only this entry will close."
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:307
+#: src/features/posts/post-page.tsx:283
 msgid "public.This hidden post does not appear in the series list."
 msgstr "This hidden post does not appear in the series list."
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:587
+#: src/features/posts/post-page.tsx:562
 msgid "public.This is a draft preview."
 msgstr "This is a draft preview."
 
@@ -4104,17 +4104,17 @@ msgid "public.This page may have been deleted, moved, or temporarily unavailable
 msgstr "This page may have been deleted, moved, or temporarily unavailable."
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:593
+#: src/features/posts/post-page.tsx:568
 msgid "public.This post is private."
 msgstr "This post is private."
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:597
+#: src/features/posts/post-page.tsx:572
 msgid "public.This post is scheduled."
 msgstr "This post is scheduled."
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:588
+#: src/features/posts/post-page.tsx:563
 msgid "public.This preview shows the last saved content as a post. Only the author can view it, and it is excluded from public lists and search."
 msgstr "This preview shows the last saved content as a post. Only the author can view it, and it is excluded from public lists and search."
 
@@ -4152,7 +4152,7 @@ msgstr "Two-factor authentication"
 #: src/features/discovery/post-list.tsx:76
 #: src/features/engagement/ui/comments.tsx:498
 #: src/features/engagement/ui/index.tsx:155
-#: src/features/posts/post-page.tsx:685
+#: src/features/posts/post-page.tsx:660
 msgid "public.Unlike"
 msgstr "Unlike"
 
@@ -4168,7 +4168,7 @@ msgid "public.Update"
 msgstr "Update"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:518
+#: src/features/posts/post-page.tsx:493
 msgid "public.Updated"
 msgstr "Updated"
 
@@ -4237,7 +4237,7 @@ msgid "public.View {value0}'s profile"
 msgstr "View {value0}'s profile"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:310
+#: src/features/posts/post-page.tsx:286
 msgid "public.View all series"
 msgstr "View all series"
 
@@ -4247,7 +4247,7 @@ msgid "public.View by week"
 msgstr "View by week"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:490
+#: src/features/posts/post-page.tsx:465
 msgid "public.View profile"
 msgstr "View profile"
 
@@ -4318,7 +4318,7 @@ msgid "public.Write a reply…"
 msgstr "Write a reply…"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:637
+#: src/features/posts/post-page.tsx:612
 msgid "public.Write a shared post in a new window"
 msgstr "Write a shared post in a new window"
 

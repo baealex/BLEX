@@ -244,30 +244,6 @@ const textLink =
     'inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-content transition-colors duration-150 hover:text-content-secondary';
 const sectionTitle = 'text-xl font-bold tracking-tight text-content';
 
-function SeriesProgress({ index, total }: { index: number; total: number }) {
-    // Past two dozen posts, separate steps would blur into one line anyway.
-    if (total > 24)
-        return (
-            <div aria-hidden="true" className="mt-3.5 h-0.5 overflow-hidden rounded-full bg-line">
-                <div
-                    className="h-full rounded-full bg-content-secondary"
-                    style={{ width: `${(index / total) * 100}%` }}
-                />
-            </div>
-        );
-    const steps = Array.from({ length: total }, (_, position) => position + 1);
-    return (
-        <div aria-hidden="true" className="mt-3.5 flex gap-1">
-            {steps.map((step) => (
-                <span
-                    key={step}
-                    className={`h-0.5 flex-1 rounded-full ${step === index ? 'bg-content' : step < index ? 'bg-content-hint/60' : 'bg-line'}`}
-                />
-            ))}
-        </div>
-    );
-}
-
 const seriesTile =
     'flex min-h-11 flex-col gap-1.5 rounded-2xl px-5 pt-4 pb-5 ring-1 ring-line transition-shadow duration-150 hover:ring-line-strong active:scale-[0.99]';
 
@@ -318,7 +294,6 @@ function PostSeries({
     return (
         <section className="mt-20" aria-labelledby="post-series-heading">
             {heading}
-            <SeriesProgress index={index} total={total} />
             {(previous || next) && (
                 <nav aria-label={ui('Navigate series')} className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
                     {previous && (
