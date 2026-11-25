@@ -214,15 +214,22 @@ export function ProfileStrip({ profile }: { profile: AuthorProfileView }): React
     const href = `/@${encodeURIComponent(username)}`;
     return (
         <div className="flex items-center gap-3 sm:gap-4">
-            <a href={href} className="shrink-0">
-                <img className="size-11 rounded-full object-cover ring-1 ring-line sm:size-12" src={avatar} alt="" />
+            {/* One link names the author, so the avatar is not a separate, unnamed stop. */}
+            <a href={href} className="group flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
+                <img
+                    className="size-11 shrink-0 rounded-full object-cover ring-1 ring-line sm:size-12"
+                    src={avatar}
+                    alt=""
+                />
+                <span className="min-w-0">
+                    <span className="block truncate text-lg font-bold tracking-tight text-content transition-colors duration-150 group-hover:text-content-secondary">
+                        {username}
+                    </span>
+                    {bio ? (
+                        <span className="hidden truncate text-sm text-content-secondary sm:block">{bio}</span>
+                    ) : null}
+                </span>
             </a>
-            <div className="min-w-0 flex-1">
-                <a href={href} className="block truncate text-lg font-bold tracking-tight text-content">
-                    {username}
-                </a>
-                {bio ? <p className="hidden truncate text-sm text-content-secondary sm:block">{bio}</p> : null}
-            </div>
             <ProfileAction profile={profile} />
         </div>
     );

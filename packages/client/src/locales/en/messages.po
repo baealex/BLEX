@@ -2348,7 +2348,7 @@ msgid "public.Author filter:"
 msgstr "Author filter:"
 
 #. js-lingui-explicit-id
-#: src/features/authors/profile-ui.tsx:260
+#: src/features/authors/profile-ui.tsx:267
 msgid "public.Author menu"
 msgstr "Author menu"
 
@@ -3372,7 +3372,7 @@ msgid "public.or"
 msgstr "or"
 
 #. js-lingui-explicit-id
-#: src/features/authors/profile-ui.tsx:244
+#: src/features/authors/profile-ui.tsx:251
 msgid "public.Overview"
 msgstr "Overview"
 
@@ -3420,7 +3420,7 @@ msgstr "Post status"
 
 #. js-lingui-explicit-id
 #: src/features/authors/author-posts-page.tsx:23
-#: src/features/authors/profile-ui.tsx:249
+#: src/features/authors/profile-ui.tsx:256
 msgid "public.Posts"
 msgstr "Posts"
 
@@ -3707,7 +3707,7 @@ msgstr "Select entries to share"
 #: src/features/authors/author-overview-page.tsx:127
 #: src/features/authors/author-series-detail-page.tsx:16
 #: src/features/authors/author-series-page.tsx:24
-#: src/features/authors/profile-ui.tsx:255
+#: src/features/authors/profile-ui.tsx:262
 #: src/features/discovery/post-list.tsx:58
 msgid "public.Series"
 msgstr "Series"

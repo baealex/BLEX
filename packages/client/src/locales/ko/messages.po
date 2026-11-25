@@ -2348,7 +2348,7 @@ msgid "public.Author filter:"
 msgstr "작성자 필터: "
 
 #. js-lingui-explicit-id
-#: src/features/authors/profile-ui.tsx:260
+#: src/features/authors/profile-ui.tsx:267
 msgid "public.Author menu"
 msgstr "작성자 메뉴"
 
@@ -3372,7 +3372,7 @@ msgid "public.or"
 msgstr "또는"
 
 #. js-lingui-explicit-id
-#: src/features/authors/profile-ui.tsx:244
+#: src/features/authors/profile-ui.tsx:251
 msgid "public.Overview"
 msgstr "개요"
 
@@ -3420,7 +3420,7 @@ msgstr "포스트 상태"
 
 #. js-lingui-explicit-id
 #: src/features/authors/author-posts-page.tsx:23
-#: src/features/authors/profile-ui.tsx:249
+#: src/features/authors/profile-ui.tsx:256
 msgid "public.Posts"
 msgstr "포스트"
 
@@ -3707,7 +3707,7 @@ msgstr "기록 골라 공유하기"
 #: src/features/authors/author-overview-page.tsx:127
 #: src/features/authors/author-series-detail-page.tsx:16
 #: src/features/authors/author-series-page.tsx:24
-#: src/features/authors/profile-ui.tsx:255
+#: src/features/authors/profile-ui.tsx:262
 #: src/features/discovery/post-list.tsx:58
 msgid "public.Series"
 msgstr "시리즈"

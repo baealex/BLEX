@@ -248,9 +248,13 @@ test('renders author overview and posts and redirects legacy author aliases', as
   assert.match(overview.body, /A useful subtitle/);
   assert.match(overview.body, /images\/public-new\.jpg/);
   // The series preview follows the author's own order and leaves hidden series out.
-  assert.ok(overview.body.indexOf('Public series') > 0);
-  assert.ok(overview.body.indexOf('Public series') < overview.body.indexOf('Other series'));
-  assert.doesNotMatch(overview.body, /Hidden series/);
+  // Search the rendered markup only, since the page data repeats the same names.
+  const markup = overview.body.replace(/<script\b[\s\S]*?<\/script>/g, '');
+  const seriesHeading = markup.indexOf('>시리즈</h2>');
+  assert.ok(seriesHeading > 0);
+  assert.ok(seriesHeading < markup.indexOf('Public series'));
+  assert.ok(markup.indexOf('Public series') < markup.indexOf('Other series'));
+  assert.doesNotMatch(markup, /Hidden series/);
   assert.match(overview.body, /rel="canonical" href="https:\/\/blog\.example\/@writer"/);
 
   const posts = await app.inject('/@writer/posts?q=Orion');

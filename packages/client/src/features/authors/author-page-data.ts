@@ -10,6 +10,7 @@ import type {
 } from '@blex/contracts/public';
 import { type DiscoveryPagination, publicBrand, publicLikes } from '../discovery/discovery-page-data';
 import type { AboutDraft } from './about-draft';
+import { isLongIntroduction } from './introduction-length';
 import { type PostCardLikes, type PostCardView, postCardView, postPath } from '../discovery/post-list';
 import { getDocumentLocale } from '../../i18n/locale.js';
 import { avatarUrl, dateLabel, dateValue, mediaUrl, noticeLink, safeExternalUrl } from '../discovery/view-helpers';
@@ -261,13 +262,6 @@ function profileView(
 function postImage(post: PostRow): string | null {
     const hasImage = Boolean(post.image && post.image !== 'None' && post.image !== 'null');
     return hasImage ? mediaUrl(post.image) : null;
-}
-
-/** About eight short paragraphs or a long one fold behind a toggle. */
-function isLongIntroduction(html: string): boolean {
-    const blocks = html.match(/<(?:p|li|h[1-6]|blockquote|pre|hr|img|table)\b/gi)?.length ?? 0;
-    const text = html.replace(/<[^>]*>/g, '').trim();
-    return blocks > 6 || text.length > 360;
 }
 
 export function featuredPostsView(
