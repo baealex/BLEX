@@ -352,23 +352,36 @@ const openEditor = async () => {
 
 const warnBeforeLeavingEditor = async () => {
     const drafts = '**/v1/drafts';
+    const series = '**/v1/setting/series';
     const { promise: released, resolve: release } = Promise.withResolvers();
+    const { promise: typed, resolve: answerSeries } = Promise.withResolvers();
     // Holding the autosave keeps the title unsaved while the warning is checked.
     await page.route(drafts, async (route) => {
         if (route.request().method() !== 'POST') return route.continue();
         await released;
         return route.abort();
     });
+    // The series list arrives after the writer starts typing, and the typed title must stay unsaved.
+    await page.route(series, async (route) => {
+        await typed;
+        return route.continue();
+    });
     try {
         await open('/');
         await page.evaluate(() => {
             window.__smokeSameDocument = true;
         });
+        const seriesAnswered = page.waitForResponse((response) => response.url().endsWith('/v1/setting/series'));
         await page.locator('[data-site-header] a[href="/write"]').first().click();
         const title = page.getByPlaceholder('제목을 입력하세요');
         await expect(title).toBeVisible();
         await expect(page).toHaveURL(`${origin}/write`);
         await title.fill('Unsaved title');
+        answerSeries();
+        await seriesAnswered;
+        await page.evaluate(
+            () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+        );
         const warning = page.getByRole('dialog', { name: '저장되지 않은 변경사항' });
         const home = page.locator('[data-site-header] a[href="/"]').first();
         await home.click();
@@ -386,6 +399,8 @@ const warnBeforeLeavingEditor = async () => {
         expect(await page.evaluate(() => window.__smokeSameDocument)).toBe(true);
     } finally {
         release();
+        answerSeries();
+        await page.unroute(series);
         await page.unroute(drafts);
     }
 };

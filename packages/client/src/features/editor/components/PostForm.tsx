@@ -24,7 +24,6 @@ interface PostFormData {
 interface PostFormProps {
     beforeContent?: React.ReactNode;
     formRef?: React.RefObject<HTMLFormElement | null>;
-    isLoading: boolean;
     formData: PostFormData;
     tags: string[];
     imagePreview: string | null;
@@ -44,7 +43,6 @@ interface PostFormProps {
 const PostForm = ({
     beforeContent,
     formRef: externalFormRef,
-    isLoading,
     formData,
     tags,
     imagePreview,
@@ -80,31 +78,29 @@ const PostForm = ({
                 {beforeContent}
 
                 <div className="mb-8">
-                    {!isLoading && (
-                        <TiptapEditor
-                            name="contentHtml"
-                            content={formData.content}
-                            locale={i18n.locale}
-                            ariaLabel={t({
-                                id: 'editor.fields.content',
-                                message: 'Content'
-                            })}
-                            onChange={onContentChange}
-                            placeholder={t({
-                                id: 'editor.fields.content_placeholder',
-                                message: 'Start writing...'
-                            })}
-                            onImageUpload={onEditorImageUpload}
-                            onImageUploadError={onEditorImageUploadError}
-                            onUploadStateChange={onEditorUploadStateChange}
-                            onSearchPostLinks={(query, { signal }) =>
-                                searchPostLinks(query, {
-                                    signal,
-                                    currentPostUrl: formData.url
-                                })
-                            }
-                        />
-                    )}
+                    <TiptapEditor
+                        name="contentHtml"
+                        content={formData.content}
+                        locale={i18n.locale}
+                        ariaLabel={t({
+                            id: 'editor.fields.content',
+                            message: 'Content'
+                        })}
+                        onChange={onContentChange}
+                        placeholder={t({
+                            id: 'editor.fields.content_placeholder',
+                            message: 'Start writing...'
+                        })}
+                        onImageUpload={onEditorImageUpload}
+                        onImageUploadError={onEditorImageUploadError}
+                        onUploadStateChange={onEditorUploadStateChange}
+                        onSearchPostLinks={(query, { signal }) =>
+                            searchPostLinks(query, {
+                                signal,
+                                currentPostUrl: formData.url
+                            })
+                        }
+                    />
                 </div>
 
                 <div className="mb-4">
