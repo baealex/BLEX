@@ -6,6 +6,7 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 
 import { getPosts, getReservedPosts, type Post as ApiPost } from '~/lib/api/posts';
 import { getTags, getSeries } from '~/lib/api/settings';
+import { postClassificationDraftsKey } from '~/lib/signed-in-drafts';
 
 export interface Post extends ApiPost {
     persistedTag: string;
@@ -33,8 +34,6 @@ interface PostClassificationDraft {
     hasSeriesChanged: boolean;
 }
 
-const POST_CLASSIFICATION_DRAFTS_KEY = 'blex:settings-post-classification-drafts';
-
 const getPostClassificationDraftKey = (username: string, postUrl: string) => `${username}:${postUrl}`;
 
 const isPostClassificationDraft = (value: unknown): value is PostClassificationDraft => {
@@ -53,7 +52,7 @@ const readPostClassificationDrafts = (): Record<string, PostClassificationDraft>
     if (typeof window === 'undefined') return {};
 
     try {
-        const storedDrafts = window.sessionStorage.getItem(POST_CLASSIFICATION_DRAFTS_KEY);
+        const storedDrafts = window.sessionStorage.getItem(postClassificationDraftsKey);
         if (!storedDrafts) return {};
 
         const parsedDrafts: unknown = JSON.parse(storedDrafts);
@@ -75,10 +74,10 @@ const writePostClassificationDrafts = (drafts: Record<string, PostClassification
 
     try {
         if (Object.keys(drafts).length === 0) {
-            window.sessionStorage.removeItem(POST_CLASSIFICATION_DRAFTS_KEY);
+            window.sessionStorage.removeItem(postClassificationDraftsKey);
             return;
         }
-        window.sessionStorage.setItem(POST_CLASSIFICATION_DRAFTS_KEY, JSON.stringify(drafts));
+        window.sessionStorage.setItem(postClassificationDraftsKey, JSON.stringify(drafts));
     } catch {
         // Storage can be unavailable in restricted browser contexts. In-memory editing still works.
     }
