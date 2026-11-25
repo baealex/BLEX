@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { ui } from '../i18n/public-ui.js';
 import { SiteFooter } from '../appearance/shell.js';
 import type { publicBrand } from '../features/discovery/discovery-page-data.js';
 
@@ -32,19 +33,43 @@ export function ScreenPage({ data, children }: { data: ScreenPageData; children:
     );
 }
 
+/**
+ * Says that a screen or settings tab could not load or render; the cause stays in the console. Browsers keep a
+ * module that failed to load, so only a new page can try again. The application answers the button, because
+ * the server's copy of this message has no handlers.
+ */
+export function ScreenFailureMessage() {
+    return (
+        <div role="alert" className="flex min-h-52 flex-col items-center justify-center gap-4 py-12 text-center">
+            <p className="text-sm font-medium text-content-secondary">{ui('Could not load this page.')}</p>
+            <button
+                type="button"
+                data-blex-reload
+                className="rounded-full border border-line bg-surface-elevated px-5 py-2 text-sm font-semibold text-content transition-colors duration-150 hover:border-line-strong hover:bg-surface-subtle"
+            >
+                {ui('Reload')}
+            </button>
+        </div>
+    );
+}
+
+/** The status the server sends in a screen's place. It already holds the message for a screen that cannot load. */
 export function ScreenLoading({ name, text }: { name: string; text: string }) {
     return (
-        <div data-screen={name} data-screen-status="pending">
+        <div data-screen={name} data-screen-status="pending" className="group">
             <div
                 role="status"
                 aria-live="polite"
-                className="flex min-h-52 items-center justify-center gap-2 py-12 text-sm font-medium text-content-secondary"
+                className="flex min-h-52 items-center justify-center gap-2 py-12 text-sm font-medium text-content-secondary group-data-[screen-status=error]:hidden"
             >
                 <span
                     aria-hidden="true"
                     className="h-4 w-4 animate-spin rounded-full border-2 border-line-strong border-t-action motion-reduce:animate-none"
                 />
                 <span>{text}</span>
+            </div>
+            <div className="hidden group-data-[screen-status=error]:block">
+                <ScreenFailureMessage />
             </div>
         </div>
     );

@@ -1,7 +1,7 @@
 import { type ReactNode, StrictMode, Suspense, useEffect, useState } from 'react';
 import { I18nProvider } from '@lingui/react';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
-import { ScreenPage } from './application/screen-page';
+import { ScreenFailureMessage, ScreenPage } from './application/screen-page';
 import ErrorBoundary from './components/ErrorBoundary';
 import { parseScreen, parseScreenPage, type Screen } from './components/screen-props';
 import { i18n } from './i18n';
@@ -18,8 +18,6 @@ export async function prepareScreen(value: unknown, locale: AppLocale): Promise<
     if (data) setDocumentTimeZone(data.timeZone);
     await activateScreenLocale(locale);
 }
-
-const screenErrorText = (name: string) => `Component Error: ${name}`;
 
 /** Loads a screen's module, so the screen renders in one pass when its page shows. */
 async function loadScreenElement(screen: Screen): Promise<ReactNode> {
@@ -58,7 +56,7 @@ function ScreenHost({ name, children }: { name: string; children: ReactNode }) {
             data-screen-error={status === 'error' ? 'render_error' : undefined}
         >
             <StrictMode>
-                <ErrorBoundary fallback={<div>{screenErrorText(name)}</div>} onError={() => setStatus('error')}>
+                <ErrorBoundary fallback={<ScreenFailureMessage />} onError={() => setStatus('error')}>
                     <Suspense>
                         {children}
                         <MountNotifier
@@ -73,7 +71,7 @@ function ScreenHost({ name, children }: { name: string; children: ReactNode }) {
 
 const ScreenFailure = ({ name }: { name: string }) => (
     <div data-screen={name} data-screen-status="error" data-screen-error="bootstrap_error">
-        {screenErrorText(name)}
+        <ScreenFailureMessage />
     </div>
 );
 
