@@ -33,6 +33,7 @@ import {
     deleteSeries,
     type SeriesWithId as Series
 } from '~/lib/api/settings';
+import { navigateTo } from '~/application/navigation';
 
 interface SortableSeriesItemProps {
     series: Series;
@@ -53,7 +54,7 @@ const SortableSeriesItem = ({ series, username, onEdit, onDelete }: SortableSeri
     };
 
     const handleView = () => {
-        window.location.assign(`/@${username}/series/${series.url}`);
+        navigateTo(`/@${username}/series/${series.url}`);
     };
 
     const handleDelete = async () => {

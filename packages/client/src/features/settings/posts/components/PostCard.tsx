@@ -26,6 +26,7 @@ import type { Series } from '~/lib/api/settings';
 import { formatDateOnly } from '~/i18n/formatters';
 import { normalizeLocale } from '~/i18n/locale';
 import { PostShareLinksDialog } from './PostShareLinksDialog';
+import { navigateTo } from '~/application/navigation';
 
 interface PostCardProps {
     post: Post;
@@ -128,7 +129,7 @@ const PostCard = ({
         });
 
     const handleEditPost = () => {
-        window.location.assign(`/@${username}/${post.url}/edit`);
+        navigateTo(`/@${username}/${post.url}/edit`);
     };
 
     const handleCloseShareLinks = () => {

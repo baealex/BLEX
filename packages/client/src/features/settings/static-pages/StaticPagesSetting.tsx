@@ -7,6 +7,7 @@ import { useConfirm } from '~/hooks/useConfirm';
 import { SettingsEmptyState, SettingsHeader } from '../layout';
 import { getStaticPages, deleteStaticPage, type StaticPageData } from '~/lib/api/settings';
 import { StaticPageList } from './components/StaticPageList';
+import { navigateTo } from '~/application/navigation';
 
 const StaticPagesSetting = () => {
     const { i18n, t } = useLingui();
@@ -97,7 +98,7 @@ const StaticPagesSetting = () => {
             return;
         }
 
-        window.location.assign(`/static/${page.slug}`);
+        navigateTo(`/static/${page.slug}`);
     };
 
     const createAction = (

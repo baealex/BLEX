@@ -5,6 +5,7 @@ import { Button, LoadingState, Tabs } from '~/components/shared';
 import { SettingsHeader } from '../layout';
 import { usePostsFilterState } from './hooks/usePostsData';
 import { DraftPostListContent, PostsFilter, PostListContent, TrashPostListContent } from './components';
+import { navigateTo } from '~/application/navigation';
 
 type PostStatusTab = 'published' | 'scheduled' | 'drafts' | 'trash';
 
@@ -124,7 +125,7 @@ const PostsSetting = () => {
             variant="primary"
             size="md"
             className="min-h-11! w-full [@media(pointer:fine)]:min-h-10! sm:w-auto"
-            onClick={() => window.location.assign('/write')}
+            onClick={() => navigateTo('/write')}
         >
             <Trans id="settings.posts.create">Write a new post</Trans>
         </Button>
