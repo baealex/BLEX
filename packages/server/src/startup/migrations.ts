@@ -13,7 +13,13 @@ const initialMigration = '0001_init';
 async function migrate(databasePath: string, args: string[]) {
   try {
     await execute(process.execPath, [prismaCli, 'migrate', ...args, `--schema=${schema}`], {
-      env: { ...process.env, DATABASE_URL: `file:${resolve(databasePath)}`, PRISMA_HIDE_UPDATE_MESSAGE: 'true' },
+      // The CLI runs at every start, and its update check would otherwise contact Prisma's servers each time.
+      env: {
+        ...process.env,
+        DATABASE_URL: `file:${resolve(databasePath)}`,
+        PRISMA_HIDE_UPDATE_MESSAGE: 'true',
+        CHECKPOINT_DISABLE: '1',
+      },
       maxBuffer: 4 * 1024 * 1024,
     });
   } catch (error) {
