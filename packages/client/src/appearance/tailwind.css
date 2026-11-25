@@ -118,11 +118,25 @@
     backdrop-filter: blur(var(--blur-frosted));
 }
 
-/* Bars that float at the bottom of the window stay opaque, so the text they pass over never shows through. */
+/*
+ * Bars that float at the bottom of the window stay opaque, so the text they pass over never shows through.
+ * They are lit from above and a little to the left, where the eye assumes light comes from: the rim and a soft
+ * sheen brighten at the upper left and the base darkens slightly toward the bottom, so the bar reads as raised.
+ */
 @utility floating-bar-surface {
-    background-color: var(--color-surface-elevated);
+    border: 1px solid transparent;
+    background:
+        radial-gradient(9rem 4rem at 2rem 0, var(--color-floating-bar-sheen), transparent 70%) padding-box,
+        linear-gradient(var(--color-floating-bar-top), var(--color-floating-bar-bottom)) padding-box,
+        linear-gradient(
+                155deg,
+                var(--color-floating-bar-rim-lit),
+                var(--color-line) 38% 62%,
+                var(--color-floating-bar-rim-shade)
+            )
+            border-box;
     box-shadow:
-        0 0 0 1px var(--color-line),
+        inset 0 1px 0 var(--color-floating-bar-highlight),
         var(--shadow-floating-bar);
 }
 

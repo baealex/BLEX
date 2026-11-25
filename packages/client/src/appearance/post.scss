@@ -12,17 +12,13 @@
     bottom: calc(1.5rem + env(safe-area-inset-bottom));
 }
 
-// The same opaque surface as the editors' bottom bar (`floating-bar-surface`), so text never shows through.
+// Wears `floating-bar-surface` in the markup, the same surface as the editors' bottom bar.
 .post-action-bar {
     display: flex;
     align-items: center;
     gap: 0.25rem;
     padding: 0.375rem 0.5rem;
     border-radius: 999px;
-    background: var(--color-surface-elevated);
-    box-shadow:
-        0 0 0 1px var(--color-line),
-        var(--shadow-floating-bar);
 }
 
 .post-action-divider {

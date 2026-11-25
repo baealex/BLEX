@@ -672,7 +672,7 @@ function PostDock({ data }: { data: PostPageData }) {
     return (
         <>
             <div className="post-action-dock pointer-events-none fixed inset-x-0 z-30 flex justify-center">
-                <div className="post-action-bar pointer-events-auto">
+                <div className="post-action-bar floating-bar-surface pointer-events-auto">
                     {data.visibility === 'public' && (
                         <>
                             {like?.canLike ? (
@@ -681,7 +681,7 @@ function PostDock({ data }: { data: PostPageData }) {
                                     <input type="hidden" name="returnTo" value={postPath} />
                                     <button
                                         type="submit"
-                                        className={`${dockButton} gap-1.5 px-3 text-sm font-medium`}
+                                        className={`${dockButton} gap-2 px-4 text-sm font-medium`}
                                         aria-label={`${like.isLiked ? ui('Unlike') : ui('Like')} (${like.countLikes})`}
                                         aria-pressed={like.isLiked}
                                     >
@@ -696,7 +696,7 @@ function PostDock({ data }: { data: PostPageData }) {
                                 <LoginPromptLink
                                     returnTo={postPath}
                                     action="like"
-                                    className={`${dockButton} gap-1.5 px-3 text-sm font-medium`}
+                                    className={`${dockButton} gap-2 px-4 text-sm font-medium`}
                                     aria-label={ui('Like ({value0})', { value0: like?.countLikes ?? 0 })}
                                 >
                                     <SiteIcon name="heart" className="size-4" />

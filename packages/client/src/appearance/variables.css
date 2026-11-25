@@ -101,6 +101,12 @@
         --blur-floating-glass: 10px;
         --shadow-floating-glass: 0 6px 20px rgb(15 23 42 / 0.10);
         --shadow-floating-bar: 0 12px 32px -8px rgb(0 0 0 / 0.16);
+        --color-floating-bar-top: #ffffff;
+        --color-floating-bar-bottom: #f6f6f8;
+        --color-floating-bar-sheen: rgb(255 255 255 / 1);
+        --color-floating-bar-highlight: #ffffff;
+        --color-floating-bar-rim-lit: #f7f7f8;
+        --color-floating-bar-rim-shade: #d2d2d7;
 
         /* Branding / Media */
         --logo-filter: none;
@@ -217,6 +223,12 @@
         --blur-floating-glass: 12px;
         --shadow-floating-glass: 0 8px 24px rgb(0 0 0 / 0.40);
         --shadow-floating-bar: 0 12px 32px -8px rgb(0 0 0 / 0.55);
+        --color-floating-bar-top: #2d2d2d;
+        --color-floating-bar-bottom: #262626;
+        --color-floating-bar-sheen: rgb(255 255 255 / 0.07);
+        --color-floating-bar-highlight: rgb(255 255 255 / 0.06);
+        --color-floating-bar-rim-lit: #696969;
+        --color-floating-bar-rim-shade: #303030;
 
         --logo-filter: invert(1);
         --media-filter: brightness(0.85) saturate(0.92);
