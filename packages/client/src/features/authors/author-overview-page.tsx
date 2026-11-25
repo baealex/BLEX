@@ -1,4 +1,4 @@
-import { Suspense, use } from 'react';
+import { Suspense, use, useEffect, useRef, useState } from 'react';
 import { SiteIcon } from '../../appearance/icons.js';
 import { SiteFooter } from '../../appearance/shell.js';
 import { ui } from '../../i18n/public-ui.js';
@@ -7,7 +7,7 @@ import { AuthorActivitySection } from './activity-ui';
 import { authorAboutMarkdownSelector, authorAboutSelector } from './author-markup';
 import type { AuthorMountContext, AuthorNoticeView, AuthorOverviewData } from './author-page-data';
 import { FeaturedPostsSection } from './featured-posts';
-import { AuthorTabs, ProfileHeader } from './profile-ui';
+import { AuthorTabs, ProfileHeader, authorSectionTitle } from './profile-ui';
 
 type AboutEditorType = typeof AboutEditorComponent;
 
@@ -27,9 +27,50 @@ function DeferredAboutEditor({ loading, ...props }: AboutEditorProps & { loading
 
 function AboutHeading() {
     return (
-        <div className="mb-6">
-            <h2 className="text-2xl font-bold text-content">{ui('Bio')}</h2>
+        <div className="mb-4">
+            <h2 className={authorSectionTitle}>{ui('Bio')}</h2>
         </div>
+    );
+}
+
+/**
+ * A long introduction starts folded. Focusing a link inside it unfolds it,
+ * so keyboard users never land on text the fold hides.
+ */
+function AboutText({ html, collapsible }: { html: string; collapsible: boolean }) {
+    const [open, setOpen] = useState(!collapsible);
+    const text = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        const node = text.current;
+        if (open || !node) return;
+        const unfold = () => setOpen(true);
+        node.addEventListener('focusin', unfold);
+        return () => node.removeEventListener('focusin', unfold);
+    }, [open]);
+    return (
+        <>
+            <div
+                ref={text}
+                id="author-about"
+                className={`prose blog-post-content${open ? '' : ' max-h-60 overflow-hidden [mask-image:linear-gradient(#000_55%,transparent)]'}`}
+                dangerouslySetInnerHTML={{ __html: html }}
+            />
+            {collapsible ? (
+                <button
+                    type="button"
+                    aria-expanded={open}
+                    aria-controls="author-about"
+                    onClick={() => setOpen(!open)}
+                    className="mt-2 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-content transition-colors duration-150 hover:text-content-secondary"
+                >
+                    {open ? ui('Show less') : ui('Show the full introduction')}
+                    <SiteIcon
+                        name="chevron-down"
+                        className={`text-xs transition-transform duration-150${open ? ' rotate-180' : ''}`}
+                    />
+                </button>
+            ) : null}
+        </>
     );
 }
 
@@ -39,7 +80,7 @@ function NoticeBody({ notice, position }: { notice: AuthorNoticeView; position: 
             <div className="min-w-0 flex-1">
                 <h3 className="truncate text-base font-semibold leading-snug text-content">{notice.title}</h3>
             </div>
-            <div className="flex shrink-0 items-center gap-2 text-content-hint">
+            <div className="flex shrink-0 items-center gap-2 text-content-secondary">
                 {position ? <span className="text-[11px] font-medium tabular-nums">{position}</span> : null}
                 <SiteIcon name="arrow-right" className="text-xs" />
             </div>
@@ -52,11 +93,11 @@ function NoticeSection({ notices }: { notices: AuthorNoticeView[] }) {
     const className =
         'group block py-3.5 transition-colors duration-150 hover:bg-surface-subtle/50 active:bg-surface-subtle/70';
     return (
-        <section className="mb-14" aria-label={ui('Author notices')}>
-            <div className="mb-4 flex items-end justify-between gap-4">
-                <h2 className="text-2xl font-bold tracking-tight text-content">{ui('Notices')}</h2>
+        <section aria-label={ui('Author notices')}>
+            <div className="mb-3 flex items-center justify-between gap-4">
+                <h2 className={authorSectionTitle}>{ui('Notices')}</h2>
                 {notices.length > 1 ? (
-                    <span className="pb-1 text-xs font-medium tabular-nums text-content-hint">
+                    <span className="text-xs font-medium tabular-nums text-content-secondary">
                         {ui('{value0, plural, one{# notice} other{# notices}}', { value0: notices.length })}
                     </span>
                 ) : null}
@@ -90,7 +131,7 @@ function AboutSection({ about, content }: { about: AuthorOverviewData['about']; 
         return (
             <section>
                 <AboutHeading />
-                <div className="prose blog-post-content" dangerouslySetInnerHTML={{ __html: content.html }} />
+                <AboutText html={content.html} collapsible={about.collapsible} />
             </section>
         );
     const editorProps = { aboutHtml: content.html, aboutMarkdown: content.markdown, editPath: about.editPath };
@@ -120,13 +161,14 @@ export function AuthorOverviewPage({ data, about }: { data: AuthorOverviewData; 
                             <AuthorTabs profile={data.profile} active="overview" />
                         </div>
                     ) : null}
+                    {/* Posts come before the introduction, so a long one never pushes them out of reach. */}
                     <div
-                        className={`${data.profile.tabs ? 'max-w-4xl' : 'max-w-7xl'} mx-auto mt-10 mb-20 w-full px-4 sm:px-6`}
+                        className={`mx-auto mb-20 w-full max-w-3xl px-4 sm:px-6 ${data.profile.tabs ? 'mt-10 sm:mt-12' : 'mt-12 sm:mt-16'}`}
                     >
-                        <div className="space-y-14">
+                        <div className="space-y-16">
                             <NoticeSection notices={data.notices} />
-                            <AboutSection about={data.about} content={about} />
                             {data.featured ? <FeaturedPostsSection view={data.featured} /> : null}
+                            <AboutSection about={data.about} content={about} />
                             <AuthorActivitySection days={data.activity.days} recent={data.activity.recent} />
                         </div>
                     </div>

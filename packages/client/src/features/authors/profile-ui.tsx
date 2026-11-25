@@ -27,6 +27,11 @@ interface SiteMark {
 const pill =
     'inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 text-sm font-semibold transition-colors duration-150';
 
+/** Section titles on the overview stay quiet so the author's own content leads. */
+export const authorSectionTitle = 'text-sm font-semibold text-content-secondary';
+export const authorTextLink =
+    'inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-content transition-colors duration-150 hover:text-content-secondary';
+
 function SubscriptionControl({ username, state }: { username: string; state: AuthorSubscriptionView }): ReactNode {
     const subscribeLabel = ui('Subscribe to new posts by {value0}', { value0: username });
     if (state.csrfToken === null) {

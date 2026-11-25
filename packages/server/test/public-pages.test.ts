@@ -243,6 +243,10 @@ test('renders author overview and posts and redirects legacy author aliases', as
   assert.doesNotMatch(overview.body, /href="javascript:/);
   assert.doesNotMatch(overview.body, /window\.bad/);
   assert.match(overview.body, /Public new article/);
+  // Posts come before the introduction, so a long introduction never pushes them down.
+  assert.ok(overview.body.indexOf('Public new article') < overview.body.indexOf('About the writer'));
+  assert.match(overview.body, /A useful subtitle/);
+  assert.match(overview.body, /images\/public-new\.jpg/);
   assert.match(overview.body, /rel="canonical" href="https:\/\/blog\.example\/@writer"/);
 
   const posts = await app.inject('/@writer/posts?q=Orion');

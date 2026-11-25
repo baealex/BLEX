@@ -1,6 +1,7 @@
 import { ui } from '../../i18n/public-ui.js';
 import { SiteIcon, type SiteIconName } from '../../appearance/icons';
 import type { AuthorActivityView } from './author-page-data';
+import { authorSectionTitle } from './profile-ui';
 
 const activityLabels: Record<AuthorActivityView['recent'][number]['type'], { label: string; icon: SiteIconName }> = {
     post: {
@@ -56,7 +57,7 @@ function ActivityHeatmap({ days }: { days: Record<string, number> }) {
 export function AuthorActivitySection({ days, recent }: AuthorActivityView) {
     return (
         <section>
-            <h2 className="mb-4 text-2xl font-bold tracking-tight text-content">{ui('Annual activity')}</h2>
+            <h2 className={`mb-3 ${authorSectionTitle}`}>{ui('Annual activity')}</h2>
             <div className="mb-6 rounded-2xl bg-surface p-6 ring-1 ring-line/60 md:p-7">
                 <ActivityHeatmap days={days} />
                 {recent.length > 0 ? (

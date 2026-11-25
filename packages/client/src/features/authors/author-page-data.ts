@@ -1,4 +1,3 @@
-import { createHash } from 'node:crypto';
 import type { PageProps } from '@blex/contracts/pages';
 import type {
     AuthorRow,
@@ -12,15 +11,7 @@ import type {
 import { type DiscoveryPagination, publicBrand, publicLikes } from '../discovery/discovery-page-data';
 import type { AboutDraft } from './about-draft';
 import { type PostCardLikes, type PostCardView, postCardView, postPath } from '../discovery/post-list';
-import {
-    avatarUrl,
-    dateLabel,
-    dateValue,
-    mediaUrl,
-    noticeLink,
-    resourceUrl,
-    safeExternalUrl
-} from '../discovery/view-helpers';
+import { avatarUrl, dateLabel, dateValue, mediaUrl, noticeLink, safeExternalUrl } from '../discovery/view-helpers';
 
 export interface AuthorSubscriptionView {
     action: string;
@@ -55,10 +46,14 @@ export interface FeaturedPostsView {
     kind: 'featured' | 'recent';
     partialUrl: string;
     canManage: boolean;
+    /** The posts tab, for authors who have public posts. */
+    allPosts: { href: string; count: number } | null;
     posts: Array<{
         href: string;
         title: string;
-        cover: string;
+        subtitle: string;
+        /** Null when the post has no image of its own, so the row stays text-only. */
+        image: string | null;
         date: { iso: string; text: string } | null;
         readTime: number;
     }>;
@@ -95,7 +90,8 @@ export interface AuthorOverviewData extends AuthorPageBase {
     page: 'overview';
     profile: AuthorProfileView;
     notices: AuthorNoticeView[];
-    about: { editable: boolean; editPath: string } | null;
+    /** `collapsible` starts a long introduction folded; the server decides it so the first paint does not move. */
+    about: { editable: boolean; editPath: string; collapsible: boolean } | null;
     featured: FeaturedPostsView | null;
     activity: AuthorActivityView;
 }
@@ -254,11 +250,16 @@ function profileView(
     };
 }
 
-function postCover(post: PostRow): string {
-    if (post.image) return mediaUrl(post.image) ?? resourceUrl('assets/images/default-cover-1.jpg');
-    const digest = createHash('md5').update(post.slug).digest('hex');
-    const index = (Number.parseInt(digest.slice(0, 8), 16) % 6) + 1;
-    return resourceUrl(`assets/images/default-cover-${index}.jpg`);
+function postImage(post: PostRow): string | null {
+    const hasImage = Boolean(post.image && post.image !== 'None' && post.image !== 'null');
+    return hasImage ? mediaUrl(post.image) : null;
+}
+
+/** About eight short paragraphs or a long one fold behind a toggle. */
+function isLongIntroduction(html: string): boolean {
+    const blocks = html.match(/<(?:p|li|h[1-6]|blockquote|pre|hr|img|table)\b/gi)?.length ?? 0;
+    const text = html.replace(/<[^>]*>/g, '').trim();
+    return blocks > 6 || text.length > 360;
 }
 
 export function featuredPostsView(
@@ -271,10 +272,15 @@ export function featuredPostsView(
         kind: featured.kind,
         partialUrl: `${authorPath(author.username)}/partials/featured-posts`,
         canManage: isOwner,
+        allPosts:
+            author.publicPostCount > 0
+                ? { href: authorPath(author.username, '/posts'), count: author.publicPostCount }
+                : null,
         posts: featured.posts.map((post) => ({
             href: postPath(post),
             title: post.title,
-            cover: postCover(post),
+            subtitle: post.subtitle,
+            image: postImage(post),
             date: dateView(post.publishedDate),
             readTime: post.readTime
         }))
@@ -312,7 +318,8 @@ export function createAuthorOverviewData({
             aboutHtml || isOwner
                 ? {
                       editable: isOwner,
-                      editPath: isOwner ? `${authorPath(author.username)}/about/edit` : ''
+                      editPath: isOwner ? `${authorPath(author.username)}/about/edit` : '',
+                      collapsible: isLongIntroduction(aboutHtml)
                   }
                 : null,
         featured: isAuthorEditor ? featuredPostsView(author, featured, viewer?.id === author.id) : null,

@@ -3,53 +3,72 @@ import { SiteIcon } from '../../appearance/icons';
 import { ui } from '../../i18n/public-ui.js';
 import { EmptyState } from '../discovery/post-list';
 import type { FeaturedPostsView } from './author-page-data';
+import { authorSectionTitle, authorTextLink } from './profile-ui';
 
+/** Pinned posts keep the author's order and recent posts stay newest first, so every row has the same weight. */
 export function FeaturedPostsSection({ view }: { view: FeaturedPostsView }): ReactNode {
     return (
         <section className="featured-section" data-featured-posts-section={true} data-partial-url={view.partialUrl}>
-            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                <h2 className="text-2xl font-bold tracking-tight text-content">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-x-4">
+                <h2 className={authorSectionTitle}>
                     {view.kind === 'featured' ? ui('Recommended posts') : ui('Recent posts')}
                 </h2>
                 {view.canManage ? (
-                    <nav className="flex flex-wrap gap-2" aria-label={ui('Manage author posts')}>
-                        <a
-                            href="/settings/pinned-posts"
-                            className="inline-flex items-center gap-2 rounded-full bg-surface px-4 py-2 text-sm font-semibold text-content-secondary ring-1 ring-line/60 transition-colors hover:bg-surface-subtle hover:text-content"
-                        >
-                            <SiteIcon name="pin" className="text-xs" />
-                            {ui('Manage pinned posts')}
-                        </a>
-                    </nav>
+                    <a href="/settings/pinned-posts" className={authorTextLink}>
+                        <SiteIcon name="pin" className="text-xs" />
+                        {ui('Manage pinned posts')}
+                    </a>
                 ) : null}
             </div>
             {view.posts.length ? (
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                    {view.posts.map((post) => (
-                        <a href={post.href} className="group block h-full" key={post.href}>
-                            <article className="flex h-full flex-col overflow-hidden rounded-2xl bg-surface ring-1 ring-line/60 transition-all duration-150 hover:ring-line-strong/70 active:scale-[0.99]">
-                                <div className="aspect-[16/9] overflow-hidden bg-surface-subtle">
-                                    <img
-                                        className="h-full w-full object-cover transition-transform duration-500 motion-safe:group-hover:scale-[1.03]"
-                                        src={post.cover}
-                                        alt={post.title}
-                                        loading="lazy"
-                                    />
-                                </div>
-                                <div className="flex flex-1 flex-col p-5">
-                                    <h3 className="line-clamp-2 text-md font-bold leading-snug text-content transition-colors group-hover:text-content-secondary">
-                                        {post.title}
-                                    </h3>
-                                    <div className="mt-auto flex items-center gap-3 pt-4 text-xs text-content-hint">
-                                        {post.date ? <time dateTime={post.date.iso}>{post.date.text}</time> : null}
-                                        <span className="size-1 rounded-full bg-content-hint/70" />
-                                        <span>{ui('{value0} min', { value0: post.readTime })}</span>
+                <>
+                    <ul className="border-t border-line-light">
+                        {view.posts.map((post) => (
+                            <li key={post.href} className="border-b border-line-light">
+                                <a href={post.href} className="group flex items-center gap-4 py-5 sm:gap-8 sm:py-6">
+                                    <div className="min-w-0 flex-1">
+                                        <h3 className="line-clamp-2 text-base font-semibold leading-snug tracking-tight text-content transition-colors duration-150 group-hover:text-content-secondary sm:text-lg">
+                                            {post.title}
+                                        </h3>
+                                        {post.subtitle ? (
+                                            <p className="mt-1.5 hidden truncate text-sm text-content-secondary sm:block">
+                                                {post.subtitle}
+                                            </p>
+                                        ) : null}
+                                        <p className="mt-2.5 flex items-center gap-2 text-[13px] text-content-secondary">
+                                            {post.date ? <time dateTime={post.date.iso}>{post.date.text}</time> : null}
+                                            {post.date ? (
+                                                <span
+                                                    aria-hidden="true"
+                                                    className="size-1 rounded-full bg-content-hint"
+                                                />
+                                            ) : null}
+                                            <span>{ui('{value0} min', { value0: post.readTime })}</span>
+                                        </p>
                                     </div>
-                                </div>
-                            </article>
+                                    {post.image ? (
+                                        <div className="aspect-[16/10] w-24 shrink-0 overflow-hidden rounded-xl bg-surface-subtle ring-1 ring-line/60 sm:w-36">
+                                            <img
+                                                className="h-full w-full object-cover transition-transform duration-500 motion-safe:group-hover:scale-[1.03]"
+                                                src={post.image}
+                                                alt=""
+                                                loading="lazy"
+                                            />
+                                        </div>
+                                    ) : null}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                    {view.allPosts ? (
+                        <a href={view.allPosts.href} className={`${authorTextLink} mt-3`}>
+                            {ui('{count, plural, one{See # post} other{See all # posts}}', {
+                                count: view.allPosts.count
+                            })}
+                            <SiteIcon name="arrow-right" className="text-xs" />
                         </a>
-                    ))}
-                </div>
+                    ) : null}
+                </>
             ) : (
                 <EmptyState
                     title={ui('No public posts yet.')}
