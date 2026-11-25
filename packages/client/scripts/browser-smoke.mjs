@@ -654,15 +654,30 @@ const keepSessionCacheAfterPublicPage = async () => {
     }
 };
 
+const signOutFromHeader = async () => {
+    const menu = page.locator('[data-site-header] [data-account-menu]');
+    await menu.locator('summary').click();
+    await menu.getByRole('button', { name: '로그아웃' }).click();
+    await expect(page.locator('[data-site-header] [data-account-menu]')).toHaveCount(0);
+};
+
+/** The unsaved edits that screens keep for the signed-in account. */
+const signedInDrafts = () =>
+    page.evaluate(() => [
+        ...Object.keys(localStorage).filter((key) => key.startsWith('blex:post-edit-recovery:')),
+        ...Object.keys(sessionStorage).filter((key) => key === 'blex:settings-post-classification-drafts')
+    ]);
+
+/** Unsaved edits that an earlier page of this account left in the browser. */
+const leaveDraftsBehind = () =>
+    page.evaluate((username) => {
+        localStorage.setItem(`blex:post-edit-recovery:v1:${username}:left-behind`, '{}');
+        sessionStorage.setItem('blex:settings-post-classification-drafts', '{}');
+    }, account.username);
+
 const removeSessionCachesOnSignOut = async () => {
     const caches = () => page.evaluate(() => Object.keys(sessionStorage).filter((key) => key.startsWith('rq-cache-')));
     const viewerCaches = async () => (await caches()).filter((key) => key.includes(`-@${account.username}-`));
-    const signOutFromHeader = async () => {
-        const menu = page.locator('[data-site-header] [data-account-menu]');
-        await menu.locator('summary').click();
-        await menu.getByRole('button', { name: '로그아웃' }).click();
-        await expect(page.locator('[data-site-header] [data-account-menu]')).toHaveCount(0);
-    };
 
     // A signed-out visitor's screens keep their queries under this name. None of them uses a query yet,
     // so the tab gets one by hand, as it would have before the viewer signed in.
@@ -679,10 +694,14 @@ const removeSessionCachesOnSignOut = async () => {
         [visitorCache, olderCache]
     );
 
-    // Signing out from the header while the settings screen is open removes the viewer's and older caches.
+    await leaveDraftsBehind();
+
+    // Signing out from the header while the settings screen is open removes the viewer's and older caches,
+    // and the account's unsaved edits.
     await signOutFromHeader();
     expect(await page.evaluate(() => window.__smokeSameDocument)).toBe(true);
     await expect.poll(caches).toEqual([visitorCache]);
+    expect(await signedInDrafts()).toEqual([]);
     // Moving on as a signed-out visitor removes nothing.
     await visitInApplication('/tags');
     await expect(page).toHaveURL(`${origin}/tags`);
@@ -707,6 +726,7 @@ const removeSessionCachesOnSignOut = async () => {
         await page.evaluate(() => {
             window.__smokeSameDocument = true;
         });
+        await leaveDraftsBehind();
         const menu = page.locator('[data-site-header] [data-account-menu]');
         await menu.locator('summary').click();
         await menu.getByRole('button', { name: '로그아웃' }).click();
@@ -718,11 +738,42 @@ const removeSessionCachesOnSignOut = async () => {
         await expect(page).toHaveURL(`${origin}/`);
         await expect(page.locator('[data-site-header] [data-account-menu]')).toHaveCount(0);
         expect(await viewerCaches()).toEqual([]);
+        expect(await signedInDrafts()).toEqual([]);
     } finally {
         release();
         await held;
         await page.unroute(app);
     }
+    await logIn();
+};
+
+const removeUnsavedEditsOnSignOut = async () => {
+    await open('/');
+    const csrf = (await page.context().cookies()).find((cookie) => cookie.name === 'csrftoken')?.value;
+    expect(csrf).toBeTruthy();
+    const created = await (
+        await page.request.post(`${origin}/v1/posts`, {
+            headers: { origin, 'x-csrftoken': csrf },
+            data: {
+                title: 'Edits kept until sign-out',
+                url: `edits-kept-until-sign-out-${Date.now()}`,
+                contentHtml: '<p>The saved body.</p>'
+            }
+        })
+    ).json();
+    expect(created.status).toBe('DONE');
+    await open(`/@${account.username}/${created.body.url}/edit`);
+    const title = page.getByPlaceholder('제목을 입력하세요');
+    await expect(title).toHaveValue('Edits kept until sign-out');
+    await title.fill('Unsaved when signing out');
+    // The editor keeps a local copy of the unsaved edits for this account.
+    await expect.poll(signedInDrafts).toHaveLength(1);
+    // Recent searches hold public search terms that a signed-out visitor keeps too.
+    await page.evaluate(() => localStorage.setItem('blex-recent-searches', '["kept search"]'));
+    // The unsaved edits send the form natively, and the editor saves its copy again as the page unloads.
+    await signOutFromHeader();
+    expect(await signedInDrafts()).toEqual([]);
+    expect(await page.evaluate(() => localStorage.getItem('blex-recent-searches'))).toBe('["kept search"]');
     await logIn();
 };
 
@@ -1145,6 +1196,10 @@ try {
         [
             "signing out removes the viewer's session caches and keeps a signed-out visitor's",
             removeSessionCachesOnSignOut
+        ],
+        [
+            "signing out from the editor removes the account's unsaved edits and keeps recent searches",
+            removeUnsavedEditsOnSignOut
         ],
         ['the sign-up screen keeps where to go next and its invitation', keepSignupDestination],
         ['the sign-up form and screen draw one hCaptcha widget once its API has loaded', drawHcaptchaOnceReady],
