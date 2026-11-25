@@ -114,10 +114,14 @@ export function AuthorOverviewPage({ data, about }: { data: AuthorOverviewData; 
         <>
             <main>
                 <div>
-                    <ProfileHeader profile={data.profile} isHeading={true} />
-                    <AuthorTabs profile={data.profile} active="overview" />
+                    <ProfileHeader profile={data.profile} brand={data.brand} isHeading={true} />
+                    {data.profile.tabs ? (
+                        <div className="mx-auto mt-12 w-full max-w-3xl px-4 sm:mt-16 sm:px-6">
+                            <AuthorTabs profile={data.profile} active="overview" />
+                        </div>
+                    ) : null}
                     <div
-                        className={`${data.profile.tabs ? 'max-w-4xl' : 'max-w-7xl'} mx-auto mb-20 w-full px-4 sm:px-6`}
+                        className={`${data.profile.tabs ? 'max-w-4xl' : 'max-w-7xl'} mx-auto mt-10 mb-20 w-full px-4 sm:px-6`}
                     >
                         <div className="space-y-14">
                             <NoticeSection notices={data.notices} />

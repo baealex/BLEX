@@ -4,7 +4,7 @@ import type { AboutDraft } from './about-draft';
 import { AboutPageEditor } from './about-editor';
 import { authorEditMarkdownSelector } from './author-markup';
 import type { AuthorAboutEditData, AuthorMountContext } from './author-page-data';
-import { AuthorTabs, ProfileHeader } from './profile-ui';
+import { AuthorTabs, ProfileStrip } from './profile-ui';
 
 export function AuthorAboutEditPage({
     data,
@@ -19,9 +19,11 @@ export function AuthorAboutEditPage({
         <>
             <main>
                 <div>
-                    <ProfileHeader profile={data.profile} isHeading={false} />
-                    <div className="mx-auto w-full max-w-5xl px-4 sm:px-6">
-                        <AuthorTabs profile={data.profile} active="about" />
+                    <div className="mx-auto w-full max-w-5xl px-4 pt-6 sm:px-6 sm:pt-8">
+                        <ProfileStrip profile={data.profile} />
+                        <div className="mt-5 mb-10">
+                            <AuthorTabs profile={data.profile} active="about" />
+                        </div>
                         <div className="mb-8">
                             <div className="mb-6">
                                 <h1 className="mb-3 text-lg font-bold text-content">{ui('Tell us about yourself.')}</h1>

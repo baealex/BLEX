@@ -4,7 +4,7 @@ import { ui } from '../../i18n/public-ui.js';
 import { EmptyState, PageNavigation } from '../discovery/post-list';
 import { DropdownFilter, QueryFilter, ReactFragment } from '../discovery/search-ui';
 import type { AuthorSeriesListData } from './author-page-data';
-import { AuthorTabs, ProfileHeader } from './profile-ui';
+import { AuthorTabs, ProfileStrip } from './profile-ui';
 
 export function AuthorSeriesPage({ data }: { data: AuthorSeriesListData }) {
     const { path } = data.pagination;
@@ -13,9 +13,13 @@ export function AuthorSeriesPage({ data }: { data: AuthorSeriesListData }) {
         <>
             <main>
                 <ReactFragment>
-                    <ProfileHeader profile={data.profile} isHeading={false} />
-                    <AuthorTabs profile={data.profile} active="series" />
-                    <section className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+                    <div className="mx-auto w-full max-w-6xl px-4 pt-6 sm:px-6 sm:pt-8">
+                        <ProfileStrip profile={data.profile} />
+                        <div className="mt-5">
+                            <AuthorTabs profile={data.profile} active="series" />
+                        </div>
+                    </div>
+                    <section className="mx-auto mt-10 w-full max-w-6xl px-4 sm:px-6">
                         <div className="mb-8">
                             <h1 className="text-3xl font-bold tracking-tight text-content">{ui('Series')}</h1>
                         </div>

@@ -3,7 +3,7 @@ import { ui } from '../../i18n/public-ui.js';
 import { EmptyState, PageNavigation, PostCardGrid } from '../discovery/post-list';
 import { DropdownFilter, QueryFilter, ReactFragment } from '../discovery/search-ui';
 import type { AuthorPostsData } from './author-page-data';
-import { AuthorTabs, ProfileHeader } from './profile-ui';
+import { AuthorTabs, ProfileStrip } from './profile-ui';
 
 export function AuthorPostsPage({ data }: { data: AuthorPostsData }) {
     const { path } = data.pagination;
@@ -12,9 +12,13 @@ export function AuthorPostsPage({ data }: { data: AuthorPostsData }) {
         <>
             <main>
                 <ReactFragment>
-                    <ProfileHeader profile={data.profile} isHeading={false} />
-                    <AuthorTabs profile={data.profile} active="posts" />
-                    <section className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+                    <div className="mx-auto w-full max-w-6xl px-4 pt-6 sm:px-6 sm:pt-8">
+                        <ProfileStrip profile={data.profile} />
+                        <div className="mt-5">
+                            <AuthorTabs profile={data.profile} active="posts" />
+                        </div>
+                    </div>
+                    <section className="mx-auto mt-10 w-full max-w-6xl px-4 sm:px-6">
                         <div className="mb-8">
                             <h1 className="text-3xl font-bold tracking-tight text-content">{ui('Posts')}</h1>
                         </div>

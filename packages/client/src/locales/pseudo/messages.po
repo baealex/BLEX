@@ -2417,17 +2417,6 @@ msgid "public.Cancel editing comment"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/authors/profile-ui.tsx:159
-msgid "public.Change cover"
-msgstr ""
-
-#. js-lingui-explicit-id
-#: src/features/authors/profile-ui.tsx:182
-#: src/features/authors/profile-ui.tsx:183
-msgid "public.Change profile picture"
-msgstr ""
-
-#. js-lingui-explicit-id
 #: src/routes/@{$username}/posts.page.tsx:87
 msgid "public.Check your search query or tags."
 msgstr ""
@@ -2805,6 +2794,11 @@ msgid "public.Edit post"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/features/authors/profile-ui.tsx:72
+msgid "public.Edit profile"
+msgstr ""
+
+#. js-lingui-explicit-id
 #: src/routes/@{$username}/series/$seriesSlug.page.tsx:69
 msgid "public.Edit series"
 msgstr ""
@@ -3114,6 +3108,12 @@ msgstr ""
 #: src/routes/@{$username}/{$slug}/revisions.page.tsx:86
 #: src/routes/@{$username}/{$slug}/timelapse.page.tsx:41
 msgid "public.Manage posts"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/authors/profile-ui.tsx:118
+#: src/features/authors/profile-ui.tsx:122
+msgid "public.Manage social links"
 msgstr ""
 
 #. js-lingui-explicit-id
