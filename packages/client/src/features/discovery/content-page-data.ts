@@ -12,9 +12,13 @@ export interface StaticPageData {
     copyrightYear: number;
 }
 
-/** Error pages show only product copy, so their data names the page and nothing else. */
-export interface ErrorPageData {
-    page: 'not-found' | 'forbidden';
+/** Error pages show only product copy, so their data names the page and nothing else that identifies anyone. */
+export type ErrorPageData = { page: 'not-found' } | ForbiddenPageData;
+
+/** Whether someone is signed in picks the 403 copy. */
+export interface ForbiddenPageData {
+    page: 'forbidden';
+    signedIn: boolean;
 }
 
 export function createStaticPageData({ meta }: PageProps['static/$slug']): StaticPageData {

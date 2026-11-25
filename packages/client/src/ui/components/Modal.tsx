@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes, ComponentProps, HTMLAttributes, ReactNode } from 'react';
+import { useLingui } from '@lingui/react/macro';
 import { X } from './icons';
 import { Dialog } from './Dialog';
 import { Button } from './Button';
@@ -64,25 +65,23 @@ const ModalFooter = ({ children, className = '', ...props }: ModalSectionProps) 
     </div>
 );
 
-const ModalCloseButton = ({
-    ariaLabel = 'Close',
-    iconClassName = '',
-    className = '',
-    ...props
-}: ModalCloseButtonProps) => (
-    <Dialog.Close asChild>
-        <button
-            className={cx(
-                'text-content-hint hover:text-content-secondary transition-colors p-2 hover:bg-surface-subtle rounded-lg focus:outline-none focus:ring-2 focus:ring-action/20',
-                className
-            )}
-            aria-label={ariaLabel}
-            {...props}
-        >
-            <X className={cx('w-6 h-6', iconClassName)} />
-        </button>
-    </Dialog.Close>
-);
+const ModalCloseButton = ({ ariaLabel, iconClassName = '', className = '', ...props }: ModalCloseButtonProps) => {
+    const { t } = useLingui();
+    return (
+        <Dialog.Close asChild>
+            <button
+                className={cx(
+                    'text-content-hint hover:text-content-secondary transition-colors p-2 hover:bg-surface-subtle rounded-lg focus:outline-none focus:ring-2 focus:ring-action/20',
+                    className
+                )}
+                aria-label={ariaLabel ?? t({ id: 'common.close', message: 'Close' })}
+                {...props}
+            >
+                <X className={cx('w-6 h-6', iconClassName)} />
+            </button>
+        </Dialog.Close>
+    );
+};
 
 const ModalFooterAction = ({ size = 'md', className = '', ...props }: ModalFooterActionProps) => (
     <Button size={size} className={cx('min-w-[88px]', className)} {...props} />

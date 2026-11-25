@@ -118,7 +118,8 @@ export const deleteCover = async () => {
     return http.delete<Response<{ url: string | null }>>('v1/setting/cover');
 };
 
-export const updateNotifyConfig = async (config: Record<string, boolean>) => {
+/** An unset preference (`null`) stays off, and the server leaves it unset. */
+export const updateNotifyConfig = async (config: Record<string, boolean | null>) => {
     return http.put<Response<{ success: boolean }>>('v1/setting/notify-config', config, {
         headers: { 'Content-Type': 'application/json' }
     });
@@ -166,7 +167,7 @@ export const markNotificationAsRead = async (notifyId: number) => {
 };
 
 export const getNotifyConfig = async () => {
-    return http.get<Response<{ config: { name: string; value: boolean }[] }>>('v1/setting/notify-config');
+    return http.get<Response<{ config: { name: string; value: boolean | null }[] }>>('v1/setting/notify-config');
 };
 
 export const getHeatmap = async () => {

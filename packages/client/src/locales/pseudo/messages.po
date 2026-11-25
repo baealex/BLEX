@@ -4013,6 +4013,11 @@ msgid "public.Tell us about yourself."
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/features/discovery/forbidden-page.tsx:28
+msgid "public.The account you are signed in with cannot open it."
+msgstr ""
+
+#. js-lingui-explicit-id
 #: src/features/engagement/ui/comments.tsx:904
 msgid "public.The author is not accepting new comments or replies on this post."
 msgstr ""

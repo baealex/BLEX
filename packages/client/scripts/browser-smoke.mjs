@@ -966,6 +966,33 @@ const selectPinnedPostWithKeyboard = async () => {
     }
 };
 
+const keepNotificationTogglesOnSavedValues = async () => {
+    await open('/settings/notify');
+    await page.getByRole('button', { name: '설정', exact: true }).click();
+    const dialog = page.getByRole('dialog', { name: '알림 설정' });
+    // A new account has never set this preference, so the server sends null and it stays off.
+    const toggle = dialog.getByRole('checkbox', { name: '다른 사용자가 내 포스트를 추천할 때', exact: true });
+    await expect(toggle).not.toBeChecked();
+    const config = '**/v1/setting/notify-config';
+    await page.route(config, (route) => (route.request().method() === 'PUT' ? route.abort() : route.continue()));
+    try {
+        const failed = page.waitForEvent('requestfailed', (request) => request.url().endsWith('/notify-config'));
+        await toggle.focus();
+        await toggle.press('Space');
+        await failed;
+        // A save that fails leaves the toggle on the value the server still has.
+        await expect(toggle).not.toBeChecked();
+    } finally {
+        await page.unroute(config);
+    }
+    await toggle.press('Space');
+    await expect(toggle).toBeChecked();
+    await toggle.press('Space');
+    await expect(toggle).not.toBeChecked();
+    await dialog.getByRole('button', { name: '닫기', exact: true }).click();
+    await expect(dialog).toHaveCount(0);
+};
+
 const useSettingsListWithKeyboard = async () => {
     // The series are created before the list first loads. A suspense query keeps a list cached under a second
     // ago, so reloading right after it loaded would show it without them.
@@ -1065,6 +1092,31 @@ const keepSearchFocusWithUserAction = async () => {
     await expect(input).toHaveValue('');
     await expect(input).not.toBeFocused();
     await page.setViewportSize({ width: 1280, height: 900 });
+};
+
+const showSettingsTabTitleWhileItLoads = async () => {
+    await open('/admin-settings/site-settings');
+    await expect(page.getByRole('heading', { name: '블로그 꾸미기', exact: true })).toBeVisible();
+    // The Telegram settings wait for a live check with Telegram, which can take a while.
+    const settings = '**/v1/integration-settings';
+    const { promise: released, resolve: release } = Promise.withResolvers();
+    let held;
+    await page.route(settings, (route) => {
+        held = released.then(() => route.continue());
+        return held;
+    });
+    try {
+        await page.locator('a[href="/admin-settings/integrations"]:visible').first().click();
+        await expect(page).toHaveURL(`${origin}/admin-settings/integrations`);
+        await expect(page.getByRole('heading', { name: '텔레그램', exact: true })).toBeVisible();
+        await expect(page.getByRole('heading', { name: '블로그 꾸미기', exact: true })).toHaveCount(0);
+        release();
+        await expect(page.getByRole('button', { name: '텔레그램 설정 저장', exact: true })).toBeVisible();
+    } finally {
+        release();
+        await held;
+        await page.unroute(settings);
+    }
 };
 
 const keepNoticeFocusWhenCarouselStarts = async () => {
@@ -1300,12 +1352,17 @@ try {
         ['back and forward return to each fragment the reader followed', returnToFragmentPositions],
         ['the code block copy button speaks the page language once its translations load', translateCodeCopyButton],
         ['pinned post selection supports arrow keys and resets after a search', selectPinnedPostWithKeyboard],
+        [
+            'notification toggles keep their saved values and the dialog closes by its translated name',
+            keepNotificationTogglesOnSavedValues
+        ],
         ['settings list separates native activation, keyboard reordering, and menus', useSettingsListWithKeyboard],
         ['tag input returns focus on Escape without stealing focus after blur', keepTagFocusWithUserAction],
         [
             'search focuses on explicit clearing and preserves history without grabbing focus',
             keepSearchFocusWithUserAction
         ],
+        ['a settings tab shows its own title while its settings load', showSettingsTabTitleWhileItLoads],
         ['a notice focused before the home page hydrates stays shown and focused', keepNoticeFocusWhenCarouselStarts],
         ['editor', openEditor],
         ['the editor opens in the application and warns before unsaved edits leave it', warnBeforeLeavingEditor],
