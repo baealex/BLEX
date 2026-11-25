@@ -251,6 +251,8 @@ export interface PageProps {
         count: number;
         viewer: null | PublicPageViewer;
         posts: Array<PostRow>;
+        /** The series' first public post, where a reader starts, whatever order and page this view shows. */
+        firstPostSlug: string | null;
         seriesPath: string;
         sortOrder: 'desc' | 'asc';
         checkedPage: number;

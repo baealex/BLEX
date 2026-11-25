@@ -358,8 +358,12 @@ test('lists only public series and renders public series detail in the selected 
   assert.match(detail.body, /Public new article/);
   assert.match(detail.body, /CollectionPage/);
   assert.match(detail.body, /rel="canonical" href="https:\/\/blog\.example\/@writer\/series\/public-series"/);
-  assert.match(detail.body, /오래된순/);
-  assert.match(detail.body, /최신순/);
+  assert.match(detail.body, /1편부터/);
+  assert.match(detail.body, /최신 글부터/);
+  // The newest post leads this view, but reading still starts from the series' first post.
+  assert.ok(detail.body.indexOf('Public new article') < detail.body.indexOf('Series post 10'));
+  assert.match(detail.body, /<a href="\/@writer\/series-post-01"[^>]*>1편부터 읽기/);
+  assert.match(detail.body, /A useful subtitle/);
   const ascendingSecondPage = await app.inject('/@writer/series/public-series?sort=asc&page=2');
   assert.equal(ascendingSecondPage.statusCode, 200, ascendingSecondPage.body);
   assert.match(

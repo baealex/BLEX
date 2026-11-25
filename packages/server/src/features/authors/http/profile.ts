@@ -411,12 +411,19 @@ export function registerProfileRoutes(
       const count = series.postCount;
       const checkedPage = validPublicPage(reply, page, count, 10);
       if (checkedPage === null) return reply;
-      const posts = await readPublicPosts(db, {
-        where: { seriesId: series.id },
-        orderBy: [{ publishedAt: sortOrder }, { id: sortOrder }],
-        limit: 10,
-        offset: (checkedPage - 1) * 10,
-      });
+      const [posts, firstPost] = await Promise.all([
+        readPublicPosts(db, {
+          where: { seriesId: series.id },
+          orderBy: [{ publishedAt: sortOrder }, { id: sortOrder }],
+          limit: 10,
+          offset: (checkedPage - 1) * 10,
+        }),
+        db.post.findFirst({
+          where: { AND: [publicPost, { seriesId: series.id }] },
+          orderBy: [{ publishedAt: 'asc' }, { id: 'asc' }],
+          select: { slug: true },
+        }),
+      ]);
       const { brand, siteName, viewer } = await getLayoutContext(request, reply, db, options);
       const pages = totalPages(count, 10);
       const metaDescription = description(
@@ -502,6 +509,7 @@ export function registerProfileRoutes(
           count,
           viewer,
           posts,
+          firstPostSlug: firstPost?.slug ?? null,
           seriesPath,
           sortOrder,
           checkedPage,

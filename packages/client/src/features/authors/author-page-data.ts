@@ -141,16 +141,16 @@ export interface AuthorSeriesData extends AuthorPageBase {
     count: number;
     updated: string;
     editHref: string | null;
+    /** The first public post, where a reader starts the series. */
+    startHref: string | null;
     seriesPath: string;
     sortOrder: 'asc' | 'desc';
     posts: Array<{
         href: string;
         number: number;
         title: string;
+        subtitle: string;
         date: { iso: string; text: string } | null;
-        readTime: number;
-        likeCount: number;
-        commentCount: number;
     }>;
     pagination: DiscoveryPagination;
 }
@@ -460,6 +460,7 @@ export function createAuthorSeriesData({
     count,
     viewer,
     posts,
+    firstPostSlug,
     seriesPath,
     sortOrder,
     checkedPage,
@@ -478,16 +479,15 @@ export function createAuthorSeriesData({
         count,
         updated: dateLabel(series.updatedDate),
         editHref: viewer?.id === author.id ? `/settings/series/edit/${series.id}` : null,
+        startHref: firstPostSlug ? postPath({ authorUsername: author.username, slug: firstPostSlug }) : null,
         seriesPath,
         sortOrder,
         posts: posts.map((post, index) => ({
             href: postPath(post),
             number: sortOrder === 'desc' ? count - (checkedPage - 1) * 10 - index : (checkedPage - 1) * 10 + index + 1,
             title: post.title,
-            date: dateView(post.publishedDate),
-            readTime: post.readTime,
-            likeCount: post.likeCount ?? 0,
-            commentCount: post.commentCount ?? 0
+            subtitle: post.subtitle,
+            date: dateView(post.publishedDate)
         })),
         pagination: {
             path: seriesPath,

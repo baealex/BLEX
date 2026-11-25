@@ -2172,7 +2172,7 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/features/authors/author-overview-page.tsx:141
-#: src/features/authors/author-series-detail-page.tsx:42
+#: src/features/authors/author-series-detail-page.tsx:66
 #: src/features/authors/author-series-page.tsx:71
 msgid "public.{value0, plural, one{# post} other{# posts}}"
 msgstr ""
@@ -2193,7 +2193,6 @@ msgid "public.{value0} · Work log"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-detail-page.tsx:109
 #: src/features/authors/featured-posts.tsx:46
 #: src/features/discovery/post-list.tsx:142
 msgid "public.{value0} min"
@@ -2801,7 +2800,7 @@ msgid "public.Edit profile"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-detail-page.tsx:57
+#: src/features/authors/author-series-detail-page.tsx:22
 msgid "public.Edit series"
 msgstr ""
 
@@ -2925,6 +2924,11 @@ msgid "public.First published"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/features/authors/author-series-detail-page.tsx:91
+msgid "public.From part 1"
+msgstr ""
+
+#. js-lingui-explicit-id
 #: src/features/engagement/ui/telegram-hint.tsx:87
 msgid "public.Get new posts on Telegram"
 msgstr ""
@@ -2990,6 +2994,11 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/features/engagement/ui/telegram-hint.tsx:96
 msgid "public.Later"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/authors/author-series-detail-page.tsx:99
+msgid "public.Latest first"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -3181,7 +3190,6 @@ msgid "public.New work log"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-detail-page.tsx:80
 #: src/features/authors/author-series-page.tsx:44
 #: src/features/discovery/discovery-page.tsx:92
 msgid "public.Newest first"
@@ -3236,7 +3244,7 @@ msgid "public.No posts"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-detail-page.tsx:130
+#: src/features/authors/author-series-detail-page.tsx:150
 msgid "public.No posts have been added to this series yet."
 msgstr ""
 
@@ -3256,7 +3264,7 @@ msgid "public.No posts share these tags."
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-detail-page.tsx:129
+#: src/features/authors/author-series-detail-page.tsx:149
 #: src/features/discovery/discovery-page.tsx:41
 msgid "public.No posts yet"
 msgstr ""
@@ -3339,7 +3347,6 @@ msgid "public.Notifications"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-detail-page.tsx:73
 #: src/features/authors/author-series-page.tsx:45
 msgid "public.Oldest first"
 msgstr ""
@@ -3703,7 +3710,7 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/features/authors/author-overview-page.tsx:127
-#: src/features/authors/author-series-detail-page.tsx:16
+#: src/features/authors/author-series-detail-page.tsx:37
 #: src/features/authors/author-series-page.tsx:23
 #: src/features/authors/profile-ui.tsx:262
 #: src/features/discovery/post-list.tsx:58
@@ -3939,13 +3946,18 @@ msgid "public.Sort order"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-detail-page.tsx:66
+#: src/features/authors/author-series-detail-page.tsx:85
 msgid "public.Sort posts"
 msgstr ""
 
 #. js-lingui-explicit-id
 #: src/features/posts/post-page.tsx:762
 msgid "public.Standard link"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/features/authors/author-series-detail-page.tsx:26
+msgid "public.Start from part 1"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -3994,6 +4006,7 @@ msgid "public.Switch to light mode"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/features/authors/author-series-detail-page.tsx:83
 #: src/features/posts/post-page.tsx:158
 #: src/features/posts/post-page.tsx:214
 #: src/features/posts/post-page.tsx:218
@@ -4162,7 +4175,7 @@ msgid "public.Updated"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-detail-page.tsx:47
+#: src/features/authors/author-series-detail-page.tsx:69
 #: src/features/authors/author-series-page.tsx:80
 msgid "public.Updated {value0}"
 msgstr ""
