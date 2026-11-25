@@ -25,7 +25,7 @@ This is the design system baseline. Update it only as a deliberate baseline chan
 
 Use radius to express hierarchy and density. Keep corners within the scale above. Interactive elements need visible hover, focus, and pressed feedback; motion should clarify a transition.
 
-The author's profile card is the one exception to flat surfaces: its cover sits behind it as a slightly rotated print, and both use `shadow-floating`. Keep every other surface flat and do not animate the card on hover, because it is not a control.
+The author's profile card is the one exception to flat surfaces: its cover sits behind it as a slightly rotated print, and both use `shadow-floating`. An author without a cover gets the same print filled with their avatar, enlarged and blurred, so every profile has the same shape in its owner's colors. Keep every other surface flat and do not animate the card on hover, because it is not a control.
 
 Moving between an author's overview and their posts or series carries the avatar between the card and the compact header with a view transition, so the reader sees they stay with the same person. It is the only motion between pages: the rest of the page changes at once, and readers who ask for reduced motion see none.
 

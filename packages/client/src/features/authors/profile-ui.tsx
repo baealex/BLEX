@@ -173,21 +173,23 @@ export function ProfileHeader({
     const action = <ProfileAction profile={profile} />;
     return (
         <div className="mx-auto mt-6 w-full max-w-3xl px-4 sm:mt-10 sm:px-6">
-            <div className={`relative ${cover ? 'pt-[21%]' : 'pt-6'}`}>
-                {cover ? (
-                    <div className="absolute inset-x-0 top-0 aspect-[3/1] -rotate-2 overflow-hidden rounded-2xl bg-surface-subtle shadow-floating ring-1 ring-line/60">
+            <div className="relative pt-[21%]">
+                <div className="absolute inset-x-0 top-0 aspect-[3/1] -rotate-2 overflow-hidden rounded-2xl bg-surface-subtle shadow-floating ring-1 ring-line/60">
+                    {cover ? (
                         <img
                             className="h-full w-full object-cover object-center"
                             src={cover}
                             alt={ui("{value0}'s cover", { value0: username })}
                         />
-                    </div>
-                ) : (
-                    <div
-                        aria-hidden="true"
-                        className="absolute inset-x-[6%] top-0 h-[70%] -rotate-3 rounded-2xl bg-surface-subtle ring-1 ring-line/60"
-                    />
-                )}
+                    ) : (
+                        // Without a cover, the author's avatar spread out and blurred gives the card the same print in their own colors.
+                        <img
+                            className="h-full w-full scale-[1.4] object-cover opacity-85 blur-[28px] saturate-[1.15] [[data-theme=dark]_&]:brightness-75"
+                            src={avatar}
+                            alt=""
+                        />
+                    )}
+                </div>
                 <div className="relative mx-auto max-w-xl rounded-2xl bg-surface p-6 shadow-floating ring-1 ring-line/60 sm:px-8 sm:py-7">
                     <div className="flex items-start justify-between gap-4">
                         <img
