@@ -2161,6 +2161,11 @@ msgid "public.{value0, plural, one{# notice} other{# notices}}"
 msgstr "{value0}개"
 
 #. js-lingui-explicit-id
+#: src/features/authors/author-series-page.tsx:67
+msgid "public.{value0, plural, one{# part} other{# parts}}"
+msgstr "{value0}편"
+
+#. js-lingui-explicit-id
 #: src/features/engagement/ui/index.tsx:174
 msgid "public.{value0, plural, one{# person liked this post.} other{# people liked this post.}}"
 msgstr "{value0}명이 이 글에 공감했습니다."
@@ -2168,7 +2173,6 @@ msgstr "{value0}명이 이 글에 공감했습니다."
 #. js-lingui-explicit-id
 #: src/features/authors/author-overview-page.tsx:141
 #: src/features/authors/author-series-detail-page.tsx:66
-#: src/features/authors/author-series-page.tsx:66
 msgid "public.{value0, plural, one{# post} other{# posts}}"
 msgstr "{value0}개 포스트"
 
@@ -2188,7 +2192,7 @@ msgid "public.{value0} · Work log"
 msgstr "{value0} · 작업 일지"
 
 #. js-lingui-explicit-id
-#: src/features/discovery/list-rows.tsx:105
+#: src/features/discovery/list-rows.tsx:139
 #: src/features/discovery/post-list.tsx:142
 msgid "public.{value0} min"
 msgstr "{value0}분"
@@ -2342,7 +2346,7 @@ msgid "public.Author filter:"
 msgstr "작성자 필터: "
 
 #. js-lingui-explicit-id
-#: src/features/authors/profile-ui.tsx:270
+#: src/features/authors/profile-ui.tsx:273
 msgid "public.Author menu"
 msgstr "작성자 메뉴"
 
@@ -2416,7 +2420,7 @@ msgid "public.Check your search query or tags."
 msgstr "검색어나 태그를 다시 확인해주세요."
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-page.tsx:90
+#: src/features/authors/author-series-page.tsx:91
 msgid "public.Check your search query."
 msgstr "검색어를 다시 확인해주세요."
 
@@ -3277,7 +3281,7 @@ msgid "public.No public posts yet."
 msgstr "아직 공개된 포스트가 없습니다."
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-page.tsx:87
+#: src/features/authors/author-series-page.tsx:88
 msgid "public.No public series yet"
 msgstr "아직 공개된 시리즈가 없습니다"
 
@@ -3302,7 +3306,7 @@ msgid "public.No saved revisions."
 msgstr "저장된 수정 이력이 없습니다."
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-page.tsx:87
+#: src/features/authors/author-series-page.tsx:88
 msgid "public.No series match your search"
 msgstr "조건에 맞는 시리즈가 없습니다"
 
@@ -3486,7 +3490,7 @@ msgid "public.Profile"
 msgstr "프로필"
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-page.tsx:91
+#: src/features/authors/author-series-page.tsx:92
 msgid "public.Public series will appear here."
 msgstr "시리즈가 공개되면 이곳에 표시됩니다."
 
@@ -4170,7 +4174,7 @@ msgstr "수정일"
 
 #. js-lingui-explicit-id
 #: src/features/authors/author-series-detail-page.tsx:69
-#: src/features/authors/author-series-page.tsx:72
+#: src/features/authors/author-series-page.tsx:73
 msgid "public.Updated {value0}"
 msgstr "{value0} 수정됨"
 

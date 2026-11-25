@@ -6,7 +6,7 @@ import { DropdownFilter, QueryFilter, ReactFragment } from '../discovery/search-
 import type { AuthorSeriesListData } from './author-page-data';
 import { AuthorTabs, ProfileStrip } from './profile-ui';
 
-/** The author's series as rows like their posts, each with its first post's image as a cover. */
+/** The author's series as rows like their posts, each on a bundle cover made from its first post's image. */
 export function AuthorSeriesPage({ data }: { data: AuthorSeriesListData }) {
     const { path } = data.pagination;
     const search = new URLSearchParams(data.pagination.search);
@@ -59,11 +59,12 @@ export function AuthorSeriesPage({ data }: { data: AuthorSeriesListData }) {
                                             title={series.name}
                                             summary={series.summary}
                                             image={series.image}
+                                            cover="bundle"
                                             heading="h2"
                                             meta={
                                                 <>
-                                                    <span>
-                                                        {ui('{value0, plural, one{# post} other{# posts}}', {
+                                                    <span className="font-semibold text-content">
+                                                        {ui('{value0, plural, one{# part} other{# parts}}', {
                                                             value0: series.postCount
                                                         })}
                                                     </span>

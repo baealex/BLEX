@@ -341,8 +341,10 @@ test('lists only public series and renders public series detail in the selected 
   assert.match(list.body, /Public series/);
   assert.match(list.body, /Other series/);
   assert.doesNotMatch(list.body, /Hidden series/);
-  // A series shows the image of its first post that has one; a series without images shows none.
+  // A series shows the image of its first post that has one; a series without images keeps a plain cover.
   assert.equal(list.body.match(/<img [^>]*src="\/resources\/media\/images\/public-new\.jpg"/g)?.length, 1);
+  // Series count their parts, so they never read as single posts.
+  assert.match(list.body, />\d+편</);
 
   const newest = await app.inject('/@writer/series?sort=newest');
   assert.ok(newest.body.indexOf('Other series') < newest.body.indexOf('Public series'));

@@ -29,7 +29,7 @@ The author's profile card is the one exception to flat surfaces: its cover sits 
 
 Moving between an author's overview and their posts or series carries the avatar between the card and the compact header with a view transition, so the reader sees they stay with the same person. It is the only motion between pages: the rest of the page changes at once, and readers who ask for reduced motion see none.
 
-An author's tabs share one narrow column, so the header and avatar stay put between them. Lists of posts or series inside it use the shared row in `packages/client/src/features/discovery/list-rows.tsx`: title, a one-line summary on wide screens, quiet details, and an optional image on the right. Add a new list with that row rather than another card or row style.
+An author's tabs share one narrow column, so the header and avatar stay put between them. Lists of posts or series inside it use the shared row in `packages/client/src/features/discovery/list-rows.tsx`: title, a one-line summary on wide screens, quiet details, and an optional image on the right. Add a new list with that row rather than another card or row style. A series row uses the bundle cover, two outlined sheets behind the cover, and counts its parts, so a series never reads as a single post however many parts it has.
 
 ## Light and dark themes
 

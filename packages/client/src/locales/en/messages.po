@@ -2161,6 +2161,11 @@ msgid "public.{value0, plural, one{# notice} other{# notices}}"
 msgstr "{value0, plural, one{# notice} other{# notices}}"
 
 #. js-lingui-explicit-id
+#: src/features/authors/author-series-page.tsx:67
+msgid "public.{value0, plural, one{# part} other{# parts}}"
+msgstr "{value0, plural, one{# part} other{# parts}}"
+
+#. js-lingui-explicit-id
 #: src/features/engagement/ui/index.tsx:174
 msgid "public.{value0, plural, one{# person liked this post.} other{# people liked this post.}}"
 msgstr "{value0, plural, one{# person liked this post.} other{# people liked this post.}}"
@@ -2168,7 +2173,6 @@ msgstr "{value0, plural, one{# person liked this post.} other{# people liked thi
 #. js-lingui-explicit-id
 #: src/features/authors/author-overview-page.tsx:141
 #: src/features/authors/author-series-detail-page.tsx:66
-#: src/features/authors/author-series-page.tsx:66
 msgid "public.{value0, plural, one{# post} other{# posts}}"
 msgstr "{value0, plural, one{# post} other{# posts}}"
 
@@ -2188,7 +2192,7 @@ msgid "public.{value0} · Work log"
 msgstr "{value0} · Work log"
 
 #. js-lingui-explicit-id
-#: src/features/discovery/list-rows.tsx:105
+#: src/features/discovery/list-rows.tsx:139
 #: src/features/discovery/post-list.tsx:142
 msgid "public.{value0} min"
 msgstr "{value0} min"
@@ -2342,7 +2346,7 @@ msgid "public.Author filter:"
 msgstr "Author filter:"
 
 #. js-lingui-explicit-id
-#: src/features/authors/profile-ui.tsx:270
+#: src/features/authors/profile-ui.tsx:273
 msgid "public.Author menu"
 msgstr "Author menu"
 
@@ -2416,7 +2420,7 @@ msgid "public.Check your search query or tags."
 msgstr "Check your search query or tags."
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-page.tsx:90
+#: src/features/authors/author-series-page.tsx:91
 msgid "public.Check your search query."
 msgstr "Check your search query."
 
@@ -3277,7 +3281,7 @@ msgid "public.No public posts yet."
 msgstr "No public posts yet."
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-page.tsx:87
+#: src/features/authors/author-series-page.tsx:88
 msgid "public.No public series yet"
 msgstr "No public series yet"
 
@@ -3302,7 +3306,7 @@ msgid "public.No saved revisions."
 msgstr "No saved revisions."
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-page.tsx:87
+#: src/features/authors/author-series-page.tsx:88
 msgid "public.No series match your search"
 msgstr "No series match your search"
 
@@ -3486,7 +3490,7 @@ msgid "public.Profile"
 msgstr "Profile"
 
 #. js-lingui-explicit-id
-#: src/features/authors/author-series-page.tsx:91
+#: src/features/authors/author-series-page.tsx:92
 msgid "public.Public series will appear here."
 msgstr "Public series will appear here."
 
@@ -4170,7 +4174,7 @@ msgstr "Updated"
 
 #. js-lingui-explicit-id
 #: src/features/authors/author-series-detail-page.tsx:69
-#: src/features/authors/author-series-page.tsx:72
+#: src/features/authors/author-series-page.tsx:73
 msgid "public.Updated {value0}"
 msgstr "Updated {value0}"
 

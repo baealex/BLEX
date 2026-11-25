@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { SiteIcon } from '../../appearance/icons';
 import { ui } from '../../i18n/public-ui.js';
 
 /** A post as one row of a list. Pages that hydrate publish this in their HTML, so each field is listed by hand. */
@@ -19,13 +20,48 @@ export function MetaDot(): ReactNode {
     return <span aria-hidden="true" className="size-1 shrink-0 rounded-full bg-content-hint" />;
 }
 
-/** Every list of posts or series shares this row, so lists look the same on every page. */
+function CoverImage({ src }: { src: string }): ReactNode {
+    return (
+        <img
+            className="h-full w-full object-cover transition-transform duration-500 motion-safe:group-hover:scale-[1.03]"
+            src={src}
+            alt=""
+            loading="lazy"
+        />
+    );
+}
+
+/** Two sheets behind the cover mark a collection. They are outlines only, so the page stays flat. */
+function BundleCover({ image }: { image: string | null }): ReactNode {
+    const sheet = 'absolute inset-0 rounded-xl bg-surface ring-1 ring-line';
+    return (
+        <div className="relative mt-1.5 mr-1.5 aspect-[16/10] w-24 shrink-0 sm:mt-2 sm:mr-2 sm:w-36">
+            <span
+                aria-hidden="true"
+                className={`${sheet} translate-x-1.5 -translate-y-1.5 sm:translate-x-2 sm:-translate-y-2`}
+            />
+            <span
+                aria-hidden="true"
+                className={`${sheet} translate-x-[3px] -translate-y-[3px] sm:translate-x-1 sm:-translate-y-1`}
+            />
+            <div className="relative flex h-full items-center justify-center overflow-hidden rounded-xl bg-surface-subtle text-content-hint ring-1 ring-line/80">
+                {image ? <CoverImage src={image} /> : <SiteIcon name="stack-2" className="text-xl sm:text-2xl" />}
+            </div>
+        </div>
+    );
+}
+
+/**
+ * Every list of posts or series shares this row, so lists look the same on every page.
+ * A series uses the bundle cover, which shows even without an image, so it never reads as a single post.
+ */
 export function ListRow({
     href,
     title,
     summary,
     meta,
     image,
+    cover = 'single',
     heading: Heading = 'h3'
 }: {
     href: string;
@@ -33,6 +69,7 @@ export function ListRow({
     summary: string;
     meta: ReactNode;
     image: string | null;
+    cover?: 'single' | 'bundle';
     heading?: 'h2' | 'h3';
 }): ReactNode {
     return (
@@ -49,14 +86,11 @@ export function ListRow({
                         {meta}
                     </p>
                 </div>
-                {image ? (
+                {cover === 'bundle' ? (
+                    <BundleCover image={image} />
+                ) : image ? (
                     <div className="aspect-[16/10] w-24 shrink-0 overflow-hidden rounded-xl bg-surface-subtle ring-1 ring-line/60 sm:w-36">
-                        <img
-                            className="h-full w-full object-cover transition-transform duration-500 motion-safe:group-hover:scale-[1.03]"
-                            src={image}
-                            alt=""
-                            loading="lazy"
-                        />
+                        <CoverImage src={image} />
                     </div>
                 ) : null}
             </a>
