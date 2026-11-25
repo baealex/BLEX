@@ -2129,6 +2129,11 @@ msgid "public.{count, plural, one{See # post} other{See all # posts}}"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/features/authors/author-overview-page.tsx:129
+msgid "public.{count, plural, one{See # series} other{See all # series}}"
+msgstr ""
+
+#. js-lingui-explicit-id
 #: src/features/posts/post-page.tsx:407
 msgid "public.{minutes} min"
 msgstr ""
@@ -2165,6 +2170,7 @@ msgid "public.{value0, plural, one{# person liked this post.} other{# people lik
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/features/authors/author-overview-page.tsx:141
 #: src/features/authors/author-series-detail-page.tsx:42
 #: src/features/authors/author-series-page.tsx:93
 msgid "public.{value0, plural, one{# post} other{# posts}}"
@@ -3708,6 +3714,7 @@ msgid "public.Select entries to share"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/features/authors/author-overview-page.tsx:127
 #: src/features/authors/author-series-detail-page.tsx:16
 #: src/features/authors/author-series-page.tsx:24
 #: src/features/authors/profile-ui.tsx:255

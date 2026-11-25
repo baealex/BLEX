@@ -247,6 +247,10 @@ test('renders author overview and posts and redirects legacy author aliases', as
   assert.ok(overview.body.indexOf('Public new article') < overview.body.indexOf('About the writer'));
   assert.match(overview.body, /A useful subtitle/);
   assert.match(overview.body, /images\/public-new\.jpg/);
+  // The series preview follows the author's own order and leaves hidden series out.
+  assert.ok(overview.body.indexOf('Public series') > 0);
+  assert.ok(overview.body.indexOf('Public series') < overview.body.indexOf('Other series'));
+  assert.doesNotMatch(overview.body, /Hidden series/);
   assert.match(overview.body, /rel="canonical" href="https:\/\/blog\.example\/@writer"/);
 
   const posts = await app.inject('/@writer/posts?q=Orion');

@@ -93,6 +93,8 @@ export interface AuthorOverviewData extends AuthorPageBase {
     /** `collapsible` starts a long introduction folded; the server decides it so the first paint does not move. */
     about: { editable: boolean; editPath: string; collapsible: boolean } | null;
     featured: FeaturedPostsView | null;
+    /** The first public series in the author's own order; null for authors who are not editors. */
+    series: Array<{ href: string; name: string; postCount: number }> | null;
     activity: AuthorActivityView;
 }
 
@@ -307,6 +309,7 @@ export function createAuthorOverviewData({
     aboutHtml,
     isOwner,
     featured,
+    seriesPreview,
     activity
 }: PageProps['@{$username}/index']): AuthorOverviewData {
     return {
@@ -323,6 +326,14 @@ export function createAuthorOverviewData({
                   }
                 : null,
         featured: isAuthorEditor ? featuredPostsView(author, featured, viewer?.id === author.id) : null,
+        series:
+            isAuthorEditor && seriesPreview.length
+                ? seriesPreview.map((series) => ({
+                      href: `${authorPath(author.username, '/series')}/${encodeURIComponent(series.url)}`,
+                      name: series.name,
+                      postCount: series.postCount
+                  }))
+                : null,
         activity: {
             days: activity.days,
             recent: occurrenceKeys(activity.recent, (entry) => `${entry.type}:${entry.url}`).map(({ key, row }) => ({

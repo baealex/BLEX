@@ -185,6 +185,8 @@ export interface PageProps {
         aboutHtml: string;
         isOwner: boolean;
         featured: { kind: 'recent' | 'featured'; posts: Array<PostRow> };
+        /** The first public series in the author's own order. Empty for authors who are not editors. */
+        seriesPreview: Array<{ url: string; name: string; postCount: number }>;
         activity: {
             days: Record<string, number>;
             recent: Array<{

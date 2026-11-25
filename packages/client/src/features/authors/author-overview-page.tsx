@@ -5,9 +5,9 @@ import { ui } from '../../i18n/public-ui.js';
 import type { AboutEditor as AboutEditorComponent } from './about-editor';
 import { AuthorActivitySection } from './activity-ui';
 import { authorAboutMarkdownSelector, authorAboutSelector } from './author-markup';
-import type { AuthorMountContext, AuthorNoticeView, AuthorOverviewData } from './author-page-data';
+import type { AuthorMountContext, AuthorNoticeView, AuthorOverviewData, AuthorTabsView } from './author-page-data';
 import { FeaturedPostsSection } from './featured-posts';
-import { AuthorTabs, ProfileHeader, authorSectionTitle } from './profile-ui';
+import { AuthorTabs, ProfileHeader, authorSectionTitle, authorTextLink } from './profile-ui';
 
 type AboutEditorType = typeof AboutEditorComponent;
 
@@ -120,6 +120,34 @@ function NoticeSection({ notices }: { notices: AuthorNoticeView[] }) {
     );
 }
 
+function SeriesSection({ series, all }: { series: NonNullable<AuthorOverviewData['series']>; all: AuthorTabsView }) {
+    return (
+        <section>
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-x-4">
+                <h2 className={authorSectionTitle}>{ui('Series')}</h2>
+                <a href={all.series} className={authorTextLink}>
+                    {ui('{count, plural, one{See # series} other{See all # series}}', { count: all.seriesCount })}
+                    <SiteIcon name="arrow-right" className="text-xs" />
+                </a>
+            </div>
+            <ul className="grid border-t border-line-light sm:grid-cols-2 sm:gap-x-8">
+                {series.map((item) => (
+                    <li key={item.href} className="border-b border-line-light">
+                        <a href={item.href} className="group flex min-h-13 items-center justify-between gap-4 py-3">
+                            <span className="truncate text-[15px] font-semibold text-content transition-colors duration-150 group-hover:text-content-secondary">
+                                {item.name}
+                            </span>
+                            <span className="shrink-0 text-[13px] text-content-secondary">
+                                {ui('{value0, plural, one{# post} other{# posts}}', { value0: item.postCount })}
+                            </span>
+                        </a>
+                    </li>
+                ))}
+            </ul>
+        </section>
+    );
+}
+
 function AboutEditorSlot({ Editor, ...props }: AboutEditorProps & { Editor: AboutEditorType }) {
     return <Editor {...props} />;
 }
@@ -170,6 +198,9 @@ export function AuthorOverviewPage({ data, about }: { data: AuthorOverviewData; 
                             {data.featured ? <FeaturedPostsSection view={data.featured} /> : null}
                             <AboutSection about={data.about} content={about} />
                             <AuthorActivitySection days={data.activity.days} recent={data.activity.recent} />
+                            {data.series && data.profile.tabs ? (
+                                <SeriesSection series={data.series} all={data.profile.tabs} />
+                            ) : null}
                         </div>
                     </div>
                 </div>

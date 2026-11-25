@@ -5,7 +5,15 @@ import type { Prisma, PrismaClient } from '@prisma/client';
 import { storedDateText } from '../../../platform/date-format.js';
 import { sanitizeAboutHtml, sanitizePostHtml } from '../../posts/post-html.js';
 import { readAuthorActivity } from '../public-activity.js';
-import { authorPath, isEditor, readAuthor, readAuthorSocialLinks, subscriptionState } from '../services/profile.js';
+import {
+  authorPath,
+  isEditor,
+  publicSeriesWhere,
+  readAuthor,
+  readAuthorSocialLinks,
+  readSeriesPreview,
+  subscriptionState,
+} from '../services/profile.js';
 import { publicPostWhere } from '../../posts/data/visibility.js';
 import {
   readCardLikes,
@@ -65,9 +73,13 @@ export function registerProfileRoutes(
       readAuthorSocialLinks(db, author.id),
     ]);
     const isAuthorEditor = isEditor(author);
-    const [userNotices, subscription] = isAuthorEditor
-      ? await Promise.all([readNotices(db, 'user', author.id), subscriptionState(db, author, viewer)])
-      : [[], { canSubscribe: false, isSubscribed: false } as SubscriptionState];
+    const [userNotices, subscription, seriesPreview] = isAuthorEditor
+      ? await Promise.all([
+          readNotices(db, 'user', author.id),
+          subscriptionState(db, author, viewer),
+          readSeriesPreview(db, author.id, 4),
+        ])
+      : [[], { canSubscribe: false, isSubscribed: false } as SubscriptionState, []];
     const noindex = hasUnexpected(query, []);
     const path = authorPath(author.username);
     const canonical = makeAbsolute(siteUrl, path);
@@ -101,6 +113,7 @@ export function registerProfileRoutes(
         aboutHtml,
         isOwner,
         featured,
+        seriesPreview,
         activity,
       }),
     );
@@ -262,9 +275,7 @@ export function registerProfileRoutes(
     const sort = ['custom', 'newest', 'oldest', 'posts'].includes(requestedSort) ? requestedSort : 'custom';
     const publicPost = publicPostWhere();
     const seriesWhere: Prisma.SeriesWhereInput = {
-      ownerId: author.id,
-      isHidden: false,
-      posts: { some: publicPost },
+      ...publicSeriesWhere(author.id, publicPost),
       ...(searchText
         ? { OR: [{ name: { contains: searchText } }, { descriptionMarkdown: { contains: searchText } }] }
         : {}),

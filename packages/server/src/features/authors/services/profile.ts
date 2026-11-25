@@ -98,3 +98,27 @@ export function isEditor(author: AuthorRow): boolean {
 export function authorPath(username: string, suffix = ''): string {
   return `/@${encodeURIComponent(username)}${suffix}`;
 }
+
+/** The series readers can see: the author's own, not hidden, with at least one public post. */
+export function publicSeriesWhere(
+  authorId: number,
+  publicPost: Prisma.PostWhereInput = publicPostWhere(),
+): Prisma.SeriesWhereInput {
+  return { ownerId: authorId, isHidden: false, posts: { some: publicPost } };
+}
+
+/** The first public series in the author's own order, with only public posts counted. */
+export async function readSeriesPreview(
+  db: PrismaClient,
+  authorId: number,
+  limit: number,
+): Promise<Array<{ url: string; name: string; postCount: number }>> {
+  const publicPost = publicPostWhere();
+  const rows = await db.series.findMany({
+    where: publicSeriesWhere(authorId, publicPost),
+    orderBy: [{ order: 'asc' }, { id: 'asc' }],
+    take: limit,
+    select: { slug: true, name: true, _count: { select: { posts: { where: publicPost } } } },
+  });
+  return rows.map((row) => ({ url: row.slug, name: row.name, postCount: row._count.posts }));
+}
