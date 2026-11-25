@@ -6,7 +6,8 @@ import { updateNotifyConfig } from '~/lib/api/settings';
 interface NotifyConfigModalProps {
     isOpen: boolean;
     onClose: () => void;
-    notifyConfig?: { name: string; value: boolean }[];
+    /** An unset preference is `null` and stays off until the user turns it on. */
+    notifyConfig?: { name: string; value: boolean | null }[];
     isLoading: boolean;
     isError: boolean;
     refetch: () => void;
@@ -48,7 +49,7 @@ const NotifyConfigModal = ({ isOpen, onClose, notifyConfig, isLoading, isError, 
             if (item.name === name) {
                 return {
                     ...item,
-                    value: !item.value
+                    value: item.value !== true
                 };
             }
             return item;
@@ -56,7 +57,7 @@ const NotifyConfigModal = ({ isOpen, onClose, notifyConfig, isLoading, isError, 
 
         try {
             // Convert array to NotifyConfig object
-            const config: Record<string, boolean> = {};
+            const config: Record<string, boolean | null> = {};
             nextState.forEach((item) => {
                 config[item.name] = item.value;
             });
@@ -138,7 +139,7 @@ const NotifyConfigModal = ({ isOpen, onClose, notifyConfig, isLoading, isError, 
                                     type="checkbox"
                                     aria-label={getNotifyLabel(item.name)}
                                     className="sr-only peer"
-                                    checked={item.value}
+                                    checked={item.value === true}
                                     onChange={() => handleToggleConfig(item.name)}
                                 />
                                 <div className="w-11 h-6 bg-line peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-line-light after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border-line after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-action shadow-inner transition-colors duration-200" />
