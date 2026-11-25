@@ -27,6 +27,9 @@ interface SiteMark {
 const pill =
     'inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 text-sm font-semibold transition-colors duration-150';
 
+/** The card's avatar and the compact header's avatar share this name, so moving between tabs carries it across. */
+const avatarTransition = '[view-transition-name:blex-author-avatar]';
+
 /** Section titles on the overview stay quiet so the author's own content leads. */
 export const authorSectionTitle = 'text-sm font-semibold text-content-secondary';
 export const authorTextLink =
@@ -188,7 +191,7 @@ export function ProfileHeader({
                 <div className="relative mx-auto max-w-xl rounded-2xl bg-surface p-6 shadow-floating ring-1 ring-line/60 sm:px-8 sm:py-7">
                     <div className="flex items-start justify-between gap-4">
                         <img
-                            className="size-[4.5rem] rounded-full object-cover ring-4 ring-surface sm:size-[4.75rem]"
+                            className={`size-[4.5rem] rounded-full object-cover ring-4 ring-surface sm:size-[4.75rem] ${avatarTransition}`}
                             src={avatar}
                             alt={username}
                         />
@@ -217,7 +220,7 @@ export function ProfileStrip({ profile }: { profile: AuthorProfileView }): React
             {/* One link names the author, so the avatar is not a separate, unnamed stop. */}
             <a href={href} className="group flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
                 <img
-                    className="size-11 shrink-0 rounded-full object-cover ring-1 ring-line sm:size-12"
+                    className={`size-11 shrink-0 rounded-full object-cover ring-1 ring-line sm:size-12 ${avatarTransition}`}
                     src={avatar}
                     alt=""
                 />

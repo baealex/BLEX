@@ -27,6 +27,8 @@ Use radius to express hierarchy and density. Keep corners within the scale above
 
 The author's profile card is the one exception to flat surfaces: its cover sits behind it as a slightly rotated print, and both use `shadow-floating`. Keep every other surface flat and do not animate the card on hover, because it is not a control.
 
+Moving between an author's overview and their posts or series carries the avatar between the card and the compact header with a view transition, so the reader sees they stay with the same person. It is the only motion between pages: the rest of the page changes at once, and readers who ask for reduced motion see none.
+
 ## Light and dark themes
 
 - Tokens live in `packages/client/src/appearance/variables.css`; the adjacent `tailwind.css` maps them through `@theme inline` for public pages and React screens. Keep color values in the token file.

@@ -207,3 +207,23 @@
 [data-blex-route-focus]:focus {
   outline: none;
 }
+
+/* Moving between an author's overview and their posts or series carries the avatar between the card and the
+   compact header. The rest of the page changes at once, so the avatar is the only thing that moves. */
+:root[data-author-avatar-move]::view-transition-old(root),
+:root[data-author-avatar-move]::view-transition-new(root) {
+  animation: none;
+}
+
+::view-transition-group(blex-author-avatar) {
+  animation-duration: 380ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
