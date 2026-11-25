@@ -2,16 +2,10 @@ import { ui } from '../i18n/public-ui.js';
 import { activateDocumentLocale, activateLocale, normalizeLocale } from '../i18n';
 import { flushSync } from 'react-dom';
 import { hydrateRoot } from 'react-dom/client';
-import {
-    createBrowserHistory,
-    createRootRoute,
-    createRoute,
-    createRouter,
-    type HistoryLocation,
-    type RouterHistory
-} from '@tanstack/react-router';
+import { createRootRoute, createRoute, createRouter, type HistoryLocation } from '@tanstack/react-router';
 import { type ReactNode, use, useLayoutEffect, useState } from 'react';
 import { ApplicationFrame, type ApplicationView } from './frame.js';
+import { applicationHistory } from './history.js';
 import { opensOutsideApplication, type BlexNavigateDetail } from './navigation.js';
 import { ApplicationPrompts, offerTelegramHint, openLoginPromptFrom } from './prompts.js';
 import {
@@ -1465,18 +1459,6 @@ function ApplicationRoute({ initialPage }: { initialPage: ApplicationDocument })
     );
 }
 
-declare global {
-    interface Window {
-        blexHistory?: RouterHistory;
-    }
-}
-
-// React screens reuse this history so unsaved-change blockers also cover links in the site header.
-function applicationHistory(): RouterHistory {
-    window.blexHistory ??= createBrowserHistory();
-    return window.blexHistory;
-}
-
 const rootRoute = createRootRoute();
 const applicationRoute = createRoute({
     getParentRoute: () => rootRoute,
@@ -1507,6 +1489,10 @@ if (appRoot && initialDocument) {
     history.scrollRestoration = initialDocument.screen ? 'auto' : 'manual';
     const appRouter = createApplicationRouter();
     router = appRouter;
+    // The site script asks before reloading after a failed catalog, and unsaved screen edits keep the page.
+    document.addEventListener('blex:before-reload', (event) => {
+        if (warnsBeforeLeaving()) event.preventDefault();
+    });
     hydrateTreePageWhenLoaded(initialDocument);
     void activateDocumentLocale()
         .then(() => appRouter.load())

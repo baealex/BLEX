@@ -1393,6 +1393,35 @@ test('a cleanup confirmation survives the clock stepping back and still expires 
   assert.equal(body(executed).status, 'DONE', executed.body);
 });
 
+test('a cleanup confirmation issued while the clock ran ahead passes only within five minutes of skew', async (t) => {
+  const now = Date.now();
+  t.mock.timers.enable({ apis: ['Date'], now });
+  const confirmAfterClockFix = async (ahead: number) => {
+    t.mock.timers.setTime(now + ahead);
+    const preview = await app.inject({
+      method: 'POST',
+      url: '/v1/utilities/clean-tags',
+      headers: jsonHeaders(2),
+      payload: JSON.stringify({ dryRun: true }),
+    });
+    const { confirmationToken } = body(preview).body as { confirmationToken: string };
+    // Time synchronization brings the clock back to the real time before the confirmation.
+    t.mock.timers.setTime(now);
+    return body(
+      await app.inject({
+        method: 'POST',
+        url: '/v1/utilities/clean-tags',
+        headers: jsonHeaders(2),
+        payload: JSON.stringify({ dryRun: false, confirmationToken }),
+      }),
+    );
+  };
+
+  assert.equal((await confirmAfterClockFix(60 * 60 * 1000)).errorCode, 'error:RJ');
+  assert.equal((await confirmAfterClockFix(5 * 60 * 1000 + 1)).errorCode, 'error:RJ');
+  assert.equal((await confirmAfterClockFix(5 * 60 * 1000)).status, 'DONE');
+});
+
 test('reading absent singleton settings shows defaults without creating rows, and the first write creates them', async () => {
   const database = new DatabaseSync(databasePath);
   database.exec('DELETE FROM SiteSetting; DELETE FROM LoginSetting; DELETE FROM IntegrationSetting;');

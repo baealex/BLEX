@@ -28,6 +28,9 @@ interface UtilityConfirmationPayload {
   issuedAt: number;
 }
 
+/** How long a cleanup preview's confirmation stays valid, in milliseconds. */
+const confirmationLifetime = 5 * 60 * 1000;
+
 function utilitySessionFingerprint(request: FastifyRequest): string {
   const cookieHeader = request.headers.cookie ?? '';
   let sessionToken = '';
@@ -94,7 +97,7 @@ async function issueUtilityConfirmation(
   const signature = utilityTokenSignature(encodedPayload, secretKey).toString('base64url');
   const token = `${encodedPayload}.${signature}`;
   const now = new Date();
-  const expiresAt = new Date(now.getTime() + 5 * 60 * 1000);
+  const expiresAt = new Date(now.getTime() + confirmationLifetime);
   const tokenHash = createHash('sha256').update(token).digest('hex');
   await db.$transaction(async (transaction) => {
     await transaction.cleanupConfirmation.deleteMany({ where: { expiresAt: { lte: now } } });
@@ -138,8 +141,10 @@ async function consumeUtilityConfirmation(
     !isRecord(payload.parameters) ||
     JSON.stringify(payload.parameters) !== JSON.stringify(parameters) ||
     typeof payload.issuedAt !== 'number' ||
-    // The server signed this time, so a value ahead of the clock only means the clock was set back; age alone counts.
-    Date.now() - payload.issuedAt > 5 * 60 * 1000 ||
+    Date.now() - payload.issuedAt > confirmationLifetime ||
+    // The server signed this time, so a value ahead of the clock means the clock was set back since. Only a step
+    // back within the lifetime passes, so a token issued while the clock ran far ahead does not outlive it.
+    payload.issuedAt - Date.now() > confirmationLifetime ||
     typeof payload.nonce !== 'string' ||
     !payload.nonce
   ) {

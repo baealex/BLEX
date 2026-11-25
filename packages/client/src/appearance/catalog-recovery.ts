@@ -1,19 +1,13 @@
 const RELOAD_KEY = 'blex:catalog-reload';
 const RELOAD_INTERVAL = 60_000;
 
-/** True while a screen would ask before the page unloads, the same check the application makes. */
-function warnsBeforeLeaving(): boolean {
-    return (window.blexHistory?._getBlockers() ?? []).some(({ enableBeforeUnload = true }) =>
-        typeof enableBeforeUnload === 'function' ? enableBeforeUnload() : enableBeforeUnload
-    );
-}
-
 /**
  * Browsers never refetch a failed module, so only a new page can retry. Unsaved screen edits, typed text,
- * and a repeat failure stop it. Controlled fields and editors can hide typed text, so the leave warning counts too.
+ * and a repeat failure stop it. Controlled fields and editors can hide typed text, so the application
+ * cancels the check while a screen would warn before leaving.
  */
 export function reloadAfterCatalogFailure(): void {
-    if (warnsBeforeLeaving()) return;
+    if (!document.dispatchEvent(new Event('blex:before-reload', { cancelable: true }))) return;
     const fields = document.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input, textarea');
     if ([...fields].some((field) => field.value !== field.defaultValue)) return;
     try {

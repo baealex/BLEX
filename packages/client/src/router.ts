@@ -1,7 +1,7 @@
 import { createRouter } from '@tanstack/react-router';
 import type { SettingsRouterContext } from '~/features/settings/access';
 import { isSettingsPath } from '~/features/settings/settings-mode';
-import { applicationHistory } from '~/lib/application-history';
+import { applicationHistory } from '~/application/history';
 import { routeTree } from './routeTree.gen';
 
 export const createClientRouter = (context: SettingsRouterContext) => {
