@@ -5,6 +5,21 @@ import { ApplicationFrame } from './frame.js';
 
 type Element = ReactElement<{ children?: ReactNode }>;
 
+// Signing in from the sign-in, sign-up, first administrator, and password reset pages has nothing to return to.
+const pagesWithoutReturn = /^\/(?:login|sign|setup|password-reset)(?:[/?#]|$)/;
+let renderingReturnPath: string | undefined;
+
+/** Renders the documents of the page at `path`, which the header's sign-in link returns to. */
+export function withReturnPath<T>(path: string | undefined, render: () => T): T {
+    const previous = renderingReturnPath;
+    renderingReturnPath = path && path !== '/' && !pagesWithoutReturn.test(path) ? path : undefined;
+    try {
+        return render();
+    } finally {
+        renderingReturnPath = previous;
+    }
+}
+
 export function scriptJson(value: unknown): string {
     return JSON.stringify(value).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
 }
@@ -84,6 +99,7 @@ function clientHeader({ brand, viewer, searchPage, editorPage, hideAuthLinks }: 
         },
         searchPage,
         editorPage,
-        hideAuthLinks
+        hideAuthLinks,
+        returnPath: renderingReturnPath
     };
 }

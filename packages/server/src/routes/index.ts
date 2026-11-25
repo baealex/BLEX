@@ -3,6 +3,7 @@ import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { registerPersonalSettings } from '../features/account/index.js';
 import { registerAuthentication, type AuthConfig } from '../features/auth/http.js';
+import { safeReturnPath } from '../features/auth/oauth.js';
 import { passwordUpdater } from '../features/auth/security.js';
 import type { readSession } from '../features/auth/session.js';
 import { hasAdministrator } from '../features/auth/setup.js';
@@ -41,6 +42,7 @@ import { validCsrf } from '../platform/csrf.js';
 import { registerSiteAssets } from '../platform/site-assets.js';
 import { registerScreenHost } from '../application/screen-host/index.js';
 import { registerRequestLocale } from '../platform/request-locale.js';
+import { registerRequestReturnPath } from '../platform/request-path.js';
 
 type RouteContext = {
   db: PrismaClient;
@@ -71,6 +73,7 @@ export async function registerRoutes(
     }
     return currentUser(request);
   });
+  registerRequestReturnPath(app, (url) => safeReturnPath(url, siteUrl));
   if (auth) {
     registerBodyGuard(app, {
       currentUser,

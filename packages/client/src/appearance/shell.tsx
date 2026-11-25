@@ -123,9 +123,12 @@ export interface SiteHeaderProps {
     searchPage?: boolean;
     editorPage?: boolean;
     hideAuthLinks?: boolean;
+    /** The page the sign-in links return to, which the server already checked as the sign-in page checks `next`. */
+    returnPath?: string;
 }
 
-export function SiteHeader({ brand, viewer, searchPage, editorPage, hideAuthLinks }: SiteHeaderProps) {
+export function SiteHeader({ brand, viewer, searchPage, editorPage, hideAuthLinks, returnPath }: SiteHeaderProps) {
+    const loginHref = returnPath ? `/login?next=${encodeURIComponent(returnPath)}` : '/login';
     return (
         <header
             className="frosted-surface sticky top-0 right-0 left-0 z-30 border-b border-transparent transition-all duration-200"
@@ -180,7 +183,7 @@ export function SiteHeader({ brand, viewer, searchPage, editorPage, hideAuthLink
                             !hideAuthLinks && (
                                 <>
                                     <a
-                                        href="/login"
+                                        href={loginHref}
                                         className={`${authLink} text-content-secondary hover:bg-surface-subtle hover:text-content`}
                                     >
                                         {ui('Log in')}
@@ -252,7 +255,7 @@ export function SiteHeader({ brand, viewer, searchPage, editorPage, hideAuthLink
                         ) : (
                             !hideAuthLinks && (
                                 <div className="space-y-1 py-1">
-                                    <a href="/login" className={`${mobileItem} text-content-secondary`}>
+                                    <a href={loginHref} className={`${mobileItem} text-content-secondary`}>
                                         <SiteIcon name="login-2" className="w-5 text-xs text-content-hint" />
                                         <span>{ui('Log in')}</span>
                                     </a>

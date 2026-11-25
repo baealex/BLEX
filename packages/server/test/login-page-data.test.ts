@@ -118,3 +118,29 @@ test('a signed-in visitor is sent on without a sign-in form', async () => {
     await close();
   }
 });
+
+test("the header's sign-in link returns to the page it was opened from", async () => {
+  const { app, close } = await loginApp();
+  try {
+    const headerSignIns = (html: string) => {
+      const header = /<header[^>]*data-site-header[\s\S]*?<\/header>/.exec(html)?.[0] ?? '';
+      return [...header.matchAll(/href="(\/login[^"]*)"/g)].map(([, href]) => href);
+    };
+    for (const [url, href] of [
+      ['/tags', '/login?next=%2Ftags'],
+      ['/@writer', '/login?next=%2F%40writer'],
+      ['/search?q=hello%20world', '/login?next=%2Fsearch%3Fq%3Dhello%2520world'],
+      ['/', '/login'],
+      // Returning to these pages after signing in makes no sense.
+      ['/login?next=%2Ftags', '/login'],
+      ['/password-reset/unknown-token', '/login'],
+      // The sign-in page would send this one home, so the link leaves it out.
+      ['/%2F%2Fevil.example/tags', '/login'],
+    ] as const) {
+      const { body } = await app.inject({ url, headers: { accept: 'text/html' } });
+      assert.deepEqual(headerSignIns(body), [href, href], url);
+    }
+  } finally {
+    await close();
+  }
+});

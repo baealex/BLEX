@@ -42,6 +42,7 @@ Screen pages render in the main React tree as well, but on the client: the scree
 - Moves within the application do not fire `beforeunload`. A screen that warns about unsaved edits also blocks the history the application shares with screens, `application/history.ts`, and returns its warning from `enableBeforeUnload` so the application leaves form posts to the browser while it applies. That history lives in the module rather than on `window`, where an element id in authored HTML could take its name.
 - Keep browser-only APIs out of server render paths. Load large editor and interaction modules when the relevant screen needs them.
 - Keep forms, focus, keyboard navigation, loading feedback, and error states usable. Check direct visits, internal navigation, and back/forward behavior.
+- The header's sign-in link returns to the page it is on. The server renders each page with its own path, checked as the sign-in page checks `next`, so the link follows moves inside the application. The sign-in, sign-up, first administrator, and password reset pages leave `next` out.
 - `appearance/site-client.ts` answers the site menus, the theme button, and the header search box's Esc and Cmd/Ctrl+K in the capture phase, before and after the page hydrates. The search box reports when it hydrates and keeps its panel closed if Esc closed it before then; Esc closes its panel through an event the box handles synchronously.
 
 ## Components, state, and requests
