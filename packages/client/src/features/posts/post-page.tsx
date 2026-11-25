@@ -248,15 +248,21 @@ function SeriesProgress({ index, total }: { index: number; total: number }) {
     // Past two dozen posts, separate steps would blur into one line anyway.
     if (total > 24)
         return (
-            <div aria-hidden="true" className="mt-3.5 h-1 overflow-hidden rounded-full bg-line">
-                <div className="h-full rounded-full bg-content" style={{ width: `${(index / total) * 100}%` }} />
+            <div aria-hidden="true" className="mt-3.5 h-0.5 overflow-hidden rounded-full bg-line">
+                <div
+                    className="h-full rounded-full bg-content-secondary"
+                    style={{ width: `${(index / total) * 100}%` }}
+                />
             </div>
         );
     const steps = Array.from({ length: total }, (_, position) => position + 1);
     return (
         <div aria-hidden="true" className="mt-3.5 flex gap-1">
             {steps.map((step) => (
-                <span key={step} className={`h-1 flex-1 rounded-full ${step <= index ? 'bg-content' : 'bg-line'}`} />
+                <span
+                    key={step}
+                    className={`h-0.5 flex-1 rounded-full ${step === index ? 'bg-content' : step < index ? 'bg-content-hint/60' : 'bg-line'}`}
+                />
             ))}
         </div>
     );

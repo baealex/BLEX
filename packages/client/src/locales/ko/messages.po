@@ -2120,7 +2120,7 @@ msgstr "번의 공개 활동 · 지난 1년"
 
 #. js-lingui-explicit-id
 #: src/features/authors/featured-posts.tsx:29
-#: src/features/posts/post-page.tsx:379
+#: src/features/posts/post-page.tsx:385
 msgid "public.{count, plural, one{See # post} other{See all # posts}}"
 msgstr "포스트 {count}편 모두 보기"
 
@@ -2289,7 +2289,7 @@ msgid "public.After verification, return to settings and try your change again."
 msgstr "본인 확인을 마치면 설정으로 돌아가 변경을 다시 시도할 수 있습니다."
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:751
+#: src/features/posts/post-page.tsx:757
 msgid "public.Agent link copied."
 msgstr "에이전트용 링크가 복사되었습니다."
 
@@ -2336,7 +2336,7 @@ msgid "public.Authenticator code or recovery key"
 msgstr "인증 앱 코드 또는 복구 키"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:464
+#: src/features/posts/post-page.tsx:470
 msgid "public.Author"
 msgstr "작성자"
 
@@ -2356,7 +2356,7 @@ msgid "public.Author notices"
 msgstr "작성자 공지사항"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:495
+#: src/features/posts/post-page.tsx:501
 msgid "public.Author website"
 msgstr "저자 홈페이지"
 
@@ -2394,7 +2394,7 @@ msgid "public.Browse the posts you have liked, most recently liked first."
 msgstr "추천으로 관심 표시한 포스트를 최신 관심순으로 모아볼 수 있어요."
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:732
+#: src/features/posts/post-page.tsx:738
 msgid "public.Browser URL"
 msgstr "브라우저에서 여는 주소"
 
@@ -2466,7 +2466,7 @@ msgid "public.Close"
 msgstr "닫기"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:791
+#: src/features/posts/post-page.tsx:797
 msgid "public.Close table of contents"
 msgstr "목차 닫기"
 
@@ -2772,8 +2772,8 @@ msgid "public.Don't have an account?"
 msgstr "계정이 없으신가요?"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:617
-#: src/features/posts/post-page.tsx:775
+#: src/features/posts/post-page.tsx:623
+#: src/features/posts/post-page.tsx:781
 msgid "public.Edit"
 msgstr "수정"
 
@@ -2918,7 +2918,7 @@ msgid "public.First page"
 msgstr "첫 페이지"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:508
+#: src/features/posts/post-page.tsx:514
 msgid "public.First published"
 msgstr "최초 발행"
 
@@ -3016,7 +3016,7 @@ msgstr "댓글 남기기"
 #: src/features/engagement/ui/comments.tsx:509
 #: src/features/engagement/ui/comments.tsx:517
 #: src/features/engagement/ui/index.tsx:155
-#: src/features/posts/post-page.tsx:679
+#: src/features/posts/post-page.tsx:685
 msgid "public.Like"
 msgstr "좋아요"
 
@@ -3026,7 +3026,7 @@ msgid "public.Like · {value0}"
 msgstr "좋아요 · {value0}"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:694
+#: src/features/posts/post-page.tsx:700
 msgid "public.Like ({value0})"
 msgstr "좋아요 ({value0})"
 
@@ -3058,7 +3058,7 @@ msgid "public.Link copied."
 msgstr "링크가 복사되었습니다."
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:756
+#: src/features/posts/post-page.tsx:762
 msgid "public.Link for agents"
 msgstr "에이전트용 링크"
 
@@ -3120,7 +3120,7 @@ msgid "public.Manage social links"
 msgstr "소셜 링크 관리"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:757
+#: src/features/posts/post-page.tsx:763
 msgid "public.Markdown reference URL"
 msgstr "*.md 참조 주소"
 
@@ -3158,7 +3158,7 @@ msgid "public.Navigate pages"
 msgstr "페이지 이동"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:317
+#: src/features/posts/post-page.tsx:323
 msgid "public.Navigate series"
 msgstr "시리즈 이동"
 
@@ -3213,7 +3213,7 @@ msgid "public.Next page"
 msgstr "다음 페이지"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:328
+#: src/features/posts/post-page.tsx:334
 msgid "public.Next post"
 msgstr "다음 포스트"
 
@@ -3351,12 +3351,12 @@ msgid "public.Oldest first"
 msgstr "오래된순"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:592
+#: src/features/posts/post-page.tsx:598
 msgid "public.Only the author can view this post before its scheduled time. It will then appear at its public URL and in RSS, sitemaps, and Markdown."
 msgstr "예약 시각 전에는 작성자만 볼 수 있습니다. 예약 시각이 되면 공개 URL, RSS, Sitemap, Markdown URL에 반영됩니다."
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:588
+#: src/features/posts/post-page.tsx:594
 msgid "public.Only the author can view this post. Turn off private visibility in post settings to publish it."
 msgstr "이 포스트는 작성자만 볼 수 있습니다. 공개하려면 포스트 설정에서 비공개를 해제하세요."
 
@@ -3404,7 +3404,7 @@ msgid "public.Pause"
 msgstr "일시 정지"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:459
+#: src/features/posts/post-page.tsx:465
 msgid "public.Post information"
 msgstr "포스트 정보"
 
@@ -3414,7 +3414,7 @@ msgid "public.Post liked"
 msgstr "좋아요를 눌렀어요"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:608
+#: src/features/posts/post-page.tsx:614
 msgid "public.Post status"
 msgstr "포스트 상태"
 
@@ -3425,7 +3425,7 @@ msgid "public.Posts"
 msgstr "포스트"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:338
+#: src/features/posts/post-page.tsx:344
 msgid "public.Posts in this series"
 msgstr "이 시리즈의 포스트"
 
@@ -3451,7 +3451,7 @@ msgid "public.Preview shared page"
 msgstr "공유 화면 미리보기"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:508
+#: src/features/posts/post-page.tsx:514
 msgid "public.Preview source"
 msgstr "미리보기 기준"
 
@@ -3480,7 +3480,7 @@ msgid "public.Previous page"
 msgstr "이전 페이지"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:320
+#: src/features/posts/post-page.tsx:326
 msgid "public.Previous post"
 msgstr "이전 포스트"
 
@@ -3513,7 +3513,7 @@ msgid "public.Quick search results"
 msgstr "빠른 검색 결과"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:353
+#: src/features/posts/post-page.tsx:359
 msgid "public.Reading"
 msgstr "읽는 중"
 
@@ -3549,7 +3549,7 @@ msgid "public.Record what you tried or learned today."
 msgstr "오늘 시도한 일이나 새로 알게 된 내용을 남겨 보세요."
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:547
+#: src/features/posts/post-page.tsx:553
 #: src/routes/@{$username}/{$slug}/related.page.tsx:27
 msgid "public.Related posts"
 msgstr "관련 포스트"
@@ -3698,7 +3698,7 @@ msgstr "검색 중…"
 
 #. js-lingui-explicit-id
 #: src/features/posts/post-page.tsx:102
-#: src/features/posts/post-page.tsx:443
+#: src/features/posts/post-page.tsx:449
 msgid "public.See how it was written"
 msgstr "쓰인 과정 보기"
 
@@ -3713,7 +3713,7 @@ msgstr "기록 골라 공유하기"
 #: src/features/authors/author-series-page.tsx:24
 #: src/features/authors/profile-ui.tsx:267
 #: src/features/discovery/post-list.tsx:58
-#: src/features/posts/post-page.tsx:282
+#: src/features/posts/post-page.tsx:288
 msgid "public.Series"
 msgstr "시리즈"
 
@@ -3739,12 +3739,12 @@ msgid "public.Setup token"
 msgstr "설정 토큰"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:725
+#: src/features/posts/post-page.tsx:731
 msgid "public.Share"
 msgstr "공유"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:661
+#: src/features/posts/post-page.tsx:667
 msgid "public.Share in a feed or message"
 msgstr "피드 또는 메시지로 공유"
 
@@ -3760,47 +3760,47 @@ msgid "public.Share links · {title}"
 msgstr "공유 링크 · {title}"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:648
+#: src/features/posts/post-page.tsx:654
 msgid "public.Share on Bluesky"
 msgstr "Bluesky에 공유"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:660
+#: src/features/posts/post-page.tsx:666
 msgid "public.Share on Facebook"
 msgstr "Facebook에 공유"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:654
+#: src/features/posts/post-page.tsx:660
 msgid "public.Share on LinkedIn"
 msgstr "LinkedIn에 공유"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:639
+#: src/features/posts/post-page.tsx:645
 msgid "public.Share on Threads"
 msgstr "Threads에 공유"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:630
+#: src/features/posts/post-page.tsx:636
 msgid "public.Share on X"
 msgstr "X에 공유"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:719
+#: src/features/posts/post-page.tsx:725
 msgid "public.Share post or copy link"
 msgstr "포스트 공유 또는 링크 복사"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:649
+#: src/features/posts/post-page.tsx:655
 msgid "public.Share with your Bluesky followers"
 msgstr "Bluesky 팔로워에게 공유"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:655
+#: src/features/posts/post-page.tsx:661
 msgid "public.Share with your professional network"
 msgstr "전문 네트워크에 공유"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:640
+#: src/features/posts/post-page.tsx:646
 msgid "public.Share with your Threads followers"
 msgstr "Threads 팔로워에게 공유"
 
@@ -3816,7 +3816,7 @@ msgid "public.Show notice {value0}"
 msgstr "{value0}번째 공지 보기"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:708
+#: src/features/posts/post-page.tsx:714
 msgid "public.Show table of contents"
 msgstr "목차 보기"
 
@@ -3950,7 +3950,7 @@ msgid "public.Sort posts"
 msgstr "포스트 정렬"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:732
+#: src/features/posts/post-page.tsx:738
 msgid "public.Standard link"
 msgstr "일반 링크"
 
@@ -3969,8 +3969,8 @@ msgstr "공유 중지"
 #: src/features/authors/profile-ui.tsx:65
 #: src/features/engagement/ui/index.tsx:88
 #: src/features/engagement/ui/index.tsx:98
-#: src/features/posts/post-page.tsx:404
-#: src/features/posts/post-page.tsx:423
+#: src/features/posts/post-page.tsx:410
+#: src/features/posts/post-page.tsx:429
 msgid "public.Subscribe"
 msgstr "구독"
 
@@ -3981,7 +3981,7 @@ msgstr "{value0} 구독"
 
 #. js-lingui-explicit-id
 #: src/features/authors/profile-ui.tsx:39
-#: src/features/posts/post-page.tsx:394
+#: src/features/posts/post-page.tsx:400
 msgid "public.Subscribe to new posts by {value0}"
 msgstr "{value0}님의 새 글 구독"
 
@@ -3989,7 +3989,7 @@ msgstr "{value0}님의 새 글 구독"
 #: src/features/authors/profile-ui.tsx:65
 #: src/features/engagement/ui/index.tsx:88
 #: src/features/engagement/ui/telegram-hint.tsx:86
-#: src/features/posts/post-page.tsx:423
+#: src/features/posts/post-page.tsx:429
 msgid "public.Subscribed"
 msgstr "구독 중"
 
@@ -4009,7 +4009,7 @@ msgstr "라이트 모드로 전환"
 #: src/features/posts/post-page.tsx:159
 #: src/features/posts/post-page.tsx:215
 #: src/features/posts/post-page.tsx:219
-#: src/features/posts/post-page.tsx:789
+#: src/features/posts/post-page.tsx:795
 msgid "public.Table of contents"
 msgstr "목차"
 
@@ -4029,7 +4029,7 @@ msgid "public.Tagged in {value0} posts"
 msgstr "{value0}개 포스트에서 태그됨"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:515
+#: src/features/posts/post-page.tsx:521
 msgid "public.Tags"
 msgstr "태그"
 
@@ -4084,12 +4084,12 @@ msgid "public.This entry and its attachments will disappear from every share lin
 msgstr "모든 공유 링크에서 이 기록과 첨부가 사라져요. 이 기록만 담긴 링크는 닫혀요."
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:301
+#: src/features/posts/post-page.tsx:307
 msgid "public.This hidden post does not appear in the series list."
 msgstr "이 포스트는 숨김 처리되어 시리즈 목록에 표시되지 않습니다."
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:581
+#: src/features/posts/post-page.tsx:587
 msgid "public.This is a draft preview."
 msgstr "임시 포스트 미리보기입니다."
 
@@ -4104,17 +4104,17 @@ msgid "public.This page may have been deleted, moved, or temporarily unavailable
 msgstr "요청하신 페이지가 삭제되었거나, 주소가 변경되었거나, 일시적으로 사용할 수 없는 상태입니다."
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:587
+#: src/features/posts/post-page.tsx:593
 msgid "public.This post is private."
 msgstr "비공개 포스트입니다."
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:591
+#: src/features/posts/post-page.tsx:597
 msgid "public.This post is scheduled."
 msgstr "예약 발행 포스트입니다."
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:582
+#: src/features/posts/post-page.tsx:588
 msgid "public.This preview shows the last saved content as a post. Only the author can view it, and it is excluded from public lists and search."
 msgstr "마지막으로 저장된 내용을 실제 포스트 화면으로 표시합니다. 이 페이지는 작성자에게만 보이며 공개 목록과 검색에 노출되지 않습니다."
 
@@ -4152,7 +4152,7 @@ msgstr "2단계 인증"
 #: src/features/discovery/post-list.tsx:76
 #: src/features/engagement/ui/comments.tsx:498
 #: src/features/engagement/ui/index.tsx:155
-#: src/features/posts/post-page.tsx:679
+#: src/features/posts/post-page.tsx:685
 msgid "public.Unlike"
 msgstr "좋아요 취소"
 
@@ -4168,7 +4168,7 @@ msgid "public.Update"
 msgstr "수정"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:512
+#: src/features/posts/post-page.tsx:518
 msgid "public.Updated"
 msgstr "수정일"
 
@@ -4237,7 +4237,7 @@ msgid "public.View {value0}'s profile"
 msgstr "{value0}님의 프로필 보기"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:304
+#: src/features/posts/post-page.tsx:310
 msgid "public.View all series"
 msgstr "시리즈 전체 보기"
 
@@ -4247,7 +4247,7 @@ msgid "public.View by week"
 msgstr "주별로 보기"
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:484
+#: src/features/posts/post-page.tsx:490
 msgid "public.View profile"
 msgstr "프로필 보기"
 
@@ -4318,7 +4318,7 @@ msgid "public.Write a reply…"
 msgstr "답글을 작성하세요..."
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:631
+#: src/features/posts/post-page.tsx:637
 msgid "public.Write a shared post in a new window"
 msgstr "새 창에서 공유 포스트 작성"
 
