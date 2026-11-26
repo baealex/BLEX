@@ -43,7 +43,10 @@ An author's tabs share one narrow column, so the header and avatar stay put betw
 ## Mobile and accessibility
 
 - Verify layouts at 375px and desktop widths. Keep reading pages spacious and management screens appropriately dense.
-- Provide at least 44×44px touch targets. Increase the hit area of compact controls without making every visible control large.
+- Provide at least 44×44px touch targets. Increase the hit area of compact controls with `touch-target` (on a positioned element) instead of making every visible control large, and keep neighbors' areas from overlapping.
 - Use clear pressed feedback, comfortable menu spacing, and inputs with enough height for touch (`h-12` as the baseline).
 - Keep the mobile header focused on search, notifications, and the user menu.
+- Every control the keyboard reaches shows the shared `:focus-visible` ring from `tailwind.css`. Change its shape when needed, but never remove it or replace it with a faint ring; text fields use a 1px `content-hint` ring and border instead.
+- Name every dialog with `aria-labelledby`, mark the current page with `aria-current`, and smooth-scroll only through `scrollBehavior()` so reduced motion is respected.
+- Inside the translucent editor menus, hover and selection use `bg-floating-glass-hover`; the subtle surface disappears there in dark mode.
 - Verify keyboard focus, readable contrast, and the same screen in light and dark themes.
