@@ -127,7 +127,7 @@ function PostCard({
                 </div>
             ) : null}
             <div className="flex flex-grow flex-col p-5">
-                <h2 className="mb-3 line-clamp-2 text-md font-bold leading-snug text-content">
+                <h2 className="mb-3 line-clamp-2 text-base font-bold leading-snug text-content">
                     <a href={href} className="transition-colors duration-150 hover:text-content-secondary">
                         {card.title}
                     </a>

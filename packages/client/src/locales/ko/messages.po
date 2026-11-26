@@ -2239,11 +2239,6 @@ msgid "public.About {value0}"
 msgstr "{value0} 작성자 정보"
 
 #. js-lingui-explicit-id
-#: src/features/discovery/layout.tsx:41
-msgid "public.About this site"
-msgstr "사이트 정보"
-
-#. js-lingui-explicit-id
 #: src/features/discovery/forbidden-page.tsx:24
 msgid "public.Access denied"
 msgstr "접근 권한이 없습니다"

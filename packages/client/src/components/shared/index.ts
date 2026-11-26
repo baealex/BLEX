@@ -15,8 +15,7 @@ export {
     DIM_OVERLAY_SOFT,
     ENTRANCE_DURATION,
     INTERACTION_DURATION,
-    FLOATING_GLASS_SURFACE,
-    FROSTED_SURFACE
+    FLOATING_GLASS_SURFACE
 } from '~/ui/design-tokens';
 
 export { TiptapEditor } from '~/features/editor/tiptap/tiptap-editor';

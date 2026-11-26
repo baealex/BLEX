@@ -19,7 +19,6 @@
 
     --color-action: var(--color-action);
     --color-action-hover: var(--color-action-hover);
-    --color-action-pressed: var(--color-action-pressed);
 
     --color-success: var(--color-success);
     --color-success-surface: var(--color-success-surface);
@@ -221,10 +220,6 @@
 
 @utility motion-entrance {
     transition-duration: var(--motion-entrance);
-}
-
-@utility theme-logo {
-    filter: var(--logo-filter);
 }
 
 /* Mention style */

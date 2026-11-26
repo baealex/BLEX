@@ -2239,11 +2239,6 @@ msgid "public.About {value0}"
 msgstr "About {value0}"
 
 #. js-lingui-explicit-id
-#: src/features/discovery/layout.tsx:41
-msgid "public.About this site"
-msgstr "About this site"
-
-#. js-lingui-explicit-id
 #: src/features/discovery/forbidden-page.tsx:24
 msgid "public.Access denied"
 msgstr "Access denied"
