@@ -9,7 +9,7 @@ interface RegionalPreferencesSectionProps {
 }
 
 const selectClassName =
-    'mt-2 min-h-12 w-full rounded-lg border border-line bg-surface px-3 text-content focus-visible:outline-2 focus-visible:outline-line-strong';
+    'mt-2 min-h-12 w-full rounded-lg border border-line bg-surface px-3 text-content focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint';
 
 const RegionalPreferencesSection = ({ preferences }: RegionalPreferencesSectionProps) => {
     const { t } = useLingui();

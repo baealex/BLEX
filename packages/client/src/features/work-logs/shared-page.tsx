@@ -33,7 +33,7 @@ function NewLink({ url }: { url: string }) {
                     readOnly
                     value={url}
                     onFocus={(event) => event.currentTarget.select()}
-                    className="min-h-11 min-w-0 flex-[1_1_16rem] rounded-lg border border-line bg-surface px-3 text-sm text-content-secondary"
+                    className="min-h-11 min-w-0 flex-[1_1_16rem] rounded-lg border border-line bg-surface px-3 text-sm text-content-secondary focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint"
                 />
                 <button type="button" onClick={copy} className={primaryButton}>
                     {copied ? ui('Link copied') : ui('Copy link')}

@@ -50,11 +50,9 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
             [ariaDescribedBy, error ? errorId : helperText ? helperId : undefined].filter(Boolean).join(' ') ||
             undefined;
         const errorStyles = error
-            ? 'border-danger-line focus:border-danger focus:ring-danger/20 bg-danger-surface/70'
+            ? 'border-danger-line focus:border-danger focus:ring-danger bg-danger-surface/70'
             : '';
-        const readOnlyStyles = readOnly
-            ? '!bg-surface-subtle !text-content-hint cursor-default focus:!ring-0 focus:!border-line'
-            : '';
+        const readOnlyStyles = readOnly ? '!bg-surface-subtle !text-content-hint cursor-default' : '';
 
         const leftPadding = leftIcon ? 'pl-11' : '';
         const rightPadding = rightIcon ? 'pr-11' : '';

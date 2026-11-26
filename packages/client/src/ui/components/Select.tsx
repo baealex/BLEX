@@ -56,7 +56,7 @@ const Select = ({
         value: item.value === '' ? EMPTY_VALUE : item.value
     }));
 
-    const errorStyles = error ? 'border-danger-line focus:border-danger focus:ring-danger/20 bg-danger-surface/70' : '';
+    const errorStyles = error ? 'border-danger-line focus:border-danger focus:ring-danger bg-danger-surface/70' : '';
 
     return (
         <div>

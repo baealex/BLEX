@@ -58,7 +58,7 @@ interface TabsContentProps {
 const Content = ({ value, children, className }: TabsContentProps) => (
     <RadixTabs.Content
         value={value}
-        className={cx('focus:outline-none', 'data-[state=active]:animate-in data-[state=active]:fade-in-0', className)}
+        className={cx('data-[state=active]:animate-in data-[state=active]:fade-in-0', className)}
     >
         {children}
     </RadixTabs.Content>

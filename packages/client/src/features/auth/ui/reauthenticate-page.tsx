@@ -3,7 +3,8 @@ import type { ReactNode } from 'react';
 import { readReauthenticatePageData, type ReauthenticatePageData } from './form-page-data';
 import { serverFooter } from './server-footer';
 
-const fieldClass = 'block h-12 w-full rounded-lg border border-line bg-surface px-3';
+const fieldClass =
+    'block h-12 w-full rounded-lg border border-line bg-surface px-3 focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint';
 
 /** The fields stay uncontrolled, so hydration keeps whatever the visitor typed before this code arrived. */
 export function ReauthenticatePage({ data, footer }: { data: ReauthenticatePageData; footer: ReactNode }) {

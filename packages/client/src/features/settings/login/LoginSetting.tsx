@@ -421,7 +421,7 @@ const SocialAuthProviderPanel = ({ provider, savedProvider, isPending, onUpdate 
                 </div>
             ) : (
                 <details className="group border-t border-line">
-                    <summary className="flex min-h-11 cursor-pointer list-none items-center gap-3 px-4 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-line-strong sm:px-5 [&::-webkit-details-marker]:hidden">
+                    <summary className="flex min-h-11 cursor-pointer list-none items-center gap-3 px-4 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-content sm:px-5 [&::-webkit-details-marker]:hidden">
                         <KeyRound aria-hidden="true" className="h-4 w-4 shrink-0 text-content-secondary" />
                         <span className="min-w-0 flex-1 font-semibold text-content">
                             {t({

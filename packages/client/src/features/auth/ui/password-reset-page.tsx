@@ -3,7 +3,8 @@ import type { ReactNode } from 'react';
 import { type PasswordResetPageData, readPasswordResetPageData } from './form-page-data';
 import { serverFooter } from './server-footer';
 
-const fieldClass = 'block h-12 w-full rounded-lg border border-line bg-surface px-3';
+const fieldClass =
+    'block h-12 w-full rounded-lg border border-line bg-surface px-3 focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint';
 const linkClass =
     'mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-action px-4 text-content-inverted hover:bg-action-hover active:scale-95';
 

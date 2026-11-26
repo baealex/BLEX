@@ -371,7 +371,7 @@ const SearchPage = ({ username }: SearchPageProps) => {
                 </h1>
 
                 <form onSubmit={handleSubmit}>
-                    <div className="h-12 px-4 rounded-full border border-line bg-surface shadow-sm flex items-center gap-2 transition-all duration-150 focus-within:ring-2 focus-within:ring-line">
+                    <div className="h-12 px-4 rounded-full border border-line bg-surface shadow-sm flex items-center gap-2 transition-all duration-150 focus-within:ring-2 focus-within:ring-content-hint">
                         {isLoading ? (
                             <div
                                 role="status"

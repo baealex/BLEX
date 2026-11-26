@@ -40,7 +40,7 @@ const dayPickerClassNames = {
     week: '',
     day: 'p-0 text-center align-middle',
     day_button:
-        'mx-auto my-0.5 flex h-11 w-11 items-center justify-center rounded-lg text-sm font-medium text-content-secondary transition-all hover:bg-surface-subtle hover:text-content active:scale-95 focus:outline-none focus:ring-2 focus:ring-line-strong/50',
+        'mx-auto my-0.5 flex h-11 w-11 items-center justify-center rounded-lg text-sm font-medium text-content-secondary transition-all hover:bg-surface-subtle hover:text-content active:scale-95',
     outside: '[&>button]:text-content-hint/40',
     today: '[&>button]:ring-1 [&>button]:ring-line-strong',
     selected: '[&>button]:bg-content [&>button]:text-surface [&>button]:hover:bg-content',
@@ -118,7 +118,7 @@ const SchedulePicker = ({ value, onChange, allowClear = true }: SchedulePickerPr
                             type="button"
                             className={cx(
                                 'flex min-h-12 w-full items-center justify-between rounded-lg border border-line bg-surface-elevated px-3 py-2 pr-12 text-left text-sm transition-colors',
-                                'hover:border-line-strong hover:bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-line/70'
+                                'hover:border-line-strong hover:bg-surface-subtle'
                             )}
                         >
                             <span className="flex min-w-0 items-center gap-2">
@@ -187,7 +187,7 @@ const SchedulePicker = ({ value, onChange, allowClear = true }: SchedulePickerPr
                                         if (nextHour === null) return;
                                         handleTimeChange(nextHour, minute);
                                     }}
-                                    className="h-11 rounded-lg border border-line bg-surface px-3 text-center text-sm font-medium text-content focus:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/70"
+                                    className="h-11 rounded-lg border border-line bg-surface px-3 text-center text-sm font-medium text-content focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint"
                                     aria-label={t({
                                         id: 'editor.schedule.hour',
                                         message: 'Scheduled hour'
@@ -206,7 +206,7 @@ const SchedulePicker = ({ value, onChange, allowClear = true }: SchedulePickerPr
                                         if (nextMinute === null) return;
                                         handleTimeChange(hour, nextMinute);
                                     }}
-                                    className="h-11 rounded-lg border border-line bg-surface px-3 text-center text-sm font-medium text-content focus:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/70"
+                                    className="h-11 rounded-lg border border-line bg-surface px-3 text-center text-sm font-medium text-content focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint"
                                     aria-label={t({
                                         id: 'editor.schedule.minute',
                                         message: 'Scheduled minute'

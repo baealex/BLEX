@@ -142,7 +142,7 @@ const NotifyConfigModal = ({ isOpen, onClose, notifyConfig, isLoading, isError, 
                                     checked={item.value === true}
                                     onChange={() => handleToggleConfig(item.name)}
                                 />
-                                <div className="w-11 h-6 bg-line peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-line-light after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border-line after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-action shadow-inner transition-colors duration-200" />
+                                <div className="w-11 h-6 bg-line rounded-full peer-focus-visible:ring-2 peer-focus-visible:ring-content peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-surface peer peer-checked:after:translate-x-full peer-checked:after:border-line-light after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border-line after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-action shadow-inner transition-colors duration-200" />
                             </label>
                         </div>
                     ))

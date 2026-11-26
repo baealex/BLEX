@@ -693,7 +693,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                                     setOrder(parseInt(e.target.value) || 0);
                                                     markDirty();
                                                 }}
-                                                className="w-16 text-right text-sm border border-line rounded-lg px-2 py-1.5 outline-none focus:border-line-strong"
+                                                className="w-16 text-right text-sm border border-line rounded-lg px-2 py-1.5 focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint"
                                             />
                                         </div>
                                     </div>

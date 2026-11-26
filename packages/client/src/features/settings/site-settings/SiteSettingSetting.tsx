@@ -662,7 +662,7 @@ const SiteSettingSetting = () => {
                         open={isGlobalCodeOpen}
                         onToggle={(event) => setIsGlobalCodeOpen(event.currentTarget.open)}
                     >
-                        <summary className="flex min-h-20 cursor-pointer list-none items-center gap-4 px-6 py-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-line-strong md:px-8 [&::-webkit-details-marker]:hidden">
+                        <summary className="flex min-h-20 cursor-pointer list-none items-center gap-4 px-6 py-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-content md:px-8 [&::-webkit-details-marker]:hidden">
                             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning-surface text-warning">
                                 <Code2 aria-hidden="true" className="h-5 w-5" />
                             </span>

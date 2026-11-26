@@ -37,8 +37,8 @@ export const CodeEditor = ({
                 autoCapitalize="off"
                 autoComplete="off"
                 className={cx(
-                    'block w-full resize-y rounded-lg border bg-surface px-4 py-3 font-mono text-sm leading-6 text-content outline-none transition-colors',
-                    'placeholder:text-content-hint focus:border-line-strong focus:ring-2 focus:ring-line/20',
+                    'block w-full resize-y rounded-lg border bg-surface px-4 py-3 font-mono text-sm leading-6 text-content transition-colors',
+                    'placeholder:text-content-hint focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint',
                     'read-only:cursor-default read-only:bg-surface-subtle',
                     error ? 'border-danger-line' : 'border-line'
                 )}

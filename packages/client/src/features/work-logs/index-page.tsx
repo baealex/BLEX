@@ -28,7 +28,7 @@ export function WorkLogIndexPage({ data, text }: { data: WorkLogIndexData; text:
                             maxLength={100}
                             defaultValue={text.typedTitle}
                             placeholder={ui('What are you working on?')}
-                            className="min-h-12 min-w-0 flex-1 rounded-lg border border-line bg-surface px-3 text-content placeholder:text-content-hint"
+                            className="min-h-12 min-w-0 flex-1 rounded-lg border border-line bg-surface px-3 text-content placeholder:text-content-hint focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint"
                         />
                         <button
                             type="submit"

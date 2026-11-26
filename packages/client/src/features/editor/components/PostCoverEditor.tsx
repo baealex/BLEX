@@ -61,7 +61,7 @@ const TitleInputs = ({
                 maxLength={65}
                 aria-describedby={title.length > 50 ? 'title-character-count' : undefined}
                 className={cx(
-                    'w-full border-0 px-0 py-0 text-2xl font-bold leading-tight text-content placeholder-content-hint focus:ring-0 sm:text-3xl lg:text-4xl',
+                    'w-full border-0 px-0 py-0 text-2xl font-bold leading-tight text-content placeholder-content-hint focus:outline-hidden focus:ring-0 sm:text-3xl lg:text-4xl',
                     inverted && 'bg-transparent text-white placeholder:text-white/65'
                 )}
                 placeholder={t({
@@ -94,7 +94,7 @@ const TitleInputs = ({
                 maxLength={120}
                 aria-describedby={subtitle.length > 100 ? 'subtitle-character-count' : undefined}
                 className={cx(
-                    'mt-2 w-full border-0 px-0 py-0 text-lg leading-tight text-content-secondary placeholder-content-hint focus:ring-0 sm:text-xl',
+                    'mt-2 w-full border-0 px-0 py-0 text-lg leading-tight text-content-secondary placeholder-content-hint focus:outline-hidden focus:ring-0 sm:text-xl',
                     inverted && 'bg-transparent text-white/85 placeholder:text-white/55'
                 )}
                 placeholder={t({

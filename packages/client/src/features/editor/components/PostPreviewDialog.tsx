@@ -98,7 +98,7 @@ const PostPreviewDialog = ({ isOpen, previewUrl, returnFocusTo, onClose }: PostP
                                             aria-pressed={isActive}
                                             onClick={() => setViewport(option.value)}
                                             className={cx(
-                                                'inline-flex min-h-11 items-center justify-center rounded-lg px-3 text-sm font-medium transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action/30',
+                                                'inline-flex min-h-11 items-center justify-center rounded-lg px-3 text-sm font-medium transition-all active:scale-95',
                                                 isActive
                                                     ? 'bg-surface-elevated text-content shadow-sm'
                                                     : 'text-content-secondary hover:text-content'

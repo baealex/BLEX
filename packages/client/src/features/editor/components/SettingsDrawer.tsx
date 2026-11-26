@@ -479,7 +479,7 @@ const SettingsDrawer = ({
                                                     aria-pressed={isActive}
                                                     onClick={() => onFormDataChange('coverLayout', option.value)}
                                                     className={cx(
-                                                        'rounded-xl border p-4 text-left transition-all duration-150 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action/30',
+                                                        'rounded-xl border p-4 text-left transition-all duration-150 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-content',
                                                         isActive
                                                             ? 'border-action bg-action/10 text-content'
                                                             : 'border-line bg-surface-elevated text-content-secondary hover:border-line-strong hover:bg-surface-subtle'

@@ -68,7 +68,7 @@ export const PinnablePostInlineList = ({
                         })}
                         value={searchQuery}
                         onChange={(event) => onSearchQueryChange(event.target.value)}
-                        className="h-11 w-full rounded-lg border border-line bg-surface-subtle pl-9 pr-3 text-sm text-content transition-colors duration-150 placeholder:text-content-hint focus:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/50"
+                        className="h-11 w-full rounded-lg border border-line bg-surface-subtle pl-9 pr-3 text-sm text-content transition-colors duration-150 placeholder:text-content-hint focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint"
                     />
                 </div>
             </div>

@@ -40,7 +40,7 @@ const CodeBlockLanguageSelector = ({ node, updateAttributes }: CodeBlockLanguage
             trigger={
                 <button
                     type="button"
-                    className="inline-flex items-center px-2 py-1 text-xs font-medium text-content-secondary bg-surface-elevated border border-line rounded-md hover:bg-surface-subtle hover:text-content focus:outline-none focus-visible:ring-2 focus-visible:ring-line-strong"
+                    className="inline-flex items-center px-2 py-1 text-xs font-medium text-content-secondary bg-surface-elevated border border-line rounded-md hover:bg-surface-subtle hover:text-content"
                 >
                     {getCurrentLanguageLabel()}
                     <ChevronDown className="w-3 h-3 ml-1" />

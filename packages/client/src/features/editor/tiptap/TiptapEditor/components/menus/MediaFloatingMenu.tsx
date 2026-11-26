@@ -20,7 +20,7 @@ interface MediaFloatingMenuProps {
 
 const MEDIA_TYPES = ['image', 'video', 'iframe'];
 const fieldClassName =
-    'px-2 py-1 text-xs bg-surface-elevated text-content border border-line rounded-md hover:bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-action/20 focus:border-action placeholder:text-content-hint';
+    'px-2 py-1 text-xs bg-surface-elevated text-content border border-line rounded-md hover:bg-surface-subtle focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint placeholder:text-content-hint';
 const dividerClassName = 'w-px h-5 bg-line';
 const mediaTypesWithStyle = ['image', 'video'];
 
