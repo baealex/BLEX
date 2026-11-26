@@ -100,7 +100,7 @@ const PostLinkSuggestionList = ({ ref, items, loading, failed, command }: PostLi
                                 }}
                                 role="option"
                                 aria-selected={isSelected}
-                                className={`flex w-full flex-col gap-0.5 rounded-lg px-3 py-3 text-left sm:py-2 cursor-pointer transition-colors duration-150 ${isSelected ? 'bg-surface-subtle' : ''}`}
+                                className={`flex w-full flex-col gap-0.5 rounded-lg px-3 py-3 text-left sm:py-2 cursor-pointer transition-colors duration-150 ${isSelected ? 'bg-floating-glass-hover' : ''}`}
                                 onMouseDown={(event) => event.preventDefault()}
                                 onMouseEnter={() => setSelectedIndex(index)}
                                 onClick={() => selectItem(index)}

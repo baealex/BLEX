@@ -97,6 +97,7 @@
         --color-frosted-surface: rgb(255 255 255 / 0.90);
         --color-floating-glass-surface: rgb(255 255 255 / 0.78);
         --color-floating-glass-border: rgb(255 255 255 / 0.58);
+        --color-floating-glass-hover: rgb(0 0 0 / 0.06);
         --blur-frosted: 12px;
         --blur-floating-glass: 10px;
         --shadow-floating-glass: 0 6px 20px rgb(15 23 42 / 0.10);
@@ -224,6 +225,7 @@
         --color-frosted-surface: rgb(23 23 23 / 0.88);
         --color-floating-glass-surface: rgb(30 30 30 / 0.80);
         --color-floating-glass-border: rgb(66 66 66 / 0.45);
+        --color-floating-glass-hover: rgb(255 255 255 / 0.09);
         --blur-frosted: 14px;
         --blur-floating-glass: 12px;
         --shadow-floating-glass: 0 8px 24px rgb(0 0 0 / 0.40);

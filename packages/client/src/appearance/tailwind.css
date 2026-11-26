@@ -36,6 +36,9 @@
     --color-mention-content: var(--color-mention-content);
     --color-mention-content-hover: var(--color-mention-content-hover);
 
+    /* Hover and selection inside the translucent editor menus, where the subtle surface disappears in dark. */
+    --color-floating-glass-hover: var(--color-floating-glass-hover);
+
     --shadow-subtle: 0 1px 2px var(--color-shadow-sm);
     --shadow-elevated: 0 4px 6px var(--color-shadow-md);
     --shadow-floating: 0 10px 15px var(--color-shadow-lg);

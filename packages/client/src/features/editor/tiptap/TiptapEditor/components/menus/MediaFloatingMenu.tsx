@@ -40,7 +40,7 @@ const IconButton = ({
         onClick={onClick}
         className={`
             w-7 h-7 rounded-md flex items-center justify-center transition-all
-            ${active ? 'bg-action text-content-inverted' : 'text-content-secondary hover:text-content hover:bg-surface-subtle active:scale-95'}
+            ${active ? 'bg-action text-content-inverted' : 'text-content-secondary hover:text-content hover:bg-floating-glass-hover active:scale-95'}
         `}
         title={title}
         aria-label={title}
@@ -227,7 +227,7 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                     >
                         <div className="flex items-center gap-2">
                             {(selectedNode.type === 'image' || selectedNode.type === 'video') && (
-                                <div className="flex gap-0.5 bg-surface-subtle rounded-lg p-0.5">
+                                <div className="flex gap-0.5 bg-floating-glass-hover rounded-lg p-0.5">
                                     <IconButton
                                         icon={AlignLeft}
                                         active={selectedNode.attrs.align === 'left'}
@@ -327,7 +327,7 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                                 </select>
 
                                 <div className={dividerClassName} />
-                                <div className="flex gap-0.5 bg-surface-subtle rounded-lg p-0.5">
+                                <div className="flex gap-0.5 bg-floating-glass-hover rounded-lg p-0.5">
                                     <IconButton
                                         icon={BorderAll}
                                         active={!!selectedNode.attrs.border}
