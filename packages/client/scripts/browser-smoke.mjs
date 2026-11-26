@@ -141,6 +141,8 @@ const useSiteControlsBeforeHydration = async () => {
         });
         try {
             await page.goto(`${origin}${path}`, { waitUntil: 'commit' });
+            // The site script records the theme preference once its listeners are in place; the head script
+            // that paints the theme first sets only data-theme.
             await expect(page.locator('html')).toHaveAttribute('data-theme-preference', /.+/);
             await check();
         } finally {

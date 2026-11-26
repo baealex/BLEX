@@ -337,7 +337,12 @@ test('mounts the 3.x editor for new, draft, and existing posts', async () => {
         [...page.body.matchAll(/<script\b[^>]*\bsrc="([^"]+)"[^>]*>/g)].map(([tag, src]) =>
           /\bnomodule\b/i.test(tag) ? `nomodule ${src}` : src,
         ),
-        ['/assets/blex/theme.js', '/assets/blex/app.js', 'nomodule /assets/blex/screen.js'],
+        [
+          '/assets/blex/theme-init.js',
+          '/assets/blex/theme.js',
+          '/assets/blex/app.js',
+          'nomodule /assets/blex/screen.js',
+        ],
       );
     }
   } finally {

@@ -23,6 +23,10 @@ export function registerSiteAssets(app: FastifyInstance) {
         .header('Cache-Control', 'no-cache')
         .sendFile(css[0].replace('/assets/ui/', ''), uiRoot, { cacheControl: false });
     });
+    // A classic script the head runs before the first paint, unlike the module below, which runs after it.
+    routes.get('/assets/blex/theme-init.js', (_request, reply) =>
+      reply.header('Cache-Control', 'no-cache').sendFile('theme-init.js', { cacheControl: false }),
+    );
     routes.get('/assets/blex/theme.js', async (_request, reply) => {
       const { script } = await getAppearance();
       return reply.header('Cache-Control', 'no-store').redirect(script, 302);

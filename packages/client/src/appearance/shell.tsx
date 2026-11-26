@@ -24,6 +24,8 @@ export interface HeaderViewer {
 export function SiteTheme() {
     return (
         <>
+            {/* Blocks parsing for a few lines so the first paint already has the reader's theme. */}
+            <script src="/assets/blex/theme-init.js" />
             <link rel="stylesheet" href={siteStyleHref} data-blex-theme="" />
             <script type="module" src="/assets/blex/theme.js" />
         </>

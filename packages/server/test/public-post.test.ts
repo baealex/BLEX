@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
+import { runInNewContext } from 'node:vm';
 import { buildApp } from '../src/app.js';
 import { accountTables, createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
 
@@ -82,6 +83,33 @@ test('serves the shared application entry in read-only mode', async () => {
   assert.equal(asset.statusCode, 200);
   assert.match(String(asset.headers['content-type']), /javascript/);
   assert.match(String(asset.headers['cache-control']), /immutable/);
+});
+
+test('applies the reader theme before the stylesheet paints', async () => {
+  const page = await app.inject('/@writer/public');
+  // A classic script ahead of the stylesheet runs before the first paint; the theme module runs after it.
+  assert.match(
+    page.body,
+    /<script src="\/assets\/blex\/theme-init\.js"><\/script><link rel="stylesheet" href="\/assets\/blex\/theme\.css"/,
+  );
+  const script = await app.inject('/assets/blex/theme-init.js');
+  assert.equal(script.statusCode, 200);
+  assert.match(String(script.headers['content-type']), /javascript/);
+  assert.equal(script.headers['cache-control'], 'no-cache');
+  const run = (cookie: string, systemDark: boolean) => {
+    const root = { dataset: {} as Record<string, string>, style: {} as Record<string, string> };
+    runInNewContext(script.body, {
+      document: { cookie, documentElement: root },
+      matchMedia: (query: string) => ({ matches: systemDark && query === '(prefers-color-scheme: dark)' }),
+    });
+    return [root.dataset.theme, root.style.colorScheme, root.dataset.themePreference];
+  };
+  // The preference stays for the site script, which records it once it runs.
+  assert.deepEqual(run('', true), ['dark', 'dark', undefined]);
+  assert.deepEqual(run('', false), ['light', 'light', undefined]);
+  assert.deepEqual(run('other=1; blex_theme=light', true), ['light', 'light', undefined]);
+  assert.deepEqual(run('blex_theme=dark; other=1', false), ['dark', 'dark', undefined]);
+  assert.deepEqual(run('not_blex_theme=dark', false), ['light', 'light', undefined]);
 });
 
 test('does not expose a GraphQL endpoint', async () => {

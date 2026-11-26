@@ -36,7 +36,7 @@ An author's tabs share one narrow column, so the header and avatar stay put betw
 ## Light and dark themes
 
 - Tokens live in `packages/client/src/appearance/variables.css`; the adjacent `tailwind.css` maps them through `@theme inline` for public pages and React screens. Keep color values in the token file.
-- Theme uses `html[data-theme="light|dark"]`. Follow system preference until the user chooses a theme; persist that choice in the `blex_theme` cookie. Keep initialization in `packages/client/src/appearance/site-client.ts` early to prevent a mismatched first paint.
+- Theme uses `html[data-theme="light|dark"]`. Follow system preference until the user chooses a theme; persist that choice in the `blex_theme` cookie. `packages/server/public/theme-init.js` applies the theme from the head before the stylesheet, so the first paint already matches; `packages/client/src/appearance/site-client.ts` keeps it in sync afterwards. Change both together.
 - Keep runtime listeners and third-party UIs, including Monaco and charts, synchronized with theme changes.
 - Prose and syntax highlighting use their semantic token groups in both themes.
 
