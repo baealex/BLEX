@@ -238,7 +238,13 @@ function answerSearchKey(event: KeyboardEvent) {
 function handleGlobalKeydown(event: KeyboardEvent) {
     answerSearchKey(event);
     if (event.key !== 'Escape') return;
-    for (const details of document.querySelectorAll<HTMLDetailsElement>('[data-account-menu]')) details.open = false;
+    for (const details of document.querySelectorAll<HTMLDetailsElement>('[data-account-menu]')) {
+        if (!details.open) continue;
+        // Closing hides the focused link, so focus goes back to the menu's own button.
+        const hadFocus = details.contains(document.activeElement);
+        details.open = false;
+        if (hadFocus) details.querySelector('summary')?.focus();
+    }
 }
 
 function reopenSearch(event: Event) {

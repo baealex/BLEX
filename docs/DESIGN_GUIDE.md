@@ -48,5 +48,6 @@ An author's tabs share one narrow column, so the header and avatar stay put betw
 - Keep the mobile header focused on search, notifications, and the user menu.
 - Every control the keyboard reaches shows the shared `:focus-visible` ring from `tailwind.css`. Change its shape when needed, but never remove it or replace it with a faint ring; text fields use a 1px `content-hint` ring and border instead, and borderless writing fields, such as a post's title and body, show only the caret.
 - Name every dialog with `aria-labelledby`, mark the current page with `aria-current`, and smooth-scroll only through `scrollBehavior()` so reduced motion is respected.
+- Give a popup the role its keys answer. A menu of actions opens onto its first item and answers the arrow keys, Home, End, and Esc; a search box with suggestions is a combobox whose arrows highlight rows while focus stays in the box; a popup of links that Tab walks through is a plain disclosure that marks the current choice with `aria-current`. Esc returns focus to the control that opened the popup.
 - Inside the translucent editor menus, hover and selection use `bg-floating-glass-hover`; the subtle surface disappears there in dark mode.
 - Verify keyboard focus, readable contrast, and the same screen in light and dark themes.

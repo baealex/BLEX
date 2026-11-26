@@ -83,10 +83,10 @@ export function DropdownFilter({
     current: string;
 }): ReactNode {
     return (
-        // The browser can open this menu natively before the page's code arrives.
+        // The browser can open this menu natively before the page's code arrives. It is a disclosure of links, which
+        // Tab walks through, and the current choice is marked with aria-current.
         <details className="group relative w-full" data-account-menu="" suppressHydrationWarning>
             <summary
-                aria-haspopup="listbox"
                 className={
                     'flex w-full cursor-pointer list-none items-center justify-between rounded-2xl bg-surface-elevated px-4 py-2.5 text-sm font-medium text-content-secondary ring-1 ring-line/60 hover:bg-surface-subtle [&::-webkit-details-marker]:hidden'
                 }
@@ -97,10 +97,7 @@ export function DropdownFilter({
                     className="ml-2 text-xs transition-transform duration-150 group-open:rotate-180"
                 />
             </summary>
-            <div
-                role="listbox"
-                className="absolute left-0 z-50 mt-2 max-h-60 w-full overflow-y-auto rounded-lg bg-surface-elevated py-1 shadow-lg ring-1 ring-line/60 sm:right-0"
-            >
+            <div className="absolute left-0 z-50 mt-2 max-h-60 w-full overflow-y-auto rounded-lg bg-surface-elevated py-1 shadow-lg ring-1 ring-line/60 sm:right-0">
                 {options.map((option) => {
                     const next = withoutParams(search, param, 'page');
                     if (option.value) next.set(param, option.value);
@@ -109,8 +106,7 @@ export function DropdownFilter({
                         <a
                             key={option.value}
                             href={withQuery(path, next)}
-                            role="option"
-                            aria-selected={selected || undefined}
+                            aria-current={selected ? 'true' : undefined}
                             className={`block px-4 py-3 text-sm text-content-secondary transition-colors duration-150 hover:bg-surface-subtle ${selected ? 'bg-surface-subtle font-semibold text-content' : ''}`}
                         >
                             {option.label}

@@ -1,7 +1,7 @@
 import { ui } from '../../../i18n/public-ui.js';
 import { SiteIcon, type SiteIconName } from '../../../appearance/icons.js';
 import { scrollBehavior } from '../../../lib/motion.js';
-import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type RefObject } from 'react';
+import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent, type RefObject } from 'react';
 import type { CommentPayload } from '@blex/contracts/engagement';
 import {
     appendCommentToTree,
@@ -334,6 +334,9 @@ function CommentEditForm({
     );
 }
 
+const menuItemsOf = (menu: HTMLElement | null) =>
+    Array.from(menu?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? []);
+
 function CommentMenu({
     canEdit,
     canDelete,
@@ -347,13 +350,24 @@ function CommentMenu({
 }) {
     const [open, setOpen] = useState(false);
     const root = useRef<HTMLDivElement>(null);
+    const button = useRef<HTMLButtonElement>(null);
+    const menu = useRef<HTMLDivElement>(null);
+    // A menu button: opening moves focus into the menu, arrows move between items, and Esc returns to the button.
+    const focusOnOpen = useRef<'first' | 'last'>('first');
+    const buttonId = useId();
     useEffect(() => {
         if (!open) return;
+        const items = menuItemsOf(menu.current);
+        (focusOnOpen.current === 'last' ? items[items.length - 1] : items[0])?.focus();
+        focusOnOpen.current = 'first';
         const closeOutside = (event: MouseEvent) => {
             if (!root.current?.contains(event.target as Node)) setOpen(false);
         };
         const closeOnEscape = (event: globalThis.KeyboardEvent) => {
-            if (event.key === 'Escape') setOpen(false);
+            if (event.key !== 'Escape') return;
+            const hadFocus = root.current?.contains(document.activeElement);
+            setOpen(false);
+            if (hadFocus) button.current?.focus();
         };
         document.addEventListener('mousedown', closeOutside);
         document.addEventListener('keydown', closeOnEscape);
@@ -362,28 +376,58 @@ function CommentMenu({
             document.removeEventListener('keydown', closeOnEscape);
         };
     }, [open]);
-    const item = 'block w-full px-4 py-2 text-left text-sm transition-colors hover:bg-surface-subtle';
+    const moveFocus = (event: KeyboardEvent<HTMLDivElement>) => {
+        const items = menuItemsOf(menu.current);
+        const index = items.indexOf(document.activeElement as HTMLElement);
+        const target = {
+            ArrowDown: items[(index + 1) % items.length],
+            ArrowUp: items[(index - 1 + items.length) % items.length],
+            Home: items[0],
+            End: items[items.length - 1]
+        }[event.key];
+        if (target) {
+            event.preventDefault();
+            target.focus();
+        } else if (event.key === 'Tab') setOpen(false);
+    };
+    const openFromKeyboard = (event: KeyboardEvent<HTMLButtonElement>) => {
+        if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+        event.preventDefault();
+        focusOnOpen.current = event.key === 'ArrowUp' ? 'last' : 'first';
+        setOpen(true);
+    };
+    // The menu clips its corners, so the focus ring is drawn inside each item.
+    const item =
+        'block w-full px-4 py-2 text-left text-sm transition-colors hover:bg-surface-subtle focus-visible:-outline-offset-2';
     return (
         <div ref={root} className="absolute right-0 top-5 z-10">
             <button
+                ref={button}
+                id={buttonId}
                 type="button"
                 aria-label={ui('Open comment options')}
                 aria-haspopup="menu"
                 aria-expanded={open}
                 onClick={() => setOpen((value) => !value)}
+                onKeyDown={openFromKeyboard}
                 className="touch-target relative inline-flex size-8 items-center justify-center rounded-md text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content"
             >
                 <Icon name="more" className="size-4" />
             </button>
             {open && (
                 <div
+                    ref={menu}
                     role="menu"
+                    tabIndex={-1}
+                    aria-labelledby={buttonId}
+                    onKeyDown={moveFocus}
                     className="absolute right-0 mt-1 w-32 overflow-hidden rounded-lg border border-line bg-surface py-1 shadow-lg"
                 >
                     {canEdit && (
                         <button
                             type="button"
                             role="menuitem"
+                            tabIndex={-1}
                             className={`${item} text-content`}
                             onClick={() => {
                                 setOpen(false);
@@ -397,6 +441,7 @@ function CommentMenu({
                         <button
                             type="button"
                             role="menuitem"
+                            tabIndex={-1}
                             className={`${item} text-danger`}
                             onClick={() => {
                                 setOpen(false);

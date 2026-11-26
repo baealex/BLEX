@@ -33,7 +33,7 @@
 .blex-menu::backdrop, .blex-toc-sheet::backdrop { background: var(--color-dim-default); }
 .blex-user-menu > summary { list-style: none; }
 .blex-user-menu > summary::-webkit-details-marker { display: none; }
-.blex-quick-search-result[data-selected='true'] { background: var(--color-surface-subtle); }
+.blex-quick-search-result[aria-selected='true'] { background: var(--color-surface-subtle); }
 .blex-notice-dot > span { width: .375rem; background: var(--color-line-strong); }
 .blex-notice-dot[aria-pressed='true'] > span { width: 1.25rem; background: var(--color-content); }
 

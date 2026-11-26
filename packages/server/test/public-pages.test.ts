@@ -267,6 +267,12 @@ test('renders author overview and posts and redirects legacy author aliases', as
   assert.doesNotMatch(posts.body, /action="\/like\//);
   assert.doesNotMatch(posts.body, /Public older article|Hidden article|Draft article/);
   assert.match(posts.body, /name="robots" content="noindex,follow"/);
+  // The tag menu is a disclosure of links marking the current choice; the header search is a combobox over its list.
+  assert.match(posts.body, /<a href="\/@writer\/posts\?q=Orion" aria-current="true"/);
+  assert.doesNotMatch(posts.body, /role="option" aria-selected|aria-haspopup="listbox"/);
+  const searchList = posts.body.match(/role="combobox"[^>]*aria-controls="([^"]+)"/)?.[1];
+  assert.ok(searchList);
+  assert.ok(posts.body.includes(`id="${searchList}" role="listbox"`));
 
   const secondPostsPage = await app.inject('/@writer/posts?page=2');
   assert.equal(secondPostsPage.statusCode, 200, secondPostsPage.body);
