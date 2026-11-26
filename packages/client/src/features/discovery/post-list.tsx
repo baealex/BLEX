@@ -319,7 +319,8 @@ export function Pagination({
             key={label}
         >
             {disabled ? (
-                <span className="pagination-link" {...(ariaLabel ? { 'aria-label': ariaLabel } : {})}>
+                // An arrow with nowhere to go is only drawn; the current page is announced instead.
+                <span className="pagination-link" aria-hidden="true">
                     <SiteIcon name={label as SiteIconName} />
                 </span>
             ) : (
@@ -328,6 +329,7 @@ export function Pagination({
                     href={pageUrl(path, search, preserve, targetPage)}
                     rel={rel}
                     aria-label={ariaLabel}
+                    aria-current={active ? 'page' : undefined}
                 >
                     {label.startsWith('chevron') ? <SiteIcon name={label as SiteIconName} /> : label}
                 </a>

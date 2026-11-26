@@ -59,11 +59,16 @@
         font-size: 16px;
         font-weight: 600;
         cursor: pointer;
-        width: 35px;
-        height: 35px;
+        width: 2.75rem;
+        height: 2.75rem;
         color: var(--color-content);
-        border-radius: 5px;
+        border-radius: 0.5rem;
         text-decoration: none;
+        transition: background-color 150ms;
+    }
+
+    .pagination-item:not(.pagination-active, .pagination-disabled) .pagination-link:hover {
+        background: var(--color-surface-subtle);
     }
 
     .pagination-active .pagination-link {
@@ -107,11 +112,6 @@
         .pagination-action {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-        }
-
-        .pagination-link {
-            width: 40px;
-            height: 40px;
         }
     }
 }

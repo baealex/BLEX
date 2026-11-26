@@ -181,6 +181,9 @@ test('renders the public home, tag cloud, and tag posts from visible published r
   assert.match(secondPage.body, /Archive post/);
   assert.match(secondPage.body, /rel="canonical" href="https:\/\/blog\.example\/\?page=2"/);
   assert.match(secondPage.body, /rel="prev" href="https:\/\/blog\.example\/"/);
+  // The current page is announced, and an arrow with nowhere to go is hidden from screen readers.
+  assert.match(secondPage.body, /<a class="pagination-link" href="[^"]*page=2[^"]*" aria-current="page">2<\/a>/);
+  assert.match(secondPage.body, /<span class="pagination-link" aria-hidden="true">/);
 
   const tags = await app.inject('/tags');
   assert.equal(tags.statusCode, 200, tags.body);
