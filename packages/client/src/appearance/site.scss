@@ -34,8 +34,8 @@
 .blex-user-menu > summary { list-style: none; }
 .blex-user-menu > summary::-webkit-details-marker { display: none; }
 .blex-quick-search-result[data-selected='true'] { background: var(--color-surface-subtle); }
-.blex-notice-dot { width: .375rem; background: var(--color-line-strong); }
-.blex-notice-dot[aria-pressed='true'] { width: 1.25rem; background: var(--color-content); }
+.blex-notice-dot > span { width: .375rem; background: var(--color-line-strong); }
+.blex-notice-dot[aria-pressed='true'] > span { width: 1.25rem; background: var(--color-content); }
 
 .post-comments-styled.reader-actions { margin: 4rem 0; }
 .post-comments-styled .reader-comments { padding: 1.5rem; border: 0; background: var(--color-surface); box-shadow: 0 0 0 1px var(--color-line); }

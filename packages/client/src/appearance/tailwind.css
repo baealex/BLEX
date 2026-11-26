@@ -191,6 +191,22 @@
     }
 }
 
+/*
+ * A compact control keeps its look but answers taps across at least 44×44px. The element must already be
+ * positioned (relative or absolute), and neighbors' areas should not overlap.
+ */
+@utility touch-target {
+    &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: max(100%, 2.75rem);
+        height: max(100%, 2.75rem);
+        transform: translate(-50%, -50%);
+    }
+}
+
 @utility floating-glass-surface {
     background-color: var(--color-floating-glass-surface);
     border: 1px solid var(--color-floating-glass-border);

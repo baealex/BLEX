@@ -56,7 +56,7 @@ const primaryButton =
 const secondaryButton =
     'rounded-lg px-5 py-2.5 text-sm font-semibold text-content transition-all duration-150 hover:bg-surface-subtle disabled:opacity-50';
 const actionButton =
-    'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors duration-150';
+    'touch-target relative inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors duration-150';
 const quietAction = 'text-content-secondary hover:bg-surface-subtle hover:text-content';
 
 const icons = {
@@ -370,7 +370,7 @@ function CommentMenu({
                 aria-haspopup="menu"
                 aria-expanded={open}
                 onClick={() => setOpen((value) => !value)}
-                className="inline-flex size-8 items-center justify-center rounded-md text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content"
+                className="touch-target relative inline-flex size-8 items-center justify-center rounded-md text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content"
             >
                 <Icon name="more" className="size-4" />
             </button>

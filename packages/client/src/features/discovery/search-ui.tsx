@@ -53,14 +53,14 @@ export function QueryFilter({
                 <a
                     href={withQuery(path, others)}
                     aria-label={ui('Clear search')}
-                    className="absolute top-1/2 right-3 -translate-y-1/2 text-content-hint transition-colors hover:text-content-secondary peer-placeholder-shown:hidden"
+                    className="touch-target absolute top-1/2 right-3 -translate-y-1/2 text-content-hint transition-colors hover:text-content-secondary peer-placeholder-shown:hidden"
                 >
                     <SiteIcon name="x" />
                 </a>
                 <button
                     type="submit"
                     aria-label={ui('Search')}
-                    className="absolute top-1/2 right-3 hidden -translate-y-1/2 text-content-hint peer-placeholder-shown:block"
+                    className="touch-target absolute top-1/2 right-3 hidden -translate-y-1/2 text-content-hint peer-placeholder-shown:block"
                 >
                     <SiteIcon name="search" />
                 </button>

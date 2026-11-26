@@ -249,6 +249,7 @@
             color: var(--color-content-secondary);
 
             .code-copy-button {
+                position: relative;
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
@@ -269,6 +270,17 @@
                 &:focus-visible {
                     outline: 2px solid var(--color-action);
                     outline-offset: 2px;
+                }
+
+                // Taps land across 44px while the button keeps its compact look.
+                &::after {
+                    content: '';
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    width: max(100%, 2.75rem);
+                    height: max(100%, 2.75rem);
+                    transform: translate(-50%, -50%);
                 }
 
                 &:active {

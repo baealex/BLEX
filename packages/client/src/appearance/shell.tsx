@@ -56,7 +56,7 @@ function SiteLogo({ brand, small }: { brand?: Brand; small?: boolean }) {
 const iconButton =
     'inline-flex size-11 items-center justify-center rounded-full text-content-secondary transition-all duration-150 hover:bg-surface-subtle hover:text-content active:scale-95 md:size-10';
 const authLink =
-    'inline-flex min-h-9 shrink-0 items-center rounded-full px-4 py-2 text-sm font-medium transition-all duration-150 active:scale-95';
+    'touch-target relative inline-flex min-h-9 shrink-0 items-center rounded-full px-4 py-2 text-sm font-medium transition-all duration-150 active:scale-95';
 
 function ThemeButton({ bordered }: { bordered?: boolean }) {
     return (
