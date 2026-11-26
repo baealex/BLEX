@@ -146,7 +146,7 @@ export function QuickSearch() {
         <div ref={container} className="relative w-full max-w-xs" data-site-search>
             <form
                 action="/search"
-                className="flex h-11 items-center gap-2 rounded-full border border-line bg-surface-elevated px-3 transition-all focus-within:ring-2 focus-within:ring-line-strong"
+                className="flex h-11 items-center gap-2 rounded-full border border-line bg-surface-elevated px-3 transition-all focus-within:ring-2 focus-within:ring-content-hint"
                 onSubmit={() => rememberSearch(query())}
             >
                 <SiteIcon name="search" className="size-4 shrink-0 text-content-hint" />
@@ -157,7 +157,7 @@ export function QuickSearch() {
                     placeholder={ui('Search')}
                     aria-label={ui('Search')}
                     autoComplete="off"
-                    className="min-w-0 flex-1 bg-transparent text-sm text-content placeholder:text-content-hint focus:outline-none"
+                    className="min-w-0 flex-1 bg-transparent text-sm text-content placeholder:text-content-hint focus:outline-hidden"
                     onFocus={suggest}
                     onChange={suggest}
                     onKeyDown={handleKeyDown}

@@ -28,15 +28,15 @@ const Button = ({
     type = 'button',
     ...props
 }: ButtonProps) => {
-    const baseStyles = `inline-flex justify-center items-center gap-2 border border-transparent font-semibold transition-all ${INTERACTION_DURATION} focus:outline-none focus:ring-4 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95`;
+    const baseStyles = `inline-flex justify-center items-center gap-2 border border-transparent font-semibold transition-all ${INTERACTION_DURATION} disabled:opacity-50 disabled:cursor-not-allowed active:scale-95`;
 
     const variantStyles = {
-        primary: 'text-content-inverted bg-action hover:bg-action-hover focus:ring-action/20 border-transparent',
+        primary: 'text-content-inverted bg-action hover:bg-action-hover border-transparent',
         secondary:
-            'text-content bg-surface-elevated border-line-strong shadow-sm hover:bg-surface-subtle hover:border-line focus:ring-line-strong/70 active:bg-line-light',
-        danger: 'text-danger bg-transparent border-danger hover:bg-danger-surface focus:ring-danger/30',
-        'danger-solid': 'text-content-inverted bg-danger border-danger hover:bg-danger focus:ring-danger/30',
-        ghost: 'text-content-secondary hover:text-content hover:bg-surface-subtle focus:ring-line/70 border-transparent'
+            'text-content bg-surface-elevated border-line-strong shadow-sm hover:bg-surface-subtle hover:border-line active:bg-line-light',
+        danger: 'text-danger bg-transparent border-danger hover:bg-danger-surface',
+        'danger-solid': 'text-content-inverted bg-danger border-danger hover:bg-danger',
+        ghost: 'text-content-secondary hover:text-content hover:bg-surface-subtle border-transparent'
     };
 
     const sizeStyles = {

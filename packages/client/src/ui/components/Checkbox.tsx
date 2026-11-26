@@ -31,7 +31,6 @@ const Checkbox = ({ checked, onCheckedChange, label, description, disabled = fal
                 className={cx(
                     'w-5 h-5 shrink-0 rounded border-2 transition-all duration-150 mt-0.5',
                     'flex items-center justify-center',
-                    'focus:outline-none focus:ring-2 focus:ring-action/20 focus:ring-offset-1',
                     checked
                         ? 'bg-action border-action'
                         : 'border-line-strong bg-surface-elevated group-hover:border-line'

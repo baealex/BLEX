@@ -46,6 +46,15 @@
 }
 
 @layer base {
+    /*
+     * One visible ring for every control the keyboard reaches. Components may change its shape but not remove it;
+     * text fields show their own darker ring instead.
+     */
+    :focus-visible {
+        outline: 2px solid var(--color-content);
+        outline-offset: 2px;
+    }
+
     /* Tabler glyphs leave more padding than the icon sets these sizes were chosen for. */
     .tabler-icon {
         scale: 1.125;
@@ -145,6 +154,11 @@
     box-shadow:
         inset 0 0 10px var(--color-floating-bar-edge),
         var(--shadow-floating-bar);
+
+    & :focus-visible {
+        position: relative;
+        z-index: 2;
+    }
 
     &::before,
     &::after {

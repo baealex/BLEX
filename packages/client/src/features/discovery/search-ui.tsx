@@ -48,7 +48,7 @@ export function QueryFilter({
                     defaultValue={search.get('q') ?? ''}
                     placeholder={placeholder}
                     autoComplete="off"
-                    className="peer w-full rounded-2xl bg-surface-elevated px-4 py-2.5 pr-10 text-content ring-1 ring-line/60 transition-all placeholder:text-content-hint focus:ring-2 focus:ring-line-strong/70 focus:outline-none"
+                    className="peer w-full rounded-2xl bg-surface-elevated px-4 py-2.5 pr-10 text-content ring-1 ring-line/60 transition-all placeholder:text-content-hint focus:ring-2 focus:ring-content-hint focus:outline-hidden"
                 />
                 <a
                     href={withQuery(path, others)}
@@ -88,7 +88,7 @@ export function DropdownFilter({
             <summary
                 aria-haspopup="listbox"
                 className={
-                    'flex w-full cursor-pointer list-none items-center justify-between rounded-2xl bg-surface-elevated px-4 py-2.5 text-sm font-medium text-content-secondary ring-1 ring-line/60 hover:bg-surface-subtle focus:ring-2 focus:ring-line-strong/70 focus:outline-none [&::-webkit-details-marker]:hidden'
+                    'flex w-full cursor-pointer list-none items-center justify-between rounded-2xl bg-surface-elevated px-4 py-2.5 text-sm font-medium text-content-secondary ring-1 ring-line/60 hover:bg-surface-subtle [&::-webkit-details-marker]:hidden'
                 }
             >
                 <span className="truncate">{options.find((option) => option.value === current)?.label ?? ''}</span>

@@ -50,7 +50,7 @@ interface CommentHandlers {
 }
 
 const fieldClass =
-    'w-full resize-none rounded-xl border border-line bg-surface p-5 text-sm leading-relaxed placeholder-content-hint transition-all duration-150 focus:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/10';
+    'w-full resize-none rounded-xl border border-line bg-surface p-5 text-sm leading-relaxed placeholder-content-hint transition-all duration-150 focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint';
 const primaryButton =
     'rounded-lg bg-action px-6 py-2.5 text-sm font-semibold text-content-inverted shadow-sm transition-all duration-150 hover:bg-action-hover hover:shadow-md disabled:cursor-not-allowed disabled:bg-line disabled:text-content-hint';
 const secondaryButton =
@@ -904,7 +904,7 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
                             returnTo={`${model.postPath}#post-comments`}
                             action="comment"
                             aria-label={ui('Sign in to comment')}
-                            className="group flex min-h-28 w-full cursor-pointer flex-col items-start justify-between gap-4 rounded-xl border border-line bg-surface-subtle p-5 text-left transition-all duration-150 hover:border-line-strong hover:bg-surface focus:outline-none focus:ring-2 focus:ring-action/20"
+                            className="group flex min-h-28 w-full cursor-pointer flex-col items-start justify-between gap-4 rounded-xl border border-line bg-surface-subtle p-5 text-left transition-all duration-150 hover:border-line-strong hover:bg-surface"
                         >
                             <span aria-hidden="true" className="text-sm text-content-hint">
                                 {ui('Write a comment…')}

@@ -270,8 +270,9 @@ export function AuthorTabs({
     ];
     return (
         // The rule is drawn inside the scroller and the active underline covers it, so nothing overflows downward.
+        // The scroller reaches 4px past the column so a tab's focus ring fits; the rule keeps to the column.
         <nav
-            className="flex gap-7 overflow-x-auto shadow-[inset_0_-1px_0_var(--color-line)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="-mx-1 flex gap-5 overflow-x-auto bg-[linear-gradient(var(--color-line),var(--color-line))] bg-[length:calc(100%-0.5rem)_1px] bg-bottom bg-no-repeat [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             aria-label={ui('Author menu')}
         >
             {tabs.map((tab) => (
@@ -279,7 +280,7 @@ export function AuthorTabs({
                     href={tab.href}
                     key={tab.key}
                     aria-current={active === tab.key ? 'page' : undefined}
-                    className={`relative flex min-h-11 shrink-0 items-center gap-1.5 text-[15px] font-semibold transition-colors duration-150 ${active === tab.key ? 'text-content after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:rounded-full after:bg-content' : 'text-content-secondary hover:text-content'}`}
+                    className={`relative flex min-h-11 shrink-0 items-center gap-1.5 rounded-md px-1 text-[15px] font-semibold transition-colors duration-150 focus-visible:-outline-offset-2 ${active === tab.key ? 'text-content after:absolute after:inset-x-1 after:bottom-0 after:h-0.5 after:rounded-full after:bg-content' : 'text-content-secondary hover:text-content'}`}
                 >
                     {tab.label}
                     {tab.count !== undefined ? (

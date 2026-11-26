@@ -4,7 +4,7 @@ import { AlertCircle } from './icons';
 import { cx } from '../lib/classnames';
 import { INTERACTION_DURATION } from '../lib/designTokens';
 
-const baseInputStyles = `block w-full rounded-lg border border-line focus:border-line-strong focus:ring-2 focus:ring-line/70 text-sm transition-all ${INTERACTION_DURATION} bg-surface-elevated placeholder:text-content-hint text-content`;
+const baseInputStyles = `block w-full rounded-lg border border-line focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint text-sm transition-all ${INTERACTION_DURATION} bg-surface-elevated placeholder:text-content-hint text-content`;
 
 const inputDensityStyles = {
     default: 'min-h-12 px-3 py-3',
