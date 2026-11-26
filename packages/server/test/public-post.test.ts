@@ -124,6 +124,11 @@ test('accepts long legacy slugs and renders stored image, video, and supported e
   assert.match(response.body, /<h2 id="section">Section<\/h2>/);
   assert.match(response.body, /<h3 id="같은-제목">같은 제목<\/h3><h3 id="같은-제목-1">같은 제목<\/h3>/);
   assert.match(response.body, /href="#section"[^>]*>Section<\/a>/);
+  // The contents sheet and the mobile menu are named by their headings for screen readers.
+  assert.match(response.body, /<dialog id="post-toc" aria-labelledby="post-toc-title"/);
+  assert.match(response.body, /<h2 id="post-toc-title"/);
+  assert.match(response.body, /<dialog id="blex-mobile-menu" aria-labelledby="blex-mobile-menu-title"/);
+  assert.match(response.body, /id="blex-mobile-menu-title"/);
   assert.match(response.body, /<img[^>]+src="\/resources\/media\/image\.png"[^>]+loading="lazy"/);
   assert.match(response.body, /<source[^>]+src="\/resources\/media\/video\.mp4"/);
   assert.match(response.body, /src="https:\/\/www\.youtube-nocookie\.com\/embed\/Example_01"/);

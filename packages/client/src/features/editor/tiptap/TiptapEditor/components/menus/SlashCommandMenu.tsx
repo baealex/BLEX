@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { Editor } from '@tiptap/react';
 import * as Popover from '@radix-ui/react-popover';
+import { scrollBehavior } from '~/lib/motion';
 import { useEditorI18n } from '../../i18n';
 import type { EditorMessageKey } from '../../i18n';
 import {
@@ -308,7 +309,7 @@ const SlashCommandMenu = ({
                     const newIndex = Math.min(prev + 1, filteredCommands.length - 1);
                     setTimeout(() => {
                         selectedItemRef.current?.scrollIntoView({
-                            behavior: 'smooth',
+                            behavior: scrollBehavior(),
                             block: 'nearest'
                         });
                     }, 0);
@@ -321,7 +322,7 @@ const SlashCommandMenu = ({
                     const newIndex = Math.max(prev - 1, 0);
                     setTimeout(() => {
                         selectedItemRef.current?.scrollIntoView({
-                            behavior: 'smooth',
+                            behavior: scrollBehavior(),
                             block: 'nearest'
                         });
                     }, 0);

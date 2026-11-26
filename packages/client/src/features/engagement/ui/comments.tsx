@@ -1,5 +1,6 @@
 import { ui } from '../../../i18n/public-ui.js';
 import { SiteIcon, type SiteIconName } from '../../../appearance/icons.js';
+import { scrollBehavior } from '../../../lib/motion.js';
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type RefObject } from 'react';
 import type { CommentPayload } from '@blex/contracts/engagement';
 import {
@@ -681,7 +682,7 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
         setTimeout(() => {
             const rendered = listRef.current?.querySelectorAll('[data-comment-id]');
             rendered?.[rendered.length - 1]?.scrollIntoView({
-                behavior: 'smooth',
+                behavior: scrollBehavior(),
                 block: 'center'
             });
         }, 300);

@@ -2141,7 +2141,7 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/features/discovery/post-list.tsx:184
-#: src/features/engagement/ui/comments.tsx:848
+#: src/features/engagement/ui/comments.tsx:849
 msgid "public.{value0, plural, one{# comment} other{# comments}}"
 msgstr ""
 
@@ -2203,7 +2203,7 @@ msgid "public.{value0} min read"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:556
+#: src/features/engagement/ui/comments.tsx:557
 msgid "public.{value0}'s comment"
 msgstr ""
 
@@ -2214,12 +2214,12 @@ msgid "public.{value0}'s cover"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:422
+#: src/features/engagement/ui/comments.tsx:423
 msgid "public.{value0}'s profile picture"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:556
+#: src/features/engagement/ui/comments.tsx:557
 msgid "public.{value0}'s reply"
 msgstr ""
 
@@ -2346,7 +2346,7 @@ msgid "public.Author filter:"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/authors/profile-ui.tsx:275
+#: src/features/authors/profile-ui.tsx:276
 msgid "public.Author menu"
 msgstr ""
 
@@ -2401,16 +2401,16 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/features/auth/ui/reauthenticate-page.tsx:91
 #: src/features/authors/about-editor.tsx:150
-#: src/features/engagement/ui/comments.tsx:270
-#: src/features/engagement/ui/comments.tsx:320
-#: src/features/engagement/ui/comments.tsx:938
+#: src/features/engagement/ui/comments.tsx:271
+#: src/features/engagement/ui/comments.tsx:321
+#: src/features/engagement/ui/comments.tsx:939
 #: src/features/engagement/ui/login-prompt-dialog.tsx:114
 #: src/features/work-logs/delete-page.tsx:42
 msgid "public.Cancel"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:318
+#: src/features/engagement/ui/comments.tsx:319
 msgid "public.Cancel editing comment"
 msgstr ""
 
@@ -2460,23 +2460,23 @@ msgid "public.Clear search"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/appearance/shell.tsx:237
+#: src/appearance/shell.tsx:240
 #: src/features/engagement/ui/telegram-hint.tsx:72
 msgid "public.Close"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/posts/post-page.tsx:772
+#: src/features/posts/post-page.tsx:775
 msgid "public.Close table of contents"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:139
+#: src/features/engagement/ui/comments.tsx:140
 msgid "public.Comment content"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:785
+#: src/features/engagement/ui/comments.tsx:786
 msgid "public.Comment deleted."
 msgstr ""
 
@@ -2486,22 +2486,22 @@ msgid "public.Comment posted"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:698
+#: src/features/engagement/ui/comments.tsx:699
 msgid "public.Comment posted."
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:308
+#: src/features/engagement/ui/comments.tsx:309
 msgid "public.Comment to edit"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:771
+#: src/features/engagement/ui/comments.tsx:772
 msgid "public.Comment updated."
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:843
+#: src/features/engagement/ui/comments.tsx:844
 msgid "public.Comments"
 msgstr ""
 
@@ -2589,7 +2589,7 @@ msgid "public.Could not copy."
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:787
+#: src/features/engagement/ui/comments.tsx:788
 msgid "public.Could not delete the comment."
 msgstr ""
 
@@ -2599,12 +2599,12 @@ msgid "public.Could not display the response page. Refresh to check whether your
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:795
+#: src/features/engagement/ui/comments.tsx:796
 msgid "public.Could not find the comment to reply to."
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:748
+#: src/features/engagement/ui/comments.tsx:749
 msgid "public.Could not load comments."
 msgstr ""
 
@@ -2614,7 +2614,7 @@ msgid "public.Could not load comments. Open them again."
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:719
+#: src/features/engagement/ui/comments.tsx:720
 msgid "public.Could not load older comments."
 msgstr ""
 
@@ -2634,12 +2634,12 @@ msgid "public.Could not load this page."
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:700
+#: src/features/engagement/ui/comments.tsx:701
 msgid "public.Could not post your comment."
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:807
+#: src/features/engagement/ui/comments.tsx:808
 msgid "public.Could not post your reply."
 msgstr ""
 
@@ -2659,12 +2659,12 @@ msgid "public.Could not save your introduction."
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:773
+#: src/features/engagement/ui/comments.tsx:774
 msgid "public.Could not update the comment."
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:739
+#: src/features/engagement/ui/comments.tsx:740
 msgid "public.Could not update your like."
 msgstr ""
 
@@ -2714,8 +2714,8 @@ msgid "public.Current password"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:405
-#: src/features/engagement/ui/comments.tsx:945
+#: src/features/engagement/ui/comments.tsx:406
+#: src/features/engagement/ui/comments.tsx:946
 msgid "public.Delete"
 msgstr ""
 
@@ -2725,7 +2725,7 @@ msgid "public.Delete all entries and attachments in this log and close its share
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:933
+#: src/features/engagement/ui/comments.tsx:934
 msgid "public.Delete comment"
 msgstr ""
 
@@ -2738,7 +2738,7 @@ msgid "public.Delete entry"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:935
+#: src/features/engagement/ui/comments.tsx:936
 msgid "public.Delete this comment?"
 msgstr ""
 
@@ -2750,8 +2750,8 @@ msgid "public.Delete work log"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:415
-#: src/features/engagement/ui/comments.tsx:549
+#: src/features/engagement/ui/comments.tsx:416
+#: src/features/engagement/ui/comments.tsx:550
 msgid "public.Deleted user"
 msgstr ""
 
@@ -2809,12 +2809,12 @@ msgid "public.Edit share details"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:307
+#: src/features/engagement/ui/comments.tsx:308
 msgid "public.Edit your comment…"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:462
+#: src/features/engagement/ui/comments.tsx:463
 msgid "public.Edited"
 msgstr ""
 
@@ -2825,7 +2825,7 @@ msgid "public.Email"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:756
+#: src/features/engagement/ui/comments.tsx:757
 msgid "public.Enter a comment."
 msgstr ""
 
@@ -2913,7 +2913,7 @@ msgid "public.Explore all tags and their posts"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/discovery/post-list.tsx:343
+#: src/features/discovery/post-list.tsx:345
 msgid "public.First page"
 msgstr ""
 
@@ -2976,7 +2976,7 @@ msgid "public.Invite code"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:519
+#: src/features/engagement/ui/comments.tsx:520
 msgid "public.items"
 msgstr ""
 
@@ -2986,7 +2986,7 @@ msgid "public.Last 7 days: {recent, plural, one{# click} other{# clicks}} · Tot
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/discovery/post-list.tsx:351
+#: src/features/discovery/post-list.tsx:353
 msgid "public.Last page"
 msgstr ""
 
@@ -3006,15 +3006,15 @@ msgid "public.Latest posts"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:886
+#: src/features/engagement/ui/comments.tsx:887
 msgid "public.Leave a comment"
 msgstr ""
 
 #. js-lingui-explicit-id
 #: src/features/discovery/post-list.tsx:76
-#: src/features/engagement/ui/comments.tsx:498
-#: src/features/engagement/ui/comments.tsx:509
-#: src/features/engagement/ui/comments.tsx:517
+#: src/features/engagement/ui/comments.tsx:499
+#: src/features/engagement/ui/comments.tsx:510
+#: src/features/engagement/ui/comments.tsx:518
 #: src/features/engagement/ui/index.tsx:155
 #: src/features/posts/post-page.tsx:660
 msgid "public.Like"
@@ -3069,12 +3069,12 @@ msgid "public.Link name"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:864
+#: src/features/engagement/ui/comments.tsx:865
 msgid "public.Load {value0, plural, one{# older comment} other{# older comments}}"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:867
+#: src/features/engagement/ui/comments.tsx:868
 msgid "public.Load older comments"
 msgstr ""
 
@@ -3084,13 +3084,13 @@ msgid "public.Loading comments."
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:862
+#: src/features/engagement/ui/comments.tsx:863
 msgid "public.Loading…"
 msgstr ""
 
 #. js-lingui-explicit-id
 #: src/appearance/shell.tsx:189
-#: src/appearance/shell.tsx:260
+#: src/appearance/shell.tsx:263
 #: src/features/auth/ui/login-form.tsx:155
 #: src/features/auth/ui/login-form.tsx:307
 #: src/features/auth/ui/signup-page.tsx:135
@@ -3126,7 +3126,7 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/appearance/shell.tsx:218
-#: src/appearance/shell.tsx:235
+#: src/appearance/shell.tsx:237
 msgid "public.Menu"
 msgstr ""
 
@@ -3201,12 +3201,12 @@ msgid "public.Next"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/discovery/notice-controls.tsx:47
+#: src/features/discovery/notice-controls.tsx:50
 msgid "public.Next notice"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/discovery/post-list.tsx:350
+#: src/features/discovery/post-list.tsx:352
 #: src/features/work-logs/page-parts.tsx:48
 #: src/features/work-logs/shared-page.tsx:183
 msgid "public.Next page"
@@ -3223,7 +3223,7 @@ msgid "public.No author"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:880
+#: src/features/engagement/ui/comments.tsx:881
 msgid "public.No comments yet"
 msgstr ""
 
@@ -3361,7 +3361,7 @@ msgid "public.Only the author can view this post. Turn off private visibility in
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:369
+#: src/features/engagement/ui/comments.tsx:370
 msgid "public.Open comment options"
 msgstr ""
 
@@ -3382,7 +3382,7 @@ msgid "public.Page {value0}"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/discovery/post-list.tsx:341
+#: src/features/discovery/post-list.tsx:343
 msgid "public.Page navigation"
 msgstr ""
 
@@ -3473,7 +3473,7 @@ msgid "public.Previous notice"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/discovery/post-list.tsx:344
+#: src/features/discovery/post-list.tsx:346
 #: src/features/work-logs/page-parts.tsx:43
 #: src/features/work-logs/shared-page.tsx:172
 msgid "public.Previous page"
@@ -3565,22 +3565,22 @@ msgid "public.Reload"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:488
+#: src/features/engagement/ui/comments.tsx:489
 msgid "public.Reply"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:607
+#: src/features/engagement/ui/comments.tsx:608
 msgid "public.Reply content"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:805
+#: src/features/engagement/ui/comments.tsx:806
 msgid "public.Reply posted."
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:593
+#: src/features/engagement/ui/comments.tsx:594
 msgid "public.Replying to {value0}"
 msgstr ""
 
@@ -3619,13 +3619,13 @@ msgstr ""
 #: src/features/auth/ui/password-reset-page.tsx:89
 #: src/features/authors/about-editor.tsx:159
 #: src/features/authors/about-editor.tsx:218
-#: src/features/engagement/ui/comments.tsx:329
+#: src/features/engagement/ui/comments.tsx:330
 #: src/features/posts/share-links-page.tsx:50
 msgid "public.Save"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:327
+#: src/features/engagement/ui/comments.tsx:328
 msgid "public.Save comment"
 msgstr ""
 
@@ -3643,7 +3643,7 @@ msgstr ""
 #: src/features/authors/about-draft.ts:101
 #: src/features/authors/about-editor.tsx:159
 #: src/features/authors/about-editor.tsx:218
-#: src/features/engagement/ui/comments.tsx:329
+#: src/features/engagement/ui/comments.tsx:330
 msgid "public.Saving..."
 msgstr ""
 
@@ -3811,7 +3811,7 @@ msgid "public.Show less"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/discovery/notice-controls.tsx:37
+#: src/features/discovery/notice-controls.tsx:38
 msgid "public.Show notice {value0}"
 msgstr ""
 
@@ -3846,8 +3846,8 @@ msgid "public.Sign in and try again."
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:906
-#: src/features/engagement/ui/comments.tsx:914
+#: src/features/engagement/ui/comments.tsx:907
+#: src/features/engagement/ui/comments.tsx:915
 msgid "public.Sign in to comment"
 msgstr ""
 
@@ -3893,7 +3893,7 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/appearance/shell.tsx:195
-#: src/appearance/shell.tsx:264
+#: src/appearance/shell.tsx:267
 #: src/features/auth/ui/login-form.tsx:326
 #: src/features/auth/ui/signup-page.tsx:18
 msgid "public.Sign up"
@@ -3920,12 +3920,12 @@ msgid "public.Signed in as"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/appearance/shell.tsx:288
+#: src/appearance/shell.tsx:291
 msgid "public.Site information"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/appearance/shell.tsx:242
+#: src/appearance/shell.tsx:245
 msgid "public.Site menu"
 msgstr ""
 
@@ -4009,7 +4009,7 @@ msgstr ""
 #: src/features/posts/post-page.tsx:159
 #: src/features/posts/post-page.tsx:215
 #: src/features/posts/post-page.tsx:219
-#: src/features/posts/post-page.tsx:770
+#: src/features/posts/post-page.tsx:772
 msgid "public.Table of contents"
 msgstr ""
 
@@ -4054,7 +4054,7 @@ msgid "public.The account you are signed in with cannot open it."
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:922
+#: src/features/engagement/ui/comments.tsx:923
 msgid "public.The author is not accepting new comments or replies on this post."
 msgstr ""
 
@@ -4150,7 +4150,7 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/features/discovery/post-list.tsx:76
-#: src/features/engagement/ui/comments.tsx:498
+#: src/features/engagement/ui/comments.tsx:499
 #: src/features/engagement/ui/index.tsx:155
 #: src/features/posts/post-page.tsx:660
 msgid "public.Unlike"
@@ -4163,7 +4163,7 @@ msgid "public.Untitled post"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:392
+#: src/features/engagement/ui/comments.tsx:393
 msgid "public.Update"
 msgstr ""
 
@@ -4190,7 +4190,7 @@ msgid "public.User menu"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:246
+#: src/features/engagement/ui/comments.tsx:247
 msgid "public.User to mention"
 msgstr ""
 
@@ -4232,7 +4232,7 @@ msgid "public.Version before restore"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:440
+#: src/features/engagement/ui/comments.tsx:441
 msgid "public.View {value0}'s profile"
 msgstr ""
 
@@ -4289,13 +4289,13 @@ msgid "public.Work logs · {value0}"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:137
+#: src/features/engagement/ui/comments.tsx:138
 msgid "public.Write a comment"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:136
-#: src/features/engagement/ui/comments.tsx:910
+#: src/features/engagement/ui/comments.tsx:137
+#: src/features/engagement/ui/comments.tsx:911
 msgid "public.Write a comment…"
 msgstr ""
 
@@ -4306,14 +4306,14 @@ msgid "public.Write a post"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:527
-#: src/features/engagement/ui/comments.tsx:537
-#: src/features/engagement/ui/comments.tsx:606
+#: src/features/engagement/ui/comments.tsx:528
+#: src/features/engagement/ui/comments.tsx:538
+#: src/features/engagement/ui/comments.tsx:607
 msgid "public.Write a reply"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:605
+#: src/features/engagement/ui/comments.tsx:606
 msgid "public.Write a reply…"
 msgstr ""
 
@@ -4359,12 +4359,12 @@ msgid "public.Writing timeline · {value0} · BLEX"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:138
+#: src/features/engagement/ui/comments.tsx:139
 msgid "public.Writing…"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/engagement/ui/comments.tsx:90
+#: src/features/engagement/ui/comments.tsx:91
 msgid "public.You are commenting too quickly. Try again in a moment."
 msgstr ""
 
@@ -4399,130 +4399,130 @@ msgid "public.Your share link is ready"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/search/SearchPage.tsx:420
+#: src/features/search/SearchPage.tsx:421
 msgid "search.author_filter"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/search/SearchPage.tsx:594
+#: src/features/search/SearchPage.tsx:595
 msgid "search.empty.body"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/search/SearchPage.tsx:591
+#: src/features/search/SearchPage.tsx:592
 msgid "search.empty.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/search/SearchPage.tsx:214
+#: src/features/search/SearchPage.tsx:215
 msgid "search.error.generic"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/search/SearchPage.tsx:470
+#: src/features/search/SearchPage.tsx:471
 msgid "search.error.heading"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/search/SearchPage.tsx:225
+#: src/features/search/SearchPage.tsx:226
 msgid "search.error.network"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/search/SearchPage.tsx:408
+#: src/features/search/SearchPage.tsx:409
 msgid "search.input.clear"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/search/SearchPage.tsx:396
+#: src/features/search/SearchPage.tsx:397
 msgid "search.input.label"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/search/SearchPage.tsx:392
+#: src/features/search/SearchPage.tsx:393
 msgid "search.input.placeholder"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/search/SearchPage.tsx:377
+#: src/features/search/SearchPage.tsx:378
 msgid "search.loading"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/search/SearchPage.tsx:348
+#: src/features/search/SearchPage.tsx:349
 msgid "search.match.content"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/search/SearchPage.tsx:340
+#: src/features/search/SearchPage.tsx:341
 msgid "search.match.description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/search/SearchPage.tsx:344
+#: src/features/search/SearchPage.tsx:345
 msgid "search.match.tag"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/search/SearchPage.tsx:336
+#: src/features/search/SearchPage.tsx:337
 msgid "search.match.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/search/SearchPage.tsx:638
+#: src/features/search/SearchPage.tsx:639
 msgid "search.pagination.next"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/search/SearchPage.tsx:616
+#: src/features/search/SearchPage.tsx:617
 msgid "search.pagination.page"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/search/SearchPage.tsx:607
+#: src/features/search/SearchPage.tsx:608
 msgid "search.pagination.previous"
 msgstr ""
 
 #. js-lingui-explicit-id
 #. placeholder {0}: result.readTime
-#: src/features/search/SearchPage.tsx:546
+#: src/features/search/SearchPage.tsx:547
 msgid "search.read_time"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/search/SearchPage.tsx:450
+#: src/features/search/SearchPage.tsx:451
 msgid "search.recent.remove"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/search/SearchPage.tsx:431
+#: src/features/search/SearchPage.tsx:432
 msgid "search.recent.title"
 msgstr ""
 
 #. js-lingui-explicit-id
 #. placeholder {0}: searchResults.totalSize ?? 0
-#: src/features/search/SearchPage.tsx:483
+#: src/features/search/SearchPage.tsx:484
 msgid "search.results.count"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/search/SearchPage.tsx:492
+#: src/features/search/SearchPage.tsx:493
 msgid "search.results.for"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/search/SearchPage.tsx:369
+#: src/features/search/SearchPage.tsx:370
 msgid "search.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/search/SearchPage.tsx:206
+#: src/features/search/SearchPage.tsx:207
 msgid "search.validation.invalid_page"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/features/search/SearchPage.tsx:199
-#: src/features/search/SearchPage.tsx:279
+#: src/features/search/SearchPage.tsx:200
+#: src/features/search/SearchPage.tsx:280
 msgid "search.validation.query_required"
 msgstr ""
 
