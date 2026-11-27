@@ -25,6 +25,14 @@ This is the design system baseline. Update it only as a deliberate baseline chan
 
 Use radius to express hierarchy and density. Keep corners within the scale above. Interactive elements need visible hover, focus, and pressed feedback; motion should clarify a transition.
 
+The author's profile card and the bottom bars described below are the only exceptions to flat surfaces. The card's cover sits behind it as a slightly rotated print, and both use `shadow-floating`. An author without a cover gets the same print filled with their avatar, enlarged and blurred, so every profile has the same shape in its owner's colors. Keep every other surface flat and do not animate the card on hover, because it is not a control.
+
+Moving between an author's overview and their posts or series carries the avatar between the card and the compact header with a view transition, so the reader sees they stay with the same person. It is the only motion between pages: the rest of the page changes at once, and readers who ask for reduced motion see none.
+
+Bars that float at the bottom of the window, the post's actions and every editor's save bar, share one opaque white pill: `floating-bar-surface`, a hairline ring, a low shadow, and `FloatingBarDivider` between groups. Text never shows through them. The pill reads as a drop of water lit from the upper left, where the eye assumes light comes from: a crisp reflection pools in that curve, light catches the rim there and echoes at the lower right, and the light passing through gathers at the bottom. Keep the reflection sharp-edged and small, because soft, broad light reads as frosted glass, and keep the light source in that corner, because light from another side makes the bar look dented. The bar is the only glossy surface. An icon with a count keeps 8px between them and 16px of padding, so it does not crowd the rounded end. The translucent glass surface is only for small menus inside the editor.
+
+An author's tabs share one narrow column, so the header and avatar stay put between them. A series page is the contents page of its posts, so it uses the post's grid and heading spacing instead: stepping from it into a post keeps the eyebrow, title, and byline in place. Lists of posts or series inside it use the shared row in `packages/client/src/features/discovery/list-rows.tsx`: title, a one-line summary on wide screens, quiet details, and an optional image on the right. Add a new list with that row rather than another card or row style. A series row uses the bundle cover, two outlined sheets behind the cover, and counts its parts, so a series never reads as a single post however many parts it has.
+
 ## Light and dark themes
 
 - Tokens live in `packages/client/src/appearance/variables.css`; the adjacent `tailwind.css` maps them through `@theme inline` for public pages and React screens. Keep color values in the token file.

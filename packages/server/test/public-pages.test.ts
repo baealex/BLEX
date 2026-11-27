@@ -243,11 +243,25 @@ test('renders author overview and posts and redirects legacy author aliases', as
   assert.doesNotMatch(overview.body, /href="javascript:/);
   assert.doesNotMatch(overview.body, /window\.bad/);
   assert.match(overview.body, /Public new article/);
+  // Posts come before the introduction, so a long introduction never pushes them down.
+  assert.ok(overview.body.indexOf('Public new article') < overview.body.indexOf('About the writer'));
+  assert.match(overview.body, /A useful subtitle/);
+  assert.match(overview.body, /images\/public-new\.jpg/);
+  // The series preview follows the author's own order and leaves hidden series out.
+  // Search the rendered markup only, since the page data repeats the same names.
+  const markup = overview.body.replace(/<script\b[\s\S]*?<\/script>/g, '');
+  const seriesHeading = markup.indexOf('>시리즈</h2>');
+  assert.ok(seriesHeading > 0);
+  assert.ok(seriesHeading < markup.indexOf('Public series'));
+  assert.ok(markup.indexOf('Public series') < markup.indexOf('Other series'));
+  assert.doesNotMatch(markup, /Hidden series/);
   assert.match(overview.body, /rel="canonical" href="https:\/\/blog\.example\/@writer"/);
 
   const posts = await app.inject('/@writer/posts?q=Orion');
   assert.equal(posts.statusCode, 200, posts.body);
-  assert.match(posts.body, /Public new article/);
+  // Posts are rows like the author's series; liking happens on the post itself.
+  assert.match(posts.body, /<h2[^>]*>Public new article<\/h2>/);
+  assert.doesNotMatch(posts.body, /action="\/like\//);
   assert.doesNotMatch(posts.body, /Public older article|Hidden article|Draft article/);
   assert.match(posts.body, /name="robots" content="noindex,follow"/);
 
@@ -327,6 +341,10 @@ test('lists only public series and renders public series detail in the selected 
   assert.match(list.body, /Public series/);
   assert.match(list.body, /Other series/);
   assert.doesNotMatch(list.body, /Hidden series/);
+  // A series shows the image of its first post that has one; a series without images keeps a plain cover.
+  assert.equal(list.body.match(/<img [^>]*src="\/resources\/media\/images\/public-new\.jpg"/g)?.length, 1);
+  // Series count their parts, so they never read as single posts.
+  assert.match(list.body, />\d+편</);
 
   const newest = await app.inject('/@writer/series?sort=newest');
   assert.ok(newest.body.indexOf('Other series') < newest.body.indexOf('Public series'));
@@ -344,8 +362,12 @@ test('lists only public series and renders public series detail in the selected 
   assert.match(detail.body, /Public new article/);
   assert.match(detail.body, /CollectionPage/);
   assert.match(detail.body, /rel="canonical" href="https:\/\/blog\.example\/@writer\/series\/public-series"/);
-  assert.match(detail.body, /오래된순/);
-  assert.match(detail.body, /최신순/);
+  assert.match(detail.body, /1편부터/);
+  assert.match(detail.body, /최신 글부터/);
+  // The newest post leads this view, but reading still starts from the series' first post.
+  assert.ok(detail.body.indexOf('Public new article') < detail.body.indexOf('Series post 10'));
+  assert.match(detail.body, /<a href="\/@writer\/series-post-01"[^>]*>1편부터 읽기/);
+  assert.match(detail.body, /A useful subtitle/);
   const ascendingSecondPage = await app.inject('/@writer/series/public-series?sort=asc&page=2');
   assert.equal(ascendingSecondPage.statusCode, 200, ascendingSecondPage.body);
   assert.match(

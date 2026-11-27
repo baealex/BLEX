@@ -7,6 +7,7 @@ import { SETTINGS_LIST_TITLE } from '~/styles/settingsStyles';
 import { SettingsEmptyState, SettingsHeader, SettingsHeaderAction, SettingsListItem } from '../../layout';
 import { markNotificationAsRead, type NotifyItem } from '~/lib/api/settings';
 import { getSafeNotificationNavigationUrl } from '../notificationNavigation';
+import { navigateTo } from '~/application/navigation';
 
 interface NotificationsSectionProps {
     notifyList: NotifyItem[];
@@ -61,7 +62,7 @@ const NotificationsSection = ({ notifyList, showTelegramIntegration, onOpenConfi
 
     const handleClickNotify = async (notify: NotifyItem, targetUrl: string) => {
         await markAsRead(notify);
-        window.location.assign(targetUrl);
+        navigateTo(targetUrl);
     };
 
     return (

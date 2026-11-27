@@ -7,7 +7,7 @@ import { useConfirm } from '~/hooks/useConfirm';
 import { Button, Input, DIM_OVERLAY_DEFAULT, ENTRANCE_DURATION } from '~/components/shared';
 import { CodeEditor } from '~/components/CodeEditor';
 import { Dialog } from '~/ui/dialog';
-import { FloatingBottomBar } from '~/ui/floating-bottom-bar';
+import { FloatingBarDivider, FloatingBottomBar } from '~/ui/floating-bottom-bar';
 import { IconButton } from '~/ui/icon-button';
 import { Toggle } from '~/ui/toggle';
 import { ArrowLeft, ChevronDown, ExternalLink, Search, Send, Settings2, SlidersHorizontal, X } from '~/ui/icons';
@@ -488,7 +488,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                         >
                             <Trans id="common.delete">Delete</Trans>
                         </Button>
-                        <div className="w-px h-8 bg-line/60 mx-1" />
+                        <FloatingBarDivider />
                     </>
                 )}
 
@@ -509,7 +509,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                     <SlidersHorizontal className="w-5 h-5" />
                 </IconButton>
 
-                <div className="w-px h-8 bg-line/60 mx-1" />
+                <FloatingBarDivider />
 
                 <Button
                     density="compact"

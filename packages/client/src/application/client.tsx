@@ -4,6 +4,7 @@ import { flushSync } from 'react-dom';
 import { hydrateRoot } from 'react-dom/client';
 import { createRootRoute, createRoute, createRouter, type HistoryLocation } from '@tanstack/react-router';
 import { type ReactNode, use, useLayoutEffect, useState } from 'react';
+import { authorAvatarMove, showWithAuthorAvatar } from './author-avatar-motion.js';
 import { ApplicationFrame, type ApplicationView } from './frame.js';
 import { applicationHistory } from './history.js';
 import { opensOutsideApplication, type BlexNavigateDetail } from './navigation.js';
@@ -1450,9 +1451,14 @@ async function renderLoadedPage(activeRouter: ApplicationRouter): Promise<void> 
         return;
     }
     if (!isCurrentPage()) return;
-    if (page.head.lang) document.documentElement.lang = page.head.lang;
-    flushSync(() => showApplicationPage?.(page.view));
-    commitApplicationPage(page, window.location.hash);
+    const move = currentDocument ? authorAvatarMove(currentDocument.url, page.url) : null;
+    showWithAuthorAvatar(move, () => {
+        // A view transition shows the page a frame later, when another navigation may have replaced it.
+        if (!isCurrentPage()) return;
+        if (page.head.lang) document.documentElement.lang = page.head.lang;
+        flushSync(() => showApplicationPage?.(page.view));
+        commitApplicationPage(page, window.location.hash);
+    });
 }
 
 function ApplicationRoute({ initialPage }: { initialPage: ApplicationDocument }) {

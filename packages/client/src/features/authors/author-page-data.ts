@@ -1,4 +1,3 @@
-import { createHash } from 'node:crypto';
 import type { PageProps } from '@blex/contracts/pages';
 import type {
     AuthorRow,
@@ -9,18 +8,13 @@ import type {
     PublicPageViewer,
     SubscriptionState
 } from '@blex/contracts/public';
-import { type DiscoveryPagination, publicBrand, publicLikes } from '../discovery/discovery-page-data';
+import { type DiscoveryPagination, publicBrand } from '../discovery/discovery-page-data';
 import type { AboutDraft } from './about-draft';
-import { type PostCardLikes, type PostCardView, postCardView, postPath } from '../discovery/post-list';
-import {
-    avatarUrl,
-    dateLabel,
-    dateValue,
-    mediaUrl,
-    noticeLink,
-    resourceUrl,
-    safeExternalUrl
-} from '../discovery/view-helpers';
+import { isLongIntroduction } from './introduction-length';
+import type { PostRowView } from '../discovery/list-rows';
+import { postPath } from '../discovery/post-list';
+import { getDocumentLocale } from '../../i18n/locale.js';
+import { avatarUrl, dateLabel, dateValue, mediaUrl, noticeLink, safeExternalUrl } from '../discovery/view-helpers';
 
 export interface AuthorSubscriptionView {
     action: string;
@@ -55,13 +49,9 @@ export interface FeaturedPostsView {
     kind: 'featured' | 'recent';
     partialUrl: string;
     canManage: boolean;
-    posts: Array<{
-        href: string;
-        title: string;
-        cover: string;
-        date: { iso: string; text: string } | null;
-        readTime: number;
-    }>;
+    /** The posts tab, for authors who have public posts. */
+    allPosts: { href: string; count: number } | null;
+    posts: PostRowView[];
 }
 
 export interface AuthorNoticeView {
@@ -71,7 +61,12 @@ export interface AuthorNoticeView {
 }
 
 export interface AuthorActivityView {
-    days: Record<string, number>;
+    /** Public posts, comments, and likes over the past year. */
+    total: number;
+    /** Seven-day spans, oldest first; the newest one ends today. */
+    weeks: Array<{ key: string; label: string; count: number }>;
+    /** Where each month starts among the weeks. */
+    months: Array<{ index: number; label: string }>;
     recent: Array<{
         key: string;
         type: 'post' | 'series' | 'comment' | 'like';
@@ -95,8 +90,11 @@ export interface AuthorOverviewData extends AuthorPageBase {
     page: 'overview';
     profile: AuthorProfileView;
     notices: AuthorNoticeView[];
-    about: { editable: boolean; editPath: string } | null;
+    /** `collapsible` starts a long introduction folded; the server decides it so the first paint does not move. */
+    about: { editable: boolean; editPath: string; collapsible: boolean } | null;
     featured: FeaturedPostsView | null;
+    /** The first public series in the author's own order; null for authors who are not editors. */
+    series: Array<{ href: string; name: string; postCount: number }> | null;
     activity: AuthorActivityView;
 }
 
@@ -106,8 +104,7 @@ export interface AuthorPostsData extends AuthorPageBase {
     tagFilter: string;
     tagOptions: string[];
     filtered: boolean;
-    posts: PostCardView[];
-    likes?: PostCardLikes;
+    posts: PostRowView[];
     pagination: DiscoveryPagination;
 }
 
@@ -122,6 +119,8 @@ export interface AuthorSeriesListData extends AuthorPageBase {
         summary: string;
         postCount: number;
         updated: { iso: string | null; text: string };
+        /** The first public post's image, or null when no post has one. */
+        image: string | null;
     }>;
     pagination: DiscoveryPagination;
 }
@@ -134,16 +133,16 @@ export interface AuthorSeriesData extends AuthorPageBase {
     count: number;
     updated: string;
     editHref: string | null;
+    /** The first public post, where a reader starts the series. */
+    startHref: string | null;
     seriesPath: string;
     sortOrder: 'asc' | 'desc';
     posts: Array<{
         href: string;
         number: number;
         title: string;
+        subtitle: string;
         date: { iso: string; text: string } | null;
-        readTime: number;
-        likeCount: number;
-        commentCount: number;
     }>;
     pagination: DiscoveryPagination;
 }
@@ -254,11 +253,20 @@ function profileView(
     };
 }
 
-function postCover(post: PostRow): string {
-    if (post.image) return mediaUrl(post.image) ?? resourceUrl('assets/images/default-cover-1.jpg');
-    const digest = createHash('md5').update(post.slug).digest('hex');
-    const index = (Number.parseInt(digest.slice(0, 8), 16) % 6) + 1;
-    return resourceUrl(`assets/images/default-cover-${index}.jpg`);
+function postImage(post: Pick<PostRow, 'image'>): string | null {
+    const hasImage = Boolean(post.image && post.image !== 'None' && post.image !== 'null');
+    return hasImage ? mediaUrl(post.image) : null;
+}
+
+function postRowView(post: PostRow, summary: string): PostRowView {
+    return {
+        href: postPath(post),
+        title: post.title,
+        summary,
+        image: postImage(post),
+        date: dateView(post.publishedDate),
+        readTime: post.readTime
+    };
 }
 
 export function featuredPostsView(
@@ -271,14 +279,53 @@ export function featuredPostsView(
         kind: featured.kind,
         partialUrl: `${authorPath(author.username)}/partials/featured-posts`,
         canManage: isOwner,
-        posts: featured.posts.map((post) => ({
-            href: postPath(post),
-            title: post.title,
-            cover: postCover(post),
-            date: dateView(post.publishedDate),
-            readTime: post.readTime
-        }))
+        allPosts:
+            author.publicPostCount > 0
+                ? { href: authorPath(author.username, '/posts'), count: author.publicPostCount }
+                : null,
+        posts: featured.posts.map((post) => postRowView(post, post.subtitle))
     };
+}
+
+const dayLength = 86_400_000;
+const dayNumber = (day: string) => Date.parse(`${day}T00:00:00Z`) / dayLength;
+const dayKey = (day: number) => new Date(day * dayLength).toISOString().slice(0, 10);
+
+/**
+ * Groups the year's days into seven-day spans that end on its last day, so the newest span is always whole.
+ * The server names the days in the site's calendar, so the labels come from those days rather than a clock.
+ */
+function activityWeeks(
+    days: Record<string, number>,
+    range: { start: string; end: string }
+): Pick<AuthorActivityView, 'total' | 'weeks' | 'months'> {
+    const first = dayNumber(range.start);
+    const last = dayNumber(range.end);
+    const locale = getDocumentLocale();
+    const span = new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric', timeZone: 'UTC' });
+    const month = new Intl.DateTimeFormat(locale, { month: 'short', timeZone: 'UTC' });
+    const weeks: AuthorActivityView['weeks'] = [];
+    const months: AuthorActivityView['months'] = [];
+    if (!Number.isFinite(first) || !Number.isFinite(last) || first > last) return { total: 0, weeks, months };
+    for (let end = last; end >= first; end -= 7) {
+        const start = Math.max(first, end - 6);
+        let count = 0;
+        for (let day = start; day <= end; day += 1) count += days[dayKey(day)] ?? 0;
+        weeks.unshift({
+            key: dayKey(start),
+            label:
+                start === end
+                    ? span.format(new Date(start * dayLength))
+                    : `${span.format(new Date(start * dayLength))} – ${span.format(new Date(end * dayLength))}`,
+            count
+        });
+    }
+    weeks.forEach((week, index) => {
+        const current = week.key.slice(0, 7);
+        if (index > 0 && current !== weeks[index - 1].key.slice(0, 7) && index < weeks.length - 2)
+            months.push({ index, label: month.format(new Date(`${current}-01T00:00:00Z`)) });
+    });
+    return { total: weeks.reduce((sum, week) => sum + week.count, 0), weeks, months };
 }
 
 function noticeViews(notices: NoticeRow[]): AuthorNoticeView[] {
@@ -301,6 +348,7 @@ export function createAuthorOverviewData({
     aboutHtml,
     isOwner,
     featured,
+    seriesPreview,
     activity
 }: PageProps['@{$username}/index']): AuthorOverviewData {
     return {
@@ -312,12 +360,21 @@ export function createAuthorOverviewData({
             aboutHtml || isOwner
                 ? {
                       editable: isOwner,
-                      editPath: isOwner ? `${authorPath(author.username)}/about/edit` : ''
+                      editPath: isOwner ? `${authorPath(author.username)}/about/edit` : '',
+                      collapsible: isLongIntroduction(aboutHtml)
                   }
                 : null,
         featured: isAuthorEditor ? featuredPostsView(author, featured, viewer?.id === author.id) : null,
+        series:
+            isAuthorEditor && seriesPreview.length
+                ? seriesPreview.map((series) => ({
+                      href: `${authorPath(author.username, '/series')}/${encodeURIComponent(series.url)}`,
+                      name: series.name,
+                      postCount: series.postCount
+                  }))
+                : null,
         activity: {
-            days: activity.days,
+            ...activityWeeks(activity.days, activity.range),
             recent: occurrenceKeys(activity.recent, (entry) => `${entry.type}:${entry.url}`).map(({ key, row }) => ({
                 key,
                 type: row.type,
@@ -341,7 +398,6 @@ export function createAuthorPostsData({
     tagFilter,
     tagOptions,
     posts,
-    likes,
     searchText,
     checkedPage,
     pages
@@ -353,8 +409,7 @@ export function createAuthorPostsData({
         tagFilter,
         tagOptions: tagOptions.map((tag) => tag.name),
         filtered: Boolean(searchText || tagFilter),
-        posts: posts.map((post) => postCardView(post, { showAuthor: false, likes, relativeDate: true })),
-        likes: publicLikes(meta, likes),
+        posts: posts.map((post) => postRowView(post, post.description || post.subtitle)),
         pagination: { path, search: query.toString(), preserve: ['q', 'tag'], page: checkedPage, pages }
     };
 }
@@ -385,7 +440,8 @@ export function createAuthorSeriesListData({
             name: series.name,
             summary: series.textMarkdown,
             postCount: series.postCount,
-            updated: { iso: dateValue(series.updatedDate), text: dateLabel(series.updatedDate) }
+            updated: { iso: dateValue(series.updatedDate), text: dateLabel(series.updatedDate) },
+            image: postImage(series)
         })),
         pagination: { path, search: query.toString(), preserve: ['q', 'sort'], page: checkedPage, pages }
     };
@@ -398,6 +454,7 @@ export function createAuthorSeriesData({
     count,
     viewer,
     posts,
+    firstPostSlug,
     seriesPath,
     sortOrder,
     checkedPage,
@@ -416,16 +473,15 @@ export function createAuthorSeriesData({
         count,
         updated: dateLabel(series.updatedDate),
         editHref: viewer?.id === author.id ? `/settings/series/edit/${series.id}` : null,
+        startHref: firstPostSlug ? postPath({ authorUsername: author.username, slug: firstPostSlug }) : null,
         seriesPath,
         sortOrder,
         posts: posts.map((post, index) => ({
             href: postPath(post),
             number: sortOrder === 'desc' ? count - (checkedPage - 1) * 10 - index : (checkedPage - 1) * 10 + index + 1,
             title: post.title,
-            date: dateView(post.publishedDate),
-            readTime: post.readTime,
-            likeCount: post.likeCount ?? 0,
-            commentCount: post.commentCount ?? 0
+            subtitle: post.subtitle,
+            date: dateView(post.publishedDate)
         })),
         pagination: {
             path: seriesPath,

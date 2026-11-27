@@ -9,6 +9,7 @@ import { getMediaPath } from '~/modules/static.module';
 import type { PinnedPostData } from '~/lib/api/settings';
 import { formatPublishedDate } from '~/i18n/formatters';
 import { normalizeLocale } from '~/i18n/locale';
+import { navigateTo } from '~/application/navigation';
 
 interface PinnedPostItemProps {
     pinnedPost: PinnedPostData;
@@ -32,7 +33,7 @@ export const PinnedPostItem = ({ pinnedPost, username, onRemove }: PinnedPostIte
     };
 
     const handleView = () => {
-        window.location.assign(`/@${username}/${pinnedPost.post.url}`);
+        navigateTo(`/@${username}/${pinnedPost.post.url}`);
     };
 
     const handleRemove = () => {

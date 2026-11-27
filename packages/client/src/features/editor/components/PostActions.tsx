@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { MouseEvent } from 'react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Button } from '~/ui/button';
-import { FloatingBottomBar } from '~/ui/floating-bottom-bar';
+import { FloatingBarDivider, FloatingBottomBar } from '~/ui/floating-bottom-bar';
 import { IconButton } from '~/ui/icon-button';
 import { Eye, FileText, History, Loader2, Save, Send, SlidersHorizontal } from '~/ui/icons';
 
@@ -181,7 +181,7 @@ const PostActions = ({
             {/* Save Section */}
             {!isEdit && (
                 <>
-                    <div className="mx-1 h-8 w-px shrink-0 bg-line/50" />
+                    <FloatingBarDivider />
 
                     {/* Autosave Status */}
                     <div

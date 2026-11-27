@@ -118,6 +118,62 @@
     backdrop-filter: blur(var(--blur-frosted));
 }
 
+/*
+ * Bars that float at the bottom of the window stay opaque, so the text they pass over never shows through.
+ * They read as a drop of water lit from the upper left, where the eye assumes light comes from: a crisp
+ * reflection pools in that curve, light catches the rim there and echoes at the lower right, and the light
+ * passing through gathers at the bottom. The light lies on the surface, over the buttons and their hover
+ * backgrounds, as a reflection would, and never takes a click.
+ */
+@utility floating-bar-surface {
+    position: relative;
+    isolation: isolate;
+    border: 1px solid transparent;
+    background:
+        radial-gradient(9rem 3rem at calc(100% - 3.5rem) 100%, var(--color-floating-bar-glow), transparent 72%)
+            padding-box,
+        linear-gradient(
+                var(--color-floating-bar-top),
+                var(--color-floating-bar-middle) 50%,
+                var(--color-floating-bar-bottom)
+            )
+            padding-box,
+        linear-gradient(var(--color-floating-bar-rim-top), var(--color-floating-bar-rim-bottom)) border-box;
+    box-shadow:
+        inset 0 0 10px var(--color-floating-bar-edge),
+        var(--shadow-floating-bar);
+
+    &::before,
+    &::after {
+        content: '';
+        position: absolute;
+        z-index: 1;
+        border-radius: inherit;
+        pointer-events: none;
+    }
+
+    /* Light caught on the rim. The masks are sized in rem, so a wide bar keeps the same corners. */
+    &::before {
+        inset: 0;
+        box-shadow:
+            inset 2px 2.5px 0 -0.5px var(--color-floating-bar-rim-light),
+            inset -2px -2.5px 0 -0.5px var(--color-floating-bar-rim-echo);
+        mask:
+            radial-gradient(5rem 3rem at 1.1rem 0.6rem, #000 30%, transparent),
+            radial-gradient(5rem 3rem at calc(100% - 1.1rem) calc(100% - 0.6rem), #000 30%, transparent);
+    }
+
+    /*
+     * The reflection: bright at the top, fading toward a sharp lower edge. Sharp edges are what read as wet.
+     * It ends above the icons, so it never washes them out.
+     */
+    &::after {
+        inset: 3px;
+        background: linear-gradient(var(--color-floating-bar-glint) 10%, var(--color-floating-bar-glint-end));
+        mask: radial-gradient(2.75rem 1.1rem at 1.9rem -0.2rem, #000 calc(100% - 1.5px), transparent);
+    }
+}
+
 @utility floating-glass-surface {
     background-color: var(--color-floating-glass-surface);
     border: 1px solid var(--color-floating-glass-border);
@@ -206,4 +262,24 @@
 
 [data-blex-route-focus]:focus {
   outline: none;
+}
+
+/* Moving between an author's overview and their posts or series carries the avatar between the card and the
+   compact header. The rest of the page changes at once, so the avatar is the only thing that moves. */
+:root[data-author-avatar-move]::view-transition-old(root),
+:root[data-author-avatar-move]::view-transition-new(root) {
+  animation: none;
+}
+
+::view-transition-group(blex-author-avatar) {
+  animation-duration: 380ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
 }

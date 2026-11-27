@@ -13,6 +13,7 @@ import { getMediaPath } from '~/modules/static.module';
 import { toast } from '~/utils/toast';
 import { formatDateOnly } from '~/i18n/formatters';
 import { normalizeLocale } from '~/i18n/locale';
+import { navigateTo } from '~/application/navigation';
 
 interface DraftPostListContentProps {
     onCountChange?: (count: number) => void;
@@ -93,7 +94,7 @@ export const DraftPostListContent = ({ onCountChange, emptyAction }: DraftPostLi
     };
 
     const handleContinueDraft = (url: string) => {
-        window.location.assign(`/write?draft=${url}`);
+        navigateTo(`/write?draft=${url}`);
     };
 
     if (!draftPosts || draftPosts.length === 0) {

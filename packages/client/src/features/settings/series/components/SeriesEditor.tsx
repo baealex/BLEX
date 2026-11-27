@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from '~/utils/toast';
 import { useConfirm } from '~/hooks/useConfirm';
 import { Button, Input } from '~/components/shared';
-import { FloatingBottomBar } from '~/ui/floating-bottom-bar';
+import { FloatingBarDivider, FloatingBottomBar } from '~/ui/floating-bottom-bar';
 import { ArrowLeft, ChevronDown, Send } from '~/ui/icons';
 import {
     getSeriesDetail,
@@ -593,7 +593,7 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                             >
                                 <Trans id="common.delete">Delete</Trans>
                             </Button>
-                            <div className="w-px h-8 bg-line/60 mx-1" />
+                            <FloatingBarDivider />
                         </>
                     )}
 

@@ -1,6 +1,7 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import { SettingsHeader, SettingsHeaderAction } from '../layout';
 import { DraftPostListContent } from '../posts/components';
+import { navigateTo } from '~/application/navigation';
 
 const DraftsSetting = () => {
     const { t } = useLingui();
@@ -14,7 +15,7 @@ const DraftsSetting = () => {
                 })}
                 actionPosition="right"
                 action={
-                    <SettingsHeaderAction variant="primary" onClick={() => window.location.assign('/write')}>
+                    <SettingsHeaderAction variant="primary" onClick={() => navigateTo('/write')}>
                         <Trans id="settings.posts.create">Write a new post</Trans>
                     </SettingsHeaderAction>
                 }

@@ -1,1 +1,1 @@
-export { FloatingBottomBar } from './components/FloatingBottomBar';
+export { FloatingBarDivider, FloatingBottomBar } from './components/FloatingBottomBar';

@@ -5,20 +5,23 @@ import type { Prisma, PrismaClient } from '@prisma/client';
 import { storedDateText } from '../../../platform/date-format.js';
 import { sanitizeAboutHtml, sanitizePostHtml } from '../../posts/post-html.js';
 import { readAuthorActivity } from '../public-activity.js';
-import { authorPath, isEditor, readAuthor, readAuthorSocialLinks, subscriptionState } from '../services/profile.js';
-import { publicPostWhere } from '../../posts/data/visibility.js';
 import {
-  readCardLikes,
-  readFeaturedPosts,
-  readPublicPostCount,
-  readPublicPosts,
-} from '../../discovery/services/public-posts.js';
+  authorPath,
+  isEditor,
+  publicSeriesWhere,
+  readAuthor,
+  readAuthorSocialLinks,
+  readSeriesPreview,
+  subscriptionState,
+} from '../services/profile.js';
+import { publicPostWhere } from '../../posts/data/visibility.js';
+import { readFeaturedPosts, readPublicPostCount, readPublicPosts } from '../../discovery/services/public-posts.js';
 import {
   PAGE_SIZE,
   type PageMeta,
   type PublicPageOptions,
   type SeriesDetailRow,
-  type SeriesRow,
+  type SeriesListRow,
   type SubscriptionState,
   canonicalPageUrl,
   dateValue,
@@ -65,9 +68,13 @@ export function registerProfileRoutes(
       readAuthorSocialLinks(db, author.id),
     ]);
     const isAuthorEditor = isEditor(author);
-    const [userNotices, subscription] = isAuthorEditor
-      ? await Promise.all([readNotices(db, 'user', author.id), subscriptionState(db, author, viewer)])
-      : [[], { canSubscribe: false, isSubscribed: false } as SubscriptionState];
+    const [userNotices, subscription, seriesPreview] = isAuthorEditor
+      ? await Promise.all([
+          readNotices(db, 'user', author.id),
+          subscriptionState(db, author, viewer),
+          readSeriesPreview(db, author.id, 4),
+        ])
+      : [[], { canSubscribe: false, isSubscribed: false } as SubscriptionState, []];
     const noindex = hasUnexpected(query, []);
     const path = authorPath(author.username);
     const canonical = makeAbsolute(siteUrl, path);
@@ -101,6 +108,7 @@ export function registerProfileRoutes(
         aboutHtml,
         isOwner,
         featured,
+        seriesPreview,
         activity,
       }),
     );
@@ -209,7 +217,6 @@ export function registerProfileRoutes(
     ]);
     const pages = totalPages(count, PAGE_SIZE);
     const path = authorPath(author.username, '/posts');
-    const likes = await readCardLikes(db, request, viewer, posts);
     const noindex = hasUnexpected(query, ['page', 'q', 'tag']) || Boolean(searchText || tagFilter);
     const meta: PageMeta = {
       authorFeed: authorFeed(siteUrl, author.username),
@@ -237,7 +244,6 @@ export function registerProfileRoutes(
         tagFilter,
         tagOptions,
         posts,
-        likes,
         searchText,
         checkedPage,
         pages,
@@ -262,9 +268,7 @@ export function registerProfileRoutes(
     const sort = ['custom', 'newest', 'oldest', 'posts'].includes(requestedSort) ? requestedSort : 'custom';
     const publicPost = publicPostWhere();
     const seriesWhere: Prisma.SeriesWhereInput = {
-      ownerId: author.id,
-      isHidden: false,
-      posts: { some: publicPost },
+      ...publicSeriesWhere(author.id, publicPost),
       ...(searchText
         ? { OR: [{ name: { contains: searchText } }, { descriptionMarkdown: { contains: searchText } }] }
         : {}),
@@ -296,19 +300,26 @@ export function registerProfileRoutes(
       posts: (left, right) => right._count.posts - left._count.posts || left.order - right.order || left.id - right.id,
       custom: (left, right) => left.order - right.order || left.id - right.id,
     };
-    const seriesRows: SeriesRow[] = authorSeries
-      .sort(seriesOrder[sort])
-      .slice((checkedPage - 1) * 12, checkedPage * 12)
-      .map((row) => ({
-        id: row.id,
-        url: row.slug,
-        name: row.name,
-        textMarkdown: row.descriptionMarkdown,
-        textHtml: row.descriptionHtml,
-        createdDate: storedDateText(row.createdAt),
-        updatedDate: storedDateText(row.updatedAt),
-        postCount: row._count.posts,
-      }));
+    const pageSeries = authorSeries.sort(seriesOrder[sort]).slice((checkedPage - 1) * 12, checkedPage * 12);
+    // Each series shows the image of its first public post that has one, like a book's cover.
+    const covers = await db.post.findMany({
+      where: { AND: [publicPost, { seriesId: { in: pageSeries.map((row) => row.id) }, image: { not: '' } }] },
+      orderBy: [{ publishedAt: 'asc' }, { id: 'asc' }],
+      distinct: ['seriesId'],
+      select: { seriesId: true, image: true },
+    });
+    const coverImage = new Map(covers.map((post) => [post.seriesId, post.image]));
+    const seriesRows: SeriesListRow[] = pageSeries.map((row) => ({
+      id: row.id,
+      url: row.slug,
+      name: row.name,
+      textMarkdown: row.descriptionMarkdown,
+      textHtml: row.descriptionHtml,
+      createdDate: storedDateText(row.createdAt),
+      updatedDate: storedDateText(row.updatedAt),
+      postCount: row._count.posts,
+      image: coverImage.get(row.id) ?? '',
+    }));
     const { brand, siteName, viewer } = await getLayoutContext(request, reply, db, options);
     const [socialLinks, subscription] = await Promise.all([
       readAuthorSocialLinks(db, author.id),
@@ -393,12 +404,19 @@ export function registerProfileRoutes(
       const count = series.postCount;
       const checkedPage = validPublicPage(reply, page, count, 10);
       if (checkedPage === null) return reply;
-      const posts = await readPublicPosts(db, {
-        where: { seriesId: series.id },
-        orderBy: [{ publishedAt: sortOrder }, { id: sortOrder }],
-        limit: 10,
-        offset: (checkedPage - 1) * 10,
-      });
+      const [posts, firstPost] = await Promise.all([
+        readPublicPosts(db, {
+          where: { seriesId: series.id },
+          orderBy: [{ publishedAt: sortOrder }, { id: sortOrder }],
+          limit: 10,
+          offset: (checkedPage - 1) * 10,
+        }),
+        db.post.findFirst({
+          where: { AND: [publicPost, { seriesId: series.id }] },
+          orderBy: [{ publishedAt: 'asc' }, { id: 'asc' }],
+          select: { slug: true },
+        }),
+      ]);
       const { brand, siteName, viewer } = await getLayoutContext(request, reply, db, options);
       const pages = totalPages(count, 10);
       const metaDescription = description(
@@ -484,6 +502,7 @@ export function registerProfileRoutes(
           count,
           viewer,
           posts,
+          firstPostSlug: firstPost?.slug ?? null,
           seriesPath,
           sortOrder,
           checkedPage,

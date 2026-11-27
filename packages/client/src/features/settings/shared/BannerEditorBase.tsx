@@ -5,7 +5,7 @@ import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-q
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FloatingBottomBar } from '~/ui/floating-bottom-bar';
+import { FloatingBarDivider, FloatingBottomBar } from '~/ui/floating-bottom-bar';
 import { ArrowLeft, Send } from '~/ui/icons';
 import { CodeEditor } from '~/components/CodeEditor';
 import { Button, Checkbox, Input } from '~/components/shared';
@@ -631,7 +631,7 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                             >
                                 <Trans id="common.delete">Delete</Trans>
                             </Button>
-                            <div className="mx-1 h-8 w-px bg-line/60" />
+                            <FloatingBarDivider />
                         </>
                     )}
 

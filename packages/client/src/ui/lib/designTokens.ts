@@ -6,3 +6,4 @@ export const DIM_OVERLAY_DEFAULT = 'dim-overlay-default';
 
 export const FROSTED_SURFACE = 'frosted-surface';
 export const FLOATING_GLASS_SURFACE = 'floating-glass-surface';
+export const FLOATING_BAR_SURFACE = 'floating-bar-surface';

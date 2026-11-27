@@ -524,7 +524,7 @@ test('shows public yearly and recent activity on the author page', async () => {
     insertRow(fixture.db, 'PostLike', { postId: 3, userId: 1, createdAt: daysAgo(1) });
     const { body, statusCode } = await fixture.app.inject('/@writer');
     assert.equal(statusCode, 200);
-    assert.match(body, /data-heatmap-days=/);
+    assert.match(body, /주별로 보기/);
     for (const label of ['새 포스트를 작성했어요', '시리즈를 만들었어요', '댓글을 남겼어요', '좋아요를 눌렀어요'])
       assert.ok(body.includes(label), label);
     for (const excluded of ['Hidden part', 'Later part', 'Trashed part']) assert.ok(!body.includes(excluded), excluded);

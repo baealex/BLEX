@@ -153,12 +153,6 @@ function bindRouteElements() {
             { signal }
         );
     }
-
-    if (document.querySelector('[data-heatmap-days]')) {
-        void import('./author-heatmap.js').then(({ mountAuthorHeatmaps }) => {
-            if (!signal.aborted) mountAuthorHeatmaps(signal);
-        });
-    }
 }
 
 async function copyLink(button: HTMLElement, generation: number) {

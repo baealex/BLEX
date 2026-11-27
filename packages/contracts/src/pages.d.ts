@@ -11,6 +11,7 @@ import type {
     PostRow,
     PublicPageViewer,
     SeriesDetailRow,
+    SeriesListRow,
     SeriesRow,
     SiteBrand,
     SubscriptionState,
@@ -29,6 +30,7 @@ export type {
     PostRow,
     PublicPageViewer,
     SeriesDetailRow,
+    SeriesListRow,
     SeriesRow,
     SiteBrand,
     SubscriptionState,
@@ -185,8 +187,12 @@ export interface PageProps {
         aboutHtml: string;
         isOwner: boolean;
         featured: { kind: 'recent' | 'featured'; posts: Array<PostRow> };
+        /** The first public series in the author's own order. Empty for authors who are not editors. */
+        seriesPreview: Array<{ url: string; name: string; postCount: number }>;
         activity: {
             days: Record<string, number>;
+            /** The first and last calendar day (`YYYY-MM-DD`) of the past year in the site's time zone. */
+            range: { start: string; end: string };
             recent: Array<{
                 type: 'post' | 'series' | 'comment' | 'like';
                 title: string;
@@ -217,7 +223,6 @@ export interface PageProps {
         tagFilter: string;
         tagOptions: Array<{ name: string }>;
         posts: Array<PostRow>;
-        likes: CardLikes | undefined;
         searchText: string;
         checkedPage: number;
         pages: number;
@@ -232,7 +237,7 @@ export interface PageProps {
         path: string;
         query: URLSearchParams;
         sort: string;
-        seriesRows: Array<SeriesRow>;
+        seriesRows: Array<SeriesListRow>;
         searchText: string;
         checkedPage: number;
         pages: number;
@@ -245,6 +250,8 @@ export interface PageProps {
         count: number;
         viewer: null | PublicPageViewer;
         posts: Array<PostRow>;
+        /** The series' first public post, where a reader starts, whatever order and page this view shows. */
+        firstPostSlug: string | null;
         seriesPath: string;
         sortOrder: 'desc' | 'asc';
         checkedPage: number;

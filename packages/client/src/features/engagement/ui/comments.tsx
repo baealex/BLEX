@@ -363,7 +363,7 @@ function CommentMenu({
     }, [open]);
     const item = 'block w-full px-4 py-2 text-left text-sm transition-colors hover:bg-surface-subtle';
     return (
-        <div ref={root} className="absolute right-4 top-4 z-10">
+        <div ref={root} className="absolute right-0 top-5 z-10">
             <button
                 type="button"
                 aria-label={ui('Open comment options')}
@@ -837,19 +837,18 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
     };
 
     return (
-        <section
-            id="post-comments"
-            className="my-16 scroll-mt-24 rounded-2xl bg-surface p-6 ring-1 ring-line/60 sm:p-8"
-            aria-labelledby="comments-heading"
-        >
-            <div className="mb-6 flex items-start justify-between gap-4 border-b border-line-light pb-4">
-                <h2 id="comments-heading" className="min-w-0 text-lg font-bold leading-snug text-content">
+        <section id="post-comments" className="mt-20 scroll-mt-24" aria-labelledby="comments-heading">
+            <div className="mb-3 flex items-baseline gap-2">
+                <h2 id="comments-heading" className="text-xl font-bold tracking-tight text-content">
                     {ui('Comments')}
                 </h2>
-                <span className="shrink-0 text-sm font-medium leading-6 text-content-secondary">
-                    {ui('{value0, plural, one{# comment} other{# comments}}', {
-                        value0: countComments(comments) + hiddenCount
-                    })}
+                <span className="text-[15px] font-semibold tabular-nums text-content-secondary">
+                    <span aria-hidden="true">{String(countComments(comments) + hiddenCount)}</span>
+                    <span className="sr-only">
+                        {ui('{value0, plural, one{# comment} other{# comments}}', {
+                            value0: countComments(comments) + hiddenCount
+                        })}
+                    </span>
                 </span>
             </div>
             {olderCursor !== null && (
@@ -870,7 +869,7 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
             )}
             <div ref={listRef}>
                 {comments.length ? (
-                    <ul className="divide-y divide-line-light">
+                    <ul className="divide-y divide-line-light border-y border-line-light">
                         {comments.map((comment) => (
                             <CommentItem key={comment.id} comment={comment} handlers={handlers} />
                         ))}
@@ -883,8 +882,8 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
                 )}
             </div>
             {canComment ? (
-                <div className="mt-8 border-t border-line-light pt-8">
-                    <h3 className="mb-6 text-sm font-medium text-content-secondary">{ui('Leave a comment')}</h3>
+                <div className="mt-8">
+                    <h3 className="mb-3 text-[13px] font-semibold text-content-secondary">{ui('Leave a comment')}</h3>
                     {model.isLoggedIn ? (
                         <CommentForm
                             fieldRef={mainField}
