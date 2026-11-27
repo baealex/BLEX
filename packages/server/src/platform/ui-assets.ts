@@ -25,3 +25,10 @@ export async function readUiAsset(entry: string) {
 export async function readUiFile(entry: string) {
   return `/assets/ui/${(await readManifestAsset(entry)).file}`;
 }
+
+/** The site styles and Pretendard's faces that every page links, by their hashed URLs. */
+export async function readSiteStylesheets() {
+  const { css } = await readUiAsset('src/appearance/site-client.ts');
+  if (css.length !== 1) throw new Error('The BLEX site stylesheet was not built.');
+  return { theme: css[0], fonts: await readUiFile('styles/fonts/pretendard/pretendardvariable-dynamic-subset.css') };
+}

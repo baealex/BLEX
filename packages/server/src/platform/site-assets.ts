@@ -1,9 +1,7 @@
 import fastifyStatic from '@fastify/static';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { fileURLToPath } from 'node:url';
-import { clientAssets, readUiAsset, readUiFile } from './ui-assets.js';
-
-const siteFontEntry = 'styles/fonts/pretendard/pretendardvariable-dynamic-subset.css';
+import { clientAssets, readSiteStylesheets, readUiAsset } from './ui-assets.js';
 
 export function registerSiteAssets(app: FastifyInstance) {
   const root = fileURLToPath(new URL('../../../public/', import.meta.url));
@@ -18,20 +16,16 @@ export function registerSiteAssets(app: FastifyInstance) {
       decorateReply: false,
     });
     const getAppearance = () => readUiAsset('src/appearance/site-client.ts');
-    routes.get('/assets/blex/theme.css', async (_request, reply) => {
-      const { css } = await getAppearance();
-      if (css.length !== 1) throw new Error('The BLEX site stylesheet was not built.');
-      return reply
-        .header('Cache-Control', 'no-cache')
-        .sendFile(css[0].replace('/assets/ui/', ''), uiRoot, { cacheControl: false });
-    });
-    // Pretendard's faces live apart from the site styles, so a change to those does not download them again.
-    routes.get('/assets/blex/fonts.css', async (_request, reply) => {
-      const href = await readUiFile(siteFontEntry);
-      return reply
-        .header('Cache-Control', 'no-cache')
-        .sendFile(href.replace('/assets/ui/', ''), uiRoot, { cacheControl: false });
-    });
+    // Pages link the stylesheets by their hashed URLs. These fixed addresses serve the current files to documents
+    // from earlier releases, which named them before.
+    for (const name of ['theme', 'fonts'] as const) {
+      routes.get(`/assets/blex/${name}.css`, async (_request, reply) => {
+        const href = (await readSiteStylesheets())[name];
+        return reply
+          .header('Cache-Control', 'no-cache')
+          .sendFile(href.replace('/assets/ui/', ''), uiRoot, { cacheControl: false });
+      });
+    }
     // A classic script the head runs before the first paint, unlike the module below, which runs after it.
     routes.get('/assets/blex/theme-init.js', (_request, reply) =>
       reply.header('Cache-Control', 'no-cache').sendFile('theme-init.js', { cacheControl: false }),

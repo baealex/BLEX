@@ -1,7 +1,7 @@
 export { renderApplicationDocument } from './application/document';
 export { opensOutsideApplication } from './application/navigation';
 export { SiteIcon } from './appearance/icons';
-export { SiteFooter, SiteHeader, SiteTheme } from './appearance/shell';
+export { SiteFooter, SiteHeader, SiteTheme, setSiteStylesheets } from './appearance/shell';
 export { LoginForm } from './features/auth/ui/login-form';
 export { AuthPanel, authField, authInput, authSubmit } from './features/auth/ui/panel';
 export { AuthorHeader, ReaderActions } from './features/engagement/ui';
