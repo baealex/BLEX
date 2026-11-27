@@ -186,7 +186,7 @@
     &::after {
         inset: 3px;
         background: linear-gradient(var(--color-floating-bar-glint) 10%, var(--color-floating-bar-glint-end));
-        mask: radial-gradient(2.75rem 1.1rem at 1.9rem -0.2rem, #000 calc(100% - 1.5px), transparent);
+        mask: radial-gradient(2.25rem 0.9rem at 1.9rem -0.2rem, #000 calc(100% - 1.5px), transparent);
     }
 }
 
