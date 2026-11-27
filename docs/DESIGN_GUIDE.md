@@ -9,6 +9,7 @@ This is the design system baseline. Update it only as a deliberate baseline chan
 - Use `bg-surface`, `bg-surface-page`, and `bg-surface-subtle` for hierarchy; `text-content`, `text-content-secondary`, and `text-content-hint` for emphasis.
 - Primary actions use `bg-action`, `text-content-inverted`, and `hover:bg-action-hover`. Reserve success, warning, and danger colors for state.
 - Use readable line heights and structural headings without excessive bold weight.
+- Text uses Pretendard Variable, which BLEX serves itself as Pretendard's dynamic subset: a page downloads only the pieces that hold its characters, and text shows in the system font until they arrive. `packages/client/styles/fonts/pretendard/` holds `pretendardvariable-dynamic-subset.css` and `woff2-dynamic-subset/` from the `pretendard` package's `dist/web/variable`, unchanged, with its license; to update them, copy them again.
 
 ## Spacing and interaction
 
@@ -36,14 +37,18 @@ An author's tabs share one narrow column, so the header and avatar stay put betw
 ## Light and dark themes
 
 - Tokens live in `packages/client/src/appearance/variables.css`; the adjacent `tailwind.css` maps them through `@theme inline` for public pages and React screens. Keep color values in the token file.
-- Theme uses `html[data-theme="light|dark"]`. Follow system preference until the user chooses a theme; persist that choice in the `blex_theme` cookie. Keep initialization in `packages/client/src/appearance/site-client.ts` early to prevent a mismatched first paint.
+- Theme uses `html[data-theme="light|dark"]`. Follow system preference until the user chooses a theme; persist that choice in the `blex_theme` cookie. `packages/server/public/theme-init.js` applies the theme from the head before the stylesheet, so the first paint already matches; `packages/client/src/appearance/site-client.ts` keeps it in sync afterwards. Change both together.
 - Keep runtime listeners and third-party UIs, including Monaco and charts, synchronized with theme changes.
 - Prose and syntax highlighting use their semantic token groups in both themes.
 
 ## Mobile and accessibility
 
 - Verify layouts at 375px and desktop widths. Keep reading pages spacious and management screens appropriately dense.
-- Provide at least 44×44px touch targets. Increase the hit area of compact controls without making every visible control large.
+- Provide at least 44×44px touch targets. Increase the hit area of compact controls with `touch-target` (on a positioned element) instead of making every visible control large, and keep neighbors' areas from overlapping.
 - Use clear pressed feedback, comfortable menu spacing, and inputs with enough height for touch (`h-12` as the baseline).
 - Keep the mobile header focused on search, notifications, and the user menu.
+- Every control the keyboard reaches shows the shared `:focus-visible` ring from `tailwind.css`. Change its shape when needed, but never remove it or replace it with a faint ring; text fields use a 1px `content-hint` ring and border instead, and borderless writing fields, such as a post's title and body, show only the caret.
+- Name every dialog with `aria-labelledby`, mark the current page with `aria-current`, and smooth-scroll only through `scrollBehavior()` so reduced motion is respected.
+- Give a popup the role its keys answer. A menu of actions opens onto its first item and answers the arrow keys, Home, End, and Esc; a search box with suggestions is a combobox whose arrows highlight rows while focus stays in the box; a popup of links that Tab walks through is a plain disclosure that marks the current choice with `aria-current`. Esc returns focus to the control that opened the popup.
+- Inside the translucent editor menus, hover and selection use `bg-floating-glass-hover`; the subtle surface disappears there in dark mode.
 - Verify keyboard focus, readable contrast, and the same screen in light and dark themes.

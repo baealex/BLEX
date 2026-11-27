@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 
 export const authField = 'block text-xs font-semibold tracking-wide text-content-secondary';
 export const authInput =
-    'mt-1.5 w-full rounded-lg border border-line bg-surface/40 px-4 py-3.5 text-sm font-medium text-content outline-none transition-all duration-200 placeholder:text-content-hint focus:border-line-strong focus:ring-4 focus:ring-line/25';
+    'mt-1.5 w-full rounded-lg border border-line bg-surface/40 px-4 py-3.5 text-sm font-medium text-content transition-all duration-200 placeholder:text-content-hint focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint';
 export const authSubmit =
     'flex w-full items-center justify-center rounded-lg bg-action px-6 py-3.5 text-sm font-semibold text-content-inverted shadow-floating transition-all duration-200 hover:-translate-y-0.5 hover:bg-action-hover active:translate-y-0 disabled:opacity-50';
 

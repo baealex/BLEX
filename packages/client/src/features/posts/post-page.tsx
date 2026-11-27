@@ -763,11 +763,14 @@ function PostDock({ data }: { data: PostPageData }) {
                 // The site script can open this sheet before the page's code arrives.
                 <dialog
                     id="post-toc"
+                    aria-labelledby="post-toc-title"
                     suppressHydrationWarning
                     className="blex-toc-sheet fixed inset-x-0 top-auto bottom-0 m-0 max-h-[70vh] w-full max-w-none overflow-y-auto rounded-t-3xl bg-surface-elevated p-0 text-content shadow-xl"
                 >
                     <div className="flex items-center justify-between border-b border-line-light px-6 py-3">
-                        <h2 className="text-lg font-bold">{ui('Table of contents')}</h2>
+                        <h2 id="post-toc-title" className="text-lg font-bold">
+                            {ui('Table of contents')}
+                        </h2>
                         <form method="dialog">
                             <button type="submit" className={dockButton} aria-label={ui('Close table of contents')}>
                                 <SiteIcon name="x" className="size-4" />

@@ -98,7 +98,7 @@ const TagManager = ({ tags, onTagsChange }: TagManagerProps) => {
                                 setIsAdding(false);
                             }
                         }}
-                        className="border-0 bg-transparent focus:ring-0 p-0 text-sm font-medium text-content placeholder-content-hint w-24"
+                        className="border-0 bg-transparent focus:outline-hidden focus:ring-0 p-0 text-sm font-medium text-content placeholder-content-hint w-24"
                         placeholder={t({
                             id: 'editor.tags.name_placeholder',
                             message: 'Tag name'

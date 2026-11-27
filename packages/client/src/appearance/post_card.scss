@@ -1,8 +1,7 @@
 /* Grid layouts */
 @layer components {
 
-    .masonry-grid,
-    .posts-grid {
+    .masonry-grid {
         display: grid;
         grid-template-columns: repeat(1, 1fr);
         gap: 24px;
@@ -14,24 +13,21 @@
 
     @media (min-width: 768px) {
 
-        .masonry-grid,
-        .posts-grid {
+        .masonry-grid {
             grid-template-columns: repeat(2, 1fr);
         }
     }
 
     @media (min-width: 1024px) {
 
-        .masonry-grid,
-        .posts-grid {
+        .masonry-grid {
             grid-template-columns: repeat(3, 1fr);
         }
     }
 
     @media (min-width: 1280px) {
 
-        .masonry-grid,
-        .posts-grid {
+        .masonry-grid {
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         }
     }

@@ -41,7 +41,7 @@ const Trigger = ({ value, children, className }: TabsTriggerProps) => (
             'px-4 py-2.5 text-sm font-medium text-content-secondary transition-colors',
             'hover:text-content',
             'data-[state=active]:text-content data-[state=active]:border-b-2 data-[state=active]:border-action data-[state=active]:-mb-px',
-            'focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-line-strong',
+            'focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-content',
             className
         )}
     >
@@ -58,7 +58,7 @@ interface TabsContentProps {
 const Content = ({ value, children, className }: TabsContentProps) => (
     <RadixTabs.Content
         value={value}
-        className={cx('focus:outline-none', 'data-[state=active]:animate-in data-[state=active]:fade-in-0', className)}
+        className={cx('data-[state=active]:animate-in data-[state=active]:fade-in-0', className)}
     >
         {children}
     </RadixTabs.Content>

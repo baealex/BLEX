@@ -71,7 +71,7 @@ const ModalCloseButton = ({ ariaLabel, iconClassName = '', className = '', ...pr
         <Dialog.Close asChild>
             <button
                 className={cx(
-                    'text-content-hint hover:text-content-secondary transition-colors p-2 hover:bg-surface-subtle rounded-lg focus:outline-none focus:ring-2 focus:ring-action/20',
+                    'text-content-hint hover:text-content-secondary transition-colors p-2 hover:bg-surface-subtle rounded-lg',
                     className
                 )}
                 aria-label={ariaLabel ?? t({ id: 'common.close', message: 'Close' })}

@@ -18,7 +18,7 @@ const IconButton = ({
     className = '',
     ...props
 }: IconButtonProps) => {
-    const baseStyles = `inline-flex items-center justify-center transition-all ${INTERACTION_DURATION} focus:outline-none focus:ring-2 focus:ring-action/20 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95`;
+    const baseStyles = `inline-flex items-center justify-center transition-all ${INTERACTION_DURATION} disabled:opacity-50 disabled:cursor-not-allowed active:scale-95`;
 
     const variantStyles = {
         ghost: 'text-content-secondary hover:text-content hover:bg-surface-subtle active:bg-line-light',

@@ -56,7 +56,7 @@ const Select = ({
         value: item.value === '' ? EMPTY_VALUE : item.value
     }));
 
-    const errorStyles = error ? 'border-danger-line focus:border-danger focus:ring-danger/20 bg-danger-surface/70' : '';
+    const errorStyles = error ? 'border-danger-line focus:border-danger focus:ring-danger bg-danger-surface/70' : '';
 
     return (
         <div>
@@ -69,7 +69,7 @@ const Select = ({
                         flex w-full items-center justify-between
                         bg-surface-elevated border border-line
                         text-sm text-content
-                        hover:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/70 focus:border-line-strong
+                        hover:border-line-strong focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint
                         transition-colors cursor-pointer
                         disabled:cursor-not-allowed disabled:opacity-50
                         data-[placeholder]:text-content-hint

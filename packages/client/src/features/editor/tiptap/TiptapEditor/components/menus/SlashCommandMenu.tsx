@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { Editor } from '@tiptap/react';
 import * as Popover from '@radix-ui/react-popover';
+import { scrollBehavior } from '~/lib/motion';
 import { useEditorI18n } from '../../i18n';
 import type { EditorMessageKey } from '../../i18n';
 import {
@@ -308,7 +309,7 @@ const SlashCommandMenu = ({
                     const newIndex = Math.min(prev + 1, filteredCommands.length - 1);
                     setTimeout(() => {
                         selectedItemRef.current?.scrollIntoView({
-                            behavior: 'smooth',
+                            behavior: scrollBehavior(),
                             block: 'nearest'
                         });
                     }, 0);
@@ -321,7 +322,7 @@ const SlashCommandMenu = ({
                     const newIndex = Math.max(prev - 1, 0);
                     setTimeout(() => {
                         selectedItemRef.current?.scrollIntoView({
-                            behavior: 'smooth',
+                            behavior: scrollBehavior(),
                             block: 'nearest'
                         });
                     }, 0);
@@ -402,19 +403,19 @@ const SlashCommandMenu = ({
             <Popover.Anchor virtualRef={{ current: virtualAnchor }} />
             <Popover.Portal>
                 <Popover.Content
-                    className="bg-white border border-gray-200 rounded-lg shadow-lg min-w-64 max-w-80 z-50 outline-none"
+                    className="floating-glass-surface rounded-xl overflow-hidden min-w-64 max-w-80 z-50 outline-none"
                     onOpenAutoFocus={(e) => e.preventDefault()}
                     onCloseAutoFocus={(e) => e.preventDefault()}
                     align="start"
                     side="bottom"
                     sideOffset={5}
                 >
-                    <div className="p-2 border-b border-gray-100">
+                    <div className="p-2 border-b border-line-light">
                         <input
                             ref={inputRef}
                             type="text"
                             placeholder={t('slash.search.placeholder')}
-                            className="w-full px-2 py-1 text-sm border-none outline-none"
+                            className="w-full px-2 py-1 text-sm bg-transparent text-content placeholder:text-content-hint border-none outline-none"
                             value={searchTerm}
                             onChange={(e) => {
                                 setSearchTerm(e.target.value);
@@ -433,33 +434,38 @@ const SlashCommandMenu = ({
                                 return (
                                     <React.Fragment key={item.id}>
                                         {showCategoryHeader && (
-                                            <div className="px-3 pt-3 pb-1 text-xs font-medium text-gray-400">
+                                            <div className="px-3 pt-3 pb-1 text-xs font-medium text-content-hint">
                                                 {item.category}
                                             </div>
                                         )}
                                         <button
                                             type="button"
                                             ref={index === selectedIndex ? selectedItemRef : null}
-                                            className={`w-full px-3 py-2 text-left hover:bg-gray-50 flex items-center gap-3 cursor-pointer ${
-                                                index === selectedIndex ? 'bg-gray-50' : ''
+                                            className={`w-full px-3 py-2 text-left hover:bg-floating-glass-hover flex items-center gap-3 cursor-pointer ${
+                                                index === selectedIndex ? 'bg-floating-glass-hover' : ''
                                             }`}
                                             onClick={() => handleCommandClick(item)}
                                         >
-                                            <span className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded">
-                                                <InlineIcon icon={item.icon} className="text-sm text-gray-600" />
+                                            <span className="w-8 h-8 flex items-center justify-center bg-surface-subtle rounded-md">
+                                                <InlineIcon
+                                                    icon={item.icon}
+                                                    className="text-sm text-content-secondary"
+                                                />
                                             </span>
                                             <span>
-                                                <span className="block text-sm font-medium text-gray-900">
+                                                <span className="block text-sm font-medium text-content">
                                                     {item.title}
                                                 </span>
-                                                <span className="block text-xs text-gray-500">{item.description}</span>
+                                                <span className="block text-xs text-content-secondary">
+                                                    {item.description}
+                                                </span>
                                             </span>
                                         </button>
                                     </React.Fragment>
                                 );
                             })
                         ) : (
-                            <div className="px-3 py-4 text-sm text-gray-500 text-center">
+                            <div className="px-3 py-4 text-sm text-content-secondary text-center">
                                 {t('slash.search.no_results')}
                             </div>
                         )}

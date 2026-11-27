@@ -19,7 +19,6 @@
 
     --color-action: var(--color-action);
     --color-action-hover: var(--color-action-hover);
-    --color-action-pressed: var(--color-action-pressed);
 
     --color-success: var(--color-success);
     --color-success-surface: var(--color-success-surface);
@@ -36,6 +35,9 @@
     --color-mention-content: var(--color-mention-content);
     --color-mention-content-hover: var(--color-mention-content-hover);
 
+    /* Hover and selection inside the translucent editor menus, where the subtle surface disappears in dark. */
+    --color-floating-glass-hover: var(--color-floating-glass-hover);
+
     --shadow-subtle: 0 1px 2px var(--color-shadow-sm);
     --shadow-elevated: 0 4px 6px var(--color-shadow-md);
     --shadow-floating: 0 10px 15px var(--color-shadow-lg);
@@ -43,6 +45,15 @@
 }
 
 @layer base {
+    /*
+     * One visible ring for every control the keyboard reaches. Components may change its shape but not remove it;
+     * text fields show their own darker ring instead.
+     */
+    :focus-visible {
+        outline: 2px solid var(--color-content);
+        outline-offset: 2px;
+    }
+
     /* Tabler glyphs leave more padding than the icon sets these sizes were chosen for. */
     .tabler-icon {
         scale: 1.125;
@@ -143,6 +154,11 @@
         inset 0 0 10px var(--color-floating-bar-edge),
         var(--shadow-floating-bar);
 
+    & :focus-visible {
+        position: relative;
+        z-index: 2;
+    }
+
     &::before,
     &::after {
         content: '';
@@ -174,6 +190,22 @@
     }
 }
 
+/*
+ * A compact control keeps its look but answers taps across at least 44×44px. The element must already be
+ * positioned (relative or absolute), and neighbors' areas should not overlap.
+ */
+@utility touch-target {
+    &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: max(100%, 2.75rem);
+        height: max(100%, 2.75rem);
+        transform: translate(-50%, -50%);
+    }
+}
+
 @utility floating-glass-surface {
     background-color: var(--color-floating-glass-surface);
     border: 1px solid var(--color-floating-glass-border);
@@ -188,10 +220,6 @@
 
 @utility motion-entrance {
     transition-duration: var(--motion-entrance);
-}
-
-@utility theme-logo {
-    filter: var(--logo-filter);
 }
 
 /* Mention style */

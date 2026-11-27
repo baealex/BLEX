@@ -448,7 +448,7 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                             >
                                 <Trans id="settings.series.editor.name.label">Series title</Trans>
                             </label>
-                            <div className="relative rounded-lg border border-line bg-surface-elevated px-3 py-3 transition-all duration-150 focus-within:border-line-strong focus-within:ring-2 focus-within:ring-line/70">
+                            <div className="relative rounded-lg border border-line bg-surface-elevated px-3 py-3 transition-all duration-150 focus-within:border-content-hint focus-within:ring-1 focus-within:ring-content-hint">
                                 <input
                                     id="series-name"
                                     type="text"

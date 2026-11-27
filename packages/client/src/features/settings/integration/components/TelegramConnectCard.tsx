@@ -78,7 +78,7 @@ const TelegramConnectCard = ({ botUsername }: TelegramConnectCardProps) => {
                                     href={connectLink.link}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-transparent bg-action px-4.5 py-2 text-sm font-semibold text-content-inverted transition-all ${INTERACTION_DURATION} hover:bg-action-hover focus:outline-none focus:ring-4 focus:ring-action/20 focus:ring-offset-1 active:scale-95 sm:w-auto [@media(pointer:fine)]:min-h-[40px]`}
+                                    className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-transparent bg-action px-4.5 py-2 text-sm font-semibold text-content-inverted transition-all ${INTERACTION_DURATION} hover:bg-action-hover active:scale-95 sm:w-auto [@media(pointer:fine)]:min-h-[40px]`}
                                 >
                                     <Send aria-hidden className="h-4 w-4" />
                                     <Trans id="settings.telegram.connect.open">Connect in Telegram</Trans>

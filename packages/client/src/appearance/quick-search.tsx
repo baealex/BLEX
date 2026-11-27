@@ -1,5 +1,5 @@
 import { ui } from '../i18n/public-ui.js';
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { flushSync } from 'react-dom';
 import { SiteIcon } from './icons.js';
 import { recentSearches, rememberSearch } from './recent-searches.js';
@@ -37,11 +37,16 @@ function resultRows(matches: unknown): SearchRow[] {
 export function QuickSearch() {
     const container = useRef<HTMLDivElement>(null);
     const input = useRef<HTMLInputElement>(null);
-    const list = useRef<HTMLUListElement>(null);
+    const list = useRef<HTMLDivElement>(null);
     const delay = useRef<number | undefined>(undefined);
     const request = useRef<AbortController | undefined>(undefined);
     const [open, setOpen] = useState(false);
     const [selected, setSelected] = useState(-1);
+    // The box is a combobox: arrows move through the list while focus stays in the box, so the box names the
+    // highlighted row for screen readers.
+    const listId = useId();
+    const headingId = useId();
+    const optionId = (index: number) => `${listId}-${index}`;
     const [view, setView] = useState<SearchView>({
         heading: ui('Recent searches'),
         rows: [],
@@ -146,7 +151,7 @@ export function QuickSearch() {
         <div ref={container} className="relative w-full max-w-xs" data-site-search>
             <form
                 action="/search"
-                className="flex h-11 items-center gap-2 rounded-full border border-line bg-surface-elevated px-3 transition-all focus-within:ring-2 focus-within:ring-line-strong"
+                className="flex h-11 items-center gap-2 rounded-full border border-line bg-surface-elevated px-3 transition-all focus-within:ring-2 focus-within:ring-content-hint"
                 onSubmit={() => rememberSearch(query())}
             >
                 <SiteIcon name="search" className="size-4 shrink-0 text-content-hint" />
@@ -157,7 +162,12 @@ export function QuickSearch() {
                     placeholder={ui('Search')}
                     aria-label={ui('Search')}
                     autoComplete="off"
-                    className="min-w-0 flex-1 bg-transparent text-sm text-content placeholder:text-content-hint focus:outline-none"
+                    role="combobox"
+                    aria-autocomplete="list"
+                    aria-expanded={open}
+                    aria-controls={listId}
+                    aria-activedescendant={open && selected >= 0 ? optionId(selected) : undefined}
+                    className="min-w-0 flex-1 bg-transparent text-sm text-content placeholder:text-content-hint focus:outline-hidden"
                     onFocus={suggest}
                     onChange={suggest}
                     onKeyDown={handleKeyDown}
@@ -172,33 +182,43 @@ export function QuickSearch() {
                 data-site-search-panel
             >
                 <p
+                    id={headingId}
                     className="border-b border-line-light px-3 py-2 text-[11px] font-semibold tracking-wider text-content-secondary"
                     data-site-search-heading
                 >
                     {view.heading}
                 </p>
-                <ul ref={list} className="max-h-80 overflow-y-auto p-2" data-site-search-results>
+                <div
+                    ref={list}
+                    id={listId}
+                    role="listbox"
+                    aria-labelledby={headingId}
+                    className="max-h-80 overflow-y-auto p-2 empty:hidden"
+                    data-site-search-results
+                >
                     {view.rows.map(({ href, title, description }, index) => (
-                        <li key={href}>
-                            <a
-                                href={href}
-                                className="blex-quick-search-result block rounded-xl px-3 py-3 text-sm font-semibold text-content hover:bg-surface-subtle"
-                                data-selected={index === selected ? 'true' : undefined}
-                                onClick={() => rememberSearch(query())}
-                            >
-                                {title}
-                                {description ? (
-                                    <span className="mt-0.5 block truncate text-xs font-normal text-content-secondary">
-                                        {description}
-                                    </span>
-                                ) : null}
-                            </a>
-                        </li>
+                        <a
+                            key={href}
+                            href={href}
+                            id={optionId(index)}
+                            role="option"
+                            aria-selected={index === selected}
+                            className="blex-quick-search-result block rounded-xl px-3 py-3 text-sm font-semibold text-content hover:bg-surface-subtle"
+                            onClick={() => rememberSearch(query())}
+                        >
+                            {title}
+                            {description ? (
+                                <span className="mt-0.5 block truncate text-xs font-normal text-content-secondary">
+                                    {description}
+                                </span>
+                            ) : null}
+                        </a>
                     ))}
-                    {view.rows.length === 0 && view.emptyMessage ? (
-                        <li className="px-3 py-6 text-center text-sm text-content-secondary">{view.emptyMessage}</li>
-                    ) : null}
-                </ul>
+                </div>
+                {/* Stays in the page so screen readers hear "Searching…" and the empty result as they change. */}
+                <p role="status" className="px-3 py-6 text-center text-sm text-content-secondary empty:hidden">
+                    {view.rows.length === 0 ? view.emptyMessage : ''}
+                </p>
             </div>
         </div>
     );

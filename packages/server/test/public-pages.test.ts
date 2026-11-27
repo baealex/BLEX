@@ -181,6 +181,9 @@ test('renders the public home, tag cloud, and tag posts from visible published r
   assert.match(secondPage.body, /Archive post/);
   assert.match(secondPage.body, /rel="canonical" href="https:\/\/blog\.example\/\?page=2"/);
   assert.match(secondPage.body, /rel="prev" href="https:\/\/blog\.example\/"/);
+  // The current page is announced, and an arrow with nowhere to go is hidden from screen readers.
+  assert.match(secondPage.body, /<a class="pagination-link" href="[^"]*page=2[^"]*" aria-current="page">2<\/a>/);
+  assert.match(secondPage.body, /<span class="pagination-link" aria-hidden="true">/);
 
   const tags = await app.inject('/tags');
   assert.equal(tags.statusCode, 200, tags.body);
@@ -264,6 +267,12 @@ test('renders author overview and posts and redirects legacy author aliases', as
   assert.doesNotMatch(posts.body, /action="\/like\//);
   assert.doesNotMatch(posts.body, /Public older article|Hidden article|Draft article/);
   assert.match(posts.body, /name="robots" content="noindex,follow"/);
+  // The tag menu is a disclosure of links marking the current choice; the header search is a combobox over its list.
+  assert.match(posts.body, /<a href="\/@writer\/posts\?q=Orion" aria-current="true"/);
+  assert.doesNotMatch(posts.body, /role="option" aria-selected|aria-haspopup="listbox"/);
+  const searchList = posts.body.match(/role="combobox"[^>]*aria-controls="([^"]+)"/)?.[1];
+  assert.ok(searchList);
+  assert.ok(posts.body.includes(`id="${searchList}" role="listbox"`));
 
   const secondPostsPage = await app.inject('/@writer/posts?page=2');
   assert.equal(secondPostsPage.statusCode, 200, secondPostsPage.body);

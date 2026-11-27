@@ -494,7 +494,7 @@ const SeoAeoSetting = () => {
                 className="group overflow-hidden rounded-2xl bg-surface ring-1 ring-line/60"
                 onToggle={(event) => setIsRobotsAdvancedOpen(event.currentTarget.open)}
             >
-                <summary className="flex min-h-20 cursor-pointer list-none items-center gap-4 px-6 py-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-line-strong md:px-8 [&::-webkit-details-marker]:hidden">
+                <summary className="flex min-h-20 cursor-pointer list-none items-center gap-4 px-6 py-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-content md:px-8 [&::-webkit-details-marker]:hidden">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-subtle text-content-secondary">
                         <SlidersHorizontal aria-hidden="true" className="h-5 w-5" />
                     </span>
@@ -533,7 +533,7 @@ const SeoAeoSetting = () => {
                                         key={template.snippet}
                                         type="button"
                                         onClick={() => handleAppendRobotsSnippet(template.snippet)}
-                                        className="min-h-11 rounded-lg border border-line bg-surface-elevated px-3 py-2 text-left transition-colors hover:border-line-strong hover:bg-surface-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-line-strong motion-reduce:transition-none"
+                                        className="min-h-11 rounded-lg border border-line bg-surface-elevated px-3 py-2 text-left transition-colors hover:border-line-strong hover:bg-surface-subtle motion-reduce:transition-none"
                                     >
                                         <span className="block text-xs font-semibold text-content">
                                             {i18n._(template.title)}
@@ -574,7 +574,7 @@ const SeoAeoSetting = () => {
                         </section>
 
                         <details className="group/preview rounded-xl border border-line bg-surface-elevated">
-                            <summary className="flex min-h-11 cursor-pointer list-none items-center gap-3 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-line-strong [&::-webkit-details-marker]:hidden">
+                            <summary className="flex min-h-11 cursor-pointer list-none items-center gap-3 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-content [&::-webkit-details-marker]:hidden">
                                 <span className="min-w-0 flex-1 text-sm font-semibold text-content">
                                     {t({
                                         id: 'settings.seo_aeo.robots.preview_title',
@@ -650,7 +650,7 @@ const SeoAeoSetting = () => {
             </details>
 
             <details className="group overflow-hidden rounded-2xl bg-surface ring-1 ring-line/60">
-                <summary className="flex min-h-20 cursor-pointer list-none items-center gap-4 px-6 py-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-line-strong md:px-8 [&::-webkit-details-marker]:hidden">
+                <summary className="flex min-h-20 cursor-pointer list-none items-center gap-4 px-6 py-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-content md:px-8 [&::-webkit-details-marker]:hidden">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-subtle text-content-secondary">
                         <FileText aria-hidden="true" className="h-5 w-5" />
                     </span>

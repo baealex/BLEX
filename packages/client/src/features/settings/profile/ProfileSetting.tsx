@@ -335,7 +335,7 @@ const ProfileSetting = () => {
                                     <span className="sr-only">
                                         <Trans id="settings.profile.avatar.change">Change profile picture</Trans>
                                     </span>
-                                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-action text-content-inverted shadow-md transition-colors group-hover:bg-action-hover group-focus-within:ring-2 group-focus-within:ring-line-strong group-focus-within:ring-offset-2 group-focus-within:ring-offset-surface sm:h-10 sm:w-10">
+                                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-action text-content-inverted shadow-md transition-colors group-hover:bg-action-hover group-has-[:focus-visible]:ring-2 group-has-[:focus-visible]:ring-content group-has-[:focus-visible]:ring-offset-2 group-has-[:focus-visible]:ring-offset-surface sm:h-10 sm:w-10">
                                         <ImagePlus aria-hidden="true" className="h-4 w-4 sm:h-5 sm:w-5" />
                                     </span>
                                     <input
@@ -391,7 +391,7 @@ const ProfileSetting = () => {
                                 <div className="absolute inset-0 bg-action bg-opacity-0 group-hover:bg-opacity-40 group-focus-within:bg-opacity-40 transition-all duration-200 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 group-focus-within:opacity-100">
                                     <label
                                         htmlFor="cover-input"
-                                        className="px-6 py-3 bg-surface hover:bg-surface-subtle rounded-xl text-sm font-semibold text-content cursor-pointer transition-colors shadow-lg focus-within:ring-2 focus-within:ring-line-strong"
+                                        className="px-6 py-3 bg-surface hover:bg-surface-subtle rounded-xl text-sm font-semibold text-content cursor-pointer transition-colors shadow-lg has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-content"
                                     >
                                         <Trans id="settings.profile.cover.change">Change image</Trans>
                                         <input
@@ -407,7 +407,7 @@ const ProfileSetting = () => {
                         ) : (
                             <label
                                 htmlFor="cover-input-empty"
-                                className="block rounded-2xl focus-within:ring-2 focus-within:ring-line-strong"
+                                className="block rounded-2xl has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-content"
                             >
                                 <div className="aspect-[3/1] w-full rounded-2xl border-2 border-dashed border-line hover:border-line hover:bg-surface-subtle transition-all duration-200 cursor-pointer flex flex-col items-center justify-center gap-3 group">
                                     <ImagePlus

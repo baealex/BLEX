@@ -4,7 +4,7 @@ import { AlertCircle } from './icons';
 import { cx } from '../lib/classnames';
 import { INTERACTION_DURATION } from '../lib/designTokens';
 
-const baseInputStyles = `block w-full rounded-lg border border-line focus:border-line-strong focus:ring-2 focus:ring-line/70 text-sm transition-all ${INTERACTION_DURATION} bg-surface-elevated placeholder:text-content-hint text-content`;
+const baseInputStyles = `block w-full rounded-lg border border-line focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint text-sm transition-all ${INTERACTION_DURATION} bg-surface-elevated placeholder:text-content-hint text-content`;
 
 const inputDensityStyles = {
     default: 'min-h-12 px-3 py-3',
@@ -50,11 +50,9 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
             [ariaDescribedBy, error ? errorId : helperText ? helperId : undefined].filter(Boolean).join(' ') ||
             undefined;
         const errorStyles = error
-            ? 'border-danger-line focus:border-danger focus:ring-danger/20 bg-danger-surface/70'
+            ? 'border-danger-line focus:border-danger focus:ring-danger bg-danger-surface/70'
             : '';
-        const readOnlyStyles = readOnly
-            ? '!bg-surface-subtle !text-content-hint cursor-default focus:!ring-0 focus:!border-line'
-            : '';
+        const readOnlyStyles = readOnly ? '!bg-surface-subtle !text-content-hint cursor-default' : '';
 
         const leftPadding = leftIcon ? 'pl-11' : '';
         const rightPadding = rightIcon ? 'pr-11' : '';

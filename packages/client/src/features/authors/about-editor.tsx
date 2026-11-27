@@ -134,7 +134,7 @@ export function AboutEditor({
                     defaultValue={aboutMarkdown}
                     placeholder={ui('Write your introduction')}
                     aria-label={ui('Bio')}
-                    className="min-h-64 w-full resize-y rounded-xl border border-line bg-surface-subtle p-4 text-sm leading-relaxed text-content placeholder-content-hint focus:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/10"
+                    className="min-h-64 w-full resize-y rounded-xl border border-line bg-surface-subtle p-4 text-sm leading-relaxed text-content placeholder-content-hint focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint"
                 />
                 <div className="mt-4 flex justify-end gap-2">
                     <button
@@ -206,14 +206,14 @@ export function AboutPageEditor({
                 defaultValue={aboutMarkdown}
                 placeholder={ui('Write in Markdown.')}
                 aria-label={ui('Bio')}
-                className="h-64 w-full rounded-lg border border-line p-4 focus:outline-none focus:ring-2 focus:ring-line-strong/70"
+                className="h-64 w-full rounded-lg border border-line p-4 focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint"
             />
             <button
                 type="button"
                 data-about-save=""
                 disabled={saving}
                 onClick={save}
-                className="mt-4 rounded-lg bg-action px-6 py-3 text-content-inverted hover:bg-action-hover focus:outline-none focus:ring-2 focus:ring-line-strong/70 focus:ring-offset-2 disabled:opacity-50"
+                className="mt-4 rounded-lg bg-action px-6 py-3 text-content-inverted hover:bg-action-hover disabled:opacity-50"
             >
                 {saving ? ui('Saving...') : ui('Save')}
             </button>

@@ -97,7 +97,7 @@ export function WorkLogDetailPage({ data, text }: { data: WorkLogDetailData; tex
                                     maxLength={100}
                                     placeholder={ui('Title (optional)')}
                                     defaultValue={text.typedEntryTitle}
-                                    className="min-h-12 w-full rounded-lg border border-line bg-surface px-3 placeholder:text-content-hint"
+                                    className="min-h-12 w-full rounded-lg border border-line bg-surface px-3 placeholder:text-content-hint focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint"
                                 />
                                 <label className="sr-only" htmlFor="entry-text">
                                     {ui('Entry content')}
@@ -109,7 +109,7 @@ export function WorkLogDetailPage({ data, text }: { data: WorkLogDetailData; tex
                                     rows={3}
                                     placeholder={ui('Record what you tried or learned today.')}
                                     defaultValue={text.typedEntryText}
-                                    className="w-full rounded-lg border border-line bg-surface p-3 placeholder:text-content-hint"
+                                    className="w-full rounded-lg border border-line bg-surface p-3 placeholder:text-content-hint focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint"
                                 />
                                 <p id="entry-attachment-help" className="text-sm text-content-secondary">
                                     {ui('Image or video (up to 12 MB)')}
@@ -208,7 +208,7 @@ export function WorkLogDetailPage({ data, text }: { data: WorkLogDetailData; tex
                                                 required
                                                 maxLength={120}
                                                 defaultValue={text.typedHeadline}
-                                                className="mt-2 min-h-12 w-full rounded-lg border border-line bg-surface px-3"
+                                                className="mt-2 min-h-12 w-full rounded-lg border border-line bg-surface px-3 focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint"
                                             />
                                             <fieldset className="mt-5">
                                                 <legend className="text-sm font-medium">

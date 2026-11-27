@@ -1,6 +1,7 @@
 import { ui } from '../../../i18n/public-ui.js';
 import { SiteIcon, type SiteIconName } from '../../../appearance/icons.js';
-import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type RefObject } from 'react';
+import { scrollBehavior } from '../../../lib/motion.js';
+import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent, type RefObject } from 'react';
 import type { CommentPayload } from '@blex/contracts/engagement';
 import {
     appendCommentToTree,
@@ -50,13 +51,13 @@ interface CommentHandlers {
 }
 
 const fieldClass =
-    'w-full resize-none rounded-xl border border-line bg-surface p-5 text-sm leading-relaxed placeholder-content-hint transition-all duration-150 focus:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/10';
+    'w-full resize-none rounded-xl border border-line bg-surface p-5 text-sm leading-relaxed placeholder-content-hint transition-all duration-150 focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint';
 const primaryButton =
     'rounded-lg bg-action px-6 py-2.5 text-sm font-semibold text-content-inverted shadow-sm transition-all duration-150 hover:bg-action-hover hover:shadow-md disabled:cursor-not-allowed disabled:bg-line disabled:text-content-hint';
 const secondaryButton =
     'rounded-lg px-5 py-2.5 text-sm font-semibold text-content transition-all duration-150 hover:bg-surface-subtle disabled:opacity-50';
 const actionButton =
-    'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors duration-150';
+    'touch-target relative inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors duration-150';
 const quietAction = 'text-content-secondary hover:bg-surface-subtle hover:text-content';
 
 const icons = {
@@ -333,6 +334,9 @@ function CommentEditForm({
     );
 }
 
+const menuItemsOf = (menu: HTMLElement | null) =>
+    Array.from(menu?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? []);
+
 function CommentMenu({
     canEdit,
     canDelete,
@@ -346,13 +350,24 @@ function CommentMenu({
 }) {
     const [open, setOpen] = useState(false);
     const root = useRef<HTMLDivElement>(null);
+    const button = useRef<HTMLButtonElement>(null);
+    const menu = useRef<HTMLDivElement>(null);
+    // A menu button: opening moves focus into the menu, arrows move between items, and Esc returns to the button.
+    const focusOnOpen = useRef<'first' | 'last'>('first');
+    const buttonId = useId();
     useEffect(() => {
         if (!open) return;
+        const items = menuItemsOf(menu.current);
+        (focusOnOpen.current === 'last' ? items[items.length - 1] : items[0])?.focus();
+        focusOnOpen.current = 'first';
         const closeOutside = (event: MouseEvent) => {
             if (!root.current?.contains(event.target as Node)) setOpen(false);
         };
         const closeOnEscape = (event: globalThis.KeyboardEvent) => {
-            if (event.key === 'Escape') setOpen(false);
+            if (event.key !== 'Escape') return;
+            const hadFocus = root.current?.contains(document.activeElement);
+            setOpen(false);
+            if (hadFocus) button.current?.focus();
         };
         document.addEventListener('mousedown', closeOutside);
         document.addEventListener('keydown', closeOnEscape);
@@ -361,28 +376,58 @@ function CommentMenu({
             document.removeEventListener('keydown', closeOnEscape);
         };
     }, [open]);
-    const item = 'block w-full px-4 py-2 text-left text-sm transition-colors hover:bg-surface-subtle';
+    const moveFocus = (event: KeyboardEvent<HTMLDivElement>) => {
+        const items = menuItemsOf(menu.current);
+        const index = items.indexOf(document.activeElement as HTMLElement);
+        const target = {
+            ArrowDown: items[(index + 1) % items.length],
+            ArrowUp: items[(index - 1 + items.length) % items.length],
+            Home: items[0],
+            End: items[items.length - 1]
+        }[event.key];
+        if (target) {
+            event.preventDefault();
+            target.focus();
+        } else if (event.key === 'Tab') setOpen(false);
+    };
+    const openFromKeyboard = (event: KeyboardEvent<HTMLButtonElement>) => {
+        if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+        event.preventDefault();
+        focusOnOpen.current = event.key === 'ArrowUp' ? 'last' : 'first';
+        setOpen(true);
+    };
+    // The menu clips its corners, so the focus ring is drawn inside each item.
+    const item =
+        'block w-full px-4 py-2 text-left text-sm transition-colors hover:bg-surface-subtle focus-visible:-outline-offset-2';
     return (
         <div ref={root} className="absolute right-0 top-5 z-10">
             <button
+                ref={button}
+                id={buttonId}
                 type="button"
                 aria-label={ui('Open comment options')}
                 aria-haspopup="menu"
                 aria-expanded={open}
                 onClick={() => setOpen((value) => !value)}
-                className="inline-flex size-8 items-center justify-center rounded-md text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content"
+                onKeyDown={openFromKeyboard}
+                className="touch-target relative inline-flex size-8 items-center justify-center rounded-md text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content"
             >
                 <Icon name="more" className="size-4" />
             </button>
             {open && (
                 <div
+                    ref={menu}
                     role="menu"
+                    tabIndex={-1}
+                    aria-labelledby={buttonId}
+                    onKeyDown={moveFocus}
                     className="absolute right-0 mt-1 w-32 overflow-hidden rounded-lg border border-line bg-surface py-1 shadow-lg"
                 >
                     {canEdit && (
                         <button
                             type="button"
                             role="menuitem"
+                            tabIndex={-1}
                             className={`${item} text-content`}
                             onClick={() => {
                                 setOpen(false);
@@ -396,6 +441,7 @@ function CommentMenu({
                         <button
                             type="button"
                             role="menuitem"
+                            tabIndex={-1}
                             className={`${item} text-danger`}
                             onClick={() => {
                                 setOpen(false);
@@ -681,7 +727,7 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
         setTimeout(() => {
             const rendered = listRef.current?.querySelectorAll('[data-comment-id]');
             rendered?.[rendered.length - 1]?.scrollIntoView({
-                behavior: 'smooth',
+                behavior: scrollBehavior(),
                 block: 'center'
             });
         }, 300);
@@ -904,7 +950,7 @@ export function PostCommentsApp({ model }: { model: PostCommentsModel }) {
                             returnTo={`${model.postPath}#post-comments`}
                             action="comment"
                             aria-label={ui('Sign in to comment')}
-                            className="group flex min-h-28 w-full cursor-pointer flex-col items-start justify-between gap-4 rounded-xl border border-line bg-surface-subtle p-5 text-left transition-all duration-150 hover:border-line-strong hover:bg-surface focus:outline-none focus:ring-2 focus:ring-action/20"
+                            className="group flex min-h-28 w-full cursor-pointer flex-col items-start justify-between gap-4 rounded-xl border border-line bg-surface-subtle p-5 text-left transition-all duration-150 hover:border-line-strong hover:bg-surface"
                         >
                             <span aria-hidden="true" className="text-sm text-content-hint">
                                 {ui('Write a comment…')}

@@ -68,7 +68,7 @@ export function postCardView(
 
 function PostCardLike({ card, likes }: { card: PostCardView; likes?: PostCardLikes }): ReactNode {
     const { liked, likeCount: count } = card;
-    const className = `inline-flex h-7 min-w-[51px] items-center justify-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium transition-all duration-300 active:scale-95 ${
+    const className = `touch-target relative inline-flex h-7 min-w-[51px] items-center justify-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium transition-all duration-300 active:scale-95 ${
         liked
             ? 'border-danger-line bg-danger-surface text-danger'
             : 'border-line bg-surface-elevated text-content-hint hover:border-line-strong hover:bg-surface-subtle hover:text-content-secondary'
@@ -127,7 +127,7 @@ function PostCard({
                 </div>
             ) : null}
             <div className="flex flex-grow flex-col p-5">
-                <h2 className="mb-3 line-clamp-2 text-md font-bold leading-snug text-content">
+                <h2 className="mb-3 line-clamp-2 text-base font-bold leading-snug text-content">
                     <a href={href} className="transition-colors duration-150 hover:text-content-secondary">
                         {card.title}
                     </a>
@@ -150,7 +150,7 @@ function PostCard({
                 <footer className="mt-auto flex items-center justify-between border-t border-line-light pt-4">
                     {author ? (
                         <div className="flex min-w-0 items-center gap-2">
-                            <a href={author.href} className="shrink-0">
+                            <a href={author.href} className="touch-target relative shrink-0">
                                 <img
                                     className="size-6 rounded-full object-cover ring-2 ring-line-light"
                                     src={author.avatar}
@@ -168,10 +168,10 @@ function PostCard({
                     ) : series ? (
                         <a
                             href={series.href}
-                            className="inline-flex max-w-32 items-center truncate rounded-full bg-surface-subtle px-3 py-1.5 text-xs font-semibold text-content transition-all duration-150 hover:bg-line-light"
+                            className="touch-target relative inline-flex max-w-32 items-center whitespace-nowrap rounded-full bg-surface-subtle px-3 py-1.5 text-xs font-semibold text-content transition-all duration-150 hover:bg-line-light"
                         >
                             <SiteIcon name="stack-2" className="mr-1.5" />
-                            <span className="truncate">{series.name}</span>
+                            <span className="min-w-0 truncate">{series.name}</span>
                         </a>
                     ) : (
                         <div />
@@ -319,7 +319,8 @@ export function Pagination({
             key={label}
         >
             {disabled ? (
-                <span className="pagination-link" {...(ariaLabel ? { 'aria-label': ariaLabel } : {})}>
+                // An arrow with nowhere to go is only drawn; the current page is announced instead.
+                <span className="pagination-link" aria-hidden="true">
                     <SiteIcon name={label as SiteIconName} />
                 </span>
             ) : (
@@ -328,6 +329,7 @@ export function Pagination({
                     href={pageUrl(path, search, preserve, targetPage)}
                     rel={rel}
                     aria-label={ariaLabel}
+                    aria-current={active ? 'page' : undefined}
                 >
                     {label.startsWith('chevron') ? <SiteIcon name={label as SiteIconName} /> : label}
                 </a>

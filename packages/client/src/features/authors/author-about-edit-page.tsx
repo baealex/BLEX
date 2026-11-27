@@ -27,7 +27,7 @@ export function AuthorAboutEditPage({
                         <div className="mb-8">
                             <div className="mb-6">
                                 <h1 className="mb-3 text-lg font-bold text-content">{ui('Tell us about yourself.')}</h1>
-                                <p className="text-md text-content-secondary">
+                                <p className="text-base text-content-secondary">
                                     {ui('Write an introduction about yourself.')}
                                 </p>
                             </div>

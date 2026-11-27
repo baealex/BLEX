@@ -393,7 +393,7 @@ const Signup = ({ hcaptchaSiteKey, nextUrl = '', inviteCode }: SignupProps) => {
                                             setUsernameError('');
                                         }
                                     }}
-                                    className="w-full px-4 py-3.5 border border-line rounded-lg focus:ring-4 focus:ring-line/5 focus:border-line-strong/30 text-content placeholder-content-hint transition-all duration-200 bg-surface/40 text-sm font-medium"
+                                    className="w-full px-4 py-3.5 border border-line rounded-lg focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint text-content placeholder-content-hint transition-all duration-200 bg-surface/40 text-sm font-medium"
                                     placeholder={t({
                                         id: 'auth.fields.username_hint',
                                         message: '4–15 lowercase letters or numbers'
@@ -435,7 +435,7 @@ const Signup = ({ hcaptchaSiteKey, nextUrl = '', inviteCode }: SignupProps) => {
                                     aria-describedby={nameError ? 'signup-name-error' : undefined}
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="w-full px-4 py-3.5 border border-line rounded-lg focus:ring-4 focus:ring-line/5 focus:border-line-strong/30 text-content placeholder-content-hint transition-all duration-200 bg-surface/40 text-sm font-medium"
+                                    className="w-full px-4 py-3.5 border border-line rounded-lg focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint text-content placeholder-content-hint transition-all duration-200 bg-surface/40 text-sm font-medium"
                                     placeholder={t({
                                         id: 'auth.fields.display_name_placeholder',
                                         message: 'Enter your display name'
@@ -469,7 +469,7 @@ const Signup = ({ hcaptchaSiteKey, nextUrl = '', inviteCode }: SignupProps) => {
                                     aria-describedby={emailError ? 'signup-email-error' : undefined}
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full px-4 py-3.5 border border-line rounded-lg focus:ring-4 focus:ring-line/5 focus:border-line-strong/30 text-content placeholder-content-hint transition-all duration-200 bg-surface/40 text-sm font-medium"
+                                    className="w-full px-4 py-3.5 border border-line rounded-lg focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint text-content placeholder-content-hint transition-all duration-200 bg-surface/40 text-sm font-medium"
                                     placeholder={t({
                                         id: 'auth.fields.email_placeholder',
                                         message: 'Enter your email address'
@@ -519,7 +519,7 @@ const Signup = ({ hcaptchaSiteKey, nextUrl = '', inviteCode }: SignupProps) => {
                                             setConfirmPasswordError('');
                                         }
                                     }}
-                                    className="w-full px-4 py-3.5 border border-line rounded-lg focus:ring-4 focus:ring-line/5 focus:border-line-strong/30 text-content placeholder-content-hint transition-all duration-200 bg-surface/40 text-sm font-medium"
+                                    className="w-full px-4 py-3.5 border border-line rounded-lg focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint text-content placeholder-content-hint transition-all duration-200 bg-surface/40 text-sm font-medium"
                                     placeholder={t({
                                         id: 'auth.fields.password_new_placeholder',
                                         message: 'Enter a secure password'
@@ -579,7 +579,7 @@ const Signup = ({ hcaptchaSiteKey, nextUrl = '', inviteCode }: SignupProps) => {
                                             setConfirmPasswordError('');
                                         }
                                     }}
-                                    className="w-full px-4 py-3.5 border border-line rounded-lg focus:ring-4 focus:ring-line/5 focus:border-line-strong/30 text-content placeholder-content-hint transition-all duration-200 bg-surface/40 text-sm font-medium"
+                                    className="w-full px-4 py-3.5 border border-line rounded-lg focus:border-content-hint focus:outline-hidden focus:ring-1 focus:ring-content-hint text-content placeholder-content-hint transition-all duration-200 bg-surface/40 text-sm font-medium"
                                     placeholder={t({
                                         id: 'auth.fields.confirm_password_placeholder',
                                         message: 'Enter your password again'

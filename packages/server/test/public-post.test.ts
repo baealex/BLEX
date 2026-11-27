@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
+import { runInNewContext } from 'node:vm';
 import { buildApp } from '../src/app.js';
 import { accountTables, createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
 
@@ -84,6 +85,52 @@ test('serves the shared application entry in read-only mode', async () => {
   assert.match(String(asset.headers['cache-control']), /immutable/);
 });
 
+test('applies the reader theme before the stylesheet paints', async () => {
+  const page = await app.inject('/@writer/public');
+  // A classic script ahead of the stylesheet runs before the first paint; the theme module runs after it.
+  assert.match(
+    page.body,
+    /<script src="\/assets\/blex\/theme-init\.js"><\/script><link rel="stylesheet" href="\/assets\/blex\/theme\.css"/,
+  );
+  const script = await app.inject('/assets/blex/theme-init.js');
+  assert.equal(script.statusCode, 200);
+  assert.match(String(script.headers['content-type']), /javascript/);
+  assert.equal(script.headers['cache-control'], 'no-cache');
+  const run = (cookie: string, systemDark: boolean) => {
+    const root = { dataset: {} as Record<string, string>, style: {} as Record<string, string> };
+    runInNewContext(script.body, {
+      document: { cookie, documentElement: root },
+      matchMedia: (query: string) => ({ matches: systemDark && query === '(prefers-color-scheme: dark)' }),
+    });
+    return [root.dataset.theme, root.style.colorScheme, root.dataset.themePreference];
+  };
+  // The preference stays for the site script, which records it once it runs.
+  assert.deepEqual(run('', true), ['dark', 'dark', undefined]);
+  assert.deepEqual(run('', false), ['light', 'light', undefined]);
+  assert.deepEqual(run('other=1; blex_theme=light', true), ['light', 'light', undefined]);
+  assert.deepEqual(run('blex_theme=dark; other=1', false), ['dark', 'dark', undefined]);
+  assert.deepEqual(run('not_blex_theme=dark', false), ['light', 'light', undefined]);
+});
+
+test('serves Pretendard as pieces that each page downloads for its own text', async () => {
+  const page = await app.inject('/@writer/public');
+  // Moves inside the application keep head links marked data-blex-theme, so the faces stay for the whole visit.
+  assert.match(page.body, /<link rel="stylesheet" href="\/assets\/blex\/fonts\.css" data-blex-theme=""\/>/);
+  const faces = await app.inject('/assets/blex/fonts.css');
+  assert.equal(faces.statusCode, 200);
+  assert.match(String(faces.headers['content-type']), /^text\/css/);
+  assert.equal(faces.headers['cache-control'], 'no-cache');
+  const pieces = [...faces.body.matchAll(/url\((\/assets\/ui\/[^)]+\.woff2)\)/g)].map((match) => match[1]);
+  assert.ok(pieces.length > 50);
+  assert.equal(faces.body.match(/unicode-range:/g)?.length, pieces.length);
+  // Text shows in the system font at once and changes to Pretendard when its piece arrives.
+  assert.equal(faces.body.match(/font-display:swap/g)?.length, pieces.length);
+  const piece = await app.inject(pieces[0]);
+  assert.equal(piece.statusCode, 200);
+  assert.equal(piece.headers['content-type'], 'font/woff2');
+  assert.match(String(piece.headers['cache-control']), /immutable/);
+});
+
 test('does not expose a GraphQL endpoint', async () => {
   for (const url of ['/graphql', '/graphiql']) {
     assert.equal((await app.inject(url)).statusCode, 404, url);
@@ -124,6 +171,11 @@ test('accepts long legacy slugs and renders stored image, video, and supported e
   assert.match(response.body, /<h2 id="section">Section<\/h2>/);
   assert.match(response.body, /<h3 id="같은-제목">같은 제목<\/h3><h3 id="같은-제목-1">같은 제목<\/h3>/);
   assert.match(response.body, /href="#section"[^>]*>Section<\/a>/);
+  // The contents sheet and the mobile menu are named by their headings for screen readers.
+  assert.match(response.body, /<dialog id="post-toc" aria-labelledby="post-toc-title"/);
+  assert.match(response.body, /<h2 id="post-toc-title"/);
+  assert.match(response.body, /<dialog id="blex-mobile-menu" aria-labelledby="blex-mobile-menu-title"/);
+  assert.match(response.body, /id="blex-mobile-menu-title"/);
   assert.match(response.body, /<img[^>]+src="\/resources\/media\/image\.png"[^>]+loading="lazy"/);
   assert.match(response.body, /<source[^>]+src="\/resources\/media\/video\.mp4"/);
   assert.match(response.body, /src="https:\/\/www\.youtube-nocookie\.com\/embed\/Example_01"/);

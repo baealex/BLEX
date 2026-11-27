@@ -43,7 +43,6 @@
         /* Action */
         --color-action: #121212;
         --color-action-hover: #1d1d1f;
-        --color-action-pressed: #000000;
 
         /* States */
         --color-success: #16a34a;
@@ -58,26 +57,11 @@
         --color-danger-surface: #fef2f2;
         --color-danger-line: #fecaca;
 
-        --state-success: #16a34a;
-        --state-success-surface: #f0fdf4;
-        --state-success-line: #bbf7d0;
-        --state-warning: #d97706;
-        --state-warning-surface: #fffbeb;
-        --state-warning-line: #fed7aa;
-        --state-danger: #dc2626;
-        --state-danger-surface: #fef2f2;
-        --state-danger-line: #fecaca;
-
         /* Content accents */
         --color-mention-surface: #eff6ff;
         --color-mention-surface-hover: #dbeafe;
         --color-mention-content: #1d4ed8;
         --color-mention-content-hover: #1e40af;
-
-        --accent-mention-surface: #eff6ff;
-        --accent-mention-surface-hover: #dbeafe;
-        --accent-mention-content: #1d4ed8;
-        --accent-mention-content-hover: #1e40af;
 
         /* Prose */
         --color-prose-link: #2563eb;
@@ -89,7 +73,6 @@
         --color-shadow-sm: rgb(0 0 0 / 0.04);
         --color-shadow-md: rgb(0 0 0 / 0.08);
         --color-shadow-lg: rgb(0 0 0 / 0.12);
-        --color-shadow-xl: rgb(0 0 0 / 0.16);
 
         /* Overlay / Glass */
         --color-dim-soft: rgb(0 0 0 / 0.20);
@@ -97,6 +80,7 @@
         --color-frosted-surface: rgb(255 255 255 / 0.90);
         --color-floating-glass-surface: rgb(255 255 255 / 0.78);
         --color-floating-glass-border: rgb(255 255 255 / 0.58);
+        --color-floating-glass-hover: rgb(0 0 0 / 0.06);
         --blur-frosted: 12px;
         --blur-floating-glass: 10px;
         --shadow-floating-glass: 0 6px 20px rgb(15 23 42 / 0.10);
@@ -114,7 +98,6 @@
         --color-floating-bar-glow: #ffffff;
 
         /* Branding / Media */
-        --logo-filter: none;
         --media-filter: none;
 
         /* Motion */
@@ -170,7 +153,6 @@
          */
         --color-action: #dcdcdc;
         --color-action-hover: #e8e8e8;
-        --color-action-pressed: #c8c8c8;
 
         /* States — subdued for dark surfaces */
         --color-success: #78a982;
@@ -185,26 +167,11 @@
         --color-danger-surface: #281d1d;
         --color-danger-line: #5f3838;
 
-        --state-success: #78a982;
-        --state-success-surface: #1b241d;
-        --state-success-line: #3b5940;
-        --state-warning: #c99a58;
-        --state-warning-surface: #282217;
-        --state-warning-line: #5f4b2d;
-        --state-danger: #e05252;
-        --state-danger-surface: #281d1d;
-        --state-danger-line: #5f3838;
-
         /* Content accents */
         --color-mention-surface: #1a2540;
         --color-mention-surface-hover: #233050;
         --color-mention-content: #90caf9;
         --color-mention-content-hover: #bbdefb;
-
-        --accent-mention-surface: #1a2540;
-        --accent-mention-surface-hover: #233050;
-        --accent-mention-content: #90caf9;
-        --accent-mention-content-hover: #bbdefb;
 
         /* Prose */
         --color-prose-link: #93c5fd;
@@ -216,7 +183,6 @@
         --color-shadow-sm: rgb(0 0 0 / 0.28);
         --color-shadow-md: rgb(0 0 0 / 0.36);
         --color-shadow-lg: rgb(0 0 0 / 0.48);
-        --color-shadow-xl: rgb(0 0 0 / 0.60);
 
         /* Overlay / Glass */
         --color-dim-soft: rgb(0 0 0 / 0.50);
@@ -224,6 +190,7 @@
         --color-frosted-surface: rgb(23 23 23 / 0.88);
         --color-floating-glass-surface: rgb(30 30 30 / 0.80);
         --color-floating-glass-border: rgb(66 66 66 / 0.45);
+        --color-floating-glass-hover: rgb(255 255 255 / 0.09);
         --blur-frosted: 14px;
         --blur-floating-glass: 12px;
         --shadow-floating-glass: 0 8px 24px rgb(0 0 0 / 0.40);
@@ -240,7 +207,6 @@
         --color-floating-bar-glint-end: rgb(255 255 255 / 0.04);
         --color-floating-bar-glow: rgb(255 255 255 / 0.1);
 
-        --logo-filter: invert(1);
         --media-filter: brightness(0.85) saturate(0.92);
 
     }

@@ -38,8 +38,8 @@ const Toggle = ({ checked, onCheckedChange, size = 'md', disabled = false, class
                 "before:absolute before:left-1/2 before:top-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:rounded-full before:content-['']",
                 'transition-transform duration-150 before:transition-colors before:duration-150 active:scale-95',
                 'motion-reduce:transition-none motion-reduce:before:transition-none',
-                'focus:outline-none focus-visible:before:ring-2 focus-visible:before:ring-action/20',
-                'focus-visible:before:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed',
+                'focus:outline-none focus-visible:before:ring-2 focus-visible:before:ring-content',
+                'focus-visible:before:ring-offset-2 focus-visible:before:ring-offset-surface disabled:opacity-50 disabled:cursor-not-allowed',
                 checked ? 'before:bg-action' : 'before:bg-line-strong',
                 className
             )}

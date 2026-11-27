@@ -79,7 +79,7 @@ const Dropdown = ({
                 ) : (
                     <button
                         type="button"
-                        className={`inline-flex items-center justify-center rounded-lg p-2 text-content-secondary outline-none transition-colors hover:bg-surface-subtle hover:text-content focus-visible:ring-2 focus-visible:ring-line-strong focus-visible:ring-offset-2 ${triggerClassName}`}
+                        className={`inline-flex items-center justify-center rounded-lg p-2 text-content-secondary transition-colors hover:bg-surface-subtle hover:text-content ${triggerClassName}`}
                         aria-label={triggerAriaLabel}
                     >
                         <EllipsisVertical aria-hidden="true" className="h-4 w-4" />

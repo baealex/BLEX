@@ -59,7 +59,7 @@ const SettingsListItem = ({ onClick, className, dragHandleProps, left, actions, 
                             <button
                                 type="button"
                                 aria-labelledby={contentId}
-                                className="absolute inset-0 z-10 w-full cursor-pointer rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-line-strong"
+                                className="absolute inset-0 z-10 w-full cursor-pointer rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-content"
                                 onClick={onClick}
                             />
                             {left}

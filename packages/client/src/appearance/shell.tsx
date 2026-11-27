@@ -5,6 +5,8 @@ import { QuickSearch } from './quick-search.js';
 export { SiteIcon };
 
 export const siteStyleHref = '/assets/blex/theme.css';
+/** Pretendard's faces, each covering a set of characters, so a page downloads only the pieces its text uses. */
+export const siteFontHref = '/assets/blex/fonts.css';
 
 interface Brand {
     siteName: string;
@@ -24,7 +26,10 @@ export interface HeaderViewer {
 export function SiteTheme() {
     return (
         <>
+            {/* Blocks parsing for a few lines so the first paint already has the reader's theme. */}
+            <script src="/assets/blex/theme-init.js" />
             <link rel="stylesheet" href={siteStyleHref} data-blex-theme="" />
+            <link rel="stylesheet" href={siteFontHref} data-blex-theme="" />
             <script type="module" src="/assets/blex/theme.js" />
         </>
     );
@@ -56,7 +61,7 @@ function SiteLogo({ brand, small }: { brand?: Brand; small?: boolean }) {
 const iconButton =
     'inline-flex size-11 items-center justify-center rounded-full text-content-secondary transition-all duration-150 hover:bg-surface-subtle hover:text-content active:scale-95 md:size-10';
 const authLink =
-    'inline-flex min-h-9 shrink-0 items-center rounded-full px-4 py-2 text-sm font-medium transition-all duration-150 active:scale-95';
+    'touch-target relative inline-flex min-h-9 shrink-0 items-center rounded-full px-4 py-2 text-sm font-medium transition-all duration-150 active:scale-95';
 
 function ThemeButton({ bordered }: { bordered?: boolean }) {
     return (
@@ -227,12 +232,15 @@ export function SiteHeader({ brand, viewer, searchPage, editorPage, hideAuthLink
             </div>
             <dialog
                 id="blex-mobile-menu"
+                aria-labelledby="blex-mobile-menu-title"
                 className="blex-menu fixed inset-y-0 right-0 left-auto m-0 w-72 max-w-[90vw] bg-surface-elevated p-0 text-content shadow-xl"
                 suppressHydrationWarning
             >
                 <div className="flex h-full flex-col">
                     <div className="flex h-14 shrink-0 items-center justify-between border-b border-line-light px-4">
-                        <span className="text-sm font-semibold text-content">{ui('Menu')}</span>
+                        <span id="blex-mobile-menu-title" className="text-sm font-semibold text-content">
+                            {ui('Menu')}
+                        </span>
                         <form method="dialog">
                             <button type="submit" className={iconButton} aria-label={ui('Close')}>
                                 <SiteIcon name="x" className="text-base" />

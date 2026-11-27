@@ -153,7 +153,7 @@ export const AddPinnedPostModal = ({
                             return (
                                 <label
                                     key={post.url}
-                                    className={`group relative flex w-full cursor-pointer items-center gap-4 rounded-xl border p-4 text-left transition-all duration-150 active:scale-[0.99] focus-within:ring-2 focus-within:ring-action/30 ${
+                                    className={`group relative flex w-full cursor-pointer items-center gap-4 rounded-xl border p-4 text-left transition-all duration-150 active:scale-[0.99] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-content ${
                                         isSelected
                                             ? 'z-10 border-line-strong bg-surface shadow-subtle ring-1 ring-line-strong'
                                             : 'border-line bg-surface hover:border-line-strong hover:shadow-subtle'

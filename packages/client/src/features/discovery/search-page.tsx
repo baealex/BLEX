@@ -10,7 +10,7 @@ function searchForm(query: string, username: string): ReactNode {
     return (
         <form action="/search" method="get">
             {username ? <input type="hidden" name="username" value={username} /> : null}
-            <div className="flex h-12 items-center gap-2 rounded-full border border-line bg-surface px-4 shadow-sm transition-all duration-150 focus-within:ring-2 focus-within:ring-line">
+            <div className="flex h-12 items-center gap-2 rounded-full border border-line bg-surface px-4 shadow-sm transition-all duration-150 focus-within:ring-2 focus-within:ring-content-hint">
                 <SiteIcon name="search" className="text-sm text-content-hint" />
                 <input
                     id="search-query"
@@ -21,7 +21,7 @@ function searchForm(query: string, username: string): ReactNode {
                     aria-label={ui('Search posts')}
                     autoComplete="off"
                     maxLength={100}
-                    className="min-w-0 flex-1 bg-transparent text-sm text-content placeholder:text-content-hint focus:outline-none"
+                    className="min-w-0 flex-1 bg-transparent text-sm text-content placeholder:text-content-hint focus:outline-hidden"
                 />
                 <button
                     type="submit"

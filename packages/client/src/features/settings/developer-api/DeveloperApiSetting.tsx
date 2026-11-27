@@ -57,7 +57,7 @@ const scopeOptions: Array<{
 ];
 
 const headerLinkClassName =
-    'inline-flex min-h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-line-strong bg-surface-elevated px-3 py-1.5 text-xs font-semibold text-content shadow-sm transition-colors hover:border-line hover:bg-surface-subtle focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-line-strong/70 [@media(pointer:fine)]:min-h-9 sm:w-auto';
+    'inline-flex min-h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-line-strong bg-surface-elevated px-3 py-1.5 text-xs font-semibold text-content shadow-sm transition-colors hover:border-line hover:bg-surface-subtle [@media(pointer:fine)]:min-h-9 sm:w-auto';
 
 const isExpired = (token: DeveloperTokenData) =>
     token.expiresAt !== null && new Date(token.expiresAt).getTime() <= Date.now();
@@ -629,7 +629,7 @@ const DeveloperApiSetting = () => {
 
                     {inactiveTokens.length > 0 && (
                         <details className="group border-t border-line pt-3">
-                            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-lg px-2 text-sm font-semibold text-content-secondary transition-colors hover:bg-surface-subtle hover:text-content focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-line-strong [&::-webkit-details-marker]:hidden">
+                            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-lg px-2 text-sm font-semibold text-content-secondary transition-colors hover:bg-surface-subtle hover:text-content [&::-webkit-details-marker]:hidden">
                                 <span>
                                     {i18n._({
                                         id: 'settings.developer_api.inactive.title',

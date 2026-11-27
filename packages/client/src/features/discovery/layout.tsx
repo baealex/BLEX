@@ -1,63 +1,11 @@
 import { getDocumentLocale } from '../../i18n/locale.js';
-import { ui } from '../../i18n/public-ui.js';
 import { Fragment, type ReactNode } from 'react';
-import { SiteFooter, SiteHeader, SiteTheme } from '../../appearance/shell';
+import { SiteHeader, SiteTheme } from '../../appearance/shell';
 import { type ContentMode, pageDataScript, renderApplicationDocument, scriptJson } from '../../application/document';
 import { discoveryPageDataId } from '../../application/route-data';
-import type { PageMeta, SiteBrand } from '@blex/contracts/public';
+import type { PageMeta } from '@blex/contracts/public';
 import { DiscoveryPage } from './discovery-page';
 import type { DiscoveryPageData } from './discovery-page-data';
-
-export function PublicSiteMark({
-    brand,
-    siteName,
-    imageClass
-}: {
-    brand?: SiteBrand;
-    siteName: string;
-    imageClass?: string;
-}): ReactNode {
-    const customLogo = brand?.logoUrl ?? brand?.darkLogoUrl;
-    return (
-        <span className="site-mark">
-            <picture>
-                <source
-                    media="(prefers-color-scheme: dark)"
-                    srcSet={brand?.darkLogoUrl ?? customLogo ?? '/resources/logow.svg'}
-                />
-                <img
-                    className={imageClass}
-                    src={customLogo ?? '/resources/logob.svg'}
-                    alt={customLogo ? siteName : ''}
-                />
-            </picture>
-            {customLogo ? null : <span>{siteName}</span>}
-        </span>
-    );
-}
-
-export function PublicFooterLinks({ brand }: { brand?: SiteBrand }): ReactNode {
-    return (
-        <nav aria-label={ui('About this site')} className="site-footer-links">
-            {(brand?.footerPages ?? []).map(({ slug, title }) => (
-                <a key={slug} href={`/static/${encodeURIComponent(slug)}`}>
-                    {title}
-                </a>
-            ))}
-            <a href="/rss">RSS</a>
-        </nav>
-    );
-}
-
-export function PageLayout({ meta, children }: { meta: PageMeta; children: ReactNode }): string {
-    return renderPublicDocument(
-        meta,
-        <>
-            <main>{children}</main>
-            <SiteFooter brand={meta.brand} />
-        </>
-    );
-}
 
 /** A page that hydrates in the application tree from a JSON script directly under `<body>`. */
 export function renderTreeDocument(meta: PageMeta, page: ReactNode, dataId: string, data: unknown): string {

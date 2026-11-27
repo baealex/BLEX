@@ -3,6 +3,7 @@ import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { formatPublishedDate } from '~/i18n/formatters';
 import { normalizeLocale } from '~/i18n/locale';
 import { searchPosts, type SearchMatchedField, type SearchResult } from '~/lib/api';
+import { scrollBehavior } from '~/lib/motion';
 import { getMediaPath, userResource } from '~/modules/static.module';
 import { logger } from '~/utils/logger';
 import { InlineIcon, Search as SearchIcon, X, AlertCircle, Image } from '~/ui/icons';
@@ -314,7 +315,7 @@ const SearchPage = ({ username }: SearchPageProps) => {
 
         window.scrollTo({
             top: 0,
-            behavior: 'smooth'
+            behavior: scrollBehavior()
         });
     };
 
@@ -370,7 +371,7 @@ const SearchPage = ({ username }: SearchPageProps) => {
                 </h1>
 
                 <form onSubmit={handleSubmit}>
-                    <div className="h-12 px-4 rounded-full border border-line bg-surface shadow-sm flex items-center gap-2 transition-all duration-150 focus-within:ring-2 focus-within:ring-line">
+                    <div className="h-12 px-4 rounded-full border border-line bg-surface shadow-sm flex items-center gap-2 transition-all duration-150 focus-within:ring-2 focus-within:ring-content-hint">
                         {isLoading ? (
                             <div
                                 role="status"

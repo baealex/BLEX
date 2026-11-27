@@ -243,8 +243,8 @@ const ColumnsFloatingMenu = ({ editor }: ColumnsFloatingMenuProps) => {
                                     h-8 px-2.5 rounded-lg flex items-center justify-center gap-1.5 transition-all text-xs font-medium
                                     ${
                                         currentLayout === preset.value
-                                            ? 'bg-gray-900 text-white'
-                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200 active:scale-95'
+                                            ? 'bg-action text-content-inverted'
+                                            : 'bg-floating-glass-hover text-content-secondary hover:text-content active:scale-95'
                                     }
                                 `}
                                 title={preset.label}
@@ -255,7 +255,7 @@ const ColumnsFloatingMenu = ({ editor }: ColumnsFloatingMenuProps) => {
                         ))}
                     </div>
 
-                    <div className="w-px h-5 bg-gray-200" />
+                    <div className="w-px h-5 bg-line" />
 
                     {/* 이동 + 삭제 */}
                     <div className="flex items-center gap-0.5">
@@ -267,8 +267,8 @@ const ColumnsFloatingMenu = ({ editor }: ColumnsFloatingMenuProps) => {
                                 w-7 h-7 rounded-md flex items-center justify-center transition-all
                                 ${
                                     !canMove.up
-                                        ? 'text-gray-300 cursor-not-allowed'
-                                        : 'text-gray-600 hover:bg-gray-100 active:scale-95'
+                                        ? 'text-content-hint opacity-50 cursor-not-allowed'
+                                        : 'text-content-secondary hover:bg-floating-glass-hover hover:text-content active:scale-95'
                                 }
                             `}
                             title={t('columns.move_up')}
@@ -283,8 +283,8 @@ const ColumnsFloatingMenu = ({ editor }: ColumnsFloatingMenuProps) => {
                                 w-7 h-7 rounded-md flex items-center justify-center transition-all
                                 ${
                                     !canMove.down
-                                        ? 'text-gray-300 cursor-not-allowed'
-                                        : 'text-gray-600 hover:bg-gray-100 active:scale-95'
+                                        ? 'text-content-hint opacity-50 cursor-not-allowed'
+                                        : 'text-content-secondary hover:bg-floating-glass-hover hover:text-content active:scale-95'
                                 }
                             `}
                             title={t('columns.move_down')}
@@ -294,7 +294,7 @@ const ColumnsFloatingMenu = ({ editor }: ColumnsFloatingMenuProps) => {
                         <button
                             type="button"
                             onClick={handleDeleteColumns}
-                            className="w-7 h-7 rounded-md flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                            className="w-7 h-7 rounded-md flex items-center justify-center text-content-hint hover:text-danger hover:bg-danger-surface transition-colors"
                             title={t('columns.delete')}
                         >
                             <InlineIcon icon={Trash2} className="text-xs" />
@@ -336,7 +336,7 @@ const LayoutPreview = ({ layout, active }: { layout: ColumnLayout; active: boole
             {columns.map(([position, ratio]) => (
                 <div
                     key={position}
-                    className={`h-full rounded-sm ${active ? 'bg-white/60' : 'bg-gray-400'}`}
+                    className={`h-full rounded-sm ${active ? 'bg-content-inverted/60' : 'bg-content-hint'}`}
                     style={{ width: `${(ratio / total) * 24}px` }}
                 />
             ))}

@@ -125,7 +125,7 @@ const FloatingMenuBar = ({ editor }: FloatingMenuBarProps) => {
                             <InlineIcon icon={Highlighter} className="text-sm" />
                         </ToolbarButton>
 
-                        <div className="w-px bg-gray-300 mx-1" />
+                        <div className="w-px bg-line mx-1" />
 
                         <ToolbarButton
                             onClick={() => {
