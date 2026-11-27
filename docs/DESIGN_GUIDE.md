@@ -9,6 +9,7 @@ This is the design system baseline. Update it only as a deliberate baseline chan
 - Use `bg-surface`, `bg-surface-page`, and `bg-surface-subtle` for hierarchy; `text-content`, `text-content-secondary`, and `text-content-hint` for emphasis.
 - Primary actions use `bg-action`, `text-content-inverted`, and `hover:bg-action-hover`. Reserve success, warning, and danger colors for state.
 - Use readable line heights and structural headings without excessive bold weight.
+- Text uses Pretendard Variable, which BLEX serves itself as Pretendard's dynamic subset: a page downloads only the pieces that hold its characters, and text shows in the system font until they arrive. `packages/client/styles/fonts/pretendard/` holds `pretendardvariable-dynamic-subset.css` and `woff2-dynamic-subset/` from the `pretendard` package's `dist/web/variable`, unchanged, with its license; to update them, copy them again.
 
 ## Spacing and interaction
 

@@ -107,6 +107,15 @@ const budgets = [
         allowedInitialNames: ['styles/main.scss']
     },
     {
+        // Every page asks for this list before it paints; the fonts it names download only for the text shown.
+        entries: ['styles/fonts/pretendard/pretendardvariable-dynamic-subset.css'],
+        label: 'font faces',
+        maxInitialFiles: 1,
+        maxInitialBytes: 56 * 1024,
+        maxInitialGzipBytes: 16 * 1024,
+        allowedInitialNames: ['styles/fonts/pretendard/pretendardvariable-dynamic-subset.css']
+    },
+    {
         entries: publicPageEntries,
         catalogs: publicCatalogs,
         label: 'public page scripts',

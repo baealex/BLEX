@@ -1,7 +1,9 @@
 import fastifyStatic from '@fastify/static';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { fileURLToPath } from 'node:url';
-import { clientAssets, readUiAsset } from './ui-assets.js';
+import { clientAssets, readUiAsset, readUiFile } from './ui-assets.js';
+
+const siteFontEntry = 'styles/fonts/pretendard/pretendardvariable-dynamic-subset.css';
 
 export function registerSiteAssets(app: FastifyInstance) {
   const root = fileURLToPath(new URL('../../../public/', import.meta.url));
@@ -22,6 +24,13 @@ export function registerSiteAssets(app: FastifyInstance) {
       return reply
         .header('Cache-Control', 'no-cache')
         .sendFile(css[0].replace('/assets/ui/', ''), uiRoot, { cacheControl: false });
+    });
+    // Pretendard's faces live apart from the site styles, so a change to those does not download them again.
+    routes.get('/assets/blex/fonts.css', async (_request, reply) => {
+      const href = await readUiFile(siteFontEntry);
+      return reply
+        .header('Cache-Control', 'no-cache')
+        .sendFile(href.replace('/assets/ui/', ''), uiRoot, { cacheControl: false });
     });
     // A classic script the head runs before the first paint, unlike the module below, which runs after it.
     routes.get('/assets/blex/theme-init.js', (_request, reply) =>

@@ -5,6 +5,8 @@ import { QuickSearch } from './quick-search.js';
 export { SiteIcon };
 
 export const siteStyleHref = '/assets/blex/theme.css';
+/** Pretendard's faces, each covering a set of characters, so a page downloads only the pieces its text uses. */
+export const siteFontHref = '/assets/blex/fonts.css';
 
 interface Brand {
     siteName: string;
@@ -27,6 +29,7 @@ export function SiteTheme() {
             {/* Blocks parsing for a few lines so the first paint already has the reader's theme. */}
             <script src="/assets/blex/theme-init.js" />
             <link rel="stylesheet" href={siteStyleHref} data-blex-theme="" />
+            <link rel="stylesheet" href={siteFontHref} data-blex-theme="" />
             <script type="module" src="/assets/blex/theme.js" />
         </>
     );

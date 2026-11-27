@@ -351,7 +351,7 @@ const isolateToasterRenderError = async () => {
         await keepDocumentWhenToastBreaks(profile.bio, 'Typed before the toaster broke', profile.save);
         await expect(page.locator('[data-screen="SettingsApp"]')).toHaveAttribute('data-screen-status', 'mounted');
         // The application still moves between pages.
-        await page.locator('[data-site-header] a[href="/"]').first().click();
+        await page.locator('[data-site-header] a[href="/"]:visible').first().click();
         await expect(page).toHaveURL(`${origin}/`);
         expect(await page.evaluate(() => window.__smokeSameDocument)).toBe(true);
     } finally {
@@ -444,7 +444,7 @@ const keepsApplicationWorking = async () => {
     await page.evaluate(() => {
         window.__smokeSameDocument = true;
     });
-    await page.locator('[data-site-header] a[href="/"]').first().click();
+    await page.locator('[data-site-header] a[href="/"]:visible').first().click();
     await expect(page).toHaveURL(`${origin}/`);
     expect(await page.evaluate(() => window.__smokeSameDocument)).toBe(true);
     expect(await reactRoots()).toBe(1);
@@ -1222,6 +1222,39 @@ const keepThemePreferenceAcrossPages = async () => {
     await page.emulateMedia({ colorScheme: null });
 };
 
+const drawPretendardFromItsPieces = async () => {
+    const pieces = new Set();
+    const record = (response) => {
+        if (/\/PretendardVariable\.subset\.\d+-[^/]+\.woff2$/.test(new URL(response.url()).pathname))
+            pieces.add(response.url());
+    };
+    const pretendardLoaded = () =>
+        page.evaluate(async () => {
+            await document.fonts.ready;
+            return [...document.fonts].some((face) => face.family.includes('Pretendard') && face.status === 'loaded');
+        });
+    page.on('response', record);
+    try {
+        await open('/tags');
+        expect(await pretendardLoaded()).toBe(true);
+        // The list names 92 pieces, and a page downloads only those holding its characters.
+        expect(pieces.size).toBeGreaterThan(0);
+        expect(pieces.size).toBeLessThan(40);
+        await page.evaluate(() => {
+            window.__smokeSameDocument = true;
+        });
+        await page.locator('[data-site-header] a[href="/"]:visible').first().click();
+        await expect(page).toHaveURL(`${origin}/`);
+        await page.waitForLoadState('networkidle');
+        // A move inside the application keeps the faces, so the text never falls back to the system font.
+        expect(await page.evaluate(() => '__smokeSameDocument' in window)).toBe(true);
+        await expect(page.locator('link[href="/assets/blex/fonts.css"]')).toHaveCount(1);
+        expect(await pretendardLoaded()).toBe(true);
+    } finally {
+        page.off('response', record);
+    }
+};
+
 const returnToFragmentPositions = async () => {
     await open('/docs/developer-api/quickstart');
     const top = (id) => page.locator(`#${id}`).evaluate((section) => Math.round(section.getBoundingClientRect().top));
@@ -1366,6 +1399,7 @@ try {
             'theme preference persists across public and settings pages and follows the system when cleared',
             keepThemePreferenceAcrossPages
         ],
+        ['pages draw Pretendard from the pieces their text uses and keep it across moves', drawPretendardFromItsPieces],
         ['invalid screen data fails safely without interpreting names as HTML', rejectInvalidScreenData],
         ['a screen render error leaves the application working', isolateScreenRenderError],
         [

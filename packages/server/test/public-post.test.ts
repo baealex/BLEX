@@ -112,6 +112,25 @@ test('applies the reader theme before the stylesheet paints', async () => {
   assert.deepEqual(run('not_blex_theme=dark', false), ['light', 'light', undefined]);
 });
 
+test('serves Pretendard as pieces that each page downloads for its own text', async () => {
+  const page = await app.inject('/@writer/public');
+  // Moves inside the application keep head links marked data-blex-theme, so the faces stay for the whole visit.
+  assert.match(page.body, /<link rel="stylesheet" href="\/assets\/blex\/fonts\.css" data-blex-theme=""\/>/);
+  const faces = await app.inject('/assets/blex/fonts.css');
+  assert.equal(faces.statusCode, 200);
+  assert.match(String(faces.headers['content-type']), /^text\/css/);
+  assert.equal(faces.headers['cache-control'], 'no-cache');
+  const pieces = [...faces.body.matchAll(/url\((\/assets\/ui\/[^)]+\.woff2)\)/g)].map((match) => match[1]);
+  assert.ok(pieces.length > 50);
+  assert.equal(faces.body.match(/unicode-range:/g)?.length, pieces.length);
+  // Text shows in the system font at once and changes to Pretendard when its piece arrives.
+  assert.equal(faces.body.match(/font-display:swap/g)?.length, pieces.length);
+  const piece = await app.inject(pieces[0]);
+  assert.equal(piece.statusCode, 200);
+  assert.equal(piece.headers['content-type'], 'font/woff2');
+  assert.match(String(piece.headers['cache-control']), /immutable/);
+});
+
 test('does not expose a GraphQL endpoint', async () => {
   for (const url of ['/graphql', '/graphiql']) {
     assert.equal((await app.inject(url)).statusCode, 404, url);

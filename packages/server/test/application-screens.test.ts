@@ -282,6 +282,7 @@ test('serves all stylesheets required by hosted screens', async () => {
       assert.equal(response.statusCode, 200, url);
       const styles = [...response.body.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((match) => match[1]);
       assert.equal(styles.filter((href) => href === '/assets/blex/theme.css').length, 1, url);
+      assert.equal(styles.filter((href) => href === '/assets/blex/fonts.css').length, 1, url);
       assert.ok(styles.includes(documentStyle), url);
       for (const href of styles) {
         const asset = await fixture.app.inject(href);

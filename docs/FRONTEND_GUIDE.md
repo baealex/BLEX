@@ -18,7 +18,7 @@ BLEX renders pages with React on the server and uses a shared TanStack Router ap
 
 The client package produces two builds under `packages/server/dist/`: `client` for the browser, served at `/assets/ui/`, and `ssr` for the views the server renders. The browser build holds the public entry points and the React screens, so screens share one React, Lingui, and TanStack instance with the application. The application entry imports the screen runtime, `src/screen-runtime.tsx`, only on a screen page, and the build stops there when it checks what public pages load. Every module that public pages load keeps the chunk it would have without screens: the build bundles the public entries once on their own, leaving the screen runtime out, and groups modules the same way, and a module that screens share with a page entry or lazy module moves to a shared chunk beside it.
 
-Public pages and React screens share the theme, prose, and syntax styles in `packages/client/src/appearance/`. `packages/client/styles/main.scss` adds screen-document scrolling, media transitions, and print rules.
+Public pages and React screens share the theme, prose, and syntax styles in `packages/client/src/appearance/`. `packages/client/styles/main.scss` adds screen-document scrolling, media transitions, and print rules. Pretendard's faces build from `packages/client/styles/fonts/pretendard/` into a stylesheet of their own, which every page links as `/assets/blex/fonts.css`, so a change to the site styles does not download them again.
 
 ## Routes
 

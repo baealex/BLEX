@@ -60,6 +60,10 @@ const publicEntries = [
 // their catalogs, and React Compiler output, so public pages stop at it.
 const screenEntries = [source('src/screen-runtime.tsx')];
 
+// Pretendard Variable's dynamic subset from the `pretendard` package 1.3.9, copied as published. The server serves it
+// at /assets/blex/fonts.css, apart from the site styles, so it stays cached while those change.
+const siteFontEntry = 'styles/fonts/pretendard/pretendardvariable-dynamic-subset.css';
+
 // Public pages run without React Compiler output, so their modules stay outside it.
 // Mutable shared UI and editor state stay outside it as well.
 const publicSources =
@@ -291,7 +295,7 @@ export default defineConfig({
             // Grouping only the captured modules needs entries that may gain exports.
             preserveEntrySignatures: 'allow-extension',
             treeshake,
-            input: [...publicEntries, source('styles/main.scss')],
+            input: [...publicEntries, source('styles/main.scss'), source(siteFontEntry)],
             output: {
                 codeSplitting: {
                     includeDependenciesRecursively: false,
