@@ -6,6 +6,7 @@ import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
 import { runInNewContext } from 'node:vm';
 import { buildApp } from '../src/app.js';
+import { readSiteStylesheets } from '../src/platform/ui-assets.js';
 import { accountTables, createMigratedTables, migratedTableSql } from './fixtures/migrated-database.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'blex-v4-test-'));
@@ -88,9 +89,9 @@ test('serves the shared application entry in read-only mode', async () => {
 test('applies the reader theme before the stylesheet paints', async () => {
   const page = await app.inject('/@writer/public');
   // A classic script ahead of the stylesheet runs before the first paint; the theme module runs after it.
-  assert.match(
-    page.body,
-    /<script src="\/assets\/blex\/theme-init\.js"><\/script><link rel="stylesheet" href="\/assets\/blex\/theme\.css"/,
+  const { theme } = await readSiteStylesheets();
+  assert.ok(
+    page.body.includes(`<script src="/assets/blex/theme-init.js"></script><link rel="stylesheet" href="${theme}"`),
   );
   const script = await app.inject('/assets/blex/theme-init.js');
   assert.equal(script.statusCode, 200);
@@ -112,14 +113,30 @@ test('applies the reader theme before the stylesheet paints', async () => {
   assert.deepEqual(run('not_blex_theme=dark', false), ['light', 'light', undefined]);
 });
 
-test('serves Pretendard as pieces that each page downloads for its own text', async () => {
+test('links the site stylesheets by the names each build gives them', async () => {
   const page = await app.inject('/@writer/public');
-  // Moves inside the application keep head links marked data-blex-theme, so the faces stay for the whole visit.
-  assert.match(page.body, /<link rel="stylesheet" href="\/assets\/blex\/fonts\.css" data-blex-theme=""\/>/);
-  const faces = await app.inject('/assets/blex/fonts.css');
+  const stylesheets = await readSiteStylesheets();
+  for (const [name, href] of Object.entries(stylesheets)) {
+    assert.match(href, /^\/assets\/ui\/assets\/[^/]+-[\w-]{8}\.css$/, name);
+    // Moves inside the application keep head links marked data-blex-theme, so they stay for the whole visit.
+    assert.ok(page.body.includes(`<link rel="stylesheet" href="${href}" data-blex-theme=""/>`), name);
+    assert.ok(!page.body.includes(`/assets/blex/${name}.css`), name);
+    // A new build names new files, so a cache that keeps one for hours never pairs a page with older styles.
+    const built = await app.inject(href);
+    assert.equal(built.statusCode, 200, name);
+    assert.match(String(built.headers['cache-control']), /immutable/, name);
+    // Documents from an earlier release named the fixed address, which serves the current file.
+    const fixed = await app.inject(`/assets/blex/${name}.css`);
+    assert.equal(fixed.statusCode, 200, name);
+    assert.equal(fixed.headers['cache-control'], 'no-cache', name);
+    assert.equal(fixed.body, built.body, name);
+  }
+});
+
+test('serves Pretendard as pieces that each page downloads for its own text', async () => {
+  const faces = await app.inject((await readSiteStylesheets()).fonts);
   assert.equal(faces.statusCode, 200);
   assert.match(String(faces.headers['content-type']), /^text\/css/);
-  assert.equal(faces.headers['cache-control'], 'no-cache');
   const pieces = [...faces.body.matchAll(/url\((\/assets\/ui\/[^)]+\.woff2)\)/g)].map((match) => match[1]);
   assert.ok(pieces.length > 50);
   assert.equal(faces.body.match(/unicode-range:/g)?.length, pieces.length);
@@ -200,7 +217,7 @@ test('includes the body and share metadata in the initial React HTML response', 
   assert.match(response.body, /<img src="\/resources\/media\/brand\/logo\/default\/hash\/logo\.svg"/);
   assert.match(response.body, /name="robots" content="noindex,nofollow"/);
   assert.match(response.body, /post-cover-split[^\"]*cover-left/);
-  assert.match(response.body, /href="\/assets\/blex\/theme\.css"/);
+  assert.ok(response.body.includes(`href="${(await readSiteStylesheets()).theme}"`));
   assert.match(
     response.body,
     /property="og:image" content="https:\/\/blog\.example\/resources\/media\/images\/cover\.png"/,

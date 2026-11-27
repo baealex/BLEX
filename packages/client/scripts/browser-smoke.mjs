@@ -1248,7 +1248,7 @@ const drawPretendardFromItsPieces = async () => {
         await page.waitForLoadState('networkidle');
         // A move inside the application keeps the faces, so the text never falls back to the system font.
         expect(await page.evaluate(() => '__smokeSameDocument' in window)).toBe(true);
-        await expect(page.locator('link[href="/assets/blex/fonts.css"]')).toHaveCount(1);
+        await expect(page.locator('link[data-blex-theme][href*="/pretendardvariable-dynamic-subset-"]')).toHaveCount(1);
         expect(await pretendardLoaded()).toBe(true);
     } finally {
         page.off('response', record);

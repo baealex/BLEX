@@ -4,9 +4,23 @@ import { QuickSearch } from './quick-search.js';
 
 export { SiteIcon };
 
-export const siteStyleHref = '/assets/blex/theme.css';
-/** Pretendard's faces, each covering a set of characters, so a page downloads only the pieces its text uses. */
-export const siteFontHref = '/assets/blex/fonts.css';
+export interface SiteStylesheets {
+    /** The theme, prose, and syntax styles. */
+    theme: string;
+    /** Pretendard's faces, each covering a set of characters, so a page downloads only the pieces its text uses. */
+    fonts: string;
+}
+
+// The fixed addresses serve the current files. The server swaps in the files' hashed names when it starts.
+const siteStylesheets: SiteStylesheets = { theme: '/assets/blex/theme.css', fonts: '/assets/blex/fonts.css' };
+
+/**
+ * Pages link the stylesheets by the hashed names the build gave them. A new build names new files, so no cache
+ * between the reader and the server, such as a CDN that keeps files for hours, can pair a page with older styles.
+ */
+export function setSiteStylesheets(hrefs: SiteStylesheets): void {
+    Object.assign(siteStylesheets, hrefs);
+}
 
 interface Brand {
     siteName: string;
@@ -28,8 +42,8 @@ export function SiteTheme() {
         <>
             {/* Blocks parsing for a few lines so the first paint already has the reader's theme. */}
             <script src="/assets/blex/theme-init.js" />
-            <link rel="stylesheet" href={siteStyleHref} data-blex-theme="" />
-            <link rel="stylesheet" href={siteFontHref} data-blex-theme="" />
+            <link rel="stylesheet" href={siteStylesheets.theme} data-blex-theme="" />
+            <link rel="stylesheet" href={siteStylesheets.fonts} data-blex-theme="" />
             <script type="module" src="/assets/blex/theme.js" />
         </>
     );
