@@ -85,17 +85,17 @@
         --blur-floating-glass: 10px;
         --shadow-floating-glass: 0 6px 20px rgb(15 23 42 / 0.10);
         --shadow-floating-bar: 0 12px 32px -8px rgb(0 0 0 / 0.16);
-        --color-floating-bar-top: #e5e8ed;
-        --color-floating-bar-middle: #f2f4f7;
+        --color-floating-bar-top: #eceff3;
+        --color-floating-bar-middle: #f5f6f8;
         --color-floating-bar-bottom: #ffffff;
-        --color-floating-bar-rim-top: #cbd0d8;
+        --color-floating-bar-rim-top: #d5d9df;
         --color-floating-bar-rim-bottom: #e8eaee;
-        --color-floating-bar-edge: rgb(30 40 60 / 0.08);
-        --color-floating-bar-rim-light: #ffffff;
-        --color-floating-bar-rim-echo: #ffffff;
-        --color-floating-bar-glint: #ffffff;
-        --color-floating-bar-glint-end: rgb(255 255 255 / 0.35);
-        --color-floating-bar-glow: #ffffff;
+        --color-floating-bar-edge: rgb(30 40 60 / 0.05);
+        --color-floating-bar-rim-light: rgb(255 255 255 / 0.8);
+        --color-floating-bar-rim-echo: rgb(255 255 255 / 0.5);
+        --color-floating-bar-glint: rgb(255 255 255 / 0.7);
+        --color-floating-bar-glint-end: rgb(255 255 255 / 0.15);
+        --color-floating-bar-glow: rgb(255 255 255 / 0.6);
 
         /* Branding / Media */
         --media-filter: none;
@@ -195,17 +195,18 @@
         --blur-floating-glass: 12px;
         --shadow-floating-glass: 0 8px 24px rgb(0 0 0 / 0.40);
         --shadow-floating-bar: 0 12px 32px -8px rgb(0 0 0 / 0.55);
-        --color-floating-bar-top: #1f1f1f;
-        --color-floating-bar-middle: #272727;
-        --color-floating-bar-bottom: #343434;
-        --color-floating-bar-rim-top: #555555;
-        --color-floating-bar-rim-bottom: #333333;
-        --color-floating-bar-edge: rgb(0 0 0 / 0.4);
-        --color-floating-bar-rim-light: rgb(255 255 255 / 0.6);
-        --color-floating-bar-rim-echo: rgb(255 255 255 / 0.28);
-        --color-floating-bar-glint: rgb(255 255 255 / 0.3);
-        --color-floating-bar-glint-end: rgb(255 255 255 / 0.04);
-        --color-floating-bar-glow: rgb(255 255 255 / 0.1);
+        /* On a dark surface a reflection reads as plastic, so only a faint rim at the top catches the light. */
+        --color-floating-bar-top: #252525;
+        --color-floating-bar-middle: #282828;
+        --color-floating-bar-bottom: #2c2c2c;
+        --color-floating-bar-rim-top: #3d3d3d;
+        --color-floating-bar-rim-bottom: #2f2f2f;
+        --color-floating-bar-edge: rgb(0 0 0 / 0.25);
+        --color-floating-bar-rim-light: rgb(255 255 255 / 0.14);
+        --color-floating-bar-rim-echo: transparent;
+        --color-floating-bar-glint: transparent;
+        --color-floating-bar-glint-end: transparent;
+        --color-floating-bar-glow: transparent;
 
         --media-filter: brightness(0.85) saturate(0.92);
 
